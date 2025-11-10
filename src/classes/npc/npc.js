@@ -1,3 +1,4 @@
+import { Relationship, Stat, Gender, PronounSets, Clothing, clamp } from "../../shared/modules.js";
 // --------------------------
 // NPC
 // --------------------------

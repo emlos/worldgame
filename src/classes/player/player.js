@@ -1,5 +1,5 @@
-import { Relationship, Stat, makeFlagSkill, makeMeterSkill} from "./modules.js";
-import { Gender, PronounSets, adjustHexLightness, Clothing, clamp, deepFreeze } from "../../shared/modules.js";
+import {  makeFlagSkill, makeMeterSkill} from "./modules.js";
+import { Relationship, Stat, Gender, PronounSets, adjustHexLightness, Clothing, clamp, deepFreeze } from "../../shared/modules.js";
 
 /*
   Text Adventure Core – Player model (vanilla JS, no build step)
