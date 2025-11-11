@@ -1,4 +1,4 @@
-import { Moon, PlaceNames, WorldTime, buildYearCalendar, ymd, DayKind, Place, Street, Location, StreetNames, Weather } from "./module.js";
+import { Moon, WorldTime, buildYearCalendar, ymd, Place, Street, Location, Weather } from "./module.js";
 import { makeRNG } from "../../shared/modules.js";
 // --------------------------
 // World
@@ -224,3 +224,42 @@ function segmentsIntersect(A, B, C, D) {
 
   return false;
 }
+
+//TODO: street objects, logic etc, this is just placeholder
+const StreetNames = ["Oak St", "River Rd", "Sunset Ave", "King's Way", "Maple Blvd", "Old Mill Rd"];
+
+const PlaceNames = [
+  "Cafe",
+  "Market",
+  "Library",
+  "Park",
+  "Bar",
+  "Gym",
+  "Clinic",
+  "Theater",
+  "Museum",
+  "Corner Store",
+  "Church",
+  "Restaurant",
+  "Train Station",
+  "Salon",
+  "Stadium",
+  "Charity Shop",
+  "Pizzeria",
+  "Police Station",
+  "Fire Department",
+  "Civil Office",
+  "Boulevards",
+  "Primary School of Mayor Brigadier Little",
+  "Middle School no. 1",
+  "St. Genevieves High School",
+  "University of Docktown",
+  "Bus Station",
+  "Town Square",
+  "Fish Market",
+  "Club",
+  "Cinema",
+  "Mechanic",
+];
+
+const DayKind = { WORKDAY: "workday", DAY_OFF: "day off" };

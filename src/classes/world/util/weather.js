@@ -1,4 +1,3 @@
-import { Season, WeatherType } from "../module.js";
 import { makeRNG, approxNormal01, clamp01 } from "../../../shared/modules.js";
 
 // weather.js
@@ -207,3 +206,6 @@ export class Weather {
     return clamp01(Math.min(b + ramp, 0.95));
   }
 }
+
+const WeatherType = { CLEAR: "clear", CLOUDY: "cloudy", RAIN: "rain", STORM: "storm", WINDY: "windy", SNOW: "snow", SUNNY: "sunny" };
+const Season = { WINTER: "winter", SPRING: "spring", SUMMER: "summer", AUTUMN: "autumn" }; 
