@@ -5,6 +5,9 @@
 /** Clamp a number between min and max. */
 export const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
 
+/** clamp number between 0 and 1 */
+export const clamp01 = (v) => Math.max(0, Math.min(1, v)); ;
+
 /** Deep freeze (shallow for arrays/objects inside). */
 export const deepFreeze = (obj) => {
   if (obj && typeof obj === "object" && !Object.isFrozen(obj)) {

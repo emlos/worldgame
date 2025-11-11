@@ -1,5 +1,5 @@
 import { Season, WeatherType } from "../module.js";
-import { makeRNG, approxNormal01 } from "../../../shared/modules.js";
+import { makeRNG, approxNormal01, clamp01 } from "../../../shared/modules.js";
 
 // weather.js
 // Exports ONLY the Weather class (default). No other functions/constants live here.
@@ -116,40 +116,40 @@ export class Weather {
   static _nextWeather(current, season, rnd, hourOfDay = 12, runHours = 0) {
     // Base prevalence by season
     const base = {
-      winter: { clear: 0.12, sunny: 0.06, cloudy: 0.32, rain: 0.08, storm: 0.05, windy: 0.12, snow: 0.25 },
-      spring: { clear: 0.18, sunny: 0.14, cloudy: 0.28, rain: 0.2, storm: 0.05, windy: 0.09, snow: 0.06 },
-      summer: { clear: 0.18, sunny: 0.32, cloudy: 0.22, rain: 0.16, storm: 0.07, windy: 0.05, snow: 0.0 },
-      autumn: { clear: 0.16, sunny: 0.1, cloudy: 0.34, rain: 0.22, storm: 0.06, windy: 0.09, snow: 0.03 },
+      [Season.WINTER]: { [WeatherType.CLEAR]: 0.12, [WeatherType.SUNNY]: 0.06, [WeatherType.CLOUDY]: 0.32, [WeatherType.RAIN]: 0.08, [WeatherType.STORM]: 0.05, [WeatherType.WINDY]: 0.12, [WeatherType.SNOW]: 0.25 },
+      [Season.SPRING]: { [WeatherType.CLEAR]: 0.18, [WeatherType.SUNNY]: 0.14, [WeatherType.CLOUDY]: 0.28, [WeatherType.RAIN]: 0.2, [WeatherType.STORM]: 0.05, [WeatherType.WINDY]: 0.09, [WeatherType.SNOW]: 0.06 },
+      [Season.SUMMER]: { [WeatherType.CLEAR]: 0.18, [WeatherType.SUNNY]: 0.32, [WeatherType.CLOUDY]: 0.22, [WeatherType.RAIN]: 0.16, [WeatherType.STORM]: 0.07, [WeatherType.WINDY]: 0.05, [WeatherType.SNOW]: 0.0 },
+      [Season.AUTUMN]: { [WeatherType.CLEAR]: 0.16, [WeatherType.SUNNY]: 0.1, [WeatherType.CLOUDY]: 0.34, [WeatherType.RAIN]: 0.22, [WeatherType.STORM]: 0.06, [WeatherType.WINDY]: 0.09, [WeatherType.SNOW]: 0.03 },
     }[season];
 
     // “from current → next” biases (no self-edges; persistence added below)
     const tx = {
-      clear: { cloudy: 0.35, sunny: 0.25, windy: 0.15, rain: 0.1, storm: 0.03, snow: 0.0 },
-      sunny: { clear: 0.3, cloudy: 0.3, rain: 0.12, windy: 0.12, storm: 0.04, snow: 0.0 },
-      cloudy: { rain: 0.3, clear: 0.22, sunny: 0.18, windy: 0.12, storm: 0.06, snow: 0.02 },
-      rain: { sunny: 0.28, cloudy: 0.28, clear: 0.18, storm: 0.1, windy: 0.08, snow: 0.0 },
-      storm: { rain: 0.45, cloudy: 0.25, clear: 0.12, windy: 0.1, sunny: 0.06, snow: 0.02 },
-      windy: { clear: 0.28, cloudy: 0.28, rain: 0.18, sunny: 0.14, storm: 0.08, snow: 0.04 },
-      snow: { cloudy: 0.38, clear: 0.22, windy: 0.14, rain: 0.06, storm: 0.05, sunny: 0.05 },
+      [WeatherType.CLEAR]: { [WeatherType.CLOUDY]: 0.35, [WeatherType.SUNNY]: 0.25, [WeatherType.WINDY]: 0.15, [WeatherType.RAIN]: 0.1, [WeatherType.STORM]: 0.03, [WeatherType.SNOW]: 0.0 },
+      [WeatherType.SUNNY]: { [WeatherType.CLEAR]: 0.3, [WeatherType.CLOUDY]: 0.3, [WeatherType.RAIN]: 0.12, [WeatherType.WINDY]: 0.12, [WeatherType.STORM]: 0.04, [WeatherType.SNOW]: 0.0 },
+      [WeatherType.CLOUDY]: { [WeatherType.RAIN]: 0.3, [WeatherType.CLEAR]: 0.22, [WeatherType.SUNNY]: 0.18, [WeatherType.WINDY]: 0.12, [WeatherType.STORM]: 0.06, [WeatherType.SNOW]: 0.02 },
+      [WeatherType.RAIN]: { [WeatherType.SUNNY]: 0.28, [WeatherType.CLOUDY]: 0.28, [WeatherType.CLEAR]: 0.18, [WeatherType.STORM]: 0.1, [WeatherType.WINDY]: 0.08, [WeatherType.SNOW]: 0.0 },
+      [WeatherType.STORM]: { [WeatherType.RAIN]: 0.45, [WeatherType.CLOUDY]: 0.25, [WeatherType.CLEAR]: 0.12, [WeatherType.WINDY]: 0.1, [WeatherType.SUNNY]: 0.06, [WeatherType.SNOW]: 0.02 },
+      [WeatherType.WINDY]: { [WeatherType.CLEAR]: 0.28, [WeatherType.CLOUDY]: 0.28, [WeatherType.RAIN]: 0.18, [WeatherType.SUNNY]: 0.14, [WeatherType.STORM]: 0.08, [WeatherType.SNOW]: 0.04 },
+      [WeatherType.SNOW]: { [WeatherType.CLOUDY]: 0.38, [WeatherType.CLEAR]: 0.22, [WeatherType.WINDY]: 0.14, [WeatherType.RAIN]: 0.06, [WeatherType.STORM]: 0.05, [WeatherType.SUNNY]: 0.05 },
     };
 
     const weights = { ...base };
 
     if (current && tx[current]) {
-      const blend = 1; // higher -> more “use the transition table” vs. season base
+      const tableBlend = 0.1; // how much to favor transition table over season base
       for (const k of Object.keys(weights)) {
         const bias = tx[current][k] || 0;
-        weights[k] = weights[k] * (1 - blend) + bias * blend;
+        weights[k] = weights[k] * (1 - tableBlend) + bias * tableBlend;
       }
     }
 
     // Persistence/self-transition bias (season & state aware)
     if (current) {
       const perSeason = {
-        winter: { clear: 0.3, sunny: 0.2, cloudy: 0.35, rain: 0.25, storm: 0.18, windy: 0.3, snow: 0.45 },
-        spring: { clear: 0.32, sunny: 0.3, cloudy: 0.34, rain: 0.28, storm: 0.16, windy: 0.28, snow: 0.12 },
-        summer: { clear: 0.34, sunny: 0.4, cloudy: 0.3, rain: 0.24, storm: 0.14, windy: 0.26, snow: 0.0 },
-        autumn: { clear: 0.3, sunny: 0.24, cloudy: 0.36, rain: 0.26, storm: 0.16, windy: 0.28, snow: 0.08 },
+        [Season.WINTER]: { [WeatherType.CLEAR]: 0.3, [WeatherType.SUNNY]: 0.2, [WeatherType.CLOUDY]: 0.35, [WeatherType.RAIN]: 0.25, [WeatherType.STORM]: 0.18, [WeatherType.WINDY]: 0.3, [WeatherType.SNOW]: 0.45 },
+        [Season.SPRING]: { [WeatherType.CLEAR]: 0.32, [WeatherType.SUNNY]: 0.3, [WeatherType.CLOUDY]: 0.34, [WeatherType.RAIN]: 0.28, [WeatherType.STORM]: 0.16, [WeatherType.WINDY]: 0.28, [WeatherType.SNOW]: 0.12 },
+        [Season.SUMMER]: { [WeatherType.CLEAR]: 0.34, [WeatherType.SUNNY]: 0.4, [WeatherType.CLOUDY]: 0.3, [WeatherType.RAIN]: 0.24, [WeatherType.STORM]: 0.14, [WeatherType.WINDY]: 0.26, [WeatherType.SNOW]: 0.0 },
+        [Season.AUTUMN]: { [WeatherType.CLEAR]: 0.3, [WeatherType.SUNNY]: 0.24, [WeatherType.CLOUDY]: 0.36, [WeatherType.RAIN]: 0.26, [WeatherType.STORM]: 0.16, [WeatherType.WINDY]: 0.28, [WeatherType.SNOW]: 0.08 },
       }[season];
 
       const persistence = (perSeason && perSeason[current]) != null ? perSeason[current] : 0.25;
@@ -160,22 +160,50 @@ export class Weather {
 
     // Diurnal tweak: midday favors SUNNY/CLEAR; night dampens them
     if (hourOfDay >= 10 && hourOfDay <= 16) {
-      weights.sunny = (weights.sunny || 0) * 1.25;
-      weights.clear = (weights.clear || 0) * 1.1;
+      weights[WeatherType.SUNNY] = (weights[WeatherType.SUNNY] || 0) * 1.25;
+      weights[WeatherType.CLEAR] = (weights[WeatherType.CLEAR] || 0) * 1.1;
     } else if (hourOfDay >= 20 || hourOfDay < 6) {
-      weights.sunny = (weights.sunny || 0) * 0.75;
-      weights.clear = (weights.clear || 0) * 0.9;
+      weights[WeatherType.SUNNY] = (weights[WeatherType.SUNNY] || 0) * 0.75;
+      weights[WeatherType.CLEAR] = (weights[WeatherType.CLEAR] || 0) * 0.9;
     }
 
-    // Normalize & roll
+    // Normalize -> probs
     let total = 0;
     for (const v of Object.values(weights)) total += v;
+    const probs = {};
+    for (const [k, v] of Object.entries(weights)) probs[k] = v / (total || 1);
+
+    // Guarantee at least s probability to stay in the current state.
+    if (current) {
+      const s = Weather._stickiness(current, season, runHours);
+      for (const k of Object.keys(probs)) {
+        if (k === current) probs[k] = probs[k] * (1 - s) + s;
+        else probs[k] = probs[k] * (1 - s);
+      }
+    }
+
+    // Roll on probs
     const roll = rnd();
     let acc = 0;
-    for (const [k, v] of Object.entries(weights)) {
-      acc += v / (total || 1);
+    for (const [k, p] of Object.entries(probs)) {
+      acc += p;
       if (roll <= acc) return k;
     }
     return WeatherType.CLEAR;
+  }
+
+  static _stickiness(current, season, runHours = 0) {
+    // Base stickiness per season/state (tune these to taste)
+    const base = {
+      [Season.WINTER]: { [WeatherType.CLEAR]: 0.3, [WeatherType.SUNNY]: 0.2, [WeatherType.CLOUDY]: 0.35, [WeatherType.RAIN]: 0.25, [WeatherType.STORM]: 0.1, [WeatherType.WINDY]: 0.28, [WeatherType.SNOW]: 0.55 },
+      [Season.SPRING]: { [WeatherType.CLEAR]: 0.3, [WeatherType.SUNNY]: 0.3, [WeatherType.CLOUDY]: 0.32, [WeatherType.RAIN]: 0.26, [WeatherType.STORM]: 0.1, [WeatherType.WINDY]: 0.26, [WeatherType.SNOW]: 0.08 },
+      [Season.SUMMER]: { [WeatherType.CLEAR]: 0.32, [WeatherType.SUNNY]: 0.42, [WeatherType.CLOUDY]: 0.28, [WeatherType.RAIN]: 0.2, [WeatherType.STORM]: 0.08, [WeatherType.WINDY]: 0.22, [WeatherType.SNOW]: 0.0 },
+      [Season.AUTUMN]: { [WeatherType.CLEAR]: 0.28, [WeatherType.SUNNY]: 0.22, [WeatherType.CLOUDY]: 0.34, [WeatherType.RAIN]: 0.24, [WeatherType.STORM]: 0.1, [WeatherType.WINDY]: 0.26, [WeatherType.SNOW]: 0.06 },
+    };
+
+    const b = base[season]?.[current] ?? 0.25;
+    // ramp: each consecutive hour in same weather adds +0.05, capped at +0.30
+    const ramp = Math.min(runHours, 6) * 0.05;
+    return clamp01(Math.min(b + ramp, 0.95));
   }
 }
