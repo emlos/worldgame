@@ -1,30 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Game tests</title>
-    <script>const debug = false</script>
+    <script>
+      const debug = false;
+    </script>
     <script type="module" src="../../src/classes/classes.js"></script>
     <script type="module" src="../../src/data/data.js"></script>
     <script type="module" src="../../src/shared/modules.js"></script>
-</head>
+  </head>
 
-<body>
+  <body>
     <h1>Game tests</h1>
     <h2>Player Tests</h2>
     <ul>
-        <li><a href="./tests/player/player_data_full.html">complete player data display</a></li>
+      <li><a href="./tests/player/player_data_full.html">complete player data display</a></li>
     </ul>
     <h2>NPC Tests</h2>
     <ul>
-        <li><a href="./tests/npc/npc_random_data_full.html">complete random npc data display</a></li>
+      <li><a href="./tests/npc/npc_random_data_full.html">complete random npc data display</a></li>
     </ul>
     <h2>World Tests</h2>
     <ul>
-        <li><a href="./tests/world/world_random_data_full.html">complete world random data display</a></li>
+      <li><a href="./tests/world/world_random_data_full.html">complete world random data display</a></li>
     </ul>
-</body>
 
+    <section id="changelog">
+      <h2>Recent changes</h2>
+      <ul id="commits"></ul>
+    </section>
+
+    <script>
+      (async function () {
+        try {
+          const res = await fetch("./commits.json", { cache: "no-store" });
+          const commits = await res.json();
+          const list = document.getElementById("commits");
+          list.innerHTML = commits
+            .slice(0, 50)
+            .map(
+              (c) => `
+        <li>
+          <a href="https://github.com/OWNER/REPO/commit/${c.sha}">
+            <code>${c.short}</code>
+          </a> — ${c.message}
+          <div style="opacity:.7">${c.author} • ${new Date(c.date).toLocaleString()}</div>
+        </li>
+      `
+            )
+            .join("");
+        } catch (e) {
+          document.getElementById("commits").textContent = "No changelog found.";
+          console.error(e);
+        }
+      })();
+    </script>
+  </body>
 </html>

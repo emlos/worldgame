@@ -1,0 +1,45 @@
+name: Deploy to GitHub Pages
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # important: get full history for git log
+
+      - name: Generate commits.json
+        run: |
+          git log --date=iso8601-strict \
+            --pretty='format:%H%x1f%h%x1f%ad%x1f%an%x1f%s' \
+            -n 200 > commits.tsv
+          awk -F '\x1f' 'BEGIN{print "["} \
+            { gsub(/\\/,"\\\\",$5); gsub(/"/,"\\\"",$5); \
+              printf "%s{\"sha\":\"%s\",\"short\":\"%s\",\"date\":\"%s\",\"author\":\"%s\",\"message\":\"%s\"}", \
+                     (NR==1?"":","), $1,$2,$3,$4,$5 } \
+           END{print "]"}' commits.tsv > commits.json
+          rm commits.tsv
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "." # or your build output dir
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
