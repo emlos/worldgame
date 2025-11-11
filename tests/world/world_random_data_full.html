@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>World Data Full Test</title>
+    <script>
+      const debug = true;
+    </script>
+    <script type="module" src="../../src/classes/classes.js"></script>
+    <script type="module" src="../../src/data/data.js"></script>
+    <script type="module" src="../../src/shared/modules.js"></script>
+  </head>
+  <style>
+    :root {
+      --bg: #0b0d10;
+      --fg: #e6ecf1;
+      --muted: #91a4b1;
+      --card: #11161b;
+      --line: #26323b;
+    }
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font: 14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, "Helvetica Neue", Arial;
+    }
+    .wrap {
+      max-width: 1100px;
+      margin: 32px auto;
+      padding: 0 16px;
+    }
+    h1 {
+      font-size: 20px;
+      margin: 0 0 16px;
+    }
+    h2 {
+      font-size: 16px;
+      margin: 24px 0 8px;
+      color: var(--muted);
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 16px;
+      margin: 12px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th,
+    td {
+      border-top: 1px solid var(--line);
+      padding: 8px 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      font-weight: 600;
+      color: var(--muted);
+    }
+    tr:first-child > th,
+    tr:first-child > td {
+      border-top: 0;
+    }
+    .kv th {
+      width: 220px;
+    }
+    .row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    button {
+      background: #1f2a33;
+      color: var(--fg);
+      border: 1px solid var(--line);
+      padding: 8px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #21323f;
+    }
+    .swatch {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+      border: 1px solid var(--line);
+      vertical-align: middle;
+    }
+    code {
+      background: #0d1216;
+      padding: 2px 6px;
+      border-radius: 6px;
+      border: 1px solid var(--line);
+    }
+    .small {
+      color: var(--muted);
+      font-size: 12px;
+    }
+    img.icon {
+      height: 24px;
+      width: 24px;
+      object-fit: contain;
+      border-radius: 4px;
+      border: 1px solid var(--line);
+      background: #0002;
+    }
+  </style>
+  <body>
+    <h1>Test</h1>
+    <div class="wrap">
+      <h1>World – Debug Tables</h1>
+      <div class="row">
+        <!--add buttons to increment decrement time, jump to certain date/time-->
+        <span class="small" id="status"></span>
+      </div>
+
+      <!--display world info here, replace ids with relevant world infp-->
+      <div class="card" id="time-date"></div>
+      <div class="card" id="weather-season"></div>
+      <div class="card" id="calendar"></div>
+      <div class="card" id="map">
+        <!-- draw a simple svg map with circles as locations, list places on hover-->
+      </div>
+    </div>
+    <script src="./world_random_creation.js"></script>
+  </body>
+</html>
