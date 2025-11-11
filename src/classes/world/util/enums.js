@@ -1,6 +1,6 @@
 export const Season = { WINTER: "winter", SPRING: "spring", SUMMER: "summer", AUTUMN: "autumn" };
-export const Weather = { CLEAR: "clear", CLOUDY: "cloudy", RAIN: "rain", STORM: "storm", WINDY: "windy", SNOW: "snow", SUNNY: "sunny" };
-export const DayKind = { WORKDAY: "workday", DAY_OFF: "day_off" };
+export const WeatherType = { CLEAR: "clear", CLOUDY: "cloudy", RAIN: "rain", STORM: "storm", WINDY: "windy", SNOW: "snow", SUNNY: "sunny" };
+export const DayKind = { WORKDAY: "workday", DAY_OFF: "day off" };
 export const StreetNames = ["Oak St", "River Rd", "Sunset Ave", "King's Way", "Maple Blvd", "Old Mill Rd"];
 export const PlaceNames = [
   "Cafe",

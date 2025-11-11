@@ -1,4 +1,4 @@
-import {PlaceNames, monthToSeason, seasonalTempBand, weatherAdjustment, nextWeather, WorldTime, buildYearCalendar, ymd, Season, Weather, DayKind, Place, Street, Location, StreetNames } from "./module.js";
+import { PlaceNames, WorldTime, buildYearCalendar, ymd, DayKind, Place, Street, Location, StreetNames, Weather } from "./module.js";
 import { makeRNG } from "../../shared/modules.js";
 // --------------------------
 // World
@@ -11,9 +11,13 @@ export class World {
 
     // Time & calendar
     this.time = new WorldTime({ startDate, rnd: this.rnd });
-    this.season = monthToSeason(this.time.date.getMonth() + 1);
-    this.weather = pick(Object.values(Weather), this.rnd);
     this.calendar = buildYearCalendar(this.time.date.getFullYear(), this.rnd);
+
+    this.weather = new Weather({
+      seed: this.seed,
+      startDate: this.time.date,
+      rnd: this.rnd,
+    }); // if you want it to share World’s RNG
 
     // Graph
     this.locations = new Map(); // id -> Location
@@ -22,11 +26,11 @@ export class World {
     this._connectGraph();
 
     // Temperature cache
-    this.temperatureC = this.computeTemperature();
+    this.temperatureC = this.weather.computeTemperature(this.time.date);
   }
 
   // --- World gen ---
-  _generateLocations(n) { 
+  _generateLocations(n) {
     // Place locations on a jittered grid for nice spacing & easy planarity
     const cols = Math.ceil(Math.sqrt(n));
     const rows = Math.ceil(n / cols);
@@ -136,19 +140,6 @@ export class World {
   }
 
   // --- Time & environment ---
-  computeTemperature(date = this.time.date, weather = this.weather) {
-    const season = monthToSeason(date.getMonth() + 1);
-    const [tMin, tMax] = seasonalTempBand(season);
-    // Diurnal cycle: sine from 4am min to 3pm max
-    const h = date.getHours() + date.getMinutes() / 60;
-    const phase = Math.sin(((h - 4) / 24) * Math.PI * 2); // -1..1
-    const mean = tMin + (tMax - tMin) * 0.6; // bias toward upper part for daytime comfort
-    const swing = (tMax - tMin) * 0.5;
-    const temp = mean + swing * phase + weatherAdjustment(weather);
-    // add small daily weather noise
-    const noise = (approxNormal01(this.rnd) - 0.5) * 2; // -1..1
-    return Math.round((temp + noise) * 10) / 10; // 0.1 precision
-  }
 
   getDayInfo(date = this.time.date) {
     const y = date.getFullYear();
@@ -165,18 +156,14 @@ export class World {
   }
 
   advance(minutes) {
-    const crossedMidnight = this.time.advanceMinutes(minutes);
-    // Weather may update hourly
-    if (this.time.date.getMinutes() === 0) {
-      const season = monthToSeason(this.time.date.getMonth() + 1);
-      this.weather = nextWeather(this.weather, season, this.rnd);
-    }
-    this.temperatureC = this.computeTemperature();
+    // Apply all weather transitions for the elapsed time
+    this.weather.step(minutes, this.time.date);
 
-    if (crossedMidnight) {
-      // Day tick: rebuild calendar on new year inside getDayInfo if needed
-      this.season = monthToSeason(this.time.date.getMonth() + 1);
-    }
+    this.time.advanceMinutes(minutes);
+
+    // Recompute temperature at the new time with the latest weather
+    this.temperatureC = this.weather.computeTemperature(this.time.date);
+
   }
 
   // --- Queries ---
@@ -185,6 +172,18 @@ export class World {
   }
   getTravelEdge(fromId, toId) {
     return this.locations.get(fromId)?.neighbors.get(toId) || null;
+  }
+
+  get currentWeather() {
+    return this.weather.kind;
+  }
+
+  get season() {
+    return Weather.monthToSeason(this.time.date.getMonth())
+  }
+
+  get temperature() {
+    return this.temperatureC;
   }
 }
 

@@ -54,7 +54,8 @@ function init() {
     el("button", { id: "tMinus5" }, "-5m"),
     el("button", { id: "tPlus5" }, "+5m"),
     el("button", { id: "tPlus60" }, "+60m"),
-    el("button", { id: "tPlusDay" }, "+1 day")
+    el("button", { id: "tPlusDay" }, "+1 day"),
+    el("button", { id: "tPlusMonth" }, "+1 Month")
   );
 
   const jumper = el(
@@ -101,8 +102,8 @@ function init() {
     const c = byId("weather-season");
     c.innerHTML = "";
     const rows = [
-      ["Weather", `<code>${world.weather}</code>`],
-      ["Temperature", `${world.temperatureC.toFixed(1)} °C`],
+      ["Weather", `<code>${world.currentWeather}</code>`],
+      ["Temperature", `${world.temperature.toFixed(1)} °C`],
       ["Season", `<code>${world.season}</code>`],
     ];
     c.append(el("h2", { html: "Weather & Season" }));
@@ -156,10 +157,10 @@ function init() {
     const ms = mins * 60 * 1000;
     world.time.date = new Date(world.time.date.getTime() - ms);
     world.season = (function monthToSeason(month) {
-      if (month === 12 || month <= 2) return "winter";
-      if (month <= 5) return "spring";
-      if (month <= 8) return "summer";
-      return "autumn";
+      if (month === 12 || month <= 2) return Season.WINTER;
+      if (month <= 5) return Season.SPRING;
+      if (month <= 8) return Season.SUMMER
+      return Season.AUTUMN;
     })(world.time.date.getMonth() + 1);
     world.temperatureC = world.computeTemperature();
     renderAll(`rewound -${mins} minutes`);
@@ -170,7 +171,7 @@ function init() {
     const newDt = new Date(Y, M - 1, D, h, m || 0);
     const prev = world.time.date;
     const diffMin = Math.round((newDt - prev) / 60000);
-
+    if (diffMin == 0) return;
     if (diffMin >= 0) {
       // use forward path for better weather cadence
       world.advance(diffMin);
@@ -186,6 +187,7 @@ function init() {
   byId("tPlus5").addEventListener("click", () => forward(5));
   byId("tPlus60").addEventListener("click", () => forward(60));
   byId("tPlusDay").addEventListener("click", () => forward(24 * 60));
+  byId("tPlusMonth").addEventListener("click", () => forward(24*60*30));
   byId("tMinus5").addEventListener("click", () => backward(5));
   byId("tMinus60").addEventListener("click", () => backward(60));
   byId("doJump").addEventListener("click", () => {
