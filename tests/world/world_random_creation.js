@@ -101,11 +101,21 @@ function init() {
   function renderWeatherSeason() {
     const c = byId("weather-season");
     c.innerHTML = "";
+
+    // NEW: grab detailed moon info (phase + illumination)
+    const mi = world.moonInfo; // { age, fraction, phase, angle }
+
     const rows = [
       ["Weather", `<code>${world.currentWeather}</code>`],
       ["Temperature", `${world.temperature.toFixed(1)} °C`],
       ["Season", `<code>${world.season}</code>`],
+
+      ["Moon phase", `<code>${mi.phase}</code>`],
+      ["Moon illum.", `${Math.round(mi.fraction * 100)} %`],
+      // (Optional) show age in days:
+      ["Moon age", `${mi.age.toFixed(1)} days`],
     ];
+
     c.append(el("h2", { html: "Weather & Season" }));
     c.append(table(rows, ["Property", "Value"]));
   }
@@ -151,20 +161,27 @@ function init() {
     world.advance(mins); // uses World.advance to handle weather ticks & season updates
     renderAll(`advanced +${mins} minutes`);
   }
+
   function backward(mins) {
-    // Simple rewind: directly move the clock back and recompute derived fields.
-    // (Weather transitions are not reversed—fine for a debug view.)
     const ms = mins * 60 * 1000;
     world.time.date = new Date(world.time.date.getTime() - ms);
     world.season = (function monthToSeason(month) {
       if (month === 12 || month <= 2) return Season.WINTER;
       if (month <= 5) return Season.SPRING;
-      if (month <= 8) return Season.SUMMER
+      if (month <= 8) return Season.SUMMER;
       return Season.AUTUMN;
     })(world.time.date.getMonth() + 1);
-    world.temperatureC = world.computeTemperature();
+
+    world.temperatureC = world.weather.computeTemperature();
+
+    // keep moon in lockstep when going backward
+    world.moon.setDate(world.time.date);
+
+    //world.advance(0)
+
     renderAll(`rewound -${mins} minutes`);
   }
+
   function jumpTo(dateStr, timeStr) {
     const [Y, M, D] = dateStr.split("-").map((x) => parseInt(x, 10));
     const [h, m] = timeStr.split(":").map((x) => parseInt(x, 10));
@@ -187,7 +204,7 @@ function init() {
   byId("tPlus5").addEventListener("click", () => forward(5));
   byId("tPlus60").addEventListener("click", () => forward(60));
   byId("tPlusDay").addEventListener("click", () => forward(24 * 60));
-  byId("tPlusMonth").addEventListener("click", () => forward(24*60*30));
+  byId("tPlusMonth").addEventListener("click", () => forward(24 * 60 * 30));
   byId("tMinus5").addEventListener("click", () => backward(5));
   byId("tMinus60").addEventListener("click", () => backward(60));
   byId("doJump").addEventListener("click", () => {

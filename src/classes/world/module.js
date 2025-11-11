@@ -3,6 +3,7 @@ import * as map from "./util/map.js";
 import * as time from "./util/time.js";
 import * as weather from "./util/weather.js";
 import * as enums from "./util/enums.js"
+import * as moon from "./util/moon.js";
 
 
 export * from "./util/calendar.js";
@@ -10,6 +11,7 @@ export * from "./util/map.js";
 export * from "./util/time.js";
 export * from "./util/weather.js";
 export * from "./util/enums.js"
+export * from "./util/moon.js";
 
 
 if (debug) {
@@ -18,6 +20,7 @@ if (debug) {
     ...map,
     ...time,
     ...weather,
-    ...enums
+    ...enums,
+    ...moon,
   });
 }

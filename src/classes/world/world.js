@@ -1,4 +1,4 @@
-import { PlaceNames, WorldTime, buildYearCalendar, ymd, DayKind, Place, Street, Location, StreetNames, Weather } from "./module.js";
+import { Moon, PlaceNames, WorldTime, buildYearCalendar, ymd, DayKind, Place, Street, Location, StreetNames, Weather } from "./module.js";
 import { makeRNG } from "../../shared/modules.js";
 // --------------------------
 // World
@@ -17,7 +17,9 @@ export class World {
       seed: this.seed,
       startDate: this.time.date,
       rnd: this.rnd,
-    }); // if you want it to share World’s RNG
+    });
+
+    this.moon = new Moon({ startDate: this.time.date });
 
     // Graph
     this.locations = new Map(); // id -> Location
@@ -161,9 +163,10 @@ export class World {
 
     this.time.advanceMinutes(minutes);
 
+    this.moon.step(minutes, this.time.date);
+
     // Recompute temperature at the new time with the latest weather
     this.temperatureC = this.weather.computeTemperature(this.time.date);
-
   }
 
   // --- Queries ---
@@ -179,11 +182,18 @@ export class World {
   }
 
   get season() {
-    return Weather.monthToSeason(this.time.date.getMonth())
+    return Weather.monthToSeason(this.time.date.getMonth());
   }
 
   get temperature() {
     return this.temperatureC;
+  }
+
+  get moonPhase() {
+    return this.moon.getPhase();
+  }
+  get moonInfo() {
+    return this.moon.getInfo(this.time.date);
   }
 }
 
