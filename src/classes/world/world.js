@@ -260,6 +260,10 @@ const PlaceNames = [
   "Club",
   "Cinema",
   "Mechanic",
+  "Corner Store",
+  "Mall", 
+  "Apartament Complex" //multiple can exist
+  //more?
 ];
 
 const DayKind = { WORKDAY: "workday", DAY_OFF: "day off" };
