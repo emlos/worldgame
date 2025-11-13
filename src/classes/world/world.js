@@ -1,11 +1,10 @@
-import { Moon, WorldTime, buildYearCalendar, ymd, Place, Street, Location, Weather } from "./module.js";
-import { makeRNG } from "../../shared/modules.js";
+import { Moon, WorldTime, buildYearCalendar, ymd, Street, Weather, PLACE_REGISTRY, generatePlaces, LOCATION_REGISTRY, createLocations } from "./module.js";
 // --------------------------
 // World
 // --------------------------
 
 export class World {
-  constructor({ seed = Date.now(), locationCount = 8, startDate = new Date() } = {}) {
+  constructor({ seed = Date.now(), locationCount = LOCATION_REGISTRY.length, startDate = new Date() } = {}) {
     this.seed = seed;
     this.rnd = makeRNG(seed);
 
@@ -26,6 +25,7 @@ export class World {
     this.edges = []; // list of Street
     this._generateLocations(locationCount);
     this._connectGraph();
+    this._populatePlaces();
 
     // Temperature cache
     this.temperatureC = this.weather.computeTemperature(this.time.date);
@@ -33,27 +33,47 @@ export class World {
 
   // --- World gen ---
   _generateLocations(n) {
-    // Place locations on a jittered grid for nice spacing & easy planarity
+    // 1) Create N locations with districts + tags
+    const locs = createLocations({ count: n, rnd: this.rnd, registry: LOCATION_REGISTRY });
+
+    // 2) Lay them out on a jittered grid for spacing/planarity
     const cols = Math.ceil(Math.sqrt(n));
     const rows = Math.ceil(n / cols);
     const W = 1000,
-      H = 700; // world units (free choice)
+      H = 700;
     const cellW = W / cols,
       cellH = H / rows;
-    let i = 0;
 
+    let i = 0;
     for (let r = 0; r < rows; r++) {
       for (let c = 0; c < cols && i < n; c++, i++) {
         const jitterX = (this.rnd() - 0.5) * cellW * 0.5;
         const jitterY = (this.rnd() - 0.5) * cellH * 0.5;
-        const x = c * cellW + cellW * 0.5 + jitterX;
-        const y = r * cellH + cellH * 0.5 + jitterY;
-
-        const places = Array.from({ length: randInt(1, 3, this.rnd) }, (_, k) => new Place({ id: `${i}-p${k}`, name: pick(PlaceNames, this.rnd) }));
-
-        const loc = new Location({ id: `L${i}`, name: `District ${i + 1}`, places, x, y });
-        this.locations.set(loc.id, loc);
+        locs[i].x = c * cellW + cellW * 0.5 + jitterX;
+        locs[i].y = r * cellH + cellH * 0.5 + jitterY;
+        this.locations.set(locs[i].id, locs[i]);
       }
+    }
+  }
+
+  _populatePlaces() {
+    const ids = [...this.locations.keys()];
+    const neighbors = (locId) => this.locations.get(locId)?.neighbors.keys() || [];
+
+    // We let the generator use BFS hop-distance for minDistance;
+    // pass no `distance` function to fall back to BFS over neighbors.
+    const placed = generatePlaces({
+      locations: ids,
+      getTag: (locId) => this.locations.get(locId)?.tags || [],
+      neighbors,
+      rnd: this.rnd,
+      registry: PLACE_REGISTRY,
+    });
+
+    // attach instances back onto their owning Location
+    for (const p of placed) {
+      const loc = this.locations.get(String(p.locationId));
+      if (loc) (loc.places || (loc.places = [])).push(p);
     }
   }
 
@@ -261,8 +281,8 @@ const PlaceNames = [
   "Cinema",
   "Mechanic",
   "Corner Store",
-  "Mall", 
-  "Apartament Complex" //multiple can exist
+  "Mall",
+  "Apartament Complex", //multiple can exist
   //more?
 ];
 

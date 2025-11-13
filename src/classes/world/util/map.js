@@ -118,10 +118,16 @@ export function generatePlaces({ locations, getTag, neighbors, distance, rnd, re
         continue;
       }
 
+      const locTagsRaw = getTag(loc);
+      const locTags = Array.isArray(locTagsRaw) ? locTagsRaw : [locTagsRaw];
+      const context = { tags: locTags, rnd, index: made, locationId: loc };
+
+      const placeName = typeof def.nameFn === "function" ? def.nameFn(context) : def.label;
+
       const p = new Place({
         id: instanceId(def.key, made, loc),
         key: def.key,
-        name: def.label,
+        name: placeName,
         locationId: loc,
         props: def.props || {},
       });
