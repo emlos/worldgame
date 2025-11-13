@@ -46,22 +46,20 @@ function instanceId(key, idx, locationId) {
   return `${key}#${idx}@${String(locationId)}`;
 }
 
-/**
- * Generate places on the map given a registry and a map interface.
- * Returns an array of Place instances (not yet attached to the map).
- *
- * options:
- * - locations: iterable of location ids/nodes
- * - getTag(loc): => string | string[]
- * - neighbors(loc): => iterable of neighbor ids
- * - distance(a,b,neighbors?): => number  (optional; if missing we BFS using neighbors)
- * - rnd: RNG with next(): number in [0,1)
- * - registry: array of place definitions (default: PLACE_REGISTRY)
- * - targetCounts: optional map { key: count } to force approximate counts for non-unique items.
- *                 If omitted, counts are inferred from location volume & weights.
- */
 export function generatePlaces({ locations, getTag, neighbors, distance, rnd, registry = PLACE_REGISTRY, targetCounts }) {
   const dist = (a, b, nb) => (distance ? distance(a, b) : bfsDistance(a, b, nb || neighbors));
+
+  const maxPlacesPerLocation = 5;
+  const minPlacesPerLocation = 1;
+
+  // Track how many places each location has
+  const locationUsage = new Map();
+  for (const loc of locations) {
+    locationUsage.set(String(loc), 0);
+  }
+
+  // Track global counts per place key
+  const totalByKey = new Map();
 
   // Index candidate locations by allowedTags
   const byTag = new Map();
@@ -74,27 +72,49 @@ export function generatePlaces({ locations, getTag, neighbors, distance, rnd, re
     }
   }
 
-  // Compute desired counts for non-unique places if not provided
+  // --- Compute desired counts per key ---
   const L = Array.from(locations).length;
   const defaultCounts = {};
+
   for (const def of registry) {
     if (def.unique) {
       defaultCounts[def.key] = 1;
     } else {
-      // Heuristic: weight-scaled by map size; tweak as needed in your world.js
+      // base from map size and weight
       const base = Math.max(1, Math.floor((L / 20) * (def.weight || 1)));
       defaultCounts[def.key] = base;
     }
   }
+
   const counts = { ...defaultCounts, ...(targetCounts || {}) };
 
-  const results = [];
-  const placedByKey = new Map(); // key -> placed instances of that key (for spacing between same kind)
-
+  // Respect optional per-definition minCount / maxCount, and treat missing minCount as 1
   for (const def of registry) {
-    const want = counts[def.key] || (def.unique ? 1 : 0);
-    if (want <= 0) continue;
+    const k = def.key;
+    let c = counts[k] ?? 0;
 
+    const min = def.minCount != null ? def.minCount : 1; // default: at least one of each place type
+    c = Math.max(c, min);
+
+    if (def.maxCount != null) c = Math.min(c, def.maxCount);
+    if (def.unique) c = 1;
+
+    counts[k] = c;
+  }
+
+  const results = [];
+  const placedByKey = new Map(); // key -> [Place]
+
+  // Process bus_stop first, then uniques, then others
+  const defs = [...registry];
+  const sortedDefs = defs.sort((a, b) => {
+    const priority = (d) => (d.key === "bus_stop" ? 3 : d.unique ? 2 : 1);
+    return priority(b) - priority(a);
+  });
+
+  // --- Main placement pass ---
+  for (const def of sortedDefs) {
+    // Candidate locations by allowedTags
     const candidates = new Set();
     for (const tag of def.allowedTags || []) {
       const arr = byTag.get(tag);
@@ -103,6 +123,15 @@ export function generatePlaces({ locations, getTag, neighbors, distance, rnd, re
     if (candidates.size === 0) continue;
 
     const candidateList = Array.from(candidates);
+    let want = counts[def.key] || (def.unique ? 1 : 0);
+
+    // Special rule: bus_stop — try to add to every compatible location
+    if (def.key === "bus_stop") {
+      want = candidateList.length;
+    }
+
+    if (want <= 0) continue;
+
     let attempts = 0;
     let made = 0;
     const sameKeyPlaced = placedByKey.get(def.key) || [];
@@ -110,22 +139,30 @@ export function generatePlaces({ locations, getTag, neighbors, distance, rnd, re
     while (made < want && attempts < candidateList.length * 3) {
       attempts++;
 
-      // Random candidate
       const loc = candidateList[(rnd() * candidateList.length) | 0];
+      const locId = String(loc);
 
-      // Enforce spacing among same-key places
+      // per-location max
+      if (locationUsage.get(locId) >= maxPlacesPerLocation) continue;
+
+      // minDistance against same-key places
       if (!isFarEnough(loc, sameKeyPlaced, def.minDistance || 0, neighbors, dist)) {
         continue;
       }
 
       const locTagsRaw = getTag(loc);
       const locTags = Array.isArray(locTagsRaw) ? locTagsRaw : [locTagsRaw];
-      const context = { tags: locTags, rnd, index: made, locationId: loc };
+      const context = {
+        tags: locTags,
+        rnd,
+        index: sameKeyPlaced.length,
+        locationId: loc,
+      };
 
       const placeName = typeof def.nameFn === "function" ? def.nameFn(context) : def.label;
 
       const p = new Place({
-        id: instanceId(def.key, made, loc),
+        id: instanceId(def.key, sameKeyPlaced.length, loc),
         key: def.key,
         name: placeName,
         locationId: loc,
@@ -134,13 +171,70 @@ export function generatePlaces({ locations, getTag, neighbors, distance, rnd, re
 
       results.push(p);
       sameKeyPlaced.push(p);
+      placedByKey.set(def.key, sameKeyPlaced);
+
+      locationUsage.set(locId, (locationUsage.get(locId) || 0) + 1);
+      totalByKey.set(def.key, (totalByKey.get(def.key) || 0) + 1);
+
       made++;
     }
-    placedByKey.set(def.key, sameKeyPlaced);
   }
 
-  // Ensure uniqueness across incompatible keys if you want soft exclusion rules later.
-  // For now, keys are independent except their own minDistance constraint.
+  // --- Fill pass: ensure each location has at least minPlacesPerLocation ---
+  if (minPlacesPerLocation > 0 && maxPlacesPerLocation > 0) {
+    for (const loc of locations) {
+      const locId = String(loc);
+      let used = locationUsage.get(locId) || 0;
+
+      while (used < minPlacesPerLocation && used < maxPlacesPerLocation) {
+        const locTagsRaw = getTag(loc);
+        const locTags = Array.isArray(locTagsRaw) ? locTagsRaw : [locTagsRaw];
+
+        // Allowed types for this location that aren't over their own maxCount
+        const candidates = registry.filter((def) => {
+          if (!(def.allowedTags || []).some((t) => locTags.includes(t))) return false;
+
+          if (def.maxCount != null && (totalByKey.get(def.key) || 0) >= def.maxCount) return false;
+          if (def.unique && (totalByKey.get(def.key) || 0) >= 1) return false;
+
+          const sameKeyPlaced = placedByKey.get(def.key) || [];
+          if (!isFarEnough(loc, sameKeyPlaced, def.minDistance || 0, neighbors, dist)) return false;
+
+          return true;
+        });
+
+        if (candidates.length === 0) break;
+
+        // Prefer bus_stop if allowed
+        const def = candidates.find((d) => d.key === "bus_stop") || candidates[(rnd() * candidates.length) | 0];
+
+        const sameKeyPlaced = placedByKey.get(def.key) || [];
+        const context = {
+          tags: locTags,
+          rnd,
+          index: sameKeyPlaced.length,
+          locationId: loc,
+        };
+        const placeName = typeof def.nameFn === "function" ? def.nameFn(context) : def.label;
+
+        const p = new Place({
+          id: instanceId(def.key, sameKeyPlaced.length, loc),
+          key: def.key,
+          name: placeName,
+          locationId: loc,
+          props: def.props || {},
+        });
+
+        results.push(p);
+        sameKeyPlaced.push(p);
+        placedByKey.set(def.key, sameKeyPlaced);
+
+        locationUsage.set(locId, (locationUsage.get(locId) || 0) + 1);
+        totalByKey.set(def.key, (totalByKey.get(def.key) || 0) + 1);
+        used++;
+      }
+    }
+  }
 
   return results;
 }

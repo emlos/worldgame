@@ -4,7 +4,7 @@ import { Moon, WorldTime, buildYearCalendar, ymd, Street, Weather, PLACE_REGISTR
 // --------------------------
 
 export class World {
-  constructor({ seed = Date.now(), locationCount = LOCATION_REGISTRY.length, startDate = new Date() } = {}) {
+  constructor({ seed = Date.now(), startDate = new Date() } = {}) {
     this.seed = seed;
     this.rnd = makeRNG(seed);
 
@@ -19,6 +19,8 @@ export class World {
     });
 
     this.moon = new Moon({ startDate: this.time.date });
+
+    const locationCount = computeAutoLocationCount(PLACE_REGISTRY);
 
     // Graph
     this.locations = new Map(); // id -> Location
@@ -67,7 +69,7 @@ export class World {
       getTag: (locId) => this.locations.get(locId)?.tags || [],
       neighbors,
       rnd: this.rnd,
-      registry: PLACE_REGISTRY,
+      registry: PLACE_REGISTRY
     });
 
     // attach instances back onto their owning Location
@@ -243,6 +245,22 @@ function segmentsIntersect(A, B, C, D) {
   if (o4 === 0 && _onSeg(C.x, C.y, D.x, D.y, B.x, B.y)) return !(B.x === C.x && B.y === C.y) && !(B.x === D.x && B.y === D.y);
 
   return false;
+}
+
+function computeAutoLocationCount(registry) {
+  let totalMinPlaces = 0;
+
+  for (const def of registry) {
+    // If minCount is explicitly 0, that means "not required".
+    const min = def.minCount != null ? def.minCount : 1;
+    totalMinPlaces += min;
+  }
+
+  // We need enough locations that we can fit all minimum required places
+  const capacityPerLocation = 3;
+  const neededByCapacity = Math.ceil(totalMinPlaces / capacityPerLocation);
+
+  return Math.max(neededByCapacity, 1);
 }
 
 //TODO: street objects, logic etc, this is just placeholder

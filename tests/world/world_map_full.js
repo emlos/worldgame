@@ -9,6 +9,53 @@ function init() {
   // ------- DOM helpers -------
   const byId = (id) => document.getElementById(id);
 
+  // ------- Detail card (location info) -------
+
+  const wrap = document.querySelector(".wrap");
+  if (wrap) {
+    detailCard = document.createElement("div");
+    detailCard.id = "location";
+    detailCard.className = "card";
+    detailCard.innerHTML = `
+        <h2>Location details</h2>
+        <p><small>Click a circle on the map to see its information and places.</small></p>
+      `;
+    wrap.appendChild(detailCard);
+  }
+
+  function renderLocationCard(loc) {
+    if (!detailCard) return;
+
+    if (!loc) {
+      detailCard.innerHTML = `
+        <h2>Location details</h2>
+        <p>No location selected.</p>
+      `;
+      return;
+    }
+
+    const tags = (loc.tags || []).join(", ") || "—";
+    const district = loc.districtKey || "—";
+    const places = loc.places || [];
+
+    const placesHtml = places.length
+      ? `<ul>${places
+          .map((p) => {
+            const icon = p.props && p.props.icon ? p.props.icon + " " : "";
+            const type = p.key ? ` <small>(${p.key})</small>` : "";
+            return `<li>${icon}<strong>${p.name}</strong>${type}</li>`;
+          })
+          .join("")}</ul>`
+      : "<p>No places at this location.</p>";
+
+    detailCard.innerHTML = `
+      <h2>${loc.name}</h2>
+      <p><small>District: ${district}</small></p>
+      <p><small>Tags: ${tags}</small></p>
+      <h3>Places</h3>
+      ${placesHtml}
+    `;
+  }
 
   // ------- Map renderer (SVG grid, no crossing) -------
   function renderMap() {
@@ -72,7 +119,7 @@ function init() {
 
     // --- Target canvas sizing ---
     const margin = 20;
-    const targetHeight = 800; // tweak if you like
+    const targetHeight = 500; // tweak if you like
     const targetWidth = 1000;
 
     const worldW = maxX - minX;
@@ -179,6 +226,12 @@ function init() {
       node.addEventListener("mouseleave", () => {
         hideTip();
         node.setAttribute("fill", "#2d6cdf");
+      });
+
+      // click: show full info in the detail card
+      node.addEventListener("click", () => {
+        hideTip(); // hide the floating tooltip
+        renderLocationCard(loc); // update the side card with full info
       });
 
       // label
