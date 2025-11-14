@@ -4,7 +4,7 @@ import { Moon, WorldTime, buildYearCalendar, ymd, Street, Weather, PLACE_REGISTR
 // --------------------------
 
 export class World {
-  constructor({ seed = Date.now(), startDate = new Date() } = {}) {
+  constructor({ seed = Date.now(), startDate = new Date(), density = 0.25 } = {}) {
     this.seed = seed;
     this.rnd = makeRNG(seed);
 
@@ -20,7 +20,7 @@ export class World {
 
     this.moon = new Moon({ startDate: this.time.date });
 
-    const locationCount = computeAutoLocationCount(PLACE_REGISTRY);
+    const locationCount = computeAutoLocationCount(PLACE_REGISTRY, density);
 
     // Graph
     this.locations = new Map(); // id -> Location
@@ -69,7 +69,7 @@ export class World {
       getTag: (locId) => this.locations.get(locId)?.tags || [],
       neighbors,
       rnd: this.rnd,
-      registry: PLACE_REGISTRY
+      registry: PLACE_REGISTRY,
     });
 
     // attach instances back onto their owning Location
@@ -247,7 +247,11 @@ function segmentsIntersect(A, B, C, D) {
   return false;
 }
 
-function computeAutoLocationCount(registry) {
+function computeAutoLocationCount(registry, density = 0) {
+  // Clamp density defensively
+  const d = Math.max(0, Math.min(1, density ?? 0));
+
+  // --- 1) Compute the absolute minimum required to satisfy all minCount ---
   let totalMinPlaces = 0;
 
   for (const def of registry) {
@@ -258,50 +262,28 @@ function computeAutoLocationCount(registry) {
 
   // We need enough locations that we can fit all minimum required places
   const capacityPerLocation = 3;
-  const neededByCapacity = Math.ceil(totalMinPlaces / capacityPerLocation);
+  const minByCapacity = Math.ceil(totalMinPlaces / capacityPerLocation);
+  const minLocations = Math.max(minByCapacity, 1);
 
-  return Math.max(neededByCapacity, 1);
+  // --- 2) Define an upper bound at density = 1 ---
+  const MAX_LOCATIONS_AT_DENSITY_1 = 50;
+
+  // If the minima already demand more than 50, we can't go lower than that.
+  const maxLocations = Math.max(minLocations, MAX_LOCATIONS_AT_DENSITY_1);
+
+  // --- 3) Interpolate linearly between min and max based on density ---
+  const span = maxLocations - minLocations;
+  if (span <= 0) {
+    // min == max, density doesn't matter
+    return minLocations;
+  }
+
+  // d = 0 → minLocations
+  // d = 1 → maxLocations (≤ 50 unless minima force higher)
+  return Math.round(minLocations + span * d);
 }
 
 //TODO: street objects, logic etc, this is just placeholder
 const StreetNames = ["Oak St", "River Rd", "Sunset Ave", "King's Way", "Maple Blvd", "Old Mill Rd"];
-
-const PlaceNames = [
-  "Cafe",
-  "Market",
-  "Library",
-  "Park",
-  "Bar",
-  "Gym",
-  "Clinic",
-  "Theater",
-  "Museum",
-  "Corner Store",
-  "Church",
-  "Restaurant",
-  "Train Station",
-  "Salon",
-  "Stadium",
-  "Charity Shop",
-  "Pizzeria",
-  "Police Station",
-  "Fire Department",
-  "Civil Office",
-  "Boulevards",
-  "Primary School of Mayor Brigadier Little",
-  "Middle School no. 1",
-  "St. Genevieves High School",
-  "University of Docktown",
-  "Bus Station",
-  "Town Square",
-  "Fish Market",
-  "Club",
-  "Cinema",
-  "Mechanic",
-  "Corner Store",
-  "Mall",
-  "Apartament Complex", //multiple can exist
-  //more?
-];
 
 const DayKind = { WORKDAY: "workday", DAY_OFF: "day off" };

@@ -1,27 +1,23 @@
-function init() {
+function init(locs) {
   // ------- World creation (random but stable per refresh) -------
-  const world = new World({
-    seed: Date.now(),
-    locationCount: 50,
-    startDate: new Date(), // now
-  });
-
-  // ------- DOM helpers -------
-  const byId = (id) => document.getElementById(id);
+  let world;
+  if (locs) {
+    world = new World({
+      seed: Date.now(),
+      density: locs,
+      startDate: new Date(), // now
+    });
+  } else {
+    world = new World({
+      seed: Date.now(),
+      startDate: new Date(), // now
+    });
+  }
 
   // ------- Detail card (location info) -------
 
   const wrap = document.querySelector(".wrap");
-  if (wrap) {
-    detailCard = document.createElement("div");
-    detailCard.id = "location";
-    detailCard.className = "card";
-    detailCard.innerHTML = `
-        <h2>Location details</h2>
-        <p><small>Click a circle on the map to see its information and places.</small></p>
-      `;
-    wrap.appendChild(detailCard);
-  }
+  const detailCard = byId("location");
 
   function renderLocationCard(loc) {
     if (!detailCard) return;
@@ -253,6 +249,23 @@ function init() {
 
   renderMap();
 }
+// ------- DOM helpers -------
+const byId = (id) => document.getElementById(id);
+
+function bindControls() {
+  const slider = byId("densitySlider");
+  const btnGen = byId("btnGenerate");
+
+  btnGen.addEventListener("click", () => {
+    init(parseInt(slider.value / 100));
+  });
+  slider.addEventListener("change", () => {
+    byId("density").innerText = `[${slider.value / 100}]`;
+  });
+}
 
 // ---------- Boot ----------
-window.addEventListener("DOMContentLoaded", init);
+window.addEventListener("DOMContentLoaded", () => {
+  init();
+  bindControls();
+});
