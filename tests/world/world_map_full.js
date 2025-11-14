@@ -260,7 +260,7 @@ function bindControls() {
     init(parseInt(slider.value / 100));
   });
   slider.addEventListener("change", () => {
-    byId("density").innerText = `[${slider.value / 100}]`;
+    byId("density").innerText = `+ ${slider.value}%`;
   });
 }
 

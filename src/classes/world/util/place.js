@@ -38,10 +38,34 @@ export const PLACE_REGISTRY = [
     label: "Civil Office",
 
     minDistance: 8,
-    allowedTags: ["urban_core", "urban", "suburban"],
+    allowedTags: ["urban_core", "urban_center", "urban", "suburban", "suburban_hub"],
     weight: 1,
     props: { icon: "🏛️", category: "civic" },
     nameFn: ({ tags }) => (has(tags, "urban_core") ? "Downtown Civil Office" : "Civil Office"),
+    minCount: 1,
+  },
+  {
+    key: "jail",
+    label: "Jail",
+
+    maxCount: 1,
+    minDistance: 99,
+    allowedTags: ["urban_edge", "industrial", "urban", "rural"],
+    weight: 1,
+    props: { icon: "🚔", category: "safety" },
+    nameFn: ({ rnd }) => `${pick(["City", "County"], rnd)} Jail`,
+    minCount: 1,
+  },
+  {
+    key: "court",
+    label: "Court",
+
+    maxCount: 1,
+    minDistance: 99,
+    allowedTags: ["urban_core", "urban_center", "urban", "suburban_hub"],
+    weight: 1,
+    props: { icon: "⚖️", category: "civic" },
+    nameFn: ({ rnd }) => `${pick(["District", "Municipal", "County"], rnd)} Court`,
     minCount: 1,
   },
   {
@@ -49,21 +73,10 @@ export const PLACE_REGISTRY = [
     label: "Train Station",
     maxCount: 1,
     minDistance: 99,
-    allowedTags: ["urban_edge", "industrial", "suburban_hub", "urban"],
+    allowedTags: ["urban_core", "urban_edge", "industrial", "suburban_hub", "urban"],
     weight: 1,
     props: { icon: "🚉", category: "transport" },
     nameFn: ({ tags }) => (has(tags, "urban_core") ? "Central Station" : "Train Station"),
-    minCount: 1,
-  },
-  {
-    key: "bus_station",
-    label: "Bus Station",
-    maxCount: 1,
-    minDistance: 99,
-    allowedTags: ["urban", "suburban_hub", "urban_core"],
-    weight: 1,
-    props: { icon: "🚏", category: "transport" },
-    nameFn: ({ tags }) => (has(tags, "urban_core") ? "Central Bus Station" : "Bus Station"),
     minCount: 1,
   },
   {
@@ -71,7 +84,7 @@ export const PLACE_REGISTRY = [
     label: "Bus Stop",
 
     minDistance: 2,
-    allowedTags: ["urban_core", "urban", "suburban", "industrial", "commercial", "residential"],
+    allowedTags: ["urban_core", "urban_center", "urban", "suburban", "urban_edge", "industrial", "commercial", "residential", "rural", "parkland"],
     weight: 6,
     props: { icon: "🚌", category: "transport" },
     nameFn: ({ index }) => seqName("Bus Stop", { index }),
@@ -82,10 +95,54 @@ export const PLACE_REGISTRY = [
     label: "Boulevard",
 
     minDistance: 6,
-    allowedTags: ["urban_core", "urban", "commercial"],
+    allowedTags: ["urban_core", "urban_center", "urban", "commercial"],
     weight: 1,
     props: { icon: "🛣️", category: "civic" },
     nameFn: ({ rnd }) => `${pick(["King", "Queen", "Liberty", "Harbor", "Market", "Union", "Elm"], rnd)} Boulevard`,
+    minCount: 1,
+  },
+  {
+    key: "parking_garage",
+    label: "Parking Garage",
+
+    minDistance: 4,
+    allowedTags: ["urban_core", "urban_center", "urban", "commercial", "suburban_hub"],
+    weight: 3,
+    props: { icon: "🅿️", category: "service" },
+    nameFn: ({ rnd }) => `${pick(["Central", "Market", "Harbor", "Union"], rnd)} Parking ${pick(["Garage", "Lot"], rnd)}`,
+    minCount: 1,
+  },
+  {
+    key: "gas_station",
+    label: "Gas Station",
+
+    minDistance: 5,
+    allowedTags: ["urban_edge", "industrial", "urban", "suburban", "suburban_hub", "rural", "commercial", "coastal"],
+    weight: 2,
+    props: { icon: "⛽", category: "service" },
+    nameFn: ({ rnd }) => `${pick(["FuelStop", "Highway", "Harbor"], rnd)} Station`,
+    minCount: 1,
+  },
+  {
+    key: "bank",
+    label: "Bank",
+
+    minDistance: 6,
+    allowedTags: ["urban_core", "urban_center", "urban", "suburban", "suburban_hub", "commercial", "residential"],
+    weight: 2,
+    props: { icon: "🏦", category: "service" },
+    nameFn: ({ rnd }) => `${pick(["First National", "Union", "Harborview"], rnd)} Bank`,
+    minCount: 1,
+  },
+  {
+    key: "post_office",
+    label: "Post Office",
+
+    minDistance: 6,
+    allowedTags: ["urban_core", "urban_center", "urban", "suburban", "suburban_hub", "residential", "rural"],
+    weight: 2,
+    props: { icon: "📮", category: "service" },
+    nameFn: ({ tags }) => (has(tags, "urban_core") ? "Central Post Office" : "Post Office"),
     minCount: 1,
   },
 
@@ -97,7 +154,7 @@ export const PLACE_REGISTRY = [
     label: "Park",
 
     minDistance: 3,
-    allowedTags: ["urban", "suburban", "parkland", "residential", "rural"],
+    allowedTags: ["urban_core", "urban", "suburban", "urban_edge", "parkland", "residential", "rural"],
     weight: 3,
     props: { icon: "🌳", category: "leisure" },
     nameFn: ({ rnd, tags }) => (has(tags, "urban_core") ? `${pick(["Central", "City", "Common"], rnd)} Park` : `${pick(["Maple", "Oak", "Riverside", "West"], rnd)} Park`),
@@ -108,7 +165,7 @@ export const PLACE_REGISTRY = [
     label: "Stadium",
     maxCount: 1,
     minDistance: 99,
-    allowedTags: ["urban_edge", "suburban", "commercial"],
+    allowedTags: ["urban_edge", "urban", "suburban", "commercial", "suburban_hub"],
     weight: 1,
     props: { icon: "🏟️", category: "leisure" },
     nameFn: ({ rnd }) => `${pick(["Riverview", "Summit", "Harbor", "Union"], rnd)} Stadium`,
@@ -119,7 +176,7 @@ export const PLACE_REGISTRY = [
     label: "Theater",
 
     minDistance: 6,
-    allowedTags: ["urban_core", "urban", "historic", "commercial"],
+    allowedTags: ["urban_core", "urban_center", "urban", "historic", "commercial"],
     weight: 1,
     props: { icon: "🎭", category: "culture" },
     nameFn: ({ rnd, tags }) => (has(tags, "historic") ? `${pick(["Imperial", "Bijou", "Majestic"], rnd)} Theater` : "Theater"),
@@ -130,7 +187,7 @@ export const PLACE_REGISTRY = [
     label: "Cinema",
 
     minDistance: 5,
-    allowedTags: ["urban", "suburban", "commercial"],
+    allowedTags: ["urban_center", "urban", "suburban", "commercial", "suburban_hub"],
     weight: 2,
     props: { icon: "🎬", category: "culture" },
     nameFn: ({ rnd }) => `${pick(["Arcadia", "Odeon", "Vista", "Galaxy"], rnd)} Cinema`,
@@ -141,10 +198,21 @@ export const PLACE_REGISTRY = [
     label: "Museum",
 
     minDistance: 12,
-    allowedTags: ["urban_core", "urban", "historic", "tourism"],
+    allowedTags: ["urban_core", "urban_center", "urban", "historic", "tourism"],
     weight: 1,
     props: { icon: "🏛️", category: "culture" },
     nameFn: ({ rnd, tags }) => (has(tags, "coastal") ? `${pick(["Maritime", "Harbor"], rnd)} Museum` : `${pick(["City", "Regional"], rnd)} Museum`),
+    minCount: 1,
+  },
+  {
+    key: "art_gallery",
+    label: "Art Gallery",
+
+    minDistance: 8,
+    allowedTags: ["urban_core", "urban_center", "urban", "historic", "tourism", "education", "commercial"],
+    weight: 1,
+    props: { icon: "🖼️", category: "culture" },
+    nameFn: ({ rnd, tags }) => (has(tags, "historic") || has(tags, "tourism") ? `${pick(["Old Town", "City"], rnd)} Gallery` : `${pick(["Modern", "Riverside"], rnd)} Gallery`),
     minCount: 1,
   },
   {
@@ -152,7 +220,7 @@ export const PLACE_REGISTRY = [
     label: "Library",
 
     minDistance: 6,
-    allowedTags: ["urban", "suburban", "education", "residential"],
+    allowedTags: ["urban_core", "urban_center", "urban", "suburban", "education", "residential"],
     weight: 2,
     props: { icon: "📚", category: "culture" },
     nameFn: ({ rnd }) => `${pick(["Central", "North", "West", "Riverside"], rnd)} Library`,
@@ -163,10 +231,34 @@ export const PLACE_REGISTRY = [
     label: "Club",
 
     minDistance: 5,
-    allowedTags: ["urban_core", "urban", "commercial"],
+    allowedTags: ["urban_core", "urban_center", "urban", "commercial"],
     weight: 2,
     props: { icon: "🎧", category: "leisure" },
     nameFn: ({ rnd }) => `${pick(["Neon", "Pulse", "Echo", "Velvet"], rnd)} Club`,
+    minCount: 1,
+  },
+
+  {
+    key: "playground",
+    label: "Playground",
+
+    minDistance: 2,
+    allowedTags: ["residential", "parkland", "urban", "suburban", "rural"],
+    weight: 3,
+    props: { icon: "👧", category: "leisure" },
+    nameFn: ({ rnd }) => `${pick(["Maple", "Riverside", "Elm", "Sunset"], rnd)} Playground`,
+    minCount: 1,
+  },
+
+  {
+    key: "community_center",
+    label: "Community Center",
+
+    minDistance: 6,
+    allowedTags: ["residential", "urban", "suburban", "urban_edge", "suburban_hub"],
+    weight: 2,
+    props: { icon: "🏠", category: "civic" },
+    nameFn: ({ rnd }) => `${pick(["Riverside", "Northside", "Docktown", "Union"], rnd)} Community Center`,
     minCount: 1,
   },
 
@@ -178,21 +270,21 @@ export const PLACE_REGISTRY = [
     label: "Market",
 
     minDistance: 3,
-    allowedTags: ["urban_core", "urban", "commercial"],
+    allowedTags: ["urban_core", "urban_center", "urban", "commercial", "historic"],
     weight: 2,
     props: { icon: "🧺", category: "commerce" },
     nameFn: ({ rnd, tags }) => (has(tags, "historic") ? `${pick(["Old", "Heritage"], rnd)} Market` : `${pick(["Central", "City"], rnd)} Market`),
     minCount: 1,
   },
   {
-    key: "fish_market",
-    label: "Fish Market",
+    key: "flea_market",
+    label: "Flea Market",
 
-    minDistance: 4,
-    allowedTags: ["coastal", "commercial", "urban"],
-    weight: 2,
-    props: { icon: "🐟", category: "commerce" },
-    nameFn: ({ tags }) => (has(tags, "coastal") ? "Harbor Fish Market" : "Fish Market"),
+    minDistance: 12,
+    allowedTags: ["urban_edge", "suburban", "suburban_hub", "parkland", "rural", "historic", "tourism", "commercial", "industrial"],
+    weight: 1,
+    props: { icon: "🧺", category: "commerce" },
+    nameFn: ({ rnd, tags }) => (has(tags, "historic") ? `${pick(["Old Town", "Vintage"], rnd)} Flea Market` : `${pick(["Harbor", "Riverside", "Sunday"], rnd)} Flea Market`),
     minCount: 1,
   },
   {
@@ -200,7 +292,7 @@ export const PLACE_REGISTRY = [
     label: "Shopping Mall",
     maxCount: 1,
     minDistance: 99,
-    allowedTags: ["commercial", "suburban"],
+    allowedTags: ["commercial", "suburban", "suburban_hub", "urban_edge", "urban"],
     weight: 1,
     props: { icon: "🏬", category: "commerce" },
     nameFn: ({ rnd }) => `${pick(["North", "Harbor", "Grand", "Sunset"], rnd)} Mall`,
@@ -211,7 +303,7 @@ export const PLACE_REGISTRY = [
     label: "Corner Store",
 
     minDistance: 2,
-    allowedTags: ["urban", "suburban", "residential", "commercial"],
+    allowedTags: ["urban_core", "urban_center", "urban", "suburban", "residential", "commercial"],
     weight: 4,
     props: { icon: "🏪", category: "commerce" },
     nameFn: ({ rnd }) => `${pick(["QuickMart", "Stop&Shop", "MiniMart"], rnd)}`,
@@ -222,7 +314,7 @@ export const PLACE_REGISTRY = [
     label: "Restaurant",
 
     minDistance: 2,
-    allowedTags: ["urban", "suburban", "commercial"],
+    allowedTags: ["urban_core", "urban_center", "urban", "suburban", "commercial", "historic", "coastal", "suburban_hub", "residential"],
     weight: 4,
     props: { icon: "🍽️", category: "food" },
     nameFn: ({ rnd }) => `${pick(["Olive Court", "Dockside Grill", "Sunset Table", "Elm Bistro"], rnd)}`,
@@ -233,7 +325,7 @@ export const PLACE_REGISTRY = [
     label: "Pizzeria",
 
     minDistance: 2,
-    allowedTags: ["urban", "suburban", "commercial", "residential"],
+    allowedTags: ["urban_core", "urban_center", "urban", "suburban", "commercial", "residential"],
     weight: 3,
     props: { icon: "🍕", category: "food" },
     nameFn: ({ rnd }) => `${pick(["Tony's", "Mama Mia", "Brick Oven", "Harbor Slice"], rnd)} Pizzeria`,
@@ -244,7 +336,7 @@ export const PLACE_REGISTRY = [
     label: "Cafe",
 
     minDistance: 2,
-    allowedTags: ["urban_core", "urban", "suburban", "education", "commercial", "residential"],
+    allowedTags: ["urban_core", "urban_center", "urban", "suburban", "education", "commercial", "residential"],
     weight: 5,
     props: { icon: "☕", category: "food" },
     nameFn: ({ rnd, tags }) => `${pick(has(tags, "education") ? ["Campus", "Quad", "Student"] : ["Central", "Riverside", "Market"], rnd)} Cafe`,
@@ -255,10 +347,33 @@ export const PLACE_REGISTRY = [
     label: "Bar",
 
     minDistance: 2,
-    allowedTags: ["urban_core", "urban", "suburban", "commercial"],
+    allowedTags: ["urban_core", "urban_center", "urban", "suburban", "commercial"],
     weight: 4,
     props: { icon: "🍺", category: "food" },
     nameFn: ({ rnd }) => `${pick(["The Anchor", "The Fox", "The Lantern", "The Brass Rail"], rnd)}`,
+    minCount: 1,
+  },
+
+  {
+    key: "bakery",
+    label: "Bakery",
+
+    minDistance: 2,
+    allowedTags: ["urban_core", "urban_center", "urban", "suburban", "residential", "commercial", "rural", "historic"],
+    weight: 3,
+    props: { icon: "🥐", category: "food" },
+    nameFn: ({ rnd, tags }) => (has(tags, "historic") ? `${pick(["Old Town", "Heritage"], rnd)} Bakery` : `${pick(["Sunrise", "Maple", "Riverside"], rnd)} Bakery`),
+    minCount: 1,
+  },
+  {
+    key: "butcher",
+    label: "Butcher's",
+
+    minDistance: 3,
+    allowedTags: ["urban_center", "urban", "suburban", "residential", "commercial", "rural", "historic"],
+    weight: 2,
+    props: { icon: "🥩", category: "food" },
+    nameFn: ({ rnd, tags }) => (has(tags, "historic") ? `${pick(["Old Town", "Market"], rnd)} Butcher` : `${pick(["Prime Cuts", "Riverside", "Maple"], rnd)} Butcher`),
     minCount: 1,
   },
 
@@ -270,7 +385,7 @@ export const PLACE_REGISTRY = [
     label: "Clinic",
 
     minDistance: 5,
-    allowedTags: ["urban", "suburban", "residential"],
+    allowedTags: ["urban_center", "urban", "suburban", "urban_edge", "residential", "rural"],
     weight: 2,
     props: { icon: "🏥", category: "service" },
     nameFn: ({ rnd }) => `${pick(["Riverside", "Northside", "Elm"], rnd)} Clinic`,
@@ -281,10 +396,32 @@ export const PLACE_REGISTRY = [
     label: "Hospital",
     maxCount: 1,
     minDistance: 99,
-    allowedTags: ["urban", "urban_core", "suburban"],
+    allowedTags: ["urban_core", "urban_center", "urban", "urban_edge", "suburban", "suburban_hub"],
     weight: 1,
     props: { icon: "🏥", category: "service" },
     nameFn: ({ rnd }) => `${pick(["St. Genevieve", "General", "Memorial"], rnd)} Hospital`,
+    minCount: 1,
+  },
+  {
+    key: "pharmacy",
+    label: "Pharmacy",
+
+    minDistance: 3,
+    allowedTags: ["urban_core", "urban_center", "urban", "suburban", "suburban_hub", "residential", "commercial"],
+    weight: 3,
+    props: { icon: "💊", category: "service" },
+    nameFn: ({ rnd }) => `${pick(["City", "Riverside", "Elm", "Union"], rnd)} Pharmacy`,
+    minCount: 1,
+  },
+  {
+    key: "doctors_office",
+    label: "Doctor's Office",
+
+    minDistance: 4,
+    allowedTags: ["urban_center", "urban", "suburban", "suburban_hub", "residential", "rural", "parkland"],
+    weight: 2,
+    props: { icon: "🩺", category: "service" },
+    nameFn: ({ rnd }) => `${pick(["Riverside", "Elm Street", "Maple"], rnd)} Medical`,
     minCount: 1,
   },
   {
@@ -292,10 +429,21 @@ export const PLACE_REGISTRY = [
     label: "Gym",
 
     minDistance: 3,
-    allowedTags: ["urban", "suburban", "residential", "commercial"],
+    allowedTags: ["urban_core", "urban_center", "urban", "suburban", "residential", "commercial"],
     weight: 2,
     props: { icon: "🏋️", category: "service" },
     nameFn: ({ rnd }) => `${pick(["Ironworks", "Pulse", "Forge", "AnyGym"], rnd)} Gym`,
+    minCount: 1,
+  },
+  {
+    key: "swimming_pool",
+    label: "Swimming Pool",
+
+    minDistance: 8,
+    allowedTags: ["urban_center", "urban", "suburban", "parkland", "residential", "education"],
+    weight: 2,
+    props: { icon: "🏊", category: "leisure" },
+    nameFn: ({ rnd }) => `${pick(["Community", "Northside", "Riverside"], rnd)} Pool`,
     minCount: 1,
   },
   {
@@ -303,7 +451,7 @@ export const PLACE_REGISTRY = [
     label: "Salon",
 
     minDistance: 2,
-    allowedTags: ["urban", "suburban", "residential", "commercial"],
+    allowedTags: ["urban_core", "urban_center", "urban", "suburban", "residential", "commercial"],
     weight: 3,
     props: { icon: "💇", category: "service" },
     nameFn: ({ rnd }) => `${pick(["Velvet", "Luxe", "Glow", "ClipJoint"], rnd)} Salon`,
@@ -314,7 +462,7 @@ export const PLACE_REGISTRY = [
     label: "Church",
 
     minDistance: 12,
-    allowedTags: ["urban", "suburban", "historic", "residential"],
+    allowedTags: ["urban_center", "urban", "suburban", "historic", "residential", "rural"],
     weight: 1,
     props: { icon: "⛪", category: "service" },
     nameFn: ({ rnd }) => `${pick(["St. Genevieve", "All Saints", "Trinity", "Grace"], rnd)} Church`,
@@ -322,17 +470,17 @@ export const PLACE_REGISTRY = [
   },
 
   // ────────────────────────────
-  // EDUCATION (specific names you gave)
+  // EDUCATION/CAREER
   // ────────────────────────────
   {
     key: "primary_school",
     label: "Primary School",
 
     minDistance: 8,
-    allowedTags: ["urban", "suburban", "residential"],
+    allowedTags: ["urban", "suburban", "urban_edge", "residential", "rural"],
     weight: 2,
     props: { icon: "🏫", category: "education" },
-    nameFn: ({ rnd }) => `${pick(["Primary School of Mayor Brigadier Little", "Elm Primary School", "Maple Primary"], rnd)}`,
+    nameFn: ({ rnd }) => `${pick(["Elm Primary School", "Maple Primary"], rnd)}`,
     minCount: 1,
   },
   {
@@ -340,10 +488,10 @@ export const PLACE_REGISTRY = [
     label: "Middle School",
 
     minDistance: 10,
-    allowedTags: ["urban", "suburban", "residential"],
+    allowedTags: ["urban", "suburban", "urban_edge", "residential", "rural"],
     weight: 2,
     props: { icon: "🏫", category: "education" },
-    nameFn: () => "Middle School no. 1",
+    nameFn: ({ rnd }) => `Middle School no. ${pick([1, 2, 3, 4, 5, 6, 7, 8, 9], rnd)}`,
     minCount: 1,
   },
   {
@@ -351,7 +499,7 @@ export const PLACE_REGISTRY = [
     label: "High School",
 
     minDistance: 16,
-    allowedTags: ["urban", "suburban"],
+    allowedTags: ["urban", "suburban", "urban_edge", "suburban_hub", "residential"],
     weight: 1,
     props: { icon: "🏫", category: "education" },
     nameFn: ({ rnd }) => `${pick(["St. Genevieve's High School", "Riverside High", "Docktown High"], rnd)}`,
@@ -362,10 +510,21 @@ export const PLACE_REGISTRY = [
     label: "University",
     maxCount: 1,
     minDistance: 99,
-    allowedTags: ["education", "urban", "suburban"],
+    allowedTags: ["education", "urban_core", "urban_center", "urban", "suburban", "suburban_hub", "dense"],
     weight: 1,
     props: { icon: "🎓", category: "education" },
     nameFn: () => "University of Docktown",
+    minCount: 1,
+  },
+  {
+    key: "office_block",
+    label: "Office Block",
+
+    minDistance: 4,
+    allowedTags: ["urban_core", "urban_center", "urban", "commercial", "dense"],
+    weight: 3,
+    props: { icon: "🏢", category: "commerce" },
+    nameFn: ({ rnd }) => `${pick(["Union", "Harbor", "Market", "Liberty", "Central"], rnd)} Office Tower`,
     minCount: 1,
   },
 
@@ -377,7 +536,7 @@ export const PLACE_REGISTRY = [
     label: "Mechanic",
 
     minDistance: 3,
-    allowedTags: ["industrial", "urban_edge", "suburban", "commercial"],
+    allowedTags: ["industrial", "urban_edge", "suburban", "commercial", "urban"],
     weight: 2,
     props: { icon: "🔧", category: "industry" },
     nameFn: ({ rnd }) => `${pick(["Ace Auto", "Riverside Motors", "Dockside Auto", "Union Garage"], rnd)}`,
@@ -388,7 +547,7 @@ export const PLACE_REGISTRY = [
     label: "Police Station",
 
     minDistance: 6,
-    allowedTags: ["urban", "suburban", "commercial"],
+    allowedTags: ["urban_core", "urban_center", "urban", "suburban", "commercial", "residential", "suburban_hub", "rural"],
     weight: 1,
     props: { icon: "🚓", category: "safety" },
     nameFn: ({ rnd }) => `${pick(["1st Precinct", "Central Precinct", "Harbor Precinct"], rnd)}`,
@@ -399,10 +558,34 @@ export const PLACE_REGISTRY = [
     label: "Fire Department",
 
     minDistance: 6,
-    allowedTags: ["urban", "suburban", "industrial"],
+    allowedTags: ["urban_core", "urban_center", "urban", "suburban", "urban_edge", "industrial", "rural"],
     weight: 1,
     props: { icon: "🚒", category: "safety" },
-    nameFn: ({ rnd }) => `${pick(["Fire Station 1", "Fire Marshall Station", "Volonteer Fire Department"], rnd)}`,
+    nameFn: ({ rnd }) => `${pick(["Fire Station 1", "Fire Marshall Station", "Volunteer Fire Department"], rnd)}`,
+    minCount: 1,
+  },
+
+  {
+    key: "warehouse",
+    label: "Warehouse",
+
+    minDistance: 4,
+    allowedTags: ["industrial", "urban_edge", "suburban", "coastal"],
+    weight: 3,
+    props: { icon: "📦", category: "industry" },
+    nameFn: ({ rnd, tags }) => (has(tags, "coastal") ? `${pick(["Harbor", "Dockside", "Pier"], rnd)} Warehouse` : `${pick(["Union", "Riverside", "North"], rnd)} Warehouse`),
+    minCount: 1,
+  },
+
+  {
+    key: "logistics_depot",
+    label: "Logistics Depot",
+
+    minDistance: 8,
+    allowedTags: ["industrial", "urban_edge", "suburban"],
+    weight: 1,
+    props: { icon: "🚚", category: "industry" },
+    nameFn: ({ rnd }) => `${pick(["TransGlobal", "ExpressLink", "Docktown Freight"], rnd)} Depot`,
     minCount: 1,
   },
 
@@ -414,10 +597,37 @@ export const PLACE_REGISTRY = [
     label: "Apartment Complex",
 
     minDistance: 2,
-    allowedTags: ["urban", "suburban", "residential", "dense"],
+    allowedTags: ["urban_core", "urban_center", "urban", "suburban", "residential", "dense"],
     weight: 3,
     props: { icon: "🏢", category: "housing", multi: true },
     nameFn: ({ rnd }) => `${pick(["Riverside", "Maple", "Union", "Elm"], rnd)} Apartments`,
+    minCount: 1,
+  },
+
+  // ────────────────────────────
+  // WATERFRONT
+  // ────────────────────────────
+  {
+    key: "pier",
+    label: "Pier",
+
+    minDistance: 6,
+    allowedTags: ["coastal", "urban_edge", "industrial", "commercial", "tourism"],
+    weight: 2,
+    props: { icon: "🛳️", category: "commerce" },
+    nameFn: ({ rnd, tags }) => (has(tags, "tourism") ? `${pick(["Boardwalk", "Sunset", "Harborfront"], rnd)} Pier` : `${pick(["Pier 3", "Pier 7", "Cargo Pier"], rnd)}`),
+    minCount: 1,
+  },
+
+  {
+    key: "fish_market",
+    label: "Fish Market",
+
+    minDistance: 4,
+    allowedTags: ["coastal", "urban_edge"],
+    weight: 2,
+    props: { icon: "🐟", category: "commerce" },
+    nameFn: ({ tags }) => (has(tags, "coastal") ? "Harbor Fish Market" : "Fish Market"),
     minCount: 1,
   },
 ];
