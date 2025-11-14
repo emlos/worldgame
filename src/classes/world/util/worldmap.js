@@ -1,4 +1,4 @@
-import { LOCATION_REGISTRY, Location, PLACE_REGISTRY, Place } from "../module.js";
+import { LOCATION_REGISTRY, Location, PLACE_REGISTRY, Place, STREET_REGISTRY } from "../module.js";
 
 const capacityPerLocation = 4;
 
@@ -450,7 +450,7 @@ export class WorldMap {
       // create edge (travel minutes still randomized 1..10 at world-gen)
       const minutes = randInt(1, 10, map.rnd);
       const distance = Math.round(dist(a, b));
-      const streetName = pick(StreetNames, map.rnd);
+      const streetName = pick(STREET_REGISTRY.map(s => s.name), map.rnd);
 
       const edgeAB = new Street({ a: a.id, b: b.id, minutes, distance, streetName });
       const edgeBA = new Street({ a: b.id, b: a.id, minutes, distance, streetName });
@@ -529,6 +529,3 @@ export class WorldMap {
     return loc.neighbors.get(b) || null;
   }
 }
-
-//TODO: street objects, logic etc, this is just placeholder
-const StreetNames = ["Oak St", "River Rd", "Sunset Ave", "King's Way", "Maple Blvd", "Old Mill Rd"];
