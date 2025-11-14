@@ -1,3 +1,4 @@
+import { clamp01 } from "../../../shared/modules.js";
 import { LOCATION_REGISTRY, Location, PLACE_REGISTRY, Place, STREET_REGISTRY } from "../module.js";
 
 const capacityPerLocation = 4;
@@ -303,11 +304,33 @@ function generatePlaces({ locations, getTag, neighbors, distance, rnd, targetCou
   return results;
 }
 
+function pickStreetDefForRun(startLocation, usedKeys, rnd) {
+  const locTags = startLocation?.tags || [];
+  const unused = STREET_REGISTRY.filter((s) => !usedKeys.has(s.key));
+  if (unused.length === 0) return null; // we'll fall back to generic names
+
+  // Prefer names whose tags overlap with the start location
+  const candidates = [];
+  for (const def of unused) {
+    const overlap = (def.tags || []).filter((t) => locTags.includes(t)).length;
+    const weight = 1 + overlap; // 1 base + bonus per matching tag
+    candidates.push({ def, weight });
+  }
+
+  const total = candidates.reduce((s, c) => s + c.weight, 0);
+  let r = rnd() * total;
+  for (const c of candidates) {
+    r -= c.weight;
+    if (r <= 0) return c.def;
+  }
+  return candidates[candidates.length - 1].def;
+}
+
 // --------------------------
 // Helper moved from world.js
 // --------------------------
 
-function computeAutoLocationCount(density = 0) {
+function computeAutoLocationCount(density) {
   // --- 1) Compute the absolute minimum required to satisfy all minCount ---
   let totalMinPlaces = 0;
 
@@ -339,6 +362,7 @@ export class WorldMap {
     this.rnd = rnd;
     this.locations = new Map(); // id -> Location
     this.edges = []; // array<Street>
+    this.density = density;
 
     const count = computeAutoLocationCount(density);
 
@@ -419,7 +443,7 @@ export class WorldMap {
     const maxExtraLen = median * 1.3;
 
     for (const A of nodes) {
-      const k = Math.round(2 + this.rnd() * 3)
+      const k = Math.round(2 + this.rnd() * 3);
       const byNear = nodes
         .filter((B) => B.id !== A.id)
         .map((B) => ({ B, d: dist(A, B) }))
@@ -432,6 +456,8 @@ export class WorldMap {
         linkNoCross(A, B, this); // will refuse if crossing
       }
     }
+
+    this._assignStreetNames();
 
     function linkNoCross(a, b, map) {
       // refuse if already linked
@@ -450,10 +476,9 @@ export class WorldMap {
       // create edge (travel minutes still randomized 1..10 at world-gen)
       const minutes = randInt(1, 10, map.rnd);
       const distance = Math.round(dist(a, b));
-      const streetName = pick(STREET_REGISTRY.map(s => s.name), map.rnd);
 
-      const edgeAB = new Street({ a: a.id, b: b.id, minutes, distance, streetName });
-      const edgeBA = new Street({ a: b.id, b: a.id, minutes, distance, streetName });
+      const edgeAB = new Street({ a: a.id, b: b.id, minutes, distance, streetName: null }); //defer naming
+      const edgeBA = new Street({ a: b.id, b: a.id, minutes, distance, streetName: null });
 
       a.connect(b, edgeAB);
       b.connect(a, edgeBA);
@@ -508,6 +533,167 @@ export class WorldMap {
     for (const p of placed) {
       const loc = this.locations.get(String(p.locationId));
       if (loc) (loc.places || (loc.places = [])).push(p);
+    }
+  }
+
+  // --------------------------
+  // Street naming
+  // --------------------------
+  _assignStreetNames() {
+    const rng = this.rnd;
+
+    // nodeId -> array<Street> (undirected)
+    const nodeEdges = new Map();
+    for (const e of this.edges) {
+      if (!nodeEdges.has(e.a)) nodeEdges.set(e.a, []);
+      if (!nodeEdges.has(e.b)) nodeEdges.set(e.b, []);
+      nodeEdges.get(e.a).push(e);
+      nodeEdges.get(e.b).push(e);
+    }
+
+    // degree per node
+    const degree = new Map();
+    for (const [id, list] of nodeEdges) {
+      degree.set(id, list.length);
+    }
+
+    const unassigned = new Set(this.edges); // edges without a streetName
+    const usedStreetKeys = new Set(); // no reuse of a registry name
+    let fallbackIndex = 1; // "Road 1", "Road 2", ... if registry is exhausted
+
+    const MAX_LEN = 6 * (1 + this.density);
+    const MIN_LEN = 2;
+
+    while (unassigned.size > 0) {
+      // --- pick starting edge: prefer edges that touch low-degree nodes (<= 2) ---
+      let startEdge = null;
+      const lowDeg = [];
+
+      for (const e of unassigned) {
+        const da = degree.get(e.a) || 0;
+        const db = degree.get(e.b) || 0;
+        if (da <= 2 || db <= 2) lowDeg.push(e);
+      }
+
+      if (lowDeg.length > 0) {
+        startEdge = lowDeg[(rng() * lowDeg.length) | 0];
+      } else {
+        const arr = Array.from(unassigned);
+        startEdge = arr[(rng() * arr.length) | 0];
+      }
+
+      // orient so we start from the "less busy" end if possible
+      let from = startEdge.a;
+      let to = startEdge.b;
+      if ((degree.get(startEdge.a) || 0) > (degree.get(startEdge.b) || 0)) {
+        from = startEdge.b;
+        to = startEdge.a;
+      }
+
+      const runEdges = [];
+      runEdges.push(startEdge);
+      unassigned.delete(startEdge);
+
+      let prevNode = from;
+      let currNode = to;
+      let len = 1;
+
+      while (len < MAX_LEN) {
+        const incident = nodeEdges.get(currNode) || [];
+        const available = incident.filter((e) => unassigned.has(e));
+        if (available.length === 0) break;
+
+        const deg = degree.get(currNode) || 0;
+
+        // At intersections (deg >= 3) and once we have MIN_LEN, sometimes stop here
+        if (deg >= 3 && len >= MIN_LEN) {
+          const pContinue = clamp01(0.5 * (1 + this.density)); // tweak: higher means longer continuous streets
+          if (rng() > pContinue) break;
+        }
+
+        // Choose next edge – avoid going straight back if other options exist
+        let nextEdge = null;
+        const nonBack = available.filter((e) => {
+          const other = e.a === currNode ? e.b : e.a;
+          return other !== prevNode;
+        });
+        if (nonBack.length > 0) {
+          nextEdge = nonBack[(rng() * nonBack.length) | 0];
+        } else {
+          nextEdge = available[(rng() * available.length) | 0];
+        }
+
+        runEdges.push(nextEdge);
+        unassigned.delete(nextEdge);
+
+        prevNode = currNode;
+        currNode = nextEdge.a === currNode ? nextEdge.b : nextEdge.a;
+        len++;
+      }
+
+      // If this "run" is only one edge, try to join an existing street
+      if (runEdges.length === 1) {
+        const e = runEdges[0];
+        const tryNodes = [e.a, e.b];
+        let adoptedName = null;
+
+        // Look at edges touching either endpoint; if any already have a name,
+        // reuse that name instead of starting a new street.
+        for (const node of tryNodes) {
+          const incident = nodeEdges.get(node) || [];
+          for (const other of incident) {
+            if (other === e) continue;
+            if (other.streetName) {
+              adoptedName = other.streetName;
+              break;
+            }
+          }
+          if (adoptedName) break;
+        }
+
+        if (adoptedName) {
+          const A = this.locations.get(e.a);
+          const B = this.locations.get(e.b);
+
+          // set name on both directions of this edge
+          e.streetName = adoptedName;
+
+          const ba = B.neighbors.get(A.id);
+          if (ba) ba.streetName = adoptedName;
+
+          const ab = A.neighbors.get(B.id);
+          if (ab) ab.streetName = adoptedName;
+
+          // We’re done with this run; move on to the next one without
+          // allocating a new street from the registry.
+          continue;
+        }
+      }
+
+      const startLoc = this.locations.get(from);
+      const def = pickStreetDefForRun(startLoc, usedStreetKeys, rng);
+
+      let streetName;
+      if (def) {
+        streetName = def.name;
+        usedStreetKeys.add(def.key);
+      } else {
+        streetName = `Road ${fallbackIndex++}`; // registry exhausted
+      }
+
+      // Assign name to both directions of every edge in the run
+      for (const e of runEdges) {
+        const A = this.locations.get(e.a);
+        const B = this.locations.get(e.b);
+
+        e.streetName = streetName;
+
+        const ba = B.neighbors.get(A.id);
+        if (ba) ba.streetName = streetName;
+
+        const ab = A.neighbors.get(B.id);
+        if (ab) ab.streetName = streetName;
+      }
     }
   }
 
