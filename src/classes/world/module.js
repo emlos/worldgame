@@ -1,5 +1,5 @@
 import * as calendar from "./util/calendar.js";
-import * as map from "./util/map.js";
+import * as map from "./util/worldmap.js";
 import * as time from "./util/time.js";
 import * as weather from "./util/weather.js";
 import * as enums from "./util/enums.js"
@@ -10,7 +10,7 @@ import * as street from "./util/street.js";
 
 
 export * from "./util/calendar.js";
-export * from "./util/map.js";
+export * from "./util/worldmap.js";
 export * from "./util/time.js";
 export * from "./util/weather.js";
 export * from "./util/enums.js"
