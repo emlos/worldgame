@@ -1,11 +1,6 @@
-// --------------------------
-// Helpers moved from location.js
-// --------------------------
-
-import { clamp01 } from "../../../shared/modules.js";
 import { LOCATION_REGISTRY, Location, PLACE_REGISTRY, Place } from "../module.js";
 
-const capacityPerLocation = 5;
+const capacityPerLocation = 4;
 
 const dist = (A, B) => Math.hypot(A.x - B.x, A.y - B.y);
 
@@ -119,7 +114,6 @@ function instanceId(key, idx, locationId) {
 function generatePlaces({ locations, getTag, neighbors, distance, rnd, targetCounts }) {
   const dist = (a, b, nb) => (distance ? distance(a, b) : bfsDistance(a, b, nb || neighbors));
 
-  const maxPlacesPerLocation = 5;
   const minPlacesPerLocation = 1;
 
   // Track how many places each location has
@@ -147,27 +141,26 @@ function generatePlaces({ locations, getTag, neighbors, distance, rnd, targetCou
   const defaultCounts = {};
 
   for (const def of PLACE_REGISTRY) {
-    if (def.unique) {
-      defaultCounts[def.key] = 1;
-    } else {
-      // base from map size and weight
-      const base = Math.max(1, Math.floor((L / 20) * (def.weight || 1)));
-      defaultCounts[def.key] = base;
-    }
+    // base from map size and weight (optional, tweak as you like)
+    const base = Math.floor((L / 20) * (def.weight || 1));
+    defaultCounts[def.key] = base;
   }
 
   const counts = { ...defaultCounts, ...(targetCounts || {}) };
 
-  // Respect optional per-definition minCount / maxCount, and treat missing minCount as 1
   for (const def of PLACE_REGISTRY) {
     const k = def.key;
     let c = counts[k] ?? 0;
 
-    const min = def.minCount != null ? def.minCount : 1; // default: at least one of each place type
-    c = Math.max(c, min);
+    const min = def.minCount ?? 0;
+    let max = def.maxCount ?? Infinity;
 
-    if (def.maxCount != null) c = Math.min(c, def.maxCount);
-    if (def.unique) c = 1;
+    if (def.maxCount == 1) {
+      c = Math.max(c, 1);
+      max = Math.min(max, 1);
+    }
+
+    c = Math.min(Math.max(c, min), max);
 
     counts[k] = c;
   }
@@ -178,7 +171,7 @@ function generatePlaces({ locations, getTag, neighbors, distance, rnd, targetCou
   // Process bus_stop first, then uniques, then others
   const defs = [...PLACE_REGISTRY];
   const sortedDefs = defs.sort((a, b) => {
-    const priority = (d) => (d.key === "bus_stop" ? 3 : d.unique ? 2 : 1);
+    const priority = (d) => (d.key === "bus_stop" ? 3 : d.maxCount == 1 ? 2 : 1);
     return priority(b) - priority(a);
   });
 
@@ -190,10 +183,11 @@ function generatePlaces({ locations, getTag, neighbors, distance, rnd, targetCou
       const arr = byTag.get(tag);
       if (arr) for (const loc of arr) candidates.add(loc);
     }
+
     if (candidates.size === 0) continue;
 
     const candidateList = Array.from(candidates);
-    let want = counts[def.key] || (def.unique ? 1 : 0);
+    let want = counts[def.key] || (def.maxCount == 1 ? 1 : 0);
 
     // Special rule: bus_stop — try to add to every compatible location
     if (def.key === "bus_stop") {
@@ -213,7 +207,7 @@ function generatePlaces({ locations, getTag, neighbors, distance, rnd, targetCou
       const locId = String(loc);
 
       // per-location max
-      if (locationUsage.get(locId) >= maxPlacesPerLocation) continue;
+      if (locationUsage.get(locId) >= capacityPerLocation) continue;
 
       // minDistance against same-key places
       if (!isFarEnough(loc, sameKeyPlaced, def.minDistance || 0, neighbors, dist)) {
@@ -251,12 +245,12 @@ function generatePlaces({ locations, getTag, neighbors, distance, rnd, targetCou
   }
 
   // --- Fill pass: ensure each location has at least minPlacesPerLocation ---
-  if (minPlacesPerLocation > 0 && maxPlacesPerLocation > 0) {
+  if (minPlacesPerLocation > 0 && capacityPerLocation > 0) {
     for (const loc of locations) {
       const locId = String(loc);
       let used = locationUsage.get(locId) || 0;
 
-      while (used < minPlacesPerLocation && used < maxPlacesPerLocation) {
+      while (used < minPlacesPerLocation && used < capacityPerLocation) {
         const locTagsRaw = getTag(loc);
         const locTags = Array.isArray(locTagsRaw) ? locTagsRaw : [locTagsRaw];
 
@@ -265,7 +259,7 @@ function generatePlaces({ locations, getTag, neighbors, distance, rnd, targetCou
           if (!(def.allowedTags || []).some((t) => locTags.includes(t))) return false;
 
           if (def.maxCount != null && (totalByKey.get(def.key) || 0) >= def.maxCount) return false;
-          if (def.unique && (totalByKey.get(def.key) || 0) >= 1) return false;
+          if (def.maxCount == 1 && (totalByKey.get(def.key) || 0) >= 1) return false;
 
           const sameKeyPlaced = placedByKey.get(def.key) || [];
           if (!isFarEnough(loc, sameKeyPlaced, def.minDistance || 0, neighbors, dist)) return false;
@@ -314,13 +308,10 @@ function generatePlaces({ locations, getTag, neighbors, distance, rnd, targetCou
 // --------------------------
 
 function computeAutoLocationCount(density = 0) {
-  // Clamp density defensively
-  const d = clamp01(density);
-
   // --- 1) Compute the absolute minimum required to satisfy all minCount ---
   let totalMinPlaces = 0;
 
-  for (const def of LOCATION_REGISTRY) {
+  for (const def of PLACE_REGISTRY) {
     const min = def.minCount || 1;
     totalMinPlaces += min;
   }
@@ -329,7 +320,7 @@ function computeAutoLocationCount(density = 0) {
   const minByCapacity = Math.ceil(totalMinPlaces / capacityPerLocation);
   const minLocations = Math.max(minByCapacity, 1);
 
-  return Math.round(minLocations * 1 + d);
+  return Math.round(minLocations * (1 + density));
 }
 
 // --------------------------
@@ -341,15 +332,17 @@ export class WorldMap {
    * @param {Object} opts
    * @param {Function} opts.rnd   - RNG function
    * @param {number} opts.density - 0..1, used when locationCount is not given
+   * @param {number} mapWidth - span of map in local coordinates
+   * @param {number} mapHeight - height of map in local coordinates
    */
-  constructor({ rnd, density = 0 } = {}) {
+  constructor({ rnd, density = 0, mapWidth = 100, mapHeight = 50 } = {}) {
     this.rnd = rnd;
     this.locations = new Map(); // id -> Location
     this.edges = []; // array<Street>
 
     const count = computeAutoLocationCount(density);
 
-    this._generateLocations(count);
+    this._generateLocations(count, mapWidth, mapHeight);
     this._connectGraph();
     this._populatePlaces();
   }
@@ -358,15 +351,13 @@ export class WorldMap {
   // Location generation
   // --------------------------
 
-  _generateLocations(n) {
+  _generateLocations(n, W, H) {
     // 1) Create N locations with districts + tags
     const locs = createLocations({ count: n, rnd: this.rnd });
 
     // 2) Lay them out on a jittered grid for spacing/planarity
     const cols = Math.ceil(Math.sqrt(n));
     const rows = Math.ceil(n / cols);
-    const W = 1000,
-      H = 700;
     const cellW = W / cols,
       cellH = H / rows;
 
@@ -422,13 +413,13 @@ export class WorldMap {
     }
 
     // --- Add a few local edges (k-NN) without crossings & within a distance cap
-    const k = 2;
     // Distance cap: median of the MST edges * 1.25 to keep locality
     const sortedMst = [...mstEdges].sort((a, b) => a.d - b.d);
     const median = sortedMst.length ? sortedMst[Math.floor(sortedMst.length / 2)].d : Infinity;
-    const maxExtraLen = median * 1.25;
+    const maxExtraLen = median * 1.3;
 
     for (const A of nodes) {
+      const k = Math.round(2 + this.rnd() * 3)
       const byNear = nodes
         .filter((B) => B.id !== A.id)
         .map((B) => ({ B, d: dist(A, B) }))
@@ -467,6 +458,32 @@ export class WorldMap {
       a.connect(b, edgeAB);
       b.connect(a, edgeBA);
       map.edges.push(edgeAB);
+    }
+
+    function _orient(ax, ay, bx, by, cx, cy) {
+      const v = (bx - ax) * (cy - ay) - (by - ay) * (cx - ax);
+      return v === 0 ? 0 : v > 0 ? 1 : -1;
+    }
+    function _onSeg(ax, ay, bx, by, px, py) {
+      return Math.min(ax, bx) <= px && px <= Math.max(ax, bx) && Math.min(ay, by) <= py && py <= Math.max(ay, by);
+    }
+    /** Proper segment intersection (allows touching at endpoints = NOT counted as crossing) */
+    function segmentsIntersect(A, B, C, D) {
+      const o1 = _orient(A.x, A.y, B.x, B.y, C.x, C.y);
+      const o2 = _orient(A.x, A.y, B.x, B.y, D.x, D.y);
+      const o3 = _orient(C.x, C.y, D.x, D.y, A.x, A.y);
+      const o4 = _orient(C.x, C.y, D.x, D.y, B.x, B.y);
+
+      // General case
+      if (o1 !== o2 && o3 !== o4) return true;
+
+      // Collinear cases (touching). Treat as non-crossing if touching at endpoints.
+      if (o1 === 0 && _onSeg(A.x, A.y, B.x, B.y, C.x, C.y)) return !(C.x === A.x && C.y === A.y) && !(C.x === B.x && C.y === B.y);
+      if (o2 === 0 && _onSeg(A.x, A.y, B.x, B.y, D.x, D.y)) return !(D.x === A.x && D.y === A.y) && !(D.x === B.x && D.y === B.y);
+      if (o3 === 0 && _onSeg(C.x, C.y, D.x, D.y, A.x, A.y)) return !(A.x === C.x && A.y === C.y) && !(A.x === D.x && A.y === D.y);
+      if (o4 === 0 && _onSeg(C.x, C.y, D.x, D.y, B.x, B.y)) return !(B.x === C.x && B.y === C.y) && !(B.x === D.x && B.y === D.y);
+
+      return false;
     }
   }
 
