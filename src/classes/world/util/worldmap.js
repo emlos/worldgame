@@ -353,7 +353,7 @@ export class WorldMap {
    * @param {number} mapWidth - span of map in local coordinates
    * @param {number} mapHeight - height of map in local coordinates
    */
-  constructor({ rnd, density = 0, mapWidth = 100, mapHeight = 50} = {}) {
+  constructor({ rnd, density = 0, mapWidth = 100, mapHeight = 50 } = {}) {
     this.rnd = rnd;
     this.locations = new Map(); // id -> Location
     this.edges = []; // array<Street>
@@ -626,33 +626,61 @@ export class WorldMap {
         len++;
       }
 
-      // Try to enforce "street is at least 2 edges long"
+      // --- Try to enforce "street is at least 2 edges long" structurally ---
       if (runEdges.length === 1) {
         const e = runEdges[0];
-        const tryNodes = [e.a, e.b];
+        const endpoints = [e.a, e.b];
+        let extended = false;
 
-        for (const node of tryNodes) {
+        for (const node of endpoints) {
           const incident = nodeEdges.get(node) || [];
           const avail = incident.filter((ed) => unassigned.has(ed));
           if (avail.length) {
             const extra = avail[(rng() * avail.length) | 0];
             runEdges.push(extra);
             unassigned.delete(extra);
+            extended = true;
             break;
           }
         }
-        // if still only length 1, we just live with a single-edge street
+        // if extended === false here, this edge is truly isolated:
+        // there are no unassigned neighbors left to merge with
       }
 
       const startLoc = this.locations.get(from);
       const def = pickStreetDefForRun(startLoc, usedStreetKeys, rng);
 
-      let streetName;
-      if (def) {
-        streetName = def.name;
-        usedStreetKeys.add(def.key);
-      } else {
-        streetName = `Road ${fallbackIndex++}`; // registry exhausted
+      let streetName = null;
+
+      // Special case: single-edge "run" that we couldn't extend.
+      if (runEdges.length === 1) {
+        const lone = runEdges[0];
+        const nodes = [lone.a, lone.b];
+
+        // Look for any incident edge that already has a streetName
+        for (const nodeId of nodes) {
+          const incident = nodeEdges.get(nodeId) || [];
+          const candidate = incident.find(
+            (e) => e !== lone && e.streetName // already named
+          );
+          if (candidate) {
+            streetName = candidate.streetName; // ✅ merge into existing street
+            break;
+          }
+        }
+      }
+
+      // If we couldn’t reuse an existing name, pick a fresh one from the registry
+      if (!streetName) {
+        const startLoc = this.locations.get(from);
+        const def = pickStreetDefForRun(startLoc, usedStreetKeys, rng);
+
+        if (def) {
+          streetName = def.name;
+          usedStreetKeys.add(def.key); // mark registry key as used
+        } else {
+          streetName = `Road ${fallbackIndex++}`; // registry exhausted
+        }
       }
 
       // Assign name to both directions of every edge in the run
@@ -662,11 +690,11 @@ export class WorldMap {
 
         e.streetName = streetName;
 
-        const ba = B.neighbors.get(A.id);
-        if (ba) ba.streetName = streetName;
-
         const ab = A.neighbors.get(B.id);
         if (ab) ab.streetName = streetName;
+
+        const ba = B.neighbors.get(A.id);
+        if (ba) ba.streetName = streetName;
       }
     }
   }
