@@ -326,10 +326,6 @@ function pickStreetDefForRun(startLocation, usedKeys, rnd) {
   return candidates[candidates.length - 1].def;
 }
 
-// --------------------------
-// Helper moved from world.js
-// --------------------------
-
 function computeAutoLocationCount(density) {
   // --- 1) Compute the absolute minimum required to satisfy all minCount ---
   let totalMinPlaces = 0;
@@ -342,7 +338,6 @@ function computeAutoLocationCount(density) {
   // We need enough locations that we can fit all minimum required places
   const minByCapacity = Math.ceil(totalMinPlaces / capacityPerLocation);
   const minLocations = Math.max(minByCapacity, 1);
-
   return Math.round(minLocations * (1 + density));
 }
 
@@ -561,7 +556,7 @@ export class WorldMap {
     const usedStreetKeys = new Set(); // no reuse of a registry name
     let fallbackIndex = 1; // "Road 1", "Road 2", ... if registry is exhausted
 
-    const MAX_LEN = 6 * (1 + this.density);
+    const MAX_LEN = Math.round(6 * ((1 + this.density) / 2));
     const MIN_LEN = 2;
 
     while (unassigned.size > 0) {
@@ -631,43 +626,22 @@ export class WorldMap {
         len++;
       }
 
-      // If this "run" is only one edge, try to join an existing street
+      // Try to enforce "street is at least 2 edges long"
       if (runEdges.length === 1) {
         const e = runEdges[0];
         const tryNodes = [e.a, e.b];
-        let adoptedName = null;
 
-        // Look at edges touching either endpoint; if any already have a name,
-        // reuse that name instead of starting a new street.
         for (const node of tryNodes) {
           const incident = nodeEdges.get(node) || [];
-          for (const other of incident) {
-            if (other === e) continue;
-            if (other.streetName) {
-              adoptedName = other.streetName;
-              break;
-            }
+          const avail = incident.filter((ed) => unassigned.has(ed));
+          if (avail.length) {
+            const extra = avail[(rng() * avail.length) | 0];
+            runEdges.push(extra);
+            unassigned.delete(extra);
+            break;
           }
-          if (adoptedName) break;
         }
-
-        if (adoptedName) {
-          const A = this.locations.get(e.a);
-          const B = this.locations.get(e.b);
-
-          // set name on both directions of this edge
-          e.streetName = adoptedName;
-
-          const ba = B.neighbors.get(A.id);
-          if (ba) ba.streetName = adoptedName;
-
-          const ab = A.neighbors.get(B.id);
-          if (ab) ab.streetName = adoptedName;
-
-          // We’re done with this run; move on to the next one without
-          // allocating a new street from the registry.
-          continue;
-        }
+        // if still only length 1, we just live with a single-edge street
       }
 
       const startLoc = this.locations.get(from);

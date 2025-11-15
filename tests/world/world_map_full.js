@@ -1,22 +1,42 @@
-function init(locs) {
-  // ------- World creation (random but stable per refresh) -------
-  let world;
-  if (locs) {
-    world = new World({
-      seed: Date.now(),
-      density: locs,
-      startDate: new Date(), // now
-    });
-  } else {
-    world = new World({
-      seed: Date.now(),
-      startDate: new Date(), // now
-    });
+const el = (tag, attrs = {}, ...kids) => {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) k === "class" ? (n.className = v) : k === "html" ? (n.innerHTML = v) : n.setAttribute(k, v);
+  for (const c of kids) n.append(c);
+  return n;
+};
+
+const table = (rows, headers = []) => {
+  const t = el("table");
+  if (headers.length) {
+    const thead = el("thead");
+    const tr = el("tr");
+    headers.forEach((h) => tr.append(el("th", { html: h })));
+    thead.append(tr);
+    t.append(thead);
   }
+  const tbody = el("tbody");
+  rows.forEach((r) => {
+    const tr = el("tr");
+    r.forEach((cell) => tr.append(el("td", { html: cell ?? "" })));
+    tbody.append(tr);
+  });
+  t.append(tbody);
+  return t;
+};
+
+function init(density) {
+  // ------- World creation (random but stable per refresh) -------
+  let gentime = Date.now();
+  const world = new World({
+    seed: Date.now(),
+    density: density,
+    startDate: new Date(), // now
+  });
+
+  gentime = Date.now() - gentime;
 
   // ------- Detail card (location info) -------
 
-  const wrap = document.querySelector(".wrap");
   const detailCard = byId("location");
 
   function renderLocationCard(loc) {
@@ -53,11 +73,15 @@ function init(locs) {
     `;
   }
 
+  const streetColors = new Map();
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   // ------- Map renderer (SVG grid, no crossing) -------
   function renderMap() {
     const host = byId("map");
     if (!host) return;
     host.innerHTML = "";
+
+    //strret colors
 
     // --- Tooltip ---
     let tip = byId("map-tip");
@@ -148,7 +172,7 @@ function init(locs) {
     }
 
     // --- SVG ---
-    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+
     svg.setAttribute("viewBox", `0 0 ${targetWidth} ${targetHeight}`);
     svg.setAttribute("width", "100%");
     svg.setAttribute("height", String(targetHeight));
@@ -184,16 +208,25 @@ function init(locs) {
       });
     };
 
-    // --- Draw ONLY real edges (straight lines) ---
+    // --- Draw edges ---
     for (const e of edges) {
       const aP = project(rawPos.get(e.a));
       const bP = project(rawPos.get(e.b));
       const line = document.createElementNS(svg.namespaceURI, "line");
+
+      let color;
+      if (streetColors.has(e.street)) {
+        color = streetColors.get(e.street);
+      } else {
+        color = randomHexColor(world.rnd);
+        streetColors.set(e.street, color);
+      }
+
       line.setAttribute("x1", String(aP.x));
       line.setAttribute("y1", String(aP.y));
       line.setAttribute("x2", String(bP.x));
       line.setAttribute("y2", String(bP.y));
-      line.setAttribute("stroke", "#666");
+      line.setAttribute("stroke", color);
       line.setAttribute("stroke-width", "2");
       line.setAttribute("stroke-linecap", "round");
       line.style.cursor = "help";
@@ -248,7 +281,70 @@ function init(locs) {
   }
 
   renderMap();
+
+  // ------- General Info card --------
+  const collectedstreets = Array.from(streetColors.keys()).map((name) => {
+    return {
+      street: name,
+      color: streetColors.get(name),
+      amnt: svg.querySelectorAll(`line[stroke="${streetColors.get(name)}"]`).length,
+      elements: [...svg.querySelectorAll(`line[stroke="${streetColors.get(name)}"]`)],
+    };
+  });
+  byId("mapinfo").innerHTML = "";
+  byId("mapinfo").append(el("h2", { html: "Map Information" }));
+  byId("mapinfo").append(el("small", { html: `Generation took: ${gentime}ms` }));
+  byId("mapinfo").append(
+    table(
+      [
+        ["Streets amount", streetColors.size],
+        [
+          "Street names<br><small>hover over the name to highlight street</small>",
+          collectedstreets.map((street) => `<code class="streetnameintable" style="cursor: pointer; color: ${street.color}">${street.street}</code> length: ${street.amnt}`).join("<br>"),
+        ],
+        ["Location amount", world.map.locations.size],
+        ["Place amount", Array.from(world.map.locations.values()).reduce((accumulator, currentValue) => accumulator + currentValue.places.length, 0)],
+      ],
+      ["Property", "Value"]
+    )
+  );
+
+  //highlighting on hover over the street name
+  document.querySelectorAll(".streetnameintable").forEach((e) => {
+    const lines = collectedstreets.find((s) => s.street == e.innerHTML).elements;
+
+    e.addEventListener("mouseenter", () => {
+      lines.forEach((l) => {
+        l.setAttribute("stroke-width", "7");
+        l.setAttribute("filter", "url(#edgeGlow)");
+      });
+    });
+    e.addEventListener("mouseleave", () => {
+      lines.forEach((l) => {
+        l.setAttribute("stroke-width", "2");
+        l.removeAttribute("filter");
+      });
+    });
+  });
+
+  // ------- Locations Info card -------
+  const locations = Array.from(world.map.locations.values())
+  byId("locationinfo").innerHTML = "";
+  byId("locationinfo").append(
+    table(
+      [
+        
+          ...locations.map((loc) => {
+            return [loc.name, loc.tags.map((tag) => `<small><code>${tag}</code></small>`).join(", ")];
+          }),
+        
+      ],
+
+      ["Location", "Tags"]
+    )
+  );
 }
+
 // ------- DOM helpers -------
 const byId = (id) => document.getElementById(id);
 
@@ -257,7 +353,7 @@ function bindControls() {
   const btnGen = byId("btnGenerate");
 
   btnGen.addEventListener("click", () => {
-    init(parseInt(slider.value / 100));
+    init(parseFloat(slider.value / 100));
   });
   slider.addEventListener("change", () => {
     byId("density").innerText = `+ ${slider.value}%`;
@@ -266,6 +362,6 @@ function bindControls() {
 
 // ---------- Boot ----------
 window.addEventListener("DOMContentLoaded", () => {
-  init();
+  init(0);
   bindControls();
 });
