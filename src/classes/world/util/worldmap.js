@@ -353,7 +353,7 @@ export class WorldMap {
    * @param {number} mapWidth - span of map in local coordinates
    * @param {number} mapHeight - height of map in local coordinates
    */
-  constructor({ rnd, density = 0, mapWidth = 100, mapHeight = 50 } = {}) {
+  constructor({ rnd, density = 0, mapWidth = 100, mapHeight = 50} = {}) {
     this.rnd = rnd;
     this.locations = new Map(); // id -> Location
     this.edges = []; // array<Street>
@@ -438,7 +438,7 @@ export class WorldMap {
     const maxExtraLen = median * 1.3;
 
     for (const A of nodes) {
-      const k = Math.round(2 + this.rnd() * 3);
+      const k = Math.round(2 + this.rnd());
       const byNear = nodes
         .filter((B) => B.id !== A.id)
         .map((B) => ({ B, d: dist(A, B) }))

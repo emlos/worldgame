@@ -4,7 +4,7 @@ import { Moon, WorldTime, buildYearCalendar, ymd, Weather, WorldMap } from "./mo
 // --------------------------
 
 export class World {
-  constructor({ seed = Date.now(), startDate = new Date(), density = 0.25 } = {}) {
+  constructor({ seed = Date.now(), startDate = new Date(), density = 0.25, w = 100, h = 50 } = {}) {
     this.seed = seed;
     this.rnd = makeRNG(seed);
 
@@ -25,6 +25,8 @@ export class World {
     this.map = new WorldMap({
       rnd: this.rnd,
       density,
+      mapWidth: w,
+      mapHeight: h,
     });
   }
 
@@ -83,15 +85,14 @@ export class World {
   get moonInfo() {
     return this.moon.getInfo(this.time.date);
   }
-  
 
   //worldmap getters
   get locations() {
-    return this.map.locations
+    return this.map.locations;
   }
 
   get edges() {
-    return this.map.edges
+    return this.map.edges;
   }
 }
 

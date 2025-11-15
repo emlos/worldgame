@@ -24,13 +24,16 @@ const table = (rows, headers = []) => {
   return t;
 };
 
-function init(density) {
+function init(density, width, height) {
   // ------- World creation (random but stable per refresh) -------
+
   let gentime = Date.now();
   const world = new World({
     seed: Date.now(),
     density: density,
     startDate: new Date(), // now
+    w: width,
+    h: height,
   });
 
   gentime = Date.now() - gentime;
@@ -139,8 +142,8 @@ function init(density) {
 
     // --- Target canvas sizing ---
     const margin = 20;
-    const targetHeight = 500; // tweak if you like
-    const targetWidth = 1000;
+    const targetHeight = (height || 50) * 10; // tweak if you like
+    const targetWidth = (width || 100) * 10;
 
     const worldW = maxX - minX;
     const worldH = maxY - minY;
@@ -328,16 +331,14 @@ function init(density) {
   });
 
   // ------- Locations Info card -------
-  const locations = Array.from(world.map.locations.values())
+  const locations = Array.from(world.map.locations.values());
   byId("locationinfo").innerHTML = "";
   byId("locationinfo").append(
     table(
       [
-        
-          ...locations.map((loc) => {
-            return [loc.name, loc.tags.map((tag) => `<small><code>${tag}</code></small>`).join(", ")];
-          }),
-        
+        ...locations.map((loc) => {
+          return [loc.name, loc.tags.map((tag) => `<small><code>${tag}</code></small>`).join(", ")];
+        }),
       ],
 
       ["Location", "Tags"]
@@ -350,18 +351,28 @@ const byId = (id) => document.getElementById(id);
 
 function bindControls() {
   const slider = byId("densitySlider");
+
+  const mapWidth = byId("worldWidth");
+  const mapHeight = byId("worldHeight");
   const btnGen = byId("btnGenerate");
+  const btnReset = byId("adjustProportions");
 
   btnGen.addEventListener("click", () => {
-    init(parseFloat(slider.value / 100));
+    init(parseFloat(slider.value / 100), parseInt(mapWidth.value) || 100, parseInt(mapHeight.value) || 50);
   });
+
+  btnReset.addEventListener("click", () => {
+    mapWidth.value = 100;
+    mapHeight.value = 50;
+  });
+
   slider.addEventListener("change", () => {
-    byId("density").innerText = `+ ${slider.value}%`;
+    byId("density").innerText = slider.value == 0 ? "minimal" : `+ ${slider.value}%`;
   });
 }
 
 // ---------- Boot ----------
 window.addEventListener("DOMContentLoaded", () => {
-  init(0);
+  init(0, 100, 50);
   bindControls();
 });

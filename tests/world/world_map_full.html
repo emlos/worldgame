@@ -33,13 +33,6 @@
       padding: 0 16px;
     }
 
-    .wrap2 {
-      display: flex;
-      flex-direction: row;
-      position: relative;
-      column-gap: 10px;
-    }
-
     .left {
       width: 30%;
     }
@@ -76,6 +69,10 @@
       text-align: left;
       vertical-align: top;
     }
+
+    td {
+      line-height: 1.7;
+    }
     th {
       font-weight: 600;
       color: var(--muted);
@@ -89,8 +86,14 @@
     }
     .row {
       display: flex;
+      flex-direction: row;
       gap: 8px;
-      flex-wrap: wrap;
+    }
+
+    .col {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
     }
     button {
       background: #1f2a33;
@@ -103,31 +106,39 @@
     button:hover {
       background: #21323f;
     }
-    .swatch {
-      display: inline-block;
-      width: 20px;
-      height: 20px;
-      border-radius: 4px;
-      border: 1px solid var(--line);
-      vertical-align: middle;
-    }
+
     code {
       background: #0d1216;
       padding: 2px 6px;
       border-radius: 6px;
       border: 1px solid var(--line);
     }
-    .small {
+    small {
       color: var(--muted);
       font-size: 12px;
     }
-    img.icon {
-      height: 24px;
-      width: 24px;
-      object-fit: contain;
-      border-radius: 4px;
-      border: 1px solid var(--line);
-      background: #0002;
+
+    .slider {
+      flex-grow: 1;
+    }
+
+    #btnGenerate {
+      min-height: 100%;
+      min-width: 20%;
+    }
+
+    input[type="number"] {
+      background: var(--card);
+      border: 2px solid var(--line);
+      border-radius: 5px;
+      color: var(--fg);
+      padding: 5px;
+      font: 14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, "Helvetica Neue", Arial;
+    }
+
+    label {
+      text-wrap: none;
+      align-self: center;
     }
   </style>
   <body>
@@ -135,15 +146,26 @@
     <div class="wrap">
       <h1>World – Map Test</h1>
       <p><a href="../../index.html">back</a></p>
-      <div class="wrap2">
+      <div class="row">
         <div class="left">
           <div class="card" id="mapinfo"></div>
           <div class="card" id="locationinfo"></div>
         </div>
         <div class="right">
           <div class="row">
-            <p>World density: <small id="density"> +0%</small></p>
-            <input style="width: 70%" type="range" min="0" max="500" value="0" class="slider" id="densitySlider" />
+            <div class="col" style="flex-grow: 1">
+              <div class="row">
+                <label for="densitySlider">World density:<br><small id="density"> +0%</small></label>
+                <input type="range" min="0" max="500" value="0" class="slider" id="densitySlider" />
+              </div>
+              <div class="row">
+                <label for="worldWidth">map width: </label>
+                <input type="number" id="worldWidth" value="100" max="100" min="0" />
+                <label for="worldHeight">map Height: </label>
+                <input type="number" id="worldHeight" value="50" max="100" min="0" />
+                <button id="adjustProportions">reset</button>
+              </div>
+            </div>
             <button id="btnGenerate">regenerate world</button>
           </div>
           <div class="card" id="map"></div>
