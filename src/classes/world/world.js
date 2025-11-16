@@ -1,4 +1,4 @@
-import { Moon, WorldTime, buildYearCalendar, ymd, Weather, WorldMap } from "./module.js";
+import { Moon, WorldTime, Calendar, Weather, WorldMap } from "./module.js";
 // --------------------------
 // World
 // --------------------------
@@ -10,7 +10,10 @@ export class World {
 
     // Time & calendar
     this.time = new WorldTime({ startDate, rnd: this.rnd });
-    this.calendar = buildYearCalendar(this.time.date.getFullYear(), this.rnd);
+    this.calendar = new Calendar({
+      year: this.time.date.getFullYear(),
+      rnd: this.rnd,
+    });
 
     // Weather & moon
     this.weather = new Weather({
@@ -18,6 +21,8 @@ export class World {
       startDate: this.time.date,
       rnd: this.rnd,
     });
+
+    this.temperatureC = this.weather.computeTemperature(this.time.date);
 
     this.moon = new Moon({ startDate: this.time.date });
 
@@ -33,25 +38,27 @@ export class World {
   // --- Time & environment ---
 
   getDayInfo(date = this.time.date) {
-    const y = date.getFullYear();
-    if (y !== this._calYear) {
-      this.calendar = buildYearCalendar(y, this.rnd);
-      this._calYear = y;
-    }
-    const key = ymd(y, date.getMonth() + 1, date.getDate());
-    const info = this.calendar.get(key) || { holidays: [], specials: [], dayOff: false };
-    const dow = date.getDay(); // 0=Sunday
-    const isWeekend = dow === 0 || dow === 6;
-    const dayOff = info.dayOff || isWeekend;
-    return { ...info, isWeekend, dayOff, kind: dayOff ? DayKind.DAY_OFF : DayKind.WORKDAY };
+    return this.calendar.getDayInfo(date);
+  }
+
+  daysUntil(name, fromDate = this.time.date) {
+    return this.calendar.daysUntil(name, fromDate);
   }
 
   advance(minutes) {
     // Apply all weather transitions for the elapsed time
     this.weather.step(minutes, this.time.date);
 
+    // Move world time
     this.time.advanceMinutes(minutes);
 
+    // If year changed, rebuild calendar
+    const newYear = this.time.date.getFullYear();
+    if (newYear !== this.calendar.year) {
+      this.calendar.setYear(newYear);
+    }
+
+    // Step moon
     this.moon.step(minutes, this.time.date);
 
     // Recompute temperature at the new time with the latest weather
@@ -82,11 +89,12 @@ export class World {
   get moonPhase() {
     return this.moon.getPhase();
   }
+
   get moonInfo() {
     return this.moon.getInfo(this.time.date);
   }
 
-  //worldmap getters
+  // worldmap getters
   get locations() {
     return this.map.locations;
   }
@@ -95,5 +103,3 @@ export class World {
     return this.map.edges;
   }
 }
-
-const DayKind = { WORKDAY: "workday", DAY_OFF: "day off" };

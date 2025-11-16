@@ -1,7 +1,154 @@
+import { clamp } from "../../../shared/modules.js";
+import { MS_PER_DAY } from "../module.js";
 
-// --------------------------
-// Calendar & Holidays
-// --------------------------
+/**
+ * Calendar: builds & holds holiday/special info for a given year.
+ */
+export class Calendar {
+  constructor({ year, rnd }) {
+    this.rnd = rnd || Math.random;
+    this.map = new Map();
+    this.randomHolidayAssignments = new Map();
+
+    // one-time, per-calendar-instance random placements
+    this._initRandomHolidays();
+
+    this.setYear(year);
+  }
+
+  /** Pick stable random dates for RANDOM_HOLIDAYS (per Calendar instance). */
+  _initRandomHolidays() {
+    const used = new Set(); // avoid duplicates among random holidays themselves
+
+    for (const def of RANDOM_HOLIDAYS) {
+      let month, day, key;
+      do {
+        ({ month, day } = randomMonthDay(this.rnd));
+        key = `${month}-${day}`;
+      } while (used.has(key));
+      used.add(key);
+      this.randomHolidayAssignments.set(def.name, { month, day });
+    }
+  }
+
+  /** Explicitly set the calendar year and rebuild if it changed. */
+  setYear(year) {
+    if (this.year === year) return;
+    this.year = year;
+    this._buildYear();
+  }
+
+  /** Internal builder for the current year. */
+  _buildYear() {
+    const year = this.year;
+    this.map.clear();
+
+    const add = (m, d, holidayDef) => {
+      const { name, category, special = false, dayOff = false } = holidayDef;
+      const key = ymd(year, m, d);
+
+      if (!this.map.has(key)) {
+        this.map.set(key, { holidays: [], specials: [], dayOff: false });
+      }
+
+      const v = this.map.get(key);
+      const entry = { name, category };
+
+      if (special) {
+        v.specials.push(entry);
+      } else {
+        v.holidays.push(entry);
+      }
+
+      if (dayOff) v.dayOff = true;
+    };
+
+    // From registry
+    for (const def of HOLIDAY_REGISTRY) {
+      const dates = def.resolveDates(year);
+      for (const { month, day } of dates) {
+        add(month, day, def);
+      }
+    }
+
+    // Randoms: use stable assignments
+    for (const def of RANDOM_HOLIDAYS) {
+      const assigned = this.randomHolidayAssignments.get(def.name);
+      if (!assigned) continue;
+      add(assigned.month, assigned.day, def);
+    }
+  }
+
+  /**
+   * Get info for a specific Date.
+   * Assumes caller keeps calendar.year in sync (World.advance will do that).
+   */
+  getDayInfo(date) {
+    const y = date.getFullYear();
+    const key = ymd(y, date.getMonth() + 1, date.getDate());
+    const info = this.map.get(key) || {
+      holidays: [],
+      specials: [],
+      dayOff: false,
+    };
+
+    const dow = date.getDay(); // 0=Sunday
+    const isWeekend = dow === 0 || dow === 6;
+    const dayOff = info.dayOff || isWeekend;
+
+    return {
+      ...info,
+      isWeekend,
+      dayOff,
+      kind: dayOff ? DayKind.DAY_OFF : DayKind.WORKDAY,
+    };
+  }
+
+  daysUntil(name, fromDate) {
+    const target = name.toLowerCase();
+    const fromYear = fromDate.getFullYear();
+
+    if (fromYear !== this.year) {
+      return undefined;
+    }
+
+    const fromMidnight = new Date(fromYear, fromDate.getMonth(), fromDate.getDate());
+
+    let best = Infinity;
+
+    for (const [key, info] of this.map.entries()) {
+      const allNames = [...info.holidays, ...info.specials].map((h) => (typeof h === "string" ? h : h.name));
+
+      const matches = allNames.some((n) => n.toLowerCase() === target);
+      if (!matches) continue;
+
+      const [yStr, mStr, dStr] = key.split("-");
+      const y = parseInt(yStr, 10);
+      const m = parseInt(mStr, 10) - 1;
+      const d = parseInt(dStr, 10);
+
+      if (y !== fromYear) continue;
+
+      const targetDate = new Date(y, m, d);
+      const diffDays = Math.round((targetDate - fromMidnight) / MS_PER_DAY);
+
+      if (diffDays >= 0 && diffDays < best) best = diffDays;
+    }
+
+    return Number.isFinite(best) ? best : undefined;
+  }
+}
+
+export const DayKind = { WORKDAY: "workday", DAY_OFF: "day off" };
+
+export const HolidayCategory = {
+  RELIGIOUS: "religious",
+  CIVIC: "civic",
+  COMMUNITY: "community",
+};
+
+/** Gregorian leap year check */
+const isLeap = (year) => year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
 
 /** Compute Gregorian Easter for a given year (Anonymous Gregorian algorithm). */
 function easterDate(year) {
@@ -22,72 +169,272 @@ function easterDate(year) {
   return { month, day };
 }
 
-/** Add a YYYY-MM-DD string helper. */
+/** Format YYYY-MM-DD string helper. */
 export const ymd = (y, m, d) => `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
 
-/**
- * Build holiday/special calendar for a given year.
- * Ensures: each month has 1–2 real‑world special days; includes fictional day‑off holidays.
- */
-export function buildYearCalendar(year, rnd) {
-  const map = new Map(); // dateStr -> { holidays: [], specials: [], dayOff: boolean }
-  const add = (m, d, item, { special = false, dayOff = false } = {}) => {
-    const key = ymd(year, m, d);
-    if (!map.has(key)) map.set(key, { holidays: [], specials: [], dayOff: false });
-    const v = map.get(key);
-    (special ? v.specials : v.holidays).push(item);
-    v.dayOff = v.dayOff || dayOff;
-  };
+/** Random YYYY-MM-DD string helper for a given year & RNG. */
+function randomYmd(year, rnd) {
+  const monthDays = [31, isLeap(year) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
-  // Weekends handled separately in getDayInfo
+  const month = Math.floor(rnd() * 12) + 1; // 1–12
+  const day = Math.floor(rnd() * monthDays[month - 1]) + 1; // 1–days in month
 
-  // Fixed real-world style dates (region-agnostic, descriptive labels)
-  add(1, 1, "New Year's Day", { dayOff: true });
-  add(2, 2, "Groundhog Day", { special: true });
-  add(2, 14, "Valentine's Day", { special: true });
-  add(3, 17, "St. Patrick's Day", { special: true });
-  add(4, 1, "April Fools' Day", { special: true });
-  // Easter (movable, special but often day off in some regions; here mark special only)
-  const eas = easterDate(year);
-  add(eas.month, eas.day, "Easter", { special: true });
-  add(5, 1, "May Day", { dayOff: true });
-  // Pride: mark the whole June as special (not day off)
-  for (let d = 1; d <= 30; d++) add(6, d, "Pride Month", { special: true });
-  add(6, 24, "Midsummer", { special: true });
-  add(10, 31, "Halloween", { special: true });
-  add(11, 11, "Remembrance Day", { special: true });
-  add(12, 24, "Christmas Eve", { dayOff: true });
-  add(12, 25, "Christmas Day", { dayOff: true });
-
-  // Additional cultural observances (approximated)
-  // NOTE: For simplicity we include approximate placeholders for Eid and Yom Kippur.
-  // You can replace these with precise calendar conversions later.
-  const eidDay = 20 + (year % 10); // ~ late spring/summer, drifts by year
-  add(7, clamp(eidDay, 1, 30), "Eid (observance)", { special: true });
-  const ykDay = 10 + ((year * 3) % 10); // ~ early autumn approximation
-  add(9, clamp(ykDay, 1, 30), "Yom Kippur (observance)", { special: true });
-
-  // Ensure 1–2 specials per month minimum
-  const monthDays = [31, 29, 31, 30, 31, 30, 30, 31, 30, 31, 30, 31]; // generous Feb for simplicity
-  for (let m = 1; m <= 12; m++) {
-    const has = [...map.keys()]
-      .filter((k) => k.startsWith(`${year}-${String(m).padStart(2, "0")}-`))
-      .map((k) => map.get(k))
-      .some((v) => v.specials.length + v.holidays.length >= 1);
-    if (!has) {
-      const d = randInt(5, Math.min(25, monthDays[m - 1]), rnd);
-      add(m, d, "Community Day", { special: true });
-    }
-  }
-
-  // Fictional day‑off holidays (2–4 per year)
-  const fictionals = ["Founders' Day", "Independence Day", "Unity Day", "Memorial of Heroes"];
-  const count = randInt(2, 4, rnd);
-  for (let i = 0; i < count; i++) {
-    const m = randInt(1, 12, rnd);
-    const d = randInt(1, monthDays[m - 1], rnd);
-    add(m, d, pick(fictionals, rnd), { dayOff: true });
-  }
-
-  return map;
+  return ymd(year, month, day);
 }
+
+/** Helper: pick a random (month, day) pair, independent of target year. */
+function randomMonthDay(rnd) {
+  const dateStr = randomYmd(2000, rnd); // year here doesn’t matter
+  const [, mStr, dStr] = dateStr.split("-");
+  return { month: Number(mStr), day: Number(dStr) };
+}
+
+/**
+ * Static, non-random holidays & observances.
+ * Each entry describes how to get its date(s) for a given year.
+ */
+const HOLIDAY_REGISTRY = [
+  {
+    name: "New Year's Day",
+    category: HolidayCategory.CIVIC,
+    dayOff: true,
+    special: false,
+    resolveDates: (year) => [{ month: 1, day: 1 }],
+  },
+  {
+    name: "Groundhog Day",
+    category: HolidayCategory.COMMUNITY,
+    dayOff: false,
+    special: true,
+    resolveDates: (year) => [{ month: 2, day: 2 }],
+  },
+  {
+    name: "Valentine's Day",
+    category: HolidayCategory.COMMUNITY,
+    dayOff: false,
+    special: true,
+    resolveDates: (year) => [{ month: 2, day: 14 }],
+  },
+  {
+    name: "St. Patrick's Day",
+    category: HolidayCategory.RELIGIOUS,
+    dayOff: false,
+    special: true,
+    resolveDates: (year) => [{ month: 3, day: 17 }],
+  },
+  {
+    name: "April Fools' Day",
+    category: HolidayCategory.COMMUNITY,
+    dayOff: false,
+    special: true,
+    resolveDates: (year) => [{ month: 4, day: 1 }],
+  },
+  {
+    name: "Midsummer",
+    category: HolidayCategory.COMMUNITY,
+    dayOff: false,
+    special: true,
+    resolveDates: (year) => [{ month: 6, day: 24 }],
+  },
+  {
+    name: "Halloween",
+    category: HolidayCategory.COMMUNITY,
+    dayOff: false,
+    special: true,
+    resolveDates: (year) => [{ month: 10, day: 31 }],
+  },
+  {
+    name: "Remembrance Day",
+    category: HolidayCategory.CIVIC,
+    dayOff: false,
+    special: true,
+    resolveDates: (year) => [{ month: 11, day: 11 }],
+  },
+  {
+    name: "Festivus",
+    category: HolidayCategory.COMMUNITY,
+    dayOff: false,
+    special: true,
+    resolveDates: (year) => [{ month: 12, day: 23 }],
+  },
+  {
+    name: "Christmas Eve",
+    category: HolidayCategory.RELIGIOUS,
+    dayOff: true,
+    special: false,
+    resolveDates: (year) => [{ month: 12, day: 24 }],
+  },
+  {
+    name: "Christmas Day",
+    category: HolidayCategory.RELIGIOUS,
+    dayOff: true,
+    special: false,
+    resolveDates: (year) => [{ month: 12, day: 25 }],
+  },
+  {
+    name: "Easter",
+    category: HolidayCategory.RELIGIOUS,
+    dayOff: true,
+    special: false,
+    resolveDates: (year) => [easterDate(year)],
+  },
+  {
+    name: "May Day",
+    category: HolidayCategory.CIVIC,
+    dayOff: true,
+    special: false,
+    resolveDates: (year) => [{ month: 5, day: 1 }],
+  },
+  {
+    // Eid ~ late spring/summer, drifts by year (your original approximation)
+    name: "Eid (observance)",
+    category: HolidayCategory.RELIGIOUS,
+    dayOff: false,
+    special: true,
+    resolveDates: (year) => {
+      const eidDay = 20 + (year % 10);
+      return [{ month: 7, day: clamp(eidDay, 1, 30) }];
+    },
+  },
+  {
+    name: "Yom Kippur (observance)",
+    category: HolidayCategory.RELIGIOUS,
+    dayOff: false,
+    special: true,
+    resolveDates: (year) => {
+      const ykDay = 10 + ((year * 3) % 10);
+      return [{ month: 9, day: clamp(ykDay, 1, 30) }];
+    },
+  },
+  {
+    // Pride: whole June as special
+    name: "Pride Month",
+    category: HolidayCategory.COMMUNITY,
+    dayOff: false,
+    special: true,
+    resolveDates: (year) => Array.from({ length: 30 }, (_, i) => ({ month: 6, day: i + 1 })),
+  },
+];
+
+const RANDOM_HOLIDAYS = [
+  // community specials
+  {
+    name: "Outer Space Day",
+    category: HolidayCategory.COMMUNITY,
+    special: true,
+    dayOff: false,
+  },
+  { name: "Dog Day", category: HolidayCategory.COMMUNITY, special: true, dayOff: false },
+  { name: "Cat Day", category: HolidayCategory.COMMUNITY, special: true, dayOff: false },
+  {
+    name: "Day of a Thousand Kites",
+    category: HolidayCategory.COMMUNITY,
+    special: true,
+    dayOff: false,
+  },
+  {
+    name: "Community Day",
+    category: HolidayCategory.COMMUNITY,
+    special: true,
+    dayOff: false,
+  },
+  {
+    name: "Lanternfall Night",
+    category: HolidayCategory.COMMUNITY,
+    special: true,
+    dayOff: false,
+  },
+  {
+    name: "International Pizza Day",
+    category: HolidayCategory.COMMUNITY,
+    special: true,
+    dayOff: false,
+  },
+  {
+    name: "Rivershine Regatta",
+    category: HolidayCategory.COMMUNITY,
+    special: true,
+    dayOff: false,
+  },
+  {
+    name: "Night of Broken Clocks",
+    category: HolidayCategory.COMMUNITY,
+    special: true,
+    dayOff: false,
+  },
+  {
+    name: "Mist Parade",
+    category: HolidayCategory.COMMUNITY,
+    special: true,
+    dayOff: false,
+  },
+  { name: "Mender's Fair", category: HolidayCategory.COMMUNITY, special: true, dayOff: false },
+  {
+    name: "Festival of Unsold Things",
+    category: HolidayCategory.COMMUNITY,
+    special: true,
+    dayOff: false,
+  },
+  {
+    name: "Ember Eve",
+    category: HolidayCategory.COMMUNITY,
+    special: true,
+    dayOff: false,
+  },
+  {
+    name: "Day of Small Miracles",
+    category: HolidayCategory.COMMUNITY,
+    special: true,
+    dayOff: false,
+  },
+  {
+    name: "Make a friend Day",
+    category: HolidayCategory.COMMUNITY,
+    special: true,
+    dayOff: false,
+  },
+  {
+    name: "Day Of The Werewolf",
+    category: HolidayCategory.COMMUNITY,
+    special: true,
+    dayOff: false,
+  },
+
+  // fictional day-off holidays (treat them as civic “national” days)
+  {
+    name: "Founders' Day",
+    category: HolidayCategory.CIVIC,
+    special: false,
+    dayOff: true,
+  },
+  {
+    name: "Independence Day",
+    category: HolidayCategory.CIVIC,
+    special: false,
+    dayOff: true,
+  },
+  {
+    name: "Unity Day",
+    category: HolidayCategory.CIVIC,
+    special: false,
+    dayOff: true,
+  },
+  {
+    name: "Memorial of Heroes",
+    category: HolidayCategory.CIVIC,
+    special: false,
+    dayOff: true,
+  },
+  {
+    name: "Rejuvenation Day",
+    category: HolidayCategory.CIVIC,
+    special: false,
+    dayOff: true,
+  },
+  {
+    name: "Day of Quiet Doors",
+    category: HolidayCategory.CIVIC,
+    special: false,
+    dayOff: true,
+  },
+];

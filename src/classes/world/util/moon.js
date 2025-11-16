@@ -1,3 +1,5 @@
+import { MS_PER_DAY } from "../module.js";
+
 export class Moon {
   constructor({ startDate = new Date() } = {}) {
     this._date = new Date(startDate);
@@ -23,7 +25,7 @@ export class Moon {
    *  - angle: phase angle in degrees (0..360)
    */
   getInfo(date = this._date) {
-    const tDays = (Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds()) - EPOCH_MS) / DAY_MS;
+    const tDays = (Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds()) - EPOCH_MS) / MS_PER_DAY;
 
     const age = posMod(tDays, SYNODIC);
     const angle = (360 * age) / SYNODIC; // 0..360
@@ -68,6 +70,4 @@ const MoonPhase = {
   WANING_CRESCENT: "waning crescent",
 };
 
-
 const EPOCH_MS = Date.UTC(2000, 0, 6, 18, 14, 0, 0);
-const DAY_MS = 24 * 60 * 60 * 1000;

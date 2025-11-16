@@ -14,3 +14,6 @@ export class WorldTime {
     return this.date.toDateString() !== new Date(this.date.getTime() - mins * 60 * 1000).toDateString() ? 1 : 0;
   }
 }
+
+
+export const MS_PER_DAY = 24 * 60 * 60 * 1000;

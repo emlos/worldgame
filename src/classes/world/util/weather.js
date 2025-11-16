@@ -208,4 +208,4 @@ export class Weather {
 }
 
 const WeatherType = { CLEAR: "clear", CLOUDY: "cloudy", RAIN: "rain", STORM: "storm", WINDY: "windy", SNOW: "snow", SUNNY: "sunny" };
-const Season = { WINTER: "winter", SPRING: "spring", SUMMER: "summer", AUTUMN: "autumn" }; 
+export const Season = { WINTER: "winter", SPRING: "spring", SUMMER: "summer", AUTUMN: "autumn" }; 

@@ -86,23 +86,26 @@ function init() {
     c.innerHTML = "";
     const d = world.time.date;
     const dayInfo = world.getDayInfo(d);
+    console.log(dayInfo);
     const rows = [
       ["Date", `${fmtDate(d)} (${dowName(d)})`],
       ["Time", fmtTime(d)],
       ["Season", `<code>${world.season}</code>`],
       ["Day kind", dayInfo.dayOff ? "<b>Day off</b>" : "Workday"],
-      ["Holidays", dayInfo.holidays.length ? dayInfo.holidays.join(", ") : "—"],
-      ["Specials", dayInfo.specials.length ? dayInfo.specials.join(", ") : "—"],
+      ["Holidays", dayInfo.holidays.length ? dayInfo.holidays.map((s) => s.name + ` <code>${s.category}</code>`).join("<br>") : "—"],
+      ["Specials", dayInfo.specials.length ? dayInfo.specials.map((s) => s.name + ` <code>${s.category}</code>`).join("<br>") : "—"],
     ];
     c.append(el("h2", { html: "Time & Date" }));
     c.append(table(rows, ["Property", "Value"]));
   }
 
+  //
+
   function renderWeatherSeason() {
     const c = byId("weather-season");
     c.innerHTML = "";
 
-    // NEW: grab detailed moon info (phase + illumination)
+    // detailed moon info (phase + illumination)
     const mi = world.moonInfo; // { age, fraction, phase, angle }
 
     const rows = [
@@ -135,8 +138,8 @@ function init() {
       rows.push([
         `${monthName(month)} ${pad2(day)}, ${year}`,
         dowName(dt),
-        info.holidays.length ? info.holidays.join("<br>") : "—",
-        info.specials.length ? info.specials.join("<br>") : "—",
+        info.holidays.length ? info.holidays.map((s) => s.name).join("<br>") : "—",
+        info.specials.length ? info.specials.map((s) => s.name).join("<br>") : "—",
         info.dayOff ? "Yes" : "No",
       ]);
     }
