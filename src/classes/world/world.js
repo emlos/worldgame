@@ -45,6 +45,8 @@ export class World {
     return this.calendar.daysUntil(name, fromDate);
   }
 
+  getHoliday() {}
+
   advance(minutes) {
     // Apply all weather transitions for the elapsed time
     this.weather.step(minutes, this.time.date);
@@ -72,6 +74,13 @@ export class World {
 
   getTravelEdge(fromId, toId) {
     return this.locations.get(fromId)?.neighbors.get(toId) || null;
+  }
+
+  getCurrentHolidayNames() {
+    const info = this.calendar.getDayInfo(this.date);
+    const all = [...info.holidays, ...info.specials];
+
+    return all.map((h) => (typeof h === "string" ? h : h.name));
   }
 
   get currentWeather() {

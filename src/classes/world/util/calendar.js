@@ -81,7 +81,6 @@ export class Calendar {
 
   /**
    * Get info for a specific Date.
-   * Assumes caller keeps calendar.year in sync (World.advance will do that).
    */
   getDayInfo(date) {
     const y = date.getFullYear();
