@@ -2,7 +2,7 @@ function init() {
   const NAME_POOLS = {
     masc: ["Alex", "Ben", "Carter", "Diego", "Ethan", "Felix", "Hiro", "Ivan", "Jonas", "Kai"],
     fem: ["Ada", "Bianca", "Clara", "Dina", "Eva", "Freya", "Hana", "Iris", "Julia", "Kira"],
-    nb: ["Ash", "Blair", "Carey", "Devon", "Eden", "Finley", "Harper", "Indigo", "Jules", "Kit"],
+    nb: ["Cameron", "Chandler", "Dakota", "Darcy", "Drew", "Hayden", "Kim", "Taylor", "Ash", "Blair", "Carey", "Devon", "Elliott", "Finley", "Harper", "Indigo", "Jules", "Kit", "Taylor", "Blake", "Blue", "Larkin", "Sasha", "Mickey", "North", "Quincy", "Ramsey", "Hope", "Sky", "Salem", "Tavi", "Valentine", "Milo", "Austin", "Brooke"],
     surnames: ["Morgan", "Rivera", "Kowalski", "Khan", "Okoye", "Novak", "Nguyen", "Garcia", "Patel", "Silva"],
   };
 
@@ -24,13 +24,6 @@ function init() {
     return stats;
   };
 
-  const randomColorHex = (rnd) => {
-    const r = randInt(64, 230, rnd).toString(16).padStart(2, "0");
-    const g = randInt(64, 230, rnd).toString(16).padStart(2, "0");
-    const b = randInt(64, 230, rnd).toString(16).padStart(2, "0");
-    return `#${r}${g}${b}`;
-  };
-
   const randomClothingItem = (slot, gender, rnd) => {
     // slight bias: masc -> negative, fem -> positive, nb -> near zero
     let bias = 0;
@@ -44,7 +37,7 @@ function init() {
       image: `${slot}/default.png`,
       durability: Math.max(0.3, approxNormal01(rnd)),
       wetness: Math.max(0, approxNormal01(rnd) - 0.3),
-      color: randomColorHex(rnd),
+      color: randomHexColor(rnd),
       genderBias: clamp(bias, -1, 1),
     });
   };
