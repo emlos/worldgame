@@ -181,8 +181,9 @@ function init() {
   let bodyPartInfo = {};
   function renderPart(part) {
     //select part
-    part.style.stroke = "red";
+    
     lastElemPart.style.stroke = "#000000";
+    part.style.stroke = "red";
     lastElemPart = part;
 
     //clean up listeners
