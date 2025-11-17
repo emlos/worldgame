@@ -19,6 +19,7 @@
       --card: #11161b;
       --line: #26323b;
     }
+
     html,
     body {
       margin: 0;
@@ -27,20 +28,24 @@
       color: var(--fg);
       font: 14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, "Helvetica Neue", Arial;
     }
+
     .wrap {
       max-width: 1100px;
       margin: 32px auto;
       padding: 0 16px;
     }
+
     h1 {
       font-size: 20px;
       margin: 0 0 16px;
     }
+
     h2 {
       font-size: 16px;
       margin: 24px 0 8px;
       color: var(--muted);
     }
+
     .card {
       background: var(--card);
       border: 1px solid var(--line);
@@ -48,10 +53,12 @@
       padding: 16px;
       margin: 12px 0;
     }
+
     table {
       width: 100%;
       border-collapse: collapse;
     }
+
     th,
     td {
       border-top: 1px solid var(--line);
@@ -59,22 +66,27 @@
       text-align: left;
       vertical-align: top;
     }
+
     th {
       font-weight: 600;
       color: var(--muted);
     }
+
     tr:first-child > th,
     tr:first-child > td {
       border-top: 0;
     }
+
     .kv th {
       width: 220px;
     }
+
     .row {
       display: flex;
       gap: 8px;
       flex-wrap: wrap;
     }
+
     button {
       background: #1f2a33;
       color: var(--fg);
@@ -83,9 +95,11 @@
       border-radius: 8px;
       cursor: pointer;
     }
+
     button:hover {
       background: #21323f;
     }
+
     .swatch {
       display: inline-block;
       width: 20px;
@@ -94,16 +108,19 @@
       border: 1px solid var(--line);
       vertical-align: middle;
     }
+
     code {
       background: #0d1216;
       padding: 2px 6px;
       border-radius: 6px;
       border: 1px solid var(--line);
     }
+
     .small {
       color: var(--muted);
       font-size: 12px;
     }
+
     img.icon {
       height: 24px;
       width: 24px;
@@ -112,7 +129,28 @@
       border: 1px solid var(--line);
       background: #0002;
     }
+
+    polygon {
+      fill: #949494;
+      stroke: #000000;
+      stroke-width: 1;
+      cursor: pointer;
+    }
+
+    /* example hover so you can see separation */
+    polygon:hover {
+      fill: #8db499;
+      cursor: pointer;
+    }
+
+    #body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
   </style>
+
   <body>
     <h1>Test</h1>
     <p><a href="../../index.html">back</a></p>
@@ -131,6 +169,66 @@
       <div class="card" id="traits"></div>
       <div class="card" id="skills"></div>
       <div class="card" id="relationships"></div>
+      <div style="display: flex; flex-direction: row; gap: 10px">
+        <div class="card" id="body">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 40 260 450" width="260" height="450">
+            <line x1="250" y1="160" x2="100" y2="160" stroke="#888888" stroke-dasharray="0 4 0" />
+            <line x1="250" y1="250" x2="100" y2="250" stroke="#888888" stroke-dasharray="0 4 0" />
+            <!--HEAD-->
+            <polygon id="head" class="head bodypart" points="90,40 110,40 130,60 130,90 110,110 90,110 70,90 70,60" />
+            <!--FACE (front center of head)-->
+            <polygon id="face" class="face bodypart" points="90,60 110,60 120,75 120,95 110,105 90,105 80,95 80,75" />
+            <!--NECK-->
+            <polygon id="neck" class="neck bodypart" points="90,110 110,110 110,135 90,135" />
+            <!--CHEST (front torso upper)-->
+            <polygon id="chest" class="upper-body bodypart" points="60,135 140,135 140,155 130,210 70,210 60,155" />
+            <!--SHOULDERS-->
+            <polygon id="shoulder_l" class="shoulder_l shoulder upper-body bodypart" points="35,135 60,135 60,155 35,155" />
+            <polygon id="shoulder_r" class="shoulder_r shoulder upper-body bodypart" points="140,135 165,135 165,155 140,155" />
+            <!--ABDOMEN-->
+            <polygon id="abdomen" class="abdomen bodypart lower-body" points="70,210 130,210 130,250 70,250" />
+            <!--BACK (on the right)-->
+            <polygon id="back" class="back bodypart upper-body" points=" 250,160 190,160 190,250 250,250" />
+            <!--GROIN-->
+            <polygon id="groin" class="groin bodypart lower-body" points="70,250 130,250 130,260 105,290 95,290 70,260" />
+            <!--UPPER ARMS-->
+            <polygon id="upper_arm_l" class="upper-body upper_arm_l bodypart" points="35,155 55,155 55,215 35,215" />
+            <polygon id="upper_arm_r" class="upper-body upper_arm_r bodypart" points="145,155 165,155 165,215 145,215" />
+            <!--LOWER ARMS-->
+            <polygon id="lower_arm_l" class="upper-body lower_arm_l bodypart" points="35,215 55,215 50,270 35,270" />
+            <polygon id="lower_arm_r" class="upper-body lower_arm_r bodypart" points="145,215 165,215 165,270 150,270" />
+            <!--HANDS-->
+            <polygon id="hand_l" class="hand_l hands bodypart" points="35,270 50,270 55,290 35,300" />
+            <polygon id="hand_r" class="hand_r hands bodypart" points="150,270 165,270 165,300 145,290" />
+            <!--THIGHS-->
+            <polygon id="thigh_l" class="thigh_l thigh lower-body legs bodypart" points="70,260 95,290 95,360 70,360 65,290" />
+            <polygon id="thigh_r" class="thigh_r thigh lower-body legs bodypart" points="105,290 130,260 135,290 130,360 105,360 " />
+            <!--KNEES-->
+            <polygon id="knee_l" class="knee_l knee legs lower-body bodypart" points="70,360 95,360 95,370 70,370" />
+            <polygon id="knee_r" class="knee_r knee legs lower-body bodypart" points="105,360 130,360 130,370 105,370" />
+            <!--CALVES-->
+            <polygon id="calf_l" class="calf_l calf legs lower-body bodypart" points="70,370 95,370 90,450 75,450" />
+            <polygon id="calf_r" class="calf_r calf legs lower-body bodypart" points="105,370 130,370 125,450 110,450" />
+            <!--ANKLES-->
+            <polygon id="ankle_l" class="ankle_l feet bodypart" points="75,450 90,450 90,460 75,460" />
+            <polygon id="ankle_r" class="ankle_r feet bodypart" points="110,450 125,450 125,460 110,460" />
+            <!--FEET-->
+            <polygon id="foot_l" class="foot_l feet bodypart" points="75,460 90,460 90,480 45,480 48,475" />
+            <polygon id="foot_r" class="foot_r feet bodypart" points="110,460 125,460 152,475 155,480 110,480" />
+          </svg>
+        </div>
+
+        <div style="display: flex; flex-direction: column; width: 100%; margin-top: 12px;">
+          <div style="display: flex; gap: 10px;">
+            <button style="display: none;" id="btnDamage"></button>
+            <button style="display: none;" id="btnDamageRandom"></button>
+            <button style="display: none;" id="btnHealPart"></button>
+            <button id="btnHealFull">Heal To Full</button>
+          </div>
+          <div class="card" id="bodyinfo" style="flex-grow: 1"></div>
+          <div class="card" id="bodypartinfo" style="display: none"></div>
+        </div>
+      </div>
       <div class="card" id="clothing"></div>
     </div>
     <script src="./player_creation.js"></script>

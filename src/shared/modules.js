@@ -6,6 +6,7 @@ import * as random from "./util/random.js";
 import * as relationship from "./classes/relationship.js";
 import * as stat from "./classes/stat.js";
 import * as trait from "./classes/trait.js";
+import * as body from "./classes/body.js"
 
 
 export * from "./classes/clothing.js";
@@ -16,6 +17,7 @@ export * from "./classes/trait.js";
 export * from "./util/color.js";
 export * from "./util/util.js";
 export * from "./util/random.js";
+export *  from "./classes/body.js"
 
 if (debug) {
   Object.assign(window, {
@@ -26,6 +28,7 @@ if (debug) {
     ...random,
     ...stat,
     ...trait,
-    ...relationship
+    ...relationship,
+    ...body
   });
 }

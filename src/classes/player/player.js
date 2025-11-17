@@ -1,6 +1,6 @@
-import {  makeFlagSkill, makeMeterSkill} from "./modules.js";
+import { makeFlagSkill, makeMeterSkill } from "./modules.js";
 import { Relationship, Stat, Gender, PronounSets, adjustHexLightness, Clothing, clamp, deepFreeze } from "../../shared/modules.js";
-
+import { Body, DamageType } from "../../shared/modules.js";
 /*
   Text Adventure Core – Player model (vanilla JS, no build step)
   ----------------------------------------------------------------
@@ -29,6 +29,7 @@ export class Player {
    * @param {string} opts.hairColor hex
    * @param {('m'|'f'|'nb')} opts.gender
    * @param {object} opts.pronouns PronounSets.* or custom
+   * @param {Array<object>} [opts.bodyTemplate] Optional override for body template
    */
   constructor({
     stats = {},
@@ -38,6 +39,7 @@ export class Player {
     hairColor = "#5a3b1f",
     gender = Gender.NB,
     pronouns = PronounSets.THEY_THEM,
+    bodyTemplate, // <--- NEW
   } = {}) {
     // Stats ----------------------------------------------------
     this.stats = {};
@@ -67,10 +69,13 @@ export class Player {
 
     // Clothing --------------------------------------------------
     this.clothing = new Map(); // slot -> Clothing
+
+    // Body ------------------------------------------------------
+    this.body = new Body({ template: bodyTemplate }); // <--- NEW
   }
 
   // --- Appearance & color ---
-  get body() {
+  get visualbody() {
     return this._bodyImmutable.body;
   } // immutable
   set hair(path) {
@@ -202,5 +207,92 @@ export class Player {
     if (score <= -0.33) label = Gender.M;
     else if (score >= 0.33) label = Gender.F;
     return { score, label };
+  }
+
+  // --- Body / injury convenience methods ----------------------
+
+  /**
+   * Get the BodyPartState for a given part id.
+   * @param {string} partId BodyPartId.*
+   */
+  getBodyPart(partId) {
+    return this.body ? this.body.getPart(partId) : null;
+  }
+
+  /**
+   * Apply damage to a body part.
+   * Usage: player.applyDamageToPart({ partId: BodyPartId.HEAD, amount: 20 })
+   */
+  applyDamageToPart({ partId, amount, damageType = DamageType.BLUNT }) {
+    if (!this.body) return null;
+    return this.body.applyDamage({ partId, amount, damageType });
+  }
+
+   /**
+   * Apply damage to a body part with chance of causing injury.
+   * Usage: player.applyDamageToPart({ partId: BodyPartId.HEAD, amount: 20 , rnd: Math.random() })
+   */
+  applyDamageToPartRandom({ partId, amount, damageType = DamageType.BLUNT, rnd }) {
+    if (!this.body) return null;
+    return this.body.applyDamageRandomized({ partId, amount, damageType, rnd });
+  }
+
+  /**
+   * Heal a specific body part.
+   */
+  healBodyPart(partId, amount) {
+    if (!this.body) return null;
+    return this.body.healPart(partId, amount);
+  }
+
+  /**
+   * Fully heal all body parts.
+   */
+  fullyHealBody() {
+    if (!this.body) return;
+    this.body.fullyHeal();
+  }
+
+  /**
+   * Total pain (0..100) aggregated from body parts.
+   */
+  getBodyPain() {
+    if (!this.body) return 0;
+    return this.body.getTotalPain();
+  }
+
+  /**
+   * Short descriptive label: "fine", "sore", "hurting", "badly hurt", "in severe pain".
+   */
+  getBodyPainLabel() {
+    if (!this.body) return "fine";
+    return this.body.getPainLabel();
+  }
+
+  /**
+   * Pain stage 0..3:
+   * 0 = fine, 1 = minor, 2 = major, 3 = near incapacitated.
+   */
+  getBodyPainStage() {
+    if (!this.body) return 0;
+    return this.body.getPainStage();
+  }
+
+  /**
+   * Multiplier for physical performance from 1.0 down to ~0.5.
+   * You can use this when reading physical stats.
+   */
+  getPhysicalPerformanceMultiplier() {
+    if (!this.body) return 1.0;
+    return this.body.getPhysicalPerformanceMultiplier();
+  }
+
+  /**
+   * Simple “is this character basically out of it?” check.
+   * Uses critical breaks + high pain.
+   */
+  isIncapacitated() {
+    if (!this.body) return false;
+    return this.body.hasCriticalBreaks() || this.body.getPainStage() >= 3;
   }
 }
