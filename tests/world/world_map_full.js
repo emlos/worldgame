@@ -24,6 +24,39 @@ const table = (rows, headers = []) => {
   return t;
 };
 
+const HOURS_DAY_LABELS = {
+  mon: "Mon",
+  tue: "Tue",
+  wed: "Wed",
+  thu: "Thu",
+  fri: "Fri",
+  sat: "Sat",
+  sun: "Sun",
+};
+
+function formatOpeningHours(hours) {
+  if (!hours) return "Hours: —";
+
+  const order = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
+  const lines = order.map((dayKey) => {
+    const label = HOURS_DAY_LABELS[dayKey] || dayKey;
+    const slots = hours[dayKey] || [];
+    if (!slots.length) {
+      return `${label}: closed`;
+    }
+    const ranges = slots
+      .map((slot) => {
+        const from = slot.from || (Array.isArray(slot) ? slot[0] : "");
+        const to = slot.to || (Array.isArray(slot) ? slot[1] : "");
+        return `${from}–${to}`;
+      })
+      .join(", ");
+    return `${label}: ${ranges}`;
+  });
+
+  return "Hours:<br>" + lines.join("<br>");
+}
+
 function init(density, width, height) {
   // ------- World creation (random but stable per refresh) -------
 
@@ -62,7 +95,8 @@ function init(density, width, height) {
           .map((p) => {
             const icon = p.props && p.props.icon ? p.props.icon + " " : "";
             const type = p.key ? ` <small>(${p.key})</small>` : "";
-            return `<li>${icon}<strong>${p.name}</strong>${type}</li>`;
+            const hours = p.props && p.props.openingHours ? `<br><small>${formatOpeningHours(p.props.openingHours)}</small>` : "";
+            return `<li>${icon}<strong>${p.name}</strong>${type}${hours}</li>`;
           })
           .join("")}</ul>`
       : "<p>No places at this location.</p>";
