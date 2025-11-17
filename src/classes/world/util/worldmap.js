@@ -535,7 +535,7 @@ export class WorldMap {
   // Street naming
   // --------------------------
   _assignStreetNames() {
-    const rng = this.rnd;
+    const rnd = this.rnd;
 
     // nodeId -> array<Street> (undirected)
     const nodeEdges = new Map();
@@ -571,10 +571,10 @@ export class WorldMap {
       }
 
       if (lowDeg.length > 0) {
-        startEdge = lowDeg[(rng() * lowDeg.length) | 0];
+        startEdge = lowDeg[(rnd() * lowDeg.length) | 0];
       } else {
         const arr = Array.from(unassigned);
-        startEdge = arr[(rng() * arr.length) | 0];
+        startEdge = arr[(rnd() * arr.length) | 0];
       }
 
       // orient so we start from the "less busy" end if possible
@@ -603,7 +603,7 @@ export class WorldMap {
         // At intersections (deg >= 3) and once we have MIN_LEN, sometimes stop here
         if (deg >= 3 && len >= MIN_LEN) {
           const pContinue = clamp01(0.5 * (1 + this.density)); // tweak: higher means longer continuous streets
-          if (rng() > pContinue) break;
+          if (rnd() > pContinue) break;
         }
 
         // Choose next edge – avoid going straight back if other options exist
@@ -613,9 +613,9 @@ export class WorldMap {
           return other !== prevNode;
         });
         if (nonBack.length > 0) {
-          nextEdge = nonBack[(rng() * nonBack.length) | 0];
+          nextEdge = nonBack[(rnd() * nonBack.length) | 0];
         } else {
-          nextEdge = available[(rng() * available.length) | 0];
+          nextEdge = available[(rnd() * available.length) | 0];
         }
 
         runEdges.push(nextEdge);
@@ -636,7 +636,7 @@ export class WorldMap {
           const incident = nodeEdges.get(node) || [];
           const avail = incident.filter((ed) => unassigned.has(ed));
           if (avail.length) {
-            const extra = avail[(rng() * avail.length) | 0];
+            const extra = avail[(rnd() * avail.length) | 0];
             runEdges.push(extra);
             unassigned.delete(extra);
             extended = true;
@@ -648,7 +648,7 @@ export class WorldMap {
       }
 
       const startLoc = this.locations.get(from);
-      const def = pickStreetDefForRun(startLoc, usedStreetKeys, rng);
+      const def = pickStreetDefForRun(startLoc, usedStreetKeys, rnd);
 
       let streetName = null;
 
@@ -673,7 +673,7 @@ export class WorldMap {
       // If we couldn’t reuse an existing name, pick a fresh one from the registry
       if (!streetName) {
         const startLoc = this.locations.get(from);
-        const def = pickStreetDefForRun(startLoc, usedStreetKeys, rng);
+        const def = pickStreetDefForRun(startLoc, usedStreetKeys, rnd);
 
         if (def) {
           streetName = def.name;
