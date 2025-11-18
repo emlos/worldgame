@@ -331,6 +331,33 @@ function init(density, width, height) {
   byId("mapinfo").innerHTML = "";
   byId("mapinfo").append(el("h2", { html: "Map Information" }));
   byId("mapinfo").append(el("small", { html: `Generation took: ${gentime}ms` }));
+
+  const placed = Array.from(world.map.locations.values())
+    .map((loc) => loc.places)
+    .flat()
+    .map((place) => place.key)
+    .filter((value, index, array) => array.indexOf(value) === index);
+  const unCommonArray = (first, second) => {
+    const res = [];
+    for (let i = 0; i < first.length; i++) {
+      if (second.indexOf(first[i]) === -1) {
+        res.push(first[i]);
+      }
+    }
+    for (let j = 0; j < second.length; j++) {
+      if (first.indexOf(second[j]) === -1) {
+        res.push(second[j]);
+      }
+    }
+    return res;
+  };
+
+  const missing = unCommonArray(
+    PLACE_REGISTRY.map((p) => p.key),
+    placed
+  );
+  console.log(missing);
+
   byId("mapinfo").append(
     table(
       [
@@ -341,6 +368,7 @@ function init(density, width, height) {
         ],
         ["Location amount", world.map.locations.size],
         ["Place amount", Array.from(world.map.locations.values()).reduce((accumulator, currentValue) => accumulator + currentValue.places.length, 0)],
+        ["Locations not on map", missing.length > 0 ? missing.map(m =>`<code>${m}</code>`).join("<br>") : "-"],
       ],
       ["Property", "Value"]
     )
