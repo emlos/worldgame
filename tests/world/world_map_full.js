@@ -62,7 +62,7 @@ function init(density, width, height) {
 
   let gentime = Date.now();
   const world = new World({
-    seed: Date.now(),
+    rnd: makeRNG(Date.now()),
     density: density,
     startDate: new Date(), // now
     w: width,

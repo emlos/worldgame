@@ -8,9 +8,9 @@ import { makeRNG, approxNormal01, clamp01 } from "../../../shared/modules.js";
 // - Season constants aren’t imported; month->season is handled internally via static method.
 
 export class Weather {
-  constructor({ seed = Date.now(), startDate = new Date(), initial = null, rnd = null } = {}) {
+  constructor({ startDate = new Date(), initial = null, rnd } = {}) {
     // Use a provided RNG, or make our own LCG
-    this._rnd = typeof rnd === "function" ? rnd : makeRNG(seed);
+    this._rnd = rnd;
     this._date = new Date(startDate);
     // Current weather state (string). If not given, pick seasonally at start time.
     const season = Weather.monthToSeason(this._date.getMonth() + 1);

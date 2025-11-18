@@ -1,7 +1,7 @@
 function init() {
   // ------- World creation (random but stable per refresh) -------
   const world = new World({
-    seed: Date.now(),
+    rnd: makeRNG(Date.now()),
     locationCount: 10,
     startDate: new Date(), // now
   });

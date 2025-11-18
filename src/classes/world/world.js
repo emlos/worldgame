@@ -4,9 +4,8 @@ import { Moon, WorldTime, Calendar, Weather, WorldMap } from "./module.js";
 // --------------------------
 
 export class World {
-  constructor({ seed = Date.now(), startDate = new Date(), density = 0.25, w = 100, h = 50 } = {}) {
-    this.seed = seed;
-    this.rnd = makeRNG(seed);
+  constructor({ rnd, startDate = new Date(), density = 0.1, w = 100, h = 50 } = {}) {
+    this.rnd = rnd;
 
     // Time & calendar
     this.time = new WorldTime({ startDate, rnd: this.rnd });
@@ -17,7 +16,6 @@ export class World {
 
     // Weather & moon
     this.weather = new Weather({
-      seed: this.seed,
       startDate: this.time.date,
       rnd: this.rnd,
     });
