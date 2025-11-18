@@ -113,7 +113,7 @@ function instanceId(key, idx, locationId) {
 }
 
 function generatePlaces({ locations, getTag, neighbors, distance, rnd, targetCounts, density = 0 }) {
-  const density01 = clamp01(density ?? 0);
+  const density01 = density
   const minPlacesPerLocation = 1;
 
   // --- Graph + degree -----------------------------------
@@ -156,7 +156,7 @@ function generatePlaces({ locations, getTag, neighbors, distance, rnd, targetCou
 
     // For density 0, bias closer to min; for density 1, allow max
     const t = density01;
-    const target = Math.round(minSlots * (1 - t) + maxSlots * t);
+    const target = Math.round(minSlots * density + maxSlots * t);
 
     softTarget.set(String(locId), target);
   }
@@ -497,13 +497,11 @@ function computeAutoLocationCount(density) {
     totalMinPlaces += min;
   }
 
-  // We want lower average occupancy at low density:
-  // density 0  -> target ~2.5 per location
-  // density 1  -> target ~capacityPerLocation per location
-  const targetAvgAtZero = 2.5; // tune if you like
-  const targetAvg = (1 - clamp01(density)) * targetAvgAtZero + clamp01(density) * capacityPerLocation;
+  const targetAvg = 2.5; // tune if you like
 
-  const locCount = Math.ceil(totalMinPlaces / targetAvg);
+
+  const locCount = Math.ceil(totalMinPlaces / targetAvg) * (1+ density);
+
   return Math.max(locCount, 1);
 }
 
