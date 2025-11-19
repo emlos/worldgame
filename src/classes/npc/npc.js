@@ -8,6 +8,7 @@ import {
     Body,
     HUMAN_BODY_TEMPLATE,
 } from "../../shared/modules.js";
+import { LOCATION_TAGS } from "../../data/data.js";
 
 import { Place } from "../world/module.js";
 // --------------------------
@@ -183,7 +184,7 @@ export class NPC {
 
         // Prefer urban / suburban
         const urbanish = locations.filter((loc) =>
-            (loc.tags || []).some((t) => t === "urban" || t === "suburban")
+            (loc.tags || []).some((t) => t === LOCATION_TAGS.urban || t === LOCATION_TAGS.suburban)
         );
         const pool = urbanish.length ? urbanish : locations;
 

@@ -1,3 +1,22 @@
+export const LOCATION_TAGS = {
+    rural: "rural",
+    suburban: "suburban",
+    suburban_hub: "suburban_hub",
+    urban: "urban",
+    urban_center: "urban_center",
+    urban_core: "urban_core",
+    urban_edge: "urban_edge",
+    parkland: "parkland",
+    industrial: "industrial",
+    commercial: "commercial",
+    residential: "residential",
+    historic: "historic",
+    tourism: "tourism",
+    education: "education",
+    dense: "dense",
+    coastal: "coastal",
+};
+
 /**
  * District registry:
  * - key: unique identifier
@@ -11,14 +30,25 @@ export const LOCATION_REGISTRY = [
     {
         key: "downtown",
         label: "Downtown",
-        tags: ["urban_core", "urban_center", "urban", "commercial", "dense"],
+        tags: [
+            LOCATION_TAGS.urban_core,
+            LOCATION_TAGS.urban_center,
+            LOCATION_TAGS.urban,
+            LOCATION_TAGS.commercial,
+            LOCATION_TAGS.dense,
+        ],
         weight: 3,
         min: 1,
     },
     {
         key: "market_district",
         label: "Market District",
-        tags: ["urban_center", "urban", "commercial", "dense"],
+        tags: [
+            LOCATION_TAGS.urban_center,
+            LOCATION_TAGS.urban,
+            LOCATION_TAGS.commercial,
+            LOCATION_TAGS.dense,
+        ],
         weight: 2,
     },
 
@@ -26,7 +56,12 @@ export const LOCATION_REGISTRY = [
     {
         key: "residential_core",
         label: "Residential Core",
-        tags: ["urban_center", "urban", "residential", "dense"],
+        tags: [
+            LOCATION_TAGS.urban_center,
+            LOCATION_TAGS.urban,
+            LOCATION_TAGS.residential,
+            LOCATION_TAGS.dense,
+        ],
         weight: 4,
     },
 
@@ -34,27 +69,41 @@ export const LOCATION_REGISTRY = [
     {
         key: "suburb",
         label: "Suburb",
-        tags: ["suburban", "residential"],
+        tags: [LOCATION_TAGS.suburban, LOCATION_TAGS.residential],
         weight: 6,
     },
     {
         key: "suburban_town_center",
         label: "Suburban Town Center",
-        tags: ["suburban_hub", "suburban", "commercial", "residential"],
+        tags: [
+            LOCATION_TAGS.suburban_hub,
+            LOCATION_TAGS.suburban,
+            LOCATION_TAGS.commercial,
+            LOCATION_TAGS.residential,
+        ],
         weight: 3,
     },
 
     // -------- URBAN EDGE / INDUSTRIAL --------
     {
-        key: "industrial",
+        key: LOCATION_TAGS.industrial,
         label: "Industrial Park",
-        tags: ["industrial", "urban_edge", "urban"],
+        tags: [
+            LOCATION_TAGS.industrial,
+            LOCATION_TAGS.urban_edge,
+            LOCATION_TAGS.urban,
+        ],
         weight: 2,
     },
     {
         key: "harbor",
         label: "Harbor",
-        tags: ["coastal", "industrial", "commercial", "urban_edge"],
+        tags: [
+            LOCATION_TAGS.coastal,
+            LOCATION_TAGS.industrial,
+            LOCATION_TAGS.commercial,
+            LOCATION_TAGS.urban_edge,
+        ],
         weight: 1,
         max: 1,
     },
@@ -63,7 +112,12 @@ export const LOCATION_REGISTRY = [
     {
         key: "campus",
         label: "University District",
-        tags: ["education", "urban", "suburban", "dense"],
+        tags: [
+            LOCATION_TAGS.education,
+            LOCATION_TAGS.urban,
+            LOCATION_TAGS.suburban,
+            LOCATION_TAGS.dense,
+        ],
         weight: 1,
         max: 1,
     },
@@ -72,7 +126,12 @@ export const LOCATION_REGISTRY = [
     {
         key: "old_town",
         label: "Old Town",
-        tags: ["historic", "tourism", "urban_center", "urban"],
+        tags: [
+            LOCATION_TAGS.historic,
+            LOCATION_TAGS.tourism,
+            LOCATION_TAGS.urban_center,
+            LOCATION_TAGS.urban,
+        ],
         weight: 2,
     },
 
@@ -80,7 +139,11 @@ export const LOCATION_REGISTRY = [
     {
         key: "parklands",
         label: "Parklands",
-        tags: ["parkland", "suburban", "urban_edge"],
+        tags: [
+            LOCATION_TAGS.parkland,
+            LOCATION_TAGS.suburban,
+            LOCATION_TAGS.urban_edge,
+        ],
         weight: 2,
     },
 
@@ -88,7 +151,7 @@ export const LOCATION_REGISTRY = [
     {
         key: "rural_edge",
         label: "Rural Edge",
-        tags: ["rural", "residential"],
+        tags: [LOCATION_TAGS.rural, LOCATION_TAGS.residential],
         weight: 2,
     },
 ];

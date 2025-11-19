@@ -16,7 +16,7 @@ export class Location {
     this.x = x;
     this.y = y;
     this.districtKey = districtKey; // e.g., "downtown"
-    this.tags = Array.from(new Set(tags)); // e.g., ["urban","commercial"]
+    this.tags = Array.from(new Set(tags)); // e.g., [LOCATION_TAGS.urban,LOCATION_TAGS.commercial]
     this.meta = meta;
   }
 
