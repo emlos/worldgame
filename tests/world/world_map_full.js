@@ -24,22 +24,12 @@ const table = (rows, headers = []) => {
   return t;
 };
 
-const HOURS_DAY_LABELS = {
-  mon: "Mon",
-  tue: "Tue",
-  wed: "Wed",
-  thu: "Thu",
-  fri: "Fri",
-  sat: "Sat",
-  sun: "Sun",
-};
-
 function formatOpeningHours(hours) {
   if (!hours) return "Hours: —";
 
-  const order = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
+  const order = [DAY_KEYS[1], DAY_KEYS[2], DAY_KEYS[3], DAY_KEYS[4], DAY_KEYS[5], DAY_KEYS[6], DAY_KEYS[0]];
   const lines = order.map((dayKey) => {
-    const label = HOURS_DAY_LABELS[dayKey] || dayKey;
+    const label = dayKey
     const slots = hours[dayKey] || [];
     if (!slots.length) {
       return `${label}: closed`;

@@ -41,7 +41,7 @@ function init() {
   const pad2 = (n) => String(n).padStart(2, "0");
   const fmtDate = (d) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
   const fmtTime = (d) => `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
-  const dowName = (d) => ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d.getDay()];
+  const dowName = (d) => [DAY_KEYS[0], DAY_KEYS[1], DAY_KEYS[2], DAY_KEYS[3], DAY_KEYS[4], DAY_KEYS[5], DAY_KEYS[6]][d.getDay()];
   const monthName = (mIdx) => ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][mIdx];
 
   // ------- Controls (buttons & inputs) -------

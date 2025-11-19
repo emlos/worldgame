@@ -1,6 +1,17 @@
 import { makeFlagSkill, makeMeterSkill } from "./modules.js";
-import { Relationship, Stat, Gender, PronounSets, adjustHexLightness, Clothing, clamp, deepFreeze } from "../../shared/modules.js";
-import { Body, DamageType } from "../../shared/modules.js";
+import {
+    Relationship,
+    Stat,
+    Gender,
+    PronounSets,
+    adjustHexLightness,
+    Clothing,
+    clamp,
+    deepFreeze,
+    Body,
+    DamageType,
+} from "../../shared/modules.js";
+
 /*
   Text Adventure Core – Player model (vanilla JS, no build step)
   ----------------------------------------------------------------
@@ -20,279 +31,301 @@ import { Body, DamageType } from "../../shared/modules.js";
 // --------------------------
 
 export class Player {
-  /**
-   * @param {object} opts
-   * @param {object} opts.stats e.g., { looks: 5, strength: 3, intelligence: 4 }
-   * @param {object} opts.appearance { head, body, face, hair } -> image paths
-   * @param {string} opts.skinTone hex color string (e.g., #d2a679)
-   * @param {string} opts.eyeColor hex
-   * @param {string} opts.hairColor hex
-   * @param {('m'|'f'|'nb')} opts.gender
-   * @param {object} opts.pronouns PronounSets.* or custom
-   * @param {Array<object>} [opts.bodyTemplate] Optional override for body template
-   */
-  constructor({
-    stats = {},
-    appearance = { head: "head/1.png", body: "body/1.png", face: "head/1.png", hair: "hair/1.png" },
-    skinTone = "#f2d3b3",
-    eyeColor = "#5b7fa6",
-    hairColor = "#5a3b1f",
-    gender = Gender.NB,
-    pronouns = PronounSets.THEY_THEM,
-    bodyTemplate, // <--- NEW
-  } = {}) {
-    // Stats ----------------------------------------------------
-    this.stats = {};
-    for (const [k, v] of Object.entries(stats)) this.stats[k] = new Stat(Number(v) || 0);
+    /**
+     * @param {object} opts
+     * @param {object} opts.stats e.g., { looks: 5, strength: 3, intelligence: 4 }
+     * @param {object} opts.appearance { head, body, face, hair } -> image paths
+     * @param {string} opts.skinTone hex color string (e.g., #d2a679)
+     * @param {string} opts.eyeColor hex
+     * @param {string} opts.hairColor hex
+     * @param {('m'|'f'|'nb')} opts.gender
+     * @param {object} opts.pronouns PronounSets.* or custom
+     * @param {Array<object>} [opts.bodyTemplate] Optional override for body template
+     */
+    constructor({
+        stats = {},
+        appearance = {
+            head: "head/1.png",
+            body: "body/1.png",
+            face: "head/1.png",
+            hair: "hair/1.png",
+        },
+        skinTone = "#f2d3b3",
+        eyeColor = "#5b7fa6",
+        hairColor = "#5a3b1f",
+        gender = Gender.NB,
+        pronouns = PronounSets.THEY_THEM,
+        bodyTemplate, // <--- NEW
+    } = {}) {
+        // Stats ----------------------------------------------------
+        this.stats = {};
+        for (const [k, v] of Object.entries(stats))
+            this.stats[k] = new Stat(Number(v) || 0);
 
-    // Appearance -----------------------------------------------
-    this._bodyImmutable = deepFreeze({ body: appearance.body }); // body fixed after creation
-    this.appearance = {
-      head: appearance.head,
-      face: appearance.face,
-      hair: appearance.hair,
-      // body exposed via getter to guarantee immutability
-    };
+        // Appearance -----------------------------------------------
+        this._bodyImmutable = deepFreeze({ body: appearance.body }); // body fixed after creation
+        this.appearance = {
+            head: appearance.head,
+            face: appearance.face,
+            hair: appearance.hair,
+            // body exposed via getter to guarantee immutability
+        };
 
-    this._skinTone = skinTone; // hex
-    this.eyeColor = eyeColor; // hex
-    this.hairColor = hairColor; // hex
+        this._skinTone = skinTone; // hex
+        this.eyeColor = eyeColor; // hex
+        this.hairColor = hairColor; // hex
 
-    // Identity --------------------------------------------------
-    this.gender = gender; // declared gender
-    this.pronouns = { ...pronouns };
+        // Identity --------------------------------------------------
+        this.gender = gender; // declared gender
+        this.pronouns = { ...pronouns };
 
-    // Traits, Relationships, Skills ----------------------------
-    this.traits = new Map(); // id -> Trait
-    this.relationships = new Map(); // npcId -> Relationship
-    this.skills = new Map(); // name -> {type, value}
+        // Traits, Relationships, Skills ----------------------------
+        this.traits = new Map(); // id -> Trait
+        this.relationships = new Map(); // npcId -> Relationship
+        this.skills = new Map(); // name -> {type, value}
 
-    // Clothing --------------------------------------------------
-    this.clothing = new Map(); // slot -> Clothing
+        // Clothing --------------------------------------------------
+        this.clothing = new Map(); // slot -> Clothing
 
-    // Body ------------------------------------------------------
-    this.body = new Body({ template: bodyTemplate }); // <--- NEW
-  }
-
-  // --- Appearance & color ---
-  get visualbody() {
-    return this._bodyImmutable.body;
-  } // immutable
-  set hair(path) {
-    this.appearance.hair = path;
-  }
-  get hair() {
-    return this.appearance.hair;
-  }
-
-  get skinTone() {
-    return this._skinTone;
-  }
-  set skinTone(hex) {
-    this._skinTone = hex;
-  }
-  /** Darken skin by step (0..1 small). */
-  tan(step = 0.05) {
-    this._skinTone = adjustHexLightness(this._skinTone, -Math.abs(step));
-    return this._skinTone;
-  }
-  /** Lighten skin by step (0..1 small). */
-  loseTan(step = 0.05) {
-    this._skinTone = adjustHexLightness(this._skinTone, Math.abs(step));
-    return this._skinTone;
-  }
-
-  // --- Stats ---
-  getStatBase(name) {
-    return this.stats[name]?.base ?? 0;
-  }
-  setStatBase(name, v) {
-    if (!this.stats[name]) this.stats[name] = new Stat(0);
-    this.stats[name].base = v;
-  }
-  /**
-   * Compute stat with trait modifiers applied. You can extend with item buffs, etc.
-   */
-  getStatValue(name) {
-    const s = this.stats[name] || new Stat(0);
-    // clear temporary before apply
-    s.clearModifiers();
-    // apply trait modifiers
-    for (const trait of this.traits.values()) {
-      if (!trait.has(this)) continue;
-      const mods = trait.statMods?.[name];
-      if (mods?.add) mods.add.forEach((v) => s.addFlat(v));
-      if (mods?.mult) mods.mult.forEach((m) => s.addMult(m));
+        // Body ------------------------------------------------------
+        this.body = new Body({ template: bodyTemplate }); // <--- NEW
     }
-    // clothing / other systems could hook here later
-    return s.value;
-  }
 
-  // --- Traits ---
-  addTrait(trait) {
-    this.traits.set(trait.id, trait);
-    return this;
-  }
-  removeTrait(id) {
-    this.traits.delete(id);
-  }
-  hasTrait(id) {
-    return this.traits.has(id) && this.traits.get(id).has(this);
-  }
-
-  // --- Relationships ---
-  setRelationship({ npcId, met = true, score = 0 }) {
-    this.relationships.set(String(npcId), new Relationship({ npcId, met, score }));
-  }
-  getRelationship(npcId) {
-    return this.relationships.get(String(npcId)) || new Relationship({ npcId });
-  }
-  bumpRelationship(npcId, delta) {
-    const r = this.getRelationship(npcId);
-    r.met = true;
-    r.score = clamp(r.score + delta, -1, 1);
-    this.relationships.set(String(npcId), r);
-    return r.score;
-  }
-
-  // --- Skills ---
-  setFlagSkill(name, value = true) {
-    this.skills.set(name, makeFlagSkill(value));
-  }
-  setMeterSkill(name, value = 0) {
-    this.skills.set(name, makeMeterSkill(value));
-  }
-  getSkill(name) {
-    return this.skills.get(name);
-  }
-  improveSkill(name, delta = 0.05) {
-    const sk = this.skills.get(name);
-    if (!sk) return;
-    if (sk.type === "meter") sk.value = clamp(sk.value + delta, 0, 1);
-    if (sk.type === "flag") sk.value = true; // flags just set true once earned
-  }
-
-  // --- Clothing ---
-  equip(item) {
-    if (!(item instanceof Clothing)) throw new Error("equip expects Clothing");
-    this.clothing.set(item.slot, item);
-  }
-  unequip(slot) {
-    this.clothing.delete(slot);
-  }
-  getEquipped(slot) {
-    return this.clothing.get(slot) || null;
-  }
-  totalClothingGenderBias() {
-    let sum = 0;
-    for (const item of this.clothing.values()) sum += item.genderBias || 0;
-    return clamp(sum, -1, 1);
-  }
-
-  // --- Perceived gender ---
-  /**
-   * Returns { score: -1..+1, label: 'm'|'f'|'nb' }
-   * Heuristic combining clothing bias and trait cues; can be extended later
-   */
-  get perceivedGender() {
-    let score = 0;
-    // clothing contribution
-    score += this.totalClothingGenderBias();
-    // trait cues (opt-in): a trait may expose a genderBias property
-    for (const t of this.traits.values()) {
-      if (typeof t.genderBias === "number") score += t.genderBias;
+    // --- Appearance & color ---
+    get visualbody() {
+        return this._bodyImmutable.body;
+    } // immutable
+    set hair(path) {
+        this.appearance.hair = path;
     }
-    score = clamp(score, -1, 1);
-    let label = Gender.NB;
-    if (score <= -0.33) label = Gender.M;
-    else if (score >= 0.33) label = Gender.F;
-    return { score, label };
-  }
+    get hair() {
+        return this.appearance.hair;
+    }
 
-  // --- Body / injury convenience methods ----------------------
+    get skinTone() {
+        return this._skinTone;
+    }
+    set skinTone(hex) {
+        this._skinTone = hex;
+    }
+    /** Darken skin by step (0..1 small). */
+    tan(step = 0.05) {
+        this._skinTone = adjustHexLightness(this._skinTone, -Math.abs(step));
+        return this._skinTone;
+    }
+    /** Lighten skin by step (0..1 small). */
+    loseTan(step = 0.05) {
+        this._skinTone = adjustHexLightness(this._skinTone, Math.abs(step));
+        return this._skinTone;
+    }
 
-  /**
-   * Get the BodyPartState for a given part id.
-   * @param {string} partId BodyPartId.*
-   */
-  getBodyPart(partId) {
-    return this.body ? this.body.getPart(partId) : null;
-  }
+    // --- Stats ---
+    getStatBase(name) {
+        return this.stats[name]?.base ?? 0;
+    }
+    setStatBase(name, v) {
+        if (!this.stats[name]) this.stats[name] = new Stat(0);
+        this.stats[name].base = v;
+    }
+    /**
+     * Compute stat with trait modifiers applied. You can extend with item buffs, etc.
+     */
+    getStatValue(name) {
+        const s = this.stats[name] || new Stat(0);
+        // clear temporary before apply
+        s.clearModifiers();
+        // apply trait modifiers
+        for (const trait of this.traits.values()) {
+            if (!trait.has(this)) continue;
+            const mods = trait.statMods?.[name];
+            if (mods?.add) mods.add.forEach((v) => s.addFlat(v));
+            if (mods?.mult) mods.mult.forEach((m) => s.addMult(m));
+        }
+        // clothing / other systems could hook here later
+        return s.value;
+    }
 
-  /**
-   * Apply damage to a body part.
-   * Usage: player.applyDamageToPart({ partId: BodyPartId.HEAD, amount: 20 })
-   */
-  applyDamageToPart({ partId, amount, damageType = DamageType.BLUNT }) {
-    if (!this.body) return null;
-    return this.body.applyDamage({ partId, amount, damageType });
-  }
+    // --- Traits ---
+    addTrait(trait) {
+        this.traits.set(trait.id, trait);
+        return this;
+    }
+    removeTrait(id) {
+        this.traits.delete(id);
+    }
+    hasTrait(id) {
+        return this.traits.has(id) && this.traits.get(id).has(this);
+    }
 
-   /**
-   * Apply damage to a body part with chance of causing injury.
-   * Usage: player.applyDamageToPart({ partId: BodyPartId.HEAD, amount: 20 , rnd: Math.random() })
-   */
-  applyDamageToPartRandom({ partId, amount, damageType = DamageType.BLUNT, rnd }) {
-    if (!this.body) return null;
-    return this.body.applyDamageRandomized({ partId, amount, damageType, rnd });
-  }
+    // --- Relationships ---
+    setRelationship({ npcId, met = true, score = 0 }) {
+        this.relationships.set(
+            String(npcId),
+            new Relationship({ npcId, met, score })
+        );
+    }
+    getRelationship(npcId) {
+        return (
+            this.relationships.get(String(npcId)) || new Relationship({ npcId })
+        );
+    }
+    bumpRelationship(npcId, delta) {
+        const r = this.getRelationship(npcId);
+        r.met = true;
+        r.score = clamp(r.score + delta, -1, 1);
+        this.relationships.set(String(npcId), r);
+        return r.score;
+    }
 
-  /**
-   * Heal a specific body part.
-   */
-  healBodyPart(partId, amount) {
-    if (!this.body) return null;
-    return this.body.healPart(partId, amount);
-  }
+    // --- Skills ---
+    setFlagSkill(name, value = true) {
+        this.skills.set(name, makeFlagSkill(value));
+    }
+    setMeterSkill(name, value = 0) {
+        this.skills.set(name, makeMeterSkill(value));
+    }
+    getSkill(name) {
+        return this.skills.get(name);
+    }
+    improveSkill(name, delta = 0.05) {
+        const sk = this.skills.get(name);
+        if (!sk) return;
+        if (sk.type === "meter") sk.value = clamp(sk.value + delta, 0, 1);
+        if (sk.type === "flag") sk.value = true; // flags just set true once earned
+    }
 
-  /**
-   * Fully heal all body parts.
-   */
-  fullyHealBody() {
-    if (!this.body) return;
-    this.body.fullyHeal();
-  }
+    // --- Clothing ---
+    equip(item) {
+        if (!(item instanceof Clothing))
+            throw new Error("equip expects Clothing");
+        this.clothing.set(item.slot, item);
+    }
+    unequip(slot) {
+        this.clothing.delete(slot);
+    }
+    getEquipped(slot) {
+        return this.clothing.get(slot) || null;
+    }
+    totalClothingGenderBias() {
+        let sum = 0;
+        for (const item of this.clothing.values()) sum += item.genderBias || 0;
+        return clamp(sum, -1, 1);
+    }
 
-  /**
-   * Total pain (0..100) aggregated from body parts.
-   */
-  getBodyPain() {
-    if (!this.body) return 0;
-    return this.body.getTotalPain();
-  }
+    // --- Perceived gender ---
+    /**
+     * Returns { score: -1..+1, label: 'm'|'f'|'nb' }
+     * Heuristic combining clothing bias and trait cues; can be extended later
+     */
+    get perceivedGender() {
+        let score = 0;
+        // clothing contribution
+        score += this.totalClothingGenderBias();
+        // trait cues (opt-in): a trait may expose a genderBias property
+        for (const t of this.traits.values()) {
+            if (typeof t.genderBias === "number") score += t.genderBias;
+        }
+        score = clamp(score, -1, 1);
+        let label = Gender.NB;
+        if (score <= -0.33) label = Gender.M;
+        else if (score >= 0.33) label = Gender.F;
+        return { score, label };
+    }
 
-  /**
-   * Short descriptive label: "fine", "sore", "hurting", "badly hurt", "in severe pain".
-   */
-  getBodyPainLabel() {
-    if (!this.body) return "fine";
-    return this.body.getPainLabel();
-  }
+    // --- Body / injury convenience methods ----------------------
 
-  /**
-   * Pain stage 0..3:
-   * 0 = fine, 1 = minor, 2 = major, 3 = near incapacitated.
-   */
-  getBodyPainStage() {
-    if (!this.body) return 0;
-    return this.body.getPainStage();
-  }
+    /**
+     * Get the BodyPartState for a given part id.
+     * @param {string} partId BodyPartId.*
+     */
+    getBodyPart(partId) {
+        return this.body ? this.body.getPart(partId) : null;
+    }
 
-  /**
-   * Multiplier for physical performance from 1.0 down to ~0.5.
-   * You can use this when reading physical stats.
-   */
-  getPhysicalPerformanceMultiplier() {
-    if (!this.body) return 1.0;
-    return this.body.getPhysicalPerformanceMultiplier();
-  }
+    /**
+     * Apply damage to a body part.
+     * Usage: player.applyDamageToPart({ partId: BodyPartId.HEAD, amount: 20 })
+     */
+    applyDamageToPart({ partId, amount, damageType = DamageType.BLUNT }) {
+        if (!this.body) return null;
+        return this.body.applyDamage({ partId, amount, damageType });
+    }
 
-  /**
-   * Simple “is this character basically out of it?” check.
-   * Uses critical breaks + high pain.
-   */
-  isIncapacitated() {
-    if (!this.body) return false;
-    return this.body.hasCriticalBreaks() || this.body.getPainStage() >= 3;
-  }
+    /**
+     * Apply damage to a body part with chance of causing injury.
+     * Usage: player.applyDamageToPart({ partId: BodyPartId.HEAD, amount: 20 , rnd: Math.random() })
+     */
+    applyDamageToPartRandom({
+        partId,
+        amount,
+        damageType = DamageType.BLUNT,
+        rnd,
+    }) {
+        if (!this.body) return null;
+        return this.body.applyDamageRandomized({
+            partId,
+            amount,
+            damageType,
+            rnd,
+        });
+    }
+
+    /**
+     * Heal a specific body part.
+     */
+    healBodyPart(partId, amount) {
+        if (!this.body) return null;
+        return this.body.healPart(partId, amount);
+    }
+
+    /**
+     * Fully heal all body parts.
+     */
+    fullyHealBody() {
+        if (!this.body) return;
+        this.body.fullyHeal();
+    }
+
+    /**
+     * Total pain (0..100) aggregated from body parts.
+     */
+    getBodyPain() {
+        if (!this.body) return 0;
+        return this.body.getTotalPain();
+    }
+
+    /**
+     * Short descriptive label: "fine", "sore", "hurting", "badly hurt", "in severe pain".
+     */
+    getBodyPainLabel() {
+        if (!this.body) return "fine";
+        return this.body.getPainLabel();
+    }
+
+    /**
+     * Pain stage 0..3:
+     * 0 = fine, 1 = minor, 2 = major, 3 = near incapacitated.
+     */
+    getBodyPainStage() {
+        if (!this.body) return 0;
+        return this.body.getPainStage();
+    }
+
+    /**
+     * Multiplier for physical performance from 1.0 down to ~0.5.
+     * You can use this when reading physical stats.
+     */
+    getPhysicalPerformanceMultiplier() {
+        if (!this.body) return 1.0;
+        return this.body.getPhysicalPerformanceMultiplier();
+    }
+
+    /**
+     * Simple “is this character basically out of it?” check.
+     * Uses critical breaks + high pain.
+     */
+    isIncapacitated() {
+        if (!this.body) return false;
+        return this.body.hasCriticalBreaks() || this.body.getPainStage() >= 3;
+    }
 }

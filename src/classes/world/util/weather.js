@@ -1,4 +1,5 @@
 import { makeRNG, approxNormal01, clamp01 } from "../../../shared/modules.js";
+import { WeatherType, Season } from "../../../data/data.js";
 
 // weather.js
 // Exports ONLY the Weather class (default). No other functions/constants live here.
@@ -207,5 +208,3 @@ export class Weather {
   }
 }
 
-const WeatherType = { CLEAR: "clear", CLOUDY: "cloudy", RAIN: "rain", STORM: "storm", WINDY: "windy", SNOW: "snow", SUNNY: "sunny" };
-export const Season = { WINTER: "winter", SPRING: "spring", SUMMER: "summer", AUTUMN: "autumn" }; 
