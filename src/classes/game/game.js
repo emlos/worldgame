@@ -46,10 +46,6 @@ export class Game {
     return this.world.time.date;
   }
 
-  get date() {
-    return this.world.time.date;
-  }
-
   get location() {
     return this.world.getLocation(this.currentLocationId);
   }
