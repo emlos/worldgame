@@ -7,27 +7,31 @@ import {
     clamp,
     Body,
     HUMAN_BODY_TEMPLATE,
+    pick,
 } from "../../shared/modules.js";
 import { LOCATION_TAGS } from "../../data/data.js";
-
 import { Place } from "../world/module.js";
+
 // --------------------------
 // NPC
 // --------------------------
-
 export class NPC {
     /**
      * @param {object} opts
+     * @param {string} opts.id         - world-unique id (fallback: name)
      * @param {string} opts.name
      * @param {number} opts.age
-     * @param {object} opts.stats base stats, e.g. { looks: 4, strength: 2 }
-     * @param {('m'|'f'|'nb')} opts.gender
-     * @param {object} opts.pronouns PronounSets.* or custom
-     * @param {Array<object>} [opts.bodyTemplate] body template, defaults to HUMAN_BODY_TEMPLATE
-     * @param {string|null} [opts.locationId] current location id in world map
-     * @param {string|null} [opts.homePlaceId] place id for this NPC’s home
+     * @param {object} opts.stats
+     * @param {'m'|'f'|'nb'} opts.gender
+     * @param {object} opts.pronouns
+     * @param {Array}  opts.bodyTemplate - optional Body template (defaults to HUMAN_BODY_TEMPLATE)
+     * @param {string|null} opts.locationId - current world Location id
+     * @param {string|null} opts.homeLocationId - where their home is
+     * @param {string|null} opts.homePlaceId    - Place.id of their home
+     * @param {object} opts.meta - arbitrary metadata (tags, registry key, etc)
      */
     constructor({
+        id = null,
         name,
         age,
         stats = {},
@@ -35,53 +39,86 @@ export class NPC {
         pronouns = PronounSets.THEY_THEM,
         bodyTemplate = HUMAN_BODY_TEMPLATE,
         locationId = null,
+        homeLocationId = null,
         homePlaceId = null,
+        meta = {},
     } = {}) {
+        this.id = id || String(name || "");
         this.name = String(name || "");
-        this.age = Number(age) || 0;
+        this.age = Number.isFinite(age) ? age : null;
 
-        // Stats are immutable for NPCs (no training/tan/etc.)
+        // Stats ----------------------------------------------------
         this.stats = {};
         for (const [k, v] of Object.entries(stats)) {
-            const s = new Stat(Number(v) || 0);
-            Object.freeze(s);
-            this.stats[k] = s;
+            this.stats[k] = new Stat(Number(v) || 0);
         }
-        Object.freeze(this.stats);
 
-        // Identity
+        // Identity -------------------------------------------------
         this.gender = gender;
         this.pronouns = { ...pronouns };
 
-        // Body (instance, based on template)
+        // Traits / relationships / clothing -----------------------
+        this.traits = new Map(); // id -> Trait
+        this.relationships = new Map(); // npcId -> Relationship (other NPCs OR player if you want)
+        this.clothing = new Map(); // slot -> Clothing
+
+        // Body -----------------------------------------------------
+        // Body will default to HUMAN_BODY_TEMPLATE if template is null/undefined
         this.body = new Body({ template: bodyTemplate });
 
-        // Location & home
-        this.locationId = locationId; // Location.id in the world
-        this.homePlaceId = homePlaceId; // Place.id of this NPC’s home
+        // World placement ------------------------------------------
+        this.locationId = locationId; // "where are they now?"
+        this.homeLocationId = homeLocationId; // which Location contains their home
+        this.homePlaceId = homePlaceId; // Place.id of their home inside that location
 
-        // Traits, Relationships, Clothing
-        this.traits = new Map(); // id -> Trait
-        this.relationships = new Map(); // npcId -> Relationship
-        this.clothing = new Map(); // slot -> Clothing
+        // Misc metadata (tags, registry key, etc.)
+        this.meta = { ...meta };
     }
 
-    // --- Stats (read-only base, computed value with trait/clothing mods) ---
+    // --- Location helpers --------------------------------------
+    setLocation(locationId) {
+        this.locationId = locationId;
+    }
+
+    // If you ever track both location + which Place inside it:
+    setLocationAndPlace(locationId, placeId = null) {
+        this.locationId = locationId;
+        this.currentPlaceId = placeId;
+    }
+
+    // --- Relationship helpers (NPC <-> NPC) --------------------
+    getRelationship(otherId) {
+        return this.relationships.get(String(otherId)) || null;
+    }
+
+    ensureRelationship(otherId) {
+        const key = String(otherId);
+        let rel = this.relationships.get(key);
+        if (!rel) {
+            rel = new Relationship({ npcId: key });
+            this.relationships.set(key, rel);
+        }
+        return rel;
+    }
+
+    setRelationshipScore(otherId, score) {
+        const rel = this.ensureRelationship(otherId);
+        rel.score = clamp(score, -1, 1);
+        return rel;
+    }
+
     getStatBase(name) {
         return this.stats[name]?.base ?? 0;
     }
     getStatValue(name) {
         const base = this.getStatBase(name);
-        // Use a temporary Stat so we never mutate the frozen ones
         const temp = new Stat(base);
-        // apply trait modifiers
         for (const trait of this.traits.values()) {
             if (!trait.has(this)) continue;
             const mods = trait.statMods?.[name];
             if (mods?.add) mods.add.forEach((v) => temp.addFlat(v));
             if (mods?.mult) mods.mult.forEach((m) => temp.addMult(m));
         }
-        // clothing hooks could be added here later
         return temp.value;
     }
 
@@ -96,31 +133,8 @@ export class NPC {
     hasTrait(id) {
         return this.traits.has(id) && this.traits.get(id).has(this);
     }
-
-    // --- Relationships with other NPCs ---
-    setRelationship({ npcId, met = true, score = 0 }) {
-        this.relationships.set(
-            String(npcId),
-            new Relationship({ npcId, met, score })
-        );
-    }
-    getRelationship(npcId) {
-        return (
-            this.relationships.get(String(npcId)) || new Relationship({ npcId })
-        );
-    }
-    bumpRelationship(npcId, delta) {
-        const r = this.getRelationship(npcId);
-        r.met = true;
-        r.score = clamp(r.score + delta, -1, 1);
-        this.relationships.set(String(npcId), r);
-        return r.score;
-    }
-
-    // --- Clothing ---
     equip(item) {
-        if (!(item instanceof Clothing))
-            throw new Error("equip expects Clothing");
+        if (!(item instanceof Clothing)) throw new Error("equip expects Clothing");
         this.clothing.set(item.slot, item);
     }
     unequip(slot) {
@@ -147,81 +161,5 @@ export class NPC {
         if (score <= -0.33) label = Gender.M;
         else if (score >= 0.33) label = Gender.F;
         return { score, label };
-    }
-
-    // --- Location / movement ---
-
-    /**
-     * Set current location by id (e.g. world.locations[i].id)
-     */
-    setLocation(locationId) {
-        this.locationId = locationId == null ? null : String(locationId);
-    }
-
-    /**
-     * Set / override home place id (world Place.id)
-     */
-    setHome(placeId) {
-        this.homePlaceId = placeId == null ? null : String(placeId);
-    }
-
-    /**
-     * Assigns a home to an NPC in the given world.
-     * - Picks a random urban / suburban location.
-     * - Creates a Place for their home.
-     * - Names it "<name>'s flat" if there is an apartment_complex in that location.
-     *   Otherwise "<name>'s house".
-     *
-     * @param {World} world
-     * @returns {Place} the created home place
-     */
-
-    assignHome(world) {
-        const rnd = world.rnd;
-
-        const locations = world.locations || [];
-        if (!locations.length) throw new Error("World has no locations");
-
-        // Prefer urban / suburban
-        const urbanish = locations.filter((loc) =>
-            (loc.tags || []).some((t) => t === LOCATION_TAGS.urban || t === LOCATION_TAGS.suburban)
-        );
-        const pool = urbanish.length ? urbanish : locations;
-
-        const location = pick(pool, rnd);
-
-        const hasApartmentComplex = (location.places || []).some(
-            (p) => p.key === "apartment_complex"
-        );
-
-        const placeName = hasApartmentComplex
-            ? `${this.name}'s flat`
-            : `${this.name}'s house`;
-
-        const placeId = `home_${location.id}_${Math.floor(rnd() * 1e9)}`;
-
-        const homePlace = new Place({
-            id: placeId,
-            key: "npc_home",
-            name: placeName,
-            locationId: location.id,
-            props: {
-                icon: hasApartmentComplex ? "🏢" : "🏠",
-                category: "housing",
-                isNpcHome: true,
-                ownerName: this.name,
-                // if you later have npc.id or similar, stick it here
-                // ownerId: npc.id,
-            },
-        });
-
-        location.places.push(homePlace);
-
-        this.setHome(homePlace.id);
-        if (!this.locationId) {
-            this.setLocation(location.id);
-        }
-
-        return homePlace;
     }
 }

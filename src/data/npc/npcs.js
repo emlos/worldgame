@@ -1,50 +1,56 @@
 // src/data/npc/npcs.js
+import { Gender, PronounSets } from "../../shared/modules.js";
 
-// Minimal shared shapes; keep it data-only so it’s easy to use anywhere.
+// Basic templates the game can turn into NPC instances
 export const NPC_REGISTRY = [
     {
-        key: "generic_adult",
-        label: "Generic Adult Human",
-        // Used to generate names; you can swap these out later
-        namePool: {
-            masc: ["Alex", "Ben", "Carter", "Diego"],
-            fem: ["Ada", "Bianca", "Clara", "Dina"],
-            nb: ["Cameron", "Dakota", "Drew", "Sky"],
-            surnames: ["Morgan", "Rivera", "Kowalski", "Nguyen"],
+        key: "taylor",
+        name: "Taylor Morgan",
+        shortName: "Taylor",
+
+        age: 18,
+        gender: Gender.F,
+        pronouns: PronounSets.SHE_HER,
+
+        // Whatever stat keys you’re using
+        stats: {
+            looks: 3,
+            strength: 1,
+            intelligence: 4,
+            charisma: 3,
         },
-        ageRange: { min: 20, max: 60 },
-        statsTemplate: {
-            looks: { min: 1, max: 6 },
-            strength: { min: 1, max: 6 },
-            intelligence: { min: 1, max: 6 },
-        },
-        genderWeights: { m: 0.4, f: 0.4, nb: 0.2 },
-        bodyTemplateKey: "human", // maps to HUMAN_BODY_TEMPLATE at creation time
-        tags: ["human", "adult", "citizen"],
+
+        // Tags are just metadata – useful for AI/scheduling later
+        tags: ["student", "school", "befriendable"],
+
+        // For body templates; right now everything is human
+        bodyTemplate: null, // null/undefined => default HUMAN_BODY_TEMPLATE
     },
 
-    {
-        key: "teenager",
-        label: "Teenager",
-        namePool: {
-            masc: ["Kai", "Ethan", "Milo"],
-            fem: ["Freya", "Iris", "Kira"],
-            nb: ["Tavi", "Hayden", "Salem"],
-            surnames: ["Garcia", "Patel", "Silva"],
-        },
-        ageRange: { min: 13, max: 19 },
-        statsTemplate: {
-            looks: { min: 1, max: 7 },
-            strength: { min: 1, max: 5 },
-            intelligence: { min: 1, max: 7 },
-        },
-        genderWeights: { m: 0.45, f: 0.45, nb: 0.1 },
-        bodyTemplateKey: "human",
-        tags: ["human", "teen"],
-    },
-
-    // Later you can add:
-    // - animals
-    // - aliens
-    // with different bodyTemplateKey values
+    // Add more templates here later
+    // { key: "alien_bartender", ... }
 ];
+
+/**
+ * Helper that converts a registry entry into NPC constructor options.
+ * (Not strictly required, but keeps the shape explicit.)
+ */
+export function npcFromRegistryKey(key) {
+    const def = NPC_REGISTRY.find((d) => d.key === key);
+    if (!def) return null;
+
+    return {
+        id: def.key,
+        name: def.name,
+        age: def.age,
+        gender: def.gender,
+        pronouns: def.pronouns,
+        stats: def.stats,
+        bodyTemplate: def.bodyTemplate,
+        meta: {
+            tags: def.tags || [],
+            shortName: def.shortName || def.name,
+            registryKey: def.key,
+        },
+    };
+}
