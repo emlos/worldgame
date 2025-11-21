@@ -1,10 +1,6 @@
 import { clamp01 } from "../../../shared/modules.js";
 import { Location, Place } from "../module.js";
-import {
-    LOCATION_REGISTRY,
-    PLACE_REGISTRY,
-    STREET_REGISTRY,
-} from "../../../data/data.js";
+import { LOCATION_REGISTRY, PLACE_REGISTRY, STREET_REGISTRY } from "../../../data/data.js";
 
 const capacityPerLocation = 5;
 
@@ -59,9 +55,7 @@ function pickDistrictDefs(count, rnd) {
 /** Name like "Suburb A", "Suburb B", but leave singletons as-is. */
 function defaultDistrictName(def, index) {
     const base = def.label || def.key;
-    const needsSuffix = LOCATION_REGISTRY.map((loc) => loc.key).includes(
-        def.key
-    );
+    const needsSuffix = LOCATION_REGISTRY.map((loc) => loc.key).includes(def.key);
     if (!needsSuffix) return base;
     const suffix = String.fromCharCode("A".charCodeAt(0) + (index % 26));
     return `${base} ${suffix}`;
@@ -141,8 +135,7 @@ function generatePlaces({
     }
     const neighborsFn = (id) => neighborList.get(id) || [];
 
-    const distFn = (a, b, nb) =>
-        distance ? distance(a, b) : bfsDistance(a, b, nb || neighborsFn);
+    const distFn = (a, b, nb) => (distance ? distance(a, b) : bfsDistance(a, b, nb || neighborsFn));
 
     const degree = new Map();
     for (const [id, nbs] of neighborList) {
@@ -215,8 +208,7 @@ function generatePlaces({
     // --- desired counts -----------------------------------
     const baseTargetCounts = {};
     if (targetCounts) {
-        for (const k of Object.keys(targetCounts))
-            baseTargetCounts[k] = targetCounts[k];
+        for (const k of Object.keys(targetCounts)) baseTargetCounts[k] = targetCounts[k];
     }
 
     const stage1Min = new Map();
@@ -290,15 +282,7 @@ function generatePlaces({
         }
 
         const sameKeyPlaced = placedByKey.get(def.key) || [];
-        if (
-            !isFarEnough(
-                locId,
-                sameKeyPlaced,
-                def.minDistance || 0,
-                neighborsFn,
-                distFn
-            )
-        ) {
+        if (!isFarEnough(locId, sameKeyPlaced, def.minDistance || 0, neighborsFn, distFn)) {
             return false;
         }
 
@@ -320,9 +304,7 @@ function generatePlaces({
         };
 
         const baseName =
-            typeof def.nameFn === "function"
-                ? def.nameFn(context)
-                : def.label || def.key;
+            typeof def.nameFn === "function" ? def.nameFn(context) : def.label || def.key;
 
         let nameSet = namesByKey.get(def.key);
         if (!nameSet) {
@@ -333,8 +315,7 @@ function generatePlaces({
         let name = baseName;
         if (nameSet.has(name)) {
             let suffix = 2;
-            while (suffix <= 99 && nameSet.has(`${baseName} ${suffix}`))
-                suffix++;
+            while (suffix <= 99 && nameSet.has(`${baseName} ${suffix}`)) suffix++;
             if (suffix <= 99) {
                 name = `${baseName} ${suffix}`;
             } else {
@@ -398,10 +379,7 @@ function generatePlaces({
         let attempts = 0;
         const maxAttempts = candidates.length * 15;
 
-        while (
-            (totalByKey.get(def.key) || 0) < targetTotal &&
-            attempts < maxAttempts
-        ) {
+        while ((totalByKey.get(def.key) || 0) < targetTotal && attempts < maxAttempts) {
             attempts++;
 
             const locId =
@@ -419,15 +397,11 @@ function generatePlaces({
 
     // --- Stage 1a: singletons / rare items first (NOT bus_stop) -----
     const singletonDefs = PLACE_REGISTRY.filter(
-        (d) =>
-            d.key !== "bus_stop" &&
-            (d.maxCount === 1 || (d.minCount && d.minCount > 0))
+        (d) => d.key !== "bus_stop" && (d.maxCount === 1 || (d.minCount && d.minCount > 0))
     );
 
     // Rarest (fewest candidate locations) first
-    singletonDefs.sort(
-        (a, b) => candidateListFor(a).length - candidateListFor(b).length
-    );
+    singletonDefs.sort((a, b) => candidateListFor(a).length - candidateListFor(b).length);
 
     for (const def of singletonDefs) {
         const target = stage1Min.get(def.key) || 0;
@@ -442,13 +416,9 @@ function generatePlaces({
     }
 
     // --- Stage 1c: all remaining minCounts ---------------------------
-    const others = PLACE_REGISTRY.filter(
-        (d) => d !== busDef && !singletonDefs.includes(d)
-    );
+    const others = PLACE_REGISTRY.filter((d) => d !== busDef && !singletonDefs.includes(d));
 
-    others.sort(
-        (a, b) => candidateListFor(a).length - candidateListFor(b).length
-    );
+    others.sort((a, b) => candidateListFor(a).length - candidateListFor(b).length);
 
     for (const def of others) {
         const target = stage1Min.get(def.key) || 0;
@@ -479,19 +449,14 @@ function generatePlaces({
 
                 const candidateDefs = PLACE_REGISTRY.filter((def) => {
                     if (def.allowedTags && def.allowedTags.length) {
-                        if (!def.allowedTags.some((t) => locTags.includes(t)))
-                            return false;
+                        if (!def.allowedTags.some((t) => locTags.includes(t))) return false;
                     }
                     if (
                         Number.isFinite(def.maxCount) &&
                         (totalByKey.get(def.key) || 0) >= def.maxCount
                     )
                         return false;
-                    if (
-                        def.key === "train_station" &&
-                        (degree.get(locId) || 0) !== 1
-                    )
-                        return false;
+                    if (def.key === "train_station" && (degree.get(locId) || 0) !== 1) return false;
 
                     const sameKeyPlaced = placedByKey.get(def.key) || [];
                     if (
@@ -515,13 +480,10 @@ function generatePlaces({
                     candidateDefs[(rnd() * candidateDefs.length) | 0];
 
                 if (!canPlaceAt(def, locId, { respectSoftTarget: false })) {
-                    const others = candidateDefs.filter(
-                        (d) => d.key !== def.key
-                    );
+                    const others = candidateDefs.filter((d) => d.key !== def.key);
                     if (!others.length) break;
                     def = others[(rnd() * others.length) | 0];
-                    if (!canPlaceAt(def, locId, { respectSoftTarget: false }))
-                        break;
+                    if (!canPlaceAt(def, locId, { respectSoftTarget: false })) break;
                 }
 
                 const p = makePlace(def, locId);
@@ -544,9 +506,7 @@ function pickStreetDefForRun(startLocation, usedKeys, rnd) {
     // Prefer names whose tags overlap with the start location
     const candidates = [];
     for (const def of unused) {
-        const overlap = (def.tags || []).filter((t) =>
-            locTags.includes(t)
-        ).length;
+        const overlap = (def.tags || []).filter((t) => locTags.includes(t)).length;
         const weight = 1 + overlap; // 1 base + bonus per matching tag
         candidates.push({ def, weight });
     }
@@ -647,8 +607,7 @@ export class WorldMap {
 
         // --- Kruskal’s MST (Euclidean MST is planar -> no crossings)
         const parent = new Map(ids.map((id) => [id, id]));
-        const find = (x) =>
-            parent.get(x) === x ? x : parent.set(x, find(parent.get(x))).get(x);
+        const find = (x) => (parent.get(x) === x ? x : parent.set(x, find(parent.get(x))).get(x));
         const unite = (x, y) => parent.set(find(x), find(y));
 
         const mstEdges = [];
@@ -669,9 +628,7 @@ export class WorldMap {
         // --- Add a few local edges (k-NN) without crossings & within a distance cap
         // Distance cap: median of the MST edges * 1.25 to keep locality
         const sortedMst = [...mstEdges].sort((a, b) => a.d - b.d);
-        const median = sortedMst.length
-            ? sortedMst[Math.floor(sortedMst.length / 2)].d
-            : Infinity;
+        const median = sortedMst.length ? sortedMst[Math.floor(sortedMst.length / 2)].d : Infinity;
         const maxExtraLen = median * 1.3;
 
         for (const A of nodes) {
@@ -701,13 +658,7 @@ export class WorldMap {
             for (const e of map.edges) {
                 const C = map.locations.get(e.a);
                 const D = map.locations.get(e.b);
-                if (
-                    C.id === A.id ||
-                    C.id === B.id ||
-                    D.id === A.id ||
-                    D.id === B.id
-                )
-                    continue; // shared endpoint ok
+                if (C.id === A.id || C.id === B.id || D.id === A.id || D.id === B.id) continue; // shared endpoint ok
                 if (segmentsIntersect(A, B, C, D)) return; // would cross -> skip
             }
 
@@ -759,25 +710,13 @@ export class WorldMap {
 
             // Collinear cases (touching). Treat as non-crossing if touching at endpoints.
             if (o1 === 0 && _onSeg(A.x, A.y, B.x, B.y, C.x, C.y))
-                return (
-                    !(C.x === A.x && C.y === A.y) &&
-                    !(C.x === B.x && C.y === B.y)
-                );
+                return !(C.x === A.x && C.y === A.y) && !(C.x === B.x && C.y === B.y);
             if (o2 === 0 && _onSeg(A.x, A.y, B.x, B.y, D.x, D.y))
-                return (
-                    !(D.x === A.x && D.y === A.y) &&
-                    !(D.x === B.x && D.y === B.y)
-                );
+                return !(D.x === A.x && D.y === A.y) && !(D.x === B.x && D.y === B.y);
             if (o3 === 0 && _onSeg(C.x, C.y, D.x, D.y, A.x, A.y))
-                return (
-                    !(A.x === C.x && A.y === C.y) &&
-                    !(A.x === D.x && A.y === D.y)
-                );
+                return !(A.x === C.x && A.y === C.y) && !(A.x === D.x && A.y === D.y);
             if (o4 === 0 && _onSeg(C.x, C.y, D.x, D.y, B.x, B.y))
-                return (
-                    !(B.x === C.x && B.y === C.y) &&
-                    !(B.x === D.x && B.y === D.y)
-                );
+                return !(B.x === C.x && B.y === C.y) && !(B.x === D.x && B.y === D.y);
 
             return false;
         }
@@ -789,8 +728,7 @@ export class WorldMap {
 
     _populatePlaces() {
         const ids = [...this.locations.keys()];
-        const neighbors = (locId) =>
-            this.locations.get(locId)?.neighbors.keys() || [];
+        const neighbors = (locId) => this.locations.get(locId)?.neighbors.keys() || [];
 
         const placed = generatePlaces({
             locations: ids,
@@ -855,9 +793,7 @@ export class WorldMap {
             // orient so we start from the "less busy" end if possible
             let from = startEdge.a;
             let to = startEdge.b;
-            if (
-                (degree.get(startEdge.a) || 0) > (degree.get(startEdge.b) || 0)
-            ) {
+            if ((degree.get(startEdge.a) || 0) > (degree.get(startEdge.b) || 0)) {
                 from = startEdge.b;
                 to = startEdge.a;
             }
@@ -992,5 +928,127 @@ export class WorldMap {
         if (!loc) return null;
 
         return loc.neighbors.get(b) || null;
+    }
+
+    // --------------------------
+    // Helpers: location queries
+    // --------------------------
+
+    /**
+     * Return all locations that have the given tag.
+     */
+    findLocationsWithTag(tag) {
+        if (!tag) return [];
+        const out = [];
+        for (const loc of this.locations.values()) {
+            const tags = loc.tags || [];
+            if (tags.includes(tag)) {
+                out.push(loc);
+            }
+        }
+        return out;
+    }
+
+    /**
+     * Return all locations that have ANY of the provided tags.
+     */
+    findLocationsWithTags(locationTags) {
+        const tagsArr = Array.isArray(locationTags)
+            ? locationTags.filter(Boolean)
+            : [locationTags].filter(Boolean);
+        if (!tagsArr.length) return [];
+
+        const out = [];
+        for (const loc of this.locations.values()) {
+            const tags = loc.tags || [];
+            if (tags.some((t) => tagsArr.includes(t))) {
+                out.push(loc);
+            }
+        }
+        return out;
+    }
+
+    /**
+     * Return all locations that have ALL of the provided tags.
+     */
+    findLocationsWithAllTags(locationTags) {
+        const tagsArr = Array.isArray(locationTags)
+            ? locationTags.filter(Boolean)
+            : [locationTags].filter(Boolean);
+        if (!tagsArr.length) return [];
+
+        const out = [];
+        for (const loc of this.locations.values()) {
+            const tags = loc.tags || [];
+            const ok = tagsArr.every((t) => tags.includes(t));
+            if (ok) out.push(loc);
+        }
+        return out;
+    }
+
+    /**
+     * Return all locations where ANY place has the given category in props.category.
+     * (Supports both string and array category props for backward compatibility.)
+     */
+    findLocationsWithCategory(placeCategory) {
+        if (!placeCategory) return [];
+        const out = [];
+
+        const hasCategory = (place) => {
+            if (!place || !place.props) return false;
+            const cat = place.props.category;
+            if (!cat) return false;
+            if (Array.isArray(cat)) return cat.includes(placeCategory);
+            return cat === placeCategory;
+        };
+
+        for (const loc of this.locations.values()) {
+            const places = loc.places || [];
+            if (places.some(hasCategory)) {
+                out.push(loc);
+            }
+        }
+        return out;
+    }
+
+    // --------------------------
+    // Helpers: place creation
+    // --------------------------
+
+    /**
+     * Create a Place at a given location and attach it to that Location.
+     *
+     * @param {Object} placeData - data for the Place constructor ({id,key,name,props,...})
+     * @param {string|number} locationId - target location id (overrides placeData.locationId)
+     * @returns {Place|null} the created Place or null if location not found
+     */
+    createPlaceAt(placeData, locationId) {
+        if (!placeData) return null;
+        const locId = String(locationId != null ? locationId : placeData.locationId);
+        const loc = this.locations.get(locId);
+        if (!loc) return null;
+
+        const { id, key, name, props = {} } = placeData;
+
+        if (!key) {
+            throw new Error("createPlaceAt: 'key' is required");
+        }
+
+        const placeId = id || `${key}_${(loc.places && loc.places.length) || 0}`;
+
+        const place = new Place({
+            id: placeId,
+            key,
+            name: name || key,
+            locationId: locId,
+            props,
+        });
+
+        if (!Array.isArray(loc.places)) {
+            loc.places = [];
+        }
+        loc.places.push(place);
+
+        return place;
     }
 }

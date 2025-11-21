@@ -3,6 +3,7 @@ import {
     emptySchedule,
     DEFAULT_OPENING_HOURS_BY_CATEGORY,
     DEFAULT_OPENING_HOURS_BY_KEY,
+    DEFAULT_OPENING_HOURS,
 } from "../../../data/data.js";
 
 function parseTimeToMinutes(str) {
@@ -120,7 +121,7 @@ function inferOpeningHours(key, categories) {
     if (category && DEFAULT_OPENING_HOURS_BY_CATEGORY[category]) {
         return DEFAULT_OPENING_HOURS_BY_CATEGORY[category];
     }
-    return null;
+    return DEFAULT_OPENING_HOURS
 }
 
 // ---- Place class ---------------------------------------------------

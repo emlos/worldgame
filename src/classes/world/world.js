@@ -4,13 +4,7 @@ import { Moon, WorldTime, Calendar, Weather, WorldMap } from "./module.js";
 // --------------------------
 
 export class World {
-    constructor({
-        rnd,
-        startDate = new Date(),
-        density = 0.1,
-        w = 100,
-        h = 50,
-    } = {}) {
+    constructor({ rnd, startDate = new Date(), density = 0.1, w = 100, h = 50 } = {}) {
         this.rnd = rnd;
 
         // Time & calendar
@@ -70,6 +64,28 @@ export class World {
     }
 
     // --- Queries ---
+
+    // ---- Map helpers (delegated to WorldMap) ----
+    findLocationsWithTag(tag) {
+        return this.map.findLocationsWithTag(tag);
+    }
+
+    findLocationsWithTags(tags) {
+        return this.map.findLocationsWithTags(tags);
+    }
+
+    findLocationsWithAllTags(tags) {
+        return this.map.findLocationsWithAllTags(tags);
+    }
+
+    findLocationsWithCategory(category) {
+        return this.map.findLocationsWithCategory(category);
+    }
+
+    createPlaceAt(placeData, locationId) {
+        return this.map.createPlaceAt(placeData, locationId);
+    }
+
     getLocation(id) {
         return this.locations.get(id);
     }

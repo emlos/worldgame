@@ -1146,6 +1146,8 @@ export const DEFAULT_OPENING_HOURS_BY_CATEGORY = {
     }),
 };
 
+export const DEFAULT_OPENING_HOURS = hoursAllDay();
+
 // Per-place overrides, for things you explicitly mentioned
 const SCHOOL_HOURS = hoursWeekdays({ from: "08:00", to: "16:00" });
 

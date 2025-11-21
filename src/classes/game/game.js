@@ -198,54 +198,55 @@ export class Game {
      * Pick a random urban/suburban Location, create a home Place there,
      * and wire it back to the NPC.
      *
-     * Rules:
-     *  - pick random location with "urban" or "suburban" tags (fallback: any location)
-     *  - if that location already has an apartment complex -> "<name>'s flat"
-     *  - otherwise -> "<name>'s house"
-     *  - ignore normal capacity limits (we just push into loc.places)
+     * Now uses World/WorldMap helpers:
+     *  - findLocationsWithTags for urban-ish candidates
+     *  - createPlaceAt for home place creation
      */
     _assignHomeForNPC(id, npc) {
-        const locations = [...this.world.locations.values()];
-        if (!locations.length) return;
+        const allLocations = [...this.world.locations.values()];
+        if (!allLocations.length) return;
 
-        // 1) Find candidate locations: urban / suburban
-        const isUrbanish = (loc) =>
-            (loc.tags || []).some((t) => t.includes(LOCATION_TAGS.urban) || t.includes(LOCATION_TAGS.suburban));
+        // 1) Candidate locations: anything with urban / suburban tags
+        const urbanish = this.world.findLocationsWithTags([
+            LOCATION_TAGS.urban,
+            LOCATION_TAGS.suburban,
+        ]);
 
-        const urbanCandidates = locations.filter(isUrbanish);
-        const pool = urbanCandidates.length ? urbanCandidates : locations;
+        const pool = urbanish.length ? urbanish : allLocations;
 
-        // Random pick using game RNG
+        // Random pick using the Game RNG (same seed as world)
         const loc = pool[(this.rnd() * pool.length) | 0];
+        if (!loc) return;
 
         // 2) Check for existing apartment complex in this location
-        const places = loc.places || (loc.places = []);
+        const places = loc.places || [];
         const hasApartmentComplex = places.some((p) => p.key === "apartment_complex");
 
         const homeDisplayName = hasApartmentComplex ? `${npc.name}'s flat` : `${npc.name}'s house`;
 
-        // 3) Create a new Place for the NPC's home
+        // 3) Create a new Place for the NPC's home via the world/map API
         const homeId = `home_${id}`;
 
-        const homePlace = new Place({
-            id: homeId,
-            key: hasApartmentComplex ? "npc_flat" : "npc_house",
-            name: homeDisplayName,
-            locationId: loc.id,
-            props: {
-                category: "housing",
-                icon: hasApartmentComplex ? "🏢" : "🏠",
-                ownerNpcId: id,
-                isResidence: true,
+        const homePlace = this.world.createPlaceAt(
+            {
+                id: homeId,
+                key: "npc_house",
+                name: homeDisplayName,
+                props: {
+                    // category is now a list
+                    category: [PLACE_TAGS.housing],
+                    icon: hasApartmentComplex ? "🏢" : "🏠",
+                    ownerNpcId: id,
+                    isResidence: true,
+                    discovered: false
+                },
             },
-        });
-
-        // Ignore capacity limits: just push
-        places.push(homePlace);
+            loc.id
+        );
 
         // 4) Wire it back to the NPC
         npc.homeLocationId = loc.id;
-        npc.homePlaceId = homeId;
+        npc.homePlaceId = homePlace ? homePlace.id : homeId;
 
         // Start NPC at home by default
         if (!npc.locationId) {

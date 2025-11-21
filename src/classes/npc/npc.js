@@ -64,7 +64,7 @@ export class NPC {
 
         // Body -----------------------------------------------------
         // Body will default to HUMAN_BODY_TEMPLATE if template is null/undefined
-        this.body = new Body({ template: bodyTemplate });
+        this.body = new Body();
 
         // World placement ------------------------------------------
         this.locationId = locationId; // "where are they now?"
