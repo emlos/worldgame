@@ -345,7 +345,7 @@ export class BodyPartState {
  * and query overall pain / injury.
  */
 export class Body {
-  constructor({ template = HUMAN_BODY_TEMPLATE } = {}) {
+  constructor(template = HUMAN_BODY_TEMPLATE) {
     this.parts = new Map(); // id -> BodyPartState
 
     for (const def of template) {

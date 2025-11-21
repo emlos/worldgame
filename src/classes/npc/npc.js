@@ -7,11 +7,7 @@ import {
     clamp,
     Body,
     HUMAN_BODY_TEMPLATE,
-    pick,
 } from "../../shared/modules.js";
-import { LOCATION_TAGS } from "../../data/data.js";
-import { Place } from "../world/module.js";
-
 // --------------------------
 // NPC
 // --------------------------
@@ -64,7 +60,7 @@ export class NPC {
 
         // Body -----------------------------------------------------
         // Body will default to HUMAN_BODY_TEMPLATE if template is null/undefined
-        this.body = new Body();
+        this.body = new Body(bodyTemplate);
 
         // World placement ------------------------------------------
         this.locationId = locationId; // "where are they now?"

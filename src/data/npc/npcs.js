@@ -24,7 +24,7 @@ export const NPC_REGISTRY = [
 
         tags: ["human", "befriendable"],
 
-        bodyTemplate: null,
+        bodyTemplate: HUMAN_BODY_TEMPLATE,
 
         scheduleTemplate: {
             /**

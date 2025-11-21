@@ -10,6 +10,7 @@ import {
     deepFreeze,
     Body,
     DamageType,
+    HUMAN_BODY_TEMPLATE,
 } from "../../shared/modules.js";
 
 /*
@@ -55,7 +56,7 @@ export class Player {
         hairColor = "#5a3b1f",
         gender = Gender.NB,
         pronouns = PronounSets.THEY_THEM,
-        bodyTemplate, // <--- NEW
+        bodyTemplate = HUMAN_BODY_TEMPLATE, 
     } = {}) {
         // Stats ----------------------------------------------------
         this.stats = {};
@@ -88,7 +89,7 @@ export class Player {
         this.clothing = new Map(); // slot -> Clothing
 
         // Body ------------------------------------------------------
-        this.body = new Body({ template: bodyTemplate }); // <--- NEW
+        this.body = new Body(bodyTemplate); // <--- NEW
     }
 
     // --- Appearance & color ---
