@@ -2,6 +2,7 @@
 import { World, Player, NPC } from "../classes.js";
 import { makeRNG } from "../../shared/modules.js";
 import { LOCATION_TAGS } from "../../data/data.js";
+import { NPCScheduler } from "./util/npcai.js";
 
 // High-level orchestrator for world + player + NPCs.
 export class Game {
@@ -27,6 +28,11 @@ export class Game {
         // --- npcs ---
         this.npcs = new Map();
         this._createNPCs(npcTemplates);
+
+        this.scheduleManager = new NPCScheduler({
+            world: this.world,
+            rnd: this.rnd,
+        });
 
         // Where is the player right now?
         this.currentLocationId = playerOptions.startLocationId || this._pickDefaultLocationId();
@@ -106,6 +112,17 @@ export class Game {
         if (minutes > 0) {
             this.advanceMinutes(minutes);
         }
+    }
+
+    // NPC scheduling
+
+    getCurrentWeekScheduleForNPC(npc) {
+        const weekStart = this.scheduleManager._weekStartForDate(this.world.time.date);
+        return this.scheduleManager.getWeekSchedule(npc, weekStart);
+    }
+
+    peekNPCIntent(npc, nextMinutes) {
+        return this.scheduleManager.peek(npc, nextMinutes, this.world.time.date);
     }
 
     // --------------------------
@@ -238,7 +255,7 @@ export class Game {
                     icon: hasApartmentComplex ? "🏢" : "🏠",
                     ownerNpcId: id,
                     isResidence: true,
-                    discovered: false
+                    discovered: false,
                 },
             },
             loc.id

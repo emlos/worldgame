@@ -6,7 +6,9 @@ import * as place from "./world/place.js";
 import * as street from "./world/street.js";
 import * as weather from "./world/weather.js";
 
+import * as scheduling from "./npc/scheduling.js";
 import * as npc from "./npc/npcs.js";
+
 
 export * from "./world/time.js";
 export * from "./world/calendar.js";
@@ -16,7 +18,9 @@ export * from "./world/place.js";
 export * from "./world/street.js";
 export * from "./world/weather.js";
 
+export * from "./npc/scheduling.js";
 export * from "./npc/npcs.js";
+
 
 if (debug) {
     Object.assign(window, {
@@ -29,5 +33,6 @@ if (debug) {
         ...weather,
 
         ...npc,
+        ...scheduling,
     });
 }

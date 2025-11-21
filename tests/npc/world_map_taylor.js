@@ -1,53 +1,166 @@
+// tests/world/world_map_taylor.js
+
 const byId = (id) => document.getElementById(id);
+
+const MAP_WIDTH = 70;
+const MAP_HEIGHT = 50;
 
 let world = null;
 let taylor = null;
+let scheduleManager = null;
+let weekSchedule = null;
+
 let locationNodes = new Map();
 let projectedPositions = new Map();
 
-const MAP_WIDTH = 100;
-const MAP_HEIGHT = 50;
+let nextIntentSlot = null;
 
-// Create world + Taylor instance
-function initTaylorWorld() {
+// ---------------------------
+// World + NPC init
+// ---------------------------
+
+function initWorldAndTaylor() {
     const rnd = makeRNG(Date.now());
 
     world = new World({
         rnd,
-        density: 0.1,
+        density: 0.15,
         startDate: new Date(),
         w: MAP_WIDTH,
         h: MAP_HEIGHT,
     });
 
-    const ids = [...world.locations.keys()];
-
-    // pick a start location that has neighbours, fallback to first
-    const startCandidates = ids.filter((id) => world.locations.get(id).neighbors.size > 0);
-    const startId = startCandidates.length ? startCandidates[0] : ids[0];
-
-    // pick a different home location if possible
-    const homeId = ids.find((id) => id !== startId) || startId;
-
     const base = npcFromRegistryKey("taylor");
 
     taylor = new NPC({
         ...base,
-        locationId: startId,
-        homeLocationId: homeId,
-        homePlaceId: null,
+        locationId: base.locationId || null,
+        homeLocationId: base.homeLocationId || null,
+        homePlaceId: base.homePlaceId || null,
         meta: base.meta || {},
     });
 
+    if (!taylor.homeLocationId) {
+        taylor.homeLocationId = taylor.locationId || [...world.locations.keys()][0];
+    }
+
+    scheduleManager = new NPCScheduler({
+        world,
+        rnd,
+    });
+
+    weekSchedule = scheduleManager.getCurrentWeekSchedule(taylor);
+
     renderMap();
+    syncTaylorToCurrentTime();
+    renderAllInfo();
+    renderWeekSchedule();
+}
+
+// ---------------------------
+// Schedule helpers
+// ---------------------------
+
+function findActiveSlotForTime(date) {
+    if (!weekSchedule) return null;
+
+    if (date < weekSchedule.startDate || date >= weekSchedule.endDate) {
+        weekSchedule = scheduleManager.getCurrentWeekSchedule(taylor);
+    }
+
+    let active = null;
+    for (const slot of weekSchedule.slots) {
+        if (slot.from <= date && date < slot.to) {
+            active = slot;
+            break;
+        }
+        if (slot.from > date) break;
+    }
+    return active;
+}
+
+function syncTaylorToCurrentTime() {
+    if (!world || !taylor || !scheduleManager) return;
+
+    const now = world.time.date;
+    const slot = findActiveSlotForTime(now);
+
+    if (!slot) {
+        if (taylor.homeLocationId) {
+            if (typeof taylor.setLocationAndPlace === "function") {
+                taylor.setLocationAndPlace(taylor.homeLocationId, taylor.homePlaceId);
+            } else {
+                taylor.setLocation(taylor.homeLocationId);
+            }
+        }
+    } else {
+        const locId = slot.target.locationId || taylor.homeLocationId || taylor.locationId;
+        const placeId = slot.target.placeId || null;
+
+        if (typeof taylor.setLocationAndPlace === "function") {
+            taylor.setLocationAndPlace(locId, placeId);
+        } else {
+            taylor.setLocation(locId);
+        }
+    }
+
+    updateMapHighlights();
     renderTaylorInfo();
+    updateNextIntent();
+}
+
+// ---------------------------
+// Rendering
+// ---------------------------
+
+function renderAllInfo() {
+    renderTaylorInfo();
+    renderWorldTime();
+    renderDayInfo();
+    updateNextIntent();
+}
+
+function renderWorldTime() {
+    const el = byId("worldTime");
+    if (!el || !world) return;
+    const d = world.time.date;
+    const pad = (n) => (n < 10 ? "0" + n : "" + n);
+    const dateStr = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+    const timeStr = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    el.textContent = `${dateStr} ${timeStr}`;
+}
+
+function renderDayInfo() {
+    const el = byId("dayType");
+    if (!el || !world) return;
+
+    const info = world.calendar.getDayInfo(world.time.date) || {};
+    let text = info.kind || "unknown";
+
+    // Try to show holiday/special info if available
+    const tags = info.tags || [];
+    const extra = [];
+
+    if (info.isHoliday || tags.includes("holiday")) extra.push("holiday");
+    if (info.isSpecial || tags.includes("special")) extra.push("special");
+
+    if (info.name) extra.push(info.name);
+
+    if (extra.length) {
+        text += " (" + extra.join(", ") + ")";
+    }
+
+    el.textContent = text;
 }
 
 function renderTaylorInfo() {
     if (!taylor || !world) return;
 
-    const currentLoc = world.getLocation(taylor.locationId);
-    const homeLoc = world.getLocation(taylor.homeLocationId);
+    const getLoc = (id) =>
+        world.getLocation ? world.getLocation(id) : world.locations.get(String(id));
+
+    const currentLoc = getLoc(taylor.locationId);
+    const homeLoc = getLoc(taylor.homeLocationId);
 
     const currentEl = byId("taylorCurrent");
     const homeEl = byId("taylorHome");
@@ -55,6 +168,8 @@ function renderTaylorInfo() {
     if (currentEl) {
         currentEl.textContent = currentLoc ? `${currentLoc.name} (${currentLoc.id})` : "—";
     }
+    byId("placesAtLoc").innerHTML =
+        currentLoc.places.map((place) => `<code>${place.key}</code>`).join(" ") || "—";
 
     if (homeEl) {
         homeEl.textContent = homeLoc ? `${homeLoc.name} (${homeLoc.id})` : "—";
@@ -71,13 +186,11 @@ function renderMap() {
 
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
 
-    // compute bounds
-    let minX = Infinity;
-    let maxX = -Infinity;
-    let minY = Infinity;
-    let maxY = -Infinity;
-
     const rawPos = new Map();
+    let minX = Infinity,
+        maxX = -Infinity,
+        minY = Infinity,
+        maxY = -Infinity;
 
     for (const [id, loc] of world.locations.entries()) {
         const x = Number(loc.x) || 0;
@@ -103,49 +216,55 @@ function renderMap() {
     const targetWidth = (MAP_WIDTH || 100) * 10;
     const targetHeight = (MAP_HEIGHT || 50) * 10;
 
-    const scaleX = (targetWidth - margin * 2) / (maxX - minX);
-    const scaleY = (targetHeight - margin * 2) / (maxY - minY);
+    const worldW = maxX - minX;
+    const worldH = maxY - minY;
+    const innerW = Math.max(1, targetWidth - margin * 2);
+    const innerH = Math.max(1, targetHeight - margin * 2);
 
-    const project = ({ x, y }) => {
-        const px = margin + (x - minX) * scaleX;
-        const py = margin + (y - minY) * scaleY;
-        return { x: px, y: py };
-    };
+    const sx = innerW / worldW;
+    const sy = innerH / worldH;
+    const s = Math.min(sx, sy);
 
-    // collect edges (no duplicates)
+    const offsetX = margin + (innerW - worldW * s) / 2;
+    const offsetY = margin + (innerH - worldH * s) / 2;
+
+    const project = ({ x, y }) => ({
+        x: offsetX + (x - minX) * s,
+        y: offsetY + (y - minY) * s,
+    });
+
+    const ids = [...world.locations.keys()];
     const edges = [];
-    for (const [aId, loc] of world.locations.entries()) {
-        for (const [bId] of loc.neighbors.entries()) {
-            if (aId < bId) {
-                const e = world.getTravelEdge(aId, bId);
-                if (e) edges.push({ a: aId, b: bId, minutes: e.minutes });
-            }
+    const seenEdge = new Set();
+    for (const id of ids) {
+        const loc = world.getLocation ? world.getLocation(id) : world.locations.get(id);
+        for (const [nbId] of loc.neighbors) {
+            const key = id < nbId ? `${id}-${nbId}` : `${nbId}-${id}`;
+            if (seenEdge.has(key)) continue;
+            seenEdge.add(key);
+            edges.push({ a: id, b: nbId, edge: loc.neighbors.get(nbId) });
         }
     }
 
     svg.setAttribute("viewBox", `0 0 ${targetWidth} ${targetHeight}`);
     svg.setAttribute("width", "100%");
     svg.setAttribute("height", String(targetHeight));
-    svg.style.background = "var(--map-bg, transparent)";
+    svg.style.background = "var(--map-bg, #050608)";
 
-    // draw edges
-    for (const e of edges) {
-        const aP = project(rawPos.get(e.a));
-        const bP = project(rawPos.get(e.b));
-
+    for (const { a, b } of edges) {
+        const A = project(rawPos.get(a));
+        const B = project(rawPos.get(b));
         const line = document.createElementNS(svg.namespaceURI, "line");
-        line.setAttribute("x1", String(aP.x));
-        line.setAttribute("y1", String(aP.y));
-        line.setAttribute("x2", String(bP.x));
-        line.setAttribute("y2", String(bP.y));
+        line.setAttribute("x1", String(A.x));
+        line.setAttribute("y1", String(A.y));
+        line.setAttribute("x2", String(B.x));
+        line.setAttribute("y2", String(B.y));
         line.setAttribute("stroke", "#26323b");
         line.setAttribute("stroke-width", "2");
         line.setAttribute("stroke-linecap", "round");
-
         svg.appendChild(line);
     }
 
-    // draw nodes
     for (const [id, loc] of world.locations.entries()) {
         const pos = project(rawPos.get(id));
         projectedPositions.set(id, pos);
@@ -161,10 +280,10 @@ function renderMap() {
         node.style.cursor = "pointer";
 
         node.addEventListener("click", () => {
-            // Clicking a node will move Taylor directly there (handy for testing)
             taylor.setLocation(id);
-            renderTaylorInfo();
             updateMapHighlights();
+            renderTaylorInfo();
+            updateNextIntent();
         });
 
         const label = document.createElementNS(svg.namespaceURI, "text");
@@ -181,19 +300,20 @@ function renderMap() {
     }
 
     host.appendChild(svg);
-
     updateMapHighlights();
 }
 
+// Highlight current & home; intent highlighting comes on top
 function updateMapHighlights() {
     if (!taylor || !world) return;
 
-    const currentId = taylor.locationId;
-    const homeId = taylor.homeLocationId;
+    const currentId = String(taylor.locationId);
+    const homeId = taylor.homeLocationId != null ? String(taylor.homeLocationId) : "";
 
     for (const [id, node] of locationNodes.entries()) {
         node.setAttribute("fill", "#2d6cdf");
         node.setAttribute("stroke", "#153b7a");
+        node.setAttribute("stroke-width", "2");
         node.setAttribute("r", "8");
 
         if (id === homeId) {
@@ -207,42 +327,192 @@ function updateMapHighlights() {
     }
 }
 
-function moveTaylorRandomNeighbor() {
-    if (!taylor || !world) return;
+// ---------------------------
+// Intent display + hover highlight
+// ---------------------------
 
-    const current = world.getLocation(taylor.locationId);
-    if (!current) return;
+function updateNextIntent() {
+    const el = byId("taylorNextIntent");
+    if (!el || !scheduleManager || !taylor) return;
 
-    const neighborIds = [...current.neighbors.keys()];
-    if (!neighborIds.length) return;
+    const peek = scheduleManager.peek(taylor, 30, world.time.date);
+    nextIntentSlot = peek.nextSlot || null;
 
-    const rnd = world.rnd || Math.random;
-    const idx = Math.floor(rnd() * neighborIds.length) % neighborIds.length;
-    const nextId = neighborIds[idx];
+    if (!peek.willMove || !nextIntentSlot) {
+        el.textContent = "No move planned in the next 30 minutes.";
+        return;
+    }
 
-    taylor.setLocation(nextId);
-    renderTaylorInfo();
-    updateMapHighlights();
+    const slot = nextIntentSlot;
+    const from = slot.from;
+    const pad = (n) => (n < 10 ? "0" + n : "" + n);
+    const timeStr = `${pad(from.getHours())}:${pad(from.getMinutes())}`;
+
+    let desc = "unknown destination";
+
+    if (slot.target && slot.target.locationId) {
+        const loc =
+            world.getLocation?.(slot.target.locationId) ||
+            world.locations.get(String(slot.target.locationId));
+        if (loc) {
+            desc = loc.name + ` (${loc.id})`;
+        }
+    }
+
+    el.textContent = `${timeStr}: move to ${desc}`;
+}
+
+function highlightIntentLocation(enabled) {
+    if (!enabled) {
+        updateMapHighlights();
+        return;
+    }
+
+    updateMapHighlights(); // reset first
+
+    if (!nextIntentSlot || !nextIntentSlot.target) return;
+
+    const locId = nextIntentSlot.target.locationId;
+    if (!locId) return;
+
+    const node = locationNodes.get(String(locId));
+    if (!node) return;
+
+    node.setAttribute("stroke", "#ff66cc");
+    node.setAttribute("stroke-width", "4");
+    node.setAttribute("r", "11");
+}
+
+// ---------------------------
+// Week schedule rendering
+// ---------------------------
+
+function renderWeekSchedule() {
+    const el = byId("weekSchedule");
+    if (!el || !weekSchedule || !world) return;
+
+    const slots = weekSchedule.slots || [];
+    if (!slots.length) {
+        el.textContent = "No schedule slots for this week.";
+        return;
+    }
+
+    const getLoc = (id) =>
+        world.getLocation ? world.getLocation(id) : world.locations.get(String(id));
+
+    const dayBuckets = new Map(); // dateKey -> { date, slots[] }
+    const pad2 = (n) => (n < 10 ? "0" + n : "" + n);
+
+    for (const slot of slots) {
+        const d = slot.from;
+        const y = d.getFullYear();
+        const m = pad2(d.getMonth() + 1);
+        const day = pad2(d.getDate());
+        const dateKey = `${y}-${m}-${day}`; // LOCAL YYYY-MM-DD ✅
+
+        let bucket = dayBuckets.get(dateKey);
+        if (!bucket) {
+            bucket = { date: new Date(y, d.getMonth(), d.getDate()), slots: [] };
+            dayBuckets.set(dateKey, bucket);
+        }
+        bucket.slots.push(slot);
+    }
+
+    const sortedKeys = [...dayBuckets.keys()].sort();
+
+    const lines = [];
+
+    const pad = (n) => (n < 10 ? "0" + n : "" + n);
+
+    for (const key of sortedKeys) {
+        const { date, slots: daySlots } = dayBuckets.get(key);
+        const dow = date.toLocaleDateString(undefined, { weekday: "short" });
+        lines.push(`<div class="schedule-day">${dow} ${key}</div>`);
+
+        daySlots.sort((a, b) => a.from - b.from);
+
+        for (const slot of daySlots) {
+            const from = slot.from;
+            const to = slot.to;
+            const timeStr = `${pad(from.getHours())}:${pad(from.getMinutes())}–${pad(
+                to.getHours()
+            )}:${pad(to.getMinutes())}`;
+
+            let targetDesc = "home";
+
+            if (slot.target?.type === "activity") {
+                const locId = slot.target.locationId;
+                const loc = locId ? getLoc(locId) : null;
+
+                if (loc) {
+                    targetDesc = `${loc.name} (${loc.id})`;
+                } else {
+                    const spec = slot.target.spec || {};
+                    if (spec.type === "placeKey") {
+                        targetDesc = `any '${spec.key}'`;
+                    } else if (spec.type === "placeCategory") {
+                        const cats = Array.isArray(spec.categories)
+                            ? spec.categories
+                            : [spec.categories || "category"];
+                        targetDesc = `place with category: ${cats.join(", ")}`;
+                    } else {
+                        targetDesc = "activity";
+                    }
+                }
+            }
+
+            lines.push(
+                `<div class="schedule-slot">${timeStr} – ${targetDesc} <span style="opacity:0.6;">[${slot.sourceRuleId}]</span></div>`
+            );
+        }
+    }
+
+    el.innerHTML = lines.join("\n");
+}
+
+// ---------------------------
+// Time controls
+// ---------------------------
+
+function advanceWorldMinutes(mins) {
+    if (!world) return;
+    world.advance(mins);
+    weekSchedule = scheduleManager.getCurrentWeekSchedule(taylor);
+    syncTaylorToCurrentTime();
+    renderWorldTime();
+    renderDayInfo();
+    renderWeekSchedule();
 }
 
 function bindButtons() {
-    const stepBtn = byId("btnStep");
-    const resetBtn = byId("btnResetWorld");
+    const plus30 = byId("btnTimePlus30");
+    const plus120 = byId("btnTimePlus120");
+    const plusWeek = byId("btnTimePlusWeek");
+    const reset = byId("btnResetWorld");
+    const nextIntentEl = byId("taylorNextIntent");
 
-    if (stepBtn) {
-        stepBtn.addEventListener("click", () => {
-            moveTaylorRandomNeighbor();
+    if (plus30) {
+        plus30.addEventListener("click", () => advanceWorldMinutes(30));
+    }
+    if (plus120) {
+        plus120.addEventListener("click", () => advanceWorldMinutes(120));
+    }
+    if (plusWeek) {
+        plusWeek.addEventListener("click", () => advanceWorldMinutes(7 * 24 * 60));
+    }
+    if (reset) {
+        reset.addEventListener("click", () => {
+            initWorldAndTaylor();
         });
     }
 
-    if (resetBtn) {
-        resetBtn.addEventListener("click", () => {
-            initTaylorWorld();
-        });
+    if (nextIntentEl) {
+        nextIntentEl.addEventListener("mouseenter", () => highlightIntentLocation(true));
+        nextIntentEl.addEventListener("mouseleave", () => highlightIntentLocation(false));
     }
 }
 
 window.addEventListener("DOMContentLoaded", () => {
-    initTaylorWorld();
+    initWorldAndTaylor();
     bindButtons();
 });
