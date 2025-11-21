@@ -186,14 +186,17 @@ export class NPCScheduler {
         // First: apply rule priority and trim overlaps
         const timeResolved = this._applyPriorityAndTrim(slots, rules);
 
+        // Second: fill any intra-day gaps so the NPC is always “doing something”
+        const noGaps = this._fillGaps(timeResolved);
+
         // Then: resolve each slot to actual location/place
-        this._resolveSlots(npc, timeResolved);
+        this._resolveSlots(npc, noGaps);
 
         return {
             npcId,
             startDate: new Date(weekStartDate.getTime()),
             endDate: new Date(weekStartDate.getTime() + 7 * 24 * 60 * 60 * 1000),
-            slots: timeResolved,
+            slots: noGaps,
         };
     }
 
@@ -401,6 +404,67 @@ export class NPCScheduler {
                 lastLocationId = targetLocationId;
             }
         }
+    }
+
+    /**
+     * Ensure there are no gaps between slots within the same day.
+     *
+     * Policy:
+     *  - If there is a gap between A and B on the same calendar day:
+     *      * If B is a "home" spec -> fill the gap with a short "home" slot
+     *        (effectively: go home early).
+     *      * Otherwise -> extend A to cover the gap
+     *        (effectively: stay longer at the previous activity).
+     *
+     *  This guarantees every minute between the first and last slot
+     *  of a day is accounted for.
+     */
+    _fillGaps(slots) {
+        if (!slots.length) return [];
+
+        const sameDay = (a, b) =>
+            a.getFullYear() === b.getFullYear() &&
+            a.getMonth() === b.getMonth() &&
+            a.getDate() === b.getDate();
+
+        const result = [];
+
+        for (let i = 0; i < slots.length; i++) {
+            // clone so we don't mutate the original array in weird ways
+            const current = { ...slots[i] };
+            result.push(current);
+
+            const next = slots[i + 1];
+            if (!next) continue;
+
+            const gapStart = current.to;
+            const gapEnd = next.from;
+
+            // no gap or negative gap (overlap) -> nothing to do
+            if (!gapStart || !gapEnd) continue;
+            if (gapEnd <= gapStart) continue;
+
+            // only fill gaps that are within the same calendar day
+            if (!sameDay(gapStart, gapEnd)) continue;
+
+            const nextSpec = (next.target && next.target.spec) || {};
+            const nextIsHome = nextSpec.type === "home";
+
+            if (nextIsHome) {
+                // Option 1: go home early.
+                // We add an extra "home" segment from gapStart to gapEnd.
+                result.push({
+                    ...next,
+                    from: new Date(gapStart.getTime()),
+                    to: new Date(gapEnd.getTime()),
+                });
+            } else {
+                // Option 2: stay longer at the previous activity.
+                current.to = new Date(gapEnd.getTime());
+            }
+        }
+
+        return result;
     }
 
     /**
