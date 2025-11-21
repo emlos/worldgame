@@ -795,7 +795,7 @@ export const PLACE_REGISTRY = [
             LOCATION_TAGS.rural,
         ],
         weight: 1,
-        props: { icon: "⛪", category: [PLACE_TAGS.service, PLACE_TAGS.civic, PLACE_TAGS.history] },
+        props: { icon: "⛪", category: [PLACE_TAGS.service, PLACE_TAGS.civic, PLACE_TAGS.history, PLACE_TAGS.culture] },
         nameFn: ({ rnd }) =>
             `${pick(["St. Genevieve", "All Saints", "Trinity", "Grace"], rnd)} Church`,
         minCount: 1,

@@ -363,7 +363,6 @@ function init(density, width, height) {
         PLACE_REGISTRY.map((p) => p.key),
         placed
     );
-    console.log(missing);
 
     byId("mapinfo").append(
         table(

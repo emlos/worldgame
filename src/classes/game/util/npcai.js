@@ -357,31 +357,30 @@ export class NPCScheduler {
         // opening-hours behavior: targetSpec can override, else rule-level, else false
         const respectOpening = spec.respectOpeningHours ?? spec.respect_hours ?? false;
 
+        const useNearest = !!spec.nearest;
+        let matcher = null;
+
         if (type === "placeKey") {
-            return this._findNearestPlace(
-                (place) => place.key === spec.key,
-                originLocationId,
-                atTime,
-                respectOpening
-            );
+            matcher = (place) => place.key === spec.key;
         }
 
-        const useNearest = !!spec.nearest;
         if (type === "placeCategory") {
             const catsRaw = spec.categories || spec.category || [];
             const cats = Array.isArray(catsRaw) ? catsRaw : [catsRaw];
 
-            const matcher = (place) => {
+            matcher = (place) => {
                 const cat = place.props && place.props.category;
                 const placeCats = Array.isArray(cat) ? cat : cat ? [cat] : [];
                 return placeCats.some((c) => cats.includes(c));
             };
+        }
 
-            if (useNearest) {
-                return this._findNearestPlace(matcher, originLocationId, atTime, respectOpening);
-            } else {
-                return this._findRandomPlace(matcher, atTime, respectOpening);
-            }
+        if (!matcher) throw new Error(`Unknown activity target type: ${type}`);
+
+        if (useNearest) {
+            return this._findNearestPlace(matcher, originLocationId, atTime, respectOpening);
+        } else {
+            return this._findRandomPlace(matcher, originLocationId, atTime, respectOpening);
         }
 
         // future extension: locationTag, district, etc.
@@ -390,13 +389,9 @@ export class NPCScheduler {
 
     _distanceBetweenLocations(aId, bId) {
         if (!aId || !bId) return Infinity;
-        const a = this.world.map.getLocation(String(aId)) || this.world.locations.get(String(aId));
-        const b = this.world.map.getLocation(String(bId)) || this.world.locations.get(String(bId));
+        if (aId === bId) return 0;
 
-        if (!a || !b) return Infinity;
-        const dx = (a.x || 0) - (b.x || 0);
-        const dy = (a.y || 0) - (b.y || 0);
-        return Math.hypot(dx, dy);
+        return this.world.map.getTravelMinutes(aId, bId);
     }
 
     _findNearestPlace(matchFn, originLocationId, atTime, respectOpening) {

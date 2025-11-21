@@ -86,7 +86,6 @@ function init() {
     c.innerHTML = "";
     const d = world.time.date;
     const dayInfo = world.getDayInfo(d);
-    console.log(dayInfo);
     const rows = [
       ["Date", `${fmtDate(d)} (${dowName(d)})`],
       ["Time", fmtTime(d)],

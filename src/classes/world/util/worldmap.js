@@ -1051,4 +1051,48 @@ export class WorldMap {
 
         return place;
     }
+
+    //Dijkstra-style shortest-path, returns travel minutes again this si some real,bs lol
+    getTravelMinutes(fromId, toId) {
+        const start = String(fromId);
+        const goal = String(toId);
+        if (!start || !goal) return Infinity;
+        if (start === goal) return 0;
+
+        const dist = new Map();
+        const queue = [];
+
+        dist.set(start, 0);
+        queue.push({ id: start, cost: 0 });
+
+        while (queue.length) {
+            // Naive priority queue: O(n) scan is fine for small graphs
+            let bestIndex = 0;
+            for (let i = 1; i < queue.length; i++) {
+                if (queue[i].cost < queue[bestIndex].cost) bestIndex = i;
+            }
+
+            const { id, cost } = queue.splice(bestIndex, 1)[0];
+
+            if (id === goal) return cost;
+
+            // Outdated entry?
+            if (cost > (dist.get(id) ?? Infinity)) continue;
+
+            const loc = this.locations.get(id);
+            if (!loc) continue;
+
+            for (const [nbId, edge] of loc.neighbors) {
+                const minutes = edge?.minutes ?? 1;
+                const nextCost = cost + minutes;
+
+                if (nextCost < (dist.get(nbId) ?? Infinity)) {
+                    dist.set(nbId, nextCost);
+                    queue.push({ id: nbId, cost: nextCost });
+                }
+            }
+        }
+
+        return Infinity; // unreachable
+    }
 }

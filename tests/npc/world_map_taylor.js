@@ -213,8 +213,8 @@ function renderMap() {
     }
 
     const margin = 20;
-    const targetWidth = (MAP_WIDTH || 100) * 10;
-    const targetHeight = (MAP_HEIGHT || 50) * 10;
+    const targetWidth = (MAP_WIDTH || 100) * 9;
+    const targetHeight = (MAP_HEIGHT || 50) * 11;
 
     const worldW = maxX - minX;
     const worldH = maxY - minY;
@@ -248,7 +248,7 @@ function renderMap() {
 
     svg.setAttribute("viewBox", `0 0 ${targetWidth} ${targetHeight}`);
     svg.setAttribute("width", "100%");
-    svg.setAttribute("height", String(targetHeight));
+    svg.setAttribute("height", String(targetHeight * 1.5));
     svg.style.background = "var(--map-bg, #050608)";
 
     for (const { a, b } of edges) {
@@ -350,16 +350,20 @@ function updateNextIntent() {
 
     let desc = "unknown destination";
 
+    let place = null
+
     if (slot.target && slot.target.locationId) {
+        
         const loc =
             world.getLocation?.(slot.target.locationId) ||
             world.locations.get(String(slot.target.locationId));
         if (loc) {
             desc = loc.name + ` (${loc.id})`;
+            place = slot.target.type == "home" ? "home" : loc.places.find(p => p.id == slot.target.placeId).name
         }
     }
 
-    el.textContent = `${timeStr}: move to ${desc}`;
+    el.textContent = `${timeStr}: move to ${desc}${place ? `, targeting place: ${place}` : ''}.`;
 }
 
 function highlightIntentLocation(enabled) {

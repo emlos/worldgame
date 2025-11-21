@@ -75,7 +75,6 @@ export const NPC_REGISTRY = [
                         {
                             type: "placeCategory",
                             categories: [PLACE_TAGS.leisure],
-                            nearest: true,
                         },
                     ],
                     respectOpeningHours: true, 
@@ -92,14 +91,11 @@ export const NPC_REGISTRY = [
                     window: { from: "9:00", to: "22:00" },
                     stayMinutes: { min: 30, max: 120 },
                     targets: [
+                        { type: "placeKey", key: "library" },
+                        { type: "placeKey", key: "mall" },
                         {
                             type: "placeCategory",
-                            categories: [
-                                PLACE_TAGS.commerce,
-                                PLACE_TAGS.leisure,
-                                PLACE_TAGS.culture,
-                                PLACE_TAGS.food,
-                            ],
+                            categories: [PLACE_TAGS.leisure],
                         },
                     ],
                     respectOpeningHours: true,
