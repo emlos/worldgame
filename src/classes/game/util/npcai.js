@@ -644,9 +644,9 @@ export class NPCScheduler {
         if (!matcher) throw new Error(`Unknown activity target type: ${type}`);
 
         if (useNearest) {
-            return this._findNearestPlace(matcher, originLocationId, atTime, respectOpening);
+            return this.world.map.findNearestPlace(matcher, originLocationId, atTime, respectOpening);
         } else {
-            return this._findRandomPlace(
+            return this.world.map.findRandomPlace(
                 matcher,
                 originLocationId,
                 atTime,
@@ -658,108 +658,9 @@ export class NPCScheduler {
         // future extension: locationTag, district, etc.
         return null;
     }
-
-    _distanceBetweenLocations(aId, bId) {
-        if (!aId || !bId) return Infinity;
-        if (aId === bId) return 0;
-
-        return this.world.map.getTravelMinutes(aId, bId);
-    }
-
-    _findNearestPlace(matchFn, originLocationId, atTime, respectOpening) {
-        let best = null;
-        let bestDist = Infinity;
-
-        for (const loc of this.world.locations.values()) {
-            const places = loc.places || [];
-            for (const place of places) {
-                if (!matchFn(place)) continue;
-
-                if (respectOpening && typeof place.isOpen === "function") {
-                    if (!place.isOpen(atTime)) continue;
-                }
-
-                const d = this._distanceBetweenLocations(originLocationId, loc.id);
-                if (d < bestDist) {
-                    bestDist = d;
-                    best = {
-                        locationId: loc.id,
-                        placeId: place.id,
-                    };
-                }
-            }
-        }
-
-        return best;
-    }
-
-    _findRandomPlace(matchFn, originLocationId, atTime, respectOpening, minutesAtOrigin = 0) {
-        const candidates = [];
-
-        for (const loc of this.world.locations.values()) {
-            const places = loc.places || [];
-            for (const place of places) {
-                if (!matchFn(place)) continue;
-
-                if (respectOpening && typeof place.isOpen === "function") {
-                    if (!place.isOpen(atTime)) continue;
-                }
-
-                const minutes = this._distanceBetweenLocations(originLocationId, loc.id);
-                if (!Number.isFinite(minutes) || minutes === Infinity) continue;
-
-                const baseWeight = 1 / (1 + 0.2 * minutes);
-                candidates.push({
-                    locationId: loc.id,
-                    placeId: place.id,
-                    weight: baseWeight,
-                });
-            }
-        }
-
-        if (!candidates.length) return null;
-
-        // If there are multiple *different* locations, penalize staying in the same one.
-        const distinctLocations = new Set(candidates.map((c) => c.locationId));
-        if (originLocationId && distinctLocations.size > 1) {
-            const stayBias = computeStayBias(minutesAtOrigin);
-
-            for (const c of candidates) {
-                if (c.locationId === originLocationId) {
-                    c.weight *= stayBias;
-                }
-            }
-        }
-
-        // Weighted pick
-        let total = 0;
-        for (const c of candidates) total += c.weight;
-        if (total <= 0) return null;
-
-        let r = this.rnd() * total;
-        for (const c of candidates) {
-            r -= c.weight;
-            if (r <= 0) {
-                return { locationId: c.locationId, placeId: c.placeId };
-            }
-        }
-
-        // Fallback (floating point edge case)
-        const last = candidates[candidates.length - 1];
-        return { locationId: last.locationId, placeId: last.placeId };
-    }
 }
 
-function computeStayBias(minutesAtOrigin) {
-    // 0–30 min: no penalty (1.0)
-    // 30–120 min: linearly from 1.0 down to 0.3
-    // 120+ min: strong penalty (~0.1)
-    if (minutesAtOrigin <= 30) return 1.0;
-    if (minutesAtOrigin >= 120) return 0.1;
 
-    const t = (minutesAtOrigin - 30) / (120 - 30); // 0..1
-    return 1.0 - 0.7 * t; // 1.0 -> 0.3
-}
 
 const TargetTypes = {
     home: "home",

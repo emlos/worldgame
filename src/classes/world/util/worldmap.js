@@ -1012,7 +1012,7 @@ export class WorldMap {
     }
 
     // --------------------------
-    // Helpers: place creation
+    // Place calculation
     // --------------------------
 
     /**
@@ -1050,6 +1050,100 @@ export class WorldMap {
         loc.places.push(place);
 
         return place;
+    }
+
+    findNearestPlace(matchFn, originLocationId, atTime, respectOpening) {
+        let best = null;
+        let bestDist = Infinity;
+
+        for (const loc of this.locations.values()) {
+            const places = loc.places;
+            for (const place of places) {
+                if (!matchFn(place)) continue;
+
+                if (respectOpening && typeof place.isOpen === "function") {
+                    if (!place.isOpen(atTime)) continue;
+                }
+
+                const d = this.getTravelMinutes(originLocationId, loc.id);
+                if (d < bestDist) {
+                    bestDist = d;
+                    best = {
+                        locationId: loc.id,
+                        placeId: place.id,
+                    };
+                }
+            }
+        }
+
+        return best;
+    }
+
+    findRandomPlace(matchFn, originLocationId, atTime, respectOpening, minutesAtOrigin = 0) {
+        const candidates = [];
+
+        for (const loc of this.locations.values()) {
+            const places = loc.places || [];
+            for (const place of places) {
+                if (!matchFn(place)) continue;
+
+                if (respectOpening && typeof place.isOpen === "function") {
+                    if (!place.isOpen(atTime)) continue;
+                }
+
+                const minutes = this.getTravelMinutes(originLocationId, loc.id);
+                if (!Number.isFinite(minutes) || minutes === Infinity) continue;
+
+                const baseWeight = 1 / (1 + 0.2 * minutes);
+                candidates.push({
+                    locationId: loc.id,
+                    placeId: place.id,
+                    weight: baseWeight,
+                });
+            }
+        }
+
+        if (!candidates.length) return null;
+
+        // If there are multiple *different* locations, penalize staying in the same one.
+        const distinctLocations = new Set(candidates.map((c) => c.locationId));
+        if (originLocationId && distinctLocations.size > 1) {
+            const stayBias = computeStayBias(minutesAtOrigin);
+
+            for (const c of candidates) {
+                if (c.locationId === originLocationId) {
+                    c.weight *= stayBias;
+                }
+            }
+        }
+
+        // Weighted pick
+        let total = 0;
+        for (const c of candidates) total += c.weight;
+        if (total <= 0) return null;
+
+        let r = this.rnd() * total;
+        for (const c of candidates) {
+            r -= c.weight;
+            if (r <= 0) {
+                return { locationId: c.locationId, placeId: c.placeId };
+            }
+        }
+
+        // Fallback (floating point edge case)
+        const last = candidates[candidates.length - 1];
+        return { locationId: last.locationId, placeId: last.placeId };
+
+        function computeStayBias(minutesAtOrigin) {
+            // 0–30 min: no penalty (1.0)
+            // 30–120 min: linearly from 1.0 down to 0.3
+            // 120+ min: strong penalty (~0.1)
+            if (minutesAtOrigin <= 30) return 1.0;
+            if (minutesAtOrigin >= 120) return 0.1;
+
+            const t = (minutesAtOrigin - 30) / (120 - 30); // 0..1
+            return 1.0 - 0.7 * t; // 1.0 -> 0.3
+        }
     }
 
     //Dijkstra-style shortest-path, returns travel minutes again this si some real,bs lol
@@ -1094,5 +1188,76 @@ export class WorldMap {
         }
 
         return Infinity; // unreachable
+    }
+
+    getTravelTotal(fromId, toId) {
+        const start = String(fromId);
+        const goal = String(toId);
+        if (!start || !goal) return null;
+        if (start === goal) {
+            return { locations: [start], edges: [], minutes: 0 };
+        }
+
+        const dist = new Map();
+        const prev = new Map(); // nodeId -> { id: prevNodeId, edge }
+        const queue = [];
+
+        dist.set(start, 0);
+        queue.push({ id: start, cost: 0 });
+
+        while (queue.length) {
+            // naive priority queue
+            let bestIndex = 0;
+            for (let i = 1; i < queue.length; i++) {
+                if (queue[i].cost < queue[bestIndex].cost) bestIndex = i;
+            }
+            const { id, cost } = queue.splice(bestIndex, 1)[0];
+
+            if (id === goal) break;
+            if (cost > (dist.get(id) ?? Infinity)) continue;
+
+            const loc = this.locations.get(id);
+            if (!loc) continue;
+
+            for (const [nbId, edge] of loc.neighbors) {
+                const minutes = edge && typeof edge.minutes === "number" ? edge.minutes : 1;
+                const nextCost = cost + minutes;
+
+                if (nextCost < (dist.get(nbId) ?? Infinity)) {
+                    dist.set(nbId, nextCost);
+                    prev.set(nbId, { id, edge });
+                    queue.push({ id: nbId, cost: nextCost });
+                }
+            }
+        }
+
+        if (!dist.has(goal)) return null;
+
+        const locations = [];
+        const edges = [];
+        let cur = goal;
+        while (cur !== start) {
+            const info = prev.get(cur);
+            if (!info) break;
+            locations.push(cur);
+            edges.push(info.edge);
+            cur = info.id;
+        }
+        locations.push(start);
+        locations.reverse();
+        edges.reverse();
+
+        const totalMinutes = edges.reduce(
+            (sum, e) => sum + (e && typeof e.minutes === "number" ? e.minutes : 1),
+            0
+        );
+
+        return { locations, edges, minutes: totalMinutes };
+    }
+
+    findNearestBusStopLocation(originLocationId, atTime) {
+        const matchFn = (place) => place.key === "bus_stop";
+        const best = this.findNearestPlace(matchFn, originLocationId, atTime, false);
+        return best ? best.locationId : null;
     }
 }
