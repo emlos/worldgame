@@ -23,6 +23,15 @@ function dayKeyFromDate(date) {
     return DAY_KEYS[dow]; // ["sun","mon"...]
 }
 
+const TIME_JITTER_MIN = 0; // minutes
+const TIME_JITTER_MAX = 20; // minutes
+
+function randomJitterMinutes(rnd) {
+    const span = TIME_JITTER_MAX - TIME_JITTER_MIN;
+    // integer in [TIME_JITTER_MIN, TIME_JITTER_MAX]
+    return Math.ceil((TIME_JITTER_MIN + Math.floor(rnd() * (span + 1))) / 5) * 5;
+}
+
 /**
  * ScheduleManager:
  *  - Uses NPC meta.scheduleTemplate.rules
@@ -174,32 +183,51 @@ export class NPCScheduler {
             }
         }
 
-        // Sort chronologically
-        slots.sort((a, b) => a.from - b.from);
+        // First: apply rule priority and trim overlaps
+        const timeResolved = this._applyPriorityAndTrim(slots, rules);
 
-        // NEW: resolve each slot to actual location/place
-        this._resolveSlots(npc, slots);
+        // Then: resolve each slot to actual location/place
+        this._resolveSlots(npc, timeResolved);
 
         return {
             npcId,
             startDate: new Date(weekStartDate.getTime()),
             endDate: new Date(weekStartDate.getTime() + 7 * 24 * 60 * 60 * 1000),
-            slots,
+            slots: timeResolved,
         };
     }
 
     _applyDailyHomeBlock(out, npcId, rule, dayDate) {
         const blocks = rule.timeBlocks || [];
         for (const b of blocks) {
-            const fromMin = parseTimeToMinutes(b.from);
-            const toMin = parseTimeToMinutes(b.to);
+            let fromMin = parseTimeToMinutes(b.from);
+            let toMin = parseTimeToMinutes(b.to);
+
+            const noJitter = b.noJitter;
+
+            if (!noJitter) {
+                const startShift = randomJitterMinutes(this.rnd);
+                const endShift = randomJitterMinutes(this.rnd);
+
+                fromMin += this.rnd() < 0.5 ? -startShift : startShift;
+                toMin += this.rnd() < 0.5 ? -endShift : endShift;
+
+                const dayEnd = 24 * 60;
+                fromMin = Math.max(0, Math.min(fromMin, dayEnd));
+                toMin = Math.max(0, Math.min(toMin, dayEnd));
+
+                if (toMin <= fromMin) {
+                    toMin = Math.min(dayEnd, fromMin + 15);
+                }
+            }
+
             out.push({
                 npcId,
                 from: makeDateAtMinutes(dayDate, fromMin),
                 to: makeDateAtMinutes(dayDate, toMin),
                 target: {
-                    type: TargetTypes.home,
-                    spec: { type: TargetTypes.home },
+                    type: TargetTypes.activity, // <<-- changed
+                    spec: { type: "home" }, // <<-- changed
                 },
                 sourceRuleId: rule.id,
             });
@@ -248,12 +276,30 @@ export class NPCScheduler {
         const minStay = rule.stayMinutes?.min ?? 30;
         const maxStay = rule.stayMinutes?.max ?? 60;
 
-        let cursor = parseTimeToMinutes(window.from);
-        const endWindow = parseTimeToMinutes(window.to);
+        const windowStart = parseTimeToMinutes(window.from);
+        const windowEnd = parseTimeToMinutes(window.to);
 
-        while (cursor < endWindow) {
+        // --- JITTER HERE ---
+        // Delay leaving the previous state by +5–15 minutes
+        const startJitter = randomJitterMinutes(this.rnd);
+        // End a bit earlier than the formal window, by 5–15 minutes
+        const endJitter = randomJitterMinutes(this.rnd);
+
+        // effective start & end for this rule's actual visits
+        let cursor = windowStart + startJitter;
+        let effectiveEnd = windowEnd - endJitter;
+
+        // Ensure we still have room for at least one minStay block
+        if (effectiveEnd - cursor < minStay) {
+            // fallback: collapse jitter so we can fit minStay
+            cursor = windowStart;
+            effectiveEnd = windowEnd;
+        }
+
+        while (cursor < effectiveEnd) {
             const duration = Math.ceil(minStay + (this.rnd() * (maxStay - minStay + 1)) / 5) * 5;
-            const slotEnd = Math.min(cursor + duration, endWindow);
+
+            const slotEnd = Math.min(cursor + duration, effectiveEnd);
 
             const tIdx = (this.rnd() * targets.length) | 0;
             const targetSpec = targets[tIdx];
@@ -313,37 +359,190 @@ export class NPCScheduler {
     // ------------------------------------------------------------------
 
     _resolveSlots(npc, slots) {
+        if (!slots.length) return;
+
         let lastLocationId = npc.locationId || npc.homeLocationId || this._pickAnyLocationId();
+
+        // Assume they started the day at lastLocationId at the start of the first slot
+        let locationStreakStartTime = new Date(slots[0].from.getTime());
 
         for (const slot of slots) {
             const atTime = slot.from;
 
-            if (slot.target.type === TargetTypes.home) {
-                const locId = npc.homeLocationId || lastLocationId;
-                const placeId = npc.homePlaceId || null;
-                slot.target.locationId = locId;
-                slot.target.placeId = placeId;
-                lastLocationId = locId;
+            if (slot.target.type !== TargetTypes.activity) {
+                // for non-activity targets, just keep locationStreakStartTime logic
+                slot.target.locationId = lastLocationId;
+                slot.target.placeId = null;
                 continue;
             }
 
-            if (slot.target.type === TargetTypes.activity) {
-                const { spec } = slot.target;
-                const origin = lastLocationId || npc.locationId || npc.homeLocationId;
+            const { spec } = slot.target;
+            const origin = lastLocationId || npc.locationId || npc.homeLocationId;
 
-                const resolved = this._resolveActivityTarget(spec || {}, origin, atTime);
+            const minutesAtOrigin = (atTime.getTime() - locationStreakStartTime.getTime()) / 60000;
 
-                if (resolved) {
-                    slot.target.locationId = resolved.locationId;
-                    slot.target.placeId = resolved.placeId;
-                    lastLocationId = resolved.locationId;
-                } else {
-                    // fallback: stay where you are
-                    slot.target.locationId = origin;
-                    slot.target.placeId = null;
+            const resolved = this._resolveActivityTarget(
+                spec || {},
+                origin,
+                atTime,
+                minutesAtOrigin,
+                npc
+            );
+
+            const targetLocationId = resolved?.locationId || origin;
+            const targetPlaceId = resolved?.placeId || null;
+
+            slot.target.locationId = targetLocationId;
+            slot.target.placeId = targetPlaceId;
+
+            if (targetLocationId !== lastLocationId) {
+                // new location: reset streak start
+                locationStreakStartTime = new Date(atTime.getTime());
+                lastLocationId = targetLocationId;
+            }
+        }
+    }
+
+    /**
+     * Take the raw slots (with overlaps) and:
+     *  - apply rule priority so higher-priority slots "win"
+     *  - cut lower-priority slots around higher-priority ones
+     *  - optionally smooth tiny fragments that are shorter than stayMinutes.min
+     */
+    _applyPriorityAndTrim(slots, rules) {
+        if (!slots.length) return [];
+
+        // Map ruleId -> rule
+        const ruleById = new Map();
+        for (const rule of rules) {
+            if (!rule.id) continue;
+            ruleById.set(rule.id, rule);
+        }
+
+        // Annotate slots with priority + minStay
+        const annotated = slots.map((slot) => {
+            const rule = ruleById.get(slot.sourceRuleId);
+            const type = rule?.type;
+            const priority = RULE_PRIORITY[type] ?? 0;
+
+            // minStay is only defined for rules that use stayMinutes
+            const minStay =
+                rule?.stayMinutes && typeof rule.stayMinutes.min === "number"
+                    ? rule.stayMinutes.min
+                    : 0;
+
+            return {
+                ...slot,
+                _priority: priority,
+                _minStay: minStay,
+            };
+        });
+
+        // Sort by priority DESC, then by start time ASC
+        annotated.sort((a, b) => {
+            if (b._priority !== a._priority) return b._priority - a._priority;
+            if (a.from.getTime() !== b.from.getTime()) {
+                return a.from - b.from;
+            }
+            return a.to - b.to;
+        });
+
+        const result = [];
+
+        // Helper: subtract existing (higher-priority) blocks from a candidate slot
+        const subtractCoveredRanges = (slot, blockers) => {
+            let segments = [{ start: slot.from.getTime(), end: slot.to.getTime() }];
+
+            for (const b of blockers) {
+                const bs = b.from.getTime();
+                const be = b.to.getTime();
+
+                const nextSegments = [];
+                for (const seg of segments) {
+                    const s = seg.start;
+                    const e = seg.end;
+
+                    // no overlap
+                    if (be <= s || bs >= e) {
+                        nextSegments.push(seg);
+                        continue;
+                    }
+
+                    // overlap: keep left piece, right piece, or both
+                    if (bs > s) {
+                        nextSegments.push({ start: s, end: bs });
+                    }
+                    if (be < e) {
+                        nextSegments.push({ start: be, end: e });
+                    }
+                }
+
+                segments = nextSegments;
+                if (!segments.length) break;
+            }
+
+            return segments.map((seg) => ({
+                ...slot,
+                from: new Date(seg.start),
+                to: new Date(seg.end),
+            }));
+        };
+
+        // Main pass: apply higher-priority slots first,
+        // and cut lower-priority ones around them.
+        for (const slot of annotated) {
+            const leftovers = subtractCoveredRanges(slot, result);
+            for (const s of leftovers) {
+                if (s.to > s.from) {
+                    result.push(s);
                 }
             }
         }
+
+        // Sort chronologically for further passes and final output
+        result.sort((a, b) => a.from - b.from);
+
+        // Second pass: smooth tiny segments shorter than stayMinutes.min
+        // Example: 22:00–22:05 "home" when minStay is 30 minutes -> merge into previous slot.
+        for (let i = 0; i < result.length; i++) {
+            const slot = result[i];
+            const minStay = slot._minStay || 0;
+            if (!minStay) continue;
+
+            const durationMin = (slot.to.getTime() - slot.from.getTime()) / 60000;
+            if (durationMin >= minStay) continue;
+
+            const prev = result[i - 1];
+            const next = result[i + 1];
+
+            // Prefer extending the previous slot if it's directly adjacent
+            if (prev && prev.to.getTime() === slot.from.getTime()) {
+                prev.to = slot.to;
+                result.splice(i, 1);
+                i -= 1;
+                continue;
+            }
+
+            // Otherwise, extend the next slot if it's directly adjacent
+            if (next && next.from.getTime() === slot.to.getTime()) {
+                next.from = slot.from;
+                result.splice(i, 1);
+                i -= 1;
+                continue;
+            }
+
+            // If it's an isolated tiny slot, you can either keep it or drop it.
+            // For now we'll keep it; you could choose to drop it instead:
+            // result.splice(i, 1); i -= 1;
+        }
+
+        // Clean up temp fields
+        for (const s of result) {
+            delete s._priority;
+            delete s._minStay;
+        }
+
+        return result;
     }
 
     _pickAnyLocationId() {
@@ -351,13 +550,16 @@ export class NPCScheduler {
         return ids.length ? ids[0] : null;
     }
 
-    _resolveActivityTarget(spec, originLocationId, atTime) {
-        const type = spec.type || "placeCategory";
-
-        // opening-hours behavior: targetSpec can override, else rule-level, else false
-        const respectOpening = spec.respectOpeningHours ?? spec.respect_hours ?? false;
-
+    _resolveActivityTarget(spec, originLocationId, atTime, minutesAtOrigin = 0, npc) {
+        const type = spec.type;
+        const respectOpening = !!spec.respectOpeningHours;
         const useNearest = !!spec.nearest;
+
+        if (type === "home") {
+            const homeLocationId = npc.homeLocationId || originLocationId;
+            return { locationId: homeLocationId, placeId: null };
+        }
+
         let matcher = null;
 
         if (type === "placeKey") {
@@ -380,7 +582,13 @@ export class NPCScheduler {
         if (useNearest) {
             return this._findNearestPlace(matcher, originLocationId, atTime, respectOpening);
         } else {
-            return this._findRandomPlace(matcher, originLocationId, atTime, respectOpening);
+            return this._findRandomPlace(
+                matcher,
+                originLocationId,
+                atTime,
+                respectOpening,
+                minutesAtOrigin
+            );
         }
 
         // future extension: locationTag, district, etc.
@@ -421,7 +629,7 @@ export class NPCScheduler {
         return best;
     }
 
-    _findRandomPlace(matchFn, originLocationId, atTime, respectOpening) {
+    _findRandomPlace(matchFn, originLocationId, atTime, respectOpening, minutesAtOrigin = 0) {
         const candidates = [];
 
         for (const loc of this.world.locations.values()) {
@@ -436,19 +644,33 @@ export class NPCScheduler {
                 const minutes = this._distanceBetweenLocations(originLocationId, loc.id);
                 if (!Number.isFinite(minutes) || minutes === Infinity) continue;
 
-                // Weight function: closer = a bit more likely.
-                // You can tweak these constants.
-                const weight = 1 / (1 + 0.2 * minutes); // 0 min -> 1, 10 min -> ~0.33, 30 min -> ~0.14
-
-                candidates.push({ locationId: loc.id, placeId: place.id, weight });
+                const baseWeight = 1 / (1 + 0.2 * minutes);
+                candidates.push({
+                    locationId: loc.id,
+                    placeId: place.id,
+                    weight: baseWeight,
+                });
             }
         }
 
         if (!candidates.length) return null;
 
-        // Weighted random pick
+        // If there are multiple *different* locations, penalize staying in the same one.
+        const distinctLocations = new Set(candidates.map((c) => c.locationId));
+        if (originLocationId && distinctLocations.size > 1) {
+            const stayBias = computeStayBias(minutesAtOrigin);
+
+            for (const c of candidates) {
+                if (c.locationId === originLocationId) {
+                    c.weight *= stayBias;
+                }
+            }
+        }
+
+        // Weighted pick
         let total = 0;
         for (const c of candidates) total += c.weight;
+        if (total <= 0) return null;
 
         let r = this.rnd() * total;
         for (const c of candidates) {
@@ -462,6 +684,17 @@ export class NPCScheduler {
         const last = candidates[candidates.length - 1];
         return { locationId: last.locationId, placeId: last.placeId };
     }
+}
+
+function computeStayBias(minutesAtOrigin) {
+    // 0–30 min: no penalty (1.0)
+    // 30–120 min: linearly from 1.0 down to 0.3
+    // 120+ min: strong penalty (~0.1)
+    if (minutesAtOrigin <= 30) return 1.0;
+    if (minutesAtOrigin >= 120) return 0.1;
+
+    const t = (minutesAtOrigin - 30) / (120 - 30); // 0..1
+    return 1.0 - 0.7 * t; // 1.0 -> 0.3
 }
 
 const TargetTypes = {

@@ -15,6 +15,8 @@ let projectedPositions = new Map();
 
 let nextIntentSlot = null;
 
+const seed = Date.now();
+
 // ---------------------------
 // World + NPC init
 // ---------------------------
@@ -350,20 +352,32 @@ function updateNextIntent() {
 
     let desc = "unknown destination";
 
-    let place = null
+    let place = null;
 
     if (slot.target && slot.target.locationId) {
-        
         const loc =
             world.getLocation?.(slot.target.locationId) ||
             world.locations.get(String(slot.target.locationId));
+
         if (loc) {
             desc = loc.name + ` (${loc.id})`;
-            place = slot.target.type == "home" ? "home" : loc.places.find(p => p.id == slot.target.placeId).name
+
+            const isHomeTarget =
+                slot.target.type === "home" ||
+                (slot.target.spec && slot.target.spec.type === "home");
+
+            if (isHomeTarget) {
+                place = "home";
+            } else if (slot.target.placeId && Array.isArray(loc.places)) {
+                const placeObj = loc.places.find((p) => p.id == slot.target.placeId);
+                if (placeObj) {
+                    place = placeObj.name;
+                }
+            }
         }
     }
 
-    el.textContent = `${timeStr}: move to ${desc}${place ? `, targeting place: ${place}` : ''}.`;
+    el.textContent = `${timeStr}: move to ${desc}${place ? `, targeting place: ${place}` : ""}.`;
 }
 
 function highlightIntentLocation(enabled) {
@@ -444,15 +458,17 @@ function renderWeekSchedule() {
 
             let targetDesc = "home";
 
-            if (slot.target?.type === "activity") {
-                const locId = slot.target.locationId;
-                const loc = locId ? getLoc(locId) : null;
+            if (slot.target) {
+                const spec = slot.target.spec || {};
+                const isHomeTarget = slot.target.type === "home" || spec.type === "home";
 
-                if (loc) {
-                    targetDesc = `${loc.name} (${loc.id})`;
-                } else {
-                    const spec = slot.target.spec || {};
-                    if (spec.type === "placeKey") {
+                if (slot.target.type === "activity" && !isHomeTarget) {
+                    const locId = slot.target.locationId;
+                    const loc = locId ? getLoc(locId) : null;
+
+                    if (loc) {
+                        targetDesc = `${loc.name} (${loc.id})`;
+                    } else if (spec.type === "placeKey") {
                         targetDesc = `any '${spec.key}'`;
                     } else if (spec.type === "placeCategory") {
                         const cats = Array.isArray(spec.categories)
@@ -462,6 +478,8 @@ function renderWeekSchedule() {
                     } else {
                         targetDesc = "activity";
                     }
+                } else if (isHomeTarget) {
+                    targetDesc = "home";
                 }
             }
 

@@ -68,7 +68,7 @@ export const NPC_REGISTRY = [
                     type: SCHEDULE_RULES.random,
                     dayKinds: [DayKind.WORKDAY], // only if it's a work day
                     window: { from: "15:00", to: "22:00" },
-                    stayMinutes: { min: 30, max: 180 },
+                    stayMinutes: { min: 20, max: 120 },
                     targets: [
                         { type: "placeKey", key: "library" },
                         { type: "placeKey", key: "mall" },
@@ -76,8 +76,11 @@ export const NPC_REGISTRY = [
                             type: "placeCategory",
                             categories: [PLACE_TAGS.leisure],
                         },
+                        {
+                            type: "home", // can also choose to stay at home
+                        },
                     ],
-                    respectOpeningHours: true, 
+                    respectOpeningHours: true,
                 },
 
                 // 4) Weekend / day-off behaviour:
@@ -95,7 +98,10 @@ export const NPC_REGISTRY = [
                         { type: "placeKey", key: "mall" },
                         {
                             type: "placeCategory",
-                            categories: [PLACE_TAGS.leisure],
+                            categories: [PLACE_TAGS.leisure, PLACE_TAGS.commerce, PLACE_TAGS.culture, PLACE_TAGS.service, PLACE_TAGS.food, PLACE_TAGS.history],
+                        },
+                        {
+                            type: "home",
                         },
                     ],
                     respectOpeningHours: true,
@@ -108,7 +114,7 @@ export const NPC_REGISTRY = [
                     type: SCHEDULE_RULES.weekly,
                     candidateDays: [DAY_KEYS[5], DAY_KEYS[6], DAY_KEYS[0]],
                     time: { from: "20:00", to: "24:00" },
-                    stayMinutes: { min: 30, max: 120 },
+                    stayMinutes: { min: 70, max: 150 },
                     target: {
                         type: "placeCategory",
                         categories: [PLACE_TAGS.nightlife], // define in PLACE_TAGS if you like
@@ -125,7 +131,7 @@ export const NPC_REGISTRY = [
         name: "Luce",
         shortName: "Luce",
         nicknames: ["Light", "Lu"],
-        age: Infinity,
+        age: 666,
         gender: Gender.NB,
         pronouns: PronounSets.THEY_THEM,
         stats: {
