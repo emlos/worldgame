@@ -111,10 +111,12 @@ function isOpenForSchedule(schedule, dayIndex, minutes) {
     return false;
 }
 
-function inferOpeningHours({ key, category }) {
+function inferOpeningHours(key, categories) {
     if (DEFAULT_OPENING_HOURS_BY_KEY[key]) {
         return DEFAULT_OPENING_HOURS_BY_KEY[key];
     }
+    const category = categories[0];
+
     if (category && DEFAULT_OPENING_HOURS_BY_CATEGORY[category]) {
         return DEFAULT_OPENING_HOURS_BY_CATEGORY[category];
     }
@@ -130,18 +132,13 @@ export class Place {
         this.name = name; // human label ("Central Park", "Bus Stop")
         this.locationId = locationId; // where on the map it lives
 
-        const inferredHours = inferOpeningHours({
-            key,
-            category: props.category,
-        });
+        const inferredHours = inferOpeningHours(key, props.category);
 
         // clone schedule so instances don't share mutable state
         const openingHours = props.openingHours || inferredHours;
         this.props = {
             ...props,
-            ...(openingHours
-                ? { openingHours: cloneSchedule(openingHours) }
-                : {}),
+            ...(openingHours ? { openingHours: cloneSchedule(openingHours) } : {}),
         };
     }
 
