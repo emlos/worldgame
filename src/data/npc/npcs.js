@@ -30,7 +30,7 @@ export const NPC_REGISTRY = [
             /**
              * Rules are interpreted by ScheduleManager.
              *
-             * Supported types in this pass:
+             * Supported types:
              *  - "daily_home_block"  : fixed home-at-time blocks
              *  - "fixed_activity"    : fixed block on days matching filters
              *  - "random_visits"     : repeated random stays within a window

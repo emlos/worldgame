@@ -284,6 +284,12 @@ export class NPCScheduler {
         if (!this._dayKindMatches(rule, dayKind)) return;
         if (!this._dayOfWeekMatches(rule, dayKey)) return;
 
+        // Probability check
+        const p = typeof rule.probability === "number" ? rule.probability : 1;
+        if (p < 1 && this.rnd() > p) {
+            return; // skip this rule entirely for today
+        }
+
         const window = rule.window;
         if (!window) return;
 
@@ -353,11 +359,23 @@ export class NPCScheduler {
         const durRaw = minStay + this.rnd() * (maxStay - minStay);
         const duration = Math.max(5, Math.round(durRaw / 5) * 5);
 
-        // Latest possible start so we still end before windowEnd
+        // Choose a random start time within the window so that the event ends before windowEnd
         const latestStart = Math.max(windowStart, windowEnd - duration);
-        const start =
-            windowStart + Math.floor(this.rnd() * ((latestStart - windowStart) / 5 + 1)) * 5;
-        const end = Math.min(start + duration, windowEnd);
+        if (latestStart < windowStart) {
+            // Not enough room
+            return;
+        }
+
+        const offset = this.rnd() * (latestStart - windowStart);
+        const start = windowStart + Math.round(offset / 5) * 5;
+        const end = start + duration;
+
+        // merge rule-level flags into the target spec
+        const baseSpec = rule.target || {};
+        const targetSpec = {
+            ...baseSpec,
+            respectOpeningHours: !!rule.respectOpeningHours,
+        };
 
         out.push({
             npcId,
@@ -365,7 +383,7 @@ export class NPCScheduler {
             to: makeDateAtMinutes(dayDate, end),
             target: {
                 type: TargetTypes.activity,
-                spec: rule.target,
+                spec: targetSpec,
             },
             sourceRuleId: rule.id,
         });
@@ -485,11 +503,11 @@ export class NPCScheduler {
      * Build travel segments between two slots.
      * Returns array of segments, or null on failure.
      */
-    _buildTravelSegmentsBetween(originLocId, destLocId, fromSlot, toSlot) {
+    _buildTravelSegmentsBetween(originLocId, destLocId, fromSlot, toSlot, npcUsesBus) {
         const arrivalTime = toSlot.from;
         const windowStartHard = fromSlot.from;
 
-        const plan = this._planTravelPath(originLocId, destLocId, arrivalTime);
+        const plan = this._planTravelPath(originLocId, destLocId, arrivalTime, npcUsesBus);
         if (!plan || !plan.steps || !plan.steps.length) return null;
 
         const maxWindowMinutes = (arrivalTime.getTime() - windowStartHard.getTime()) / 60000;
@@ -616,10 +634,10 @@ export class NPCScheduler {
      * Used when leaving a fixed-rule slot: we keep the fixed block intact and
      * let travel push the next slot later.
      */
-    _buildTravelSegmentsAfter(originLocId, destLocId, fromSlot) {
+    _buildTravelSegmentsAfter(originLocId, destLocId, fromSlot, npcUsesBus) {
         const departureTime = fromSlot.to;
 
-        const plan = this._planTravelPath(originLocId, destLocId, departureTime);
+        const plan = this._planTravelPath(originLocId, destLocId, departureTime, npcUsesBus);
         if (!plan || !plan.steps || !plan.steps.length) return null;
 
         const segments = [];
@@ -707,6 +725,8 @@ export class NPCScheduler {
     _insertTravelSlots(npc, slots, rules = []) {
         if (!slots || !slots.length) return [];
 
+        const npcUsesBus = !!npc.meta?.scheduleTemplate?.useBus;
+
         const ruleById = new Map();
         for (const rule of rules || []) {
             if (!rule.id) continue;
@@ -750,9 +770,20 @@ export class NPCScheduler {
             // If we are leaving a fixed activity (like school), do NOT cut into it.
             // Instead, put travel immediately after the fixed slot and push the next slot later.
             if (originIsFixed && !destIsFixed) {
-                travelSegments = this._buildTravelSegmentsAfter(curLoc, nextLoc, current);
+                travelSegments = this._buildTravelSegmentsAfter(
+                    curLoc,
+                    nextLoc,
+                    current,
+                    npcUsesBus
+                );
             } else {
-                travelSegments = this._buildTravelSegmentsBetween(curLoc, nextLoc, current, next);
+                travelSegments = this._buildTravelSegmentsBetween(
+                    curLoc,
+                    nextLoc,
+                    current,
+                    next,
+                    npcUsesBus
+                );
             }
             if (!travelSegments || !travelSegments.length) continue;
 
@@ -1051,7 +1082,7 @@ export class NPCScheduler {
         };
     }
 
-    _planTravelPath(originLocId, destLocId, arrivalTime) {
+    _planTravelPath(originLocId, destLocId, arrivalTime, npcUsesBus) {
         const basePath = this.world.map.getTravelTotal(originLocId, destLocId);
         if (!basePath || !basePath.edges.length) return null;
 
@@ -1066,6 +1097,11 @@ export class NPCScheduler {
             distance: edge.distance || 0,
             streetName: edge.streetName || null,
         }));
+
+        // If this NPC never uses buses, just walk:
+        if (!npcUsesBus) {
+            return { steps: baseSteps, totalMinutes: baseMinutes };
+        }
 
         // --- Conditions for preferring bus ---
         const weather = this.world.currentWeather; // "rain","storm","snow",...
