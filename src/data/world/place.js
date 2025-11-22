@@ -116,7 +116,7 @@ export const PLACE_REGISTRY = [
         key: "bus_stop",
         label: "Bus Stop",
 
-        minDistance: 2,
+        minDistance: 3,
         allowedTags: [
             LOCATION_TAGS.urban_core,
             LOCATION_TAGS.urban_center,
@@ -139,6 +139,7 @@ export const PLACE_REGISTRY = [
         },
         nameFn: ({ index }) => seqName("Bus Stop", { index }),
         minCount: 1,
+        maxCount: Infinity,
     },
     {
         key: "boulevard",

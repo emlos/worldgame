@@ -395,6 +395,46 @@ function generatePlaces({
         }
     }
 
+    // --- Special case: bus stops --------------------------------------
+    function placeBusStopsGreedy() {
+        const BUS_STOP_KEY = "bus_stop";
+        const busDef = PLACE_REGISTRY.find((d) => d.key === BUS_STOP_KEY);
+        if (!busDef) return;
+
+        // All locations where a bus stop *could* exist
+        const candidates = candidateListFor(busDef);
+        if (!candidates.length) return;
+
+        // Shuffle candidates so patterns aren't fixed
+        for (let i = candidates.length - 1; i > 0; i--) {
+            const j = (rnd() * (i + 1)) | 0;
+            [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
+        }
+
+        const minDist = busDef.minDistance || 0;
+        const placedSoFar = placedByKey.get(BUS_STOP_KEY) || [];
+
+        for (const locId of candidates) {
+            // Only rule: respect minDistance between bus stops
+            if (!isFarEnough(locId, placedSoFar, minDist, neighborsFn, distFn)) {
+                continue;
+            }
+
+            // IMPORTANT: do NOT call canPlaceAt here
+            // -> ignores capacityPerLocation and softTarget
+            const p = makePlace(busDef, locId);
+            if (!p) continue;
+
+            recordPlacement(busDef, p, locId);
+            placedSoFar.push(p);
+        }
+
+        placedByKey.set(BUS_STOP_KEY, placedSoFar);
+    }
+
+    // --- Stage 0: bus stops, independent of density/targets ----------
+    placeBusStopsGreedy();
+
     // --- Stage 1a: singletons / rare items first (NOT bus_stop) -----
     const singletonDefs = PLACE_REGISTRY.filter(
         (d) => d.key !== "bus_stop" && (d.maxCount === 1 || (d.minCount && d.minCount > 0))
