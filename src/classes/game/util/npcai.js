@@ -1,4 +1,4 @@
-import { DAY_KEYS, SCHEDULE_RULES } from "../../../data/data.js";
+import { DAY_KEYS, PLACE_REGISTRY, SCHEDULE_RULES, WeatherType } from "../../../data/data.js";
 
 /**
  * Helpers
@@ -186,17 +186,17 @@ export class NPCScheduler {
         // First: apply rule priority and trim overlaps
         const timeResolved = this._applyPriorityAndTrim(slots, rules);
 
-        // Second: fill any intra-day gaps so the NPC is always “doing something”
-        const noGaps = this._fillGaps(timeResolved);
+        // Resolve each slot to actual location/place
+        this._resolveSlots(npc, timeResolved);
 
-        // Then: resolve each slot to actual location/place
-        this._resolveSlots(npc, noGaps);
+        // Insert travel segments between slots where the location changes
+        const withTravel = this._insertTravelSlots(npc, timeResolved);
 
         return {
             npcId,
             startDate: new Date(weekStartDate.getTime()),
             endDate: new Date(weekStartDate.getTime() + 7 * 24 * 60 * 60 * 1000),
-            slots: noGaps,
+            slots: withTravel,
         };
     }
 
@@ -468,6 +468,136 @@ export class NPCScheduler {
     }
 
     /**
+     * Build travel segments between two slots.
+     * Returns array of segments, or null on failure.
+     */
+    _buildTravelSegmentsBetween(originLocId, destLocId, fromSlot, toSlot) {
+        const arrivalTime = toSlot.from;
+        const windowStart = fromSlot.from;
+
+        const plan = this._planTravelPath(originLocId, destLocId, arrivalTime);
+        if (!plan || !plan.steps || !plan.steps.length) return null;
+
+        const availableMinutes = (arrivalTime.getTime() - windowStart.getTime()) / 60000;
+        if (availableMinutes <= 0) return null;
+
+        let totalTravel = plan.totalMinutes;
+        if (totalTravel <= 0) return null;
+
+        // If we don't have enough time, compress proportionally into the window
+        let scale = 1;
+        if (totalTravel > availableMinutes) {
+            scale = availableMinutes / totalTravel;
+        }
+
+        const scaledDurations = [];
+        let sumMinutes = 0;
+        for (let i = 0; i < plan.steps.length; i++) {
+            const raw = plan.steps[i].minutes * scale;
+            const clamped = Math.max(1, Math.round(raw));
+            scaledDurations.push(clamped);
+            sumMinutes += clamped;
+        }
+
+        const availRounded = Math.max(1, Math.round(availableMinutes));
+        if (sumMinutes !== availRounded && scaledDurations.length) {
+            // adjust last step so total matches window
+            scaledDurations[scaledDurations.length - 1] += availRounded - sumMinutes;
+            sumMinutes = availRounded;
+        }
+
+        const travelMinutes = sumMinutes;
+        const travelStartMs = arrivalTime.getTime() - travelMinutes * 60000;
+        const travelStart = new Date(Math.max(travelStartMs, windowStart.getTime()));
+
+        const segments = [];
+        let cursor = travelStart.getTime();
+
+        for (let i = 0; i < plan.steps.length; i++) {
+            const step = plan.steps[i];
+            const mins = scaledDurations[i];
+            if (mins <= 0) continue;
+
+            const from = new Date(cursor);
+            const to = new Date(cursor + mins * 60000);
+            cursor = to.getTime();
+
+            // NPC "is at" the location they’re heading into for this step
+            const locIdForStep = step.toId || step.fromId || originLocId;
+
+            segments.push({
+                npcId: fromSlot.npcId,
+                from,
+                to,
+                target: {
+                    type: TargetTypes.travel,
+                    spec: {
+                        mode: step.mode, // "walk" | "wait" | "bus"
+                        isEnRoute: true, // cannot chat
+                        onBus: step.mode === "bus",
+                        fromLocationId: step.fromId,
+                        toLocationId: step.toId,
+                    },
+                    locationId: locIdForStep,
+                    placeId: null,
+                },
+                sourceRuleId: "travel_auto",
+            });
+        }
+
+        return segments;
+    }
+
+    _insertTravelSlots(npc, slots) {
+        if (!slots || !slots.length) return [];
+
+        // Make a shallow copy we can mutate safely
+        const base = slots.slice();
+        const out = [];
+
+        for (let i = 0; i < base.length; i++) {
+            const current = base[i];
+            const next = base[i + 1] || null;
+
+            out.push(current);
+
+            if (!next) break;
+
+            const curTarget = current.target || {};
+            const nextTarget = next.target || {};
+
+            const curLoc = curTarget.locationId;
+            const nextLoc = nextTarget.locationId;
+
+            // Only insert travel when we actually move between locations
+            if (!curLoc || !nextLoc || curLoc === nextLoc) continue;
+
+            // Don't insert travel *after* a travel slot
+            if (curTarget.type === TargetTypes.travel) continue;
+
+            const travelSegments = this._buildTravelSegmentsBetween(curLoc, nextLoc, current, next);
+
+            if (!travelSegments || !travelSegments.length) continue;
+
+            // Adjust the end time of the current slot so travel fits before next
+            const firstSeg = travelSegments[0];
+            if (firstSeg.from > current.from && firstSeg.from < current.to) {
+                current.to = new Date(firstSeg.from.getTime());
+            }
+
+            // Insert in chronological order
+            for (const seg of travelSegments) {
+                out.push(seg);
+            }
+        }
+
+        // Keep everything time-sorted
+        out.sort((a, b) => a.from - b.from);
+
+        return out;
+    }
+
+    /**
      * Take the raw slots (with overlaps) and:
      *  - apply rule priority so higher-priority slots "win"
      *  - cut lower-priority slots around higher-priority ones
@@ -644,7 +774,12 @@ export class NPCScheduler {
         if (!matcher) throw new Error(`Unknown activity target type: ${type}`);
 
         if (useNearest) {
-            return this.world.map.findNearestPlace(matcher, originLocationId, atTime, respectOpening);
+            return this.world.map.findNearestPlace(
+                matcher,
+                originLocationId,
+                atTime,
+                respectOpening
+            );
         } else {
             return this.world.map.findRandomPlace(
                 matcher,
@@ -658,11 +793,154 @@ export class NPCScheduler {
         // future extension: locationTag, district, etc.
         return null;
     }
+
+    // --------- pathfinding via bus stops ---------
+
+    _findNearestBusStopLocation(originLocationId) {
+        const matchFn = (place) => place.key === "bus_stop";
+        const atTime = this.world.time.date;
+        const best = this.world.map.findNearestPlace(matchFn, originLocationId, atTime, false);
+        return best ? best.locationId : null;
+    }
+
+    _getBusStopConfig() {
+        const place = PLACE_REGISTRY.find((p) => p.key === "bus_stop");
+
+        if (place) {
+            const props = place.props;
+            return {
+                travelTimeMult: props.travelTimeMult,
+                busFrequencyDay: props.busFrequencyDay,
+                busFrequencyNight: props.busFrequencyNight,
+            };
+        }
+
+        // Fallback defaults if none found
+        return {
+            travelTimeMult: 0.3,
+            busFrequencyDay: 15,
+            busFrequencyNight: 35,
+        };
+    }
+
+    _planTravelPath(originLocId, destLocId, arrivalTime) {
+        const basePath = this.world.map.getTravelTotal(originLocId, destLocId);
+        if (!basePath || !basePath.edges.length) return null;
+
+        const baseEdges = basePath.edges;
+        const baseMinutes = basePath.minutes;
+
+        const baseSteps = baseEdges.map((edge) => ({
+            mode: "walk",
+            fromId: String(edge.a),
+            toId: String(edge.b),
+            minutes: edge.minutes || 1,
+        }));
+
+        // --- Conditions for preferring bus ---
+        const weather = this.world.currentWeather; // "rain","storm","snow",...
+        const temperature = this.world.temperature; // °C
+        const cold = temperature < 0;
+        const badWeather =
+            weather === WeatherType.RAIN ||
+            weather === WeatherType.STORM ||
+            weather === WeatherType.SNOW;
+
+        const tooFar = baseMinutes > 25 || baseEdges.length > 5;
+
+        // If none of the conditions hit, just walk
+        if (!tooFar && !badWeather && !cold) {
+            return { steps: baseSteps, totalMinutes: baseMinutes };
+        }
+
+        // Try to plan a bus route
+        const busCfg = this._getBusStopConfig();
+        const originBusLoc = this._findNearestBusStopLocation(originLocId);
+        const destBusLoc = this._findNearestBusStopLocation(destLocId);
+
+        if (!originBusLoc || !destBusLoc) {
+            // No bus stops reachable, fallback to walking
+            return { steps: baseSteps, totalMinutes: baseMinutes };
+        }
+
+        const toBus = this.world.map.getTravelTotal(originLocId, originBusLoc);
+        const busPath = this.world.map.getTravelTotal(originBusLoc, destBusLoc);
+        const fromBus = this.world.map.getTravelTotal(destBusLoc, destLocId);
+
+        if (!toBus || !busPath || !fromBus) {
+            return { steps: baseSteps, totalMinutes: baseMinutes };
+        }
+
+        const tWalkToBus = toBus.minutes;
+        const tBusRaw = busPath.minutes;
+        const tWalkFromBus = fromBus.minutes;
+
+        const d = arrivalTime || this.world.time.date;
+        const hour = d.getHours();
+        const isDay = hour >= 6 && hour < 22;
+        const freq = isDay ? busCfg.busFrequencyDay : busCfg.busFrequencyNight;
+        const avgWait = freq > 0 ? freq * 0.5 : 0; // simple expectation
+
+        const totalBusMinutes =
+            tWalkToBus + tWalkFromBus + tBusRaw * busCfg.travelTimeMult + avgWait;
+
+        // If bus would actually be slower *and* we're not forced by conditions, walk
+        if (!tooFar && !badWeather && !cold && totalBusMinutes >= baseMinutes) {
+            return { steps: baseSteps, totalMinutes: baseMinutes };
+        }
+
+        // Build step list: walk -> wait -> bus -> walk
+        const steps = [];
+
+        // walk to bus stop
+        for (const edge of toBus.edges) {
+            steps.push({
+                mode: "walk",
+                fromId: String(edge.a),
+                toId: String(edge.b),
+                minutes: edge.minutes || 1,
+            });
+        }
+
+        // wait at bus stop
+        if (avgWait > 0) {
+            steps.push({
+                mode: "wait",
+                fromId: String(originBusLoc),
+                toId: String(originBusLoc),
+                minutes: avgWait,
+            });
+        }
+
+        // bus ride
+        for (const edge of busPath.edges) {
+            const scaled = (edge.minutes || 1) * busCfg.travelTimeMult;
+            steps.push({
+                mode: "bus",
+                fromId: String(edge.a),
+                toId: String(edge.b),
+                minutes: scaled,
+            });
+        }
+
+        // walk from bus stop to destination
+        for (const edge of fromBus.edges) {
+            steps.push({
+                mode: "walk",
+                fromId: String(edge.a),
+                toId: String(edge.b),
+                minutes: edge.minutes || 1,
+            });
+        }
+
+        const total = steps.reduce((s, st) => s + st.minutes, 0);
+
+        return { steps, totalMinutes: total };
+    }
 }
-
-
 
 const TargetTypes = {
     home: "home",
     activity: "activity",
+    travel: "travel",
 };

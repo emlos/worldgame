@@ -1254,10 +1254,4 @@ export class WorldMap {
 
         return { locations, edges, minutes: totalMinutes };
     }
-
-    findNearestBusStopLocation(originLocationId, atTime) {
-        const matchFn = (place) => place.key === "bus_stop";
-        const best = this.findNearestPlace(matchFn, originLocationId, atTime, false);
-        return best ? best.locationId : null;
-    }
 }

@@ -130,7 +130,13 @@ export const PLACE_REGISTRY = [
             LOCATION_TAGS.parkland,
         ],
         weight: 6,
-        props: { icon: "🚌", category: [PLACE_TAGS.transport] },
+        props: {
+            icon: "🚌",
+            category: [PLACE_TAGS.transport],
+            travelTimeMult: 0.3, //how much faster travel is when using bus
+            busFrequencyDay: 15, //how often buses arrive (in minutes)
+            busFrequencyNight: 35,
+        },
         nameFn: ({ index }) => seqName("Bus Stop", { index }),
         minCount: 1,
     },
@@ -795,7 +801,15 @@ export const PLACE_REGISTRY = [
             LOCATION_TAGS.rural,
         ],
         weight: 1,
-        props: { icon: "⛪", category: [PLACE_TAGS.service, PLACE_TAGS.civic, PLACE_TAGS.history, PLACE_TAGS.culture] },
+        props: {
+            icon: "⛪",
+            category: [
+                PLACE_TAGS.service,
+                PLACE_TAGS.civic,
+                PLACE_TAGS.history,
+                PLACE_TAGS.culture,
+            ],
+        },
         nameFn: ({ rnd }) =>
             `${pick(["St. Genevieve", "All Saints", "Trinity", "Grace"], rnd)} Church`,
         minCount: 1,

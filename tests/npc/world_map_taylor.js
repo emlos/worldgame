@@ -462,7 +462,22 @@ function renderWeekSchedule() {
                 const spec = slot.target.spec || {};
                 const isHomeTarget = slot.target.type === "home" || spec.type === "home";
 
-                if (slot.target.type === "activity" && !isHomeTarget) {
+                if (slot.target.type === "travel") {
+                    const locId = slot.target.locationId;
+                    const loc = locId ? getLoc(locId) : null;
+                    const mode = spec.mode || "travel";
+                    let modeLabel = "travel";
+
+                    if (mode === "walk") modeLabel = "walking";
+                    else if (mode === "bus") modeLabel = "on the bus";
+                    else if (mode === "wait") modeLabel = "waiting for bus";
+
+                    if (loc) {
+                        targetDesc = `${modeLabel} at ${loc.name} (${loc.id})`;
+                    } else {
+                        targetDesc = modeLabel;
+                    }
+                } else if (slot.target.type === "activity" && !isHomeTarget) {
                     const locId = slot.target.locationId;
                     const loc = locId ? getLoc(locId) : null;
 
@@ -507,11 +522,16 @@ function advanceWorldMinutes(mins) {
 }
 
 function bindButtons() {
+    const plus1 = byId("btnTimePlus1");
     const plus30 = byId("btnTimePlus30");
     const plus120 = byId("btnTimePlus120");
     const plusWeek = byId("btnTimePlusWeek");
     const reset = byId("btnResetWorld");
     const nextIntentEl = byId("taylorNextIntent");
+
+    if (plus1) {
+        plus1.addEventListener("click", () => advanceWorldMinutes(1));
+    }
 
     if (plus30) {
         plus30.addEventListener("click", () => advanceWorldMinutes(30));
