@@ -145,6 +145,10 @@
             color: var(--fg);
             font-size: larger;
         }
+
+        label {
+            font-size: 12px;
+        }
     </style>
     <body>
         <a href="../../index.html">back</a>
@@ -185,12 +189,28 @@
                         Hover the intent text to highlight the planned target location on the map.
                     </p>
 
-                    <div style="margin-top: 12px">
+                    <div style="margin-top: 12px; display: flex; flex-direction: row">
                         <button id="btnTimePlus1">+1 min</button>
                         <button id="btnTimePlus30">+30 min</button>
                         <button id="btnTimePlus120">+2 hours</button>
                         <button id="btnTimePlusWeek">+1 week</button>
                         <button id="btnResetWorld">Regenerate world</button>
+
+                        <div style="display: flex; flex-direction: column; flex-grow: 1">
+                            <button id="btnAutoForward">Play Schedule</button>
+                            <div style="display: flex; flex-direction: row">
+                                <label for="speedSlider" id="speedLabel" style="white-space: nowrap;">Speed 1 s/min</label>&nbsp;
+                                <input
+                                    type="range"
+                                    min="1"
+                                    max="500"
+                                    value="1"
+                                    class="slider"
+                                    id="speedSlider"
+                                    style="width: 100%;"
+                                />
+                            </div>
+                        </div>
                     </div>
 
                     <p style="margin-top: 8px; font-size: 12px; color: var(--muted)">

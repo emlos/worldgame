@@ -15,6 +15,9 @@ let projectedPositions = new Map();
 
 let nextIntentSlot = null;
 
+let autoForwardTimer = null;
+let isAutoForwarding = false;
+
 const seed = Date.now();
 
 // ---------------------------
@@ -922,6 +925,10 @@ function bindButtons() {
     const plusWeek = byId("btnTimePlusWeek");
     const reset = byId("btnResetWorld");
     const nextIntentEl = byId("taylorNextIntent");
+    const autoBtn = byId("btnAutoForward");
+
+    const slider = byId("speedSlider");
+    const label = byId("speedLabel");
 
     if (plus1) {
         plus1.addEventListener("click", () => advanceWorldMinutes(1));
@@ -939,6 +946,42 @@ function bindButtons() {
     if (reset) {
         reset.addEventListener("click", () => {
             initWorldAndTaylor();
+        });
+    }
+
+    if (slider) {
+        slider.addEventListener("input", () => {
+            const speed = 1000 - 1.9 * Number(slider.value);
+            const minutesPerSecond = (1000 / speed).toFixed(1);
+            label.textContent = `Speed: ${minutesPerSecond} s/min`;
+        });
+    }
+
+    if (autoBtn) {
+        autoBtn.addEventListener("click", () => {
+            
+            const speed = 1000 - 1.9 * Number(slider.value);
+
+            if (!isAutoForwarding) {
+                // start auto-forward
+                isAutoForwarding = true;
+                // optional: visual feedback
+                autoBtn.textContent = "Pause Auto";
+
+                autoForwardTimer = setInterval(() => {
+                    advanceWorldMinutes(1); // advances from *current* world time
+                }, speed);
+            } else {
+                // pause auto-forward
+                isAutoForwarding = false;
+                // optional: visual feedback
+                autoBtn.textContent = "Start Auto";
+
+                if (autoForwardTimer !== null) {
+                    clearInterval(autoForwardTimer);
+                    autoForwardTimer = null;
+                }
+            }
         });
     }
 
