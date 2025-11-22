@@ -24,9 +24,20 @@ export const PLACE_TAGS = {
     education: "education",
     nightlife: "nightlife",
     history: "history",
+    crime: "crime",
+    supernatural: "supernatural",
 };
 
 export const PLACE_REGISTRY = [
+    {
+        id: "player_home",
+        label: "Player Home",
+        props: { icon: "🏠", category: [PLACE_TAGS.housing] },
+        nameFn: ({ playerName }) => `${playerName}'s Home`,
+        minCount: 1,
+        maxCount: 1,
+        weight: 999,
+    },
     // ────────────────────────────
     // CIVIC / TRANSPORT
     // ────────────────────────────
@@ -45,7 +56,6 @@ export const PLACE_REGISTRY = [
     {
         key: "civil_office",
         label: "Civil Office",
-
         minDistance: 8,
         allowedTags: [
             LOCATION_TAGS.urban_core,
@@ -63,7 +73,6 @@ export const PLACE_REGISTRY = [
     {
         key: "jail",
         label: "Jail",
-
         maxCount: 1,
         minDistance: 99,
         allowedTags: [
@@ -80,9 +89,8 @@ export const PLACE_REGISTRY = [
     {
         key: "court",
         label: "Court",
-
-        maxCount: 1,
-        minDistance: 99,
+        maxCount: 3,
+        minDistance: 20,
         allowedTags: [
             LOCATION_TAGS.urban_core,
             LOCATION_TAGS.urban_center,
@@ -100,7 +108,6 @@ export const PLACE_REGISTRY = [
         maxCount: 1,
         minDistance: 99,
         allowedTags: [
-            LOCATION_TAGS.urban_core,
             LOCATION_TAGS.urban_edge,
             LOCATION_TAGS.industrial,
             LOCATION_TAGS.suburban_hub,
@@ -109,7 +116,7 @@ export const PLACE_REGISTRY = [
         weight: 1,
         props: { icon: "🚉", category: [PLACE_TAGS.transport] },
         nameFn: ({ tags }) =>
-            has(tags, LOCATION_TAGS.urban_core) ? "Central Station" : "Train Station",
+            has(tags, LOCATION_TAGS.urban) ? "Central Station" : "Train Station",
         minCount: 1,
     },
     {
@@ -118,16 +125,7 @@ export const PLACE_REGISTRY = [
 
         minDistance: 3,
         allowedTags: [
-            LOCATION_TAGS.urban_core,
-            LOCATION_TAGS.urban_center,
-            LOCATION_TAGS.urban,
-            LOCATION_TAGS.suburban,
-            LOCATION_TAGS.urban_edge,
-            LOCATION_TAGS.industrial,
-            LOCATION_TAGS.commercial,
-            LOCATION_TAGS.residential,
-            LOCATION_TAGS.rural,
-            LOCATION_TAGS.parkland,
+            ...Object.values(LOCATION_TAGS), //bus stops can be everywhere
         ],
         weight: 6,
         props: {
@@ -297,7 +295,7 @@ export const PLACE_REGISTRY = [
             LOCATION_TAGS.commercial,
         ],
         weight: 1,
-        props: { icon: "🎭", category: [PLACE_TAGS.culture] },
+        props: { icon: "🎭", category: [PLACE_TAGS.culture, PLACE_TAGS.supernatural] },
         nameFn: ({ rnd, tags }) =>
             has(tags, LOCATION_TAGS.historic)
                 ? `${pick(["Imperial", "Bijou", "Majestic"], rnd)} Theater`
@@ -809,10 +807,31 @@ export const PLACE_REGISTRY = [
                 PLACE_TAGS.civic,
                 PLACE_TAGS.history,
                 PLACE_TAGS.culture,
+                PLACE_TAGS.supernatural,
             ],
         },
         nameFn: ({ rnd }) =>
             `${pick(["St. Genevieve", "All Saints", "Trinity", "Grace"], rnd)} Church`,
+        minCount: 1,
+    },
+
+    {
+        key: "cemetery",
+        label: "Cemetery",
+        maxCount: 1,
+        minDistance: 20,
+        allowedTags: [
+            LOCATION_TAGS.rural,
+            LOCATION_TAGS.urban_edge,
+            LOCATION_TAGS.suburban,
+            LOCATION_TAGS.historic,
+        ],
+        weight: 1,
+        props: {
+            icon: "🪦",
+            category: [PLACE_TAGS.history, PLACE_TAGS.civic, PLACE_TAGS.supernatural],
+        },
+        nameFn: ({ rnd }) => `${pick(["Oakwood", "Riverside", "Maplewood"], rnd)} Cemetery`,
         minCount: 1,
     },
 
@@ -915,7 +934,6 @@ export const PLACE_REGISTRY = [
     {
         key: "mechanic",
         label: "Mechanic",
-
         minDistance: 3,
         allowedTags: [
             LOCATION_TAGS.industrial,
@@ -933,7 +951,6 @@ export const PLACE_REGISTRY = [
     {
         key: "police_station",
         label: "Police Station",
-
         minDistance: 6,
         allowedTags: [
             LOCATION_TAGS.urban_core,
@@ -954,7 +971,6 @@ export const PLACE_REGISTRY = [
     {
         key: "fire_station",
         label: "Fire Department",
-
         minDistance: 6,
         allowedTags: [
             LOCATION_TAGS.urban_core,
@@ -978,7 +994,6 @@ export const PLACE_REGISTRY = [
     {
         key: "warehouse",
         label: "Warehouse",
-
         minDistance: 4,
         allowedTags: [
             LOCATION_TAGS.industrial,
@@ -998,7 +1013,6 @@ export const PLACE_REGISTRY = [
     {
         key: "logistics_depot",
         label: "Logistics Depot",
-
         minDistance: 8,
         allowedTags: [LOCATION_TAGS.industrial, LOCATION_TAGS.urban_edge, LOCATION_TAGS.suburban],
         weight: 1,
@@ -1014,7 +1028,6 @@ export const PLACE_REGISTRY = [
     {
         key: "apartment_complex",
         label: "Apartment Complex",
-
         minDistance: 2,
         allowedTags: [
             LOCATION_TAGS.urban_core,
@@ -1032,7 +1045,6 @@ export const PLACE_REGISTRY = [
     {
         key: "townhouse",
         label: "Townhouse",
-
         minDistance: 1,
         allowedTags: [
             LOCATION_TAGS.urban_core,
@@ -1048,6 +1060,44 @@ export const PLACE_REGISTRY = [
             `${pick(["Lone", "Maple", "Luxurious", "Dilapidated"], rnd)} House Row`,
         minCount: 1,
     },
+    {
+        key: "shady_building",
+        label: "Shady Building",
+        minDistance: 12,
+        allowedTags: [
+            LOCATION_TAGS.urban_edge,
+            LOCATION_TAGS.industrial,
+            LOCATION_TAGS.commercial,
+            LOCATION_TAGS.rural,
+            LOCATION_TAGS.coastal,
+        ],
+        weight: 1,
+        props: {
+            icon: "🏚️",
+            category: [PLACE_TAGS.housing, PLACE_TAGS.crime, PLACE_TAGS.supernatural],
+            multi: true,
+        },
+        nameFn: ({ rnd }) => `${pick(["Abandoned", "Derelict", "Vacant"], rnd)} Building`,
+        minCount: 1,
+    },
+    {
+        key: "motel",
+        label: "Motel",
+        minDistance: 8,
+        allowedTags: [
+            LOCATION_TAGS.urban_edge,
+            LOCATION_TAGS.suburban,
+            LOCATION_TAGS.tourism,
+            LOCATION_TAGS.coastal,
+        ],
+        weight: 2,
+        props: { icon: "🏨", category: [PLACE_TAGS.housing, PLACE_TAGS.leisure] },
+        nameFn: ({ rnd, tags }) =>
+            has(tags, LOCATION_TAGS.tourism)
+                ? `${pick(["Seaside", "Harborview", "Sunset"], rnd)} Motel`
+                : `${pick(["Budget Inn", "Travel Lodge", "Roadside"], rnd)}`,
+        minCount: 1,
+    },
 
     // ────────────────────────────
     // WATERFRONT
@@ -1055,7 +1105,6 @@ export const PLACE_REGISTRY = [
     {
         key: "pier",
         label: "Pier",
-
         minDistance: 6,
         allowedTags: [
             LOCATION_TAGS.coastal,
@@ -1076,13 +1125,86 @@ export const PLACE_REGISTRY = [
     {
         key: "fish_market",
         label: "Fish Market",
-
         minDistance: 4,
         allowedTags: [LOCATION_TAGS.coastal, LOCATION_TAGS.urban_edge],
         weight: 2,
         props: { icon: "🐟", category: [PLACE_TAGS.commerce, PLACE_TAGS.food, PLACE_TAGS.leisure] },
         nameFn: ({ tags }) =>
             has(tags, LOCATION_TAGS.coastal) ? "Harbor Fish Market" : "Fish Market",
+        minCount: 1,
+    },
+    {
+        key: "harbor",
+        label: "Harbor",
+        minDistance: 10,
+        allowedTags: [LOCATION_TAGS.coastal],
+        weight: 1,
+        props: { icon: "⚓", category: [PLACE_TAGS.industry, PLACE_TAGS.transport] },
+        nameFn: () => "Docktown Harbor",
+        minCount: 1,
+    },
+
+    // ────────────────────────────
+    // CRIME
+    // ────────────────────────────
+    {
+        key: "smugglers_den",
+        label: "Smuggler's Den",
+        minDistance: 15,
+        allowedTags: [
+            LOCATION_TAGS.coastal,
+            LOCATION_TAGS.urban_edge,
+            LOCATION_TAGS.industrial,
+            LOCATION_TAGS.rural,
+        ],
+        weight: 1,
+        props: { icon: "🕵️", category: [PLACE_TAGS.crime, PLACE_TAGS.industry] },
+        nameFn: ({ rnd }) => `${pick(["Hidden", "Secret", "Underground"], rnd)} Den`,
+        minCount: 1,
+    },
+    {
+        key: "night_market",
+        label: "Night Market",
+        minDistance: 12,
+        allowedTags: [
+            LOCATION_TAGS.urban_edge,
+            LOCATION_TAGS.suburban,
+            LOCATION_TAGS.commercial,
+            LOCATION_TAGS.industrial,
+        ],
+        weight: 1,
+        props: {
+            icon: "🌙",
+            category: [PLACE_TAGS.crime, PLACE_TAGS.leisure, PLACE_TAGS.commerce],
+        },
+        nameFn: ({ rnd }) => `${pick(["Shadow", "Midnight", "Black"], rnd)} Market`,
+        minCount: 1,
+    },
+    {
+        key: "abandoned_parking_lot",
+        label: "Abandoned Parking Lot",
+        minDistance: 10,
+        allowedTags: [LOCATION_TAGS.urban_edge, LOCATION_TAGS.industrial, LOCATION_TAGS.rural],
+        weight: 1,
+        props: { icon: "🚧", category: [PLACE_TAGS.crime] },
+        nameFn: ({ rnd }) => `${pick(["Desolate", "Forgotten", "Vacant"], rnd)} Parking Lot`,
+        minCount: 1,
+    },
+    {
+        key: "alleyway",
+        label: "Alleyway",
+        minDistance: 2,
+        allowedTags: [
+            LOCATION_TAGS.urban_core,
+            LOCATION_TAGS.urban_center,
+            LOCATION_TAGS.urban,
+            LOCATION_TAGS.commercial,
+            LOCATION_TAGS.residential,
+            LOCATION_TAGS.industrial,
+        ],
+        weight: 1,
+        props: { icon: "🚷", category: [PLACE_TAGS.crime] },
+        nameFn: ({ rnd }) => `${pick(["Dark", "Narrow", "Hidden", "Dirty"], rnd)} Alleyway`,
         minCount: 1,
     },
 ];
@@ -1159,6 +1281,7 @@ export const DEFAULT_OPENING_HOURS_BY_CATEGORY = {
         to: "17:00",
         saturday: { from: "9:00", to: "16:00" },
     }),
+    crime: hoursAllDay(),
 };
 
 export const DEFAULT_OPENING_HOURS = hoursAllDay();

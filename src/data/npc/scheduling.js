@@ -3,6 +3,7 @@ export const SCHEDULE_RULES = {
     fixed: "fixed_activity",
     random: "random_visits",
     weekly: "weekly_once",
+    follow: "follow_target",
 };
 
 export const RULE_PRIORITY = {
@@ -10,4 +11,5 @@ export const RULE_PRIORITY = {
     [SCHEDULE_RULES.random]: 1,
     [SCHEDULE_RULES.weekly]: 2,
     [SCHEDULE_RULES.fixed]: 3,
+    [SCHEDULE_RULES.follow]: 4,
 };
