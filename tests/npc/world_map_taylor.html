@@ -83,6 +83,11 @@
             display: block;
         }
 
+        #map line.road-edge--highlight {
+            stroke-width: 5;
+            filter: brightness(2);
+        }
+
         .info-row {
             font-size: 14px;
             margin: 4px 0;
@@ -127,8 +132,22 @@
             margin-left: 8px;
             margin-bottom: 1px;
         }
+
+        .busline-hover:hover {
+            filter: brightness(1.5);
+            cursor: pointer;
+        }
+
+        h3.schedule-day {
+            font-weight: 600;
+            margin-top: 6px;
+            margin-bottom: 2px;
+            color: var(--fg);
+            font-size: larger;
+        }
     </style>
     <body>
+        <a href="../../index.html">back</a>
         <div class="page">
             <div>
                 <div class="card">
@@ -149,7 +168,7 @@
 
                     <div class="info-row">
                         <span class="label">Current location:</span>
-                        <span id="taylorCurrent">—</span><br>
+                        <span id="taylorCurrent">—</span><br />
                         <span class="label">Places at Current Location:</span>
                         <span id="placesAtLoc"></span>
                     </div>
@@ -167,7 +186,7 @@
                     </p>
 
                     <div style="margin-top: 12px">
-                         <button id="btnTimePlus1">+1 min</button>
+                        <button id="btnTimePlus1">+1 min</button>
                         <button id="btnTimePlus30">+30 min</button>
                         <button id="btnTimePlus120">+2 hours</button>
                         <button id="btnTimePlusWeek">+1 week</button>
@@ -183,6 +202,10 @@
 
                 <div class="card">
                     <h2 style="margin-top: 0; font-size: 16px">Current week schedule</h2>
+                    <p style="margin-top: 2px; font-size: 11px; color: var(--muted)">
+                        Hover the "on the bus" entries in schedule to see a highlighted path on the
+                        map.
+                    </p>
                     <div id="weekSchedule">Loading…</div>
                 </div>
             </div>

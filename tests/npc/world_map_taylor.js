@@ -264,6 +264,12 @@ function renderMap() {
         line.setAttribute("stroke", "#26323b");
         line.setAttribute("stroke-width", "2");
         line.setAttribute("stroke-linecap", "round");
+
+        // NEW: mark this as a road between two locations
+        line.classList.add("road-edge");
+        line.dataset.a = String(a);
+        line.dataset.b = String(b);
+
         svg.appendChild(line);
     }
 
@@ -303,6 +309,64 @@ function renderMap() {
 
     host.appendChild(svg);
     updateMapHighlights();
+}
+
+function clearHighlightedBusPath() {
+    const host = byId("map");
+    if (!host) return;
+    const svg = host.querySelector("svg");
+    if (!svg) return;
+
+    svg.querySelectorAll("line.road-edge--highlight").forEach((line) => {
+        line.classList.remove("road-edge--highlight");
+    });
+}
+
+function highlightBusPathFromElement(el) {
+    if (!el) return;
+    const pathStr = el.getAttribute("data-bus-path");
+    if (!pathStr) return;
+
+    const pairs = pathStr.split(",").filter(Boolean);
+    if (!pairs.length) return;
+
+    const host = byId("map");
+    if (!host) return;
+    const svg = host.querySelector("svg");
+    if (!svg) return;
+
+    const roads = svg.querySelectorAll("line.road-edge");
+    for (const line of roads) {
+        const a = line.dataset.a;
+        const b = line.dataset.b;
+        const key1 = `${a}-${b}`;
+        const key2 = `${b}-${a}`;
+        if (pairs.includes(key1) || pairs.includes(key2)) {
+            line.classList.add("road-edge--highlight");
+        }
+    }
+}
+
+function attachBusHoverHandlers() {
+    const container = byId("weekSchedule");
+    if (!container) return;
+
+    // Use event delegation so we don't rebind on every render
+    if (container._busHoverBound) return;
+    container._busHoverBound = true;
+
+    container.addEventListener("mouseover", (ev) => {
+        const el = ev.target.closest(".schedule-slot--bus");
+        if (!el || !container.contains(el)) return;
+        clearHighlightedBusPath();
+        highlightBusPathFromElement(el);
+    });
+
+    container.addEventListener("mouseout", (ev) => {
+        const el = ev.target.closest(".schedule-slot--bus");
+        if (!el || !container.contains(el)) return;
+        clearHighlightedBusPath();
+    });
 }
 
 // Highlight current & home; intent highlighting comes on top
@@ -418,15 +482,16 @@ function renderWeekSchedule() {
     const getLoc = (id) =>
         world.getLocation ? world.getLocation(id) : world.locations.get(String(id));
 
-    const dayBuckets = new Map(); // dateKey -> { date, slots[] }
     const pad2 = (n) => (n < 10 ? "0" + n : "" + n);
 
+    // Bucket slots per calendar day
+    const dayBuckets = new Map(); // dateKey -> { date, slots[] }
     for (const slot of slots) {
         const d = slot.from;
         const y = d.getFullYear();
         const m = pad2(d.getMonth() + 1);
         const day = pad2(d.getDate());
-        const dateKey = `${y}-${m}-${day}`; // LOCAL YYYY-MM-DD ✅
+        const dateKey = `${y}-${m}-${day}`;
 
         let bucket = dayBuckets.get(dateKey);
         if (!bucket) {
@@ -437,74 +502,177 @@ function renderWeekSchedule() {
     }
 
     const sortedKeys = [...dayBuckets.keys()].sort();
-
     const lines = [];
 
-    const pad = (n) => (n < 10 ? "0" + n : "" + n);
+    const formatTimeRange = (from, to) =>
+        `${pad2(from.getHours())}:${pad2(from.getMinutes())}–${pad2(to.getHours())}:${pad2(
+            to.getMinutes()
+        )}`;
 
+    const isTravelWalk = (slot) =>
+        slot &&
+        slot.target &&
+        slot.target.type === "travel" &&
+        slot.target.spec &&
+        slot.target.spec.mode === "walk";
+
+    // Render each day
     for (const key of sortedKeys) {
-        const { date, slots: daySlots } = dayBuckets.get(key);
-        const dow = date.toLocaleDateString(undefined, { weekday: "short" });
-        lines.push(`<div class="schedule-day">${dow} ${key}</div>`);
+        const { date, slots: daySlotsRaw } = dayBuckets.get(key);
+        const daySlots = daySlotsRaw.slice().sort((a, b) => a.from - b.from);
 
-        daySlots.sort((a, b) => a.from - b.from);
+        const dow = date.toLocaleDateString(undefined, { weekday: "short" });
+        const header = `${dow} ${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(
+            date.getDate()
+        )}`;
+        lines.push(`<h3 class="schedule-day">${header}</h3>`);
+
+        let walkGroup = [];
+
+        const flushWalkGroup = () => {
+            if (!walkGroup.length) return;
+
+            const first = walkGroup[0];
+            const last = walkGroup[walkGroup.length - 1];
+            const from = first.from;
+            const to = last.to;
+
+            const totalMinutes = Math.round((to.getTime() - from.getTime()) / 60000);
+
+            const streetNames = new Set();
+            for (const s of walkGroup) {
+                const spec = s.target && s.target.spec;
+                if (spec && spec.streetName) streetNames.add(spec.streetName);
+            }
+            const streetCount = streetNames.size || walkGroup.length;
+
+            const timeStr = formatTimeRange(from, to);
+            const ruleId = first.sourceRuleId || "travel_auto";
+
+            const summaryHtml = `${timeStr} – walking (${totalMinutes} min, ${streetCount} streets) <span style="opacity:0.6;">[${ruleId}]</span>`;
+
+            // Build details list of each step with street name
+            const detailLines = [];
+            for (const step of walkGroup) {
+                const sFrom = step.from;
+                const sTo = step.to;
+                const stepTime = formatTimeRange(sFrom, sTo);
+                const spec = step.target && step.target.spec;
+                const streetName = spec && spec.streetName ? spec.streetName : "street";
+
+                let fromLoc = null;
+                let toLoc = null;
+                if (spec && spec.fromLocationId != null && spec.toLocationId != null) {
+                    fromLoc = getLoc(spec.fromLocationId);
+                    toLoc = getLoc(spec.toLocationId);
+                }
+
+                const fromLabel = fromLoc ? `${fromLoc.name} (${fromLoc.id})` : "";
+                const toLabel = toLoc ? `${toLoc.name} (${toLoc.id})` : "";
+
+                const stepLabel =
+                    fromLabel && toLabel ? `${streetName} (${fromLabel} → ${toLabel})` : streetName;
+
+                detailLines.push(`<li>${stepTime} – ${stepLabel}</li>`);
+            }
+
+            lines.push(
+                `<details class="schedule-slot schedule-slot--walk"><summary>${summaryHtml}</summary><ul>${detailLines.join(
+                    ""
+                )}</ul></details>`
+            );
+
+            walkGroup = [];
+        };
 
         for (const slot of daySlots) {
+            if (isTravelWalk(slot)) {
+                // part of a walking group
+                const last = walkGroup[walkGroup.length - 1];
+                if (!last || last.to.getTime() === slot.from.getTime()) {
+                    walkGroup.push(slot);
+                } else {
+                    flushWalkGroup();
+                    walkGroup.push(slot);
+                }
+                continue;
+            }
+
+            // Not a walking travel slot -> flush any existing group first
+            flushWalkGroup();
+
             const from = slot.from;
             const to = slot.to;
-            const timeStr = `${pad(from.getHours())}:${pad(from.getMinutes())}–${pad(
-                to.getHours()
-            )}:${pad(to.getMinutes())}`;
+            const timeStr = formatTimeRange(from, to);
 
-            let targetDesc = "home";
+            let mode = false;
+
+            let targetDesc = "";
+            const sourceId = slot.sourceRuleId || "";
 
             if (slot.target) {
                 const spec = slot.target.spec || {};
                 const isHomeTarget = slot.target.type === "home" || spec.type === "home";
 
                 if (slot.target.type === "travel") {
-                    const locId = slot.target.locationId;
-                    const loc = locId ? getLoc(locId) : null;
-                    const mode = spec.mode || "travel";
+                    mode = spec.mode || "travel";
                     let modeLabel = "travel";
 
                     if (mode === "walk") modeLabel = "walking";
                     else if (mode === "bus") modeLabel = "on the bus";
                     else if (mode === "wait") modeLabel = "waiting for bus";
 
-                    if (loc) {
-                        targetDesc = `${modeLabel} at ${loc.name} (${loc.id})`;
-                    } else {
-                        targetDesc = modeLabel;
-                    }
-                } else if (slot.target.type === "activity" && !isHomeTarget) {
+                    // For travel, we don't show "at Location"; we show mode only.
+                    targetDesc = modeLabel;
+                } else {
+                    // Activity/home: show location + place
                     const locId = slot.target.locationId;
                     const loc = locId ? getLoc(locId) : null;
-
                     if (loc) {
+                        let place = "";
+                        if (isHomeTarget) {
+                            place = "home";
+                        } else if (slot.target.placeId && Array.isArray(loc.places)) {
+                            const placeObj = loc.places.find((p) => p.id == slot.target.placeId);
+                            if (placeObj) {
+                                place = placeObj.name || placeObj.key || "";
+                            }
+                        }
+
                         targetDesc = `${loc.name} (${loc.id})`;
-                    } else if (spec.type === "placeKey") {
-                        targetDesc = `any '${spec.key}'`;
-                    } else if (spec.type === "placeCategory") {
-                        const cats = Array.isArray(spec.categories)
-                            ? spec.categories
-                            : [spec.categories || "category"];
-                        targetDesc = `place with category: ${cats.join(", ")}`;
+                        if (place) {
+                            targetDesc += ` – ${place}`;
+                        }
                     } else {
-                        targetDesc = "activity";
+                        targetDesc = isHomeTarget ? "home" : "activity";
                     }
-                } else if (isHomeTarget) {
-                    targetDesc = "home";
                 }
             }
 
+            // Attach bus path info for hover highlighting
+            let extraAttrs = "";
+            const spec = slot.target && slot.target.spec;
+            if (slot.target && slot.target.type === "travel" && spec && spec.mode === "bus") {
+                const pathEdges = Array.isArray(spec.pathEdges) ? spec.pathEdges : [];
+                const serialized = pathEdges.map((e) => `${e.fromId}-${e.toId}`).join(",");
+                extraAttrs = ` class="schedule-slot schedule-slot--bus" data-bus-path="${serialized}"`;
+            } else {
+                extraAttrs = ` class="schedule-slot"`;
+            }
+
             lines.push(
-                `<div class="schedule-slot">${timeStr} – ${targetDesc} <span style="opacity:0.6;">[${slot.sourceRuleId}]</span></div>`
+                `<div${extraAttrs}>${mode === "bus" ? `<code class="busline-hover">` : ""}${timeStr} – ${targetDesc}${mode === "bus" ? "</code>" : ""} <span style="opacity:0.6;">[${sourceId}]</span></div>`
             );
         }
+
+        // In case the day ends with a walk group
+        flushWalkGroup();
     }
 
     el.innerHTML = lines.join("\n");
+
+    // After re-render, (re)bind hover handlers for bus rows
+    attachBusHoverHandlers();
 }
 
 // ---------------------------

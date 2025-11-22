@@ -190,7 +190,7 @@ export class NPCScheduler {
         this._resolveSlots(npc, timeResolved);
 
         // Insert travel segments between slots where the location changes
-        const withTravel = this._insertTravelSlots(npc, timeResolved);
+        const withTravel = this._insertTravelSlots(npc, timeResolved, rules);
 
         return {
             npcId,
@@ -202,9 +202,14 @@ export class NPCScheduler {
 
     _applyDailyHomeBlock(out, npcId, rule, dayDate) {
         const blocks = rule.timeBlocks || [];
+        const dayEnd = 24 * 60;
+        const dayStart = 0;
+
         for (const b of blocks) {
             let fromMin = parseTimeToMinutes(b.from);
             let toMin = parseTimeToMinutes(b.to);
+            const origToMin = toMin;
+            const origFromMin = fromMin;
 
             const noJitter = b.noJitter;
 
@@ -215,7 +220,6 @@ export class NPCScheduler {
                 fromMin += this.rnd() < 0.5 ? -startShift : startShift;
                 toMin += this.rnd() < 0.5 ? -endShift : endShift;
 
-                const dayEnd = 24 * 60;
                 fromMin = Math.max(0, Math.min(fromMin, dayEnd));
                 toMin = Math.max(0, Math.min(toMin, dayEnd));
 
@@ -224,13 +228,21 @@ export class NPCScheduler {
                 }
             }
 
+            // If the block was defined to end at midnight, force it to end at midnight
+            if (origToMin >= dayEnd) {
+                toMin = dayEnd;
+            }
+            if (origFromMin <= dayStart) {
+                fromMin = dayStart;
+            }
+
             out.push({
                 npcId,
                 from: makeDateAtMinutes(dayDate, fromMin),
                 to: makeDateAtMinutes(dayDate, toMin),
                 target: {
-                    type: TargetTypes.activity, // <<-- changed
-                    spec: { type: "home" }, // <<-- changed
+                    type: TargetTypes.activity,
+                    spec: { type: "home" },
                 },
                 sourceRuleId: rule.id,
             });
@@ -473,23 +485,36 @@ export class NPCScheduler {
      */
     _buildTravelSegmentsBetween(originLocId, destLocId, fromSlot, toSlot) {
         const arrivalTime = toSlot.from;
-        const windowStart = fromSlot.from;
+        const windowStartHard = fromSlot.from;
 
         const plan = this._planTravelPath(originLocId, destLocId, arrivalTime);
         if (!plan || !plan.steps || !plan.steps.length) return null;
 
-        const availableMinutes = (arrivalTime.getTime() - windowStart.getTime()) / 60000;
-        if (availableMinutes <= 0) return null;
+        const maxWindowMinutes = (arrivalTime.getTime() - windowStartHard.getTime()) / 60000;
+        if (maxWindowMinutes <= 0) return null;
 
         let totalTravel = plan.totalMinutes;
         if (totalTravel <= 0) return null;
 
-        // If we don't have enough time, compress proportionally into the window
+        // We *prefer* to keep the earlier part of the slot as "activity"
+        // and put travel right before arrival.
         let scale = 1;
-        if (totalTravel > availableMinutes) {
-            scale = availableMinutes / totalTravel;
+        let travelMinutes = totalTravel;
+        let travelStart;
+
+        if (totalTravel <= maxWindowMinutes) {
+            // Enough room: no scaling, travel sits at the end of the window.
+            travelStart = new Date(arrivalTime.getTime() - totalTravel * 60000);
+        } else {
+            // Not enough room: compress the whole trip into the available window.
+            scale = maxWindowMinutes / totalTravel;
+            travelMinutes = maxWindowMinutes;
+            travelStart = new Date(windowStartHard.getTime());
         }
 
+        const targetMinutes = Math.max(1, Math.round(travelMinutes));
+
+        // Scale each step, keep at least 1 minute
         const scaledDurations = [];
         let sumMinutes = 0;
         for (let i = 0; i < plan.steps.length; i++) {
@@ -499,16 +524,11 @@ export class NPCScheduler {
             sumMinutes += clamped;
         }
 
-        const availRounded = Math.max(1, Math.round(availableMinutes));
-        if (sumMinutes !== availRounded && scaledDurations.length) {
-            // adjust last step so total matches window
-            scaledDurations[scaledDurations.length - 1] += availRounded - sumMinutes;
-            sumMinutes = availRounded;
+        // Adjust last step so the sum matches the travel window
+        if (sumMinutes !== targetMinutes && scaledDurations.length) {
+            scaledDurations[scaledDurations.length - 1] += targetMinutes - sumMinutes;
+            sumMinutes = targetMinutes;
         }
-
-        const travelMinutes = sumMinutes;
-        const travelStartMs = arrivalTime.getTime() - travelMinutes * 60000;
-        const travelStart = new Date(Math.max(travelStartMs, windowStart.getTime()));
 
         const segments = [];
         let cursor = travelStart.getTime();
@@ -522,8 +542,8 @@ export class NPCScheduler {
             const to = new Date(cursor + mins * 60000);
             cursor = to.getTime();
 
-            // NPC "is at" the location they’re heading into for this step
-            const locIdForStep = step.toId || step.fromId || originLocId;
+            const isBus = step.mode === "bus";
+            const locIdForStep = isBus ? null : step.toId || step.fromId || originLocId;
 
             segments.push({
                 npcId: fromSlot.npcId,
@@ -532,12 +552,22 @@ export class NPCScheduler {
                 target: {
                     type: TargetTypes.travel,
                     spec: {
-                        mode: step.mode, // "walk" | "wait" | "bus"
-                        isEnRoute: true, // cannot chat
-                        onBus: step.mode === "bus",
+                        mode: step.mode,
+                        isEnRoute: true,
+                        onBus: isBus,
                         fromLocationId: step.fromId,
                         toLocationId: step.toId,
+                        segmentStreetLength: step.distance || 0,
+                        streetName: step.streetName || null,
+                        // a per-slot path; for a single segment this is just one edge
+                        pathEdges: [
+                            {
+                                fromId: String(step.fromId),
+                                toId: String(step.toId),
+                            },
+                        ],
                     },
+
                     locationId: locIdForStep,
                     placeId: null,
                 },
@@ -548,8 +578,76 @@ export class NPCScheduler {
         return segments;
     }
 
-    _insertTravelSlots(npc, slots) {
+    /**
+     * Build travel segments that start immediately after fromSlot (no truncation).
+     * Used when leaving a fixed-rule slot: we keep the fixed block intact and
+     * let travel push the next slot later.
+     */
+    _buildTravelSegmentsAfter(originLocId, destLocId, fromSlot) {
+        const departureTime = fromSlot.to;
+
+        const plan = this._planTravelPath(originLocId, destLocId, departureTime);
+        if (!plan || !plan.steps || !plan.steps.length) return null;
+
+        const segments = [];
+        let cursor = departureTime.getTime();
+
+        for (const step of plan.steps) {
+            const mins = Math.max(1, Math.round(step.minutes));
+            if (mins <= 0) continue;
+
+            const from = new Date(cursor);
+            const to = new Date(cursor + mins * 60000);
+            cursor = to.getTime();
+
+            const isBus = step.mode === "bus";
+            const locIdForStep = isBus ? null : step.toId || step.fromId || originLocId;
+
+            segments.push({
+                npcId: fromSlot.npcId,
+                from,
+                to,
+                target: {
+                    type: TargetTypes.travel,
+                    spec: {
+                        mode: step.mode, // "walk" | "wait" | "bus"
+                        isEnRoute: true, // cannot chat
+                        onBus: isBus,
+                        fromLocationId: step.fromId,
+                        toLocationId: step.toId,
+                        segmentStreetLength: step.distance || 0,
+                        streetName: step.streetName || null,
+                        pathEdges: [
+                            {
+                                fromId: String(step.fromId),
+                                toId: String(step.toId),
+                            },
+                        ],
+                    },
+
+                    locationId: locIdForStep,
+                    placeId: null,
+                },
+                sourceRuleId: "travel_auto",
+            });
+        }
+
+        return segments;
+    }
+
+    _insertTravelSlots(npc, slots, rules = []) {
         if (!slots || !slots.length) return [];
+
+        const ruleById = new Map();
+        for (const rule of rules || []) {
+            if (!rule.id) continue;
+            ruleById.set(rule.id, rule);
+        }
+
+        const isFixedSlot = (slot) => {
+            const rule = slot && ruleById.get(slot.sourceRuleId);
+            return !!rule && rule.type === SCHEDULE_RULES.fixed;
+        };
 
         // Make a shallow copy we can mutate safely
         const base = slots.slice();
@@ -575,14 +673,41 @@ export class NPCScheduler {
             // Don't insert travel *after* a travel slot
             if (curTarget.type === TargetTypes.travel) continue;
 
-            const travelSegments = this._buildTravelSegmentsBetween(curLoc, nextLoc, current, next);
+            const originIsFixed = isFixedSlot(current);
+            const destIsFixed = isFixedSlot(next);
 
+            let travelSegments = null;
+
+            // If we are leaving a fixed activity (like school), do NOT cut into it.
+            // Instead, put travel immediately after the fixed slot and push the next slot later.
+            if (originIsFixed && !destIsFixed) {
+                travelSegments = this._buildTravelSegmentsAfter(curLoc, nextLoc, current);
+            } else {
+                travelSegments = this._buildTravelSegmentsBetween(curLoc, nextLoc, current, next);
+            }
             if (!travelSegments || !travelSegments.length) continue;
 
             // Adjust the end time of the current slot so travel fits before next
             const firstSeg = travelSegments[0];
-            if (firstSeg.from > current.from && firstSeg.from < current.to) {
+
+            if (firstSeg.from > current.to) {
+                // There was a gap: extend the current activity up to when travel begins.
                 current.to = new Date(firstSeg.from.getTime());
+            } else if (firstSeg.from > current.from && firstSeg.from < current.to) {
+                // Travel cuts into the tail of the current slot: trim it.
+                current.to = new Date(firstSeg.from.getTime());
+            }
+
+            const lastSeg = travelSegments[travelSegments.length - 1];
+            const travelEnd = lastSeg.to;
+
+            // If travel ends after the scheduled start of the next slot,
+            // push the next slot forward by the overlap.
+            if (next.from < travelEnd) {
+                const deltaMs = travelEnd.getTime() - next.from.getTime();
+                const durMs = next.to.getTime() - next.from.getTime();
+                next.from = new Date(next.from.getTime() + deltaMs);
+                next.to = new Date(next.from.getTime() + durMs);
             }
 
             // Insert in chronological order
@@ -594,7 +719,41 @@ export class NPCScheduler {
         // Keep everything time-sorted
         out.sort((a, b) => a.from - b.from);
 
-        return out;
+        // Merge consecutive bus segments into a single slot
+        const merged = [];
+        for (const slot of out) {
+            const prev = merged[merged.length - 1];
+
+            const isTravel = (s) => s && s.target && s.target.type === TargetTypes.travel;
+            const modeOf = (s) => (s && s.target && s.target.spec && s.target.spec.mode) || null;
+
+            if (
+                prev &&
+                isTravel(prev) &&
+                isTravel(slot) &&
+                modeOf(prev) === "bus" &&
+                modeOf(slot) === "bus" &&
+                prev.to.getTime() === slot.from.getTime()
+            ) {
+                // Merge times and accumulate distance
+                prev.to = slot.to;
+                const prevLen = prev.target.spec.segmentStreetLength || 0;
+                const curLen = slot.target.spec.segmentStreetLength || 0;
+                prev.target.spec.segmentStreetLength = prevLen + curLen;
+
+                const prevPath = Array.isArray(prev.target.spec.pathEdges)
+                    ? prev.target.spec.pathEdges
+                    : [];
+                const curPath = Array.isArray(slot.target.spec.pathEdges)
+                    ? slot.target.spec.pathEdges
+                    : [];
+                prev.target.spec.pathEdges = prevPath.concat(curPath);
+            } else {
+                merged.push(slot);
+            }
+        }
+
+        return merged;
     }
 
     /**
@@ -835,6 +994,8 @@ export class NPCScheduler {
             fromId: String(edge.a),
             toId: String(edge.b),
             minutes: edge.minutes || 1,
+            distance: edge.distance || 0,
+            streetName: edge.streetName || null,
         }));
 
         // --- Conditions for preferring bus ---
@@ -846,7 +1007,7 @@ export class NPCScheduler {
             weather === WeatherType.STORM ||
             weather === WeatherType.SNOW;
 
-        const tooFar = baseMinutes > 25 || baseEdges.length > 5;
+        const tooFar = baseMinutes > 20 || baseEdges.length > 5;
 
         // If none of the conditions hit, just walk
         if (!tooFar && !badWeather && !cold) {
@@ -899,6 +1060,8 @@ export class NPCScheduler {
                 fromId: String(edge.a),
                 toId: String(edge.b),
                 minutes: edge.minutes || 1,
+                distance: edge.distance || 0,
+                streetName: edge.streetName || null,
             });
         }
 
@@ -920,6 +1083,8 @@ export class NPCScheduler {
                 fromId: String(edge.a),
                 toId: String(edge.b),
                 minutes: scaled,
+                distance: edge.distance || 0,
+                streetName: edge.streetName || null,
             });
         }
 
@@ -930,6 +1095,8 @@ export class NPCScheduler {
                 fromId: String(edge.a),
                 toId: String(edge.b),
                 minutes: edge.minutes || 1,
+                distance: edge.distance || 0,
+                streetName: edge.streetName || null,
             });
         }
 
