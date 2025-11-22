@@ -88,6 +88,7 @@ function syncTaylorToCurrentTime() {
     const slot = findActiveSlotForTime(now);
 
     if (!slot) {
+        taylor.isInTransit = false;
         if (taylor.homeLocationId) {
             if (typeof taylor.setLocationAndPlace === "function") {
                 taylor.setLocationAndPlace(taylor.homeLocationId, taylor.homePlaceId);
@@ -96,14 +97,51 @@ function syncTaylorToCurrentTime() {
             }
         }
     } else {
-        const locId = slot.target.locationId || taylor.homeLocationId || taylor.locationId;
-        const placeId = slot.target.placeId || null;
+        const target = slot.target || {};
+        const spec = target.spec || {};
+        const mode = spec.mode;
+        const isTravel = target.type === "travel";
+        const isMicroStop = isTravel && spec.microStop === true;
 
-        if (typeof taylor.setLocationAndPlace === "function") {
-            taylor.setLocationAndPlace(locId, placeId);
-        } else {
-            taylor.setLocation(locId);
+        // walk + bus = transit (including micro-stops)
+        const isTransit = isTravel && mode !== "wait";
+
+        taylor.isInTransit = isTransit;
+
+        // We set location when:
+        // - not in transit (normal activities / home / wait), OR
+        // - we are in a walking micro-stop.
+        if (!isTransit || isMicroStop) {
+            let locId = null;
+            let placeId = null;
+
+            if (isTravel) {
+                if (mode === "wait" || isMicroStop) {
+                    // bus stop wait OR walking micro-stop at a node
+                    locId =
+                        spec.toLocationId ??
+                        spec.fromLocationId ??
+                        taylor.locationId ??
+                        taylor.homeLocationId;
+                } else {
+                    // Any other non-transit travel mode (none right now)
+                    locId = target.locationId || taylor.homeLocationId || taylor.locationId;
+                }
+            } else {
+                // Regular activity/home slot
+                locId = target.locationId || taylor.homeLocationId || taylor.locationId;
+                placeId = target.placeId || null;
+            }
+
+            if (locId != null) {
+                if (typeof taylor.setLocationAndPlace === "function") {
+                    taylor.setLocationAndPlace(locId, placeId);
+                } else {
+                    taylor.setLocation(locId);
+                }
+            }
         }
+        // If in transit and not a micro-stop, we still do not change taylor.locationId.
     }
 
     updateMapHighlights();
@@ -158,23 +196,98 @@ function renderDayInfo() {
 function renderTaylorInfo() {
     if (!taylor || !world) return;
 
+    const now = world.time.date;
+    const slot = findActiveSlotForTime(now);
+
     const getLoc = (id) =>
         world.getLocation ? world.getLocation(id) : world.locations.get(String(id));
 
-    const currentLoc = getLoc(taylor.locationId);
-    const homeLoc = getLoc(taylor.homeLocationId);
-
     const currentEl = byId("taylorCurrent");
     const homeEl = byId("taylorHome");
+    const placesEl = byId("placesAtLoc");
+
+    const homeLoc = getLoc(taylor.homeLocationId);
+    if (homeEl) {
+        homeEl.textContent = homeLoc ? `${homeLoc.name} (${homeLoc.id})` : "—";
+    }
+
+    const fallbackLoc = getLoc(taylor.locationId);
+
+    // No active slot -> fallback to Taylor's current locationId
+    if (!slot || !slot.target) {
+        if (currentEl) {
+            currentEl.textContent = fallbackLoc ? `${fallbackLoc.name} (${fallbackLoc.id})` : "—";
+        }
+        if (placesEl) {
+            if (fallbackLoc && Array.isArray(fallbackLoc.places) && fallbackLoc.places.length) {
+                placesEl.innerHTML = fallbackLoc.places
+                    .map((place) => `<code>${place.key}</code>`)
+                    .join(" ");
+            } else {
+                placesEl.textContent = "—";
+            }
+        }
+        return;
+    }
+
+    // ---- TRAVEL STATES ----
+    if (slot.target.type === "travel") {
+        const spec = slot.target.spec || {};
+        const mode = spec.mode;
+
+        const isMicroStop = spec.microStop === true;
+
+        if (mode === "wait" || isMicroStop) {
+            const locId =
+                spec.toLocationId ??
+                spec.fromLocationId ??
+                taylor.locationId ??
+                taylor.homeLocationId;
+
+            const loc = locId != null ? getLoc(locId) : null;
+            const baseName = loc ? `${loc.name} (${loc.id})` : "somewhere";
+
+            let label;
+            if (mode === "wait") {
+                label = `waiting at ${baseName}`;
+            } else {
+                // micro-stop while walking
+                label = `walking, paused at ${baseName}`;
+            }
+
+            if (currentEl) currentEl.textContent = label;
+
+            if (placesEl) {
+                if (loc && Array.isArray(loc.places) && loc.places.length) {
+                    placesEl.innerHTML = loc.places
+                        .map((place) => `<code>${place.key}</code>`)
+                        .join(" ");
+                } else {
+                    placesEl.textContent = "—";
+                }
+            }
+            return;
+        }
+    }
+
+    // otherwise: normal walking/bus (off-map)
+
+    // ---- ACTIVITY / HOME STATES ----
+    const locId = slot.target.locationId || taylor.locationId;
+    const currentLoc = getLoc(locId);
 
     if (currentEl) {
         currentEl.textContent = currentLoc ? `${currentLoc.name} (${currentLoc.id})` : "—";
     }
-    byId("placesAtLoc").innerHTML =
-        currentLoc.places.map((place) => `<code>${place.key}</code>`).join(" ") || "—";
 
-    if (homeEl) {
-        homeEl.textContent = homeLoc ? `${homeLoc.name} (${homeLoc.id})` : "—";
+    if (placesEl) {
+        if (currentLoc && Array.isArray(currentLoc.places) && currentLoc.places.length) {
+            placesEl.innerHTML = currentLoc.places
+                .map((place) => `<code>${place.key}</code>`)
+                .join(" ");
+        } else {
+            placesEl.textContent = "—";
+        }
     }
 }
 
@@ -347,6 +460,32 @@ function highlightBusPathFromElement(el) {
     }
 }
 
+function highlightBusPathForSlot(slot) {
+    if (!slot || !slot.target || !slot.target.spec) return;
+
+    const spec = slot.target.spec;
+    const pathEdges = Array.isArray(spec.pathEdges) ? spec.pathEdges : [];
+    if (!pathEdges.length) return;
+
+    const pairs = pathEdges.map((e) => `${e.fromId}-${e.toId}`);
+
+    const host = byId("map");
+    if (!host) return;
+    const svg = host.querySelector("svg");
+    if (!svg) return;
+
+    const roads = svg.querySelectorAll("line.road-edge");
+    for (const line of roads) {
+        const a = line.dataset.a;
+        const b = line.dataset.b;
+        const key1 = `${a}-${b}`;
+        const key2 = `${b}-${a}`;
+        if (pairs.includes(key1) || pairs.includes(key2)) {
+            line.classList.add("road-edge--highlight");
+        }
+    }
+}
+
 function attachBusHoverHandlers() {
     const container = byId("weekSchedule");
     if (!container) return;
@@ -373,7 +512,23 @@ function attachBusHoverHandlers() {
 function updateMapHighlights() {
     if (!taylor || !world) return;
 
-    const currentId = String(taylor.locationId);
+    clearHighlightedBusPath();
+
+    const now = world.time.date;
+    const slot = findActiveSlotForTime(now);
+
+    // Check if we're in a micro-stop walking segment
+    let inMicroStop = false;
+    if (slot && slot.target && slot.target.type === "travel") {
+        const spec = slot.target.spec || {};
+        if (spec.microStop === true) {
+            inMicroStop = true;
+        }
+    }
+
+    // If inTransit and not a micro-stop -> hide NPC pin.
+    // If micro-stop or not in transit -> show NPC at taylor.locationId.
+    const currentId = taylor.isInTransit && !inMicroStop ? "" : String(taylor.locationId);
     const homeId = taylor.homeLocationId != null ? String(taylor.homeLocationId) : "";
 
     for (const [id, node] of locationNodes.entries()) {
@@ -391,11 +546,83 @@ function updateMapHighlights() {
             node.setAttribute("r", "10");
         }
     }
+
+    // Highlight path when travelling:
+    // - bus: highlight the whole bus route
+    // - walk (non-micro-stop): highlight the street segment being walked
+    if (slot && slot.target && slot.target.type === "travel") {
+        const spec = slot.target.spec || {};
+        const mode = spec.mode;
+
+        if (mode === "bus" || (mode === "walk" && !spec.microStop)) {
+            highlightBusPathForSlot(slot); // works for walking too, uses pathEdges
+        }
+    }
 }
 
 // ---------------------------
 // Intent display + hover highlight
 // ---------------------------
+
+function findFirstNonTravelSlotAfter(startSlot) {
+    if (!weekSchedule || !weekSchedule.slots || !startSlot) return null;
+    const slots = weekSchedule.slots;
+    const idx = slots.indexOf(startSlot);
+    if (idx === -1) return null;
+
+    for (let i = idx + 1; i < slots.length; i++) {
+        const s = slots[i];
+        if (!s.target) continue;
+        if (s.target.type === "travel") continue;
+        return s;
+    }
+    return null;
+}
+
+// Returns { loc, placeName, isHome }
+function getIntentLocationData(slot) {
+    if (!slot || !slot.target || !world) {
+        return { loc: null, placeName: null, isHome: false };
+    }
+
+    // Non-travel: use its locationId directly
+    if (slot.target.type !== "travel") {
+        const locId = slot.target.locationId;
+        if (!locId) return { loc: null, placeName: null, isHome: false };
+
+        const loc = world.getLocation?.(locId) || world.locations.get(String(locId));
+        if (!loc) return { loc: null, placeName: null, isHome: false };
+
+        const spec = slot.target.spec || {};
+        const isHomeTarget = slot.target.type === "home" || spec.type === "home";
+
+        let placeName = null;
+        if (isHomeTarget) {
+            placeName = "home";
+        } else if (slot.target.placeId && Array.isArray(loc.places)) {
+            const placeObj = loc.places.find((p) => p.id == slot.target.placeId);
+            if (placeObj) {
+                placeName = placeObj.name || placeObj.key || null;
+            }
+        }
+
+        return { loc, placeName, isHome: isHomeTarget };
+    }
+
+    // Travel slot: look ahead for the destination activity/home
+    const destSlot = findFirstNonTravelSlotAfter(slot);
+    if (destSlot && destSlot.target && destSlot.target.locationId) {
+        return getIntentLocationData(destSlot);
+    }
+
+    // Fallback: use toLocationId from the travel spec
+    const spec = slot.target.spec || {};
+    const locId = spec.toLocationId;
+    if (locId == null) return { loc: null, placeName: null, isHome: false };
+
+    const loc = world.getLocation?.(locId) || world.locations.get(String(locId));
+    return { loc, placeName: null, isHome: false };
+}
 
 function updateNextIntent() {
     const el = byId("taylorNextIntent");
@@ -414,34 +641,19 @@ function updateNextIntent() {
     const pad = (n) => (n < 10 ? "0" + n : "" + n);
     const timeStr = `${pad(from.getHours())}:${pad(from.getMinutes())}`;
 
-    let desc = "unknown destination";
+    const { loc, placeName } = getIntentLocationData(slot);
 
-    let place = null;
-
-    if (slot.target && slot.target.locationId) {
-        const loc =
-            world.getLocation?.(slot.target.locationId) ||
-            world.locations.get(String(slot.target.locationId));
-
-        if (loc) {
-            desc = loc.name + ` (${loc.id})`;
-
-            const isHomeTarget =
-                slot.target.type === "home" ||
-                (slot.target.spec && slot.target.spec.type === "home");
-
-            if (isHomeTarget) {
-                place = "home";
-            } else if (slot.target.placeId && Array.isArray(loc.places)) {
-                const placeObj = loc.places.find((p) => p.id == slot.target.placeId);
-                if (placeObj) {
-                    place = placeObj.name;
-                }
-            }
-        }
+    if (!loc) {
+        el.textContent = `${timeStr}: move to unknown destination.`;
+        return;
     }
 
-    el.textContent = `${timeStr}: move to ${desc}${place ? `, targeting place: ${place}` : ""}.`;
+    let desc = `${loc.name} (${loc.id})`;
+    if (placeName) {
+        desc += `, targeting place: ${placeName}`;
+    }
+
+    el.textContent = `${timeStr}: move to ${desc}.`;
 }
 
 function highlightIntentLocation(enabled) {
@@ -454,10 +666,10 @@ function highlightIntentLocation(enabled) {
 
     if (!nextIntentSlot || !nextIntentSlot.target) return;
 
-    const locId = nextIntentSlot.target.locationId;
-    if (!locId) return;
+    const { loc } = getIntentLocationData(nextIntentSlot);
+    if (!loc) return;
 
-    const node = locationNodes.get(String(locId));
+    const node = locationNodes.get(String(loc.id));
     if (!node) return;
 
     node.setAttribute("stroke", "#ff66cc");
@@ -559,6 +771,7 @@ function renderWeekSchedule() {
                 const stepTime = formatTimeRange(sFrom, sTo);
                 const spec = step.target && step.target.spec;
                 const streetName = spec && spec.streetName ? spec.streetName : "street";
+                const isMicro = spec && spec.microStop === true;
 
                 let fromLoc = null;
                 let toLoc = null;
@@ -567,11 +780,20 @@ function renderWeekSchedule() {
                     toLoc = getLoc(spec.toLocationId);
                 }
 
-                const fromLabel = fromLoc ? `${fromLoc.name} (${fromLoc.id})` : "";
-                const toLabel = toLoc ? `${toLoc.name} (${toLoc.id})` : "";
-
-                const stepLabel =
-                    fromLabel && toLabel ? `${streetName} (${fromLabel} → ${toLabel})` : streetName;
+                let stepLabel;
+                if (isMicro) {
+                    // At the node for a minute
+                    const loc = toLoc || fromLoc;
+                    const locLabel = loc ? `${loc.name} (${loc.id})` : "location";
+                    stepLabel = `at ${locLabel}`;
+                } else {
+                    const fromLabel = fromLoc ? `${fromLoc.name} (${fromLoc.id})` : "";
+                    const toLabel = toLoc ? `${toLoc.name} (${toLoc.id})` : "";
+                    stepLabel =
+                        fromLabel && toLabel
+                            ? `${streetName} (${fromLabel} → ${toLabel})`
+                            : streetName;
+                }
 
                 detailLines.push(`<li>${stepTime} – ${stepLabel}</li>`);
             }
@@ -661,7 +883,11 @@ function renderWeekSchedule() {
             }
 
             lines.push(
-                `<div${extraAttrs}>${mode === "bus" ? `<code class="busline-hover">` : ""}${timeStr} – ${targetDesc}${mode === "bus" ? "</code>" : ""} <span style="opacity:0.6;">[${sourceId}]</span></div>`
+                `<div${extraAttrs}>${
+                    mode === "bus" ? `<code class="busline-hover">` : ""
+                }${timeStr} – ${targetDesc}${
+                    mode === "bus" ? "</code>" : ""
+                } <span style="opacity:0.6;">[${sourceId}]</span></div>`
             );
         }
 

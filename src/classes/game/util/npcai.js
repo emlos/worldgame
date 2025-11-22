@@ -26,6 +26,8 @@ function dayKeyFromDate(date) {
 const TIME_JITTER_MIN = 0; // minutes
 const TIME_JITTER_MAX = 20; // minutes
 
+const MICRO_STOP_MINUTES = 1;
+
 function randomJitterMinutes(rnd) {
     const span = TIME_JITTER_MAX - TIME_JITTER_MIN;
     // integer in [TIME_JITTER_MIN, TIME_JITTER_MAX]
@@ -496,17 +498,13 @@ export class NPCScheduler {
         let totalTravel = plan.totalMinutes;
         if (totalTravel <= 0) return null;
 
-        // We *prefer* to keep the earlier part of the slot as "activity"
-        // and put travel right before arrival.
         let scale = 1;
         let travelMinutes = totalTravel;
         let travelStart;
 
         if (totalTravel <= maxWindowMinutes) {
-            // Enough room: no scaling, travel sits at the end of the window.
             travelStart = new Date(arrivalTime.getTime() - totalTravel * 60000);
         } else {
-            // Not enough room: compress the whole trip into the available window.
             scale = maxWindowMinutes / totalTravel;
             travelMinutes = maxWindowMinutes;
             travelStart = new Date(windowStartHard.getTime());
@@ -514,7 +512,6 @@ export class NPCScheduler {
 
         const targetMinutes = Math.max(1, Math.round(travelMinutes));
 
-        // Scale each step, keep at least 1 minute
         const scaledDurations = [];
         let sumMinutes = 0;
         for (let i = 0; i < plan.steps.length; i++) {
@@ -524,10 +521,8 @@ export class NPCScheduler {
             sumMinutes += clamped;
         }
 
-        // Adjust last step so the sum matches the travel window
         if (sumMinutes !== targetMinutes && scaledDurations.length) {
             scaledDurations[scaledDurations.length - 1] += targetMinutes - sumMinutes;
-            sumMinutes = targetMinutes;
         }
 
         const segments = [];
@@ -542,9 +537,18 @@ export class NPCScheduler {
             const to = new Date(cursor + mins * 60000);
             cursor = to.getTime();
 
-            const isBus = step.mode === "bus";
-            const locIdForStep = isBus ? null : step.toId || step.fromId || originLocId;
+            const mode = step.mode; // "walk" | "wait" | "bus"
+            const isBus = mode === "bus";
 
+            // WALK / BUS / WAIT base segments are off-map (except wait-at-stop which
+            // can have a location if you prefer; here we'll keep it off-map too).
+            let baseLocId = null;
+            if (mode === "wait") {
+                // If you want waits to be at the stop on the map, uncomment:
+                // baseLocId = step.toId || step.fromId || originLocId;
+            }
+
+            // ----- MAIN TRAVEL SEGMENT -----
             segments.push({
                 npcId: fromSlot.npcId,
                 from,
@@ -552,14 +556,13 @@ export class NPCScheduler {
                 target: {
                     type: TargetTypes.travel,
                     spec: {
-                        mode: step.mode,
+                        mode,
                         isEnRoute: true,
                         onBus: isBus,
                         fromLocationId: step.fromId,
                         toLocationId: step.toId,
                         segmentStreetLength: step.distance || 0,
                         streetName: step.streetName || null,
-                        // a per-slot path; for a single segment this is just one edge
                         pathEdges: [
                             {
                                 fromId: String(step.fromId),
@@ -567,12 +570,42 @@ export class NPCScheduler {
                             },
                         ],
                     },
-
-                    locationId: locIdForStep,
+                    locationId: baseLocId,
                     placeId: null,
                 },
                 sourceRuleId: "travel_auto",
             });
+
+            // ----- MICRO-STOP AT DESTINATION NODE -----
+            // For walking steps, add a 1-minute micro-stop at the node.
+            if (mode === "walk") {
+                const pauseFrom = new Date(cursor);
+                const pauseTo = new Date(cursor + MICRO_STOP_MINUTES * 60000);
+                cursor = pauseTo.getTime();
+
+                segments.push({
+                    npcId: fromSlot.npcId,
+                    from: pauseFrom,
+                    to: pauseTo,
+                    target: {
+                        type: TargetTypes.travel,
+                        spec: {
+                            mode: "walk",
+                            isEnRoute: true,
+                            onBus: false,
+                            microStop: true, // <-- important flag
+                            fromLocationId: step.toId,
+                            toLocationId: step.toId,
+                            segmentStreetLength: 0,
+                            streetName: step.streetName || null,
+                            pathEdges: [],
+                        },
+                        locationId: step.toId, // at this node
+                        placeId: null,
+                    },
+                    sourceRuleId: "travel_microstop",
+                });
+            }
         }
 
         return segments;
@@ -600,9 +633,16 @@ export class NPCScheduler {
             const to = new Date(cursor + mins * 60000);
             cursor = to.getTime();
 
-            const isBus = step.mode === "bus";
-            const locIdForStep = isBus ? null : step.toId || step.fromId || originLocId;
+            const mode = step.mode;
+            const isBus = mode === "bus";
 
+            let baseLocId = null;
+            if (mode === "wait") {
+                // If desired, put waits "at" the stop:
+                // baseLocId = step.toId || step.fromId || originLocId;
+            }
+
+            // Main travel segment
             segments.push({
                 npcId: fromSlot.npcId,
                 from,
@@ -610,8 +650,8 @@ export class NPCScheduler {
                 target: {
                     type: TargetTypes.travel,
                     spec: {
-                        mode: step.mode, // "walk" | "wait" | "bus"
-                        isEnRoute: true, // cannot chat
+                        mode,
+                        isEnRoute: true,
                         onBus: isBus,
                         fromLocationId: step.fromId,
                         toLocationId: step.toId,
@@ -624,12 +664,41 @@ export class NPCScheduler {
                             },
                         ],
                     },
-
-                    locationId: locIdForStep,
+                    locationId: baseLocId,
                     placeId: null,
                 },
                 sourceRuleId: "travel_auto",
             });
+
+            // Micro-stop at node for walking
+            if (mode === "walk") {
+                const pauseFrom = new Date(cursor);
+                const pauseTo = new Date(cursor + MICRO_STOP_MINUTES * 60000);
+                cursor = pauseTo.getTime();
+
+                segments.push({
+                    npcId: fromSlot.npcId,
+                    from: pauseFrom,
+                    to: pauseTo,
+                    target: {
+                        type: TargetTypes.travel,
+                        spec: {
+                            mode: "walk",
+                            isEnRoute: true,
+                            onBus: false,
+                            microStop: true,
+                            fromLocationId: step.toId,
+                            toLocationId: step.toId,
+                            segmentStreetLength: 0,
+                            streetName: step.streetName || null,
+                            pathEdges: [],
+                        },
+                        locationId: step.toId,
+                        placeId: null,
+                    },
+                    sourceRuleId: "travel_microstop",
+                });
+            }
         }
 
         return segments;
