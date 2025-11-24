@@ -1030,7 +1030,10 @@ export class NPCScheduler {
             };
         }
 
-        if (!matcher) throw new Error(`Unknown activity target type: ${type}`);
+        if (!matcher) {
+            console.log(spec, npc)
+            throw new Error(`Unknown activity target type: ${type}, ${spec}`);
+        }
 
         if (useNearest) {
             return this.world.map.findNearestPlace(

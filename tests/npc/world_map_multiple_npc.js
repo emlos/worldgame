@@ -20,11 +20,13 @@ let isAutoForwarding = false;
 // Palette for NPC dots
 const NPC_COLORS = ["#ffcc00", "#ff66cc", "#00d68f", "#fd9644", "#a55eea", "#20bf6b"];
 
+const NPCS = ["taylor", "shade", "officer_vega", "clara", "mike", "vincent"];
+
 // ---------------------------
 // World + NPC init
 // ---------------------------
 
-function initWorldAndNpcs(npcKeys = ["taylor", "shade"]) {
+function initWorldAndNpcs(npcKeys) {
     const rnd = makeRNG(Date.now());
 
     world = new World({
@@ -539,8 +541,11 @@ function buildNpcTabsAndPanels() {
     tabsEl.innerHTML = "";
     panelsEl.innerHTML = "";
 
+    console.log(npcStates);
+
     npcStates.forEach((state) => {
         const npc = state.npc;
+        console.log(npc);
 
         // Tab
         const tab = document.createElement("button");
@@ -565,7 +570,9 @@ function buildNpcTabsAndPanels() {
         panel.innerHTML = `
             <div class="info-row">
                 <span class="label">Name:</span>
-                <span>${npc.name}</span>
+                <span>${npc.name}</span><br>
+                <span class="label">Description:</span>
+                <span>${npc.meta?.description}</span>
             </div>
             <div class="info-row">
                 <span class="label">Current location:</span>
@@ -885,6 +892,7 @@ function attachBusHoverHandlers(container) {
     });
 }
 
+//TODO: highlight what slot on the schedule the npc is following, add tiny button that scrolls it into view
 function renderNpcWeekSchedule(npcState) {
     const container = byId(`npc-${npcState.id}-weekSchedule`);
     if (!container || !npcState.weekSchedule || !world) return;
@@ -1106,7 +1114,7 @@ function bindButtons() {
 
     if (reset) {
         reset.addEventListener("click", () => {
-            initWorldAndNpcs(["taylor", "shade"]); // change list here
+            initWorldAndNpcs(NPCS); // change list here
         });
     }
 
@@ -1144,6 +1152,6 @@ function bindButtons() {
 
 window.addEventListener("DOMContentLoaded", () => {
     // Pass whatever NPC keys you want to visualize
-    initWorldAndNpcs(["taylor", "shade"]); // you can add more: ["taylor", "shade", "someOtherNpc"]
+    initWorldAndNpcs(NPCS); // you can add more: ["taylor", "shade", "someOtherNpc"]
     bindButtons();
 });

@@ -1205,7 +1205,7 @@ export const PLACE_REGISTRY = [
         weight: 1,
         props: { icon: "🚷", category: [PLACE_TAGS.crime] },
         nameFn: ({ rnd }) => `${pick(["Dark", "Narrow", "Hidden", "Dirty"], rnd)} Alleyway`,
-        minCount: 1,
+        minCount: 3,
     },
 ];
 
@@ -1307,4 +1307,6 @@ export const DEFAULT_OPENING_HOURS_BY_KEY = {
     // Nightlife examples
     bar: hoursEveryDay("17:00", "02:00"),
     club: hoursEveryDay("20:00", "04:00"),
+
+    office_block: hoursWeekdays({ from: "06:00", to: "20:00" }),
 };

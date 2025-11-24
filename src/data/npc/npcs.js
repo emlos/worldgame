@@ -1,8 +1,10 @@
 // src/data/npc/npcs.js
 import { Gender, HUMAN_BODY_TEMPLATE, PronounSets } from "../../shared/modules.js";
-import { DAY_KEYS, DayKind, LOCATION_TAGS, PLACE_TAGS, SCHEDULE_RULES } from "../data.js";
+import { DAY_KEYS, DayKind, LOCATION_TAGS, PLACE_TAGS, SCHEDULE_RULES, Season } from "../data.js";
 
 // Basic templates the game can turn into NPC instances
+// Each NPC gets a scheduleTemplate that the ScheduleManager uses to generate daily schedules
+// TODO: make sure any gaps in schedule wire the npc back home AFTER calculating all slots. if gap < 30minutes extend stay at previous location, even if its over max stayminutes. respect the closing time flag
 export const NPC_REGISTRY = [
     {
         example: true, // not a real NPC, just an example
@@ -10,6 +12,9 @@ export const NPC_REGISTRY = [
         name: "Taylor Morgan",
         shortName: "Taylor",
         nicknames: ["Tay"],
+
+        description:
+            "Taylor is a high school student who enjoys exploring the city after school hours.",
 
         age: 18,
         gender: Gender.F,
@@ -22,7 +27,7 @@ export const NPC_REGISTRY = [
             charisma: 3,
         },
         preferLocationsWith: [PLACE_TAGS.housing], //generate home at location with as many of those tagged places as possible
-        tags: ["human", "befriendable", "romance"],
+        tags: ["human", "romance"],
 
         bodyTemplate: HUMAN_BODY_TEMPLATE,
 
@@ -138,6 +143,9 @@ export const NPC_REGISTRY = [
         name: 'Mara "Shade" Kovač',
         shortName: "Shade",
         nicknames: ["Shade", "Hey You"],
+
+        description:
+            "Shade is a cunning thief who prowls the city at night, targeting unsuspecting victims for quick robberies.",
 
         age: 26,
         gender: Gender.F,
@@ -271,6 +279,9 @@ export const NPC_REGISTRY = [
         shortName: "Luce",
         nicknames: ["Luce", "Lulu"],
 
+        description:
+            "Luce is a friendly ghost who haunts the city, often trying to make contact with the living in subtle ways.",
+
         age: 178,
         gender: Gender.NB,
         pronouns: PronounSets.THEY_THEM,
@@ -331,7 +342,7 @@ export const NPC_REGISTRY = [
                 //    They try to move roughly toward the player's current / last known position.
                 {
                     id: "luce_follow",
-                    type: SCHEDULE_RULES.follow, // NEW RULE TYPE
+                    type: SCHEDULE_RULES.follow, //TODO: how to schedule following if its dependent of player position? -> reserve block? what to do with leftover time after if luce catches player/npc?
                     dayKinds: [DayKind.WORKDAY, DayKind.DAY_OFF],
                     followTarget: "player", // "player" or npc key
                     variants: [
@@ -369,9 +380,707 @@ export const NPC_REGISTRY = [
             ],
         },
     },
+    //TODO: for shade and cop, the 22=03 midnight crossing window breaks scheduler, need to split into two rules or add cross-midnight support
+    {
+        key: "officer_vega",
+        name: "Officer Leon Vega",
+        shortName: "Vega",
+        nicknames: ["Officer Vega", "Leo"],
 
-    // Add more templates here later
-    // { key: "alien_bartender", ... }
+        age: 32,
+        gender: Gender.M,
+        pronouns: PronounSets.HE_HIM,
+
+        stats: {
+            looks: 2,
+            strength: 4,
+            intelligence: 0,
+            charisma: 3,
+        },
+
+        tags: ["human", "cop"],
+        preferLocationsWith: [PLACE_TAGS.safety, PLACE_TAGS.transport, PLACE_TAGS.housing], //generate home at location with as many of those tagged places as possible
+        bodyTemplate: HUMAN_BODY_TEMPLATE,
+
+        scheduleTemplate: {
+            /**
+             * Night-shift patrol cop:
+             *  - Sleeps late because of night work
+             *  - Starts at station, then patrols city in the evening/night
+             *  - Patrol windows overlap heavily with Shade's activity
+             *  - Slight randomness so not every night looks identical
+             */
+            useBus: true,
+            rules: [
+                // 1) Daytime sleep at home: 06:00–14:00
+                {
+                    id: "vega_daytime_sleep",
+                    type: SCHEDULE_RULES.home,
+                    timeBlocks: [{ from: "06:00", to: "14:00" }],
+                },
+
+                // 2) Pre-shift at station on workdays: 16:00–18:00
+                //    Briefing, paperwork, gear check.
+                {
+                    id: "vega_station_briefing",
+                    type: SCHEDULE_RULES.fixed,
+                    dayKinds: [DayKind.WORKDAY],
+                    daysOfWeek: [
+                        DAY_KEYS[1], // mon
+                        DAY_KEYS[2], // tue
+                        DAY_KEYS[3], // wed
+                        DAY_KEYS[4], // thu
+                        DAY_KEYS[5], // fri
+                    ],
+                    time: { from: "16:00", to: "18:00" },
+                    target: {
+                        type: "placeKey",
+                        key: "police_station", // you define this place in your world
+                        nearest: true,
+                    },
+                },
+
+                // 3) Evening patrol on workdays: 18:00–23:00
+                //    Roams busy areas: commerce, nightlife, transport.
+                {
+                    id: "vega_evening_patrol_workdays",
+                    type: SCHEDULE_RULES.random,
+                    dayKinds: [DayKind.WORKDAY],
+                    window: { from: "18:00", to: "23:00" },
+                    stayMinutes: { min: 15, max: 45 },
+                    targets: [
+                        {
+                            type: "placeCategory",
+                            categories: [
+                                PLACE_TAGS.commerce,
+                                PLACE_TAGS.nightlife,
+                                PLACE_TAGS.transport,
+                                PLACE_TAGS.safety, // police station / outposts
+                                PLACE_TAGS.crime,
+                                PLACE_TAGS.housing,
+                            ],
+                        },
+                    ],
+                    respectOpeningHours: false,
+                    // reusing the optional probability field from Shade:
+                    probability: 0.9, // almost always patrols on shift nights
+                },
+
+                // 4) Late-night patrol on workdays: 23:00–02:00
+                //    This window overlaps strongly with Shade's robberies.
+                {
+                    id: "vega_late_night_patrol_workdays",
+                    type: SCHEDULE_RULES.random,
+                    dayKinds: [DayKind.WORKDAY],
+                    window: { from: "23:00", to: "02:00" },
+                    stayMinutes: { min: 20, max: 50 },
+                    targets: [
+                        {
+                            type: "placeCategory",
+                            categories: [
+                                PLACE_TAGS.commerce,
+                                PLACE_TAGS.industry,
+                                PLACE_TAGS.nightlife,
+                                PLACE_TAGS.transport,
+                                PLACE_TAGS.crime,
+                            ],
+                        },
+                    ],
+                    respectOpeningHours: false,
+                    probability: 0.8,
+                },
+
+                // 5) Weekend / day-off behaviour:
+                //    Sometimes still patrols at night, but less consistently.
+                {
+                    id: "vega_weekend_night_patrol",
+                    type: SCHEDULE_RULES.random,
+                    dayKinds: [DayKind.DAY_OFF],
+                    window: { from: "20:00", to: "01:00" },
+                    stayMinutes: { min: 15, max: 40 },
+                    targets: [
+                        {
+                            type: "placeCategory",
+                            categories: [
+                                PLACE_TAGS.nightlife,
+                                PLACE_TAGS.commerce,
+                                PLACE_TAGS.transport,
+                                PLACE_TAGS.safety,
+                            ],
+                        },
+                    ],
+                    respectOpeningHours: false,
+                    probability: 0.5, // some nights he’s off duty, some nights he’s covering
+                },
+
+                // 6) Weekly admin day: once per week, longer stay at station.
+                {
+                    id: "vega_weekly_admin_day",
+                    type: SCHEDULE_RULES.weekly,
+                    candidateDays: [DAY_KEYS[1]], // monday
+                    time: { from: "14:00", to: "18:00" },
+                    stayMinutes: { min: 60, max: 150 },
+                    target: {
+                        type: "placeKey",
+                        key: "police_station",
+                    },
+                    respectOpeningHours: true,
+                },
+            ],
+        },
+    },
+
+    {
+        key: "clara",
+        name: "Clara Novak",
+        shortName: "Clara",
+        nicknames: ["Nurse Clara"],
+
+        description:
+            "Clara is the school nurse - but also your local cinema attendant. The economy is *rough* out there.",
+
+        age: 34,
+        gender: Gender.F,
+        pronouns: PronounSets.SHE_HER,
+
+        stats: {
+            looks: 7,
+            strength: 2,
+            intelligence: 4,
+            charisma: 4,
+        },
+        preferLocationsWith: [PLACE_TAGS.culture, PLACE_TAGS.safety, PLACE_TAGS.housing], //generate home at location with as many of those tagged places as possible
+        tags: ["human", "staff"],
+
+        bodyTemplate: HUMAN_BODY_TEMPLATE,
+
+        scheduleTemplate: {
+            /**
+             * Clara is the school nurse where Taylor studies.
+             *  - Standard workdays at the high school nurse's office
+             *  - Overlaps Taylor's school hours (09:00–15:00)
+             *  - Short lunch break wandering to cafeteria / staff areas
+             *  - After-school errands in town, then home for the evening
+             */
+            useBus: true,
+            rules: [
+                // 1) Night sleep at home: 22:00–06:00
+                {
+                    id: "clara_sleep_at_home",
+                    type: SCHEDULE_RULES.home,
+                    timeBlocks: [
+                        { from: "22:00", to: "24:00" },
+                        { from: "00:00", to: "06:00" },
+                    ],
+                },
+
+                // 2) Workdays: at high school nurse office 08:00–16:00
+                //    This fully covers Taylor's 09:00–15:00 school time.
+                {
+                    id: "clara_nurse_hours",
+                    type: SCHEDULE_RULES.fixed,
+                    dayKinds: [DayKind.WORKDAY],
+                    daysOfWeek: [
+                        DAY_KEYS[1], // mon
+                        DAY_KEYS[2], // tue
+                        DAY_KEYS[3], // wed
+                        DAY_KEYS[4], // thu
+                        DAY_KEYS[5], // fri
+                    ],
+                    time: { from: "08:00", to: "16:00" },
+                    target: {
+                        type: "placeKey",
+                        key: "high_school", // same place Taylor attends
+                        nearest: true,
+                    },
+                },
+
+                // 3) After-school errands: 16:00–19:00 on workdays
+                //    She might be encountered by Taylor after school in town.
+                {
+                    id: "clara_after_work_errands",
+                    type: SCHEDULE_RULES.random,
+                    dayKinds: [DayKind.WORKDAY],
+                    window: { from: "16:00", to: "19:00" },
+                    stayMinutes: { min: 20, max: 60 },
+                    targets: [
+                        {
+                            type: "placeCategory",
+                            categories: [
+                                PLACE_TAGS.service, // post office, salon, etc.
+                                PLACE_TAGS.food, // cafés, restaurants
+                                PLACE_TAGS.commerce, // shops
+                            ],
+                        },
+                        { type: "home" }, // sometimes goes straight home
+                    ],
+                    respectOpeningHours: true,
+                    probability: 0.7,
+                },
+
+                // 4) Part-time job / side activities on days off:
+                // works as cinema attendant fri–sun 17:30–22:00
+                {
+                    id: "clara_part_time_cinema",
+                    type: SCHEDULE_RULES.fixed,
+                    dayKinds: [DayKind.WORKDAY, DayKind.DAY_OFF],
+                    daysOfWeek: [
+                        DAY_KEYS[5], // fri
+
+                        DAY_KEYS[6], // sat
+                        DAY_KEYS[0], // sun
+                    ],
+                    time: { from: "17:30", to: "22:00" },
+                    target: {
+                        type: "placeKey",
+                        key: "cinema", // same place Taylor attends
+                        nearest: true,
+                    },
+                },
+
+                // 5) Weekends / days off:
+                //    Casual errands & leisure, mostly daytime/early evening.
+                {
+                    id: "clara_weekend_life",
+                    type: SCHEDULE_RULES.random,
+                    dayKinds: [DayKind.DAY_OFF],
+                    window: { from: "09:00", to: "20:00" },
+                    stayMinutes: { min: 30, max: 120 },
+                    targets: [
+                        {
+                            type: "placeCategory",
+                            categories: [
+                                PLACE_TAGS.food,
+                                PLACE_TAGS.leisure,
+                                PLACE_TAGS.culture,
+                                PLACE_TAGS.commerce,
+                                PLACE_TAGS.service,
+                                PLACE_TAGS.history,
+                            ],
+                        },
+                        { type: "home" },
+                    ],
+                    respectOpeningHours: true,
+                },
+
+                // 6) Nightlife
+                //    Casual errands & leisure, mostly daytime/early evening.
+                {
+                    id: "clara_weekend_nightlife",
+                    type: SCHEDULE_RULES.random,
+                    dayKinds: [DayKind.DAY_OFF],
+                    window: { from: "20:00", to: "23:30" },
+                    stayMinutes: { min: 30, max: 120 },
+                    targets: [
+                        {
+                            type: "placeCategory",
+                            categories: [PLACE_TAGS.food, PLACE_TAGS.leisure, PLACE_TAGS.nightlife],
+                        },
+                        {
+                            type: "home",
+                            stay: true, //if she goes home, she stays there until window is over, the night ended early
+                        },
+                    ],
+                    respectOpeningHours: true,
+                    probability: 0.3,
+                },
+            ],
+        },
+    },
+
+    {
+        key: "mike",
+        name: "Mike Thompson",
+        shortName: "Mike",
+        nicknames: ["Mike", "MT"],
+
+        description: "Tourist Mike is here for the sights. And the people. Both count.",
+
+        age: 27,
+        gender: Gender.M,
+        pronouns: PronounSets.HE_HIM,
+
+        stats: {
+            looks: 3,
+            strength: 2,
+            intelligence: 3,
+            charisma: 4,
+        },
+        preferLocationsWith: [PLACE_TAGS.culture, PLACE_TAGS.history, PLACE_TAGS.leisure], //generate home at location with as many of those tagged places as possible
+        //TODO: add way to force hotel/motel place as home loc. function?
+
+        tags: ["human", "tourist"],
+
+        bodyTemplate: HUMAN_BODY_TEMPLATE,
+
+        scheduleTemplate: {
+            /**
+             * Mike is a city tourist staying at a hotel.
+             *  - Sleeps at "home" (his hotel) at night
+             *  - Spends the day visiting culture/history/leisure spots
+             *  - Eats in food/commerce areas
+             *  - Sometimes goes out in nightlife districts in the evening
+             *
+             * All rules use only:
+             *  - SCHEDULE_RULES.home / fixed / random / weekly
+             *  - Existing PLACE_TAGS (culture, history, leisure, commerce, food, service, nightlife)
+             */
+            useBus: true,
+            rules: [
+                // 1) Night sleep at hotel: 23:00–07:00 at "home"
+                {
+                    id: "mike_sleep_at_hotel",
+                    type: SCHEDULE_RULES.home,
+                    timeBlocks: [
+                        { from: "23:00", to: "24:00" },
+                        { from: "00:00", to: "07:00" },
+                    ],
+                },
+
+                // 2) Slow morning at/near hotel: 07:00–09:00
+                //    Breakfast, getting ready – mostly stays home or nearby café.
+                {
+                    id: "mike_morning_chill",
+                    type: SCHEDULE_RULES.random,
+                    window: { from: "07:00", to: "09:00" },
+                    stayMinutes: { min: 20, max: 60 },
+                    targets: [
+                        { type: "home" }, // hotel room
+                        { type: "placeKey", key: "hotel_cafe" }, // optional: your world place
+                        {
+                            type: "placeCategory",
+                            categories: [PLACE_TAGS.food],
+                        },
+                    ],
+                    respectOpeningHours: true,
+                },
+
+                // 3) Daytime sightseeing: 09:00–16:00
+                //    Visits culture/history/leisure places.
+                {
+                    id: "mike_daytime_sightseeing",
+                    type: SCHEDULE_RULES.random,
+                    window: { from: "09:00", to: "16:00" },
+                    stayMinutes: { min: 30, max: 120 },
+                    targets: [
+                        {
+                            type: "placeCategory",
+                            categories: [
+                                PLACE_TAGS.culture, // museums, galleries
+                                PLACE_TAGS.history, // monuments, old town
+                                PLACE_TAGS.leisure, // parks, attractions
+                            ],
+                        },
+                    ],
+                    respectOpeningHours: true,
+                },
+
+                // 4) Late afternoon shopping / cafés: 16:00–19:00
+                //    Good window to bump into locals after work/school.
+                {
+                    id: "mike_afternoon_shopping",
+                    type: SCHEDULE_RULES.random,
+                    window: { from: "16:00", to: "19:00" },
+                    stayMinutes: { min: 20, max: 90 },
+                    targets: [
+                        {
+                            type: "placeCategory",
+                            categories: [
+                                PLACE_TAGS.commerce, // shops, mall
+                                PLACE_TAGS.food, // cafés, restaurants
+                                PLACE_TAGS.service, // tourist info, etc.
+                            ],
+                        },
+                    ],
+                    respectOpeningHours: true,
+                },
+
+                // 5) Evening food & possible nightlife: 19:00–23:00
+                //    Alternates between dinner and going out.
+                {
+                    id: "mike_evening_out",
+                    type: SCHEDULE_RULES.random,
+                    window: { from: "19:00", to: "23:00" },
+                    stayMinutes: { min: 30, max: 120 },
+                    targets: [
+                        {
+                            type: "placeCategory",
+                            categories: [PLACE_TAGS.food, PLACE_TAGS.nightlife, PLACE_TAGS.leisure],
+                        },
+                        { type: "home" }, // sometimes just goes back early
+                    ],
+                    respectOpeningHours: true,
+                },
+
+                // 6) One “big night out” per week in nightlife areas.
+                {
+                    id: "mike_big_night_out",
+                    type: SCHEDULE_RULES.weekly,
+                    candidateDays: [DAY_KEYS[4], DAY_KEYS[5], DAY_KEYS[6]], // thu, fri, sat
+                    time: { from: "21:00", to: "24:00" },
+                    stayMinutes: { min: 60, max: 150 },
+                    target: {
+                        type: "placeCategory",
+                        categories: [PLACE_TAGS.nightlife],
+                    },
+                    respectOpeningHours: true,
+                },
+            ],
+
+            season: [Season.SUMMER, Season.WINTER], //TODO: mike only visits the city in summer and winter -> doesnt exist on map/doesnt have a schedule otherwise
+        },
+    },
+
+    {
+        key: "vincent",
+        name: "Vincent Hale",
+        shortName: "Vincent",
+        nicknames: ["Vince", "Mr. Hale", "Vic"],
+
+        description:
+            "Vincent has a grip on the city's corporate world, and a taste for the finer things in life. He's often seen at exclusive clubs and high-end restaurants.",
+
+        age: 54,
+        gender: Gender.M,
+        pronouns: PronounSets.HE_HIM,
+
+        stats: {
+            looks: 8,
+            strength: 5,
+            intelligence: 4,
+            charisma: 2,
+        },
+
+        tags: ["human", "romance", "corporate"],
+        preferLocationsWith: [
+            PLACE_TAGS.commerce,
+            PLACE_TAGS.leisure,
+            PLACE_TAGS.food,
+            PLACE_TAGS.culture,
+        ],
+        bodyTemplate: HUMAN_BODY_TEMPLATE,
+
+        scheduleTemplate: {
+            /**
+             * Vincent is a high-income corporate guy with a hedonistic lifestyle.
+             *
+             *  - Sleeps late due to constant nightlife.
+             *  - Works in a corporate tower on workdays, but not super early.
+             *  - Long lunches at upscale restaurants.
+             *  - Gym / self-care early evening.
+             *  - Heavy nightlife most nights, with one especially wild weekly night.
+             *
+             */
+            useBus: false,
+            useCar: true, // he can afford it lol. travelTimeMult: 0.15, compared to bus' 0.3
+            rules: [
+                // 1) Late sleep at penthouse: 03:00–10:00
+                {
+                    id: "vincent_penthouse_sleep",
+                    type: SCHEDULE_RULES.home,
+                    timeBlocks: [{ from: "03:00", to: "10:00" }],
+                },
+
+                // 2) Workdays: office hours in corporate tower, 11:00–18:00
+                {
+                    id: "vincent_office_hours",
+                    type: SCHEDULE_RULES.fixed,
+                    dayKinds: [DayKind.WORKDAY],
+                    daysOfWeek: [
+                        DAY_KEYS[1], // mon
+                        DAY_KEYS[2], // tue
+                        DAY_KEYS[3], // wed
+                        DAY_KEYS[4], // thu
+                        DAY_KEYS[5], // fri
+                    ],
+                    time: { from: "11:00", to: "18:00" },
+                    target: {
+                        type: "placeKey",
+                        key: "office_block", // your office skyscraper place
+                        nearest: true,
+                    },
+                },
+
+                // 2a) Investor / client meetings during workday, overlapping with office
+                {
+                    id: "vincent_investor_meetings",
+                    type: SCHEDULE_RULES.random,
+                    dayKinds: [DayKind.WORKDAY],
+                    window: { from: "11:00", to: "16:00" },
+                    stayMinutes: { min: 30, max: 120 },
+                    targets: [
+                        {
+                            type: "placeCategory",
+                            categories: [PLACE_TAGS.commerce, PLACE_TAGS.service, PLACE_TAGS.crime], // offices, private clubs, hotels
+                        },
+                        {
+                            // type: "placeKeys", //TODO allow for picking from multiple specific places
+                            // keys: ["art_gallery", "restaurant", "town_square", /*"luxury_hotel"*/, "bank"],
+                        },
+                    ],
+                    respectOpeningHours: true,
+                    probability: 0.5,
+                },
+
+                // 2b) Workday long lunch: 13:00–15:00
+                //    Expensive restaurants / upscale cafés.
+                {
+                    id: "vincent_long_lunch",
+                    type: SCHEDULE_RULES.random,
+                    dayKinds: [DayKind.WORKDAY],
+                    window: { from: "13:00", to: "15:00" },
+                    stayMinutes: { min: 30, max: 90 },
+                    targets: [
+                        {
+                            type: "placeCategory",
+                            categories: [
+                                PLACE_TAGS.food, // fancy restaurants
+                                PLACE_TAGS.commerce, // high-end mall food courts
+                            ],
+                        },
+                    ],
+                    respectOpeningHours: true,
+                    probability: 0.3,
+                    once: true, // TODO: ensure only one long lunch per workday, would random type be better?
+                },
+
+                // 3) Early evening gym / self-care: 18:00–20:00 (most days)
+                {
+                    id: "vincent_evening_gym",
+                    type: SCHEDULE_RULES.random,
+                    dayKinds: [DayKind.WORKDAY, DayKind.DAY_OFF],
+                    window: { from: "18:00", to: "20:00" },
+                    stayMinutes: { min: 45, max: 90 },
+                    targets: [
+                        { type: "placeKey", key: "gym" }, // define as a place if you want
+                        {
+                            type: "placeCategory",
+                            categories: [
+                                PLACE_TAGS.leisure, // spa, pool, etc.
+                                PLACE_TAGS.service, // grooming salons
+                                PLACE_TAGS.food,
+                            ],
+                        },
+                    ],
+                    respectOpeningHours: true,
+                    probability: 0.7,
+                },
+
+                // 5) Regular nightlife: 20:00–02:00
+                //    Bars, clubs, exclusive lounges.
+                {
+                    id: "vincent_nightlife_regular",
+                    type: SCHEDULE_RULES.random,
+                    dayKinds: [DayKind.WORKDAY, DayKind.DAY_OFF],
+                    window: { from: "20:00", to: "02:00" },
+                    stayMinutes: { min: 40, max: 120 },
+                    targets: [
+                        {
+                            type: "placeCategory",
+                            categories: [
+                                PLACE_TAGS.nightlife,
+                                PLACE_TAGS.food, // late dinners
+                                PLACE_TAGS.leisure, // casino-like leisure, lounges
+                            ],
+                        },
+                        { type: "home", stay: true }, // sometimes retreats to penthouse
+                    ],
+                    respectOpeningHours: true,
+                    probability: 0.75,
+                },
+
+                // 6) Weekend / day-off daytime: brunch, shopping, culture.
+                {
+                    id: "vincent_weekend_day",
+                    type: SCHEDULE_RULES.random,
+                    dayKinds: [DayKind.DAY_OFF],
+                    window: { from: "11:00", to: "18:00" },
+                    stayMinutes: { min: 30, max: 120 },
+                    targets: [
+                        {
+                            type: "placeCategory",
+                            categories: [
+                                PLACE_TAGS.food, // brunch places
+                                PLACE_TAGS.commerce, // luxury shopping
+                                PLACE_TAGS.culture, // galleries, shows
+                                PLACE_TAGS.leisure,
+                            ],
+                        },
+                        { type: "home" },
+                    ],
+                    respectOpeningHours: true,
+                },
+
+                // 7) One truly wild “big night” each week: Thu / Fri / Sat.
+                {
+                    id: "vincent_big_night",
+                    type: SCHEDULE_RULES.weekly,
+                    candidateDays: [DAY_KEYS[4], DAY_KEYS[5], DAY_KEYS[6]], // thu, fri, sat
+                    time: { from: "22:00", to: "03:00" },
+                    stayMinutes: { min: 90, max: 210 },
+                    target: {
+                        type: "placeCategory",
+                        categories: [PLACE_TAGS.nightlife],
+                    },
+                    respectOpeningHours: true,
+                    probability: 0.8, // most weeks he goes out big
+                },
+
+                // 8) Crime contacts – weekly chance to visit a crime establishment.
+                {
+                    id: "vincent_crime_associates_weekly",
+                    type: SCHEDULE_RULES.weekly,
+                    candidateDays: [DAY_KEYS[1], DAY_KEYS[3]], // mon or wed
+                    time: { from: "01:00", to: "03:00" }, // after clubs, before sleep
+                    stayMinutes: { min: 20, max: 60 },
+                    target: {
+                        type: "placeCategory",
+                        categories: [PLACE_TAGS.crime],
+                    },
+                    respectOpeningHours: false,
+                    probability: 0.3, //TODO: make sure all rules respect probability
+                },
+
+                // 9) Extra secret crime drop-ins: low-probability, high-noise.
+                {
+                    id: "vincent_secret_crime_dropins",
+                    type: SCHEDULE_RULES.random,
+                    dayKinds: [DayKind.WORKDAY, DayKind.DAY_OFF],
+                    window: { from: "23:00", to: "03:00" },
+                    stayMinutes: { min: 10, max: 40 },
+                    targets: [
+                        {
+                            type: "placeCategory",
+                            categories: [PLACE_TAGS.crime],
+                        },
+                        {
+                            type: "placeCategory",
+                            categories: [PLACE_TAGS.nightlife],
+                        },
+                    ],
+                    respectOpeningHours: false,
+                    probability: 0.1, // occasional extra shady nights
+                },
+
+                // 10) Public-facing “good guy” charity / art events once in a while.
+                {
+                    id: "vincent_charity_events",
+                    type: SCHEDULE_RULES.weekly,
+                    candidateDays: [DAY_KEYS[2], DAY_KEYS[4]], // tue or thu
+                    time: { from: "19:00", to: "22:00" },
+                    stayMinutes: { min: 60, max: 150 },
+                    target: {
+                        type: "placeCategory",
+                        categories: [PLACE_TAGS.culture, PLACE_TAGS.civic, PLACE_TAGS.industry],
+                    },
+                    respectOpeningHours: true,
+                    probability: 0.3, // only some weeks he bothers
+                },
+            ],
+        },
+    },
+
+    //TODO: deliquent type with priority override for activities, like randomly sneaking out of school instead of going to a lesson...
 ];
 
 /**
@@ -385,8 +1094,11 @@ export function npcFromRegistryKey(key) {
     return {
         id: def.key,
         name: def.name,
+
         age: def.age,
         gender: def.gender,
+        preferLocationsWith: def.preferLocationsWith || [],
+        tags: def.tags,
         pronouns: def.pronouns,
         stats: def.stats,
         bodyTemplate: def.bodyTemplate,
@@ -394,7 +1106,7 @@ export function npcFromRegistryKey(key) {
             tags: def.tags || [],
             shortName: def.shortName || def.name,
             registryKey: def.key,
-
+            description: def.description,
             //keep a copy of the schedule template in meta
             scheduleTemplate: def.scheduleTemplate || null,
         },
