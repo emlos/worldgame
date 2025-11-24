@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Schedule rule Coverage Inspector</title>
+        <script>
+            const debug = true;
+        </script>
+        <script type="module" src="../../src/classes/classes.js"></script>
+        <script type="module" src="../../src/data/data.js"></script>
+        <script type="module" src="../../src/shared/modules.js"></script>
+    </head>
+
+    <style>
+        :root {
+            --bg: #0b0d10;
+            --fg: #e6ecf1;
+            --muted: #91a4b1;
+            --card: #11161b;
+            --line: #26323b;
+            --accent: #2d6cdf;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            background: var(--bg);
+            color: var(--fg);
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        a {
+            color: var(--accent);
+        }
+
+        .page {
+            margin: 0 auto;
+            padding: 16px;
+            width: 100%;
+        }
+
+        h1 {
+            margin-top: 0;
+            font-size: 24px;
+        }
+
+        .subtitle {
+            color: var(--muted);
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 16px;
+            margin: 12px 0;
+        }
+
+        .npc-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .npc-card h2 {
+            margin-top: 0;
+            font-size: 18px;
+        }
+
+        .npc-meta {
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 8px;
+        }
+
+        .summary-line {
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+
+        .summary-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 11px;
+            margin-right: 6px;
+            border: 1px solid var(--line);
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .summary-pill.ok {
+            border-color: #16a34a;
+            color: #bbf7d0;
+        }
+
+        .summary-pill.warn {
+            border-color: #eab308;
+            color: #fef9c3;
+        }
+
+        .summary-pill.error {
+            border-color: #b91c1c;
+            color: #fecaca;
+        }
+
+        .npc-days {
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .day-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .day-label {
+            width: 80px;
+            font-size: 12px;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        .day-label span.kind {
+            font-size: 11px;
+            opacity: 0.7;
+        }
+
+        .hours-row {
+            margin-left: 80px; /* match day-label width */
+            margin-top: 8px;
+            margin-bottom: 4px;
+        }
+
+        .hours-track {
+            display: flex;
+            justify-content: space-evenly;
+            gap: 0;
+            font-size: 10px;
+            color: var(--muted);
+        }
+
+        .hour-label {
+            text-align: left;
+            padding-left: 2px;
+            white-space: nowrap;
+            opacity: 0.8;
+        }
+
+        .coverage-row {
+            flex: 1;
+            display: flex;
+            justify-content: space-evenly;
+        }
+
+        .coverage-segment {
+            height: 10px;
+            border-radius: 2px;
+            background: var(--line);
+            transition: transform 0.08s ease-out, box-shadow 0.08s ease-out, opacity 0.08s ease-out;
+
+            /* default tiny gap between slices */
+            margin-left: 1px;
+
+            aspect-ratio: 1;
+        }
+
+        .coverage-segment:first-child {
+            margin-left: 0;
+        }
+
+        .coverage-segment:nth-child(4n + 1) {
+            margin-left: 6px;
+        }
+
+        .coverage-det {
+            background: #16a34a;
+        }
+
+        .coverage-prob {
+            background: #eab308;
+        }
+
+        .coverage-partial {
+            background: #f97316;
+        }
+
+        .coverage-none {
+            background: #b91c1c;
+        }
+
+        /* Highlight when rule is hovered */
+        .coverage-segment.highlight {
+            box-shadow: 0 0 0 1px #919191;
+            transform: scaleY(1.2);
+        }
+
+        /* Dim everything else a bit when we are highlighting */
+        .npc-card.highlighting .coverage-segment {
+            opacity: 0.55;
+        }
+        .npc-card.highlighting .coverage-segment.highlight {
+            opacity: 1;
+        }
+
+        .legend {
+            font-size: 11px;
+            color: var(--muted);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+        .legend-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .legend-swatch {
+            width: 14px;
+            height: 8px;
+            border-radius: 2px;
+            background: var(--line);
+        }
+
+        .legend-swatch.det {
+            background: #16a34a;
+        }
+
+        .legend-swatch.prob {
+            background: #eab308;
+        }
+
+        .legend-swatch.partial {
+            background: #f97316;
+        }
+
+        .legend-swatch.none {
+            background: #b91c1c;
+        }
+
+        .rules-list {
+            margin-top: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            font-size: 11px;
+        }
+
+        .rule-chip {
+            border-radius: 999px;
+            border: 1px solid var(--line);
+            background: rgba(15, 23, 42, 0.9);
+            color: var(--fg);
+            padding: 2px 8px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+            user-select: none;
+        }
+
+        .rule-chip span.id {
+            font-weight: 500;
+        }
+
+        .rule-chip span.type {
+            color: var(--muted);
+            font-size: 10px;
+        }
+
+        .rule-chip:hover {
+            border-color: #facc15;
+            background: rgba(24, 32, 48, 1);
+        }
+
+        .rule-chip.active {
+            border-color: #f97316;
+            background: rgba(30, 64, 175, 0.8);
+        }
+
+        code {
+            background: #020305;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .npc-card > summary {
+            cursor: pointer;
+            outline: none;
+            margin: -8px -8px 8px -8px;
+            padding: 4px 8px 8px 8px;
+            font-size: 14px;
+        }
+    </style>
+
+    <body>
+        <div class="page">
+            <a href="../../index.html">back</a>
+
+            <div class="card">
+                <h1>NPC Schedule Coverage Test</h1>
+                <p class="subtitle">
+                    Visual check that every minute of the week is covered by at least one rule per
+                    NPC. Green = deterministic coverage, Yellow = only probabilistic coverage,
+                    Orange = mixed covered/uncovered, Red = no coverage. Each square is 15 minutes.
+                </p>
+                <div class="legend">
+                    <div class="legend-item">
+                        <span class="legend-swatch det"></span><span>Deterministic coverage</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-swatch prob"></span
+                        ><span>Only probabilistic rules cover this slice</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-swatch partial"></span
+                        ><span>Mixed covered &amp; uncovered minutes</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-swatch none"></span
+                        ><span>No rule covers this slice at all</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="npcCoverage" class="npc-list"></div>
+        </div>
+
+        <script src="./npc_schedule_coverage.js"></script>
+    </body>
+</html>
