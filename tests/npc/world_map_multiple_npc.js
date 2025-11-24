@@ -1,30 +1,30 @@
-// tests/world/world_map_taylor.js
-
 const byId = (id) => document.getElementById(id);
 
 const MAP_WIDTH = 70;
 const MAP_HEIGHT = 50;
 
+// ---------- Globals ----------
 let world = null;
-let taylor = null;
 let scheduleManager = null;
-let weekSchedule = null;
+
+const npcStates = []; // { id, npc, color, weekSchedule, nextIntentSlot, isAtMicroStop }
+let activeNpcId = null;
 
 let locationNodes = new Map();
 let projectedPositions = new Map();
-
-let nextIntentSlot = null;
+let npcMarkers = new Map(); // npcId -> svg circle element
 
 let autoForwardTimer = null;
 let isAutoForwarding = false;
 
-const seed = Date.now();
+// Palette for NPC dots
+const NPC_COLORS = ["#ffcc00", "#ff66cc", "#00d68f", "#fd9644", "#a55eea", "#20bf6b"];
 
 // ---------------------------
 // World + NPC init
 // ---------------------------
 
-function initWorldAndTaylor() {
+function initWorldAndNpcs(npcKeys = ["taylor", "shade"]) {
     const rnd = makeRNG(Date.now());
 
     world = new World({
@@ -35,42 +35,89 @@ function initWorldAndTaylor() {
         h: MAP_HEIGHT,
     });
 
-    const base = npcFromRegistryKey("taylor");
-
-    taylor = new NPC({
-        ...base,
-        locationId: base.locationId || null,
-        homeLocationId: base.homeLocationId || null,
-        homePlaceId: base.homePlaceId || null,
-        meta: base.meta || {},
-    });
-
-    if (!taylor.homeLocationId) {
-        taylor.homeLocationId = taylor.locationId || [...world.locations.keys()][0];
-    }
-
     scheduleManager = new NPCScheduler({
         world,
         rnd,
     });
 
-    weekSchedule = scheduleManager.getCurrentWeekSchedule(taylor);
+    npcStates.length = 0;
+
+    const locIds = [...world.locations.keys()];
+    if (!locIds.length) throw new Error("World has no locations");
+
+    npcKeys.forEach((key, idx) => {
+        const base = npcFromRegistryKey(key);
+        if (!base) return;
+
+        // Random home location
+        const homeLocId = locIds[Math.floor(world.rnd() * locIds.length)];
+        const homePlaceId = `home-${key}-${Math.floor(world.rnd() * 1e9)}`;
+
+        const npc = new NPC({
+            ...base,
+            id: base.id || key,
+            locationId: homeLocId,
+            homeLocationId: homeLocId,
+            homePlaceId,
+            meta: base.meta || {},
+        });
+
+        const weekSchedule = scheduleManager.getCurrentWeekSchedule(npc);
+
+        npcStates.push({
+            id: key,
+            npc,
+            color: NPC_COLORS[idx % NPC_COLORS.length],
+            weekSchedule,
+            nextIntentSlot: null,
+            isAtMicroStop: false,
+        });
+    });
+
+    // First NPC in list becomes active tab
+    activeNpcId = npcStates[0] ? npcStates[0].id : null;
 
     renderMap();
-    syncTaylorToCurrentTime();
-    renderAllInfo();
-    renderWeekSchedule();
+    buildNpcTabsAndPanels();
+
+    // Sync all NPCs, but only render schedule for active one
+    syncAllNpcsToCurrentTime();
+    renderWorldTime();
+    renderDayInfo();
+    renderActiveNpcPanel();
 }
 
 // ---------------------------
 // Schedule helpers
 // ---------------------------
 
-function findActiveSlotForTime(date) {
+function getDayBuckets(slots) {
+    const pad2 = (n) => (n < 10 ? "0" + n : "" + n);
+    const dayBuckets = new Map();
+
+    for (const slot of slots) {
+        const d = slot.from;
+        const y = d.getFullYear();
+        const m = pad2(d.getMonth() + 1);
+        const day = pad2(d.getDate());
+        const dateKey = `${y}-${m}-${day}`;
+
+        let bucket = dayBuckets.get(dateKey);
+        if (!bucket) {
+            bucket = { date: new Date(y, d.getMonth(), d.getDate()), slots: [] };
+            dayBuckets.set(dateKey, bucket);
+        }
+        bucket.slots.push(slot);
+    }
+
+    return dayBuckets;
+}
+
+function findActiveSlotForTime(weekSchedule, date) {
     if (!weekSchedule) return null;
 
     if (date < weekSchedule.startDate || date >= weekSchedule.endDate) {
-        weekSchedule = scheduleManager.getCurrentWeekSchedule(taylor);
+        return null; // caller will regenerate schedule
     }
 
     let active = null;
@@ -84,84 +131,89 @@ function findActiveSlotForTime(date) {
     return active;
 }
 
-function syncTaylorToCurrentTime() {
-    if (!world || !taylor || !scheduleManager) return;
+function syncNpcToCurrentTime(npcState) {
+    const { npc } = npcState;
+    if (!world || !npc || !scheduleManager) return;
 
+    // Refresh this NPC's schedule if current week out of range
     const now = world.time.date;
-    const slot = findActiveSlotForTime(now);
-
-    if (!slot) {
-        taylor.isInTransit = false;
-        if (taylor.homeLocationId) {
-            if (typeof taylor.setLocationAndPlace === "function") {
-                taylor.setLocationAndPlace(taylor.homeLocationId, taylor.homePlaceId);
-            } else {
-                taylor.setLocation(taylor.homeLocationId);
-            }
-        }
-    } else {
-        const target = slot.target || {};
-        const spec = target.spec || {};
-        const mode = spec.mode;
-        const isTravel = target.type === "travel";
-        const isMicroStop = isTravel && spec.microStop === true;
-
-        // walk + bus = transit (including micro-stops)
-        const isTransit = isTravel && mode !== "wait";
-
-        taylor.isInTransit = isTransit;
-
-        // We set location when:
-        // - not in transit (normal activities / home / wait), OR
-        // - we are in a walking micro-stop.
-        if (!isTransit || isMicroStop) {
-            let locId = null;
-            let placeId = null;
-
-            if (isTravel) {
-                if (mode === "wait" || isMicroStop) {
-                    // bus stop wait OR walking micro-stop at a node
-                    locId =
-                        spec.toLocationId ??
-                        spec.fromLocationId ??
-                        taylor.locationId ??
-                        taylor.homeLocationId;
-                } else {
-                    // Any other non-transit travel mode (none right now)
-                    locId = target.locationId || taylor.homeLocationId || taylor.locationId;
-                }
-            } else {
-                // Regular activity/home slot
-                locId = target.locationId || taylor.homeLocationId || taylor.locationId;
-                placeId = target.placeId || null;
-            }
-
-            if (locId != null) {
-                if (typeof taylor.setLocationAndPlace === "function") {
-                    taylor.setLocationAndPlace(locId, placeId);
-                } else {
-                    taylor.setLocation(locId);
-                }
-            }
-        }
-        // If in transit and not a micro-stop, we still do not change taylor.locationId.
+    let ws = npcState.weekSchedule;
+    if (!ws || now < ws.startDate || now >= ws.endDate) {
+        ws = scheduleManager.getCurrentWeekSchedule(npc);
+        npcState.weekSchedule = ws;
     }
 
-    updateMapHighlights();
-    renderTaylorInfo();
-    updateNextIntent();
+    const slot = findActiveSlotForTime(ws, now);
+    const getLoc = (id) =>
+        world.getLocation ? world.getLocation(id) : world.locations.get(String(id));
+
+    if (!slot) {
+        npc.isInTransit = false;
+        npcState.isAtMicroStop = false;
+        if (npc.homeLocationId) {
+            if (typeof npc.setLocationAndPlace === "function") {
+                npc.setLocationAndPlace(npc.homeLocationId, npc.homePlaceId);
+            } else {
+                npc.setLocation(npc.homeLocationId);
+            }
+        }
+        return;
+    }
+
+    const target = slot.target || {};
+    const spec = target.spec || {};
+    const mode = spec.mode;
+    const isTravel = target.type === "travel";
+    const isMicroStop = isTravel && spec.microStop === true;
+
+    const isTransit = isTravel && mode !== "wait";
+
+    npc.isInTransit = isTransit;
+    npcState.isAtMicroStop = isMicroStop;
+
+    if (!isTransit || isMicroStop) {
+        let locId = null;
+        let placeId = null;
+
+        if (isTravel) {
+            if (mode === "wait" || isMicroStop) {
+                locId =
+                    spec.toLocationId ??
+                    spec.fromLocationId ??
+                    npc.locationId ??
+                    npc.homeLocationId;
+            } else {
+                locId = target.locationId || npc.homeLocationId || npc.locationId;
+            }
+        } else {
+            locId = target.locationId || npc.homeLocationId || npc.locationId;
+            placeId = target.placeId || null;
+        }
+
+        if (locId != null) {
+            if (typeof npc.setLocationAndPlace === "function") {
+                npc.setLocationAndPlace(locId, placeId);
+            } else {
+                npc.setLocation(locId);
+            }
+        }
+    }
+
+    // For active NPC, update next intent slot
+    if (npcState.id === activeNpcId) {
+        const peek = scheduleManager.peek(npc, 30, world.time.date);
+        npcState.nextIntentSlot = peek.nextSlot || null;
+    }
+}
+
+function syncAllNpcsToCurrentTime() {
+    npcStates.forEach(syncNpcToCurrentTime);
+    updateMapHighlights(); // also updates npc markers
 }
 
 // ---------------------------
-// Rendering
+// World info rendering
 // ---------------------------
-
-function renderAllInfo() {
-    renderTaylorInfo();
-    renderWorldTime();
-    renderDayInfo();
-    updateNextIntent();
-}
 
 function renderWorldTime() {
     const el = byId("worldTime");
@@ -180,7 +232,6 @@ function renderDayInfo() {
     const info = world.calendar.getDayInfo(world.time.date) || {};
     let text = info.kind || "unknown";
 
-    // Try to show holiday/special info if available
     const tags = info.tags || [];
     const extra = [];
 
@@ -196,103 +247,9 @@ function renderDayInfo() {
     el.textContent = text;
 }
 
-function renderTaylorInfo() {
-    if (!taylor || !world) return;
-
-    const now = world.time.date;
-    const slot = findActiveSlotForTime(now);
-
-    const getLoc = (id) =>
-        world.getLocation ? world.getLocation(id) : world.locations.get(String(id));
-
-    const currentEl = byId("taylorCurrent");
-    const homeEl = byId("taylorHome");
-    const placesEl = byId("placesAtLoc");
-
-    const homeLoc = getLoc(taylor.homeLocationId);
-    if (homeEl) {
-        homeEl.textContent = homeLoc ? `${homeLoc.name} (${homeLoc.id})` : "—";
-    }
-
-    const fallbackLoc = getLoc(taylor.locationId);
-
-    // No active slot -> fallback to Taylor's current locationId
-    if (!slot || !slot.target) {
-        if (currentEl) {
-            currentEl.textContent = fallbackLoc ? `${fallbackLoc.name} (${fallbackLoc.id})` : "—";
-        }
-        if (placesEl) {
-            if (fallbackLoc && Array.isArray(fallbackLoc.places) && fallbackLoc.places.length) {
-                placesEl.innerHTML = fallbackLoc.places
-                    .map((place) => `<code>${place.key}</code>`)
-                    .join(" ");
-            } else {
-                placesEl.textContent = "—";
-            }
-        }
-        return;
-    }
-
-    // ---- TRAVEL STATES ----
-    if (slot.target.type === "travel") {
-        const spec = slot.target.spec || {};
-        const mode = spec.mode;
-
-        const isMicroStop = spec.microStop === true;
-
-        if (mode === "wait" || isMicroStop) {
-            const locId =
-                spec.toLocationId ??
-                spec.fromLocationId ??
-                taylor.locationId ??
-                taylor.homeLocationId;
-
-            const loc = locId != null ? getLoc(locId) : null;
-            const baseName = loc ? `${loc.name} (${loc.id})` : "somewhere";
-
-            let label;
-            if (mode === "wait") {
-                label = `waiting at ${baseName}`;
-            } else {
-                // micro-stop while walking
-                label = `walking, paused at ${baseName}`;
-            }
-
-            if (currentEl) currentEl.textContent = label;
-
-            if (placesEl) {
-                if (loc && Array.isArray(loc.places) && loc.places.length) {
-                    placesEl.innerHTML = loc.places
-                        .map((place) => `<code>${place.key}</code>`)
-                        .join(" ");
-                } else {
-                    placesEl.textContent = "—";
-                }
-            }
-            return;
-        }
-    }
-
-    // otherwise: normal walking/bus (off-map)
-
-    // ---- ACTIVITY / HOME STATES ----
-    const locId = slot.target.locationId || taylor.locationId;
-    const currentLoc = getLoc(locId);
-
-    if (currentEl) {
-        currentEl.textContent = currentLoc ? `${currentLoc.name} (${currentLoc.id})` : "—";
-    }
-
-    if (placesEl) {
-        if (currentLoc && Array.isArray(currentLoc.places) && currentLoc.places.length) {
-            placesEl.innerHTML = currentLoc.places
-                .map((place) => `<code>${place.key}</code>`)
-                .join(" ");
-        } else {
-            placesEl.textContent = "—";
-        }
-    }
-}
+// ---------------------------
+// Map rendering (locations + NPC dots)
+// ---------------------------
 
 function renderMap() {
     const host = byId("map");
@@ -301,9 +258,9 @@ function renderMap() {
     host.innerHTML = "";
     locationNodes = new Map();
     projectedPositions = new Map();
+    npcMarkers = new Map();
 
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-
     const rawPos = new Map();
     let minX = Infinity,
         maxX = -Infinity,
@@ -331,8 +288,8 @@ function renderMap() {
     }
 
     const margin = 20;
-    const targetWidth = (MAP_WIDTH || 100) * 9;
-    const targetHeight = (MAP_HEIGHT || 50) * 11;
+    const targetWidth = 600;
+    const targetHeight = 450;
 
     const worldW = maxX - minX;
     const worldH = maxY - minY;
@@ -365,10 +322,9 @@ function renderMap() {
     }
 
     svg.setAttribute("viewBox", `0 0 ${targetWidth} ${targetHeight}`);
-    svg.setAttribute("width", "100%");
-    svg.setAttribute("height", String(targetHeight * 1.5));
     svg.style.background = "var(--map-bg, #050608)";
 
+    // Roads
     for (const { a, b } of edges) {
         const A = project(rawPos.get(a));
         const B = project(rawPos.get(b));
@@ -381,7 +337,6 @@ function renderMap() {
         line.setAttribute("stroke-width", "2");
         line.setAttribute("stroke-linecap", "round");
 
-        // NEW: mark this as a road between two locations
         line.classList.add("road-edge");
         line.dataset.a = String(a);
         line.dataset.b = String(b);
@@ -389,6 +344,7 @@ function renderMap() {
         svg.appendChild(line);
     }
 
+    // Locations
     for (const [id, loc] of world.locations.entries()) {
         const pos = project(rawPos.get(id));
         projectedPositions.set(id, pos);
@@ -404,10 +360,13 @@ function renderMap() {
         node.style.cursor = "pointer";
 
         node.addEventListener("click", () => {
-            taylor.setLocation(id);
+            // Teleport active NPC only
+            const state = npcStates.find((s) => s.id === activeNpcId);
+            if (!state) return;
+            state.npc.setLocation(id);
+            state.npc.locationId = id;
             updateMapHighlights();
-            renderTaylorInfo();
-            updateNextIntent();
+            renderActiveNpcPanel();
         });
 
         const label = document.createElementNS(svg.namespaceURI, "text");
@@ -423,9 +382,23 @@ function renderMap() {
         locationNodes.set(id, node);
     }
 
+    // Create NPC markers (small colored dots, repositioned later)
+    for (const state of npcStates) {
+        const marker = document.createElementNS(svg.namespaceURI, "circle");
+        marker.setAttribute("r", "5");
+        marker.setAttribute("fill", state.color);
+        marker.setAttribute("stroke", "#000");
+        marker.setAttribute("stroke-width", "1.5");
+        marker.style.pointerEvents = "none"; // don't block clicks
+        svg.appendChild(marker);
+        npcMarkers.set(state.id, marker);
+    }
+
     host.appendChild(svg);
     updateMapHighlights();
 }
+
+// -------- Bus path highlight helpers (same idea as your Taylor code) --------
 
 function clearHighlightedBusPath() {
     const host = byId("map");
@@ -436,31 +409,6 @@ function clearHighlightedBusPath() {
     svg.querySelectorAll("line.road-edge--highlight").forEach((line) => {
         line.classList.remove("road-edge--highlight");
     });
-}
-
-function highlightBusPathFromElement(el) {
-    if (!el) return;
-    const pathStr = el.getAttribute("data-bus-path");
-    if (!pathStr) return;
-
-    const pairs = pathStr.split(",").filter(Boolean);
-    if (!pairs.length) return;
-
-    const host = byId("map");
-    if (!host) return;
-    const svg = host.querySelector("svg");
-    if (!svg) return;
-
-    const roads = svg.querySelectorAll("line.road-edge");
-    for (const line of roads) {
-        const a = line.dataset.a;
-        const b = line.dataset.b;
-        const key1 = `${a}-${b}`;
-        const key2 = `${b}-${a}`;
-        if (pairs.includes(key1) || pairs.includes(key2)) {
-            line.classList.add("road-edge--highlight");
-        }
-    }
 }
 
 function highlightBusPathForSlot(slot) {
@@ -489,85 +437,300 @@ function highlightBusPathForSlot(slot) {
     }
 }
 
-function attachBusHoverHandlers() {
-    const container = byId("weekSchedule");
-    if (!container) return;
+// ---------------------------
+// Update NPC markers + home/current styling
+// ---------------------------
 
-    // Use event delegation so we don't rebind on every render
-    if (container._busHoverBound) return;
-    container._busHoverBound = true;
+function updateNpcMarkers() {
+    if (!world) return;
 
-    container.addEventListener("mouseover", (ev) => {
-        const el = ev.target.closest(".schedule-slot--bus");
-        if (!el || !container.contains(el)) return;
-        clearHighlightedBusPath();
-        highlightBusPathFromElement(el);
-    });
+    for (const state of npcStates) {
+        const marker = npcMarkers.get(state.id);
+        if (!marker) continue;
 
-    container.addEventListener("mouseout", (ev) => {
-        const el = ev.target.closest(".schedule-slot--bus");
-        if (!el || !container.contains(el)) return;
-        clearHighlightedBusPath();
-    });
+        const { npc, isAtMicroStop } = state;
+
+        // hide when travelling and not at a walking micro-stop (same logic as before)
+        if (npc.isInTransit && !isAtMicroStop) {
+            marker.setAttribute("visibility", "hidden");
+            continue;
+        }
+
+        const locId = npc.locationId ?? npc.homeLocationId;
+        if (locId == null) {
+            marker.setAttribute("visibility", "hidden");
+            continue;
+        }
+
+        const pos = projectedPositions.get(String(locId));
+        if (!pos) {
+            marker.setAttribute("visibility", "hidden");
+            continue;
+        }
+
+        marker.setAttribute("cx", String(pos.x));
+        marker.setAttribute("cy", String(pos.y));
+        marker.setAttribute("visibility", "visible");
+
+        // Slightly enlarge marker for active NPC
+        marker.setAttribute("r", state.id === activeNpcId ? "7" : "5");
+    }
 }
 
-// Highlight current & home; intent highlighting comes on top
 function updateMapHighlights() {
-    if (!taylor || !world) return;
+    if (!world) return;
 
     clearHighlightedBusPath();
 
-    const now = world.time.date;
-    const slot = findActiveSlotForTime(now);
-
-    // Check if we're in a micro-stop walking segment
-    let inMicroStop = false;
-    if (slot && slot.target && slot.target.type === "travel") {
-        const spec = slot.target.spec || {};
-        if (spec.microStop === true) {
-            inMicroStop = true;
-        }
-    }
-
-    // If inTransit and not a micro-stop -> hide NPC pin.
-    // If micro-stop or not in transit -> show NPC at taylor.locationId.
-    const currentId = taylor.isInTransit && !inMicroStop ? "" : String(taylor.locationId);
-    const homeId = taylor.homeLocationId != null ? String(taylor.homeLocationId) : "";
-
+    // Reset base location styling
     for (const [id, node] of locationNodes.entries()) {
         node.setAttribute("fill", "#2d6cdf");
         node.setAttribute("stroke", "#153b7a");
         node.setAttribute("stroke-width", "2");
         node.setAttribute("r", "8");
+    }
 
-        if (id === homeId) {
-            node.setAttribute("stroke", "#00d68f");
-            node.setAttribute("stroke-width", "3");
-        }
-        if (id === currentId) {
-            node.setAttribute("fill", "#ffcc00");
-            node.setAttribute("r", "10");
+    // Highlight homes for all NPCs (green outline)
+    for (const state of npcStates) {
+        const homeId = state.npc.homeLocationId;
+        if (homeId == null) continue;
+        const node = locationNodes.get(String(homeId));
+        if (!node) continue;
+
+        node.setAttribute("stroke", "#00d68f");
+        node.setAttribute("stroke-width", "3");
+    }
+
+    // Additionally mark active NPC's home with extra radius
+    const activeState = npcStates.find((s) => s.id === activeNpcId);
+    if (activeState && activeState.npc.homeLocationId != null) {
+        const node = locationNodes.get(String(activeState.npc.homeLocationId));
+        if (node) {
+            node.setAttribute("stroke-width", "4");
         }
     }
 
-    // Highlight path when travelling:
-    // - bus: highlight the whole bus route
-    // - walk (non-micro-stop): highlight the street segment being walked
+    // NPC markers (colored dots)
+    updateNpcMarkers();
+
+    // Highlight travel path for active NPC, if currently in travel slot
+    if (!activeState) return;
+
+    const now = world.time.date;
+    const slot = findActiveSlotForTime(activeState.weekSchedule, now);
     if (slot && slot.target && slot.target.type === "travel") {
         const spec = slot.target.spec || {};
         const mode = spec.mode;
-
         if (mode === "bus" || (mode === "walk" && !spec.microStop)) {
-            highlightBusPathForSlot(slot); // works for walking too, uses pathEdges
+            highlightBusPathForSlot(slot);
         }
     }
 }
 
 // ---------------------------
-// Intent display + hover highlight
+// NPC Panels + Tabs
 // ---------------------------
 
-function findFirstNonTravelSlotAfter(startSlot) {
+function buildNpcTabsAndPanels() {
+    const tabsEl = byId("npcTabs");
+    const panelsEl = byId("npcPanels");
+    if (!tabsEl || !panelsEl) return;
+
+    tabsEl.innerHTML = "";
+    panelsEl.innerHTML = "";
+
+    npcStates.forEach((state) => {
+        const npc = state.npc;
+
+        // Tab
+        const tab = document.createElement("button");
+        tab.className = "npc-tab";
+        tab.dataset.npcId = state.id;
+        tab.innerHTML = `
+            <span class="npc-tab-dot" style="background:${state.color}"></span>
+            ${npc.meta?.shortName || npc.name || state.id}
+        `;
+        tab.addEventListener("click", () => {
+            activeNpcId = state.id;
+            renderActiveNpcPanel();
+            updateMapHighlights();
+        });
+        tabsEl.appendChild(tab);
+
+        // Panel
+        const panel = document.createElement("div");
+        panel.className = "npc-panel";
+        panel.id = `npc-panel-${state.id}`;
+
+        panel.innerHTML = `
+            <div class="info-row">
+                <span class="label">Name:</span>
+                <span>${npc.name}</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Current location:</span>
+                <span id="npc-${state.id}-current">—</span><br />
+                <span class="label">Places at Current Location:</span>
+                <span id="npc-${state.id}-places"></span>
+            </div>
+            <div class="info-row">
+                <span class="label">Home location:</span>
+                <span id="npc-${state.id}-home">—</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Next 30 min intent:</span>
+                <span id="npc-${state.id}-nextIntent">—</span>
+            </div>
+            <p style="margin-top: 2px; font-size: 11px; color: var(--muted)">
+                Hover the intent text to highlight the planned target location on the map.
+            </p>
+
+            <h2 style="margin-top: 12px; font-size: 16px">Current week schedule</h2>
+            <p style="margin-top: 2px; font-size: 11px; color: var(--muted)">
+                Hover "on the bus" entries to see a highlighted path on the map.
+            </p>
+            <div class="weekSchedule" id="npc-${state.id}-weekSchedule">Loading…</div>
+        `;
+
+        panelsEl.appendChild(panel);
+
+        // Hover handlers for intent highlight
+        const intentEl = panel.querySelector(`#npc-${state.id}-nextIntent`);
+        if (intentEl) {
+            intentEl.addEventListener("mouseenter", () => highlightIntentLocation(state, true));
+            intentEl.addEventListener("mouseleave", () => highlightIntentLocation(state, false));
+        }
+    });
+
+    updateTabActiveStates();
+}
+
+function updateTabActiveStates() {
+    const tabsEl = byId("npcTabs");
+    const panelsEl = byId("npcPanels");
+    if (!tabsEl || !panelsEl) return;
+
+    const tabs = tabsEl.querySelectorAll(".npc-tab");
+    tabs.forEach((tab) => {
+        const id = tab.dataset.npcId;
+        tab.classList.toggle("npc-tab--active", id === activeNpcId);
+    });
+
+    const panels = panelsEl.querySelectorAll(".npc-panel");
+    panels.forEach((panel) => {
+        const id = panel.id.replace("npc-panel-", "");
+        panel.classList.toggle("npc-panel--active", id === activeNpcId);
+    });
+}
+
+function renderActiveNpcPanel() {
+    updateTabActiveStates();
+
+    const state = npcStates.find((s) => s.id === activeNpcId);
+    if (!state) return;
+
+    renderNpcInfo(state);
+    renderNpcWeekSchedule(state);
+    updateNextIntentText(state);
+}
+
+// ---------------------------
+// Per-NPC info + schedule render
+// ---------------------------
+
+function renderNpcInfo(npcState) {
+    const { npc } = npcState;
+    const getLoc = (id) =>
+        world.getLocation ? world.getLocation(id) : world.locations.get(String(id));
+
+    const currentEl = byId(`npc-${npcState.id}-current`);
+    const homeEl = byId(`npc-${npcState.id}-home`);
+    const placesEl = byId(`npc-${npcState.id}-places`);
+
+    const homeLoc = getLoc(npc.homeLocationId);
+    if (homeEl) {
+        homeEl.textContent = homeLoc ? `${homeLoc.name} (${homeLoc.id})` : "—";
+    }
+
+    const now = world.time.date;
+    const ws = npcState.weekSchedule;
+    const slot = ws ? findActiveSlotForTime(ws, now) : null;
+
+    const fallbackLoc = getLoc(npc.locationId);
+
+    if (!slot || !slot.target) {
+        if (currentEl) {
+            currentEl.textContent = fallbackLoc ? `${fallbackLoc.name} (${fallbackLoc.id})` : "—";
+        }
+        if (placesEl) {
+            if (fallbackLoc && Array.isArray(fallbackLoc.places) && fallbackLoc.places.length) {
+                placesEl.innerHTML = fallbackLoc.places
+                    .map((place) => `<code>${place.key}</code>`)
+                    .join(" ");
+            } else {
+                placesEl.textContent = "—";
+            }
+        }
+        return;
+    }
+
+    // Travel state detail (same semantics as your Taylor view, simplified)
+    if (slot.target.type === "travel") {
+        const spec = slot.target.spec || {};
+        const mode = spec.mode;
+        const isMicroStop = spec.microStop === true;
+
+        if (mode === "wait" || isMicroStop) {
+            const locId =
+                spec.toLocationId ?? spec.fromLocationId ?? npc.locationId ?? npc.homeLocationId;
+
+            const loc = locId != null ? getLoc(locId) : null;
+            const baseName = loc ? `${loc.name} (${loc.id})` : "somewhere";
+
+            let label;
+            if (mode === "wait") {
+                label = `waiting at ${baseName}`;
+            } else {
+                label = `walking, paused at ${baseName}`;
+            }
+
+            if (currentEl) currentEl.textContent = label;
+
+            if (placesEl) {
+                if (loc && Array.isArray(loc.places) && loc.places.length) {
+                    placesEl.innerHTML = loc.places
+                        .map((place) => `<code>${place.key}</code>`)
+                        .join(" ");
+                } else {
+                    placesEl.textContent = "—";
+                }
+            }
+            return;
+        }
+    }
+
+    // Activity/home
+    const locId = slot.target.locationId || npc.locationId;
+    const currentLoc = getLoc(locId);
+
+    if (currentEl) {
+        currentEl.textContent = currentLoc ? `${currentLoc.name} (${currentLoc.id})` : "—";
+    }
+
+    if (placesEl) {
+        if (currentLoc && Array.isArray(currentLoc.places) && currentLoc.places.length) {
+            placesEl.innerHTML = currentLoc.places
+                .map((place) => `<code>${place.key}</code>`)
+                .join(" ");
+        } else {
+            placesEl.textContent = "—";
+        }
+    }
+}
+
+// ----- next intent + highlight -----
+
+function findFirstNonTravelSlotAfter(weekSchedule, startSlot) {
     if (!weekSchedule || !weekSchedule.slots || !startSlot) return null;
     const slots = weekSchedule.slots;
     const idx = slots.indexOf(startSlot);
@@ -582,18 +745,21 @@ function findFirstNonTravelSlotAfter(startSlot) {
     return null;
 }
 
-// Returns { loc, placeName, isHome }
-function getIntentLocationData(slot) {
+function getIntentLocationData(npcState, slot) {
     if (!slot || !slot.target || !world) {
         return { loc: null, placeName: null, isHome: false };
     }
 
-    // Non-travel: use its locationId directly
+    const { npc } = npcState;
+
+    const getLoc = (id) =>
+        world.getLocation ? world.getLocation(id) : world.locations.get(String(id));
+
     if (slot.target.type !== "travel") {
         const locId = slot.target.locationId;
         if (!locId) return { loc: null, placeName: null, isHome: false };
 
-        const loc = world.getLocation?.(locId) || world.locations.get(String(locId));
+        const loc = getLoc(locId);
         if (!loc) return { loc: null, placeName: null, isHome: false };
 
         const spec = slot.target.spec || {};
@@ -612,39 +778,38 @@ function getIntentLocationData(slot) {
         return { loc, placeName, isHome: isHomeTarget };
     }
 
-    // Travel slot: look ahead for the destination activity/home
-    const destSlot = findFirstNonTravelSlotAfter(slot);
+    // Travel -> look ahead
+    const destSlot = findFirstNonTravelSlotAfter(npcState.weekSchedule, slot);
     if (destSlot && destSlot.target && destSlot.target.locationId) {
-        return getIntentLocationData(destSlot);
+        return getIntentLocationData(npcState, destSlot);
     }
 
-    // Fallback: use toLocationId from the travel spec
     const spec = slot.target.spec || {};
     const locId = spec.toLocationId;
     if (locId == null) return { loc: null, placeName: null, isHome: false };
 
-    const loc = world.getLocation?.(locId) || world.locations.get(String(locId));
+    const loc = getLoc(locId);
     return { loc, placeName: null, isHome: false };
 }
 
-function updateNextIntent() {
-    const el = byId("taylorNextIntent");
-    if (!el || !scheduleManager || !taylor) return;
+function updateNextIntentText(npcState) {
+    const el = byId(`npc-${npcState.id}-nextIntent`);
+    if (!el || !scheduleManager || !npcState.npc) return;
 
-    const peek = scheduleManager.peek(taylor, 30, world.time.date);
-    nextIntentSlot = peek.nextSlot || null;
+    const peek = scheduleManager.peek(npcState.npc, 30, world.time.date);
+    npcState.nextIntentSlot = peek.nextSlot || null;
 
-    if (!peek.willMove || !nextIntentSlot) {
+    if (!peek.willMove || !npcState.nextIntentSlot) {
         el.textContent = "No move planned in the next 30 minutes.";
         return;
     }
 
-    const slot = nextIntentSlot;
+    const slot = npcState.nextIntentSlot;
     const from = slot.from;
     const pad = (n) => (n < 10 ? "0" + n : "" + n);
     const timeStr = `${pad(from.getHours())}:${pad(from.getMinutes())}`;
 
-    const { loc, placeName } = getIntentLocationData(slot);
+    const { loc, placeName } = getIntentLocationData(npcState, slot);
 
     if (!loc) {
         el.textContent = `${timeStr}: move to unknown destination.`;
@@ -659,7 +824,7 @@ function updateNextIntent() {
     el.textContent = `${timeStr}: move to ${desc}.`;
 }
 
-function highlightIntentLocation(enabled) {
+function highlightIntentLocation(npcState, enabled) {
     if (!enabled) {
         updateMapHighlights();
         return;
@@ -667,9 +832,9 @@ function highlightIntentLocation(enabled) {
 
     updateMapHighlights(); // reset first
 
-    if (!nextIntentSlot || !nextIntentSlot.target) return;
+    if (!npcState.nextIntentSlot || !npcState.nextIntentSlot.target) return;
 
-    const { loc } = getIntentLocationData(nextIntentSlot);
+    const { loc } = getIntentLocationData(npcState, npcState.nextIntentSlot);
     if (!loc) return;
 
     const node = locationNodes.get(String(loc.id));
@@ -680,42 +845,61 @@ function highlightIntentLocation(enabled) {
     node.setAttribute("r", "11");
 }
 
-// ---------------------------
-// Week schedule rendering
-// ---------------------------
+// ----- week schedule renderer, per NPC -----
 
-function renderWeekSchedule() {
-    const el = byId("weekSchedule");
-    if (!el || !weekSchedule || !world) return;
+function attachBusHoverHandlers(container) {
+    if (!container) return;
 
-    const slots = weekSchedule.slots || [];
+    if (container._busHoverBound) return;
+    container._busHoverBound = true;
+
+    container.addEventListener("mouseover", (ev) => {
+        const el = ev.target.closest(".schedule-slot--bus");
+        if (!el || !container.contains(el)) return;
+        clearHighlightedBusPath();
+        const pathStr = el.getAttribute("data-bus-path");
+        if (!pathStr) return;
+        const pairs = pathStr.split(",").filter(Boolean);
+
+        const host = byId("map");
+        if (!host) return;
+        const svg = host.querySelector("svg");
+        if (!svg) return;
+
+        const roads = svg.querySelectorAll("line.road-edge");
+        for (const line of roads) {
+            const a = line.dataset.a;
+            const b = line.dataset.b;
+            const key1 = `${a}-${b}`;
+            const key2 = `${b}-${a}`;
+            if (pairs.includes(key1) || pairs.includes(key2)) {
+                line.classList.add("road-edge--highlight");
+            }
+        }
+    });
+
+    container.addEventListener("mouseout", (ev) => {
+        const el = ev.target.closest(".schedule-slot--bus");
+        if (!el || !container.contains(el)) return;
+        clearHighlightedBusPath();
+    });
+}
+
+function renderNpcWeekSchedule(npcState) {
+    const container = byId(`npc-${npcState.id}-weekSchedule`);
+    if (!container || !npcState.weekSchedule || !world) return;
+
+    const slots = npcState.weekSchedule.slots || [];
     if (!slots.length) {
-        el.textContent = "No schedule slots for this week.";
+        container.textContent = "No schedule slots for this week.";
         return;
     }
 
+    const pad2 = (n) => (n < 10 ? "0" + n : "" + n);
     const getLoc = (id) =>
         world.getLocation ? world.getLocation(id) : world.locations.get(String(id));
 
-    const pad2 = (n) => (n < 10 ? "0" + n : "" + n);
-
-    // Bucket slots per calendar day
-    const dayBuckets = new Map(); // dateKey -> { date, slots[] }
-    for (const slot of slots) {
-        const d = slot.from;
-        const y = d.getFullYear();
-        const m = pad2(d.getMonth() + 1);
-        const day = pad2(d.getDate());
-        const dateKey = `${y}-${m}-${day}`;
-
-        let bucket = dayBuckets.get(dateKey);
-        if (!bucket) {
-            bucket = { date: new Date(y, d.getMonth(), d.getDate()), slots: [] };
-            dayBuckets.set(dateKey, bucket);
-        }
-        bucket.slots.push(slot);
-    }
-
+    const dayBuckets = getDayBuckets(slots);
     const sortedKeys = [...dayBuckets.keys()].sort();
     const lines = [];
 
@@ -731,7 +915,6 @@ function renderWeekSchedule() {
         slot.target.spec &&
         slot.target.spec.mode === "walk";
 
-    // Render each day
     for (const key of sortedKeys) {
         const { date, slots: daySlotsRaw } = dayBuckets.get(key);
         const daySlots = daySlotsRaw.slice().sort((a, b) => a.from - b.from);
@@ -766,7 +949,6 @@ function renderWeekSchedule() {
 
             const summaryHtml = `${timeStr} – walking (${totalMinutes} min, ${streetCount} streets) <span style="opacity:0.6;">[${ruleId}]</span>`;
 
-            // Build details list of each step with street name
             const detailLines = [];
             for (const step of walkGroup) {
                 const sFrom = step.from;
@@ -785,7 +967,6 @@ function renderWeekSchedule() {
 
                 let stepLabel;
                 if (isMicro) {
-                    // At the node for a minute
                     const loc = toLoc || fromLoc;
                     const locLabel = loc ? `${loc.name} (${loc.id})` : "location";
                     stepLabel = `at ${locLabel}`;
@@ -812,7 +993,6 @@ function renderWeekSchedule() {
 
         for (const slot of daySlots) {
             if (isTravelWalk(slot)) {
-                // part of a walking group
                 const last = walkGroup[walkGroup.length - 1];
                 if (!last || last.to.getTime() === slot.from.getTime()) {
                     walkGroup.push(slot);
@@ -823,7 +1003,6 @@ function renderWeekSchedule() {
                 continue;
             }
 
-            // Not a walking travel slot -> flush any existing group first
             flushWalkGroup();
 
             const from = slot.from;
@@ -831,7 +1010,6 @@ function renderWeekSchedule() {
             const timeStr = formatTimeRange(from, to);
 
             let mode = false;
-
             let targetDesc = "";
             const sourceId = slot.sourceRuleId || "";
 
@@ -847,10 +1025,8 @@ function renderWeekSchedule() {
                     else if (mode === "bus") modeLabel = "on the bus";
                     else if (mode === "wait") modeLabel = "waiting for bus";
 
-                    // For travel, we don't show "at Location"; we show mode only.
                     targetDesc = modeLabel;
                 } else {
-                    // Activity/home: show location + place
                     const locId = slot.target.locationId;
                     const loc = locId ? getLoc(locId) : null;
                     if (loc) {
@@ -874,7 +1050,6 @@ function renderWeekSchedule() {
                 }
             }
 
-            // Attach bus path info for hover highlighting
             let extraAttrs = "";
             const spec = slot.target && slot.target.spec;
             if (slot.target && slot.target.type === "travel" && spec && spec.mode === "bus") {
@@ -894,14 +1069,11 @@ function renderWeekSchedule() {
             );
         }
 
-        // In case the day ends with a walk group
         flushWalkGroup();
     }
 
-    el.innerHTML = lines.join("\n");
-
-    // After re-render, (re)bind hover handlers for bus rows
-    attachBusHoverHandlers();
+    container.innerHTML = lines.join("\n");
+    attachBusHoverHandlers(container);
 }
 
 // ---------------------------
@@ -911,11 +1083,10 @@ function renderWeekSchedule() {
 function advanceWorldMinutes(mins) {
     if (!world) return;
     world.advance(mins);
-    weekSchedule = scheduleManager.getCurrentWeekSchedule(taylor);
-    syncTaylorToCurrentTime();
+    syncAllNpcsToCurrentTime();
     renderWorldTime();
     renderDayInfo();
-    renderWeekSchedule();
+    renderActiveNpcPanel();
 }
 
 function bindButtons() {
@@ -924,32 +1095,22 @@ function bindButtons() {
     const plus120 = byId("btnTimePlus120");
     const plusWeek = byId("btnTimePlusWeek");
     const reset = byId("btnResetWorld");
-    const nextIntentEl = byId("taylorNextIntent");
     const autoBtn = byId("btnAutoForward");
-
     const slider = byId("speedSlider");
     const label = byId("speedLabel");
 
-    if (plus1) {
-        plus1.addEventListener("click", () => advanceWorldMinutes(1));
-    }
+    if (plus1) plus1.addEventListener("click", () => advanceWorldMinutes(1));
+    if (plus30) plus30.addEventListener("click", () => advanceWorldMinutes(30));
+    if (plus120) plus120.addEventListener("click", () => advanceWorldMinutes(120));
+    if (plusWeek) plusWeek.addEventListener("click", () => advanceWorldMinutes(7 * 24 * 60));
 
-    if (plus30) {
-        plus30.addEventListener("click", () => advanceWorldMinutes(30));
-    }
-    if (plus120) {
-        plus120.addEventListener("click", () => advanceWorldMinutes(120));
-    }
-    if (plusWeek) {
-        plusWeek.addEventListener("click", () => advanceWorldMinutes(7 * 24 * 60));
-    }
     if (reset) {
         reset.addEventListener("click", () => {
-            initWorldAndTaylor();
+            initWorldAndNpcs(["taylor", "shade"]); // change list here
         });
     }
 
-    if (slider) {
+    if (slider && label) {
         slider.addEventListener("input", () => {
             const speed = 1000 - 1.9 * Number(slider.value);
             const minutesPerSecond = (1000 / speed).toFixed(1);
@@ -959,23 +1120,18 @@ function bindButtons() {
 
     if (autoBtn) {
         autoBtn.addEventListener("click", () => {
-            
-            const speed = 1000 - 1.9 * Number(slider.value);
+            const speed = 1000 - 1.9 * Number(byId("speedSlider").value);
 
             if (!isAutoForwarding) {
-                // start auto-forward
                 isAutoForwarding = true;
-                // optional: visual feedback
                 autoBtn.textContent = "Pause Auto";
 
                 autoForwardTimer = setInterval(() => {
-                    advanceWorldMinutes(1); // advances from *current* world time
+                    advanceWorldMinutes(1);
                 }, speed);
             } else {
-                // pause auto-forward
                 isAutoForwarding = false;
-                // optional: visual feedback
-                autoBtn.textContent = "Start Auto";
+                autoBtn.textContent = "Play Schedule";
 
                 if (autoForwardTimer !== null) {
                     clearInterval(autoForwardTimer);
@@ -984,14 +1140,10 @@ function bindButtons() {
             }
         });
     }
-
-    if (nextIntentEl) {
-        nextIntentEl.addEventListener("mouseenter", () => highlightIntentLocation(true));
-        nextIntentEl.addEventListener("mouseleave", () => highlightIntentLocation(false));
-    }
 }
 
 window.addEventListener("DOMContentLoaded", () => {
-    initWorldAndTaylor();
+    // Pass whatever NPC keys you want to visualize
+    initWorldAndNpcs(["taylor", "shade"]); // you can add more: ["taylor", "shade", "someOtherNpc"]
     bindButtons();
 });
