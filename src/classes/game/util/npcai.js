@@ -188,11 +188,14 @@ export class NPCScheduler {
         // First: apply rule priority and trim overlaps
         const timeResolved = this._applyPriorityAndTrim(slots, rules);
 
+        // Second: fill intra-day gaps between rule slots
+        const filled = this._fillGaps(timeResolved);
+
         // Resolve each slot to actual location/place
-        this._resolveSlots(npc, timeResolved);
+        this._resolveSlots(npc, filled);
 
         // Insert travel segments between slots where the location changes
-        const withTravel = this._insertTravelSlots(npc, timeResolved, rules);
+        const withTravel = this._insertTravelSlots(npc, filled, rules);
 
         return {
             npcId,
@@ -222,15 +225,20 @@ export class NPCScheduler {
                 fromMin += this.rnd() < 0.5 ? -startShift : startShift;
                 toMin += this.rnd() < 0.5 ? -endShift : endShift;
 
-                fromMin = Math.max(0, Math.min(fromMin, dayEnd));
-                toMin = Math.max(0, Math.min(toMin, dayEnd));
+                // 1) Clamp inside [origFromMin, origToMin] so we never expand the block
+                fromMin = Math.max(origFromMin, Math.min(fromMin, origToMin));
+                toMin = Math.max(origFromMin, Math.min(toMin, origToMin));
 
+                // 2) Still ensure it’s a positive-length block
                 if (toMin <= fromMin) {
-                    toMin = Math.min(dayEnd, fromMin + 15);
+                    toMin = Math.min(origToMin, fromMin + 15);
                 }
             }
 
-            // If the block was defined to end at midnight, force it to end at midnight
+            // 3) Preserve the special handling for "starts at/before 00:00" and "ends at/after 24:00"
+            const dayEnd = 24 * 60;
+            const dayStart = 0;
+
             if (origToMin >= dayEnd) {
                 toMin = dayEnd;
             }
@@ -299,8 +307,12 @@ export class NPCScheduler {
         const minStay = rule.stayMinutes?.min ?? 30;
         const maxStay = rule.stayMinutes?.max ?? 60;
 
-        const windowStart = parseTimeToMinutes(window.from);
-        const windowEnd = parseTimeToMinutes(window.to);
+        let windowStart = parseTimeToMinutes(window.from);
+        let windowEnd = parseTimeToMinutes(window.to);
+
+        if (windowEnd <= windowStart) {
+            windowEnd += 24 * 60;
+        }
 
         // --- JITTER HERE ---
         // Delay leaving the previous state by +5–15 minutes
@@ -352,8 +364,13 @@ export class NPCScheduler {
         const minStay = rule.stayMinutes?.min ?? 30;
         const maxStay = rule.stayMinutes?.max ?? 120;
 
-        const windowStart = parseTimeToMinutes(window.from);
-        const windowEnd = parseTimeToMinutes(window.to);
+        let windowStart = parseTimeToMinutes(window.from);
+        let windowEnd = parseTimeToMinutes(window.to);
+
+        // Interpret as [23:00, 26:00] relative to dayDate,
+        if (windowEnd <= windowStart) {
+            windowEnd += 24 * 60;
+        }
 
         // Choose a random duration, rounded to 5 minutes
         const durRaw = minStay + this.rnd() * (maxStay - minStay);
@@ -1031,7 +1048,7 @@ export class NPCScheduler {
         }
 
         if (!matcher) {
-            console.log(spec, npc)
+            console.log(spec, npc);
             throw new Error(`Unknown activity target type: ${type}, ${spec}`);
         }
 
