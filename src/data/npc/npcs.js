@@ -6,6 +6,7 @@ import { DAY_KEYS, DayKind, LOCATION_TAGS, PLACE_TAGS, SCHEDULE_RULES, Season } 
 // Each NPC gets a scheduleTemplate that the ScheduleManager uses to generate daily schedules
 // TODO: make sure any gaps in schedule wire the npc back home AFTER calculating all slots. if gap < 30minutes extend stay at previous location, even if its over max stayminutes. respect the closing time flag
 //TODO: figure out a graceful way to handle same schedule_rules priorities. sth with probability should take priority over a rule without. if theres two rule random, the one without probability should act as fallbacl
+//TODO: more granular bus use controls -> use during day/night, weather considerations, car vs bus use, etc
 export const NPC_REGISTRY = [
     {
         example: true, // not a real NPC, just an example

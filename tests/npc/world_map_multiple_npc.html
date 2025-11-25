@@ -50,12 +50,11 @@
             }
 
             .column {
-            
                 display: flex;
                 flex-direction: column;
                 gap: 12px;
                 max-height: 99vh;
-                    flex-grow: 1;
+                flex-grow: 1;
                 max-width: 50%;
                 height: 100%;
             }
@@ -201,6 +200,12 @@
 
             .schedule-slot--walk summary {
                 cursor: pointer;
+            }
+
+            .schedule-slot--active {
+                outline: 2px solid #ffcc00;
+                background: rgba(255, 204, 0, 0.08);
+                border-radius: 4px;
             }
 
             .busline-hover:hover {

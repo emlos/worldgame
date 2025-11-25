@@ -891,7 +891,6 @@ function attachBusHoverHandlers(container) {
     });
 }
 
-//TODO: highlight what slot on the schedule the npc is following, add tiny button that scrolls it into view
 function renderNpcWeekSchedule(npcState) {
     const container = byId(`npc-${npcState.id}-weekSchedule`);
     if (!container || !npcState.weekSchedule || !world) return;
@@ -921,6 +920,9 @@ function renderNpcWeekSchedule(npcState) {
         slot.target.type === "travel" &&
         slot.target.spec &&
         slot.target.spec.mode === "walk";
+
+    const now = world.time.date;
+    const activeSlot = findActiveSlotForTime(npcState.weekSchedule, now);
 
     for (const key of sortedKeys) {
         const { date, slots: daySlotsRaw } = dayBuckets.get(key);
@@ -989,8 +991,16 @@ function renderNpcWeekSchedule(npcState) {
                 detailLines.push(`<li>${stepTime} – ${stepLabel}</li>`);
             }
 
+            const groupHasActive = activeSlot && walkGroup.includes(activeSlot);
+            const walkClasses = ["schedule-slot", "schedule-slot--walk"];
+            if (groupHasActive) walkClasses.push("schedule-slot--active");
+
+            const openAttr = groupHasActive ? " open" : "";
+
             lines.push(
-                `<details class="schedule-slot schedule-slot--walk"><summary>${summaryHtml}</summary><ul>${detailLines.join(
+                `<details class="${walkClasses.join(
+                    " "
+                )}"${openAttr}><summary>${summaryHtml}</summary><ul>${detailLines.join(
                     ""
                 )}</ul></details>`
             );
@@ -1058,21 +1068,29 @@ function renderNpcWeekSchedule(npcState) {
                 }
             }
 
-            let extraAttrs = "";
             const spec = slot.target && slot.target.spec;
-
-            if (
+            const isBusOrCar =
                 slot.target &&
                 slot.target.type === "travel" &&
                 spec &&
-                (spec.mode === "bus" || spec.mode === "car")
-            ) {
+                (spec.mode === "bus" || spec.mode === "car");
+
+            const classNames = ["schedule-slot"];
+            if (isBusOrCar) {
+                classNames.push(spec.mode === "bus" ? "schedule-slot--bus" : "schedule-slot--car");
+            }
+
+            // 🔴 NEW: mark this concrete slot as active
+            if (activeSlot && slot === activeSlot) {
+                classNames.push("schedule-slot--active");
+            }
+
+            let extraAttrs = ` class="${classNames.join(" ")}"`;
+
+            if (isBusOrCar) {
                 const pathEdges = Array.isArray(spec.pathEdges) ? spec.pathEdges : [];
                 const serialized = pathEdges.map((e) => `${e.fromId}-${e.toId}`).join(",");
-                const modeClass = spec.mode === "bus" ? "schedule-slot--bus" : "schedule-slot--car";
-                extraAttrs = ` class="schedule-slot ${modeClass}" data-bus-path="${serialized}"`;
-            } else {
-                extraAttrs = ` class="schedule-slot"`;
+                extraAttrs += ` data-bus-path="${serialized}"`;
             }
 
             const highlightMode = mode === "bus" || mode === "car";
@@ -1091,6 +1109,11 @@ function renderNpcWeekSchedule(npcState) {
 
     container.innerHTML = lines.join("\n");
     attachBusHoverHandlers(container);
+
+    const activeEl = container.querySelector(".schedule-slot--active");
+    if (activeEl) {
+        activeEl.scrollIntoView({ block: "center" });
+    }
 }
 
 // ---------------------------
