@@ -104,17 +104,21 @@ function computeCoverageForDay(rules, dayIndex) {
         }
 
         // Weekly rules: only consider days in candidateDays (if given)
+        let prob =
+            typeof rule.probability === "number" && rule.probability >= 0 ? rule.probability : 1;
+        console.log(rule?.daysOfWeek?.length)
+        // Weekly rules are only "guaranteed" if there's exactly one possible day.
+        // If they can land on multiple days, mark them as probabilistic on each.
         if (
             type === SCHEDULE_RULES.weekly &&
-            rule.candidateDays &&
-            dayKey &&
-            !rule.candidateDays.includes(dayKey)
+            prob >= 1 &&
+            ((Array.isArray(rule.candidateDays) && rule.candidateDays.length > 1) ||
+                (Array.isArray(rule.daysOfWeek) && rule.daysOfWeek.length > 1 && rule.daysOfWeek.length > 7) ||
+                (Array.isArray(rule.dayKinds) && rule.dayKinds.length > 1))
         ) {
-            continue;
+            // any value < 1 flips it into the probabilistic bucket for markInterval()
+            prob = 0.5;
         }
-
-        const prob =
-            typeof rule.probability === "number" && rule.probability >= 0 ? rule.probability : 1;
 
         if (type === SCHEDULE_RULES.home) {
             const blocks = rule.timeBlocks || [];
