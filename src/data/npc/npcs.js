@@ -5,6 +5,7 @@ import { DAY_KEYS, DayKind, LOCATION_TAGS, PLACE_TAGS, SCHEDULE_RULES, Season } 
 // Basic templates the game can turn into NPC instances
 // Each NPC gets a scheduleTemplate that the ScheduleManager uses to generate daily schedules
 // TODO: make sure any gaps in schedule wire the npc back home AFTER calculating all slots. if gap < 30minutes extend stay at previous location, even if its over max stayminutes. respect the closing time flag
+//TODO: figure out a graceful way to handle same schedule_rules priorities. sth with probability should take priority over a rule without. if theres two rule random, the one without probability should act as fallbacl
 export const NPC_REGISTRY = [
     {
         example: true, // not a real NPC, just an example
@@ -44,6 +45,7 @@ export const NPC_REGISTRY = [
             useBus: true,
             rules: [
                 // 1) Sleep: between 22:00 and 06:00 at home
+                // ALWAYS
                 {
                     id: "sleep_at_home",
                     type: SCHEDULE_RULES.home,
@@ -53,7 +55,29 @@ export const NPC_REGISTRY = [
                     ],
                 },
 
+                //1b) mornings before school
+                // ALWAYS
+                {
+                    id: "before_school_morning",
+                    type: SCHEDULE_RULES.random,
+                    dayKinds: [DayKind.WORKDAY], // uses Calendar DayKind
+                    daysOfWeek: [DAY_KEYS[1], DAY_KEYS[2], DAY_KEYS[3], DAY_KEYS[4], DAY_KEYS[5]],
+                    window: { from: "06:00", to: "9:00" },
+                    stayMinutes: { min: 20, max: 120 },
+                    targets: [
+                        { type: "placeKey", key: "library" },
+                        { type: "placeKey", key: "high_school", nearest: true, stay: true },
+                        {
+                            type: "placeCategory",
+                            categories: [PLACE_TAGS.leisure, PLACE_TAGS.food, PLACE_TAGS.commerce],
+                            nearest: true,
+                        },
+                    ],
+                    respectOpeningHours: true,
+                },
+
                 // 2) Weekday school: 09:00–15:00 on workdays
+                // ALWAYS
                 {
                     id: "attend_school",
                     type: SCHEDULE_RULES.fixed,
@@ -69,6 +93,7 @@ export const NPC_REGISTRY = [
 
                 // 3) Weekday after-school: from 15:00 to 22:00
                 //    Randomly: library / mall / any leisure place
+                //ALWAYS
                 {
                     id: "weekday_after_school",
                     type: SCHEDULE_RULES.random,
@@ -89,16 +114,16 @@ export const NPC_REGISTRY = [
                     respectOpeningHours: true,
                 },
 
-                // 4) Weekend / day-off behaviour:
-                //    Wander places with COMMERCE or LEISURE, 30–120 minutes each.
-                //    Applies on weekends AND calendar "day off" days.
+                // 4b) mornings on weekends/day off like above
+                // 3) Weekday after-school: from 15:00 to 22:00
+                //    Randomly: library / mall / any leisure place
+                //ALWAYS
                 {
-                    id: "weekend_and_days_off",
+                    id: "days_off",
                     type: SCHEDULE_RULES.random,
-                    // we treat explicit day_off from Calendar as "weekend behaviour"
-                    dayKinds: [DayKind.DAY_OFF],
-                    window: { from: "9:00", to: "22:00" },
-                    stayMinutes: { min: 30, max: 120 },
+                    dayKinds: [DayKind.DAY_OFF], // only if it's a work day
+                    window: { from: "06:00", to: "22:00" },
+                    stayMinutes: { min: 20, max: 160 },
                     targets: [
                         { type: "placeKey", key: "library" },
                         { type: "placeKey", key: "mall" },
@@ -106,15 +131,14 @@ export const NPC_REGISTRY = [
                             type: "placeCategory",
                             categories: [
                                 PLACE_TAGS.leisure,
+                                PLACE_TAGS.service,
+                                PLACE_TAGS.civic,
                                 PLACE_TAGS.commerce,
                                 PLACE_TAGS.culture,
-                                PLACE_TAGS.service,
-                                PLACE_TAGS.food,
-                                PLACE_TAGS.history,
                             ],
                         },
                         {
-                            type: "home",
+                            type: "home", // can also choose to stay at home
                         },
                     ],
                     respectOpeningHours: true,
@@ -122,6 +146,7 @@ export const NPC_REGISTRY = [
 
                 // 5) Weekly nightlife:
                 //    Once per week, on Fri/Sat/Sun, go to nightlife place in evening.
+                //ALWAYS
                 {
                     id: "nightlife_weekly",
                     type: SCHEDULE_RULES.weekly,
@@ -173,11 +198,37 @@ export const NPC_REGISTRY = [
              */
             useBus: true,
             rules: [
-                // 1) Daytime hideout/sleep: 05:00–17:00 at home
+                // 1) Daytime hideout/sleep: 05:00–13:00 at home
+                //ALWAYS
                 {
                     id: "shade_daytime_hideout",
                     type: SCHEDULE_RULES.home,
-                    timeBlocks: [{ from: "05:00", to: "17:00" }],
+                    timeBlocks: [{ from: "05:00", to: "13:00" }],
+                },
+
+                // 1b) Shade also is a citizen, and has chores to do and a life to live
+                //ALWAYS
+                {
+                    id: "shade_errands",
+                    type: SCHEDULE_RULES.random,
+                    dayKinds: [DayKind.WORKDAY, DayKind.DAY_OFF],
+                    window: { from: "13:00", to: "18:00" },
+                    stayMinutes: { min: 15, max: 60 },
+                    targets: [
+                        {
+                            type: "placeCategory",
+                            categories: [
+                                PLACE_TAGS.commerce,
+                                PLACE_TAGS.housing,
+                                PLACE_TAGS.food,
+                                PLACE_TAGS.service,
+                            ],
+                        },
+                        {
+                            type: "home", // can also choose to stay at home
+                        },
+                    ],
+                    respectOpeningHours: true,
                 },
 
                 // 2) Evening scouting: 18:00–22:00 (not guaranteed every day)
@@ -195,12 +246,13 @@ export const NPC_REGISTRY = [
                                 PLACE_TAGS.commerce,
                                 PLACE_TAGS.housing,
                                 PLACE_TAGS.nightlife,
+                                PLACE_TAGS.culture,
+                                PLACE_TAGS.industry,
+                                PLACE_TAGS.safety
                             ],
                         },
                     ],
                     respectOpeningHours: false,
-                    // NEW FIELD: per-day chance for this rule to be active at all
-                    probability: 0.7,
                 },
 
                 // 3) Late-night robberies: 22:00–24:00
@@ -264,11 +316,29 @@ export const NPC_REGISTRY = [
                         {
                             type: "placeCategory",
                             categories: [PLACE_TAGS.nightlife, PLACE_TAGS.crime],
+                            alwaysMove: true, //TODO: always force a change of place
                         },
                     ],
                     respectOpeningHours: true,
                     probability: 0.4,
                 },
+
+                //7) very rarely shade needs to dissappear for a few days, to hide from police
+                // {
+                //     id: "shade_lay_low",
+                //     type: SCHEDULE_RULES.fixed,
+                //     dayKinds: [DayKind.WORKDAY, DayKind.DAY_OFF], // uses Calendar DayKind
+                //     daysOfWeek: [...DAY_KEYS],
+                //     time: { from: "00:00", to: "24:00" },
+                //     stayMinutes: { min: 24 * 60, max: 7 * 24 * 60, round: 24 * 60 }, //TODO: round the duration of the slot to round value
+                //     target: {
+                //        // type: "unavailable", //TODO: new type, npc not on map, they do not exist or move or plan anything
+                //     },
+                //     respectOpeningHours: false,
+                //     probability: 0.05,
+                // },
+
+
             ],
         },
     },
@@ -380,7 +450,7 @@ export const NPC_REGISTRY = [
             ],
         },
     },
-    //TODO: for shade and cop, the 22=03 midnight crossing window breaks scheduler, need to split into two rules or add cross-midnight support
+
     {
         key: "officer_vega",
         name: "Officer Leon Vega",
@@ -1038,7 +1108,7 @@ export const NPC_REGISTRY = [
                         categories: [PLACE_TAGS.crime],
                     },
                     respectOpeningHours: false,
-                    probability: 0.3, //TODO: make sure all rules respect probability
+                    probability: 0.3, //TODO: make sure all rules respect probability if they dont already
                 },
 
                 // 9) Extra secret crime drop-ins: low-probability, high-noise.

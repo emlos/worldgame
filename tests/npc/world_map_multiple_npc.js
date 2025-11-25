@@ -523,7 +523,7 @@ function updateMapHighlights() {
     if (slot && slot.target && slot.target.type === "travel") {
         const spec = slot.target.spec || {};
         const mode = spec.mode;
-        if (mode === "bus" || (mode === "walk" && !spec.microStop)) {
+        if (mode === "bus" || mode === "car" || (mode === "walk" && !spec.microStop)) {
             highlightBusPathForSlot(slot);
         }
     }
@@ -856,12 +856,11 @@ function highlightIntentLocation(npcState, enabled) {
 
 function attachBusHoverHandlers(container) {
     if (!container) return;
-
     if (container._busHoverBound) return;
     container._busHoverBound = true;
 
     container.addEventListener("mouseover", (ev) => {
-        const el = ev.target.closest(".schedule-slot--bus");
+        const el = ev.target.closest(".schedule-slot--bus, .schedule-slot--car"); // ← changed
         if (!el || !container.contains(el)) return;
         clearHighlightedBusPath();
         const pathStr = el.getAttribute("data-bus-path");
@@ -886,7 +885,7 @@ function attachBusHoverHandlers(container) {
     });
 
     container.addEventListener("mouseout", (ev) => {
-        const el = ev.target.closest(".schedule-slot--bus");
+        const el = ev.target.closest(".schedule-slot--bus, .schedule-slot--car"); // ← changed
         if (!el || !container.contains(el)) return;
         clearHighlightedBusPath();
     });
@@ -1031,6 +1030,7 @@ function renderNpcWeekSchedule(npcState) {
 
                     if (mode === "walk") modeLabel = "walking";
                     else if (mode === "bus") modeLabel = "on the bus";
+                    else if (mode === "car") modeLabel = "in the car";
                     else if (mode === "wait") modeLabel = "waiting for bus";
 
                     targetDesc = modeLabel;
@@ -1060,19 +1060,28 @@ function renderNpcWeekSchedule(npcState) {
 
             let extraAttrs = "";
             const spec = slot.target && slot.target.spec;
-            if (slot.target && slot.target.type === "travel" && spec && spec.mode === "bus") {
+
+            if (
+                slot.target &&
+                slot.target.type === "travel" &&
+                spec &&
+                (spec.mode === "bus" || spec.mode === "car")
+            ) {
                 const pathEdges = Array.isArray(spec.pathEdges) ? spec.pathEdges : [];
                 const serialized = pathEdges.map((e) => `${e.fromId}-${e.toId}`).join(",");
-                extraAttrs = ` class="schedule-slot schedule-slot--bus" data-bus-path="${serialized}"`;
+                const modeClass = spec.mode === "bus" ? "schedule-slot--bus" : "schedule-slot--car";
+                extraAttrs = ` class="schedule-slot ${modeClass}" data-bus-path="${serialized}"`;
             } else {
                 extraAttrs = ` class="schedule-slot"`;
             }
 
+            const highlightMode = mode === "bus" || mode === "car";
+
             lines.push(
                 `<div${extraAttrs}>${
-                    mode === "bus" ? `<code class="busline-hover">` : ""
+                    highlightMode ? `<code class="busline-hover">` : ""
                 }${timeStr} – ${targetDesc}${
-                    mode === "bus" ? "</code>" : ""
+                    highlightMode ? "</code>" : ""
                 } <span style="opacity:0.6;">[${sourceId}]</span></div>`
             );
         }

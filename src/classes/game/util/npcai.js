@@ -520,11 +520,17 @@ export class NPCScheduler {
      * Build travel segments between two slots.
      * Returns array of segments, or null on failure.
      */
-    _buildTravelSegmentsBetween(originLocId, destLocId, fromSlot, toSlot, npcUsesBus) {
+    _buildTravelSegmentsBetween(originLocId, destLocId, fromSlot, toSlot, npcUsesBus, npcUsesCar) {
         const arrivalTime = toSlot.from;
         const windowStartHard = fromSlot.from;
 
-        const plan = this._planTravelPath(originLocId, destLocId, arrivalTime, npcUsesBus);
+        const plan = this._planTravelPath(
+            originLocId,
+            destLocId,
+            arrivalTime,
+            npcUsesBus,
+            npcUsesCar
+        );
         if (!plan || !plan.steps || !plan.steps.length) return null;
 
         const maxWindowMinutes = (arrivalTime.getTime() - windowStartHard.getTime()) / 60000;
@@ -651,10 +657,16 @@ export class NPCScheduler {
      * Used when leaving a fixed-rule slot: we keep the fixed block intact and
      * let travel push the next slot later.
      */
-    _buildTravelSegmentsAfter(originLocId, destLocId, fromSlot, npcUsesBus) {
+    _buildTravelSegmentsAfter(originLocId, destLocId, fromSlot, npcUsesBus, npcUsesCar) {
         const departureTime = fromSlot.to;
 
-        const plan = this._planTravelPath(originLocId, destLocId, departureTime, npcUsesBus);
+        const plan = this._planTravelPath(
+            originLocId,
+            destLocId,
+            departureTime,
+            npcUsesBus,
+            npcUsesCar
+        );
         if (!plan || !plan.steps || !plan.steps.length) return null;
 
         const segments = [];
@@ -743,6 +755,7 @@ export class NPCScheduler {
         if (!slots || !slots.length) return [];
 
         const npcUsesBus = !!npc.meta?.scheduleTemplate?.useBus;
+        const npcUsesCar = !!npc.meta?.scheduleTemplate?.useCar;
 
         const ruleById = new Map();
         for (const rule of rules || []) {
@@ -791,7 +804,8 @@ export class NPCScheduler {
                     curLoc,
                     nextLoc,
                     current,
-                    npcUsesBus
+                    npcUsesBus,
+                    npcUsesCar
                 );
             } else {
                 travelSegments = this._buildTravelSegmentsBetween(
@@ -799,7 +813,8 @@ export class NPCScheduler {
                     nextLoc,
                     current,
                     next,
-                    npcUsesBus
+                    npcUsesBus,
+                    npcUsesCar
                 );
             }
             if (!travelSegments || !travelSegments.length) continue;
@@ -836,7 +851,7 @@ export class NPCScheduler {
         // Keep everything time-sorted
         out.sort((a, b) => a.from - b.from);
 
-        // Merge consecutive bus segments into a single slot
+        // Merge consecutive bus / car segments into a single slot
         const merged = [];
         for (const slot of out) {
             const prev = merged[merged.length - 1];
@@ -844,14 +859,20 @@ export class NPCScheduler {
             const isTravel = (s) => s && s.target && s.target.type === TargetTypes.travel;
             const modeOf = (s) => (s && s.target && s.target.spec && s.target.spec.mode) || null;
 
-            if (
+            const prevMode = modeOf(prev);
+            const curMode = modeOf(slot);
+
+            // we only merge travel segments that are bus or car,
+            // same mode, and directly adjacent in time
+            const mergeable =
                 prev &&
                 isTravel(prev) &&
                 isTravel(slot) &&
-                modeOf(prev) === "bus" &&
-                modeOf(slot) === "bus" &&
-                prev.to.getTime() === slot.from.getTime()
-            ) {
+                (prevMode === "bus" || prevMode === "car") &&
+                prevMode === curMode &&
+                prev.to.getTime() === slot.from.getTime();
+
+            if (mergeable) {
                 // Merge times and accumulate distance
                 prev.to = slot.to;
                 const prevLen = prev.target.spec.segmentStreetLength || 0;
@@ -1102,7 +1123,7 @@ export class NPCScheduler {
         };
     }
 
-    _planTravelPath(originLocId, destLocId, arrivalTime, npcUsesBus) {
+    _planTravelPath(originLocId, destLocId, arrivalTime, npcUsesBus, npcUsesCar) {
         const basePath = this.world.map.getTravelTotal(originLocId, destLocId);
         if (!basePath || !basePath.edges.length) return null;
 
@@ -1119,8 +1140,37 @@ export class NPCScheduler {
         }));
 
         // If this NPC never uses buses, just walk:
-        if (!npcUsesBus) {
+        if (!npcUsesBus && !npcUsesCar) {
             return { steps: baseSteps, totalMinutes: baseMinutes };
+        }
+
+        // --- Conditions for preferring car ---
+        // "Path length" = number of edges. If 2 or less, always walk.
+        if (npcUsesCar) {
+            if (baseEdges.length <= 2) {
+                // short hop -> walk
+                return { steps: baseSteps, totalMinutes: baseMinutes };
+            }
+
+            // Car time multiplier is 50% of the bus travelTimeMult.
+            const busCfg = this._getBusStopConfig();
+            const busMult = busCfg.travelTimeMult || 1;
+            const carMult = busMult * 0.5;
+
+            const carSteps = baseEdges.map((edge) => ({
+                mode: "car",
+                fromId: String(edge.a),
+                toId: String(edge.b),
+                minutes: (edge.minutes || 1) * carMult,
+                distance: edge.distance || 0,
+                streetName: edge.streetName || null,
+            }));
+
+            const carTotal = carSteps.reduce((sum, s) => sum + s.minutes, 0);
+
+            // Car can be used from any location, any time, so if we get here,
+            // just use the car plan.
+            return { steps: carSteps, totalMinutes: carTotal };
         }
 
         // --- Conditions for preferring bus ---
