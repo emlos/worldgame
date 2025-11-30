@@ -40,14 +40,22 @@ function minutesBetween(a, b) {
 
 /**
  * Helper: does a rule apply on a given day (by dayKind + day key)?
+ * Uses:
+ *   - rule.dayKinds: [DayKind.*]
+ *   - rule.daysOfWeek: [DAY_KEYS[*]]  (canonical)
+ *   - rule.candidateDays: legacy alias for daysOfWeek
  */
 function ruleAppliesOnDay(rule, dayInfo, dayKey) {
-    const { dayKinds, daysOfWeek } = rule || {};
-    const kinds = Array.isArray(dayKinds) ? dayKinds : dayKinds ? [dayKinds] : null;
+    if (!rule) return false;
 
+    const { dayKinds } = rule;
+    const kinds = Array.isArray(dayKinds) ? dayKinds : dayKinds ? [dayKinds] : null;
     if (kinds && kinds.length && !kinds.includes(dayInfo.kind)) return false;
 
-    const dows = Array.isArray(daysOfWeek) ? daysOfWeek : daysOfWeek ? [daysOfWeek] : null;
+    const dows =
+        (Array.isArray(rule.daysOfWeek) && rule.daysOfWeek.length && rule.daysOfWeek) ||
+        (Array.isArray(rule.candidateDays) && rule.candidateDays.length && rule.candidateDays) ||
+        null;
 
     if (dows && dows.length && !dows.includes(dayKey)) return false;
 
@@ -71,6 +79,26 @@ function makeWindowRange(baseDate, time) {
     }
     return { start, end };
 }
+
+/**
+ * A VisitIntent is "I want to be at this place in this time window
+ * for somewhere between [minStay, maxStay] minutes", but without
+ * an exact concrete start time yet.
+ *
+ * {
+ *   id: string,
+ *   npcId: string,
+ *   ruleId: string|null,
+ *   ruleType: SCHEDULE_RULES.*,
+ *   priority: number,
+ *   windowStart: Date,
+ *   windowEnd: Date,
+ *   minStay: number, // minutes
+ *   maxStay: number, // minutes
+ *   location: Location,
+ *   place: Place|null,
+ * }
+ */
 
 export class NPCScheduler {
     /**
@@ -111,7 +139,6 @@ export class NPCScheduler {
             slots,
         });
 
-        console.log(slots);
         return slots;
     }
 
@@ -134,7 +161,6 @@ export class NPCScheduler {
         const origin = new Date(fromDate.getTime());
         const limit = new Date(origin.getTime() + (Number(nextMinutes) || 0) * MS_PER_MINUTE);
 
-        // For now, use the week starting at the day of "origin"
         const weekStart = normalizeMidnight(origin);
         const slots = this.getWeekSchedule(npc, weekStart);
 
@@ -166,9 +192,33 @@ export class NPCScheduler {
 
         const weekStartMs = weekStart.getTime();
         const weekEndMs = weekStartMs + 7 * MS_PER_DAY;
-        const proposed = [];
 
-        // --- Generate from home/fixed/random/daily rules on a per-day basis ---
+        // 1) Generate intents for the whole week (no exact times yet)
+        const intents = this._generateIntentsForWeek(npc, weekStart, rules);
+
+        // 2) Build a continuous week-long timeline from intents,
+        //    sequentially, filling gaps with home/idle.
+        const slots = this._buildWeekTimelineFromIntents(
+            npc,
+            intents,
+            weekStart,
+            new Date(weekEndMs)
+        );
+
+        return slots;
+    }
+
+    // ---------------------------------------------------------------------
+    // INTENT GENERATION
+    // ---------------------------------------------------------------------
+
+    _generateIntentsForWeek(npc, weekStart, rules) {
+        const npcId = String(npc.id || npc.key || npc.name);
+        const intents = [];
+
+        const weekStartMs = weekStart.getTime();
+
+        // First pass: per-day rules (home, fixed, random, daily)
         for (let dayOffset = 0; dayOffset < 7; dayOffset++) {
             const dayDate = new Date(weekStartMs + dayOffset * MS_PER_DAY);
             const dayInfo = this.world.getDayInfo(dayDate);
@@ -178,57 +228,55 @@ export class NPCScheduler {
             for (const rule of rules) {
                 if (!rule || !rule.type) continue;
 
-                // weekly rules handled separately
+                // weekly handled separately in second pass
                 if (rule.type === SCHEDULE_RULES.weekly) continue;
 
-                // Day filters (home ignores them by design)
-                if (!ruleAppliesOnDay(rule, dayInfo, dayKey) && rule.type !== SCHEDULE_RULES.home) {
+                // Home ignores day filters by design
+                if (rule.type !== SCHEDULE_RULES.home && !ruleAppliesOnDay(rule, dayInfo, dayKey)) {
                     continue;
                 }
 
                 // Probability gating: per day, per rule
-                if (!this._rulePassesProbability(rule)) {
-                    continue;
-                }
+                if (!this._rulePassesProbability(rule)) continue;
 
                 switch (rule.type) {
                     case SCHEDULE_RULES.home:
-                        this._generateHomeSlotsForDay({
+                        this._generateHomeIntentsForDay({
                             npc,
                             npcId,
                             dayDate,
                             rule,
-                            proposed,
+                            intents,
                         });
                         break;
 
                     case SCHEDULE_RULES.fixed:
-                        this._generateFixedSlotsForDay({
+                        this._generateFixedIntentsForDay({
                             npc,
                             npcId,
                             dayDate,
                             rule,
-                            proposed,
+                            intents,
                         });
                         break;
 
                     case SCHEDULE_RULES.random:
-                        this._generateRandomSlotsForDay({
+                        this._generateRandomIntentsForDay({
                             npc,
                             npcId,
                             dayDate,
                             rule,
-                            proposed,
+                            intents,
                         });
                         break;
 
                     case SCHEDULE_RULES.daily:
-                        this._generateDailySlotsForDay({
+                        this._generateDailyIntentsForDay({
                             npc,
                             npcId,
                             dayDate,
                             rule,
-                            proposed,
+                            intents,
                         });
                         break;
 
@@ -239,29 +287,26 @@ export class NPCScheduler {
             }
         }
 
-        // --- Weekly (once per week) rules ---
+        // Second pass: weekly rules (once per week)
         for (const rule of rules) {
             if (!rule || rule.type !== SCHEDULE_RULES.weekly) continue;
 
             // Probability gating: once per week
             if (!this._rulePassesProbability(rule)) continue;
 
-            this._generateWeeklySlotsForWeek({
+            this._generateWeeklyIntentsForWeek({
                 npc,
                 npcId,
                 weekStart,
                 rule,
-                proposed,
+                intents,
             });
         }
 
-        // --- Merge & resolve overlaps via priority ---
-        const merged = this._mergeSlotsByPriority(proposed, weekStart, weekEndMs);
-
-        return merged;
+        return intents;
     }
 
-    _generateHomeSlotsForDay({ npc, npcId, dayDate, rule, proposed }) {
+    _generateHomeIntentsForDay({ npc, npcId, dayDate, rule, intents }) {
         const timeBlocks = Array.isArray(rule.timeBlocks) ? rule.timeBlocks : [];
         if (!timeBlocks.length) return;
         const homeLocation = this._getHomeLocation(npc);
@@ -275,243 +320,142 @@ export class NPCScheduler {
             const toM = parseTimeToMinutes(block.to);
             if (toM <= fromM) continue; // per spec, home rules won't cross midnight
 
-            const from = new Date(dayDate.getTime() + fromM * MS_PER_MINUTE);
-            const to = new Date(dayDate.getTime() + toM * MS_PER_MINUTE);
+            const start = new Date(dayDate.getTime() + fromM * MS_PER_MINUTE);
+            const end = new Date(dayDate.getTime() + toM * MS_PER_MINUTE);
+            const durMinutes = minutesBetween(start, end);
 
-            proposed.push({
+            intents.push({
+                id: `${npcId}:${rule.id || "home"}:${start.toISOString()}`,
                 npcId,
-                from,
-                to,
-                location: homeLocation,
-                locationId: homeLocation.id,
-                place: null,
-                placeId: null,
-                target: homeLocation,
-                sourceRuleId: rule.id || null,
+                ruleId: rule.id || null,
                 ruleType: rule.type,
                 priority,
+                windowStart: start,
+                windowEnd: end,
+                minStay: durMinutes,
+                maxStay: durMinutes,
+                location: homeLocation,
+                place: null,
             });
         }
     }
 
-    _generateFixedSlotsForDay({ npc, npcId, dayDate, rule, proposed }) {
+    _generateFixedIntentsForDay({ npc, npcId, dayDate, rule, intents }) {
         const window = rule.window;
         if (!window || !window.from || !window.to) return;
         const { start, end } = makeWindowRange(dayDate, window);
-        const priority = this._priorityForRule(rule);
+        const durMinutes = minutesBetween(start, end);
+        if (durMinutes <= 0) return;
 
         const locInfo = this._pickLocationFromTargets({
             npc,
-            targets: rule.targets,
+            rule,
             from: start,
             to: end,
-            respectOpeningHours: !!rule.respectOpeningHours,
         });
         if (!locInfo) return;
 
-        proposed.push({
+        const priority = this._priorityForRule(rule);
+
+        intents.push({
+            id: `${npcId}:${rule.id || "fixed"}:${start.toISOString()}`,
             npcId,
-            from: start,
-            to: end,
-            location: locInfo.location,
-            locationId: locInfo.location.id,
-            place: locInfo.place || null,
-            placeId: locInfo.place ? locInfo.place.id : null,
-            target: locInfo.location,
-            sourceRuleId: rule.id || null,
+            ruleId: rule.id || null,
             ruleType: rule.type,
             priority,
+            windowStart: start,
+            windowEnd: end,
+            minStay: durMinutes,
+            maxStay: durMinutes,
+            location: locInfo.location,
+            place: locInfo.place || null,
         });
     }
 
-    _generateRandomSlotsForDay({ npc, npcId, dayDate, rule, proposed }) {
+    _generateDailyIntentsForDay({ npc, npcId, dayDate, rule, intents }) {
         const window = rule.window;
+        if (!window || !window.from || !window.to) return;
+        const { start, end } = makeWindowRange(dayDate, window);
+        const windowMinutes = minutesBetween(start, end);
+        if (windowMinutes <= 0) return;
+
         const stay = rule.stayMinutes || {};
         const minStay = Math.max(1, Number(stay.min) || 30);
         const maxStay = Math.max(minStay, Number(stay.max) || minStay);
-        if (!window || !window.from || !window.to) return;
+        if (windowMinutes < minStay) return;
 
-        const { start: windowStart, end: windowEnd } = makeWindowRange(dayDate, window);
-        const totalWindowMinutes = minutesBetween(windowStart, windowEnd);
-        if (totalWindowMinutes <= 0) return;
+        const locInfo = this._pickLocationFromTargets({
+            npc,
+            rule,
+            from: start,
+            to: end,
+        });
+        if (!locInfo) return;
 
         const priority = this._priorityForRule(rule);
 
-        let cursor = new Date(windowStart.getTime());
-        let lastLocInfo = null;
+        intents.push({
+            id: `${npcId}:${rule.id || "daily"}:${start.toISOString()}`,
+            npcId,
+            ruleId: rule.id || null,
+            ruleType: rule.type,
+            priority,
+            windowStart: start,
+            windowEnd: end,
+            minStay,
+            maxStay,
+            location: locInfo.location,
+            place: locInfo.place || null,
+        });
+    }
 
-        // Fill the entire window [windowStart, windowEnd) with back-to-back slots
-        while (cursor < windowEnd) {
-            const remaining = Math.floor(minutesBetween(cursor, windowEnd));
-            if (remaining <= 0) break;
+    _generateRandomIntentsForDay({ npc, npcId, dayDate, rule, intents }) {
+        const window = rule.window;
+        if (!window || !window.from || !window.to) return;
+        const { start, end } = makeWindowRange(dayDate, window);
+        const windowMinutes = minutesBetween(start, end);
+        if (windowMinutes <= 0) return;
 
-            // For the last chunk, we allow it to be shorter than minStay
-            const minForThis = Math.min(minStay, remaining);
-            const maxForThis = Math.min(maxStay, remaining);
+        const stay = rule.stayMinutes || {};
+        const minStay = Math.max(1, Number(stay.min) || 30);
+        const maxStay = Math.max(minStay, Number(stay.max) || minStay);
 
-            const span = minForThis + Math.floor(this.rnd() * (maxForThis - minForThis + 1));
-            const slotEnd = new Date(cursor.getTime() + span * MS_PER_MINUTE);
+        if (windowMinutes < minStay) return;
 
-            const locInfo = this._pickLocationForRandomRule({
+        const priority = this._priorityForRule(rule);
+
+        // Decide how many visits this random rule *intends* per day.
+        // Heuristic: try to roughly fill the window with a handful of visits.
+        const avgStay = (minStay + maxStay) / 2;
+        let count = Math.floor(windowMinutes / avgStay);
+        if (count < 1) count = 1;
+
+        for (let i = 0; i < count; i++) {
+            const locInfo = this._pickLocationFromTargets({
                 npc,
                 rule,
-                from: cursor,
-                to: slotEnd,
-                previousLocInfo: lastLocInfo,
+                from: start,
+                to: end,
             });
+            if (!locInfo) continue;
 
-            // Extremely defensive: if we REALLY can't find anything, bail out to avoid infinite loop.
-            if (!locInfo) break;
-
-            const location = locInfo.location;
-            const place = locInfo.place || null;
-
-            proposed.push({
+            intents.push({
+                id: `${npcId}:${rule.id || "random"}:${start.toISOString()}:${i}`,
                 npcId,
-                from: cursor,
-                to: slotEnd,
-                location,
-                locationId: location.id,
-                place,
-                placeId: place ? place.id : null,
-                target: location,
-                sourceRuleId: rule.id || null,
+                ruleId: rule.id || null,
                 ruleType: rule.type,
                 priority,
+                windowStart: start,
+                windowEnd: end,
+                minStay,
+                maxStay,
+                location: locInfo.location,
+                place: locInfo.place || null,
             });
-
-            lastLocInfo = locInfo;
-            cursor = slotEnd;
         }
     }
 
-    _generateDailySlotsForDay({ npc, npcId, dayDate, rule, proposed }) {
-        const stay = rule.stayMinutes || {};
-        const minStay = Math.max(1, Number(stay.min) || 30);
-        const maxStay = Math.max(minStay, Number(stay.max) || minStay);
-
-        const window = rule.window;
-        if (!window || !window.from || !window.to) return;
-
-        const { start: windowStart, end: windowEnd } = makeWindowRange(dayDate, window);
-        const windowMinutes = minutesBetween(windowStart, windowEnd);
-        if (windowMinutes <= minStay) return;
-
-        const maxDur = Math.min(maxStay, windowMinutes);
-        const duration = minStay + Math.floor(this.rnd() * (maxDur - minStay + 1));
-
-        const latestStartOffset = windowMinutes - duration;
-        const startOffset =
-            latestStartOffset > 0 ? Math.floor(this.rnd() * (latestStartOffset + 1)) : 0;
-
-        const from = new Date(windowStart.getTime() + startOffset * MS_PER_MINUTE);
-        const to = new Date(from.getTime() + duration * MS_PER_MINUTE);
-
-        const locInfo = this._pickLocationFromTargets({
-            npc,
-            targets: rule.targets,
-            from,
-            to,
-            respectOpeningHours: !!rule.respectOpeningHours,
-        });
-        if (!locInfo) return;
-
-        const priority = this._priorityForRule(rule);
-
-        proposed.push({
-            npcId,
-            from,
-            to,
-            location: locInfo.location,
-            locationId: locInfo.location.id,
-            place: locInfo.place || null,
-            placeId: locInfo.place ? locInfo.place.id : null,
-            target: locInfo.location,
-            sourceRuleId: rule.id || null,
-            ruleType: rule.type,
-            priority,
-        });
-    }
-
-    /**
-     * For random rules: pick a valid location for [from,to) by
-     * expanding ALL targets into their concrete candidate places,
-     * then choosing one uniformly from that combined list.
-     *
-     * This means:
-     *   - "home" contributes 1 option
-     *   - a category with 10 matching places contributes 10 options
-     * So "go out" naturally wins over "stay home" if there are many places.
-     */
-    _pickLocationForRandomRule({ npc, rule, from, to, previousLocInfo }) {
-        const targets = Array.isArray(rule.targets) ? rule.targets : [];
-        return this._pickLocationFromTargets({
-            npc,
-            targets,
-            from,
-            to,
-            respectOpeningHours: !!rule.respectOpeningHours,
-            previousLocInfo,
-        });
-    }
-
-    /**
-     * Shared helper for random/fixed/daily/weekly: pick one location from a list of targets.
-     * Uses the same “flatten all candidates, then pick” behaviour as random rules.
-     */
-    _pickLocationFromTargets({ npc, targets, from, to, respectOpeningHours, previousLocInfo }) {
-        const list = Array.isArray(targets) ? targets : [];
-        let allCandidates = [];
-
-        for (const target of list) {
-            const candidatesForTarget = this._collectCandidatesForTarget({
-                npc,
-                target,
-                from,
-                to,
-                respectOpeningHours,
-            });
-            if (candidatesForTarget && candidatesForTarget.length) {
-                allCandidates = allCandidates.concat(candidatesForTarget);
-            }
-        }
-
-        // If we have any candidates at all, pick one uniformly
-        if (allCandidates.length) {
-            const idx = (this.rnd() * allCandidates.length) | 0;
-            const chosen = allCandidates[idx];
-            return {
-                location: chosen.location,
-                place: chosen.place || null,
-            };
-        }
-
-        // --- Fallbacks if *nothing* is open / available ---
-
-        // 1. Home
-        const homeLoc = this._getHomeLocation(npc);
-        if (homeLoc) {
-            return { location: homeLoc, place: null };
-        }
-
-        // 2. Previous location in this window (mostly useful for random rules)
-        if (previousLocInfo && previousLocInfo.location) {
-            return previousLocInfo;
-        }
-
-        // 3. Any location on the map (last resort)
-        if (this.world && this.world.locations && this.world.locations.size) {
-            const first = this.world.locations.values().next().value;
-            if (first) {
-                return { location: first, place: null };
-            }
-        }
-
-        // Truly nothing
-        return null;
-    }
-
-    _generateWeeklySlotsForWeek({ npc, npcId, weekStart, rule, proposed }) {
+    _generateWeeklyIntentsForWeek({ npc, npcId, weekStart, rule, intents }) {
         const stay = rule.stayMinutes || {};
         const minStay = Math.max(1, Number(stay.min) || 30);
         const maxStay = Math.max(minStay, Number(stay.max) || minStay);
@@ -533,44 +477,202 @@ export class NPCScheduler {
 
         const window = rule.window;
         if (!window || !window.from || !window.to) return;
-        const { start: windowStart, end: windowEnd } = makeWindowRange(dayDate, window);
-        const windowMinutes = minutesBetween(windowStart, windowEnd);
-        if (windowMinutes <= minStay) return;
-
-        const maxDur = Math.min(maxStay, windowMinutes);
-        const duration = minStay + Math.floor(this.rnd() * (maxDur - minStay + 1));
-        const latestStartOffset = windowMinutes - duration;
-        const startOffset =
-            latestStartOffset > 0 ? Math.floor(this.rnd() * (latestStartOffset + 1)) : 0;
-
-        const from = new Date(windowStart.getTime() + startOffset * MS_PER_MINUTE);
-        const to = new Date(from.getTime() + duration * MS_PER_MINUTE);
+        const { start, end } = makeWindowRange(dayDate, window);
+        const windowMinutes = minutesBetween(start, end);
+        if (windowMinutes <= 0 || windowMinutes < minStay) return;
 
         const locInfo = this._pickLocationFromTargets({
             npc,
-            targets: rule.targets,
-            from,
-            to,
-            respectOpeningHours: !!rule.respectOpeningHours,
+            rule,
+            from: start,
+            to: end,
         });
         if (!locInfo) return;
 
         const priority = this._priorityForRule(rule);
 
-        proposed.push({
+        intents.push({
+            id: `${npcId}:${rule.id || "weekly"}:${start.toISOString()}`,
             npcId,
-            from,
-            to,
-            location: locInfo.location,
-            locationId: locInfo.location.id,
-            place: locInfo.place || null,
-            placeId: locInfo.place ? locInfo.place.id : null,
-            target: locInfo.location,
-            sourceRuleId: rule.id || null,
+            ruleId: rule.id || null,
             ruleType: rule.type,
             priority,
+            windowStart: start,
+            windowEnd: end,
+            minStay,
+            maxStay,
+            location: locInfo.location,
+            place: locInfo.place || null,
         });
     }
+
+    // ---------------------------------------------------------------------
+    // TIMELINE BUILDING (NO TRAVEL YET)
+    // ---------------------------------------------------------------------
+
+    /**
+     * Build a continuous, non-overlapping week timeline from visit intents.
+     * Currently:
+     *   - Travel time is assumed 0 minutes (TODO: integrate map + bus later).
+     *   - Any gap is filled with "home" (or "stay at current location" if no home).
+     *   - Intents that cannot fit their minStay in their window at the time
+     *     they're considered are skipped (not truncated).
+     */
+    _buildWeekTimelineFromIntents(npc, intents, weekStart, weekEnd) {
+        const npcId = String(npc.id || npc.key || npc.name);
+        const weekStartMs = weekStart.getTime();
+        const weekEndMs = weekEnd.getTime();
+
+        const homeLocation = this._getHomeLocation(npc);
+        const slots = [];
+
+        // Copy intents so we can mutate
+        const remaining = intents.slice();
+
+        // Helper: simple comparator: earlier windowStart, then higher priority
+        remaining.sort((a, b) => {
+            if (a.windowStart.getTime() !== b.windowStart.getTime()) {
+                return a.windowStart - b.windowStart;
+            }
+            if (a.priority !== b.priority) {
+                return b.priority - a.priority; // higher priority first
+            }
+            return (a.ruleId || "").localeCompare(b.ruleId || "");
+        });
+
+        let cursor = new Date(weekStartMs);
+        let currentLocation = homeLocation || null;
+
+        const clampToWeek = (d) =>
+            new Date(Math.min(Math.max(d.getTime(), weekStartMs), weekEndMs));
+
+        const pushSlot = (from, to, location, place, sourceRuleId, ruleType) => {
+            if (to <= from) return;
+            slots.push({
+                npcId,
+                from,
+                to,
+                target: location,
+                location,
+                locationId: location ? location.id : null,
+                place: place || null,
+                placeId: place ? place.id : null,
+                sourceRuleId: sourceRuleId || null,
+                ruleType: ruleType || null,
+            });
+        };
+
+        // Fill gaps with home (or "stay where you are")
+        const fillGapWithHome = (from, to) => {
+            if (to <= from) return;
+            const loc = homeLocation || currentLocation;
+            if (!loc) return;
+            pushSlot(from, to, loc, null, "auto_home_gap_fill", SCHEDULE_RULES.home);
+            currentLocation = loc;
+        };
+
+        while (cursor < weekEnd) {
+            // Try to find the best intent we can schedule starting at or after `cursor`
+            let best = null;
+            let bestAvailableStart = null;
+
+            for (const intent of remaining) {
+                const winStart = intent.windowStart;
+                const winEnd = intent.windowEnd;
+
+                if (winEnd <= cursor) continue; // window already passed
+                if (winStart >= weekEnd) continue;
+
+                const earliest = cursor > winStart ? cursor : winStart;
+
+                // Can we fit at least minStay inside [earliest, winEnd]?
+                if (earliest.getTime() + intent.minStay * MS_PER_MINUTE > winEnd.getTime()) {
+                    continue;
+                }
+
+                if (!best) {
+                    best = intent;
+                    bestAvailableStart = earliest;
+                } else {
+                    // Prefer earlier availableStart; tie-break by higher priority
+                    if (earliest < bestAvailableStart) {
+                        best = intent;
+                        bestAvailableStart = earliest;
+                    } else if (earliest.getTime() === bestAvailableStart.getTime()) {
+                        if (intent.priority > best.priority) {
+                            best = intent;
+                            bestAvailableStart = earliest;
+                        }
+                    }
+                }
+            }
+
+            if (!best) {
+                // No more schedulable intents; fill the rest with home and stop
+                if (cursor < weekEnd) {
+                    fillGapWithHome(cursor, weekEnd);
+                }
+                break;
+            }
+
+            // If there's a gap before this intent's earliest start, fill with home
+            if (bestAvailableStart > cursor) {
+                const gapEnd = clampToWeek(bestAvailableStart);
+                fillGapWithHome(cursor, gapEnd);
+                cursor = gapEnd;
+                if (cursor >= weekEnd) break;
+            }
+
+            // At this point, cursor == bestAvailableStart (or very close)
+            const winEnd = best.windowEnd;
+
+            // TODO: integrate travel time here later. For now, 0 minutes.
+            // Example later:
+            // const travelMinutes = this._computeTravelMinutes(currentLocation, best.location, cursor);
+            // const arrival = new Date(cursor.getTime() + travelMinutes * MS_PER_MINUTE);
+            const arrival = new Date(cursor.getTime());
+
+            // Check again with arrival in case travel pushes us
+            if (arrival.getTime() + best.minStay * MS_PER_MINUTE > winEnd.getTime()) {
+                // Can't fit this intent; drop it and continue
+                const idx = remaining.indexOf(best);
+                if (idx >= 0) remaining.splice(idx, 1);
+                continue;
+            }
+
+            // Determine stay duration
+            const maxPossibleStay = Math.min(best.maxStay, minutesBetween(arrival, winEnd));
+            if (maxPossibleStay < best.minStay) {
+                // Shouldn't happen given earlier checks, but be safe
+                const idx = remaining.indexOf(best);
+                if (idx >= 0) remaining.splice(idx, 1);
+                continue;
+            }
+
+            const staySpan =
+                best.minStay + Math.floor(this.rnd() * (maxPossibleStay - best.minStay + 1));
+            const leave = new Date(arrival.getTime() + staySpan * MS_PER_MINUTE);
+
+            const from = clampToWeek(arrival);
+            const to = clampToWeek(leave);
+
+            pushSlot(from, to, best.location, best.place, best.ruleId, best.ruleType);
+            currentLocation = best.location;
+            cursor = to;
+
+            // Remove the intent now that it's consumed
+            const idx = remaining.indexOf(best);
+            if (idx >= 0) remaining.splice(idx, 1);
+        }
+
+        // Ensure sorted by time
+        slots.sort((a, b) => a.from - b.from || a.to - b.to);
+        return slots;
+    }
+
+    // ---------------------------------------------------------------------
+    // RULE PROBABILITY / PRIORITY
+    // ---------------------------------------------------------------------
 
     /**
      * Returns true if this rule should be applied for this "consideration".
@@ -614,12 +716,22 @@ export class NPCScheduler {
         return targets[idx];
     }
 
+    // ---------------------------------------------------------------------
+    // TARGET RESOLUTION (unified targets: type + candidates[])
+    // ---------------------------------------------------------------------
+
     /**
-     * Collect all concrete (location, place) candidates for a given target.
-     * unified target shape:
-     *   - type: "home"
-     *   - type: "placeKey"      + candidates: [key1, key2, ...]
-     *   - type: "placeCategory" + candidates: [PLACE_TAGS.*]
+     * Expand a single target into concrete (location, place) candidates.
+     *
+     * Unified target schema:
+     *   - { type: "home" }
+     *   - { type: "placeKey",      candidates: ["key1","key2", ...], nearest?: true }
+     *   - { type: "placeCategory", candidates: [PLACE_TAGS.*],        nearest?: true }
+     *
+     * Backwards compatibility also supports:
+     *   - target.key / target.keys
+     *   - target.categories
+     *   - type "placeKeys"
      */
     _collectCandidatesForTarget({ npc, target, from, to, respectOpeningHours }) {
         if (!target || !this.world) return [];
@@ -641,23 +753,52 @@ export class NPCScheduler {
 
         const locations = this.world.locations || new Map();
 
-        // unified candidates; small backwards-friendly fallback
-        const candidates = target.candidates;
+        // Unified candidate list
+        const baseCandidates = Array.isArray(target.candidates)
+            ? target.candidates
+            : target.candidates != null
+            ? [target.candidates]
+            : [];
+
+        // Legacy key/category fields
+        const legacyKeys =
+            target.key != null
+                ? [target.key]
+                : Array.isArray(target.keys)
+                ? target.keys
+                : target.keys != null
+                ? [target.keys]
+                : [];
+
+        const legacyCategories = Array.isArray(target.categories)
+            ? target.categories
+            : target.categories != null
+            ? [target.categories]
+            : [];
+
+        let keysList = [];
+        let categoryList = [];
+
+        if (target.type === "placeKey" || target.type === "placeKeys") {
+            keysList = baseCandidates.length ? baseCandidates : legacyKeys;
+        } else if (target.type === "placeCategory") {
+            categoryList = baseCandidates.length ? baseCandidates : legacyCategories;
+        }
 
         const isCandidatePlace = (place) => {
             if (!place) return false;
 
-            if (target.type === "placeKey") {
-                if (!candidates.length) return false;
-                return candidates.includes(place.key);
+            if (target.type === "placeKey" || target.type === "placeKeys") {
+                if (!keysList.length) return false;
+                return keysList.includes(place.key);
             }
 
             if (target.type === "placeCategory") {
-                if (!candidates.length) return false;
+                if (!categoryList.length) return false;
                 const cat = place.props && place.props.category;
                 if (!cat) return false;
                 const cats = Array.isArray(cat) ? cat : [cat];
-                return cats.some((c) => candidates.includes(c));
+                return cats.some((c) => categoryList.includes(c));
             }
 
             return false;
@@ -695,24 +836,47 @@ export class NPCScheduler {
     }
 
     /**
-     * Resolve a single target to a Location/Place.
-     * Kept mainly for potential external uses; internally we prefer _pickLocationFromTargets.
+     * Flatten all rule.targets into concrete candidates and pick one uniformly,
+     * weighted by number of actual options.
      */
-    _pickLocationForTarget({ npc, target, from, to, respectOpeningHours }) {
-        const candidates = this._collectCandidatesForTarget({
-            npc,
-            target,
-            from,
-            to,
-            respectOpeningHours,
-        });
-        if (!candidates.length) return null;
-        const idx = (this.rnd() * candidates.length) | 0;
-        const chosen = candidates[idx];
+    _pickLocationFromTargets({ npc, rule, from, to }) {
+        const targets = Array.isArray(rule.targets) ? rule.targets : [];
+        const respectOpeningHours = !!rule.respectOpeningHours;
+
+        let allCandidates = [];
+        for (const target of targets) {
+            const candidatesForTarget = this._collectCandidatesForTarget({
+                npc,
+                target,
+                from,
+                to,
+                respectOpeningHours,
+            });
+            if (candidatesForTarget && candidatesForTarget.length) {
+                allCandidates = allCandidates.concat(candidatesForTarget);
+            }
+        }
+
+        if (!allCandidates.length) return null;
+
+        const idx = (this.rnd() * allCandidates.length) | 0;
+        const chosen = allCandidates[idx];
         return {
             location: chosen.location,
             place: chosen.place || null,
         };
+    }
+
+    /**
+     * Backwards compat: resolve a single target object using the same logic
+     * as rule.targets.
+     */
+    _pickLocationForTarget({ npc, target, from, to, respectOpeningHours }) {
+        const syntheticRule = {
+            targets: target ? [target] : [],
+            respectOpeningHours: !!respectOpeningHours,
+        };
+        return this._pickLocationFromTargets({ npc, rule: syntheticRule, from, to });
     }
 
     _getHomeLocation(npc) {
@@ -720,102 +884,5 @@ export class NPCScheduler {
         const locId = npc.homeLocationId;
         if (!locId || !this.world || !this.world.locations) return null;
         return this.world.locations.get(String(locId)) || null;
-    }
-
-    /**
-     * Merge overlapping slots by picking the highest-priority rule
-     * for each minute of the week.
-     *
-     * Output slots are normalized to:
-     * {
-     *   npcId,
-     *   from: Date,
-     *   to: Date,
-     *   target: Location,
-     *   location: Location,
-     *   locationId: string,
-     *   place: Place|null,
-     *   placeId: string|null,
-     *   sourceRuleId: string|null,
-     *   ruleType: SCHEDULE_RULES.*
-     * }
-     */
-    _mergeSlotsByPriority(proposed, weekStart, weekEndMs) {
-        if (!proposed.length) return [];
-
-        const startMs = weekStart.getTime();
-        const endMs = weekEndMs;
-        const totalMinutes = Math.max(0, Math.round((endMs - startMs) / MS_PER_MINUTE));
-        const owner = new Array(totalMinutes).fill(-1);
-
-        // normalize & clamp each proposed slot to [weekStart, weekEnd)
-        const normSlots = proposed
-            .map((s, idx) => {
-                const fromMs = Math.max(startMs, s.from.getTime());
-                const toMs = Math.min(endMs, s.to.getTime());
-                return { slot: s, idx, fromMs, toMs };
-            })
-            .filter((x) => x.toMs > x.fromMs);
-
-        // cheap map from idx -> priority for lookups
-        const priorityByIdx = new Map();
-        for (const ns of normSlots) {
-            priorityByIdx.set(ns.idx, ns.slot.priority || 0);
-        }
-
-        for (const { slot, idx, fromMs, toMs } of normSlots) {
-            const startMin = Math.floor((fromMs - startMs) / MS_PER_MINUTE);
-            const endMin = Math.ceil((toMs - startMs) / MS_PER_MINUTE);
-            const pri = typeof slot.priority === "number" ? slot.priority : 0;
-
-            for (let m = startMin; m < endMin && m < totalMinutes; m++) {
-                if (m < 0) continue;
-                const curIdx = owner[m];
-                if (curIdx === -1) {
-                    owner[m] = idx;
-                } else {
-                    const curPri =
-                        priorityByIdx.get(curIdx) != null ? priorityByIdx.get(curIdx) : 0;
-                    if (pri > curPri) owner[m] = idx;
-                }
-            }
-        }
-
-        const result = [];
-        let currentIdx = owner[0];
-        let segmentStartMin = 0;
-
-        const flushSegment = (endMin) => {
-            if (currentIdx == null || currentIdx === -1) return;
-            const base = proposed[currentIdx];
-            const from = new Date(startMs + segmentStartMin * MS_PER_MINUTE);
-            const to = new Date(startMs + endMin * MS_PER_MINUTE);
-            result.push({
-                npcId: base.npcId,
-                from,
-                to,
-                target: base.target,
-                location: base.location,
-                locationId: base.locationId,
-                place: base.place || null,
-                placeId: base.placeId || null,
-                sourceRuleId: base.sourceRuleId || null,
-                ruleType: base.ruleType,
-            });
-        };
-
-        for (let m = 1; m < totalMinutes; m++) {
-            const idxAtM = owner[m];
-            if (idxAtM !== currentIdx) {
-                flushSegment(m);
-                currentIdx = idxAtM;
-                segmentStartMin = m;
-            }
-        }
-        flushSegment(totalMinutes);
-
-        // sort by start time ascending
-        result.sort((a, b) => a.from - b.from || a.to - b.to);
-        return result;
     }
 }
