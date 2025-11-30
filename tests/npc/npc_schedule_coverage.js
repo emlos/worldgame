@@ -106,14 +106,16 @@ function computeCoverageForDay(rules, dayIndex) {
         // Weekly rules: only consider days in candidateDays (if given)
         let prob =
             typeof rule.probability === "number" && rule.probability >= 0 ? rule.probability : 1;
-        console.log(rule?.daysOfWeek?.length)
+        console.log(rule?.daysOfWeek?.length);
         // Weekly rules are only "guaranteed" if there's exactly one possible day.
         // If they can land on multiple days, mark them as probabilistic on each.
         if (
             type === SCHEDULE_RULES.weekly &&
             prob >= 1 &&
             ((Array.isArray(rule.candidateDays) && rule.candidateDays.length > 1) ||
-                (Array.isArray(rule.daysOfWeek) && rule.daysOfWeek.length > 1 && rule.daysOfWeek.length > 7) ||
+                (Array.isArray(rule.daysOfWeek) &&
+                    rule.daysOfWeek.length > 1 &&
+                    rule.daysOfWeek.length > 7) ||
                 (Array.isArray(rule.dayKinds) && rule.dayKinds.length > 1))
         ) {
             // any value < 1 flips it into the probabilistic bucket for markInterval()
@@ -167,6 +169,20 @@ function computeCoverageForDay(rules, dayIndex) {
                     rule.time.from,
                     rule.time.to,
                     prob
+                );
+            }
+        } else if (type === SCHEDULE_RULES.daily) {
+            
+            // Daily rules: the *whole* window is only probabilistically covered, because the actual slot happens once somewhere inside it.
+            if (rule.time) {
+                addTimeRangeCoverage(
+                    detCovered,
+                    probCovered,
+                    minuteRules,
+                    ruleId,
+                    rule.time.from,
+                    rule.time.to,
+                    0.5 // any value between 0 and 1 → marks as probabilistic (yellow)
                 );
             }
         }

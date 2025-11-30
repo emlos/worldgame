@@ -618,23 +618,38 @@ export class NPCScheduler {
         }
 
         const locations = this.world.locations || new Map();
+
         const categories = Array.isArray(target.categories)
             ? target.categories
             : target.categories
             ? [target.categories]
             : [];
 
+        const keysList = Array.isArray(target.keys)
+            ? target.keys
+            : target.keys
+            ? [target.keys]
+            : [];
+
         const isCandidatePlace = (place) => {
             if (!place) return false;
+
             if (target.type === "placeKey") {
                 return place.key === target.key;
             }
+
+            if (target.type === "placeKeys") {
+                if (!keysList.length) return false;
+                return keysList.includes(place.key);
+            }
+
             if (target.type === "placeCategory") {
                 const cat = place.props && place.props.category;
                 if (!cat) return false;
                 const cats = Array.isArray(cat) ? cat : [cat];
                 return categories.some((c) => cats.includes(c));
             }
+
             return false;
         };
 

@@ -249,7 +249,7 @@ export const NPC_REGISTRY = [
                                 PLACE_TAGS.nightlife,
                                 PLACE_TAGS.culture,
                                 PLACE_TAGS.industry,
-                                PLACE_TAGS.safety
+                                PLACE_TAGS.safety,
                             ],
                         },
                     ],
@@ -338,8 +338,6 @@ export const NPC_REGISTRY = [
                 //     respectOpeningHours: false,
                 //     probability: 0.05,
                 // },
-
-
             ],
         },
     },
@@ -820,7 +818,7 @@ export const NPC_REGISTRY = [
                         { type: "placeKey", key: "hotel_cafe" }, // optional: your world place
                         {
                             type: "placeCategory",
-                            categories: [PLACE_TAGS.food],
+                            categories: [PLACE_TAGS.food, PLACE_TAGS.leisure, PLACE_TAGS.commerce],
                         },
                     ],
                     respectOpeningHours: true,
@@ -951,6 +949,26 @@ export const NPC_REGISTRY = [
                     type: SCHEDULE_RULES.home,
                     timeBlocks: [{ from: "03:00", to: "10:00" }],
                 },
+                // 1b) morning routine
+                {
+                    id: "vincent_morning_routine_workday",
+                    type: SCHEDULE_RULES.random,
+                    dayKinds: [DayKind.WORKDAY],
+                    window: { from: "9:00", to: "11:00" },
+                    stayMinutes: { min: 30, max: 90 },
+                    targets: [
+                        { type: "placeKeys", key: ["gym", "office_tower", "bank"] }, //
+                        {
+                            type: "placeCategory",
+                            categories: [
+                                PLACE_TAGS.civic, // spa, pool, etc.
+                                PLACE_TAGS.food, // grooming salons
+                            ],
+                        },
+                        { type: "home" },
+                    ],
+                    respectOpeningHours: true,
+                },
 
                 // 2) Workdays: office hours in corporate tower, 11:00–18:00
                 {
@@ -972,21 +990,41 @@ export const NPC_REGISTRY = [
                     },
                 },
 
-                // 2a) Investor / client meetings during workday, overlapping with office
+                {
+                    id: "vincent_office_hours_weekend",
+                    type: SCHEDULE_RULES.fixed,
+                    daysOfWeek: [
+                        DAY_KEYS[6], // sat
+                    ],
+                    time: { from: "11:00", to: "15:00" },
+                    target: {
+                        type: "placeKey",
+                        key: "office_block",
+                        nearest: true,
+                    },
+                },
+
+                // 2a) Investor / client meetings during workday, overlapping with office, once per day
                 {
                     id: "vincent_investor_meetings",
-                    type: SCHEDULE_RULES.random,
+                    type: SCHEDULE_RULES.daily,
                     dayKinds: [DayKind.WORKDAY],
-                    window: { from: "11:00", to: "16:00" },
-                    stayMinutes: { min: 30, max: 120 },
+                    time: { from: "11:00", to: "16:00" },
+                    stayMinutes: { min: 60, max: 120 },
                     targets: [
                         {
                             type: "placeCategory",
                             categories: [PLACE_TAGS.commerce, PLACE_TAGS.service, PLACE_TAGS.crime], // offices, private clubs, hotels
                         },
                         {
-                            // type: "placeKeys", //TODO allow for picking from multiple specific places
-                            // keys: ["art_gallery", "restaurant", "town_square", /*"luxury_hotel"*/, "bank"],
+                            type: "placeKeys",
+                            keys: [
+                                "art_gallery",
+                                "restaurant",
+                                "town_square" /*"luxury_hotel"*/,
+                                ,
+                                "bank",
+                            ],
                         },
                     ],
                     respectOpeningHours: true,
@@ -997,9 +1035,9 @@ export const NPC_REGISTRY = [
                 //    Expensive restaurants / upscale cafés.
                 {
                     id: "vincent_long_lunch",
-                    type: SCHEDULE_RULES.random,
+                    type: SCHEDULE_RULES.daily,
                     dayKinds: [DayKind.WORKDAY],
-                    window: { from: "13:00", to: "15:00" },
+                    time: { from: "13:00", to: "14:30" },
                     stayMinutes: { min: 30, max: 90 },
                     targets: [
                         {
@@ -1057,7 +1095,6 @@ export const NPC_REGISTRY = [
                         { type: "home", stay: true }, // sometimes retreats to penthouse
                     ],
                     respectOpeningHours: true,
-                    probability: 0.75,
                 },
 
                 // 6) Weekend / day-off daytime: brunch, shopping, culture.

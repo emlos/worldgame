@@ -1,9 +1,9 @@
 export const SCHEDULE_RULES = {
     home: "daily_home_block",
-    fixed: "fixed_activity",
-    random: "random_visits",
-    weekly: "weekly_once",
-    daily: "daily_once",
+    fixed: "same_every_day",
+    random: "multiple_per_day",
+    weekly: "once_per_week",
+    daily: "once_per_day",
     follow: "follow_target",
 };
 
