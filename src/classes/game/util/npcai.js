@@ -42,15 +42,12 @@ function minutesBetween(a, b) {
  * Helper: does a rule apply on a given day (by dayKind + day key)?
  */
 function ruleAppliesOnDay(rule, dayInfo, dayKey) {
-    const { dayKinds, daysOfWeek, candidateDays } = rule || {};
+    const { dayKinds, daysOfWeek } = rule || {};
     const kinds = Array.isArray(dayKinds) ? dayKinds : dayKinds ? [dayKinds] : null;
 
     if (kinds && kinds.length && !kinds.includes(dayInfo.kind)) return false;
 
-    const dows =
-        (Array.isArray(candidateDays) && candidateDays.length && candidateDays) ||
-        (Array.isArray(daysOfWeek) && daysOfWeek.length && daysOfWeek) ||
-        null;
+    const dows = Array.isArray(daysOfWeek) ? daysOfWeek : daysOfWeek ? [daysOfWeek] : null;
 
     if (dows && dows.length && !dows.includes(dayKey)) return false;
 
@@ -171,7 +168,7 @@ export class NPCScheduler {
         const weekEndMs = weekStartMs + 7 * MS_PER_DAY;
         const proposed = [];
 
-        // --- Generate from home/fixed/random rules on a per-day basis ---
+        // --- Generate from home/fixed/random/daily rules on a per-day basis ---
         for (let dayOffset = 0; dayOffset < 7; dayOffset++) {
             const dayDate = new Date(weekStartMs + dayOffset * MS_PER_DAY);
             const dayInfo = this.world.getDayInfo(dayDate);
@@ -298,14 +295,14 @@ export class NPCScheduler {
     }
 
     _generateFixedSlotsForDay({ npc, npcId, dayDate, rule, proposed }) {
-        const time = rule.time;
-        if (!time || !time.from || !time.to) return;
-        const { start, end } = makeWindowRange(dayDate, time);
+        const window = rule.window;
+        if (!window || !window.from || !window.to) return;
+        const { start, end } = makeWindowRange(dayDate, window);
         const priority = this._priorityForRule(rule);
 
-        const locInfo = this._pickLocationForTarget({
+        const locInfo = this._pickLocationFromTargets({
             npc,
-            target: rule.target,
+            targets: rule.targets,
             from: start,
             to: end,
             respectOpeningHours: !!rule.respectOpeningHours,
@@ -393,9 +390,10 @@ export class NPCScheduler {
         const minStay = Math.max(1, Number(stay.min) || 30);
         const maxStay = Math.max(minStay, Number(stay.max) || minStay);
 
-        if (!rule.time || !rule.time.from || !rule.time.to) return;
+        const window = rule.window;
+        if (!window || !window.from || !window.to) return;
 
-        const { start: windowStart, end: windowEnd } = makeWindowRange(dayDate, rule.time);
+        const { start: windowStart, end: windowEnd } = makeWindowRange(dayDate, window);
         const windowMinutes = minutesBetween(windowStart, windowEnd);
         if (windowMinutes <= minStay) return;
 
@@ -409,9 +407,9 @@ export class NPCScheduler {
         const from = new Date(windowStart.getTime() + startOffset * MS_PER_MINUTE);
         const to = new Date(from.getTime() + duration * MS_PER_MINUTE);
 
-        const locInfo = this._pickLocationForTarget({
+        const locInfo = this._pickLocationFromTargets({
             npc,
-            target: rule.target,
+            targets: rule.targets,
             from,
             to,
             respectOpeningHours: !!rule.respectOpeningHours,
@@ -447,10 +445,25 @@ export class NPCScheduler {
      */
     _pickLocationForRandomRule({ npc, rule, from, to, previousLocInfo }) {
         const targets = Array.isArray(rule.targets) ? rule.targets : [];
-        const respectOpeningHours = !!rule.respectOpeningHours;
+        return this._pickLocationFromTargets({
+            npc,
+            targets,
+            from,
+            to,
+            respectOpeningHours: !!rule.respectOpeningHours,
+            previousLocInfo,
+        });
+    }
 
+    /**
+     * Shared helper for random/fixed/daily/weekly: pick one location from a list of targets.
+     * Uses the same “flatten all candidates, then pick” behaviour as random rules.
+     */
+    _pickLocationFromTargets({ npc, targets, from, to, respectOpeningHours, previousLocInfo }) {
+        const list = Array.isArray(targets) ? targets : [];
         let allCandidates = [];
-        for (const target of targets) {
+
+        for (const target of list) {
             const candidatesForTarget = this._collectCandidatesForTarget({
                 npc,
                 target,
@@ -481,7 +494,7 @@ export class NPCScheduler {
             return { location: homeLoc, place: null };
         }
 
-        // 2. Previous location in this window
+        // 2. Previous location in this window (mostly useful for random rules)
         if (previousLocInfo && previousLocInfo.location) {
             return previousLocInfo;
         }
@@ -517,8 +530,10 @@ export class NPCScheduler {
         if (!candidates.length) return;
 
         const dayDate = candidates[(this.rnd() * candidates.length) | 0];
-        if (!rule.time || !rule.time.from || !rule.time.to) return;
-        const { start: windowStart, end: windowEnd } = makeWindowRange(dayDate, rule.time);
+
+        const window = rule.window;
+        if (!window || !window.from || !window.to) return;
+        const { start: windowStart, end: windowEnd } = makeWindowRange(dayDate, window);
         const windowMinutes = minutesBetween(windowStart, windowEnd);
         if (windowMinutes <= minStay) return;
 
@@ -531,9 +546,9 @@ export class NPCScheduler {
         const from = new Date(windowStart.getTime() + startOffset * MS_PER_MINUTE);
         const to = new Date(from.getTime() + duration * MS_PER_MINUTE);
 
-        const locInfo = this._pickLocationForTarget({
+        const locInfo = this._pickLocationFromTargets({
             npc,
-            target: rule.target,
+            targets: rule.targets,
             from,
             to,
             respectOpeningHours: !!rule.respectOpeningHours,
@@ -599,6 +614,13 @@ export class NPCScheduler {
         return targets[idx];
     }
 
+    /**
+     * Collect all concrete (location, place) candidates for a given target.
+     * unified target shape:
+     *   - type: "home"
+     *   - type: "placeKey"      + candidates: [key1, key2, ...]
+     *   - type: "placeCategory" + candidates: [PLACE_TAGS.*]
+     */
     _collectCandidatesForTarget({ npc, target, from, to, respectOpeningHours }) {
         if (!target || !this.world) return [];
 
@@ -619,35 +641,23 @@ export class NPCScheduler {
 
         const locations = this.world.locations || new Map();
 
-        const categories = Array.isArray(target.categories)
-            ? target.categories
-            : target.categories
-            ? [target.categories]
-            : [];
-
-        const keysList = Array.isArray(target.keys)
-            ? target.keys
-            : target.keys
-            ? [target.keys]
-            : [];
+        // unified candidates; small backwards-friendly fallback
+        const candidates = target.candidates;
 
         const isCandidatePlace = (place) => {
             if (!place) return false;
 
             if (target.type === "placeKey") {
-                return place.key === target.key;
-            }
-
-            if (target.type === "placeKeys") {
-                if (!keysList.length) return false;
-                return keysList.includes(place.key);
+                if (!candidates.length) return false;
+                return candidates.includes(place.key);
             }
 
             if (target.type === "placeCategory") {
+                if (!candidates.length) return false;
                 const cat = place.props && place.props.category;
                 if (!cat) return false;
                 const cats = Array.isArray(cat) ? cat : [cat];
-                return categories.some((c) => cats.includes(c));
+                return cats.some((c) => candidates.includes(c));
             }
 
             return false;
@@ -685,10 +695,8 @@ export class NPCScheduler {
     }
 
     /**
-     * Resolve a rule target (home, placeKey, placeCategory) to a concrete Location / Place.
-     *
-     * For now, "nearest" is computed relative to the NPC's home location.
-     * (We’re ignoring travel time along the route, as requested.)
+     * Resolve a single target to a Location/Place.
+     * Kept mainly for potential external uses; internally we prefer _pickLocationFromTargets.
      */
     _pickLocationForTarget({ npc, target, from, to, respectOpeningHours }) {
         const candidates = this._collectCandidatesForTarget({

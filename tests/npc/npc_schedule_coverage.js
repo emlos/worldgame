@@ -103,23 +103,34 @@ function computeCoverageForDay(rules, dayIndex) {
             continue;
         }
 
-        // Weekly rules: only consider days in candidateDays (if given)
+        // Base probability (1 = always, <1 = probabilistic)
         let prob =
             typeof rule.probability === "number" && rule.probability >= 0 ? rule.probability : 1;
-        console.log(rule?.daysOfWeek?.length);
-        // Weekly rules are only "guaranteed" if there's exactly one possible day.
-        // If they can land on multiple days, mark them as probabilistic on each.
-        if (
-            type === SCHEDULE_RULES.weekly &&
-            prob >= 1 &&
-            ((Array.isArray(rule.candidateDays) && rule.candidateDays.length > 1) ||
-                (Array.isArray(rule.daysOfWeek) &&
-                    rule.daysOfWeek.length > 1 &&
-                    rule.daysOfWeek.length > 7) ||
-                (Array.isArray(rule.dayKinds) && rule.dayKinds.length > 1))
-        ) {
-            // any value < 1 flips it into the probabilistic bucket for markInterval()
-            prob = 0.5;
+
+        // Weekly rules are only "guaranteed" if there's exactly one possible day in the week
+        if (type === SCHEDULE_RULES.weekly && prob >= 1) {
+            let possibleDays = 0;
+            for (let idx = 0; idx < 7; idx++) {
+                const kind = getDayKindForIndex(idx);
+                const key = Array.isArray(DAY_KEYS) ? DAY_KEYS[idx] : null;
+
+                if (rule.dayKinds && rule.dayKinds.length && !rule.dayKinds.includes(kind)) {
+                    continue;
+                }
+                if (
+                    rule.daysOfWeek &&
+                    rule.daysOfWeek.length &&
+                    key &&
+                    !rule.daysOfWeek.includes(key)
+                ) {
+                    continue;
+                }
+                possibleDays++;
+            }
+            if (possibleDays > 1) {
+                // any value < 1 flips it into the probabilistic bucket for markInterval()
+                prob = 0.5;
+            }
         }
 
         if (type === SCHEDULE_RULES.home) {
@@ -136,14 +147,14 @@ function computeCoverageForDay(rules, dayIndex) {
                 );
             }
         } else if (type === SCHEDULE_RULES.fixed) {
-            if (rule.time) {
+            if (rule.window) {
                 addTimeRangeCoverage(
                     detCovered,
                     probCovered,
                     minuteRules,
                     ruleId,
-                    rule.time.from,
-                    rule.time.to,
+                    rule.window.from,
+                    rule.window.to,
                     prob
                 );
             }
@@ -160,28 +171,28 @@ function computeCoverageForDay(rules, dayIndex) {
                 );
             }
         } else if (type === SCHEDULE_RULES.weekly) {
-            if (rule.time) {
+            if (rule.window) {
                 addTimeRangeCoverage(
                     detCovered,
                     probCovered,
                     minuteRules,
                     ruleId,
-                    rule.time.from,
-                    rule.time.to,
+                    rule.window.from,
+                    rule.window.to,
                     prob
                 );
             }
         } else if (type === SCHEDULE_RULES.daily) {
-            
-            // Daily rules: the *whole* window is only probabilistically covered, because the actual slot happens once somewhere inside it.
-            if (rule.time) {
+            // Daily rules: the *whole* window is only probabilistically covered,
+            // because the actual slot happens once somewhere inside it.
+            if (rule.window) {
                 addTimeRangeCoverage(
                     detCovered,
                     probCovered,
                     minuteRules,
                     ruleId,
-                    rule.time.from,
-                    rule.time.to,
+                    rule.window.from,
+                    rule.window.to,
                     0.5 // any value between 0 and 1 → marks as probabilistic (yellow)
                 );
             }

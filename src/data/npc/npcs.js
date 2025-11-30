@@ -36,12 +36,6 @@ export const NPC_REGISTRY = [
         scheduleTemplate: {
             /**
              * Rules are interpreted by ScheduleManager.
-             *
-             * Supported types:
-             *  - "daily_home_block"  : fixed home-at-time blocks
-             *  - "fixed_activity"    : fixed block on days matching filters
-             *  - "random_visits"     : repeated random stays within a window
-             *  - "weekly_once"       : pick one day in the week for a one-off event
              */
             useBus: true,
             rules: [
@@ -63,14 +57,22 @@ export const NPC_REGISTRY = [
                     type: SCHEDULE_RULES.random,
                     dayKinds: [DayKind.WORKDAY], // uses Calendar DayKind
                     daysOfWeek: [DAY_KEYS[1], DAY_KEYS[2], DAY_KEYS[3], DAY_KEYS[4], DAY_KEYS[5]],
-                    window: { from: "06:00", to: "9:00" },
+                    window: { from: "06:00", to: "09:00" },
                     stayMinutes: { min: 20, max: 120 },
                     targets: [
-                        { type: "placeKey", key: "library" },
-                        { type: "placeKey", key: "high_school", nearest: true, stay: true },
+                        {
+                            type: "placeKey",
+                            candidates: ["library"],
+                        },
+                        {
+                            type: "placeKey",
+                            candidates: ["high_school"],
+                            nearest: true,
+                            stay: true,
+                        },
                         {
                             type: "placeCategory",
-                            categories: [PLACE_TAGS.leisure, PLACE_TAGS.food, PLACE_TAGS.commerce],
+                            candidates: [PLACE_TAGS.leisure, PLACE_TAGS.food, PLACE_TAGS.commerce],
                             nearest: true,
                         },
                     ],
@@ -84,12 +86,14 @@ export const NPC_REGISTRY = [
                     type: SCHEDULE_RULES.fixed,
                     dayKinds: [DayKind.WORKDAY], // uses Calendar DayKind
                     daysOfWeek: [DAY_KEYS[1], DAY_KEYS[2], DAY_KEYS[3], DAY_KEYS[4], DAY_KEYS[5]],
-                    time: { from: "09:00", to: "15:00" },
-                    target: {
-                        type: "placeKey",
-                        key: "high_school",
-                        nearest: true,
-                    },
+                    window: { from: "09:00", to: "15:00" },
+                    targets: [
+                        {
+                            type: "placeKey",
+                            candidates: ["high_school"],
+                            nearest: true,
+                        },
+                    ],
                 },
 
                 // 3) Weekday after-school: from 15:00 to 22:00
@@ -102,11 +106,17 @@ export const NPC_REGISTRY = [
                     window: { from: "15:00", to: "22:00" },
                     stayMinutes: { min: 20, max: 120 },
                     targets: [
-                        { type: "placeKey", key: "library" },
-                        { type: "placeKey", key: "mall" },
+                        {
+                            type: "placeKey",
+                            candidates: ["library"],
+                        },
+                        {
+                            type: "placeKey",
+                            candidates: ["mall"],
+                        },
                         {
                             type: "placeCategory",
-                            categories: [PLACE_TAGS.leisure],
+                            candidates: [PLACE_TAGS.leisure],
                         },
                         {
                             type: "home", // can also choose to stay at home
@@ -115,22 +125,25 @@ export const NPC_REGISTRY = [
                     respectOpeningHours: true,
                 },
 
-                // 4b) mornings on weekends/day off like above
-                // 3) Weekday after-school: from 15:00 to 22:00
-                //    Randomly: library / mall / any leisure place
-                //ALWAYS
+                // 4b) days off: 06:00–22:00
                 {
                     id: "days_off",
                     type: SCHEDULE_RULES.random,
-                    dayKinds: [DayKind.DAY_OFF], // only if it's a work day
+                    dayKinds: [DayKind.DAY_OFF],
                     window: { from: "06:00", to: "22:00" },
                     stayMinutes: { min: 20, max: 160 },
                     targets: [
-                        { type: "placeKey", key: "library" },
-                        { type: "placeKey", key: "mall" },
+                        {
+                            type: "placeKey",
+                            candidates: ["library"],
+                        },
+                        {
+                            type: "placeKey",
+                            candidates: ["mall"],
+                        },
                         {
                             type: "placeCategory",
-                            categories: [
+                            candidates: [
                                 PLACE_TAGS.leisure,
                                 PLACE_TAGS.service,
                                 PLACE_TAGS.civic,
@@ -151,13 +164,15 @@ export const NPC_REGISTRY = [
                 {
                     id: "nightlife_weekly",
                     type: SCHEDULE_RULES.weekly,
-                    candidateDays: [DAY_KEYS[5], DAY_KEYS[6], DAY_KEYS[0]],
-                    time: { from: "20:00", to: "24:00" },
+                    daysOfWeek: [DAY_KEYS[5], DAY_KEYS[6], DAY_KEYS[0]],
+                    window: { from: "20:00", to: "24:00" },
                     stayMinutes: { min: 70, max: 150 },
-                    target: {
-                        type: "placeCategory",
-                        categories: [PLACE_TAGS.nightlife], // define in PLACE_TAGS if you like
-                    },
+                    targets: [
+                        {
+                            type: "placeCategory",
+                            candidates: [PLACE_TAGS.nightlife],
+                        },
+                    ],
                     respectOpeningHours: true,
                 },
             ],
@@ -218,7 +233,7 @@ export const NPC_REGISTRY = [
                     targets: [
                         {
                             type: "placeCategory",
-                            categories: [
+                            candidates: [
                                 PLACE_TAGS.commerce,
                                 PLACE_TAGS.housing,
                                 PLACE_TAGS.food,
@@ -226,7 +241,7 @@ export const NPC_REGISTRY = [
                             ],
                         },
                         {
-                            type: "home", // can also choose to stay at home
+                            type: "home",
                         },
                     ],
                     respectOpeningHours: true,
@@ -243,7 +258,7 @@ export const NPC_REGISTRY = [
                     targets: [
                         {
                             type: "placeCategory",
-                            categories: [
+                            candidates: [
                                 PLACE_TAGS.commerce,
                                 PLACE_TAGS.housing,
                                 PLACE_TAGS.nightlife,
@@ -267,7 +282,7 @@ export const NPC_REGISTRY = [
                     targets: [
                         {
                             type: "placeCategory",
-                            categories: [PLACE_TAGS.commerce, PLACE_TAGS.housing],
+                            candidates: [PLACE_TAGS.commerce, PLACE_TAGS.housing],
                         },
                     ],
                     respectOpeningHours: false,
@@ -285,7 +300,7 @@ export const NPC_REGISTRY = [
                     targets: [
                         {
                             type: "placeCategory",
-                            categories: [PLACE_TAGS.commerce, PLACE_TAGS.housing],
+                            candidates: [PLACE_TAGS.commerce, PLACE_TAGS.housing],
                         },
                     ],
                     respectOpeningHours: false,
@@ -296,13 +311,15 @@ export const NPC_REGISTRY = [
                 {
                     id: "shade_weekly_crime_den",
                     type: SCHEDULE_RULES.weekly,
-                    candidateDays: [DAY_KEYS[1], DAY_KEYS[3], DAY_KEYS[5]], // mon, wed, fri
-                    time: { from: "23:00", to: "01:00" }, // might run slightly past midnight
+                    daysOfWeek: [DAY_KEYS[1], DAY_KEYS[3], DAY_KEYS[5]], // mon, wed, fri
+                    window: { from: "23:00", to: "01:00" }, // might run slightly past midnight
                     stayMinutes: { min: 40, max: 90 },
-                    target: {
-                        type: "placeCategory",
-                        categories: [PLACE_TAGS.crime],
-                    },
+                    targets: [
+                        {
+                            type: "placeCategory",
+                            candidates: [PLACE_TAGS.crime],
+                        },
+                    ],
                     respectOpeningHours: false,
                 },
 
@@ -316,7 +333,7 @@ export const NPC_REGISTRY = [
                     targets: [
                         {
                             type: "placeCategory",
-                            categories: [PLACE_TAGS.nightlife, PLACE_TAGS.crime],
+                            candidates: [PLACE_TAGS.nightlife, PLACE_TAGS.crime],
                             alwaysMove: true, //TODO: always force a change of place
                         },
                     ],
@@ -395,7 +412,7 @@ export const NPC_REGISTRY = [
                     targets: [
                         {
                             type: "placeCategory",
-                            categories: [
+                            candidates: [
                                 PLACE_TAGS.history,
                                 PLACE_TAGS.culture,
                                 PLACE_TAGS.supernatural,
@@ -501,12 +518,14 @@ export const NPC_REGISTRY = [
                         DAY_KEYS[4], // thu
                         DAY_KEYS[5], // fri
                     ],
-                    time: { from: "16:00", to: "18:00" },
-                    target: {
-                        type: "placeKey",
-                        key: "police_station", // you define this place in your world
-                        nearest: true,
-                    },
+                    window: { from: "16:00", to: "18:00" },
+                    targets: [
+                        {
+                            type: "placeKey",
+                            candidates: ["police_station"], // you define this place in your world
+                            nearest: true,
+                        },
+                    ],
                 },
 
                 // 3) Evening patrol on workdays: 18:00–23:00
@@ -520,18 +539,17 @@ export const NPC_REGISTRY = [
                     targets: [
                         {
                             type: "placeCategory",
-                            categories: [
+                            candidates: [
                                 PLACE_TAGS.commerce,
                                 PLACE_TAGS.nightlife,
                                 PLACE_TAGS.transport,
-                                PLACE_TAGS.safety, // police station / outposts
+                                PLACE_TAGS.safety,
                                 PLACE_TAGS.crime,
                                 PLACE_TAGS.housing,
                             ],
                         },
                     ],
                     respectOpeningHours: false,
-                    // reusing the optional probability field from Shade:
                     probability: 0.9, // almost always patrols on shift nights
                 },
 
@@ -546,7 +564,7 @@ export const NPC_REGISTRY = [
                     targets: [
                         {
                             type: "placeCategory",
-                            categories: [
+                            candidates: [
                                 PLACE_TAGS.commerce,
                                 PLACE_TAGS.industry,
                                 PLACE_TAGS.nightlife,
@@ -570,7 +588,7 @@ export const NPC_REGISTRY = [
                     targets: [
                         {
                             type: "placeCategory",
-                            categories: [
+                            candidates: [
                                 PLACE_TAGS.nightlife,
                                 PLACE_TAGS.commerce,
                                 PLACE_TAGS.transport,
@@ -586,13 +604,15 @@ export const NPC_REGISTRY = [
                 {
                     id: "vega_weekly_admin_day",
                     type: SCHEDULE_RULES.weekly,
-                    candidateDays: [DAY_KEYS[1]], // monday
-                    time: { from: "14:00", to: "18:00" },
+                    daysOfWeek: [DAY_KEYS[1]], // monday
+                    window: { from: "14:00", to: "18:00" },
                     stayMinutes: { min: 60, max: 150 },
-                    target: {
-                        type: "placeKey",
-                        key: "police_station",
-                    },
+                    targets: [
+                        {
+                            type: "placeKey",
+                            candidates: ["police_station"],
+                        },
+                    ],
                     respectOpeningHours: true,
                 },
             ],
@@ -656,12 +676,14 @@ export const NPC_REGISTRY = [
                         DAY_KEYS[4], // thu
                         DAY_KEYS[5], // fri
                     ],
-                    time: { from: "08:00", to: "16:00" },
-                    target: {
-                        type: "placeKey",
-                        key: "high_school", // same place Taylor attends
-                        nearest: true,
-                    },
+                    window: { from: "08:00", to: "16:00" },
+                    targets: [
+                        {
+                            type: "placeKey",
+                            candidates: ["high_school"], // same place Taylor attends
+                            nearest: true,
+                        },
+                    ],
                 },
 
                 // 3) After-school errands: 16:00–19:00 on workdays
@@ -675,7 +697,7 @@ export const NPC_REGISTRY = [
                     targets: [
                         {
                             type: "placeCategory",
-                            categories: [
+                            candidates: [
                                 PLACE_TAGS.service, // post office, salon, etc.
                                 PLACE_TAGS.food, // cafés, restaurants
                                 PLACE_TAGS.commerce, // shops
@@ -695,16 +717,17 @@ export const NPC_REGISTRY = [
                     dayKinds: [DayKind.WORKDAY, DayKind.DAY_OFF],
                     daysOfWeek: [
                         DAY_KEYS[5], // fri
-
                         DAY_KEYS[6], // sat
                         DAY_KEYS[0], // sun
                     ],
-                    time: { from: "17:30", to: "22:00" },
-                    target: {
-                        type: "placeKey",
-                        key: "cinema", // same place Taylor attends
-                        nearest: true,
-                    },
+                    window: { from: "17:30", to: "22:00" },
+                    targets: [
+                        {
+                            type: "placeKey",
+                            candidates: ["cinema"],
+                            nearest: true,
+                        },
+                    ],
                 },
 
                 // 5) Weekends / days off:
@@ -718,7 +741,7 @@ export const NPC_REGISTRY = [
                     targets: [
                         {
                             type: "placeCategory",
-                            categories: [
+                            candidates: [
                                 PLACE_TAGS.food,
                                 PLACE_TAGS.leisure,
                                 PLACE_TAGS.culture,
@@ -733,7 +756,6 @@ export const NPC_REGISTRY = [
                 },
 
                 // 6) Nightlife
-                //    Casual errands & leisure, mostly daytime/early evening.
                 {
                     id: "clara_weekend_nightlife",
                     type: SCHEDULE_RULES.random,
@@ -743,7 +765,7 @@ export const NPC_REGISTRY = [
                     targets: [
                         {
                             type: "placeCategory",
-                            categories: [PLACE_TAGS.food, PLACE_TAGS.leisure, PLACE_TAGS.nightlife],
+                            candidates: [PLACE_TAGS.food, PLACE_TAGS.leisure, PLACE_TAGS.nightlife],
                         },
                         {
                             type: "home",
@@ -815,10 +837,13 @@ export const NPC_REGISTRY = [
                     stayMinutes: { min: 20, max: 60 },
                     targets: [
                         { type: "home" }, // hotel room
-                        { type: "placeKey", key: "hotel_cafe" }, // optional: your world place
+                        {
+                            type: "placeKey",
+                            candidates: ["hotel_cafe"],
+                        },
                         {
                             type: "placeCategory",
-                            categories: [PLACE_TAGS.food, PLACE_TAGS.leisure, PLACE_TAGS.commerce],
+                            candidates: [PLACE_TAGS.food, PLACE_TAGS.leisure, PLACE_TAGS.commerce],
                         },
                     ],
                     respectOpeningHours: true,
@@ -834,7 +859,7 @@ export const NPC_REGISTRY = [
                     targets: [
                         {
                             type: "placeCategory",
-                            categories: [
+                            candidates: [
                                 PLACE_TAGS.culture, // museums, galleries
                                 PLACE_TAGS.history, // monuments, old town
                                 PLACE_TAGS.leisure, // parks, attractions
@@ -854,7 +879,7 @@ export const NPC_REGISTRY = [
                     targets: [
                         {
                             type: "placeCategory",
-                            categories: [
+                            candidates: [
                                 PLACE_TAGS.commerce, // shops, mall
                                 PLACE_TAGS.food, // cafés, restaurants
                                 PLACE_TAGS.service, // tourist info, etc.
@@ -874,7 +899,7 @@ export const NPC_REGISTRY = [
                     targets: [
                         {
                             type: "placeCategory",
-                            categories: [PLACE_TAGS.food, PLACE_TAGS.nightlife, PLACE_TAGS.leisure],
+                            candidates: [PLACE_TAGS.food, PLACE_TAGS.nightlife, PLACE_TAGS.leisure],
                         },
                         { type: "home" }, // sometimes just goes back early
                     ],
@@ -885,13 +910,15 @@ export const NPC_REGISTRY = [
                 {
                     id: "mike_big_night_out",
                     type: SCHEDULE_RULES.weekly,
-                    candidateDays: [DAY_KEYS[4], DAY_KEYS[5], DAY_KEYS[6]], // thu, fri, sat
-                    time: { from: "21:00", to: "24:00" },
+                    daysOfWeek: [DAY_KEYS[4], DAY_KEYS[5], DAY_KEYS[6]], // thu, fri, sat
+                    window: { from: "21:00", to: "24:00" },
                     stayMinutes: { min: 60, max: 150 },
-                    target: {
-                        type: "placeCategory",
-                        categories: [PLACE_TAGS.nightlife],
-                    },
+                    targets: [
+                        {
+                            type: "placeCategory",
+                            candidates: [PLACE_TAGS.nightlife],
+                        },
+                    ],
                     respectOpeningHours: true,
                 },
             ],
@@ -954,16 +981,16 @@ export const NPC_REGISTRY = [
                     id: "vincent_morning_routine_workday",
                     type: SCHEDULE_RULES.random,
                     dayKinds: [DayKind.WORKDAY],
-                    window: { from: "9:00", to: "11:00" },
+                    window: { from: "09:00", to: "11:00" },
                     stayMinutes: { min: 30, max: 90 },
                     targets: [
-                        { type: "placeKeys", key: ["gym", "office_tower", "bank"] }, //
+                        {
+                            type: "placeKey",
+                            candidates: ["gym", "office_tower", "bank"],
+                        },
                         {
                             type: "placeCategory",
-                            categories: [
-                                PLACE_TAGS.civic, // spa, pool, etc.
-                                PLACE_TAGS.food, // grooming salons
-                            ],
+                            candidates: [PLACE_TAGS.civic, PLACE_TAGS.food],
                         },
                         { type: "home" },
                     ],
@@ -982,12 +1009,14 @@ export const NPC_REGISTRY = [
                         DAY_KEYS[4], // thu
                         DAY_KEYS[5], // fri
                     ],
-                    time: { from: "11:00", to: "18:00" },
-                    target: {
-                        type: "placeKey",
-                        key: "office_block", // your office skyscraper place
-                        nearest: true,
-                    },
+                    window: { from: "11:00", to: "18:00" },
+                    targets: [
+                        {
+                            type: "placeKey",
+                            candidates: ["office_block"],
+                            nearest: true,
+                        },
+                    ],
                 },
 
                 {
@@ -996,12 +1025,14 @@ export const NPC_REGISTRY = [
                     daysOfWeek: [
                         DAY_KEYS[6], // sat
                     ],
-                    time: { from: "11:00", to: "15:00" },
-                    target: {
-                        type: "placeKey",
-                        key: "office_block",
-                        nearest: true,
-                    },
+                    window: { from: "11:00", to: "15:00" },
+                    targets: [
+                        {
+                            type: "placeKey",
+                            candidates: ["office_block"],
+                            nearest: true,
+                        },
+                    ],
                 },
 
                 // 2a) Investor / client meetings during workday, overlapping with office, once per day
@@ -1009,22 +1040,16 @@ export const NPC_REGISTRY = [
                     id: "vincent_investor_meetings",
                     type: SCHEDULE_RULES.daily,
                     dayKinds: [DayKind.WORKDAY],
-                    time: { from: "11:00", to: "16:00" },
+                    window: { from: "11:00", to: "16:00" },
                     stayMinutes: { min: 60, max: 120 },
                     targets: [
                         {
                             type: "placeCategory",
-                            categories: [PLACE_TAGS.commerce, PLACE_TAGS.service, PLACE_TAGS.crime], // offices, private clubs, hotels
+                            candidates: [PLACE_TAGS.commerce, PLACE_TAGS.service, PLACE_TAGS.crime],
                         },
                         {
-                            type: "placeKeys",
-                            keys: [
-                                "art_gallery",
-                                "restaurant",
-                                "town_square" /*"luxury_hotel"*/,
-                                ,
-                                "bank",
-                            ],
+                            type: "placeKey",
+                            candidates: ["art_gallery", "restaurant", "town_square", "bank"],
                         },
                     ],
                     respectOpeningHours: true,
@@ -1037,12 +1062,12 @@ export const NPC_REGISTRY = [
                     id: "vincent_long_lunch",
                     type: SCHEDULE_RULES.daily,
                     dayKinds: [DayKind.WORKDAY],
-                    time: { from: "13:00", to: "14:30" },
+                    window: { from: "13:00", to: "14:30" },
                     stayMinutes: { min: 30, max: 90 },
                     targets: [
                         {
                             type: "placeCategory",
-                            categories: [
+                            candidates: [
                                 PLACE_TAGS.food, // fancy restaurants
                                 PLACE_TAGS.commerce, // high-end mall food courts
                             ],
@@ -1061,10 +1086,13 @@ export const NPC_REGISTRY = [
                     window: { from: "18:00", to: "20:00" },
                     stayMinutes: { min: 45, max: 90 },
                     targets: [
-                        { type: "placeKey", key: "gym" }, // define as a place if you want
+                        {
+                            type: "placeKey",
+                            candidates: ["gym"], // define as a place if you want
+                        },
                         {
                             type: "placeCategory",
-                            categories: [
+                            candidates: [
                                 PLACE_TAGS.leisure, // spa, pool, etc.
                                 PLACE_TAGS.service, // grooming salons
                                 PLACE_TAGS.food,
@@ -1086,7 +1114,7 @@ export const NPC_REGISTRY = [
                     targets: [
                         {
                             type: "placeCategory",
-                            categories: [
+                            candidates: [
                                 PLACE_TAGS.nightlife,
                                 PLACE_TAGS.food, // late dinners
                                 PLACE_TAGS.leisure, // casino-like leisure, lounges
@@ -1107,7 +1135,7 @@ export const NPC_REGISTRY = [
                     targets: [
                         {
                             type: "placeCategory",
-                            categories: [
+                            candidates: [
                                 PLACE_TAGS.food, // brunch places
                                 PLACE_TAGS.commerce, // luxury shopping
                                 PLACE_TAGS.culture, // galleries, shows
@@ -1123,13 +1151,15 @@ export const NPC_REGISTRY = [
                 {
                     id: "vincent_big_night",
                     type: SCHEDULE_RULES.weekly,
-                    candidateDays: [DAY_KEYS[4], DAY_KEYS[5], DAY_KEYS[6]], // thu, fri, sat
-                    time: { from: "22:00", to: "03:00" },
+                    daysOfWeek: [DAY_KEYS[4], DAY_KEYS[5], DAY_KEYS[6]], // thu, fri, sat
+                    window: { from: "22:00", to: "03:00" },
                     stayMinutes: { min: 90, max: 210 },
-                    target: {
-                        type: "placeCategory",
-                        categories: [PLACE_TAGS.nightlife],
-                    },
+                    targets: [
+                        {
+                            type: "placeCategory",
+                            candidates: [PLACE_TAGS.nightlife],
+                        },
+                    ],
                     respectOpeningHours: true,
                     probability: 0.8, // most weeks he goes out big
                 },
@@ -1138,15 +1168,17 @@ export const NPC_REGISTRY = [
                 {
                     id: "vincent_crime_associates_weekly",
                     type: SCHEDULE_RULES.weekly,
-                    candidateDays: [DAY_KEYS[1], DAY_KEYS[3]], // mon or wed
-                    time: { from: "01:00", to: "03:00" }, // after clubs, before sleep
+                    daysOfWeek: [DAY_KEYS[1], DAY_KEYS[3]], // mon or wed
+                    window: { from: "01:00", to: "03:00" }, // after clubs, before sleep
                     stayMinutes: { min: 20, max: 60 },
-                    target: {
-                        type: "placeCategory",
-                        categories: [PLACE_TAGS.crime],
-                    },
+                    targets: [
+                        {
+                            type: "placeCategory",
+                            candidates: [PLACE_TAGS.crime],
+                        },
+                    ],
                     respectOpeningHours: false,
-                    probability: 0.3, //TODO: make sure all rules respect probability if they dont already
+                    probability: 0.3,
                 },
 
                 // 9) Extra secret crime drop-ins: low-probability, high-noise.
@@ -1159,11 +1191,11 @@ export const NPC_REGISTRY = [
                     targets: [
                         {
                             type: "placeCategory",
-                            categories: [PLACE_TAGS.crime],
+                            candidates: [PLACE_TAGS.crime],
                         },
                         {
                             type: "placeCategory",
-                            categories: [PLACE_TAGS.nightlife],
+                            candidates: [PLACE_TAGS.nightlife],
                         },
                     ],
                     respectOpeningHours: false,
@@ -1174,13 +1206,15 @@ export const NPC_REGISTRY = [
                 {
                     id: "vincent_charity_events",
                     type: SCHEDULE_RULES.weekly,
-                    candidateDays: [DAY_KEYS[2], DAY_KEYS[4]], // tue or thu
-                    time: { from: "19:00", to: "22:00" },
+                    daysOfWeek: [DAY_KEYS[2], DAY_KEYS[4]], // tue or thu
+                    window: { from: "19:00", to: "22:00" },
                     stayMinutes: { min: 60, max: 150 },
-                    target: {
-                        type: "placeCategory",
-                        categories: [PLACE_TAGS.culture, PLACE_TAGS.civic, PLACE_TAGS.industry],
-                    },
+                    targets: [
+                        {
+                            type: "placeCategory",
+                            candidates: [PLACE_TAGS.culture, PLACE_TAGS.civic, PLACE_TAGS.industry],
+                        },
+                    ],
                     respectOpeningHours: true,
                     probability: 0.3, // only some weeks he bothers
                 },
