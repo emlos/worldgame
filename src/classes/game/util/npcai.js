@@ -184,7 +184,13 @@ export class NPCScheduler {
                 // weekly rules handled separately
                 if (rule.type === SCHEDULE_RULES.weekly) continue;
 
+                // Day filters (home ignores them by design)
                 if (!ruleAppliesOnDay(rule, dayInfo, dayKey) && rule.type !== SCHEDULE_RULES.home) {
+                    continue;
+                }
+
+                // Probability gating: per day, per rule
+                if (!this._rulePassesProbability(rule)) {
                     continue;
                 }
 
@@ -219,6 +225,16 @@ export class NPCScheduler {
                         });
                         break;
 
+                    case SCHEDULE_RULES.daily:
+                        this._generateDailySlotsForDay({
+                            npc,
+                            npcId,
+                            dayDate,
+                            rule,
+                            proposed,
+                        });
+                        break;
+
                     default:
                         // ignore follow/unknown for now
                         break;
@@ -229,6 +245,10 @@ export class NPCScheduler {
         // --- Weekly (once per week) rules ---
         for (const rule of rules) {
             if (!rule || rule.type !== SCHEDULE_RULES.weekly) continue;
+
+            // Probability gating: once per week
+            if (!this._rulePassesProbability(rule)) continue;
+
             this._generateWeeklySlotsForWeek({
                 npc,
                 npcId,
@@ -368,6 +388,116 @@ export class NPCScheduler {
         }
     }
 
+    _generateDailySlotsForDay({ npc, npcId, dayDate, rule, proposed }) {
+        const stay = rule.stayMinutes || {};
+        const minStay = Math.max(1, Number(stay.min) || 30);
+        const maxStay = Math.max(minStay, Number(stay.max) || minStay);
+
+        if (!rule.time || !rule.time.from || !rule.time.to) return;
+
+        const { start: windowStart, end: windowEnd } = makeWindowRange(dayDate, rule.time);
+        const windowMinutes = minutesBetween(windowStart, windowEnd);
+        if (windowMinutes <= minStay) return;
+
+        const maxDur = Math.min(maxStay, windowMinutes);
+        const duration = minStay + Math.floor(this.rnd() * (maxDur - minStay + 1));
+
+        const latestStartOffset = windowMinutes - duration;
+        const startOffset =
+            latestStartOffset > 0 ? Math.floor(this.rnd() * (latestStartOffset + 1)) : 0;
+
+        const from = new Date(windowStart.getTime() + startOffset * MS_PER_MINUTE);
+        const to = new Date(from.getTime() + duration * MS_PER_MINUTE);
+
+        const locInfo = this._pickLocationForTarget({
+            npc,
+            target: rule.target,
+            from,
+            to,
+            respectOpeningHours: !!rule.respectOpeningHours,
+        });
+        if (!locInfo) return;
+
+        const priority = this._priorityForRule(rule);
+
+        proposed.push({
+            npcId,
+            from,
+            to,
+            location: locInfo.location,
+            locationId: locInfo.location.id,
+            place: locInfo.place || null,
+            placeId: locInfo.place ? locInfo.place.id : null,
+            target: locInfo.location,
+            sourceRuleId: rule.id || null,
+            ruleType: rule.type,
+            priority,
+        });
+    }
+
+    /**
+     * For random rules: pick a valid location for [from,to) by
+     * expanding ALL targets into their concrete candidate places,
+     * then choosing one uniformly from that combined list.
+     *
+     * This means:
+     *   - "home" contributes 1 option
+     *   - a category with 10 matching places contributes 10 options
+     * So "go out" naturally wins over "stay home" if there are many places.
+     */
+    _pickLocationForRandomRule({ npc, rule, from, to, previousLocInfo }) {
+        const targets = Array.isArray(rule.targets) ? rule.targets : [];
+        const respectOpeningHours = !!rule.respectOpeningHours;
+
+        let allCandidates = [];
+        for (const target of targets) {
+            const candidatesForTarget = this._collectCandidatesForTarget({
+                npc,
+                target,
+                from,
+                to,
+                respectOpeningHours,
+            });
+            if (candidatesForTarget && candidatesForTarget.length) {
+                allCandidates = allCandidates.concat(candidatesForTarget);
+            }
+        }
+
+        // If we have any candidates at all, pick one uniformly
+        if (allCandidates.length) {
+            const idx = (this.rnd() * allCandidates.length) | 0;
+            const chosen = allCandidates[idx];
+            return {
+                location: chosen.location,
+                place: chosen.place || null,
+            };
+        }
+
+        // --- Fallbacks if *nothing* is open / available ---
+
+        // 1. Home
+        const homeLoc = this._getHomeLocation(npc);
+        if (homeLoc) {
+            return { location: homeLoc, place: null };
+        }
+
+        // 2. Previous location in this window
+        if (previousLocInfo && previousLocInfo.location) {
+            return previousLocInfo;
+        }
+
+        // 3. Any location on the map (last resort)
+        if (this.world && this.world.locations && this.world.locations.size) {
+            const first = this.world.locations.values().next().value;
+            if (first) {
+                return { location: first, place: null };
+            }
+        }
+
+        // Truly nothing
+        return null;
+    }
+
     _generateWeeklySlotsForWeek({ npc, npcId, weekStart, rule, proposed }) {
         const stay = rule.stayMinutes || {};
         const minStay = Math.max(1, Number(stay.min) || 30);
@@ -427,6 +557,22 @@ export class NPCScheduler {
         });
     }
 
+    /**
+     * Returns true if this rule should be applied for this "consideration".
+     * - If rule.probability is undefined/null => always true
+     * - If <= 0 => never
+     * - If >= 1 => always
+     * - Else => true with that probability
+     */
+    _rulePassesProbability(rule) {
+        if (!rule || rule.probability == null) return true;
+        let p = Number(rule.probability);
+        if (!Number.isFinite(p)) return true;
+        if (p <= 0) return false;
+        if (p >= 1) return true;
+        return this.rnd() < p;
+    }
+
     _priorityForRule(rule) {
         const t = rule && rule.type;
         const p = RULE_PRIORITY && RULE_PRIORITY[t];
@@ -436,6 +582,8 @@ export class NPCScheduler {
                 return 0;
             case SCHEDULE_RULES.random:
                 return 1;
+            case SCHEDULE_RULES.daily:
+                return 2;
             case SCHEDULE_RULES.weekly:
                 return 2;
             case SCHEDULE_RULES.fixed:
@@ -451,29 +599,30 @@ export class NPCScheduler {
         return targets[idx];
     }
 
-    /**
-     * Resolve a rule target (home, placeKey, placeCategory) to a concrete Location / Place.
-     *
-     * For now, "nearest" is computed relative to the NPC's home location.
-     * (We’re ignoring travel time along the route, as requested.)
-     */
-    _pickLocationForTarget({ npc, target, from, to, respectOpeningHours }) {
-        if (!target) return null;
+    _collectCandidatesForTarget({ npc, target, from, to, respectOpeningHours }) {
+        if (!target || !this.world) return [];
 
-        // Home → directly use npc.homeLocationId
+        const isOpenForSpan = (place) => {
+            if (!respectOpeningHours || !place || typeof place.isOpen !== "function") {
+                return true;
+            }
+            const endCheck = new Date(to.getTime() - MS_PER_MINUTE);
+            return place.isOpen(from) && place.isOpen(endCheck);
+        };
+
+        // --- Home target ---
         if (target.type === "home") {
             const homeLoc = this._getHomeLocation(npc);
-            if (!homeLoc) return null;
-            return { location: homeLoc, place: null };
+            if (!homeLoc) return [];
+            return [{ location: homeLoc, place: null }];
         }
 
         const locations = this.world.locations || new Map();
-        const items = [];
-
-        const categories = Array.isArray(target.categories) ? target.categories : [];
-        const isNearest = !!target.nearest;
-
-        const checkOpen = !!respectOpeningHours;
+        const categories = Array.isArray(target.categories)
+            ? target.categories
+            : target.categories
+            ? [target.categories]
+            : [];
 
         const isCandidatePlace = (place) => {
             if (!place) return false;
@@ -489,13 +638,7 @@ export class NPCScheduler {
             return false;
         };
 
-        const isOpenForSpan = (place) => {
-            if (!checkOpen || !place || typeof place.isOpen !== "function") return true;
-            // simple approximation: must be open at start and just before end
-            const endCheck = new Date(to.getTime() - MS_PER_MINUTE);
-            return place.isOpen(from) && place.isOpen(endCheck);
-        };
-
+        const items = [];
         for (const loc of locations.values()) {
             const places = loc.places || [];
             for (const place of places) {
@@ -505,29 +648,48 @@ export class NPCScheduler {
             }
         }
 
-        if (!items.length) return null;
-
-        // If nearest is not requested or we don’t have enough info, pick random
-        if (!isNearest || !npc || !npc.homeLocationId || !this.world.map) {
-            const idx = (this.rnd() * items.length) | 0;
-            return items[idx];
-        }
-
-        const originId = String(npc.homeLocationId);
-        let best = null;
-        let bestMinutes = Infinity;
-        for (const item of items) {
-            const minutes = this.world.map.getTravelMinutes
-                ? this.world.map.getTravelMinutes(originId, item.location.id)
-                : 0;
-            if (!Number.isFinite(minutes)) continue;
-            if (minutes < bestMinutes) {
-                bestMinutes = minutes;
-                best = item;
+        // If nearest is requested, collapse to the nearest candidate
+        if (target.nearest && items.length && this.world.map && npc && npc.homeLocationId) {
+            const originId = String(npc.homeLocationId);
+            let best = null;
+            let bestMinutes = Infinity;
+            for (const item of items) {
+                const minutes = this.world.map.getTravelMinutes
+                    ? this.world.map.getTravelMinutes(originId, item.location.id)
+                    : 0;
+                if (!Number.isFinite(minutes)) continue;
+                if (minutes < bestMinutes) {
+                    bestMinutes = minutes;
+                    best = item;
+                }
             }
+            return best ? [best] : items;
         }
 
-        return best || items[(this.rnd() * items.length) | 0];
+        return items;
+    }
+
+    /**
+     * Resolve a rule target (home, placeKey, placeCategory) to a concrete Location / Place.
+     *
+     * For now, "nearest" is computed relative to the NPC's home location.
+     * (We’re ignoring travel time along the route, as requested.)
+     */
+    _pickLocationForTarget({ npc, target, from, to, respectOpeningHours }) {
+        const candidates = this._collectCandidatesForTarget({
+            npc,
+            target,
+            from,
+            to,
+            respectOpeningHours,
+        });
+        if (!candidates.length) return null;
+        const idx = (this.rnd() * candidates.length) | 0;
+        const chosen = candidates[idx];
+        return {
+            location: chosen.location,
+            place: chosen.place || null,
+        };
     }
 
     _getHomeLocation(npc) {
@@ -632,64 +794,5 @@ export class NPCScheduler {
         // sort by start time ascending
         result.sort((a, b) => a.from - b.from || a.to - b.to);
         return result;
-    }
-
-    /**
-     * For random rules: pick a valid location for [from,to) by
-     * trying the rule's targets in random order.
-     *
-     * Fallback priority:
-     *   1. any target that works and respects opening hours
-     *   2. home location (if available)
-     *   3. previous location (if any)
-     *   4. any location in the world (last resort)
-     */
-    _pickLocationForRandomRule({ npc, rule, from, to, previousLocInfo }) {
-        const targets = Array.isArray(rule.targets) ? rule.targets : [];
-        const respectOpeningHours = !!rule.respectOpeningHours;
-
-        // Randomize target order
-        const indices = targets.map((_, i) => i);
-        for (let i = indices.length - 1; i > 0; i--) {
-            const j = (this.rnd() * (i + 1)) | 0;
-            const tmp = indices[i];
-            indices[i] = indices[j];
-            indices[j] = tmp;
-        }
-
-        // Try each target once
-        for (const idx of indices) {
-            const target = targets[idx];
-            const locInfo = this._pickLocationForTarget({
-                npc,
-                target,
-                from,
-                to,
-                respectOpeningHours,
-            });
-            if (locInfo) return locInfo;
-        }
-
-        // Fallback 1: home
-        const homeLoc = this._getHomeLocation(npc);
-        if (homeLoc) {
-            return { location: homeLoc, place: null };
-        }
-
-        // Fallback 2: previous location
-        if (previousLocInfo && previousLocInfo.location) {
-            return previousLocInfo;
-        }
-
-        // Fallback 3: any location in the world (last resort)
-        if (this.world && this.world.locations && this.world.locations.size) {
-            const first = this.world.locations.values().next().value;
-            if (first) {
-                return { location: first, place: null };
-            }
-        }
-
-        // Truly nothing found (very unlikely)
-        return null;
     }
 }
