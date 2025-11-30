@@ -1,13 +1,10 @@
 import { DAY_KEYS, PLACE_REGISTRY, SCHEDULE_RULES, WeatherType } from "../../../data/data.js";
 
-//TODO: bus comes at times NOT anchored to multiples of 15/45 -> figure out
+// -----------------------------------------------------------------------------
+// Helpers
+// -----------------------------------------------------------------------------
 
-
-/**
- * Helpers
- */
 function parseTimeToMinutes(timeStr) {
-    // "HH:MM" -> minutes since midnight
     const [h, m] = timeStr.split(":").map((n) => parseInt(n, 10) || 0);
     return h * 60 + m;
 }
@@ -20,56 +17,50 @@ function makeDateAtMinutes(baseDate, minutes) {
     return d;
 }
 
-// get "mon" | "tue" ... from a Date
 function dayKeyFromDate(date) {
     const dow = date.getDay(); // 0=Sun..6=Sat
-    return DAY_KEYS[dow]; // ["sun","mon"...]
+    return DAY_KEYS[dow];
 }
 
-const TIME_JITTER_MIN = 0; // minutes
-const TIME_JITTER_MAX = 20; // minutes
-
+const TIME_JITTER_MIN = 0;
+const TIME_JITTER_MAX = 20;
 const MICRO_STOP_MINUTES = 1;
 
 function randomJitterMinutes(rnd) {
     const span = TIME_JITTER_MAX - TIME_JITTER_MIN;
-    // integer in [TIME_JITTER_MIN, TIME_JITTER_MAX]
     return Math.ceil((TIME_JITTER_MIN + Math.floor(rnd() * (span + 1))) / 5) * 5;
 }
 
-/**
- * ScheduleManager:
- *  - Uses NPC meta.scheduleTemplate.rules
- *  - Generates one week (Mon–Sun) of concrete schedule slots.
- */
+const TargetTypes = {
+    home: "home",
+    activity: "activity",
+    travel: "travel",
+};
+
+// -----------------------------------------------------------------------------
+// NPCScheduler
+// -----------------------------------------------------------------------------
+
 export class NPCScheduler {
     constructor({ world, rnd }) {
         this.world = world;
         this.rnd = rnd || Math.random;
-        // cache: npcId -> weekKey -> { startDate, endDate, slots[] }
-        this.cache = new Map();
+        this.cache = new Map(); // npcId -> weekKey -> { startDate, endDate, slots[] }
     }
 
     _getWeekKey(startDate) {
-        return startDate.toISOString().slice(0, 10); // "YYYY-MM-DD"
+        return startDate.toISOString().slice(0, 10);
     }
 
-    /**
-     * Compute "week start" (Monday 00:00) for any given Date.
-     */
     getWeekStartForDate(date) {
         const d = new Date(date.getTime());
-        const dow = d.getDay(); // 0=Sun..6=Sat
-        const diffToMon = (dow + 6) % 7; // 0->6,1->0,...6->5
+        const dow = d.getDay();
+        const diffToMon = (dow + 6) % 7;
         d.setHours(0, 0, 0, 0);
         d.setDate(d.getDate() - diffToMon);
         return d;
     }
 
-    /**
-     * Ensure we have a schedule for this NPC and week.
-     * weekStartDate should be Monday 00:00.
-     */
     getWeekSchedule(npc, weekStartDate) {
         const npcKey = String(npc.id);
         const weekKey = this._getWeekKey(weekStartDate);
@@ -89,25 +80,11 @@ export class NPCScheduler {
         return week;
     }
 
-    /**
-     * Convenience: schedule for the week containing the world's current time.
-     */
     getCurrentWeekSchedule(npc) {
         const weekStart = this.getWeekStartForDate(this.world.time.date);
         return this.getWeekSchedule(npc, weekStart);
     }
 
-    /**
-     * peek(nextMinutes):
-     *   Does this NPC intend to change location within the horizon?
-     *
-     * Returns:
-     *   {
-     *     willMove: boolean,
-     *     at: Date | null,
-     *     nextSlot: slot | null,
-     *   }
-     */
     peek(npc, nextMinutes, fromDate = this.world.time.date) {
         const weekStart = this.getWeekStartForDate(fromDate);
         const week = this.getWeekSchedule(npc, weekStart);
@@ -118,7 +95,6 @@ export class NPCScheduler {
         for (const slot of week.slots) {
             if (slot.from <= fromDate) continue;
             if (slot.from > horizon) continue;
-
             if (!candidate || slot.from < candidate.from) {
                 candidate = slot;
             }
@@ -136,7 +112,7 @@ export class NPCScheduler {
     }
 
     // ------------------------------------------------------------------
-    // Generation
+    // Week generation pipeline
     // ------------------------------------------------------------------
 
     _generateWeekSchedule(npc, weekStartDate) {
@@ -144,9 +120,33 @@ export class NPCScheduler {
         const rules = template?.rules || [];
         const npcId = String(npc.id);
 
-        // Pick nightlife day once per week (if any weekly_once rule exists)
+        const weeklyOnceAssignments = this._computeWeeklyAssignments(rules);
+
+        const rawSlots = this._buildRuleSlotsForWeek({
+            npcId,
+            rules,
+            weekStartDate,
+            weeklyOnceAssignments,
+        });
+
+        const timeResolved = this._applyPriorityAndTrim(rawSlots, rules);
+        const filled = this._fillGaps(timeResolved);
+
+        this._resolveSlots(npc, filled);
+
+        const withTravel = this._insertTravelSlots(npc, filled, rules);
+
+        return {
+            npcId,
+            startDate: new Date(weekStartDate.getTime()),
+            endDate: new Date(weekStartDate.getTime() + 7 * 24 * 60 * 60 * 1000),
+            slots: withTravel,
+        };
+    }
+
+    _computeWeeklyAssignments(rules) {
         const weeklyOnceConfigs = rules.filter((r) => r.type === SCHEDULE_RULES.weekly);
-        const weeklyOnceAssignments = new Map(); // ruleId -> dayKey
+        const weeklyOnceAssignments = new Map();
 
         for (const rule of weeklyOnceConfigs) {
             const candidates = rule.candidateDays || [];
@@ -155,13 +155,16 @@ export class NPCScheduler {
             weeklyOnceAssignments.set(rule.id, candidates[pickIdx]);
         }
 
+        return weeklyOnceAssignments;
+    }
+
+    _buildRuleSlotsForWeek({ npcId, rules, weekStartDate, weeklyOnceAssignments }) {
         const slots = [];
 
         for (let i = 0; i < 7; i++) {
             const dayDate = new Date(weekStartDate.getTime() + i * 24 * 60 * 60 * 1000);
             const dayKey = dayKeyFromDate(dayDate);
-
-            const { kind } = this.world.calendar.getDayInfo(dayDate); // DayKind.WORKDAY | DAY_OFF
+            const { kind } = this.world.calendar.getDayInfo(dayDate);
 
             for (const rule of rules) {
                 switch (rule.type) {
@@ -188,30 +191,15 @@ export class NPCScheduler {
             }
         }
 
-        // First: apply rule priority and trim overlaps
-        const timeResolved = this._applyPriorityAndTrim(slots, rules);
-
-        // Second: fill intra-day gaps between rule slots
-        const filled = this._fillGaps(timeResolved);
-
-        // Resolve each slot to actual location/place
-        this._resolveSlots(npc, filled);
-
-        // Insert travel segments between slots where the location changes
-        const withTravel = this._insertTravelSlots(npc, filled, rules);
-
-        return {
-            npcId,
-            startDate: new Date(weekStartDate.getTime()),
-            endDate: new Date(weekStartDate.getTime() + 7 * 24 * 60 * 60 * 1000),
-            slots: withTravel,
-        };
+        return slots;
     }
+
+    // ------------------------------------------------------------------
+    // Rule application
+    // ------------------------------------------------------------------
 
     _applyDailyHomeBlock(out, npcId, rule, dayDate) {
         const blocks = rule.timeBlocks || [];
-        const dayEnd = 24 * 60;
-        const dayStart = 0;
 
         for (const b of blocks) {
             let fromMin = parseTimeToMinutes(b.from);
@@ -228,17 +216,14 @@ export class NPCScheduler {
                 fromMin += this.rnd() < 0.5 ? -startShift : startShift;
                 toMin += this.rnd() < 0.5 ? -endShift : endShift;
 
-                // 1) Clamp inside [origFromMin, origToMin] so we never expand the block
                 fromMin = Math.max(origFromMin, Math.min(fromMin, origToMin));
                 toMin = Math.max(origFromMin, Math.min(toMin, origToMin));
 
-                // 2) Still ensure it’s a positive-length block
                 if (toMin <= fromMin) {
                     toMin = Math.min(origToMin, fromMin + 15);
                 }
             }
 
-            // 3) Preserve the special handling for "starts at/before 00:00" and "ends at/after 24:00"
             const dayEnd = 24 * 60;
             const dayStart = 0;
 
@@ -285,7 +270,7 @@ export class NPCScheduler {
             to: makeDateAtMinutes(dayDate, toMin),
             target: {
                 type: TargetTypes.activity,
-                spec: rule.target, // e.g. { type:"placeCategory", categories:[...] }
+                spec: rule.target,
             },
             sourceRuleId: rule.id,
         });
@@ -295,11 +280,8 @@ export class NPCScheduler {
         if (!this._dayKindMatches(rule, dayKind)) return;
         if (!this._dayOfWeekMatches(rule, dayKey)) return;
 
-        // Probability check
         const p = typeof rule.probability === "number" ? rule.probability : 1;
-        if (p < 1 && this.rnd() > p) {
-            return; // skip this rule entirely for today
-        }
+        if (p < 1 && this.rnd() > p) return;
 
         const window = rule.window;
         if (!window) return;
@@ -317,25 +299,20 @@ export class NPCScheduler {
             windowEnd += 24 * 60;
         }
 
-        // --- JITTER HERE ---
-        // Delay leaving the previous state by +5–15 minutes
         const startJitter = randomJitterMinutes(this.rnd);
-        // End a bit earlier than the formal window, by 5–15 minutes
         const endJitter = randomJitterMinutes(this.rnd);
 
-        // effective start & end for this rule's actual visits
         let cursor = windowStart + startJitter;
         let effectiveEnd = windowEnd - endJitter;
 
-        // Ensure we still have room for at least one minStay block
         if (effectiveEnd - cursor < minStay) {
-            // fallback: collapse jitter so we can fit minStay
             cursor = windowStart;
             effectiveEnd = windowEnd;
         }
 
         while (cursor < effectiveEnd) {
-            const duration = Math.ceil(minStay + (this.rnd() * (maxStay - minStay + 1)) / 5) * 5;
+            const rawDur = minStay + this.rnd() * (maxStay - minStay + 1);
+            const duration = Math.ceil(rawDur / 5) * 5;
 
             const slotEnd = Math.min(cursor + duration, effectiveEnd);
 
@@ -370,27 +347,20 @@ export class NPCScheduler {
         let windowStart = parseTimeToMinutes(window.from);
         let windowEnd = parseTimeToMinutes(window.to);
 
-        // Interpret as [23:00, 26:00] relative to dayDate,
         if (windowEnd <= windowStart) {
             windowEnd += 24 * 60;
         }
 
-        // Choose a random duration, rounded to 5 minutes
         const durRaw = minStay + this.rnd() * (maxStay - minStay);
         const duration = Math.max(5, Math.round(durRaw / 5) * 5);
 
-        // Choose a random start time within the window so that the event ends before windowEnd
         const latestStart = Math.max(windowStart, windowEnd - duration);
-        if (latestStart < windowStart) {
-            // Not enough room
-            return;
-        }
+        if (latestStart < windowStart) return;
 
         const offset = this.rnd() * (latestStart - windowStart);
         const start = windowStart + Math.round(offset / 5) * 5;
         const end = start + duration;
 
-        // merge rule-level flags into the target spec
         const baseSpec = rule.target || {};
         const targetSpec = {
             ...baseSpec,
@@ -410,7 +380,7 @@ export class NPCScheduler {
     }
 
     // ------------------------------------------------------------------
-    // Resolver: fill in locationId / placeId
+    // Slot resolution (locations + gaps)
     // ------------------------------------------------------------------
 
     _resolveSlots(npc, slots) {
@@ -418,14 +388,12 @@ export class NPCScheduler {
 
         let lastLocationId = npc.locationId || npc.homeLocationId || this._pickAnyLocationId();
 
-        // Assume they started the day at lastLocationId at the start of the first slot
         let locationStreakStartTime = new Date(slots[0].from.getTime());
 
         for (const slot of slots) {
             const atTime = slot.from;
 
             if (slot.target.type !== TargetTypes.activity) {
-                // for non-activity targets, just keep locationStreakStartTime logic
                 slot.target.locationId = lastLocationId;
                 slot.target.placeId = null;
                 continue;
@@ -451,26 +419,12 @@ export class NPCScheduler {
             slot.target.placeId = targetPlaceId;
 
             if (targetLocationId !== lastLocationId) {
-                // new location: reset streak start
                 locationStreakStartTime = new Date(atTime.getTime());
                 lastLocationId = targetLocationId;
             }
         }
     }
 
-    /**
-     * Ensure there are no gaps between slots within the same day.
-     *
-     * Policy:
-     *  - If there is a gap between A and B on the same calendar day:
-     *      * If B is a "home" spec -> fill the gap with a short "home" slot
-     *        (effectively: go home early).
-     *      * Otherwise -> extend A to cover the gap
-     *        (effectively: stay longer at the previous activity).
-     *
-     *  This guarantees every minute between the first and last slot
-     *  of a day is accounted for.
-     */
     _fillGaps(slots) {
         if (!slots.length) return [];
 
@@ -482,7 +436,6 @@ export class NPCScheduler {
         const result = [];
 
         for (let i = 0; i < slots.length; i++) {
-            // clone so we don't mutate the original array in weird ways
             const current = { ...slots[i] };
             result.push(current);
 
@@ -492,26 +445,20 @@ export class NPCScheduler {
             const gapStart = current.to;
             const gapEnd = next.from;
 
-            // no gap or negative gap (overlap) -> nothing to do
             if (!gapStart || !gapEnd) continue;
             if (gapEnd <= gapStart) continue;
-
-            // only fill gaps that are within the same calendar day
             if (!sameDay(gapStart, gapEnd)) continue;
 
             const nextSpec = (next.target && next.target.spec) || {};
             const nextIsHome = nextSpec.type === "home";
 
             if (nextIsHome) {
-                // Option 1: go home early.
-                // We add an extra "home" segment from gapStart to gapEnd.
                 result.push({
                     ...next,
                     from: new Date(gapStart.getTime()),
                     to: new Date(gapEnd.getTime()),
                 });
             } else {
-                // Option 2: stay longer at the previous activity.
                 current.to = new Date(gapEnd.getTime());
             }
         }
@@ -519,47 +466,219 @@ export class NPCScheduler {
         return result;
     }
 
-    /**
-     * Build travel segments between two slots.
-     * Returns array of segments, or null on failure.
-     */
-    _buildTravelSegmentsBetween(originLocId, destLocId, fromSlot, toSlot, npcUsesBus, npcUsesCar) {
-        const arrivalTime = toSlot.from;
-        const windowStartHard = fromSlot.from;
+    // ------------------------------------------------------------------
+    // Travel planning (declarative)
+    // ------------------------------------------------------------------
 
-        const plan = this._planTravelPath(
-            originLocId,
-            destLocId,
-            arrivalTime,
-            npcUsesBus,
-            npcUsesCar
-        );
-        if (!plan || !plan.steps || !plan.steps.length) return null;
+    _getTravelPrefsForNpc(npc) {
+        const tpl = npc.meta?.scheduleTemplate || {};
+        return {
+            usesBus: !!tpl.useBus,
+            usesCar: !!tpl.useCar,
+        };
+    }
 
-        const maxWindowMinutes = (arrivalTime.getTime() - windowStartHard.getTime()) / 60000;
-        if (maxWindowMinutes <= 0) return null;
+    _insertTravelSlots(npc, slots, rules = []) {
+        if (!slots || !slots.length) return [];
 
-        let totalTravel = plan.totalMinutes;
-        if (totalTravel <= 0) return null;
+        const travelPrefs = this._getTravelPrefsForNpc(npc);
 
-        let scale = 1;
-        let travelMinutes = totalTravel;
-        let travelStart;
-
-        if (totalTravel <= maxWindowMinutes) {
-            travelStart = new Date(arrivalTime.getTime() - totalTravel * 60000);
-        } else {
-            scale = maxWindowMinutes / totalTravel;
-            travelMinutes = maxWindowMinutes;
-            travelStart = new Date(windowStartHard.getTime());
+        const ruleById = new Map();
+        for (const rule of rules || []) {
+            if (!rule.id) continue;
+            ruleById.set(rule.id, rule);
         }
 
-        const targetMinutes = Math.max(1, Math.round(travelMinutes));
+        const isFixedSlot = (slot) => {
+            const rule = slot && ruleById.get(slot.sourceRuleId);
+            return !!rule && rule.type === SCHEDULE_RULES.fixed;
+        };
+
+        const base = slots.slice();
+        const out = [];
+
+        for (let i = 0; i < base.length; i++) {
+            const current = base[i];
+            const next = base[i + 1] || null;
+
+            out.push(current);
+
+            if (!next) break;
+
+            const curTarget = current.target || {};
+            const nextTarget = next.target || {};
+
+            const curLoc = curTarget.locationId;
+            const nextLoc = nextTarget.locationId;
+
+            if (!curLoc || !nextLoc || curLoc === nextLoc) continue;
+            if (curTarget.type === TargetTypes.travel) continue;
+
+            const originIsFixed = isFixedSlot(current);
+            const destIsFixed = isFixedSlot(next);
+
+            let travelSegments = null;
+
+            if (originIsFixed && !destIsFixed) {
+                travelSegments = this._buildTravelSegmentsAfter(
+                    curLoc,
+                    nextLoc,
+                    current,
+                    travelPrefs
+                );
+            } else {
+                travelSegments = this._buildTravelSegmentsBetween(
+                    curLoc,
+                    nextLoc,
+                    current,
+                    next,
+                    travelPrefs
+                );
+            }
+
+            if (!travelSegments || !travelSegments.length) continue;
+
+            const firstSeg = travelSegments[0];
+
+            if (firstSeg.from > current.to) {
+                current.to = new Date(firstSeg.from.getTime());
+            } else if (firstSeg.from > current.from && firstSeg.from < current.to) {
+                current.to = new Date(firstSeg.from.getTime());
+            }
+
+            const lastSeg = travelSegments[travelSegments.length - 1];
+            const travelEnd = lastSeg.to;
+
+            if (next.from < travelEnd) {
+                const deltaMs = travelEnd.getTime() - next.from.getTime();
+                const durMs = next.to.getTime() - next.from.getTime();
+                next.from = new Date(next.from.getTime() + deltaMs);
+                next.to = new Date(next.from.getTime() + durMs);
+            }
+
+            for (const seg of travelSegments) {
+                out.push(seg);
+            }
+        }
+
+        out.sort((a, b) => a.from - b.from);
+
+        return this._mergeVehicleSegments(out);
+    }
+
+    _mergeVehicleSegments(slots) {
+        const merged = [];
+
+        for (const slot of slots) {
+            const prev = merged[merged.length - 1];
+
+            const isTravel = (s) => s && s.target && s.target.type === TargetTypes.travel;
+            const modeOf = (s) => (s && s.target && s.target.spec && s.target.spec.mode) || null;
+
+            const prevMode = modeOf(prev);
+            const curMode = modeOf(slot);
+
+            const mergeable =
+                prev &&
+                isTravel(prev) &&
+                isTravel(slot) &&
+                (prevMode === "bus" || prevMode === "car") &&
+                prevMode === curMode &&
+                prev.to.getTime() === slot.from.getTime();
+
+            if (mergeable) {
+                prev.to = slot.to;
+                const prevLen = prev.target.spec.segmentStreetLength || 0;
+                const curLen = slot.target.spec.segmentStreetLength || 0;
+                prev.target.spec.segmentStreetLength = prevLen + curLen;
+
+                const prevPath = Array.isArray(prev.target.spec.pathEdges)
+                    ? prev.target.spec.pathEdges
+                    : [];
+                const curPath = Array.isArray(slot.target.spec.pathEdges)
+                    ? slot.target.spec.pathEdges
+                    : [];
+                prev.target.spec.pathEdges = prevPath.concat(curPath);
+            } else {
+                merged.push(slot);
+            }
+        }
+
+        return merged;
+    }
+
+    _buildTravelSegmentsBetween(originLocId, destLocId, fromSlot, toSlot, travelPrefs) {
+        const arrivalTime = toSlot.from;
+        const plan = this._planTravelPath(originLocId, destLocId, arrivalTime, travelPrefs);
+        if (!plan || !plan.steps || !plan.steps.length) return null;
+
+        const windowStart = fromSlot.from;
+        const windowEnd = toSlot.from;
+        return this._materializePlanWithinWindow({
+            npcId: fromSlot.npcId,
+            plan,
+            windowStart,
+            windowEnd,
+            anchorEnd: true,
+        });
+    }
+
+    _buildTravelSegmentsAfter(originLocId, destLocId, fromSlot, travelPrefs) {
+        const departureTime = fromSlot.to;
+        const plan = this._planTravelPath(originLocId, destLocId, departureTime, travelPrefs);
+        if (!plan || !plan.steps || !plan.steps.length) return null;
+
+        return this._materializeTravelSteps({
+            npcId: fromSlot.npcId,
+            steps: plan.steps,
+            totalMinutes: plan.totalMinutes,
+            startTime: departureTime,
+            targetMinutes: plan.totalMinutes,
+        });
+    }
+
+    _materializePlanWithinWindow({ npcId, plan, windowStart, windowEnd, anchorEnd }) {
+        const maxWindowMinutes = (windowEnd.getTime() - windowStart.getTime()) / 60000;
+        if (maxWindowMinutes <= 0) return null;
+
+        const total = plan.totalMinutes;
+
+        let targetMinutes;
+        let startTime;
+
+        if (total <= maxWindowMinutes) {
+            targetMinutes = total;
+            if (anchorEnd) {
+                startTime = new Date(windowEnd.getTime() - total * 60000);
+            } else {
+                startTime = new Date(windowStart.getTime());
+            }
+        } else {
+            targetMinutes = maxWindowMinutes;
+            startTime = new Date(windowStart.getTime());
+        }
+
+        if (targetMinutes <= 0) return null;
+
+        return this._materializeTravelSteps({
+            npcId,
+            steps: plan.steps,
+            totalMinutes: plan.totalMinutes,
+            startTime,
+            targetMinutes,
+        });
+    }
+
+    _materializeTravelSteps({ npcId, steps, totalMinutes, startTime, targetMinutes }) {
+        if (!steps.length || totalMinutes <= 0 || targetMinutes <= 0) return null;
+
+        const scale = targetMinutes / totalMinutes;
 
         const scaledDurations = [];
         let sumMinutes = 0;
-        for (let i = 0; i < plan.steps.length; i++) {
-            const raw = plan.steps[i].minutes * scale;
+
+        for (let i = 0; i < steps.length; i++) {
+            const raw = steps[i].minutes * scale;
             const clamped = Math.max(1, Math.round(raw));
             scaledDurations.push(clamped);
             sumMinutes += clamped;
@@ -570,113 +689,11 @@ export class NPCScheduler {
         }
 
         const segments = [];
-        let cursor = travelStart.getTime();
+        let cursor = startTime.getTime();
 
-        for (let i = 0; i < plan.steps.length; i++) {
-            const step = plan.steps[i];
+        for (let i = 0; i < steps.length; i++) {
+            const step = steps[i];
             const mins = scaledDurations[i];
-            if (mins <= 0) continue;
-
-            const from = new Date(cursor);
-            const to = new Date(cursor + mins * 60000);
-            cursor = to.getTime();
-
-            const mode = step.mode; // "walk" | "wait" | "bus"
-            const isBus = mode === "bus";
-
-            // WALK / BUS / WAIT base segments are off-map (except wait-at-stop which
-            // can have a location if you prefer; here we'll keep it off-map too).
-            let baseLocId = null;
-            if (mode === "wait") {
-                // If you want waits to be at the stop on the map, uncomment:
-                // baseLocId = step.toId || step.fromId || originLocId;
-            }
-
-            // ----- MAIN TRAVEL SEGMENT -----
-            segments.push({
-                npcId: fromSlot.npcId,
-                from,
-                to,
-                target: {
-                    type: TargetTypes.travel,
-                    spec: {
-                        mode,
-                        isEnRoute: true,
-                        onBus: isBus,
-                        fromLocationId: step.fromId,
-                        toLocationId: step.toId,
-                        segmentStreetLength: step.distance || 0,
-                        streetName: step.streetName || null,
-                        pathEdges: [
-                            {
-                                fromId: String(step.fromId),
-                                toId: String(step.toId),
-                            },
-                        ],
-                    },
-                    locationId: baseLocId,
-                    placeId: null,
-                },
-                sourceRuleId: "travel_auto",
-            });
-
-            // ----- MICRO-STOP AT DESTINATION NODE -----
-            // For walking steps, add a 1-minute micro-stop at the node.
-            if (mode === "walk") {
-                const pauseFrom = new Date(cursor);
-                const pauseTo = new Date(cursor + MICRO_STOP_MINUTES * 60000);
-                cursor = pauseTo.getTime();
-
-                segments.push({
-                    npcId: fromSlot.npcId,
-                    from: pauseFrom,
-                    to: pauseTo,
-                    target: {
-                        type: TargetTypes.travel,
-                        spec: {
-                            mode: "walk",
-                            isEnRoute: true,
-                            onBus: false,
-                            microStop: true, // <-- important flag
-                            fromLocationId: step.toId,
-                            toLocationId: step.toId,
-                            segmentStreetLength: 0,
-                            streetName: step.streetName || null,
-                            pathEdges: [],
-                        },
-                        locationId: step.toId, // at this node
-                        placeId: null,
-                    },
-                    sourceRuleId: "travel_microstop",
-                });
-            }
-        }
-
-        return segments;
-    }
-
-    /**
-     * Build travel segments that start immediately after fromSlot (no truncation).
-     * Used when leaving a fixed-rule slot: we keep the fixed block intact and
-     * let travel push the next slot later.
-     */
-    _buildTravelSegmentsAfter(originLocId, destLocId, fromSlot, npcUsesBus, npcUsesCar) {
-        const departureTime = fromSlot.to;
-
-        const plan = this._planTravelPath(
-            originLocId,
-            destLocId,
-            departureTime,
-            npcUsesBus,
-            npcUsesCar
-        );
-        if (!plan || !plan.steps || !plan.steps.length) return null;
-
-        const segments = [];
-        let cursor = departureTime.getTime();
-
-        for (const step of plan.steps) {
-            const mins = Math.max(1, Math.round(step.minutes));
             if (mins <= 0) continue;
 
             const from = new Date(cursor);
@@ -688,13 +705,12 @@ export class NPCScheduler {
 
             let baseLocId = null;
             if (mode === "wait") {
-                // If desired, put waits "at" the stop:
-                // baseLocId = step.toId || step.fromId || originLocId;
+                // could choose to anchor waits to a stop
+                // baseLocId = step.toId || step.fromId || null;
             }
 
-            // Main travel segment
             segments.push({
-                npcId: fromSlot.npcId,
+                npcId,
                 from,
                 to,
                 target: {
@@ -720,14 +736,13 @@ export class NPCScheduler {
                 sourceRuleId: "travel_auto",
             });
 
-            // Micro-stop at node for walking
             if (mode === "walk") {
                 const pauseFrom = new Date(cursor);
                 const pauseTo = new Date(cursor + MICRO_STOP_MINUTES * 60000);
                 cursor = pauseTo.getTime();
 
                 segments.push({
-                    npcId: fromSlot.npcId,
+                    npcId,
                     from: pauseFrom,
                     to: pauseTo,
                     target: {
@@ -754,290 +769,152 @@ export class NPCScheduler {
         return segments;
     }
 
-    _insertTravelSlots(npc, slots, rules = []) {
-        if (!slots || !slots.length) return [];
+    // ------------------------------------------------------------------
+    // Path planning: choose between walk / car / bus
+    // ------------------------------------------------------------------
 
-        const npcUsesBus = !!npc.meta?.scheduleTemplate?.useBus;
-        const npcUsesCar = !!npc.meta?.scheduleTemplate?.useCar;
+    _buildEdgeSteps(path, mode, minutesMultiplier = 1) {
+        if (!path || !path.edges || !path.edges.length) return null;
 
-        const ruleById = new Map();
-        for (const rule of rules || []) {
-            if (!rule.id) continue;
-            ruleById.set(rule.id, rule);
-        }
+        const steps = path.edges.map((edge) => ({
+            mode,
+            fromId: String(edge.a),
+            toId: String(edge.b),
+            minutes: (edge.minutes || 1) * minutesMultiplier,
+            distance: edge.distance || 0,
+            streetName: edge.streetName || null,
+        }));
 
-        const isFixedSlot = (slot) => {
-            const rule = slot && ruleById.get(slot.sourceRuleId);
-            return !!rule && rule.type === SCHEDULE_RULES.fixed;
-        };
-
-        // Make a shallow copy we can mutate safely
-        const base = slots.slice();
-        const out = [];
-
-        for (let i = 0; i < base.length; i++) {
-            const current = base[i];
-            const next = base[i + 1] || null;
-
-            out.push(current);
-
-            if (!next) break;
-
-            const curTarget = current.target || {};
-            const nextTarget = next.target || {};
-
-            const curLoc = curTarget.locationId;
-            const nextLoc = nextTarget.locationId;
-
-            // Only insert travel when we actually move between locations
-            if (!curLoc || !nextLoc || curLoc === nextLoc) continue;
-
-            // Don't insert travel *after* a travel slot
-            if (curTarget.type === TargetTypes.travel) continue;
-
-            const originIsFixed = isFixedSlot(current);
-            const destIsFixed = isFixedSlot(next);
-
-            let travelSegments = null;
-
-            // If we are leaving a fixed activity (like school), do NOT cut into it.
-            // Instead, put travel immediately after the fixed slot and push the next slot later.
-            if (originIsFixed && !destIsFixed) {
-                travelSegments = this._buildTravelSegmentsAfter(
-                    curLoc,
-                    nextLoc,
-                    current,
-                    npcUsesBus,
-                    npcUsesCar
-                );
-            } else {
-                travelSegments = this._buildTravelSegmentsBetween(
-                    curLoc,
-                    nextLoc,
-                    current,
-                    next,
-                    npcUsesBus,
-                    npcUsesCar
-                );
-            }
-            if (!travelSegments || !travelSegments.length) continue;
-
-            // Adjust the end time of the current slot so travel fits before next
-            const firstSeg = travelSegments[0];
-
-            if (firstSeg.from > current.to) {
-                // There was a gap: extend the current activity up to when travel begins.
-                current.to = new Date(firstSeg.from.getTime());
-            } else if (firstSeg.from > current.from && firstSeg.from < current.to) {
-                // Travel cuts into the tail of the current slot: trim it.
-                current.to = new Date(firstSeg.from.getTime());
-            }
-
-            const lastSeg = travelSegments[travelSegments.length - 1];
-            const travelEnd = lastSeg.to;
-
-            // If travel ends after the scheduled start of the next slot,
-            // push the next slot forward by the overlap.
-            if (next.from < travelEnd) {
-                const deltaMs = travelEnd.getTime() - next.from.getTime();
-                const durMs = next.to.getTime() - next.from.getTime();
-                next.from = new Date(next.from.getTime() + deltaMs);
-                next.to = new Date(next.from.getTime() + durMs);
-            }
-
-            // Insert in chronological order
-            for (const seg of travelSegments) {
-                out.push(seg);
-            }
-        }
-
-        // Keep everything time-sorted
-        out.sort((a, b) => a.from - b.from);
-
-        // Merge consecutive bus / car segments into a single slot
-        const merged = [];
-        for (const slot of out) {
-            const prev = merged[merged.length - 1];
-
-            const isTravel = (s) => s && s.target && s.target.type === TargetTypes.travel;
-            const modeOf = (s) => (s && s.target && s.target.spec && s.target.spec.mode) || null;
-
-            const prevMode = modeOf(prev);
-            const curMode = modeOf(slot);
-
-            // we only merge travel segments that are bus or car,
-            // same mode, and directly adjacent in time
-            const mergeable =
-                prev &&
-                isTravel(prev) &&
-                isTravel(slot) &&
-                (prevMode === "bus" || prevMode === "car") &&
-                prevMode === curMode &&
-                prev.to.getTime() === slot.from.getTime();
-
-            if (mergeable) {
-                // Merge times and accumulate distance
-                prev.to = slot.to;
-                const prevLen = prev.target.spec.segmentStreetLength || 0;
-                const curLen = slot.target.spec.segmentStreetLength || 0;
-                prev.target.spec.segmentStreetLength = prevLen + curLen;
-
-                const prevPath = Array.isArray(prev.target.spec.pathEdges)
-                    ? prev.target.spec.pathEdges
-                    : [];
-                const curPath = Array.isArray(slot.target.spec.pathEdges)
-                    ? slot.target.spec.pathEdges
-                    : [];
-                prev.target.spec.pathEdges = prevPath.concat(curPath);
-            } else {
-                merged.push(slot);
-            }
-        }
-
-        return merged;
+        const totalMinutes = steps.reduce((sum, s) => sum + s.minutes, 0);
+        return { steps, totalMinutes };
     }
 
-    /**
-     * Take the raw slots (with overlaps) and:
-     *  - apply rule priority so higher-priority slots "win"
-     *  - cut lower-priority slots around higher-priority ones
-     *  - optionally smooth tiny fragments that are shorter than stayMinutes.min
-     */
-    _applyPriorityAndTrim(slots, rules) {
-        if (!slots.length) return [];
+    _planTravelPath(originLocId, destLocId, arrivalTime, travelPrefs) {
+        const basePath = this.world.map.getTravelTotal(originLocId, destLocId);
+        if (!basePath || !basePath.edges.length) return null;
 
-        // Map ruleId -> rule
-        const ruleById = new Map();
-        for (const rule of rules) {
-            if (!rule.id) continue;
-            ruleById.set(rule.id, rule);
+        const baseWalkPlan = this._buildEdgeSteps(basePath, "walk", 1);
+        if (!baseWalkPlan) return null;
+
+        const { usesBus, usesCar } = travelPrefs || {};
+
+        if (!usesBus && !usesCar) {
+            return baseWalkPlan;
         }
 
-        // Annotate slots with priority + minStay
-        const annotated = slots.map((slot) => {
-            const rule = ruleById.get(slot.sourceRuleId);
-            const type = rule?.type;
-            const priority = RULE_PRIORITY[type] ?? 0;
-
-            // minStay is only defined for rules that use stayMinutes
-            const minStay =
-                rule?.stayMinutes && typeof rule.stayMinutes.min === "number"
-                    ? rule.stayMinutes.min
-                    : 0;
-
-            return {
-                ...slot,
-                _priority: priority,
-                _minStay: minStay,
-            };
-        });
-
-        // Sort by priority DESC, then by start time ASC
-        annotated.sort((a, b) => {
-            if (b._priority !== a._priority) return b._priority - a._priority;
-            if (a.from.getTime() !== b.from.getTime()) {
-                return a.from - b.from;
-            }
-            return a.to - b.to;
-        });
-
-        const result = [];
-
-        // Helper: subtract existing (higher-priority) blocks from a candidate slot
-        const subtractCoveredRanges = (slot, blockers) => {
-            let segments = [{ start: slot.from.getTime(), end: slot.to.getTime() }];
-
-            for (const b of blockers) {
-                const bs = b.from.getTime();
-                const be = b.to.getTime();
-
-                const nextSegments = [];
-                for (const seg of segments) {
-                    const s = seg.start;
-                    const e = seg.end;
-
-                    // no overlap
-                    if (be <= s || bs >= e) {
-                        nextSegments.push(seg);
-                        continue;
-                    }
-
-                    // overlap: keep left piece, right piece, or both
-                    if (bs > s) {
-                        nextSegments.push({ start: s, end: bs });
-                    }
-                    if (be < e) {
-                        nextSegments.push({ start: be, end: e });
-                    }
-                }
-
-                segments = nextSegments;
-                if (!segments.length) break;
-            }
-
-            return segments.map((seg) => ({
-                ...slot,
-                from: new Date(seg.start),
-                to: new Date(seg.end),
-            }));
+        const busCfg = this._getBusStopConfig();
+        const weather = this.world.currentWeather;
+        const temperature = this.world.temperature;
+        const context = {
+            basePath,
+            baseWalkPlan,
+            busCfg,
+            weather,
+            temperature,
+            arrivalTime: arrivalTime || this.world.time.date,
+            travelPrefs,
         };
 
-        // Main pass: apply higher-priority slots first,
-        // and cut lower-priority ones around them.
-        for (const slot of annotated) {
-            const leftovers = subtractCoveredRanges(slot, result);
-            for (const s of leftovers) {
-                if (s.to > s.from) {
-                    result.push(s);
-                }
-            }
+        if (usesCar) {
+            const carPlan = this._planCarPath(context);
+            if (carPlan) return carPlan;
         }
 
-        // Sort chronologically for further passes and final output
-        result.sort((a, b) => a.from - b.from);
-
-        // Second pass: smooth tiny segments shorter than stayMinutes.min
-        // Example: 22:00–22:05 "home" when minStay is 30 minutes -> merge into previous slot.
-        for (let i = 0; i < result.length; i++) {
-            const slot = result[i];
-            const minStay = slot._minStay || 0;
-            if (!minStay) continue;
-
-            const durationMin = (slot.to.getTime() - slot.from.getTime()) / 60000;
-            if (durationMin >= minStay) continue;
-
-            const prev = result[i - 1];
-            const next = result[i + 1];
-
-            // Prefer extending the previous slot if it's directly adjacent
-            if (prev && prev.to.getTime() === slot.from.getTime()) {
-                prev.to = slot.to;
-                result.splice(i, 1);
-                i -= 1;
-                continue;
-            }
-
-            // Otherwise, extend the next slot if it's directly adjacent
-            if (next && next.from.getTime() === slot.to.getTime()) {
-                next.from = slot.from;
-                result.splice(i, 1);
-                i -= 1;
-                continue;
-            }
-
-            // If it's an isolated tiny slot, you can either keep it or drop it.
-            // For now we'll keep it; you could choose to drop it instead:
-            // result.splice(i, 1); i -= 1;
+        if (usesBus) {
+            const busPlan = this._planBusPath(originLocId, destLocId, context);
+            if (busPlan) return busPlan;
         }
 
-        // Clean up temp fields
-        for (const s of result) {
-            delete s._priority;
-            delete s._minStay;
-        }
-
-        return result;
+        return baseWalkPlan;
     }
+
+    _planCarPath(context) {
+        const { basePath, busCfg } = context;
+
+        if (!basePath || !basePath.edges || basePath.edges.length <= 2) {
+            return null; // short hops -> walk
+        }
+
+        const busMult = busCfg.travelTimeMult || 1;
+        const carMult = busMult * 0.5;
+
+        return this._buildEdgeSteps(basePath, "car", carMult);
+    }
+
+    _planBusPath(originLocId, destLocId, context) {
+        const { basePath, baseWalkPlan, busCfg, weather, temperature, arrivalTime } = context;
+
+        const baseMinutes = basePath.minutes;
+        const edgesCount = basePath.edges.length;
+
+        const tooFar = baseMinutes > 20 || edgesCount > 5;
+        const badWeather =
+            weather === WeatherType.RAIN ||
+            weather === WeatherType.STORM ||
+            weather === WeatherType.SNOW;
+        const cold = temperature < 0;
+
+        if (!tooFar && !badWeather && !cold) {
+            return null;
+        }
+
+        const originBusLoc = this._findNearestBusStopLocation(originLocId);
+        const destBusLoc = this._findNearestBusStopLocation(destLocId);
+
+        if (!originBusLoc || !destBusLoc) {
+            return null;
+        }
+
+        const toBus = this.world.map.getTravelTotal(originLocId, originBusLoc);
+        const busPath = this.world.map.getTravelTotal(originBusLoc, destBusLoc);
+        const fromBus = this.world.map.getTravelTotal(destBusLoc, destLocId);
+
+        if (!toBus || !busPath || !fromBus) {
+            return baseWalkPlan;
+        }
+
+        const walkToBusPlan = this._buildEdgeSteps(toBus, "walk", 1);
+        const walkFromBusPlan = this._buildEdgeSteps(fromBus, "walk", 1);
+        const busLegPlan = this._buildEdgeSteps(busPath, "bus", busCfg.travelTimeMult || 1);
+
+        if (!walkToBusPlan || !walkFromBusPlan || !busLegPlan) {
+            return baseWalkPlan;
+        }
+
+        const d = arrivalTime || this.world.time.date;
+        const hour = d.getHours();
+        const isDay = hour >= 6 && hour < 22;
+        const freq = isDay ? busCfg.busFrequencyDay : busCfg.busFrequencyNight;
+        const avgWait = freq > 0 ? freq * 0.5 : 0;
+
+        const waitSteps = avgWait
+            ? [
+                  {
+                      mode: "wait",
+                      fromId: String(originBusLoc),
+                      toId: String(originBusLoc),
+                      minutes: avgWait,
+                      distance: 0,
+                      streetName: null,
+                  },
+              ]
+            : [];
+
+        const steps = [
+            ...walkToBusPlan.steps,
+            ...waitSteps,
+            ...busLegPlan.steps,
+            ...walkFromBusPlan.steps,
+        ];
+
+        const totalMinutes = steps.reduce((s, st) => s + st.minutes, 0);
+
+        return { steps, totalMinutes };
+    }
+
+    // ------------------------------------------------------------------
+    // Activity target resolution
+    // ------------------------------------------------------------------
 
     _pickAnyLocationId() {
         const ids = [...this.world.locations.keys()];
@@ -1083,21 +960,20 @@ export class NPCScheduler {
                 atTime,
                 respectOpening
             );
-        } else {
-            return this.world.map.findRandomPlace(
-                matcher,
-                originLocationId,
-                atTime,
-                respectOpening,
-                minutesAtOrigin
-            );
         }
 
-        // future extension: locationTag, district, etc.
-        return null;
+        return this.world.map.findRandomPlace(
+            matcher,
+            originLocationId,
+            atTime,
+            respectOpening,
+            minutesAtOrigin
+        );
     }
 
-    // --------- pathfinding via bus stops ---------
+    // ------------------------------------------------------------------
+    // Bus helpers
+    // ------------------------------------------------------------------
 
     _findNearestBusStopLocation(originLocationId) {
         const matchFn = (place) => place.key === "bus_stop";
@@ -1118,7 +994,6 @@ export class NPCScheduler {
             };
         }
 
-        // Fallback defaults if none found
         return {
             travelTimeMult: 0.3,
             busFrequencyDay: 15,
@@ -1126,166 +1001,123 @@ export class NPCScheduler {
         };
     }
 
-    _planTravelPath(originLocId, destLocId, arrivalTime, npcUsesBus, npcUsesCar) {
-        const basePath = this.world.map.getTravelTotal(originLocId, destLocId);
-        if (!basePath || !basePath.edges.length) return null;
+    // ------------------------------------------------------------------
+    // Priority / trimming
+    // ------------------------------------------------------------------
 
-        const baseEdges = basePath.edges;
-        const baseMinutes = basePath.minutes;
+    _applyPriorityAndTrim(slots, rules) {
+        if (!slots.length) return [];
 
-        const baseSteps = baseEdges.map((edge) => ({
-            mode: "walk",
-            fromId: String(edge.a),
-            toId: String(edge.b),
-            minutes: edge.minutes || 1,
-            distance: edge.distance || 0,
-            streetName: edge.streetName || null,
-        }));
-
-        // If this NPC never uses buses, just walk:
-        if (!npcUsesBus && !npcUsesCar) {
-            return { steps: baseSteps, totalMinutes: baseMinutes };
+        const ruleById = new Map();
+        for (const rule of rules) {
+            if (!rule.id) continue;
+            ruleById.set(rule.id, rule);
         }
 
-        // --- Conditions for preferring car ---
-        // "Path length" = number of edges. If 2 or less, always walk.
-        if (npcUsesCar) {
-            if (baseEdges.length <= 2) {
-                // short hop -> walk
-                return { steps: baseSteps, totalMinutes: baseMinutes };
+        const annotated = slots.map((slot) => {
+            const rule = ruleById.get(slot.sourceRuleId);
+            const type = rule?.type;
+            const priority = RULE_PRIORITY[type] ?? 0;
+
+            const minStay =
+                rule?.stayMinutes && typeof rule.stayMinutes.min === "number"
+                    ? rule.stayMinutes.min
+                    : 0;
+
+            return {
+                ...slot,
+                _priority: priority,
+                _minStay: minStay,
+            };
+        });
+
+        annotated.sort((a, b) => {
+            if (b._priority !== a._priority) return b._priority - a._priority;
+            if (a.from.getTime() !== b.from.getTime()) return a.from - b.from;
+            return a.to - b.to;
+        });
+
+        const result = [];
+
+        const subtractCoveredRanges = (slot, blockers) => {
+            let segments = [{ start: slot.from.getTime(), end: slot.to.getTime() }];
+
+            for (const b of blockers) {
+                const bs = b.from.getTime();
+                const be = b.to.getTime();
+
+                const nextSegments = [];
+
+                for (const seg of segments) {
+                    const s = seg.start;
+                    const e = seg.end;
+
+                    if (be <= s || bs >= e) {
+                        nextSegments.push(seg);
+                        continue;
+                    }
+
+                    if (bs > s) {
+                        nextSegments.push({ start: s, end: bs });
+                    }
+                    if (be < e) {
+                        nextSegments.push({ start: be, end: e });
+                    }
+                }
+
+                segments = nextSegments;
+                if (!segments.length) break;
             }
 
-            // Car time multiplier is 50% of the bus travelTimeMult.
-            const busCfg = this._getBusStopConfig();
-            const busMult = busCfg.travelTimeMult || 1;
-            const carMult = busMult * 0.5;
-
-            const carSteps = baseEdges.map((edge) => ({
-                mode: "car",
-                fromId: String(edge.a),
-                toId: String(edge.b),
-                minutes: (edge.minutes || 1) * carMult,
-                distance: edge.distance || 0,
-                streetName: edge.streetName || null,
+            return segments.map((seg) => ({
+                ...slot,
+                from: new Date(seg.start),
+                to: new Date(seg.end),
             }));
+        };
 
-            const carTotal = carSteps.reduce((sum, s) => sum + s.minutes, 0);
-
-            // Car can be used from any location, any time, so if we get here,
-            // just use the car plan.
-            return { steps: carSteps, totalMinutes: carTotal };
+        for (const slot of annotated) {
+            const leftovers = subtractCoveredRanges(slot, result);
+            for (const s of leftovers) {
+                if (s.to > s.from) {
+                    result.push(s);
+                }
+            }
         }
 
-        // --- Conditions for preferring bus ---
-        const weather = this.world.currentWeather; // "rain","storm","snow",...
-        const temperature = this.world.temperature; // °C
-        const cold = temperature < 0;
-        const badWeather =
-            weather === WeatherType.RAIN ||
-            weather === WeatherType.STORM ||
-            weather === WeatherType.SNOW;
+        result.sort((a, b) => a.from - b.from);
 
-        const tooFar = baseMinutes > 20 || baseEdges.length > 5;
+        for (let i = 0; i < result.length; i++) {
+            const slot = result[i];
+            const minStay = slot._minStay || 0;
+            if (!minStay) continue;
 
-        // If none of the conditions hit, just walk
-        if (!tooFar && !badWeather && !cold) {
-            return { steps: baseSteps, totalMinutes: baseMinutes };
+            const durationMin = (slot.to.getTime() - slot.from.getTime()) / 60000;
+            if (durationMin >= minStay) continue;
+
+            const prev = result[i - 1];
+            const next = result[i + 1];
+
+            if (prev && prev.to.getTime() === slot.from.getTime()) {
+                prev.to = slot.to;
+                result.splice(i, 1);
+                i -= 1;
+                continue;
+            }
+
+            if (next && next.from.getTime() === slot.to.getTime()) {
+                next.from = slot.from;
+                result.splice(i, 1);
+                i -= 1;
+                continue;
+            }
         }
 
-        // Try to plan a bus route
-        const busCfg = this._getBusStopConfig();
-        const originBusLoc = this._findNearestBusStopLocation(originLocId);
-        const destBusLoc = this._findNearestBusStopLocation(destLocId);
-
-        if (!originBusLoc || !destBusLoc) {
-            // No bus stops reachable, fallback to walking
-            return { steps: baseSteps, totalMinutes: baseMinutes };
+        for (const s of result) {
+            delete s._priority;
+            delete s._minStay;
         }
 
-        const toBus = this.world.map.getTravelTotal(originLocId, originBusLoc);
-        const busPath = this.world.map.getTravelTotal(originBusLoc, destBusLoc);
-        const fromBus = this.world.map.getTravelTotal(destBusLoc, destLocId);
-
-        if (!toBus || !busPath || !fromBus) {
-            return { steps: baseSteps, totalMinutes: baseMinutes };
-        }
-
-        const tWalkToBus = toBus.minutes;
-        const tBusRaw = busPath.minutes;
-        const tWalkFromBus = fromBus.minutes;
-
-        const d = arrivalTime || this.world.time.date;
-        const hour = d.getHours();
-        const isDay = hour >= 6 && hour < 22;
-        const freq = isDay ? busCfg.busFrequencyDay : busCfg.busFrequencyNight;
-        const avgWait = freq > 0 ? freq * 0.5 : 0; // simple expectation
-
-        const totalBusMinutes =
-            tWalkToBus + tWalkFromBus + tBusRaw * busCfg.travelTimeMult + avgWait;
-
-        // If bus would actually be slower *and* we're not forced by conditions, walk
-        if (!tooFar && !badWeather && !cold && totalBusMinutes >= baseMinutes) {
-            return { steps: baseSteps, totalMinutes: baseMinutes };
-        }
-
-        // Build step list: walk -> wait -> bus -> walk
-        const steps = [];
-
-        // walk to bus stop
-        for (const edge of toBus.edges) {
-            steps.push({
-                mode: "walk",
-                fromId: String(edge.a),
-                toId: String(edge.b),
-                minutes: edge.minutes || 1,
-                distance: edge.distance || 0,
-                streetName: edge.streetName || null,
-            });
-        }
-
-        // wait at bus stop
-        if (avgWait > 0) {
-            steps.push({
-                mode: "wait",
-                fromId: String(originBusLoc),
-                toId: String(originBusLoc),
-                minutes: avgWait,
-            });
-        }
-
-        // bus ride
-        for (const edge of busPath.edges) {
-            const scaled = (edge.minutes || 1) * busCfg.travelTimeMult;
-            steps.push({
-                mode: "bus",
-                fromId: String(edge.a),
-                toId: String(edge.b),
-                minutes: scaled,
-                distance: edge.distance || 0,
-                streetName: edge.streetName || null,
-            });
-        }
-
-        // walk from bus stop to destination
-        for (const edge of fromBus.edges) {
-            steps.push({
-                mode: "walk",
-                fromId: String(edge.a),
-                toId: String(edge.b),
-                minutes: edge.minutes || 1,
-                distance: edge.distance || 0,
-                streetName: edge.streetName || null,
-            });
-        }
-
-        const total = steps.reduce((s, st) => s + st.minutes, 0);
-
-        return { steps, totalMinutes: total };
+        return result;
     }
 }
-
-const TargetTypes = {
-    home: "home",
-    activity: "activity",
-    travel: "travel",
-};
