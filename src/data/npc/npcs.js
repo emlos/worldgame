@@ -1173,13 +1173,13 @@ export function npcFromRegistryKey(key) {
         pronouns: def.pronouns,
         stats: def.stats,
         bodyTemplate: def.bodyTemplate,
+        scheduleTemplate: def.scheduleTemplate,
         meta: {
             tags: def.tags || [],
             shortName: def.shortName || def.name,
             registryKey: def.key,
             description: def.description,
             //keep a copy of the schedule template in meta
-            scheduleTemplate: def.scheduleTemplate || null,
         },
     };
 }

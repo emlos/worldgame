@@ -7,7 +7,7 @@ const MAP_HEIGHT = 50;
 let world = null;
 let scheduleManager = null;
 
-const npcStates = []; // { id, npc, color, weekSchedule, nextIntentSlot, isAtMicroStop }
+const npcStates = []; // { id, npc, color, weekSchedule, nextIntentSlot }
 let activeNpcId = null;
 
 let locationNodes = new Map();
@@ -21,6 +21,18 @@ let isAutoForwarding = false;
 const NPC_COLORS = ["#ffcc00", "#ff66cc", "#00d68f", "#fd9644", "#a55eea", "#20bf6b"];
 
 const NPCS = ["taylor", "shade", "officer_vega", "clara", "mike", "vincent"];
+
+// Bridge to new NPCScheduler API (returns an array with .startDate/.endDate attached)
+function getCurrentWeekScheduleFor(npc) {
+    const now = world.time.date;
+    const weekStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()); // midnight today
+    const slots = scheduleManager.getWeekSchedule(npc, weekStart);
+
+    // mimic old API: attach metadata onto the array
+    slots.startDate = weekStart;
+    slots.endDate = new Date(weekStart.getTime() + 7 * MS_PER_DAY);
+    return slots;
+}
 
 // ---------------------------
 // World + NPC init
@@ -64,7 +76,7 @@ function initWorldAndNpcs(npcKeys) {
             meta: base.meta || {},
         });
 
-        const weekSchedule = scheduleManager.getCurrentWeekSchedule(npc);
+        const weekSchedule = getCurrentWeekScheduleFor(npc);
 
         npcStates.push({
             id: key,
@@ -72,7 +84,6 @@ function initWorldAndNpcs(npcKeys) {
             color: NPC_COLORS[idx % NPC_COLORS.length],
             weekSchedule,
             nextIntentSlot: null,
-            isAtMicroStop: false,
         });
     });
 
@@ -118,12 +129,8 @@ function getDayBuckets(slots) {
 function findActiveSlotForTime(weekSchedule, date) {
     if (!weekSchedule) return null;
 
-    if (date < weekSchedule.startDate || date >= weekSchedule.endDate) {
-        return null; // caller will regenerate schedule
-    }
-
     let active = null;
-    for (const slot of weekSchedule.slots) {
+    for (const slot of weekSchedule) {
         if (slot.from <= date && date < slot.to) {
             active = slot;
             break;
@@ -137,11 +144,12 @@ function syncNpcToCurrentTime(npcState) {
     const { npc } = npcState;
     if (!world || !npc || !scheduleManager) return;
 
-    // Refresh this NPC's schedule if current week out of range
     const now = world.time.date;
     let ws = npcState.weekSchedule;
+
+    // Refresh schedule if current time is outside cached week
     if (!ws || now < ws.startDate || now >= ws.endDate) {
-        ws = scheduleManager.getCurrentWeekSchedule(npc);
+        ws = getCurrentWeekScheduleFor(npc);
         npcState.weekSchedule = ws;
     }
 
@@ -150,6 +158,7 @@ function syncNpcToCurrentTime(npcState) {
         world.getLocation ? world.getLocation(id) : world.locations.get(String(id));
 
     if (!slot) {
+        // No slot → fallback to home
         npc.isInTransit = false;
         npcState.isAtMicroStop = false;
         if (npc.homeLocationId) {
@@ -162,42 +171,23 @@ function syncNpcToCurrentTime(npcState) {
         return;
     }
 
-    const target = slot.target || {};
-    const spec = target.spec || {};
-    const mode = spec.mode;
-    const isTravel = target.type === "travel";
-    const isMicroStop = isTravel && spec.microStop === true;
+    // New scheduler: no explicit travel slots yet → always “at” some place
+    npc.isInTransit = false;
+    npcState.isAtMicroStop = false;
 
-    const isTransit = isTravel && mode !== "wait";
+    const locId =
+        slot.locationId ??
+        (slot.location && slot.location.id) ??
+        npc.locationId ??
+        npc.homeLocationId;
 
-    npc.isInTransit = isTransit;
-    npcState.isAtMicroStop = isMicroStop;
+    const placeId = slot.placeId ?? null;
 
-    if (!isTransit || isMicroStop) {
-        let locId = null;
-        let placeId = null;
-
-        if (isTravel) {
-            if (mode === "wait" || isMicroStop) {
-                locId =
-                    spec.toLocationId ??
-                    spec.fromLocationId ??
-                    npc.locationId ??
-                    npc.homeLocationId;
-            } else {
-                locId = target.locationId || npc.homeLocationId || npc.locationId;
-            }
+    if (locId != null) {
+        if (typeof npc.setLocationAndPlace === "function") {
+            npc.setLocationAndPlace(locId, placeId);
         } else {
-            locId = target.locationId || npc.homeLocationId || npc.locationId;
-            placeId = target.placeId || null;
-        }
-
-        if (locId != null) {
-            if (typeof npc.setLocationAndPlace === "function") {
-                npc.setLocationAndPlace(locId, placeId);
-            } else {
-                npc.setLocation(locId);
-            }
+            npc.setLocation(locId);
         }
     }
 
@@ -450,10 +440,10 @@ function updateNpcMarkers() {
         const marker = npcMarkers.get(state.id);
         if (!marker) continue;
 
-        const { npc, isAtMicroStop } = state;
+        const { npc } = state;
 
         // hide when travelling and not at a walking micro-stop (same logic as before)
-        if (npc.isInTransit && !isAtMicroStop) {
+        if (npc.isInTransit) {
             marker.setAttribute("visibility", "hidden");
             continue;
         }
@@ -665,7 +655,8 @@ function renderNpcInfo(npcState) {
 
     const fallbackLoc = getLoc(npc.locationId);
 
-    if (!slot || !slot.target) {
+    // No active slot -> just show current/fallback
+    if (!slot) {
         if (currentEl) {
             currentEl.textContent = fallbackLoc ? `${fallbackLoc.name} (${fallbackLoc.id})` : "—";
         }
@@ -681,44 +672,13 @@ function renderNpcInfo(npcState) {
         return;
     }
 
-    // Travel state detail (same semantics as your Taylor view, simplified)
-    if (slot.target.type === "travel") {
-        const spec = slot.target.spec || {};
-        const mode = spec.mode;
-        const isMicroStop = spec.microStop === true;
-
-        if (mode === "wait" || isMicroStop) {
-            const locId =
-                spec.toLocationId ?? spec.fromLocationId ?? npc.locationId ?? npc.homeLocationId;
-
-            const loc = locId != null ? getLoc(locId) : null;
-            const baseName = loc ? `${loc.name} (${loc.id})` : "somewhere";
-
-            let label;
-            if (mode === "wait") {
-                label = `waiting at ${baseName}`;
-            } else {
-                label = `walking, paused at ${baseName}`;
-            }
-
-            if (currentEl) currentEl.textContent = label;
-
-            if (placesEl) {
-                if (loc && Array.isArray(loc.places) && loc.places.length) {
-                    placesEl.innerHTML = loc.places
-                        .map((place) => `<code>${place.key}</code>`)
-                        .join(" ");
-                } else {
-                    placesEl.textContent = "—";
-                }
-            }
-            return;
-        }
-    }
-
-    // Activity/home
-    const locId = slot.target.locationId || npc.locationId;
-    const currentLoc = getLoc(locId);
+    // Use new slot: locationId/placeId
+    const locId =
+        slot.locationId ??
+        (slot.location && slot.location.id) ??
+        npc.locationId ??
+        npc.homeLocationId;
+    const currentLoc = locId != null ? getLoc(locId) : null;
 
     if (currentEl) {
         currentEl.textContent = currentLoc ? `${currentLoc.name} (${currentLoc.id})` : "—";
@@ -726,9 +686,16 @@ function renderNpcInfo(npcState) {
 
     if (placesEl) {
         if (currentLoc && Array.isArray(currentLoc.places) && currentLoc.places.length) {
-            placesEl.innerHTML = currentLoc.places
-                .map((place) => `<code>${place.key}</code>`)
+            const html = currentLoc.places
+                .map((place) => {
+                    const isActive = slot.placeId && place.id == slot.placeId;
+                    const label = place.name || place.key || place.id;
+                    return isActive
+                        ? `<strong><code>${label}</code></strong>`
+                        : `<code>${label}</code>`;
+                })
                 .join(" ");
+            placesEl.innerHTML = html;
         } else {
             placesEl.textContent = "—";
         }
@@ -738,8 +705,8 @@ function renderNpcInfo(npcState) {
 // ----- next intent + highlight -----
 
 function findFirstNonTravelSlotAfter(weekSchedule, startSlot) {
-    if (!weekSchedule || !weekSchedule.slots || !startSlot) return null;
-    const slots = weekSchedule.slots;
+    if (!weekSchedule || !startSlot) return null;
+    const slots = weekSchedule;
     const idx = slots.indexOf(startSlot);
     if (idx === -1) return null;
 
@@ -753,50 +720,34 @@ function findFirstNonTravelSlotAfter(weekSchedule, startSlot) {
 }
 
 function getIntentLocationData(npcState, slot) {
-    if (!slot || !slot.target || !world) {
+    if (!slot || !world) {
         return { loc: null, placeName: null, isHome: false };
     }
 
     const { npc } = npcState;
-
     const getLoc = (id) =>
         world.getLocation ? world.getLocation(id) : world.locations.get(String(id));
 
-    if (slot.target.type !== "travel") {
-        const locId = slot.target.locationId;
-        if (!locId) return { loc: null, placeName: null, isHome: false };
+    const locId =
+        slot.locationId ??
+        (slot.location && slot.location.id) ??
+        npc.locationId ??
+        npc.homeLocationId;
 
-        const loc = getLoc(locId);
-        if (!loc) return { loc: null, placeName: null, isHome: false };
+    const loc = locId != null ? getLoc(locId) : null;
+    if (!loc) return { loc: null, placeName: null, isHome: false };
 
-        const spec = slot.target.spec || {};
-        const isHomeTarget = slot.target.type === "home" || spec.type === "home";
-
-        let placeName = null;
-        if (isHomeTarget) {
-            placeName = "home";
-        } else if (slot.target.placeId && Array.isArray(loc.places)) {
-            const placeObj = loc.places.find((p) => p.id == slot.target.placeId);
-            if (placeObj) {
-                placeName = placeObj.name || placeObj.key || null;
-            }
+    let placeName = null;
+    if (slot.placeId && Array.isArray(loc.places)) {
+        const placeObj = loc.places.find((p) => p.id == slot.placeId);
+        if (placeObj) {
+            placeName = placeObj.name || placeObj.key || null;
         }
-
-        return { loc, placeName, isHome: isHomeTarget };
     }
 
-    // Travel -> look ahead
-    const destSlot = findFirstNonTravelSlotAfter(npcState.weekSchedule, slot);
-    if (destSlot && destSlot.target && destSlot.target.locationId) {
-        return getIntentLocationData(npcState, destSlot);
-    }
+    const isHome = npc.homeLocationId != null && loc.id === npc.homeLocationId;
 
-    const spec = slot.target.spec || {};
-    const locId = spec.toLocationId;
-    if (locId == null) return { loc: null, placeName: null, isHome: false };
-
-    const loc = getLoc(locId);
-    return { loc, placeName: null, isHome: false };
+    return { loc, placeName, isHome };
 }
 
 function updateNextIntentText(npcState) {
@@ -895,7 +846,7 @@ function renderNpcWeekSchedule(npcState) {
     const container = byId(`npc-${npcState.id}-weekSchedule`);
     if (!container || !npcState.weekSchedule || !world) return;
 
-    const slots = npcState.weekSchedule.slots || [];
+    const slots = npcState.weekSchedule || [];
     if (!slots.length) {
         container.textContent = "No schedule slots for this week.";
         return;
@@ -914,15 +865,8 @@ function renderNpcWeekSchedule(npcState) {
             to.getMinutes()
         )}`;
 
-    const isTravelWalk = (slot) =>
-        slot &&
-        slot.target &&
-        slot.target.type === "travel" &&
-        slot.target.spec &&
-        slot.target.spec.mode === "walk";
-
     const now = world.time.date;
-    const activeSlot = findActiveSlotForTime(npcState.weekSchedule, now);
+    const activeSlot = findActiveSlotForTime(slots, now);
 
     for (const key of sortedKeys) {
         const { date, slots: daySlotsRaw } = dayBuckets.get(key);
@@ -934,182 +878,48 @@ function renderNpcWeekSchedule(npcState) {
         )}`;
         lines.push(`<h3 class="schedule-day">${header}</h3>`);
 
-        let walkGroup = [];
-
-        const flushWalkGroup = () => {
-            if (!walkGroup.length) return;
-
-            const first = walkGroup[0];
-            const last = walkGroup[walkGroup.length - 1];
-            const from = first.from;
-            const to = last.to;
-
-            const totalMinutes = Math.round((to.getTime() - from.getTime()) / 60000);
-
-            const streetNames = new Set();
-            for (const s of walkGroup) {
-                const spec = s.target && s.target.spec;
-                if (spec && spec.streetName) streetNames.add(spec.streetName);
-            }
-            const streetCount = streetNames.size || walkGroup.length;
-
-            const timeStr = formatTimeRange(from, to);
-            const ruleId = first.sourceRuleId || "travel_auto";
-
-            const summaryHtml = `${timeStr} – walking (${totalMinutes} min, ${streetCount} streets) <span style="opacity:0.6;">[${ruleId}]</span>`;
-
-            const detailLines = [];
-            for (const step of walkGroup) {
-                const sFrom = step.from;
-                const sTo = step.to;
-                const stepTime = formatTimeRange(sFrom, sTo);
-                const spec = step.target && step.target.spec;
-                const streetName = spec && spec.streetName ? spec.streetName : "street";
-                const isMicro = spec && spec.microStop === true;
-
-                let fromLoc = null;
-                let toLoc = null;
-                if (spec && spec.fromLocationId != null && spec.toLocationId != null) {
-                    fromLoc = getLoc(spec.fromLocationId);
-                    toLoc = getLoc(spec.toLocationId);
-                }
-
-                let stepLabel;
-                if (isMicro) {
-                    const loc = toLoc || fromLoc;
-                    const locLabel = loc ? `${loc.name} (${loc.id})` : "location";
-                    stepLabel = `at ${locLabel}`;
-                } else {
-                    const fromLabel = fromLoc ? `${fromLoc.name} (${fromLoc.id})` : "";
-                    const toLabel = toLoc ? `${toLoc.name} (${toLoc.id})` : "";
-                    stepLabel =
-                        fromLabel && toLabel
-                            ? `${streetName} (${fromLabel} → ${toLabel})`
-                            : streetName;
-                }
-
-                detailLines.push(`<li>${stepTime} – ${stepLabel}</li>`);
-            }
-
-            const groupHasActive = activeSlot && walkGroup.includes(activeSlot);
-            const walkClasses = ["schedule-slot", "schedule-slot--walk"];
-            if (groupHasActive) walkClasses.push("schedule-slot--active");
-
-            const openAttr = groupHasActive ? " open" : "";
-
-            lines.push(
-                `<details class="${walkClasses.join(
-                    " "
-                )}"${openAttr}><summary>${summaryHtml}</summary><ul>${detailLines.join(
-                    ""
-                )}</ul></details>`
-            );
-
-            walkGroup = [];
-        };
-
         for (const slot of daySlots) {
-            if (isTravelWalk(slot)) {
-                const last = walkGroup[walkGroup.length - 1];
-                if (!last || last.to.getTime() === slot.from.getTime()) {
-                    walkGroup.push(slot);
-                } else {
-                    flushWalkGroup();
-                    walkGroup.push(slot);
-                }
-                continue;
-            }
-
-            flushWalkGroup();
-
             const from = slot.from;
             const to = slot.to;
             const timeStr = formatTimeRange(from, to);
 
-            let mode = false;
-            let targetDesc = "";
-            const sourceId = slot.sourceRuleId || "";
+            const locId =
+                slot.locationId ??
+                (slot.location && slot.location.id) ??
+                npcState.npc.locationId ??
+                npcState.npc.homeLocationId;
 
-            if (slot.target) {
-                const spec = slot.target.spec || {};
-                const isHomeTarget = slot.target.type === "home" || spec.type === "home";
+            const loc = locId != null ? getLoc(locId) : null;
 
-                if (slot.target.type === "travel") {
-                    mode = spec.mode || "travel";
-                    let modeLabel = "travel";
-
-                    if (mode === "walk") modeLabel = "walking";
-                    else if (mode === "bus") modeLabel = "on the bus";
-                    else if (mode === "car") modeLabel = "in the car";
-                    else if (mode === "wait") modeLabel = "waiting for bus";
-
-                    targetDesc = modeLabel;
-                } else {
-                    const locId = slot.target.locationId;
-                    const loc = locId ? getLoc(locId) : null;
-                    if (loc) {
-                        let place = "";
-                        if (isHomeTarget) {
-                            place = "home";
-                        } else if (slot.target.placeId && Array.isArray(loc.places)) {
-                            const placeObj = loc.places.find((p) => p.id == slot.target.placeId);
-                            if (placeObj) {
-                                place = placeObj.name || placeObj.key || "";
-                            }
-                        }
-
-                        targetDesc = `${loc.name} (${loc.id})`;
-                        if (place) {
-                            targetDesc += ` – ${place}`;
-                        }
-                    } else {
-                        targetDesc = isHomeTarget ? "home" : "activity";
-                    }
+            let desc = loc ? `${loc.name} (${loc.id})` : "Unknown location";
+            if (slot.placeId && loc && Array.isArray(loc.places)) {
+                const placeObj = loc.places.find((p) => p.id == slot.placeId);
+                if (placeObj) {
+                    const label = placeObj.name || placeObj.key || placeObj.id;
+                    desc += ` – ${label}`;
                 }
             }
 
-            const spec = slot.target && slot.target.spec;
-            const isBusOrCar =
-                slot.target &&
-                slot.target.type === "travel" &&
-                spec &&
-                (spec.mode === "bus" || spec.mode === "car");
+            const sourceId = slot.sourceRuleId || "";
+            const ruleType = slot.ruleType || "";
 
             const classNames = ["schedule-slot"];
-            if (isBusOrCar) {
-                classNames.push(spec.mode === "bus" ? "schedule-slot--bus" : "schedule-slot--car");
-            }
-
-            // 🔴 NEW: mark this concrete slot as active
             if (activeSlot && slot === activeSlot) {
                 classNames.push("schedule-slot--active");
             }
 
-            let extraAttrs = ` class="${classNames.join(" ")}"`;
-
-            if (isBusOrCar) {
-                const pathEdges = Array.isArray(spec.pathEdges) ? spec.pathEdges : [];
-                const serialized = pathEdges.map((e) => `${e.fromId}-${e.toId}`).join(",");
-                extraAttrs += ` data-bus-path="${serialized}"`;
-            }
-
-            const highlightMode = mode === "bus" || mode === "car";
-
             lines.push(
-                `<div${extraAttrs}>${
-                    highlightMode ? `<code class="busline-hover">` : ""
-                }${timeStr} – ${targetDesc}${
-                    highlightMode ? "</code>" : ""
-                } <span style="opacity:0.6;">[${sourceId}]</span></div>`
+                `<div class="${classNames.join(" ")}">${timeStr} – ${desc} ` +
+                    `<span style="opacity:0.6;">[${ruleType ? ruleType : "rule"}${
+                        sourceId ? ": " + sourceId : ""
+                    }]</span></div>`
             );
         }
-
-        flushWalkGroup();
     }
 
     container.innerHTML = lines.join("\n");
-    attachBusHoverHandlers(container);
 
+    // scroll active slot into view if present
     const activeEl = container.querySelector(".schedule-slot--active");
     if (activeEl) {
         activeEl.scrollIntoView({ block: "center" });

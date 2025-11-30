@@ -37,6 +37,7 @@ export class NPC {
         locationId = null,
         homeLocationId = null,
         homePlaceId = null,
+        scheduleTemplate = null,
         meta = {},
     } = {}) {
         this.id = id || String(name || "");
@@ -66,6 +67,9 @@ export class NPC {
         this.locationId = locationId; // "where are they now?"
         this.homeLocationId = homeLocationId; // which Location contains their home
         this.homePlaceId = homePlaceId; // Place.id of their home inside that location
+
+        // reference to the template rules
+        this.scheduleTemplate = scheduleTemplate;
 
         // Misc metadata (tags, registry key, etc.)
         this.meta = { ...meta };
