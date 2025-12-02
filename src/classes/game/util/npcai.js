@@ -196,8 +196,7 @@ export class NPCScheduler {
         // 1) Generate intents for the whole week (no exact times yet)
         const intents = this._generateIntentsForWeek(npc, weekStart, rules);
 
-        // 2) Build a continuous week-long timeline from intents,
-        //    sequentially, filling gaps with home/idle.
+        // 2) Build a continuous week-long timeline from intents + travel.
         const slots = this._buildWeekTimelineFromIntents(
             npc,
             intents,
@@ -424,8 +423,7 @@ export class NPCScheduler {
 
         const priority = this._priorityForRule(rule);
 
-        // Decide how many visits this random rule *intends* per day.
-        // Heuristic: try to roughly fill the window with a handful of visits.
+        // Heuristic: estimate how many visits might fit and create that many intents.
         const avgStay = (minStay + maxStay) / 2;
         let count = Math.floor(windowMinutes / avgStay);
         if (count < 1) count = 1;
@@ -507,16 +505,28 @@ export class NPCScheduler {
     }
 
     // ---------------------------------------------------------------------
-    // TIMELINE BUILDING (NO TRAVEL YET)
+    // TIMELINE BUILDING WITH TRAVEL
     // ---------------------------------------------------------------------
 
     /**
      * Build a continuous, non-overlapping week timeline from visit intents.
-     * Currently:
-     *   - Travel time is assumed 0 minutes (TODO: integrate map + bus later).
-     *   - Any gap is filled with "home" (or "stay at current location" if no home).
-     *   - Intents that cannot fit their minStay in their window at the time
-     *     they're considered are skipped (not truncated).
+     *
+     * Travel rules:
+     *   - Every move between locations has explicit travel time.
+     *   - Walking:
+     *       * Moves along edges from map.getTravelTotal
+     *       * At each intermediate node, NPC lingers 1–2 minutes (still "travel" state),
+     *         so the player can encounter them mid-journey.
+     *   - Bus:
+     *       * Only if NPC.useBus and bus conditions apply.
+     *       * Walk to nearest bus_stop, wait for bus, ride (shortened by travelTimeMult),
+     *         arrive at nearest bus_stop to target, linger 1–2 minutes,
+     *         then walk if needed.
+     *   - Car:
+     *       * Only if NPC.useCar and car conditions apply.
+     *       * Single travel block, faster (0.4x path time), no intermediate locations.
+     *   - During bus/car ride, NPC is "in transit" and not at any map location.
+     *   - The only teleport is when currentLocationId === targetLocationId.
      */
     _buildWeekTimelineFromIntents(npc, intents, weekStart, weekEnd) {
         const npcId = String(npc.id || npc.key || npc.name);
@@ -546,7 +556,7 @@ export class NPCScheduler {
         const clampToWeek = (d) =>
             new Date(Math.min(Math.max(d.getTime(), weekStartMs), weekEndMs));
 
-        const pushSlot = (from, to, location, place, sourceRuleId, ruleType) => {
+        const pushSlot = (from, to, location, place, sourceRuleId, ruleType, extra = {}) => {
             if (to <= from) return;
             slots.push({
                 npcId,
@@ -559,20 +569,12 @@ export class NPCScheduler {
                 placeId: place ? place.id : null,
                 sourceRuleId: sourceRuleId || null,
                 ruleType: ruleType || null,
+                ...extra,
             });
         };
 
-        // Fill gaps with home (or "stay where you are")
-        const fillGapWithHome = (from, to) => {
-            if (to <= from) return;
-            const loc = homeLocation || currentLocation;
-            if (!loc) return;
-            pushSlot(from, to, loc, null, "auto_home_gap_fill", SCHEDULE_RULES.home);
-            currentLocation = loc;
-        };
-
         while (cursor < weekEnd) {
-            // Try to find the best intent we can schedule starting at or after `cursor`
+            // Find the best intent we can schedule starting at or after `cursor`
             let best = null;
             let bestAvailableStart = null;
 
@@ -580,21 +582,33 @@ export class NPCScheduler {
                 const winStart = intent.windowStart;
                 const winEnd = intent.windowEnd;
 
-                if (winEnd <= cursor) continue; // window already passed
+                if (winEnd <= cursor) continue;
                 if (winStart >= weekEnd) continue;
 
-                const earliest = cursor > winStart ? cursor : winStart;
+                let earliest;
 
-                // Can we fit at least minStay inside [earliest, winEnd]?
-                if (earliest.getTime() + intent.minStay * MS_PER_MINUTE > winEnd.getTime()) {
-                    continue;
+                if (intent.ruleType === SCHEDULE_RULES.fixed) {
+                    // Hard constraint: we always schedule the full window.
+                    // We don't use minStay fit logic here and we don't move it around.
+                    // We conceptually want it at winStart..winEnd.
+                    if (cursor > winEnd) {
+                        // already completely in the past
+                        continue;
+                    }
+                    earliest = winStart; // fixed always evaluated at its own start
+                } else {
+                    // normal (flexible) intents: use old logic
+                    earliest = cursor > winStart ? cursor : winStart;
+
+                    if (earliest.getTime() + intent.minStay * MS_PER_MINUTE > winEnd.getTime()) {
+                        continue;
+                    }
                 }
 
                 if (!best) {
                     best = intent;
                     bestAvailableStart = earliest;
                 } else {
-                    // Prefer earlier availableStart; tie-break by higher priority
                     if (earliest < bestAvailableStart) {
                         best = intent;
                         bestAvailableStart = earliest;
@@ -608,44 +622,89 @@ export class NPCScheduler {
             }
 
             if (!best) {
-                // No more schedulable intents; fill the rest with home and stop
-                if (cursor < weekEnd) {
-                    fillGapWithHome(cursor, weekEnd);
-                }
                 break;
             }
 
-            // If there's a gap before this intent's earliest start, fill with home
+            // ---- HARD FIXED SLOTS: schedule full window, no travel ----
+            if (best.ruleType === SCHEDULE_RULES.fixed) {
+                const stayFrom = clampToWeek(best.windowStart);
+                const stayTo = clampToWeek(best.windowEnd);
+
+                pushSlot(stayFrom, stayTo, best.location, best.place, best.ruleId, best.ruleType, {
+                    activityType: "stay",
+                });
+
+                currentLocation = best.location;
+                cursor = stayTo;
+
+                const idxFixed = remaining.indexOf(best);
+                if (idxFixed >= 0) remaining.splice(idxFixed, 1);
+
+                continue;
+            }
+
+            // If there's a gap before this intent's earliest start, just skip forward in time.
             if (bestAvailableStart > cursor) {
                 const gapEnd = clampToWeek(bestAvailableStart);
-                fillGapWithHome(cursor, gapEnd);
                 cursor = gapEnd;
                 if (cursor >= weekEnd) break;
             }
 
-            // At this point, cursor == bestAvailableStart (or very close)
+            // Now we're at the earliest time we can consider starting this intent
             const winEnd = best.windowEnd;
 
-            // TODO: integrate travel time here later. For now, 0 minutes.
-            // Example later:
-            // const travelMinutes = this._computeTravelMinutes(currentLocation, best.location, cursor);
-            // const arrival = new Date(cursor.getTime() + travelMinutes * MS_PER_MINUTE);
-            const arrival = new Date(cursor.getTime());
+            // Compute travel from currentLocation -> best.location
+            const travelPlan = this._computeTravelPlan(npc, currentLocation, best.location, cursor);
+            const arrivalMs = cursor.getTime() + travelPlan.minutes * MS_PER_MINUTE;
 
-            // Check again with arrival in case travel pushes us
-            if (arrival.getTime() + best.minStay * MS_PER_MINUTE > winEnd.getTime()) {
+            // Check if arrival + minStay fits into the window
+            if (arrivalMs + best.minStay * MS_PER_MINUTE > winEnd.getTime()) {
                 // Can't fit this intent; drop it and continue
-                const idx = remaining.indexOf(best);
-                if (idx >= 0) remaining.splice(idx, 1);
+                const idxDrop = remaining.indexOf(best);
+                if (idxDrop >= 0) remaining.splice(idxDrop, 1);
                 continue;
             }
+
+            // Emit travel slots (if any)
+            let t = cursor;
+            for (const seg of travelPlan.segments) {
+                const segFrom = new Date(t.getTime());
+                const segTo = new Date(t.getTime() + seg.minutes * MS_PER_MINUTE);
+
+                let loc = null;
+                let place = null;
+
+                if (seg.locationId) {
+                    loc = this.world?.locations?.get(String(seg.locationId)) || null;
+                }
+
+                if (seg.place && seg.place.id) {
+                    place = seg.place;
+                }
+
+                pushSlot(segFrom, segTo, loc, place, best.ruleId, best.ruleType, {
+                    activityType: "travel",
+                    travelMode: seg.mode,
+                    travelSegmentKind: seg.kind,
+                    travelMeta: {
+                        fromLocationId: seg.fromLocationId || null,
+                        toLocationId: seg.toLocationId || null,
+                        busStopId: seg.busStopId || null,
+                    },
+                });
+
+                t = segTo;
+            }
+
+            const arrival = new Date(arrivalMs);
 
             // Determine stay duration
             const maxPossibleStay = Math.min(best.maxStay, minutesBetween(arrival, winEnd));
             if (maxPossibleStay < best.minStay) {
                 // Shouldn't happen given earlier checks, but be safe
-                const idx = remaining.indexOf(best);
-                if (idx >= 0) remaining.splice(idx, 1);
+                const idxDrop = remaining.indexOf(best);
+                if (idxDrop >= 0) remaining.splice(idxDrop, 1);
+                cursor = arrival; // still move time forward
                 continue;
             }
 
@@ -653,12 +712,15 @@ export class NPCScheduler {
                 best.minStay + Math.floor(this.rnd() * (maxPossibleStay - best.minStay + 1));
             const leave = new Date(arrival.getTime() + staySpan * MS_PER_MINUTE);
 
-            const from = clampToWeek(arrival);
-            const to = clampToWeek(leave);
+            const fromStay = clampToWeek(arrival);
+            const toStay = clampToWeek(leave);
 
-            pushSlot(from, to, best.location, best.place, best.ruleId, best.ruleType);
+            pushSlot(fromStay, toStay, best.location, best.place, best.ruleId, best.ruleType, {
+                activityType: "stay",
+            });
+
             currentLocation = best.location;
-            cursor = to;
+            cursor = toStay;
 
             // Remove the intent now that it's consumed
             const idx = remaining.indexOf(best);
@@ -668,6 +730,415 @@ export class NPCScheduler {
         // Ensure sorted by time
         slots.sort((a, b) => a.from - b.from || a.to - b.to);
         return slots;
+    }
+
+    // ---------------------------------------------------------------------
+    // TRAVEL PLANNING (walk / bus / car)
+    // ---------------------------------------------------------------------
+
+    /**
+     * Compute how the NPC travels between two locations at a given time.
+     *
+     * Returns:
+     * {
+     *   mode: "none" | "walk" | "bus" | "car",
+     *   minutes: number, // total travel time including linger/wait
+     *   segments: [
+     *     {
+     *       mode: "walk"|"bus"|"car",
+     *       kind: "walk_edge"|"walk_linger"|"bus_wait"|"bus_ride"|"bus_linger"|"car_drive",
+     *       minutes: number,
+     *       locationId?: string,     // for linger/wait at a location
+     *       fromLocationId?: string, // for edges / bus ride
+     *       toLocationId?: string,
+     *       busStopId?: string,
+     *       place?: Place,           // for bus_stop place, if desired
+     *     },
+     *   ]
+     * }
+     */
+    _computeTravelPlan(npc, currentLocation, targetLocation, departureTime) {
+        const world = this.world;
+        const map = world && world.map;
+        const template = npc.scheduleTemplate || {};
+
+        // If we don't have map or locations, or same location, teleport.
+        if (!map || !world.locations || !currentLocation || !targetLocation) {
+            return {
+                mode: "none",
+                minutes: 0,
+                segments: [],
+            };
+        }
+
+        const fromId = String(currentLocation.id);
+        const toId = String(targetLocation.id);
+        if (!fromId || !toId || fromId === toId) {
+            return {
+                mode: "none",
+                minutes: 0,
+                segments: [],
+            };
+        }
+
+        const walkRoute = map.getTravelTotal(fromId, toId);
+        if (!walkRoute || !Number.isFinite(walkRoute.minutes)) {
+            // unreachable? fall back to teleport
+            return {
+                mode: "none",
+                minutes: 0,
+                segments: [],
+            };
+        }
+
+        // Full walking plan including micro-stops
+        const walkPlan = this._buildWalkingPlanFromRoute(walkRoute);
+        const walkTotalMinutes = walkPlan.totalMinutes;
+        const edgesCount = walkRoute.edges
+            ? walkRoute.edges.length
+            : Math.max(0, walkRoute.locations.length - 1);
+
+        const env = this._getEnvironmentState(departureTime);
+        const density = env.density;
+        const preferVehicle = env.badWeather || env.isCold || env.isNight;
+        const densityScaledEdgeThreshold = Math.max(1, Math.round(3 * density));
+
+        const canUseBus = !!template.useBus;
+        const canUseCar = !!template.useCar;
+
+        // --- Build a bus candidate plan (but don't decide yet) ---
+        let busCandidate = null;
+        if (canUseBus) {
+            busCandidate = this._buildBusPlan(
+                npc,
+                currentLocation,
+                targetLocation,
+                departureTime,
+                walkRoute,
+                env
+            );
+        }
+
+        // --- Build a car candidate plan (but don't decide yet) ---
+        let carCandidate = null;
+        if (canUseCar) {
+            const baseWalkMinutes = walkRoute.minutes; // WITHOUT micro-stops
+            const carTravelMinutes = Math.ceil(baseWalkMinutes * 0.4); // 0.4x speed
+            if (Number.isFinite(carTravelMinutes) && carTravelMinutes >= 0) {
+                carCandidate = {
+                    mode: "car",
+                    minutes: carTravelMinutes,
+                    segments: [
+                        {
+                            mode: "car",
+                            kind: "car_drive",
+                            minutes: carTravelMinutes,
+                            fromLocationId: fromId,
+                            toLocationId: toId,
+                        },
+                    ],
+                };
+            }
+        }
+
+        // --- Decide which of walk / bus / car to use ---
+
+        const plainWalkMinutes = walkRoute.minutes; // base Dijkstra minutes
+
+        // Car conditions (from your spec):
+        // useCar && (
+        //   bad weather / cold / night
+        //   OR pure walking time > 15
+        //   OR edges > 3 (scaled with density)
+        // )
+        let useCar = false;
+        if (carCandidate) {
+            const carEdgesCondition = edgesCount > densityScaledEdgeThreshold;
+            const carTimeCondition = plainWalkMinutes > 15;
+            const carEnvCondition = preferVehicle;
+            if (carEnvCondition || carTimeCondition || carEdgesCondition) {
+                useCar = true;
+            }
+        }
+
+        // Bus conditions (from your spec):
+        // useBus && (
+        //   bad weather / cold / night
+        //   OR pure walking time > bus time (including buses & walks)
+        //   OR edges > 3 (scaled with density)
+        // )
+        let useBus = false;
+        if (busCandidate) {
+            const busTotal = busCandidate.totalMinutes; // with waits, micro-stops, etc.
+            const busEdgesCondition = edgesCount > densityScaledEdgeThreshold;
+            const busTimeCondition = plainWalkMinutes > busTotal;
+            const busEnvCondition = preferVehicle;
+
+            if (busEnvCondition || busTimeCondition || busEdgesCondition) {
+                useBus = true;
+            }
+        }
+
+        // Priority: car > bus > walk
+        if (useCar && carCandidate) {
+            return {
+                mode: "car",
+                minutes: carCandidate.minutes,
+                segments: carCandidate.segments,
+            };
+        }
+
+        if (useBus && busCandidate) {
+            return {
+                mode: "bus",
+                minutes: busCandidate.totalMinutes,
+                segments: busCandidate.segments,
+            };
+        }
+
+        // Fallback: walk
+        return {
+            mode: "walk",
+            minutes: walkPlan.totalMinutes,
+            segments: walkPlan.segments,
+        };
+    }
+
+    /**
+     * Build a walking plan from a map route:
+     * - travel along each edge (edge.minutes)
+     * - linger 1–2 minutes at each intermediate location (still travel)
+     */
+    _buildWalkingPlanFromRoute(route) {
+        const segments = [];
+        let totalMinutes = 0;
+
+        const locIds = route.locations || [];
+        const edges = route.edges || [];
+
+        for (let i = 0; i < edges.length; i++) {
+            const fromId = String(locIds[i]);
+            const toId = String(locIds[i + 1]);
+            const edge = edges[i];
+            const edgeMinutes = edge && typeof edge.minutes === "number" ? edge.minutes : 1;
+
+            // Segment: moving along the edge
+            segments.push({
+                mode: "walk",
+                kind: "walk_edge",
+                minutes: edgeMinutes,
+                fromLocationId: fromId,
+                toLocationId: toId,
+            });
+            totalMinutes += edgeMinutes;
+
+            // Segment: linger at intermediate location (not at final target)
+            if (i + 1 < locIds.length - 1) {
+                const lingerMinutes = 1 + (this.rnd() < 0.5 ? 0 : 1); // 1–2 minutes
+                segments.push({
+                    mode: "walk",
+                    kind: "walk_linger",
+                    minutes: lingerMinutes,
+                    locationId: toId,
+                });
+                totalMinutes += lingerMinutes;
+            }
+        }
+
+        return { segments, totalMinutes };
+    }
+
+    /**
+     * Build a bus travel plan, including:
+     * - walk to nearest bus stop
+     * - wait for bus
+     * - bus ride between stops (shortened by travelTimeMult)
+     * - linger at arrival stop
+     * - walk to final target (if needed)
+     *
+     * Returns null if bus is not viable.
+     */
+    _buildBusPlan(npc, currentLocation, targetLocation, departureTime, walkRoute, env) {
+        const world = this.world;
+        const map = world && world.map;
+        if (!map || !world.locations) return null;
+
+        const fromId = String(currentLocation.id);
+        const toId = String(targetLocation.id);
+
+        // 1) Find nearest bus stops to current and target
+        const fromBus = this._findNearestBusStop(fromId);
+        const toBus = this._findNearestBusStop(toId);
+
+        if (!fromBus || !toBus) return null;
+
+        const walkToStopRoute = map.getTravelTotal(fromId, fromBus.location.id);
+        const walkFromStopRoute = map.getTravelTotal(toBus.location.id, toId);
+        const busRoute = map.getTravelTotal(fromBus.location.id, toBus.location.id);
+
+        if (!walkToStopRoute || !walkFromStopRoute || !busRoute) return null;
+
+        const busBaseMinutes = busRoute.minutes;
+
+        const props = (fromBus.place && fromBus.place.props) || {};
+        const travelMult = typeof props.travelTimeMult === "number" ? props.travelTimeMult : 0.6;
+        const busRideMinutes = Math.ceil(busBaseMinutes * travelMult);
+
+        // 2) Bus frequency and waiting time
+        const freqDay = typeof props.busFrequencyDay === "number" ? props.busFrequencyDay : 15;
+        const freqNight =
+            typeof props.busFrequencyNight === "number" ? props.busFrequencyNight : 35;
+
+        const hour = departureTime.getHours();
+        const minute = departureTime.getMinutes();
+        const minutesSinceMidnight = hour * 60 + minute;
+
+        const isNight = env.isNight;
+        const freq = isNight ? freqNight : freqDay;
+
+        let waitMinutes = 0;
+        if (freq > 0) {
+            const mod = minutesSinceMidnight % freq;
+            waitMinutes = mod === 0 ? 0 : freq - mod; // next bus aligned to 00:00
+        }
+
+        // 3) Build segments for schedule (including linger)
+        const segments = [];
+        let totalMinutes = 0;
+
+        // Walking to stop
+        const walkToPlan = this._buildWalkingPlanFromRoute(walkToStopRoute);
+        for (const seg of walkToPlan.segments) {
+            segments.push(seg);
+            totalMinutes += seg.minutes;
+        }
+
+        // Wait at bus stop
+        if (waitMinutes > 0) {
+            segments.push({
+                mode: "bus",
+                kind: "bus_wait",
+                minutes: waitMinutes,
+                locationId: fromBus.location.id,
+                busStopId: fromBus.location.id,
+                place: fromBus.place || null,
+            });
+            totalMinutes += waitMinutes;
+        }
+
+        // Bus ride
+        segments.push({
+            mode: "bus",
+            kind: "bus_ride",
+            minutes: busRideMinutes,
+            fromLocationId: fromBus.location.id,
+            toLocationId: toBus.location.id,
+            busStopId: toBus.location.id,
+        });
+        totalMinutes += busRideMinutes;
+
+        // Linger at arrival stop (1–2 mins)
+        const lingerAtStop = 1 + (this.rnd() < 0.5 ? 0 : 1);
+        segments.push({
+            mode: "bus",
+            kind: "bus_linger",
+            minutes: lingerAtStop,
+            locationId: toBus.location.id,
+            busStopId: toBus.location.id,
+            place: toBus.place || null,
+        });
+        totalMinutes += lingerAtStop;
+
+        // Walking from stop to final target
+        const walkFromPlan = this._buildWalkingPlanFromRoute(walkFromStopRoute);
+        for (const seg of walkFromPlan.segments) {
+            segments.push(seg);
+            totalMinutes += seg.minutes;
+        }
+
+        return {
+            totalMinutes,
+            segments,
+        };
+    }
+
+    /**
+     * Find nearest location with a place whose key is "bus_stop" or "bus_station".
+     */
+    _findNearestBusStop(fromLocationId) {
+        const world = this.world;
+        const map = world && world.map;
+        const locations = world && world.locations;
+        if (!map || !locations) return null;
+
+        const startId = String(fromLocationId);
+        let best = null;
+        let bestMinutes = Infinity;
+
+        for (const loc of locations.values()) {
+            const places = loc.places || [];
+            for (const place of places) {
+                if (!place) continue;
+                const key = place.key;
+                if (key !== "bus_stop" && key !== "bus_station") continue;
+
+                const minutes = map.getTravelMinutes(startId, loc.id);
+                if (!Number.isFinite(minutes)) continue;
+                if (minutes < bestMinutes) {
+                    bestMinutes = minutes;
+                    best = { location: loc, place };
+                }
+            }
+        }
+
+        return best;
+    }
+
+    /**
+     * Get environment/context at a given time.
+     * This is intentionally defensive: if your world doesn't yet expose
+     * weather/temperature/density, we fall back to sane defaults.
+     */
+    _getEnvironmentState(date) {
+        const world = this.world || {};
+        let weather = "clear";
+        let temperature = 15;
+        let density = 1;
+
+        // Try a few possible hooks; you can adapt to your actual API
+        if (typeof world.getEnvironmentAt === "function") {
+            const env = world.getEnvironmentAt(date) || {};
+            weather = env.weather || env.type || weather;
+            if (typeof env.temperature === "number") temperature = env.temperature;
+            if (typeof env.density === "number") density = env.density;
+        } else if (typeof world.getWeatherAt === "function") {
+            const env = world.getWeatherAt(date) || {};
+            weather = env.weather || env.type || weather;
+            if (typeof env.temperature === "number") temperature = env.temperature;
+        } else if (world.weather) {
+            const env = world.weather;
+            weather = env.weather || env.type || weather;
+            if (typeof env.temperature === "number") temperature = env.temperature;
+        }
+
+        if (world.map && typeof world.map.density === "number") {
+            density = world.map.density;
+        } else if (typeof world.density === "number") {
+            density = world.density;
+        }
+
+        const hour = date.getHours();
+        const isNight = hour >= 22 || hour < 6;
+
+        const badWeather =
+            typeof weather === "string" &&
+            ["rain", "storm", "snow", "snowstorm", "hail"].some((w) =>
+                weather.toLowerCase().includes(w)
+            );
+
+        const isCold = typeof temperature === "number" && temperature < 0;
+
+        return { weather, temperature, density, badWeather, isCold, isNight };
     }
 
     // ---------------------------------------------------------------------
