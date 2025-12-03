@@ -7,6 +7,15 @@ export const SCHEDULE_RULES = {
     follow: "follow_target",
 };
 
+export const TARGET_TYPE = {
+    placeKey: "placeKey",
+    placeKeys: "placeKeys",
+    home : "home",
+    placeCategory:"placeCategory",
+    npc: "npc",
+    player: "player"
+}
+
 export const RULE_PRIORITY = {
     [SCHEDULE_RULES.home]: 0,
     [SCHEDULE_RULES.random]: 1,

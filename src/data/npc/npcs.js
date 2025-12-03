@@ -1,6 +1,6 @@
 // src/data/npc/npcs.js
 import { Gender, HUMAN_BODY_TEMPLATE, PronounSets } from "../../shared/modules.js";
-import { DAY_KEYS, DayKind, LOCATION_TAGS, PLACE_TAGS, SCHEDULE_RULES, Season } from "../data.js";
+import { DAY_KEYS, DayKind, TARGET_TYPE, PLACE_TAGS, SCHEDULE_RULES, Season } from "../data.js";
 
 // Basic templates the game can turn into NPC instances
 // Each NPC gets a scheduleTemplate that the ScheduleManager uses to generate daily schedules
@@ -61,17 +61,17 @@ export const NPC_REGISTRY = [
                     stayMinutes: { min: 20, max: 120 },
                     targets: [
                         {
-                            type: "placeKey",
+                            type: TARGET_TYPE.placeKey,
                             candidates: ["library"],
                         },
                         {
-                            type: "placeKey",
+                            type: TARGET_TYPE.placeKey,
                             candidates: ["high_school"],
                             nearest: true,
                             stay: true,
                         },
                         {
-                            type: "placeCategory",
+                            type: TARGET_TYPE.placeCategory,
                             candidates: [PLACE_TAGS.leisure, PLACE_TAGS.food, PLACE_TAGS.commerce],
                             nearest: true,
                         },
@@ -89,7 +89,7 @@ export const NPC_REGISTRY = [
                     window: { from: "09:00", to: "15:00" },
                     targets: [
                         {
-                            type: "placeKey",
+                            type: TARGET_TYPE.placeKey,
                             candidates: ["high_school"],
                             nearest: true,
                         },
@@ -107,19 +107,19 @@ export const NPC_REGISTRY = [
                     stayMinutes: { min: 20, max: 120 },
                     targets: [
                         {
-                            type: "placeKey",
+                            type: TARGET_TYPE.placeKey,
                             candidates: ["library"],
                         },
                         {
-                            type: "placeKey",
+                            type: TARGET_TYPE.placeKey,
                             candidates: ["mall"],
                         },
                         {
-                            type: "placeCategory",
+                            type: TARGET_TYPE.placeCategory,
                             candidates: [PLACE_TAGS.leisure],
                         },
                         {
-                            type: "home", // can also choose to stay at home
+                            type: TARGET_TYPE.home, // can also choose to stay at home
                         },
                     ],
                     respectOpeningHours: true,
@@ -134,15 +134,15 @@ export const NPC_REGISTRY = [
                     stayMinutes: { min: 20, max: 160 },
                     targets: [
                         {
-                            type: "placeKey",
+                            type: TARGET_TYPE.placeKey,
                             candidates: ["library"],
                         },
                         {
-                            type: "placeKey",
+                            type: TARGET_TYPE.placeKey,
                             candidates: ["mall"],
                         },
                         {
-                            type: "placeCategory",
+                            type: TARGET_TYPE.placeCategory,
                             candidates: [
                                 PLACE_TAGS.leisure,
                                 PLACE_TAGS.service,
@@ -152,7 +152,7 @@ export const NPC_REGISTRY = [
                             ],
                         },
                         {
-                            type: "home", // can also choose to stay at home
+                            type: TARGET_TYPE.home, // can also choose to stay at home
                         },
                     ],
                     respectOpeningHours: true,
@@ -169,7 +169,7 @@ export const NPC_REGISTRY = [
                     stayMinutes: { min: 70, max: 150 },
                     targets: [
                         {
-                            type: "placeCategory",
+                            type: TARGET_TYPE.placeCategory,
                             candidates: [PLACE_TAGS.nightlife],
                         },
                     ],
@@ -232,7 +232,7 @@ export const NPC_REGISTRY = [
                     stayMinutes: { min: 15, max: 60 },
                     targets: [
                         {
-                            type: "placeCategory",
+                            type: TARGET_TYPE.placeCategory,
                             candidates: [
                                 PLACE_TAGS.commerce,
                                 PLACE_TAGS.housing,
@@ -241,7 +241,7 @@ export const NPC_REGISTRY = [
                             ],
                         },
                         {
-                            type: "home",
+                            type: TARGET_TYPE.home,
                         },
                     ],
                     respectOpeningHours: true,
@@ -257,7 +257,7 @@ export const NPC_REGISTRY = [
                     stayMinutes: { min: 15, max: 45 },
                     targets: [
                         {
-                            type: "placeCategory",
+                            type: TARGET_TYPE.placeCategory,
                             candidates: [
                                 PLACE_TAGS.commerce,
                                 PLACE_TAGS.housing,
@@ -281,7 +281,7 @@ export const NPC_REGISTRY = [
                     stayMinutes: { min: 5, max: 25 },
                     targets: [
                         {
-                            type: "placeCategory",
+                            type: TARGET_TYPE.placeCategory,
                             candidates: [PLACE_TAGS.commerce, PLACE_TAGS.housing],
                         },
                     ],
@@ -299,7 +299,7 @@ export const NPC_REGISTRY = [
                     stayMinutes: { min: 10, max: 35 },
                     targets: [
                         {
-                            type: "placeCategory",
+                            type: TARGET_TYPE.placeCategory,
                             candidates: [PLACE_TAGS.commerce, PLACE_TAGS.housing],
                         },
                     ],
@@ -316,7 +316,7 @@ export const NPC_REGISTRY = [
                     stayMinutes: { min: 40, max: 90 },
                     targets: [
                         {
-                            type: "placeCategory",
+                            type: TARGET_TYPE.placeCategory,
                             candidates: [PLACE_TAGS.crime],
                         },
                     ],
@@ -332,7 +332,7 @@ export const NPC_REGISTRY = [
                     stayMinutes: { min: 20, max: 60 },
                     targets: [
                         {
-                            type: "placeCategory",
+                            type: TARGET_TYPE.placeCategory,
                             candidates: [PLACE_TAGS.nightlife, PLACE_TAGS.crime],
                             alwaysMove: true, //TODO: always force a change of place
                         },
@@ -411,14 +411,14 @@ export const NPC_REGISTRY = [
                     stayMinutes: { min: 10, max: 30 },
                     targets: [
                         {
-                            type: "placeCategory",
+                            type: TARGET_TYPE.placeCategory,
                             candidates: [
                                 PLACE_TAGS.history,
                                 PLACE_TAGS.culture,
                                 PLACE_TAGS.supernatural,
                             ],
                         },
-                        { type: "home" },
+                        { type: TARGET_TYPE.home },
                     ],
                     respectOpeningHours: false,
                     probability: 0.5, // some evenings they just don't show up
@@ -521,7 +521,7 @@ export const NPC_REGISTRY = [
                     window: { from: "16:00", to: "18:00" },
                     targets: [
                         {
-                            type: "placeKey",
+                            type: TARGET_TYPE.placeKey,
                             candidates: ["police_station"], // you define this place in your world
                             nearest: true,
                         },
@@ -538,7 +538,7 @@ export const NPC_REGISTRY = [
                     stayMinutes: { min: 15, max: 45 },
                     targets: [
                         {
-                            type: "placeCategory",
+                            type: TARGET_TYPE.placeCategory,
                             candidates: [
                                 PLACE_TAGS.commerce,
                                 PLACE_TAGS.nightlife,
@@ -563,7 +563,7 @@ export const NPC_REGISTRY = [
                     stayMinutes: { min: 20, max: 50 },
                     targets: [
                         {
-                            type: "placeCategory",
+                            type: TARGET_TYPE.placeCategory,
                             candidates: [
                                 PLACE_TAGS.commerce,
                                 PLACE_TAGS.industry,
@@ -587,7 +587,7 @@ export const NPC_REGISTRY = [
                     stayMinutes: { min: 15, max: 40 },
                     targets: [
                         {
-                            type: "placeCategory",
+                            type: TARGET_TYPE.placeCategory,
                             candidates: [
                                 PLACE_TAGS.nightlife,
                                 PLACE_TAGS.commerce,
@@ -609,7 +609,7 @@ export const NPC_REGISTRY = [
                     stayMinutes: { min: 60, max: 150 },
                     targets: [
                         {
-                            type: "placeKey",
+                            type: TARGET_TYPE.placeKey,
                             candidates: ["police_station"],
                         },
                     ],
@@ -679,7 +679,7 @@ export const NPC_REGISTRY = [
                     window: { from: "08:00", to: "16:00" },
                     targets: [
                         {
-                            type: "placeKey",
+                            type: TARGET_TYPE.placeKey,
                             candidates: ["high_school"], // same place Taylor attends
                             nearest: true,
                         },
@@ -696,14 +696,14 @@ export const NPC_REGISTRY = [
                     stayMinutes: { min: 20, max: 60 },
                     targets: [
                         {
-                            type: "placeCategory",
+                            type: TARGET_TYPE.placeCategory,
                             candidates: [
                                 PLACE_TAGS.service, // post office, salon, etc.
                                 PLACE_TAGS.food, // cafés, restaurants
                                 PLACE_TAGS.commerce, // shops
                             ],
                         },
-                        { type: "home" }, // sometimes goes straight home
+                        { type: TARGET_TYPE.home }, // sometimes goes straight home
                     ],
                     respectOpeningHours: true,
                     probability: 0.7,
@@ -723,7 +723,7 @@ export const NPC_REGISTRY = [
                     window: { from: "17:30", to: "22:00" },
                     targets: [
                         {
-                            type: "placeKey",
+                            type: TARGET_TYPE.placeKey,
                             candidates: ["cinema"],
                             nearest: true,
                         },
@@ -740,7 +740,7 @@ export const NPC_REGISTRY = [
                     stayMinutes: { min: 30, max: 120 },
                     targets: [
                         {
-                            type: "placeCategory",
+                            type: TARGET_TYPE.placeCategory,
                             candidates: [
                                 PLACE_TAGS.food,
                                 PLACE_TAGS.leisure,
@@ -750,7 +750,7 @@ export const NPC_REGISTRY = [
                                 PLACE_TAGS.history,
                             ],
                         },
-                        { type: "home" },
+                        { type: TARGET_TYPE.home },
                     ],
                     respectOpeningHours: true,
                 },
@@ -764,11 +764,11 @@ export const NPC_REGISTRY = [
                     stayMinutes: { min: 30, max: 120 },
                     targets: [
                         {
-                            type: "placeCategory",
+                            type: TARGET_TYPE.placeCategory,
                             candidates: [PLACE_TAGS.food, PLACE_TAGS.leisure, PLACE_TAGS.nightlife],
                         },
                         {
-                            type: "home",
+                            type: TARGET_TYPE.home,
                             stay: true, //if she goes home, she stays there until window is over, the night ended early
                         },
                     ],
@@ -807,7 +807,7 @@ export const NPC_REGISTRY = [
         scheduleTemplate: {
             /**
              * Mike is a city tourist staying at a hotel.
-             *  - Sleeps at "home" (his hotel) at night
+             *  - Sleeps at TARGET_TYPE.home (his hotel) at night
              *  - Spends the day visiting culture/history/leisure spots
              *  - Eats in food/commerce areas
              *  - Sometimes goes out in nightlife districts in the evening
@@ -818,7 +818,7 @@ export const NPC_REGISTRY = [
              */
             useBus: true,
             rules: [
-                // 1) Night sleep at hotel: 23:00–07:00 at "home"
+                // 1) Night sleep at hotel: 23:00–07:00 at TARGET_TYPE.home
                 {
                     id: "mike_sleep_at_hotel",
                     type: SCHEDULE_RULES.home,
@@ -836,13 +836,13 @@ export const NPC_REGISTRY = [
                     window: { from: "07:00", to: "09:00" },
                     stayMinutes: { min: 20, max: 60 },
                     targets: [
-                        { type: "home" }, // hotel room
+                        { type: TARGET_TYPE.home }, // hotel room
                         {
-                            type: "placeKey",
+                            type: TARGET_TYPE.placeKey,
                             candidates: ["hotel_cafe"],
                         },
                         {
-                            type: "placeCategory",
+                            type: TARGET_TYPE.placeCategory,
                             candidates: [PLACE_TAGS.food, PLACE_TAGS.leisure, PLACE_TAGS.commerce],
                         },
                     ],
@@ -858,7 +858,7 @@ export const NPC_REGISTRY = [
                     stayMinutes: { min: 30, max: 120 },
                     targets: [
                         {
-                            type: "placeCategory",
+                            type: TARGET_TYPE.placeCategory,
                             candidates: [
                                 PLACE_TAGS.culture, // museums, galleries
                                 PLACE_TAGS.history, // monuments, old town
@@ -878,7 +878,7 @@ export const NPC_REGISTRY = [
                     stayMinutes: { min: 20, max: 90 },
                     targets: [
                         {
-                            type: "placeCategory",
+                            type: TARGET_TYPE.placeCategory,
                             candidates: [
                                 PLACE_TAGS.commerce, // shops, mall
                                 PLACE_TAGS.food, // cafés, restaurants
@@ -898,10 +898,10 @@ export const NPC_REGISTRY = [
                     stayMinutes: { min: 30, max: 120 },
                     targets: [
                         {
-                            type: "placeCategory",
+                            type: TARGET_TYPE.placeCategory,
                             candidates: [PLACE_TAGS.food, PLACE_TAGS.nightlife, PLACE_TAGS.leisure],
                         },
-                        { type: "home" }, // sometimes just goes back early
+                        { type: TARGET_TYPE.home }, // sometimes just goes back early
                     ],
                     respectOpeningHours: true,
                 },
@@ -915,7 +915,7 @@ export const NPC_REGISTRY = [
                     stayMinutes: { min: 60, max: 150 },
                     targets: [
                         {
-                            type: "placeCategory",
+                            type: TARGET_TYPE.placeCategory,
                             candidates: [PLACE_TAGS.nightlife],
                         },
                     ],
@@ -985,14 +985,14 @@ export const NPC_REGISTRY = [
                     stayMinutes: { min: 30, max: 90 },
                     targets: [
                         {
-                            type: "placeKey",
+                            type: TARGET_TYPE.placeKey,
                             candidates: ["gym", "office_tower", "bank"],
                         },
                         {
-                            type: "placeCategory",
+                            type: TARGET_TYPE.placeCategory,
                             candidates: [PLACE_TAGS.civic, PLACE_TAGS.food],
                         },
-                        { type: "home" },
+                        { type: TARGET_TYPE.home },
                     ],
                     respectOpeningHours: true,
                 },
@@ -1012,7 +1012,7 @@ export const NPC_REGISTRY = [
                     window: { from: "11:00", to: "18:00" },
                     targets: [
                         {
-                            type: "placeKey",
+                            type: TARGET_TYPE.placeKey,
                             candidates: ["office_block"],
                             nearest: true,
                         },
@@ -1028,7 +1028,7 @@ export const NPC_REGISTRY = [
                     window: { from: "11:00", to: "15:00" },
                     targets: [
                         {
-                            type: "placeKey",
+                            type: TARGET_TYPE.placeKey,
                             candidates: ["office_block"],
                             nearest: true,
                         },
@@ -1044,11 +1044,11 @@ export const NPC_REGISTRY = [
                     stayMinutes: { min: 60, max: 120 },
                     targets: [
                         {
-                            type: "placeCategory",
+                            type: TARGET_TYPE.placeCategory,
                             candidates: [PLACE_TAGS.commerce, PLACE_TAGS.service, PLACE_TAGS.crime],
                         },
                         {
-                            type: "placeKey",
+                            type: TARGET_TYPE.placeKey,
                             candidates: ["art_gallery", "restaurant", "town_square", "bank"],
                         },
                     ],
@@ -1066,7 +1066,7 @@ export const NPC_REGISTRY = [
                     stayMinutes: { min: 30, max: 90 },
                     targets: [
                         {
-                            type: "placeCategory",
+                            type: TARGET_TYPE.placeCategory,
                             candidates: [
                                 PLACE_TAGS.food, // fancy restaurants
                                 PLACE_TAGS.commerce, // high-end mall food courts
@@ -1087,11 +1087,11 @@ export const NPC_REGISTRY = [
                     stayMinutes: { min: 45, max: 90 },
                     targets: [
                         {
-                            type: "placeKey",
+                            type: TARGET_TYPE.placeKey,
                             candidates: ["gym"], // define as a place if you want
                         },
                         {
-                            type: "placeCategory",
+                            type: TARGET_TYPE.placeCategory,
                             candidates: [
                                 PLACE_TAGS.leisure, // spa, pool, etc.
                                 PLACE_TAGS.service, // grooming salons
@@ -1113,14 +1113,14 @@ export const NPC_REGISTRY = [
                     stayMinutes: { min: 40, max: 120 },
                     targets: [
                         {
-                            type: "placeCategory",
+                            type: TARGET_TYPE.placeCategory,
                             candidates: [
                                 PLACE_TAGS.nightlife,
                                 PLACE_TAGS.food, // late dinners
                                 PLACE_TAGS.leisure, // casino-like leisure, lounges
                             ],
                         },
-                        { type: "home", stay: true }, // sometimes retreats to penthouse
+                        { type: TARGET_TYPE.home, stay: true }, // sometimes retreats to penthouse
                     ],
                     respectOpeningHours: true,
                 },
@@ -1134,7 +1134,7 @@ export const NPC_REGISTRY = [
                     stayMinutes: { min: 30, max: 120 },
                     targets: [
                         {
-                            type: "placeCategory",
+                            type: TARGET_TYPE.placeCategory,
                             candidates: [
                                 PLACE_TAGS.food, // brunch places
                                 PLACE_TAGS.commerce, // luxury shopping
@@ -1142,7 +1142,7 @@ export const NPC_REGISTRY = [
                                 PLACE_TAGS.leisure,
                             ],
                         },
-                        { type: "home" },
+                        { type: TARGET_TYPE.home },
                     ],
                     respectOpeningHours: true,
                 },
@@ -1156,7 +1156,7 @@ export const NPC_REGISTRY = [
                     stayMinutes: { min: 90, max: 210 },
                     targets: [
                         {
-                            type: "placeCategory",
+                            type: TARGET_TYPE.placeCategory,
                             candidates: [PLACE_TAGS.nightlife],
                         },
                     ],
@@ -1173,7 +1173,7 @@ export const NPC_REGISTRY = [
                     stayMinutes: { min: 20, max: 60 },
                     targets: [
                         {
-                            type: "placeCategory",
+                            type: TARGET_TYPE.placeCategory,
                             candidates: [PLACE_TAGS.crime],
                         },
                     ],
@@ -1190,11 +1190,11 @@ export const NPC_REGISTRY = [
                     stayMinutes: { min: 10, max: 40 },
                     targets: [
                         {
-                            type: "placeCategory",
+                            type: TARGET_TYPE.placeCategory,
                             candidates: [PLACE_TAGS.crime],
                         },
                         {
-                            type: "placeCategory",
+                            type: TARGET_TYPE.placeCategory,
                             candidates: [PLACE_TAGS.nightlife],
                         },
                     ],
@@ -1211,7 +1211,7 @@ export const NPC_REGISTRY = [
                     stayMinutes: { min: 60, max: 150 },
                     targets: [
                         {
-                            type: "placeCategory",
+                            type: TARGET_TYPE.placeCategory,
                             candidates: [PLACE_TAGS.culture, PLACE_TAGS.civic, PLACE_TAGS.industry],
                         },
                     ],

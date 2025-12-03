@@ -1,7 +1,7 @@
 // worldgame/src/classes/game/util/npcai.js
 import {
     DAY_KEYS,
-    DayKind,
+    TARGET_TYPE,
     SCHEDULE_RULES,
     RULE_PRIORITY,
     MS_PER_DAY,
@@ -324,7 +324,7 @@ export class NPCScheduler {
             const durMinutes = minutesBetween(start, end);
 
             intents.push({
-                id: `${npcId}:${rule.id || "home"}:${start.toISOString()}`,
+                id: `${npcId}:${rule.id || TARGET_TYPE.home}:${start.toISOString()}`,
                 npcId,
                 ruleId: rule.id || null,
                 ruleType: rule.type,
@@ -1195,14 +1195,14 @@ export class NPCScheduler {
      * Expand a single target into concrete (location, place) candidates.
      *
      * Unified target schema:
-     *   - { type: "home" }
-     *   - { type: "placeKey",      candidates: ["key1","key2", ...], nearest?: true }
-     *   - { type: "placeCategory", candidates: [PLACE_TAGS.*],        nearest?: true }
+     *   - { type: TARGET_TYPE.home }
+     *   - { type: TARGET_TYPE.placeKey,      candidates: ["key1","key2", ...], nearest?: true }
+     *   - { type: TARGET_TYPE.placeCategory, candidates: [PLACE_TAGS.*],        nearest?: true }
      *
      * Backwards compatibility also supports:
      *   - target.key / target.keys
      *   - target.categories
-     *   - type "placeKeys"
+     *   - type TARGET_TYPE.placeKeys
      */
     _collectCandidatesForTarget({ npc, target, from, to, respectOpeningHours }) {
         if (!target || !this.world) return [];
@@ -1216,7 +1216,7 @@ export class NPCScheduler {
         };
 
         // --- Home target ---
-        if (target.type === "home") {
+        if (target.type === TARGET_TYPE.home) {
             const homeLoc = this._getHomeLocation(npc);
             if (!homeLoc) return [];
             return [{ location: homeLoc, place: null }];
@@ -1250,21 +1250,21 @@ export class NPCScheduler {
         let keysList = [];
         let categoryList = [];
 
-        if (target.type === "placeKey" || target.type === "placeKeys") {
+        if (target.type === TARGET_TYPE.placeKey || target.type === TARGET_TYPE.placeKeys) {
             keysList = baseCandidates.length ? baseCandidates : legacyKeys;
-        } else if (target.type === "placeCategory") {
+        } else if (target.type === TARGET_TYPE.placeCategory) {
             categoryList = baseCandidates.length ? baseCandidates : legacyCategories;
         }
 
         const isCandidatePlace = (place) => {
             if (!place) return false;
 
-            if (target.type === "placeKey" || target.type === "placeKeys") {
+            if (target.type === TARGET_TYPE.placeKey || target.type === TARGET_TYPE.placeKeys) {
                 if (!keysList.length) return false;
                 return keysList.includes(place.key);
             }
 
-            if (target.type === "placeCategory") {
+            if (target.type === TARGET_TYPE.placeCategory) {
                 if (!categoryList.length) return false;
                 const cat = place.props && place.props.category;
                 if (!cat) return false;

@@ -597,11 +597,11 @@ function getIntentLocationData(slot) {
         if (!loc) return { loc: null, placeName: null, isHome: false };
 
         const spec = slot.target.spec || {};
-        const isHomeTarget = slot.target.type === "home" || spec.type === "home";
+        const isHomeTarget = slot.target.type === TARGET_TYPE.home || spec.type === TARGET_TYPE.home;
 
         let placeName = null;
         if (isHomeTarget) {
-            placeName = "home";
+            placeName = TARGET_TYPE.home;
         } else if (slot.target.placeId && Array.isArray(loc.places)) {
             const placeObj = loc.places.find((p) => p.id == slot.target.placeId);
             if (placeObj) {
@@ -837,7 +837,7 @@ function renderWeekSchedule() {
 
             if (slot.target) {
                 const spec = slot.target.spec || {};
-                const isHomeTarget = slot.target.type === "home" || spec.type === "home";
+                const isHomeTarget = slot.target.type === TARGET_TYPE.home || spec.type === TARGET_TYPE.home;
 
                 if (slot.target.type === "travel") {
                     mode = spec.mode || "travel";
@@ -856,7 +856,7 @@ function renderWeekSchedule() {
                     if (loc) {
                         let place = "";
                         if (isHomeTarget) {
-                            place = "home";
+                            place = TARGET_TYPE.home;
                         } else if (slot.target.placeId && Array.isArray(loc.places)) {
                             const placeObj = loc.places.find((p) => p.id == slot.target.placeId);
                             if (placeObj) {
@@ -869,7 +869,7 @@ function renderWeekSchedule() {
                             targetDesc += ` – ${place}`;
                         }
                     } else {
-                        targetDesc = isHomeTarget ? "home" : "activity";
+                        targetDesc = isHomeTarget ? TARGET_TYPE.home : "activity";
                     }
                 }
             }
