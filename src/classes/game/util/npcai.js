@@ -625,14 +625,71 @@ export class NPCScheduler {
                 break;
             }
 
-            // ---- HARD FIXED SLOTS: schedule full window, no travel ----
+            // ---- HARD FIXED SLOTS: travel first, then stay for the window ----
             if (best.ruleType === SCHEDULE_RULES.fixed) {
-                const stayFrom = clampToWeek(best.windowStart);
-                const stayTo = clampToWeek(best.windowEnd);
+                const winStart = best.windowStart;
+                const winEnd = best.windowEnd;
 
-                pushSlot(stayFrom, stayTo, best.location, best.place, best.ruleId, best.ruleType, {
-                    activityType: "stay",
-                });
+                // Travel starts at current cursor time
+                const travelPlan = this._computeTravelPlan(
+                    npc,
+                    currentLocation,
+                    best.location,
+                    cursor
+                );
+
+                let t = new Date(cursor.getTime());
+
+                // Emit travel segments (walking/bus/car) up to arrival
+                for (const seg of travelPlan.segments) {
+                    const segFrom = new Date(t.getTime());
+                    const segTo = new Date(t.getTime() + seg.minutes * MS_PER_MINUTE);
+
+                    let loc = null;
+                    let place = null;
+
+                    if (seg.locationId) {
+                        loc = this.world?.locations?.get(String(seg.locationId)) || null;
+                    }
+
+                    if (seg.place && seg.place.id) {
+                        place = seg.place;
+                    }
+
+                    pushSlot(segFrom, segTo, loc, place, best.ruleId, best.ruleType, {
+                        activityType: "travel",
+                        travelMode: seg.mode,
+                        travelSegmentKind: seg.kind,
+                        travelMeta: {
+                            fromLocationId: seg.fromLocationId || null,
+                            toLocationId: seg.toLocationId || null,
+                            busStopId: seg.busStopId || null,
+                        },
+                    });
+
+                    t = segTo;
+                }
+
+                const arrival = t; // time after last travel segment
+
+                // Stay at the fixed location from arrival until end of the fixed window.
+                // If arrival is after winStart, they are slightly late; if before, they arrive early.
+                const stayFrom = clampToWeek(arrival);
+                const stayTo = clampToWeek(winEnd);
+
+                if (stayTo > stayFrom) {
+                    pushSlot(
+                        stayFrom,
+                        stayTo,
+                        best.location,
+                        best.place,
+                        best.ruleId,
+                        best.ruleType,
+                        {
+                            activityType: "stay",
+                        }
+                    );
+                }
 
                 currentLocation = best.location;
                 cursor = stayTo;
@@ -643,8 +700,7 @@ export class NPCScheduler {
                 continue;
             }
 
-            // If there's a gap before this intent's earliest start, just skip forward in time.
-            if (bestAvailableStart > cursor) {
+            if (bestAvailableStart > cursor && best.ruleType !== SCHEDULE_RULES.fixed) {
                 const gapEnd = clampToWeek(bestAvailableStart);
                 cursor = gapEnd;
                 if (cursor >= weekEnd) break;

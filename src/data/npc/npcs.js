@@ -73,7 +73,6 @@ export const NPC_REGISTRY = [
                         {
                             type: TARGET_TYPE.placeCategory,
                             candidates: [PLACE_TAGS.leisure, PLACE_TAGS.food, PLACE_TAGS.commerce],
-                            nearest: true,
                         },
                     ],
                     respectOpeningHours: true,
