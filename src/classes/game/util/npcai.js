@@ -625,22 +625,67 @@ export class NPCScheduler {
                 break;
             }
 
-            // ---- HARD FIXED SLOTS: travel first, then stay for the window ----
+            // ---- HARD FIXED SLOTS: adjust previous flexible slot if needed, then travel → stay ----
             if (best.ruleType === SCHEDULE_RULES.fixed) {
                 const winStart = best.windowStart;
                 const winEnd = best.windowEnd;
 
-                // Travel starts at current cursor time
-                const travelPlan = this._computeTravelPlan(
+                // 1) Compute travel if we leave at the current cursor time
+                let travelPlan = this._computeTravelPlan(
                     npc,
                     currentLocation,
                     best.location,
                     cursor
                 );
+                let travelMinutes = travelPlan.minutes || 0;
 
+                const arrivalIfLeaveNow = new Date(
+                    cursor.getTime() + travelMinutes * MS_PER_MINUTE
+                );
+
+                // 2) If we'd arrive AFTER the fixed window starts, try to pull departure earlier
+                if (arrivalIfLeaveNow > winStart && slots.length) {
+                    const lastSlot = slots[slots.length - 1];
+
+                    const canAdjustLast =
+                        lastSlot.activityType === "stay" &&
+                        (lastSlot.ruleType === SCHEDULE_RULES.random ||
+                            lastSlot.ruleType === SCHEDULE_RULES.daily ||
+                            lastSlot.ruleType === SCHEDULE_RULES.weekly);
+
+                    if (canAdjustLast) {
+                        const neededShiftMin = Math.ceil(
+                            (arrivalIfLeaveNow.getTime() - winStart.getTime()) / MS_PER_MINUTE
+                        );
+
+                        const ruleMin = this._getRuleMinStayForSlot(npc, lastSlot); // may be 0
+                        const lastDur = minutesBetween(lastSlot.from, lastSlot.to); // in minutes
+                        const maxShrink = Math.max(0, lastDur - ruleMin);
+
+                        const shrinkBy = Math.min(neededShiftMin, maxShrink);
+
+                        if (shrinkBy > 0) {
+                            // Shrink the last flexible slot from the end
+                            lastSlot.to = new Date(
+                                lastSlot.to.getTime() - shrinkBy * MS_PER_MINUTE
+                            );
+                            cursor = new Date(cursor.getTime() - shrinkBy * MS_PER_MINUTE);
+
+                            // Recompute travel with earlier departure (for bus timing, etc.)
+                            travelPlan = this._computeTravelPlan(
+                                npc,
+                                lastSlot.location,
+                                best.location,
+                                cursor
+                            );
+                            travelMinutes = travelPlan.minutes || 0;
+                        }
+                    }
+                }
+
+                // 3) Emit travel segments starting at cursor
                 let t = new Date(cursor.getTime());
 
-                // Emit travel segments (walking/bus/car) up to arrival
                 for (const seg of travelPlan.segments) {
                     const segFrom = new Date(t.getTime());
                     const segTo = new Date(t.getTime() + seg.minutes * MS_PER_MINUTE);
@@ -651,7 +696,6 @@ export class NPCScheduler {
                     if (seg.locationId) {
                         loc = this.world?.locations?.get(String(seg.locationId)) || null;
                     }
-
                     if (seg.place && seg.place.id) {
                         place = seg.place;
                     }
@@ -670,10 +714,11 @@ export class NPCScheduler {
                     t = segTo;
                 }
 
-                const arrival = t; // time after last travel segment
+                const arrival = t;
 
-                // Stay at the fixed location from arrival until end of the fixed window.
-                // If arrival is after winStart, they are slightly late; if before, they arrive early.
+                // 4) Stay at the fixed location from arrival until the fixed window end.
+                // If arrival <= winStart, they are early; if slightly later, they're a bit late,
+                // but the 09:00–15:00 window is still the "hard" presence window we aim for.
                 const stayFrom = clampToWeek(arrival);
                 const stayTo = clampToWeek(winEnd);
 
@@ -786,6 +831,26 @@ export class NPCScheduler {
         // Ensure sorted by time
         slots.sort((a, b) => a.from - b.from || a.to - b.to);
         return slots;
+    }
+
+    _getRuleMinStayForSlot(npc, slot) {
+        if (!npc || !slot) return 0;
+        const tpl = npc.scheduleTemplate || {};
+        const rules = Array.isArray(tpl.rules) ? tpl.rules : [];
+        const ruleId = slot.sourceRuleId;
+        if (!ruleId) return 0;
+
+        const rule =
+            rules.find((r) => r.id === ruleId && r.type === slot.ruleType) ||
+            rules.find((r) => r.id === ruleId);
+
+        if (!rule) return 0;
+
+        const stay = rule.stayMinutes || {};
+        const min = Number(stay.min);
+        if (!Number.isFinite(min) || min <= 0) return 0;
+
+        return min;
     }
 
     // ---------------------------------------------------------------------
@@ -1252,7 +1317,7 @@ export class NPCScheduler {
      *
      * Unified target schema:
      *   - { type: TARGET_TYPE.home }
-     *   - { type: TARGET_TYPE.placeKey,      candidates: ["key1","key2", ...], nearest?: true }
+     *   - { type: TARGET_TYPE.placeKeys,      candidates: ["key1","key2", ...], nearest?: true }
      *   - { type: TARGET_TYPE.placeCategory, candidates: [PLACE_TAGS.*],        nearest?: true }
      *
      * Backwards compatibility also supports:
@@ -1306,7 +1371,7 @@ export class NPCScheduler {
         let keysList = [];
         let categoryList = [];
 
-        if (target.type === TARGET_TYPE.placeKey || target.type === TARGET_TYPE.placeKeys) {
+        if (target.type === TARGET_TYPE.placeKeys || target.type === TARGET_TYPE.placeKeys) {
             keysList = baseCandidates.length ? baseCandidates : legacyKeys;
         } else if (target.type === TARGET_TYPE.placeCategory) {
             categoryList = baseCandidates.length ? baseCandidates : legacyCategories;
@@ -1315,7 +1380,7 @@ export class NPCScheduler {
         const isCandidatePlace = (place) => {
             if (!place) return false;
 
-            if (target.type === TARGET_TYPE.placeKey || target.type === TARGET_TYPE.placeKeys) {
+            if (target.type === TARGET_TYPE.placeKeys || target.type === TARGET_TYPE.placeKeys) {
                 if (!keysList.length) return false;
                 return keysList.includes(place.key);
             }

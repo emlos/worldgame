@@ -8,13 +8,13 @@ export const SCHEDULE_RULES = {
 };
 
 export const TARGET_TYPE = {
-    placeKey: "placeKey",
     placeKeys: "placeKeys",
-    home : "home",
-    placeCategory:"placeCategory",
+    home: "home",
+    placeCategory: "placeCategory",
     npc: "npc",
-    player: "player"
-}
+    player: "player",
+    unavailable: "away",
+};
 
 export const RULE_PRIORITY = {
     [SCHEDULE_RULES.home]: 0,

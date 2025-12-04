@@ -131,7 +131,7 @@ export const PLACE_REGISTRY = [
         props: {
             icon: "🚌",
             category: [PLACE_TAGS.transport],
-            travelTimeMult: 0.3, //how much faster travel is when using bus
+            travelTimeMult: 0.4, //how much faster travel is when using bus
             busFrequencyDay: 15, //how often buses arrive (in minutes)
             busFrequencyNight: 35,
         },
@@ -403,8 +403,8 @@ export const PLACE_REGISTRY = [
     },
 
     {
-        key: "playground",
-        label: "Playground",
+        key: "art_center",
+        label: "Art Center",
 
         minDistance: 2,
         allowedTags: [
@@ -415,8 +415,8 @@ export const PLACE_REGISTRY = [
             LOCATION_TAGS.rural,
         ],
         weight: 3,
-        props: { icon: "👧", category: [PLACE_TAGS.leisure] },
-        nameFn: ({ rnd }) => `${pick(["Maple", "Riverside", "Elm", "Sunset"], rnd)} Playground`,
+        props: { icon: "🎨", category: [PLACE_TAGS.leisure] },
+        nameFn: ({ rnd }) => `${pick(["Maple", "Riverside", "Elm", "Sunset"], rnd)} Art Center`,
         minCount: 1,
     },
 

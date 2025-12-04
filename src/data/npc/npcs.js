@@ -61,11 +61,11 @@ export const NPC_REGISTRY = [
                     stayMinutes: { min: 20, max: 120 },
                     targets: [
                         {
-                            type: TARGET_TYPE.placeKey,
+                            type: TARGET_TYPE.placeKeys,
                             candidates: ["library"],
                         },
                         {
-                            type: TARGET_TYPE.placeKey,
+                            type: TARGET_TYPE.placeKeys,
                             candidates: ["high_school"],
                             nearest: true,
                             stay: true,
@@ -88,7 +88,7 @@ export const NPC_REGISTRY = [
                     window: { from: "09:00", to: "15:00" },
                     targets: [
                         {
-                            type: TARGET_TYPE.placeKey,
+                            type: TARGET_TYPE.placeKeys,
                             candidates: ["high_school"],
                             nearest: true,
                         },
@@ -106,12 +106,8 @@ export const NPC_REGISTRY = [
                     stayMinutes: { min: 20, max: 120 },
                     targets: [
                         {
-                            type: TARGET_TYPE.placeKey,
-                            candidates: ["library"],
-                        },
-                        {
-                            type: TARGET_TYPE.placeKey,
-                            candidates: ["mall"],
+                            type: TARGET_TYPE.placeKeys,
+                            candidates: ["library", 'mall'],
                         },
                         {
                             type: TARGET_TYPE.placeCategory,
@@ -133,12 +129,8 @@ export const NPC_REGISTRY = [
                     stayMinutes: { min: 20, max: 160 },
                     targets: [
                         {
-                            type: TARGET_TYPE.placeKey,
-                            candidates: ["library"],
-                        },
-                        {
-                            type: TARGET_TYPE.placeKey,
-                            candidates: ["mall"],
+                            type: TARGET_TYPE.placeKeys,
+                            candidates: ["library", "mall"],
                         },
                         {
                             type: TARGET_TYPE.placeCategory,
@@ -183,25 +175,22 @@ export const NPC_REGISTRY = [
         name: 'Mara "Shade" Kovač',
         shortName: "Shade",
         nicknames: ["Shade", "Hey You"],
-
         description:
             "Shade is a cunning thief who prowls the city at night, targeting unsuspecting victims for quick robberies.",
-
         age: 26,
         gender: Gender.F,
         pronouns: PronounSets.SHE_HER,
-
         stats: {
             looks: 2,
             strength: 3,
             intelligence: 3,
             charisma: 2,
         },
-
         preferLocationsWith: [PLACE_TAGS.crime, PLACE_TAGS.housing], //generate home at location with as many of those tagged places as possible
         tags: ["human", "criminal", "romance"],
-
         bodyTemplate: HUMAN_BODY_TEMPLATE,
+
+
 
         scheduleTemplate: {
             /**
@@ -218,7 +207,7 @@ export const NPC_REGISTRY = [
                 {
                     id: "shade_daytime_hideout",
                     type: SCHEDULE_RULES.home,
-                    timeBlocks: [{ from: "05:00", to: "13:00" }],
+                    timeBlocks: [{ from: "05:00", to: "12:00" }],
                 },
 
                 // 1b) Shade also is a citizen, and has chores to do and a life to live
@@ -227,7 +216,7 @@ export const NPC_REGISTRY = [
                     id: "shade_errands",
                     type: SCHEDULE_RULES.random,
                     dayKinds: [DayKind.WORKDAY, DayKind.DAY_OFF],
-                    window: { from: "13:00", to: "18:00" },
+                    window: { from: "12:00", to: "16:00" },
                     stayMinutes: { min: 15, max: 60 },
                     targets: [
                         {
@@ -271,17 +260,16 @@ export const NPC_REGISTRY = [
                 },
 
                 // 3) Late-night robberies: 22:00–24:00
-                //    Hits shops/homes quickly, more likely than scouting.
                 {
                     id: "shade_night_robbery_late",
                     type: SCHEDULE_RULES.random,
                     dayKinds: [DayKind.WORKDAY, DayKind.DAY_OFF],
                     window: { from: "22:00", to: "24:00" },
-                    stayMinutes: { min: 5, max: 25 },
+                    stayMinutes: { min: 5, max: 45 },
                     targets: [
                         {
                             type: TARGET_TYPE.placeCategory,
-                            candidates: [PLACE_TAGS.commerce, PLACE_TAGS.housing],
+                            candidates: [PLACE_TAGS.commerce, PLACE_TAGS.housing, PLACE_TAGS.culture],
                         },
                     ],
                     respectOpeningHours: false,
@@ -295,11 +283,11 @@ export const NPC_REGISTRY = [
                     type: SCHEDULE_RULES.random,
                     dayKinds: [DayKind.WORKDAY, DayKind.DAY_OFF],
                     window: { from: "00:00", to: "03:00" },
-                    stayMinutes: { min: 10, max: 35 },
+                    stayMinutes: { min: 10, max: 45 },
                     targets: [
                         {
                             type: TARGET_TYPE.placeCategory,
-                            candidates: [PLACE_TAGS.commerce, PLACE_TAGS.housing],
+                            candidates: [PLACE_TAGS.commerce, PLACE_TAGS.housing, PLACE_TAGS.culture],
                         },
                     ],
                     respectOpeningHours: false,
@@ -340,20 +328,20 @@ export const NPC_REGISTRY = [
                     probability: 0.4,
                 },
 
-                //7) very rarely shade needs to dissappear for a few days, to hide from police
-                // {
-                //     id: "shade_lay_low",
-                //     type: SCHEDULE_RULES.fixed,
-                //     dayKinds: [DayKind.WORKDAY, DayKind.DAY_OFF], // uses Calendar DayKind
-                //     daysOfWeek: [...DAY_KEYS],
-                //     time: { from: "00:00", to: "24:00" },
-                //     stayMinutes: { min: 24 * 60, max: 7 * 24 * 60, round: 24 * 60 }, //TODO: round the duration of the slot to round value
-                //     target: {
-                //        // type: "unavailable", //TODO: new type, npc not on map, they do not exist or move or plan anything
-                //     },
-                //     respectOpeningHours: false,
-                //     probability: 0.05,
-                // },
+                // 7) very rarely shade needs to dissappear for a few days, to hide from police
+                {
+                    id: "shade_lay_low",
+                    type: SCHEDULE_RULES.fixed,
+                    dayKinds: [DayKind.WORKDAY, DayKind.DAY_OFF], // uses Calendar DayKind
+                    daysOfWeek: [...DAY_KEYS],
+                    window: { from: "00:00", to: "24:00" },
+                    stayMinutes: { min: 24 * 60, max: 7 * 24 * 60, round: 24 * 60 }, //TODO: round the duration of the slot to round value in minutes
+                    target: {
+                        type: "unavailable", //TODO: new type, npc not in any location, they do not exist or move or plan anything until stayminutes are over
+                    },
+                    respectOpeningHours: false,
+                    probability: 0.05,
+                },
             ],
         },
     },
@@ -520,7 +508,7 @@ export const NPC_REGISTRY = [
                     window: { from: "16:00", to: "18:00" },
                     targets: [
                         {
-                            type: TARGET_TYPE.placeKey,
+                            type: TARGET_TYPE.placeKeys,
                             candidates: ["police_station"], // you define this place in your world
                             nearest: true,
                         },
@@ -608,7 +596,7 @@ export const NPC_REGISTRY = [
                     stayMinutes: { min: 60, max: 150 },
                     targets: [
                         {
-                            type: TARGET_TYPE.placeKey,
+                            type: TARGET_TYPE.placeKeys,
                             candidates: ["police_station"],
                         },
                     ],
@@ -678,7 +666,7 @@ export const NPC_REGISTRY = [
                     window: { from: "08:00", to: "16:00" },
                     targets: [
                         {
-                            type: TARGET_TYPE.placeKey,
+                            type: TARGET_TYPE.placeKeys,
                             candidates: ["high_school"], // same place Taylor attends
                             nearest: true,
                         },
@@ -722,7 +710,7 @@ export const NPC_REGISTRY = [
                     window: { from: "17:30", to: "22:00" },
                     targets: [
                         {
-                            type: TARGET_TYPE.placeKey,
+                            type: TARGET_TYPE.placeKeys,
                             candidates: ["cinema"],
                             nearest: true,
                         },
@@ -837,7 +825,7 @@ export const NPC_REGISTRY = [
                     targets: [
                         { type: TARGET_TYPE.home }, // hotel room
                         {
-                            type: TARGET_TYPE.placeKey,
+                            type: TARGET_TYPE.placeKeys,
                             candidates: ["hotel_cafe"],
                         },
                         {
@@ -984,7 +972,7 @@ export const NPC_REGISTRY = [
                     stayMinutes: { min: 30, max: 90 },
                     targets: [
                         {
-                            type: TARGET_TYPE.placeKey,
+                            type: TARGET_TYPE.placeKeys,
                             candidates: ["gym", "office_tower", "bank"],
                         },
                         {
@@ -1011,7 +999,7 @@ export const NPC_REGISTRY = [
                     window: { from: "11:00", to: "18:00" },
                     targets: [
                         {
-                            type: TARGET_TYPE.placeKey,
+                            type: TARGET_TYPE.placeKeys,
                             candidates: ["office_block"],
                             nearest: true,
                         },
@@ -1027,7 +1015,7 @@ export const NPC_REGISTRY = [
                     window: { from: "11:00", to: "15:00" },
                     targets: [
                         {
-                            type: TARGET_TYPE.placeKey,
+                            type: TARGET_TYPE.placeKeys,
                             candidates: ["office_block"],
                             nearest: true,
                         },
@@ -1047,7 +1035,7 @@ export const NPC_REGISTRY = [
                             candidates: [PLACE_TAGS.commerce, PLACE_TAGS.service, PLACE_TAGS.crime],
                         },
                         {
-                            type: TARGET_TYPE.placeKey,
+                            type: TARGET_TYPE.placeKeys,
                             candidates: ["art_gallery", "restaurant", "town_square", "bank"],
                         },
                     ],
@@ -1086,7 +1074,7 @@ export const NPC_REGISTRY = [
                     stayMinutes: { min: 45, max: 90 },
                     targets: [
                         {
-                            type: TARGET_TYPE.placeKey,
+                            type: TARGET_TYPE.placeKeys,
                             candidates: ["gym"], // define as a place if you want
                         },
                         {
