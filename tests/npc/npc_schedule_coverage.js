@@ -20,6 +20,24 @@ function formatMinutes(totalMinutes) {
     return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
 }
 
+function formatDurationMinutes(totalMinutes) {
+    const minutes = Math.max(0, Math.floor(totalMinutes || 0));
+    if (minutes === 0) return "0 minutes";
+
+    const h = Math.floor(minutes / 60);
+    const m = minutes % 60;
+    const parts = [];
+
+    if (h > 0) {
+        parts.push(h === 1 ? "1 hour" : `${h} hours`);
+    }
+    if (m > 0) {
+        parts.push(`${m} minutes`);
+    }
+
+    return parts.join(" ");
+}
+
 // --- coverage marking -------------------------------------------------------
 
 function markInterval(detCovered, probCovered, minuteRules, ruleId, startMin, endMin, prob) {
@@ -222,6 +240,30 @@ function computeCoverageForDay(rules, dayIndex) {
         }
     }
 
+    // Build contiguous segments for:
+    //  - minutes with no coverage at all
+    //  - minutes only covered by probabilistic rules
+    function buildSegments(predicate) {
+        const segments = [];
+        let start = null;
+
+        for (let m = 0; m <= dayMinutes; m++) {
+            const match = m < dayMinutes && predicate(m);
+
+            if (match) {
+                if (start === null) start = m;
+            } else if (start !== null) {
+                segments.push({ startMin: start, endMin: m });
+                start = null;
+            }
+        }
+
+        return segments;
+    }
+
+    const uncoveredSegments = buildSegments((m) => !detCovered[m] && !probCovered[m]);
+    const probOnlySegments = buildSegments((m) => !detCovered[m] && probCovered[m]);
+
     return {
         detCovered,
         probCovered,
@@ -233,6 +275,8 @@ function computeCoverageForDay(rules, dayIndex) {
             uncoveredMinutes,
             probOnlyMinutes,
         },
+        uncoveredSegments,
+        probOnlySegments,
     };
 }
 
@@ -317,10 +361,9 @@ function computeNpcWeeklyCoverage(npcDef) {
         const dayKind = getDayKindForIndex(dayIndex);
         const dayKindLabel = getDayKindLabel(dayKind);
 
-        const { detCovered, probCovered, minuteRules, stats } = computeCoverageForDay(
-            rules,
-            dayIndex
-        );
+        const { detCovered, probCovered, minuteRules, stats, uncoveredSegments, probOnlySegments } =
+            computeCoverageForDay(rules, dayIndex);
+
         const bins = buildBins(detCovered, probCovered, minuteRules, 15);
 
         if (stats.hasUncovered) anyUncovered = true;
@@ -334,6 +377,8 @@ function computeNpcWeeklyCoverage(npcDef) {
             kindLabel: dayKindLabel,
             stats,
             bins,
+            uncoveredSegments,
+            probOnlySegments,
         });
     }
 
@@ -552,6 +597,60 @@ function createNpcCard(npcCoverage) {
     }
 
     content.appendChild(daysContainer);
+
+    // Plaintext summary of uncovered / probabilistic-only time slots
+    const gapsContainer = document.createElement("details");
+    gapsContainer.className = "npc-gaps";
+
+    let hasAnyGaps = false;
+
+    for (const day of npcCoverage.days) {
+        const dayUncovered = day.uncoveredSegments || [];
+        const dayProbOnly = day.probOnlySegments || [];
+
+        if (!dayUncovered.length && !dayProbOnly.length) continue;
+
+        hasAnyGaps = true;
+
+        for (const seg of dayUncovered) {
+            const duration = seg.endMin - seg.startMin;
+            if (duration <= 0) continue;
+
+            const line = document.createElement("div");
+            line.className = "gap-line gap-uncovered";
+
+            const fromStr = formatMinutes(seg.startMin);
+            const toStr = formatMinutes(seg.endMin);
+            const durStr = formatDurationMinutes(duration);
+
+            line.textContent = `${day.name}: ${fromStr}–${toStr} (${durStr}) no rule covers this time`;
+            gapsContainer.appendChild(line);
+        }
+
+        for (const seg of dayProbOnly) {
+            const duration = seg.endMin - seg.startMin;
+            if (duration <= 0) continue;
+
+            const line = document.createElement("div");
+            line.className = "gap-line gap-prob-only";
+
+            const fromStr = formatMinutes(seg.startMin);
+            const toStr = formatMinutes(seg.endMin);
+            const durStr = formatDurationMinutes(duration);
+
+            line.textContent = `${day.name}: ${fromStr}–${toStr} (${durStr}) only rules with probability cover this time`;
+            gapsContainer.appendChild(line);
+        }
+    }
+
+    if (hasAnyGaps) {
+        const gapsHeader = document.createElement("summary");
+        gapsHeader.className = "npc-gaps-header";
+        gapsHeader.textContent = "Uncovered / probabilistic-only times:";
+        gapsContainer.appendChild(gapsHeader);
+        content.appendChild(gapsContainer);
+    }
+
     details.appendChild(content);
 
     return details;
