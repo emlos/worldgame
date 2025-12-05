@@ -2,7 +2,7 @@ import { clamp01 } from "../../../shared/modules.js";
 import { Location, Place } from "../module.js";
 import { LOCATION_REGISTRY, PLACE_REGISTRY, STREET_REGISTRY } from "../../../data/data.js";
 
-const capacityPerLocation = 5;
+const capacityPerLocation = 10;
 
 const dist = (A, B) => Math.hypot(A.x - B.x, A.y - B.y);
 
@@ -568,7 +568,7 @@ function computeAutoLocationCount(density) {
         totalMinPlaces += min;
     }
 
-    const targetAvg = 2.5; // tune if you like
+    const targetAvg = capacityPerLocation / 3; // tune if you like
 
     const locCount = Math.ceil(totalMinPlaces / targetAvg) * (1 + density);
 
