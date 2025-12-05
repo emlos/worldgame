@@ -1,10 +1,8 @@
-// src/data/npc/npcs.js
 import { Gender, HUMAN_BODY_TEMPLATE, PronounSets } from "../../shared/modules.js";
 import { DAY_KEYS, DayKind, TARGET_TYPE, PLACE_TAGS, SCHEDULE_RULES, Season } from "../data.js";
 
 // Basic templates the game can turn into NPC instances
 // Each NPC gets a scheduleTemplate that the ScheduleManager uses to generate daily schedules
-// TODO: make sure any gaps in schedule wire the npc back home AFTER calculating all slots. if gap < 30minutes extend stay at previous location, even if its over max stayminutes. respect the closing time flag
 //TODO: figure out a graceful way to handle same schedule_rules priorities. sth with probability should take priority over a rule without. if theres two rule random, the one without probability should act as fallbacl
 //TODO: more granular bus use controls -> use during day/night, weather considerations, car vs bus use, etc
 export const NPC_REGISTRY = [
@@ -34,9 +32,6 @@ export const NPC_REGISTRY = [
         bodyTemplate: HUMAN_BODY_TEMPLATE,
 
         scheduleTemplate: {
-            /**
-             * Rules are interpreted by ScheduleManager.
-             */
             useBus: true,
             rules: [
                 // 1) Sleep: between 22:00 and 06:00 at home
@@ -107,7 +102,7 @@ export const NPC_REGISTRY = [
                     targets: [
                         {
                             type: TARGET_TYPE.placeKeys,
-                            candidates: ["library", 'mall'],
+                            candidates: ["library", "mall"],
                         },
                         {
                             type: TARGET_TYPE.placeCategory,
@@ -190,8 +185,6 @@ export const NPC_REGISTRY = [
         tags: ["human", "criminal", "romance"],
         bodyTemplate: HUMAN_BODY_TEMPLATE,
 
-
-
         scheduleTemplate: {
             /**
              * Shade is mostly active at night:
@@ -235,6 +228,29 @@ export const NPC_REGISTRY = [
                     respectOpeningHours: true,
                 },
 
+                // [GAP FILLER] 16:00–18:00: Loitering before the evening scout
+                // She hangs out in low-profile areas to eat or watch people.
+                {
+                    id: "shade_afternoon_loiter",
+                    type: SCHEDULE_RULES.random,
+                    dayKinds: [DayKind.WORKDAY, DayKind.DAY_OFF],
+                    window: { from: "16:00", to: "18:00" },
+                    stayMinutes: { min: 30, max: 90 },
+                    targets: [
+                        {
+                            type: TARGET_TYPE.placeCategory,
+                            candidates: [
+                                PLACE_TAGS.food,
+                                PLACE_TAGS.parkland,
+                                PLACE_TAGS.transport,
+                            ],
+                        },
+                        { type: TARGET_TYPE.home },
+                    ],
+                    respectOpeningHours: true,
+                    priority: 1,
+                },
+
                 // 2) Evening scouting: 18:00–22:00 (not guaranteed every day)
                 //    Walks around commerce / housing / nightlife areas, “casing” them.
                 {
@@ -269,11 +285,41 @@ export const NPC_REGISTRY = [
                     targets: [
                         {
                             type: TARGET_TYPE.placeCategory,
-                            candidates: [PLACE_TAGS.commerce, PLACE_TAGS.housing, PLACE_TAGS.culture],
+                            candidates: [
+                                PLACE_TAGS.commerce,
+                                PLACE_TAGS.housing,
+                                PLACE_TAGS.culture,
+                            ],
                         },
                     ],
                     respectOpeningHours: false,
                     probability: 0.85,
+                },
+
+                // [FALLBACK] Night activity fallback (22:00–03:00)
+                // If she fails the probability check for a robbery, she doesn't just freeze.
+                // She lurks in industrial areas or dive bars, waiting for a chance that never comes.
+                {
+                    id: "shade_night_lurk_fallback",
+                    type: SCHEDULE_RULES.random,
+                    dayKinds: [DayKind.WORKDAY, DayKind.DAY_OFF],
+                    window: { from: "22:00", to: "03:00" },
+                    stayMinutes: { min: 45, max: 120 },
+                    targets: [
+                        {
+                            type: TARGET_TYPE.placeCategory,
+                            candidates: [
+                                PLACE_TAGS.industry,
+                                PLACE_TAGS.urban_edge,
+                                PLACE_TAGS.nightlife,
+                            ],
+                        },
+                        {
+                            // If she really has nothing to do, she goes back to her hideout
+                            type: TARGET_TYPE.home,
+                        },
+                    ],
+                    respectOpeningHours: false,
                 },
 
                 // 4) Early-morning robberies: 00:00–03:00
@@ -287,7 +333,11 @@ export const NPC_REGISTRY = [
                     targets: [
                         {
                             type: TARGET_TYPE.placeCategory,
-                            candidates: [PLACE_TAGS.commerce, PLACE_TAGS.housing, PLACE_TAGS.culture],
+                            candidates: [
+                                PLACE_TAGS.commerce,
+                                PLACE_TAGS.housing,
+                                PLACE_TAGS.culture,
+                            ],
                         },
                     ],
                     respectOpeningHours: false,
@@ -337,10 +387,12 @@ export const NPC_REGISTRY = [
                     window: { from: "00:00", to: "24:00" },
                     stayMinutes: { min: 24 * 60, max: 7 * 24 * 60, round: 24 * 60 }, //TODO: round the duration of the slot to round value in minutes
                     target: {
-                        type: "unavailable", //TODO: new type, npc not in any location, they do not exist or move or plan anything until stayminutes are over
+                        type: TARGET_TYPE.unavailable, //TODO: new type, npc not in any location, they do not exist or move or plan anything until stayminutes are over
                     },
                     respectOpeningHours: false,
                     probability: 0.05,
+
+                    priority: 9999, //TODO: if other rules of same type are in the same time slot, rule with highest priority is the one thta completely overrides the other rule
                 },
             ],
         },
@@ -376,10 +428,10 @@ export const NPC_REGISTRY = [
              * Luce is a friendly ghost that:
              *  - "anchors" around their old resting place during the day
              *  - in the evening and night, occasionally enters a FOLLOW mode
-             *    where they try to move in the player's direction
-             *  - FOLLOW uses a new rule type: SCHEDULE_RULES.follow ("follow_entity")
+             *    where they try to move in the player's/npc's direction
              */
             useBus: false, // ghosts don't use buses
+            travelModifier: 1.5, //TODO: travel duration is multiplied by this globally, unless specified otherwise in a rule
             rules: [
                 // 1) Daytime anchor: 06:00–18:00 at home/resting place
                 {
@@ -395,7 +447,7 @@ export const NPC_REGISTRY = [
                     type: SCHEDULE_RULES.random,
                     dayKinds: [DayKind.WORKDAY, DayKind.DAY_OFF],
                     window: { from: "18:00", to: "21:00" },
-                    stayMinutes: { min: 10, max: 30 },
+                    stayMinutes: { min: 30, max: 60 },
                     targets: [
                         {
                             type: TARGET_TYPE.placeCategory,
@@ -414,19 +466,19 @@ export const NPC_REGISTRY = [
                 // 3) Main haunting: Luce follows the player. this activity ends once luce finds player
                 //    They try to move roughly toward the player's current / last known position.
                 {
-                    id: "luce_follow",
-                    type: SCHEDULE_RULES.follow, //TODO: how to schedule following if its dependent of player position? -> reserve block? what to do with leftover time after if luce catches player/npc?
+                    id: "luce_follow_player",
+                    type: SCHEDULE_RULES.follow, //TODO: for scheduling purposes works like daily but with no set location, indicated follow behavior for game engine
                     dayKinds: [DayKind.WORKDAY, DayKind.DAY_OFF],
-                    followTarget: "player", // "player" or npc key
+                    window: { from: "21:00", to: "06:00" }, //time window the rule can be applied at
                     variants: [
-                        //probabilites add up to 1
+                        //TODO: pick one for every slot this rule generates
                         {
                             id: "luce_follow_light",
-                            window: { from: "21:00", to: "00:00" },
+                            window: { from: "21:00", to: "00:00" }, //start and end times for this variants
                             updateIntervalMinutes: 15, // how often to re-evaluate where the player is
                             loseInterestDistance: 10, // if after updateIntervalMinutes they're this far away, stop following, scales with density
                             speedMult: 0.8, // movement speed multiplier while following
-                            probability: 0.7, // chance this variant will be picked when rule is active
+                            weight: 0.7, // chance this variant will be picked when rule is active
                         },
                         // 4) Occasional deep-night haunting
                         {
@@ -436,7 +488,7 @@ export const NPC_REGISTRY = [
                             updateIntervalMinutes: 10,
                             loseInterestDistance: 12,
                             speedMult: 1.1,
-                            probability: 0.25,
+                            weight: 0.25,
                         },
                         {
                             id: "luce_follow_nightmare",
@@ -445,7 +497,7 @@ export const NPC_REGISTRY = [
                             updateIntervalMinutes: 5,
                             loseInterestDistance: 15,
                             speedMult: 1.5,
-                            probability: 0.05,
+                            weight: 0.05,
                         },
                     ],
                     probability: 0.3, // chance per valid day this rule is active
@@ -490,6 +542,28 @@ export const NPC_REGISTRY = [
                     id: "vega_daytime_sleep",
                     type: SCHEDULE_RULES.home,
                     timeBlocks: [{ from: "06:00", to: "14:00" }],
+                },
+
+                // [GAP FILLER] Workday Pre-shift: 14:00–16:00
+                // Coffee, gym, or commute before the briefing.
+                {
+                    id: "vega_preshift_routine",
+                    type: SCHEDULE_RULES.random,
+                    dayKinds: [DayKind.WORKDAY],
+                    window: { from: "14:00", to: "16:00" },
+                    stayMinutes: { min: 30, max: 60 },
+                    targets: [
+                        {
+                            type: TARGET_TYPE.placeKeys,
+                            candidates: ["gym", "cafe", "corner_store"],
+                        },
+                        {
+                            type: TARGET_TYPE.placeCategory,
+                            candidates: [PLACE_TAGS.food],
+                        },
+                        { type: TARGET_TYPE.home },
+                    ],
+                    respectOpeningHours: true,
                 },
 
                 // 2) Pre-shift at station on workdays: 16:00–18:00
@@ -538,6 +612,23 @@ export const NPC_REGISTRY = [
                     ],
                     respectOpeningHours: false,
                     probability: 0.9, // almost always patrols on shift nights
+                },
+
+                // [FALLBACK] Desk Duty: 18:00–02:00
+                // If the random patrol rules (probability 0.9/0.8) don't fire, he is stuck at the station.
+                {
+                    id: "vega_desk_duty_fallback",
+                    type: SCHEDULE_RULES.random,
+                    dayKinds: [DayKind.WORKDAY],
+                    window: { from: "18:00", to: "02:00" },
+                    stayMinutes: { min: 4 * 60, max: 4 * 60 },
+                    targets: [
+                        {
+                            type: TARGET_TYPE.placeKeys,
+                            candidates: ["police_station"],
+                            nearest: true,
+                        },
+                    ],
                 },
 
                 // 4) Late-night patrol on workdays: 23:00–02:00
@@ -599,6 +690,28 @@ export const NPC_REGISTRY = [
                             type: TARGET_TYPE.placeKeys,
                             candidates: ["police_station"],
                         },
+                    ],
+                    respectOpeningHours: true,
+                },
+
+                // [GAP FILLER] Day Off Daytime: 14:00–20:00
+                // Normal human chores since he sleeps late.
+                {
+                    id: "vega_day_off_chores",
+                    type: SCHEDULE_RULES.random,
+                    dayKinds: [DayKind.DAY_OFF],
+                    window: { from: "14:00", to: "20:00" },
+                    stayMinutes: { min: 45, max: 120 },
+                    targets: [
+                        {
+                            type: TARGET_TYPE.placeCategory,
+                            candidates: [
+                                PLACE_TAGS.service,
+                                PLACE_TAGS.commerce,
+                                PLACE_TAGS.leisure,
+                            ],
+                        },
+                        { type: TARGET_TYPE.home },
                     ],
                     respectOpeningHours: true,
                 },
@@ -1174,15 +1287,15 @@ export const NPC_REGISTRY = [
                     type: SCHEDULE_RULES.random,
                     dayKinds: [DayKind.WORKDAY, DayKind.DAY_OFF],
                     window: { from: "23:00", to: "03:00" },
-                    stayMinutes: { min: 10, max: 40 },
+                    stayMinutes: { min: 10, max: 30 },
                     targets: [
                         {
                             type: TARGET_TYPE.placeCategory,
-                            candidates: [PLACE_TAGS.crime],
+                            candidates: [PLACE_TAGS.crime, PLACE_TAGS.nightlife],
                         },
                         {
-                            type: TARGET_TYPE.placeCategory,
-                            candidates: [PLACE_TAGS.nightlife],
+                            type: TARGET_TYPE.home,
+                            stay: true,
                         },
                     ],
                     respectOpeningHours: false,
@@ -1203,7 +1316,7 @@ export const NPC_REGISTRY = [
                         },
                     ],
                     respectOpeningHours: true,
-                    probability: 0.3, // only some weeks he bothers
+                    probability: 0.6, // only some weeks he bothers
                 },
             ],
         },
@@ -1237,7 +1350,6 @@ export function npcFromRegistryKey(key) {
             shortName: def.shortName || def.name,
             registryKey: def.key,
             description: def.description,
-            //keep a copy of the schedule template in meta
         },
     };
 }
