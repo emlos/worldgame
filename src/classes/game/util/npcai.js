@@ -120,7 +120,11 @@ export class NPCScheduler {
     getWeekSchedule(npc, weekStartDate) {
         if (!npc || !this.world) return [];
         const npcId = String(npc.id || npc.key || npc.name);
-        const base = normalizeMidnight(weekStartDate || this.world.time.date);
+
+        // Always align the requested date to the Monday of its week
+        // and then clamp to midnight, so every schedule is strictly
+        // Monday → Sunday regardless of current in-game day.
+        const base = this._weekStartForDate(weekStartDate || this.world.time.date);
         const weekKey = weekKeyFrom(base);
 
         let perNpc = this.cache.get(npcId);
@@ -143,7 +147,7 @@ export class NPCScheduler {
     }
 
     getCurrentWeekSchedule(npc) {
-        const weekStart = normalizeMidnight(this.world.time.date);
+        const weekStart = this._weekStartForDate(this.world.time.date);
         return this.getWeekSchedule(npc, weekStart);
     }
 
@@ -161,7 +165,7 @@ export class NPCScheduler {
         const origin = new Date(fromDate.getTime());
         const limit = new Date(origin.getTime() + (Number(nextMinutes) || 0) * MS_PER_MINUTE);
 
-        const weekStart = normalizeMidnight(origin);
+        const weekStart = this._weekStartForDate(origin);
         const slots = this.getWeekSchedule(npc, weekStart);
 
         let best = null;
@@ -205,6 +209,20 @@ export class NPCScheduler {
         );
 
         return slots;
+    }
+
+    /**
+     * Given any Date, return the local Monday 00:00 that starts its week.
+     * Week is always Monday–Sunday, independent of the current client day.
+     */
+    _weekStartForDate(date) {
+        const base = normalizeMidnight(date || this.world?.time?.date || new Date());
+        // JS getDay(): 0 = Sun, 1 = Mon, ... 6 = Sat
+        const day = base.getDay();
+        // Convert to Monday-based index: Mon=0, Tue=1, ... Sun=6
+        const monIndex = (day + 6) % 7;
+        const mondayMs = base.getTime() - monIndex * MS_PER_DAY;
+        return new Date(mondayMs);
     }
 
     // ---------------------------------------------------------------------
