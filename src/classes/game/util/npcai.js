@@ -1157,7 +1157,7 @@ export class NPCScheduler {
 
         if (!fromBus || !toBus) return null;
 
-        //check if dest bus ts
+        // If origin and destination stops are the same, bus makes no sense → walk
         if (String(fromBus.location.id) === String(toBus.location.id)) {
             return null;
         }
@@ -1169,7 +1169,6 @@ export class NPCScheduler {
         if (!walkToStopRoute || !walkFromStopRoute || !busRoute) return null;
 
         const busBaseMinutes = busRoute.minutes;
-
         if (!Number.isFinite(busBaseMinutes) || busBaseMinutes <= 0) {
             return null;
         }
@@ -1178,21 +1177,26 @@ export class NPCScheduler {
         const travelMult = typeof props.travelTimeMult === "number" ? props.travelTimeMult : 0.6;
         const busRideMinutes = Math.ceil(busBaseMinutes * travelMult);
 
-        // 2) Bus frequency and waiting time
+        // --- Build walking plan to the stop first ---
+        const walkToPlan = this._buildWalkingPlanFromRoute(walkToStopRoute);
+        const walkToMinutes = walkToPlan.totalMinutes;
+
+        // 2) Bus frequency and waiting time (based on arrival at the stop)
         const freqDay = typeof props.busFrequencyDay === "number" ? props.busFrequencyDay : 15;
         const freqNight =
             typeof props.busFrequencyNight === "number" ? props.busFrequencyNight : 35;
 
-        const hour = departureTime.getHours();
-        const minute = departureTime.getMinutes();
-        const minutesSinceMidnight = hour * 60 + minute;
-
         const isNight = env.isNight;
         const freq = isNight ? freqNight : freqDay;
 
+        // Arrival at stop in minutes since midnight
+        const baseMinutesSinceMidnight = departureTime.getHours() * 60 + departureTime.getMinutes();
+        const minutesSinceMidnightAtStop =
+            (baseMinutesSinceMidnight + walkToMinutes) % MINUTES_PER_DAY;
+
         let waitMinutes = 0;
         if (freq > 0) {
-            const mod = minutesSinceMidnight % freq;
+            const mod = minutesSinceMidnightAtStop % freq;
             waitMinutes = mod === 0 ? 0 : freq - mod; // next bus aligned to 00:00
         }
 
@@ -1201,7 +1205,6 @@ export class NPCScheduler {
         let totalMinutes = 0;
 
         // Walking to stop
-        const walkToPlan = this._buildWalkingPlanFromRoute(walkToStopRoute);
         for (const seg of walkToPlan.segments) {
             segments.push(seg);
             totalMinutes += seg.minutes;
