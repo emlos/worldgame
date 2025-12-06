@@ -353,8 +353,9 @@ export class NPCScheduler {
                 priority,
                 windowStart: start,
                 windowEnd: end,
-                minStay: durMinutes,
+                minStay: 1,
                 maxStay: durMinutes,
+
                 location: homeLocation,
                 place: null,
             });
@@ -574,6 +575,7 @@ export class NPCScheduler {
 
         let cursor = new Date(weekStartMs);
         let currentLocation = homeLocation || null;
+        let currentPlace = null;
 
         const clampToWeek = (d) =>
             new Date(Math.min(Math.max(d.getTime(), weekStartMs), weekEndMs));
@@ -651,7 +653,6 @@ export class NPCScheduler {
             if (best.ruleType === SCHEDULE_RULES.fixed) {
                 const winStart = best.windowStart;
                 const winEnd = best.windowEnd;
-
                 // 1) Compute travel if we leave at the current cursor time
                 let travelPlan = this._computeTravelPlan(
                     npc,
@@ -660,49 +661,58 @@ export class NPCScheduler {
                     cursor
                 );
                 let travelMinutes = travelPlan.minutes || 0;
+                let arrivalIfLeaveNow = new Date(cursor.getTime() + travelMinutes * MS_PER_MINUTE);
 
-                const arrivalIfLeaveNow = new Date(
-                    cursor.getTime() + travelMinutes * MS_PER_MINUTE
-                );
-
-                // 2) If we'd arrive AFTER the fixed window starts, try to pull departure earlier
-                if (arrivalIfLeaveNow > winStart && slots.length) {
+                // 2) If we'd arrive AFTER the fixed window starts, pull departure earlier
+                //    by shrinking previous "stay" slots as much as needed (ignoring rule min-stays).
+                let safety = 0;
+                while (arrivalIfLeaveNow > winStart && slots.length && safety < 20) {
                     const lastSlot = slots[slots.length - 1];
 
-                    const canAdjustLast =
-                        lastSlot.activityType === "stay" &&
-                        (lastSlot.ruleType === SCHEDULE_RULES.random ||
-                            lastSlot.ruleType === SCHEDULE_RULES.daily ||
-                            lastSlot.ruleType === SCHEDULE_RULES.weekly);
+                    // We can only shrink "stay" slots; if last one isn't a stay, we give up.
+                    if (!lastSlot || lastSlot.activityType !== "stay") break;
 
-                    if (canAdjustLast) {
-                        const neededShiftMin = Math.ceil(
-                            (arrivalIfLeaveNow.getTime() - winStart.getTime()) / MS_PER_MINUTE
-                        );
+                    const lastDur = minutesBetween(lastSlot.from, lastSlot.to);
+                    if (lastDur <= 0) {
+                        slots.pop();
+                        continue;
+                    }
 
-                        const ruleMin = this._getRuleMinStayForSlot(npc, lastSlot); // may be 0
-                        const lastDur = minutesBetween(lastSlot.from, lastSlot.to); // in minutes
-                        const maxShrink = Math.max(0, lastDur - ruleMin);
+                    const neededShiftMin = Math.ceil(
+                        (arrivalIfLeaveNow.getTime() - winStart.getTime()) / MS_PER_MINUTE
+                    );
 
-                        const shrinkBy = Math.min(neededShiftMin, maxShrink);
+                    // For fixed rules, we don't respect per-rule minStay; we can cut into any stay.
+                    const shrinkBy = Math.min(neededShiftMin, lastDur);
 
-                        if (shrinkBy > 0) {
-                            // Shrink the last flexible slot from the end
-                            lastSlot.to = new Date(
-                                lastSlot.to.getTime() - shrinkBy * MS_PER_MINUTE
-                            );
-                            cursor = new Date(cursor.getTime() - shrinkBy * MS_PER_MINUTE);
+                    // Shrink this slot from the end
+                    lastSlot.to = new Date(lastSlot.to.getTime() - shrinkBy * MS_PER_MINUTE);
+                    cursor = new Date(cursor.getTime() - shrinkBy * MS_PER_MINUTE);
 
-                            // Recompute travel with earlier departure (for bus timing, etc.)
-                            travelPlan = this._computeTravelPlan(
-                                npc,
-                                lastSlot.location,
-                                best.location,
-                                cursor
-                            );
-                            travelMinutes = travelPlan.minutes || 0;
+                    // If the slot has collapsed, drop it and update currentLocation/place
+                    if (lastSlot.to <= lastSlot.from) {
+                        slots.pop();
+                        const prev = slots[slots.length - 1];
+                        if (prev && prev.activityType === "stay") {
+                            currentLocation = prev.location;
+                            currentPlace = prev.place || null;
+                        } else {
+                            currentLocation = homeLocation || null;
+                            currentPlace = null;
                         }
                     }
+
+                    // Recompute travel with the earlier departure (for bus timing, env, etc.)
+                    travelPlan = this._computeTravelPlan(
+                        npc,
+                        currentLocation,
+                        best.location,
+                        cursor
+                    );
+                    travelMinutes = travelPlan.minutes || 0;
+                    arrivalIfLeaveNow = new Date(cursor.getTime() + travelMinutes * MS_PER_MINUTE);
+
+                    safety++;
                 }
 
                 // 3) Emit travel segments starting at cursor
@@ -759,6 +769,7 @@ export class NPCScheduler {
                 }
 
                 currentLocation = best.location;
+                currentPlace = best.place || null;
                 cursor = stayTo;
 
                 const idxFixed = remaining.indexOf(best);
@@ -769,6 +780,29 @@ export class NPCScheduler {
 
             if (bestAvailableStart > cursor && best.ruleType !== SCHEDULE_RULES.fixed) {
                 const gapEnd = clampToWeek(bestAvailableStart);
+
+                if (currentLocation && gapEnd > cursor) {
+                    const lastSlot = slots[slots.length - 1];
+
+                    // If the previous slot is a stay at the same location/place and is
+                    // exactly contiguous with the gap, just extend it.
+                    if (
+                        lastSlot &&
+                        lastSlot.activityType === "stay" &&
+                        lastSlot.to.getTime() === cursor.getTime() &&
+                        lastSlot.locationId === (currentLocation && currentLocation.id) &&
+                        lastSlot.placeId === (currentPlace && currentPlace.id)
+                    ) {
+                        lastSlot.to = gapEnd;
+                    } else {
+                        // Otherwise create a new idle stay slot for the gap.
+                        pushSlot(cursor, gapEnd, currentLocation, currentPlace, null, null, {
+                            activityType: "stay",
+                            isIdle: true,
+                        });
+                    }
+                }
+
                 cursor = gapEnd;
                 if (cursor >= weekEnd) break;
             }
@@ -831,8 +865,15 @@ export class NPCScheduler {
                 continue;
             }
 
-            const staySpan =
-                best.minStay + Math.floor(this.rnd() * (maxPossibleStay - best.minStay + 1));
+            let staySpan;
+            if (best.ruleType === SCHEDULE_RULES.home) {
+                staySpan = maxPossibleStay;
+            } else {
+                // existing behavior for random/daily/weekly/etc
+                staySpan =
+                    best.minStay + Math.floor(this.rnd() * (maxPossibleStay - best.minStay + 1));
+            }
+
             const leave = new Date(arrival.getTime() + staySpan * MS_PER_MINUTE);
 
             const fromStay = clampToWeek(arrival);
@@ -843,6 +884,7 @@ export class NPCScheduler {
             });
 
             currentLocation = best.location;
+            currentPlace = best.place || null;
             cursor = toStay;
 
             // Remove the intent now that it's consumed
@@ -1115,6 +1157,11 @@ export class NPCScheduler {
 
         if (!fromBus || !toBus) return null;
 
+        //check if dest bus ts
+        if (String(fromBus.location.id) === String(toBus.location.id)) {
+            return null;
+        }
+
         const walkToStopRoute = map.getTravelTotal(fromId, fromBus.location.id);
         const walkFromStopRoute = map.getTravelTotal(toBus.location.id, toId);
         const busRoute = map.getTravelTotal(fromBus.location.id, toBus.location.id);
@@ -1122,6 +1169,10 @@ export class NPCScheduler {
         if (!walkToStopRoute || !walkFromStopRoute || !busRoute) return null;
 
         const busBaseMinutes = busRoute.minutes;
+
+        if (!Number.isFinite(busBaseMinutes) || busBaseMinutes <= 0) {
+            return null;
+        }
 
         const props = (fromBus.place && fromBus.place.props) || {};
         const travelMult = typeof props.travelTimeMult === "number" ? props.travelTimeMult : 0.6;
