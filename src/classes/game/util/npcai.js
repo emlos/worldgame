@@ -1,4 +1,3 @@
-// worldgame/src/classes/game/util/npcai.js
 import {
     DAY_KEYS,
     TARGET_TYPE,
@@ -23,7 +22,12 @@ function parseTimeToMinutes(str) {
 }
 
 function ymdKey(date) {
-    return date.toISOString().slice(0, 10); // YYYY-MM-DD
+    // Local-date-based key (YYYY-MM-DD) so caching & week grouping
+    // are stable regardless of the machine's timezone.
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
 }
 
 function weekKeyFrom(date) {
