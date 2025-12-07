@@ -1002,8 +1002,78 @@ function renderNpcWeekSchedule(npcState) {
 
                 details.appendChild(list);
                 container.appendChild(details);
-            } else if (group.type === "bus" || group.type === "car") {
-                // Bus/car travel: single summarized line with hover path highlight
+            } else if (group.type === "bus") {
+                // Bus travel: show summary + breakdown (wait, ride, linger)
+                const firstSlot = group.slots[0];
+                const lastSlot = group.slots[group.slots.length - 1];
+
+                const from = firstSlot.from;
+                const to = lastSlot.to;
+                const timeStr = formatTimeRange(from, to);
+                const totalMinutes = Math.round((to.getTime() - from.getTime()) / 60000);
+
+                const details = document.createElement("details");
+                const classNames = [
+                    "schedule-slot",
+                    "schedule-slot--travel",
+                    "schedule-slot--travel-bus",
+                ];
+                if (activeSlot && group.slots.includes(activeSlot)) {
+                    classNames.push("schedule-slot--active");
+                }
+                details.className = classNames.join(" ");
+
+                const summary = document.createElement("summary");
+                summary.innerHTML = `<code>${timeStr} – Bus (${totalMinutes} min)</code>`;
+                details.appendChild(summary);
+
+                const list = document.createElement("ul");
+                list.style.margin = "4px 0 0 16px";
+                list.style.fontSize = "11px";
+
+                for (const slot of group.slots) {
+                    const li = document.createElement("li");
+                    const tStr = formatTimeRange(slot.from, slot.to);
+                    const kind = slot.travelSegmentKind;
+                    const meta = slot.travelMeta || {};
+
+                    if (kind === "bus_wait") {
+                        const stopId = slot.locationId ?? meta.busStopId ?? null;
+                        const stopLoc = stopId != null ? getLoc(stopId) : null;
+                        const name = stopLoc ? `${stopLoc.name} (${stopLoc.id})` : "bus stop";
+                        li.textContent = `${tStr} – waiting for bus at ${name}`;
+                    } else if (kind === "bus_ride") {
+                        const fromId = meta.fromLocationId;
+                        const toId = meta.toLocationId;
+                        const fromLoc = fromId ? getLoc(fromId) : null;
+                        const toLoc = toId ? getLoc(toId) : null;
+                        const fromName = fromLoc ? fromLoc.name : fromId || "?";
+                        const toName = toLoc ? toLoc.name : toId || "?";
+                        li.textContent = `${tStr} – on the bus (${fromName} → ${toName})`;
+                    } else if (kind === "bus_linger") {
+                        const stopId = slot.locationId ?? meta.busStopId ?? null;
+                        const stopLoc = stopId != null ? getLoc(stopId) : null;
+                        const name = stopLoc ? `${stopLoc.name} (${stopLoc.id})` : "bus stop";
+                        li.textContent = `${tStr} – short stop at ${name}`;
+                    } else {
+                        // Fallback for unexpected bus segments
+                        li.textContent = `${tStr} – bus travel (${kind || "segment"})`;
+                    }
+
+                    list.appendChild(li);
+                }
+
+                details.appendChild(list);
+
+                // Hover anywhere on the bus group to highlight path on the map
+                details.addEventListener("mouseenter", () => highlightTravelGroupPath(group, true));
+                details.addEventListener("mouseleave", () =>
+                    highlightTravelGroupPath(group, false)
+                );
+
+                container.appendChild(details);
+            } else if (group.type === "car") {
+                // Car travel: single summarized line with hover path highlight
                 const firstSlot = group.slots[0];
                 const lastSlot = group.slots[group.slots.length - 1];
 
@@ -1016,18 +1086,15 @@ function renderNpcWeekSchedule(npcState) {
                 const classNames = [
                     "schedule-slot",
                     "schedule-slot--travel",
-                    `schedule-slot--travel-${group.type}`,
+                    "schedule-slot--travel-car",
                 ];
                 if (activeSlot && group.slots.includes(activeSlot)) {
                     classNames.push("schedule-slot--active");
                 }
                 div.className = classNames.join(" ");
 
-                const label = group.type === "bus" ? "On the bus" : "Travelling by car";
+                div.innerHTML = `<code>${timeStr} – Travelling by car (${totalMinutes} min)</code>`;
 
-                div.innerHTML = `<code>${timeStr} – ${label} (${totalMinutes} min)</code>`;
-
-                // Hover to highlight the route on the map
                 div.addEventListener("mouseenter", () => highlightTravelGroupPath(group, true));
                 div.addEventListener("mouseleave", () => highlightTravelGroupPath(group, false));
 
