@@ -4,6 +4,7 @@ import {
     SCHEDULE_RULES,
     RULE_PRIORITY,
     MS_PER_DAY,
+    WeatherType,
 } from "../../../data/data.js";
 
 const MINUTES_PER_DAY = 24 * 60;
@@ -947,6 +948,12 @@ export class NPCScheduler {
         const map = world && world.map;
         const template = npc.scheduleTemplate || {};
 
+        // walking speed modifier (only affects walking edges)
+        const walkMult =
+            typeof template.travelModifier === "number" && template.travelModifier > 0
+                ? template.travelModifier
+                : 1;
+
         // If we don't have map or locations, or same location, teleport.
         if (!map || !world.locations || !currentLocation || !targetLocation) {
             return {
@@ -977,7 +984,7 @@ export class NPCScheduler {
         }
 
         // Full walking plan including micro-stops
-        const walkPlan = this._buildWalkingPlanFromRoute(walkRoute);
+        const walkPlan = this._buildWalkingPlanFromRoute(walkRoute, walkMult);
         const walkTotalMinutes = walkPlan.totalMinutes;
         const edgesCount = walkRoute.edges
             ? walkRoute.edges.length
@@ -1000,7 +1007,8 @@ export class NPCScheduler {
                 targetLocation,
                 departureTime,
                 walkRoute,
-                env
+                env,
+                walkMult
             );
         }
 
@@ -1046,7 +1054,7 @@ export class NPCScheduler {
             }
         }
 
-        // Bus conditions (from your spec):
+        // Bus conditions:
         // useBus && (
         //   bad weather / cold / night
         //   OR pure walking time > bus time (including buses & walks)
@@ -1091,10 +1099,10 @@ export class NPCScheduler {
 
     /**
      * Build a walking plan from a map route:
-     * - travel along each edge (edge.minutes)
-     * - linger 1–2 minutes at each intermediate location (still travel)
+     * - travel along each edge (edge.minutes), scaled by travelModifier if present
+     * - linger 1–2 minutes at each intermediate location (still travel, NOT scaled)
      */
-    _buildWalkingPlanFromRoute(route) {
+    _buildWalkingPlanFromRoute(route, walkMult = 1) {
         const segments = [];
         let totalMinutes = 0;
 
@@ -1107,15 +1115,21 @@ export class NPCScheduler {
             const edge = edges[i];
             const edgeMinutes = edge && typeof edge.minutes === "number" ? edge.minutes : 1;
 
+            // NEW: apply travelModifier to walking *speed* (edges only)
+            let effectiveEdgeMinutes = edgeMinutes;
+            if (walkMult && walkMult !== 1) {
+                effectiveEdgeMinutes = Math.max(1, Math.ceil(edgeMinutes * walkMult));
+            }
+
             // Segment: moving along the edge
             segments.push({
                 mode: "walk",
                 kind: "walk_edge",
-                minutes: edgeMinutes,
+                minutes: effectiveEdgeMinutes,
                 fromLocationId: fromId,
                 toLocationId: toId,
             });
-            totalMinutes += edgeMinutes;
+            totalMinutes += effectiveEdgeMinutes;
 
             // Segment: linger at intermediate location (not at final target)
             if (i + 1 < locIds.length - 1) {
@@ -1143,7 +1157,15 @@ export class NPCScheduler {
      *
      * Returns null if bus is not viable.
      */
-    _buildBusPlan(npc, currentLocation, targetLocation, departureTime, walkRoute, env) {
+    _buildBusPlan(
+        npc,
+        currentLocation,
+        targetLocation,
+        departureTime,
+        walkRoute,
+        env,
+        walkMult = 1 // NEW
+    ) {
         const world = this.world;
         const map = world && world.map;
         if (!map || !world.locations) return null;
@@ -1174,11 +1196,11 @@ export class NPCScheduler {
         }
 
         const props = (fromBus.place && fromBus.place.props) || {};
-        const travelMult = typeof props.travelTimeMult === "number" ? props.travelTimeMult : 0.6;
+        const travelMult = props.travelTimeMult;
         const busRideMinutes = Math.ceil(busBaseMinutes * travelMult);
 
         // Build walking plan to the stop first (with micro-lingers).
-        const walkToPlan = this._buildWalkingPlanFromRoute(walkToStopRoute);
+        const walkToPlan = this._buildWalkingPlanFromRoute(walkToStopRoute, walkMult);
         const walkToMinutes = walkToPlan.totalMinutes;
 
         // Compute arrival time *at the bus stop*.
@@ -1187,9 +1209,8 @@ export class NPCScheduler {
         const arrivalAtStop = new Date(arrivalAtStopMs);
 
         // 2) Bus frequency and waiting time — align to arrivalAtStop, not departureTime.
-        const freqDay = typeof props.busFrequencyDay === "number" ? props.busFrequencyDay : 15;
-        const freqNight =
-            typeof props.busFrequencyNight === "number" ? props.busFrequencyNight : 35;
+        const freqDay = props.busFrequencyDay;
+        const freqNight = props.busFrequencyNight;
 
         const hour = arrivalAtStop.getHours();
         const minute = arrivalAtStop.getMinutes();
@@ -1251,12 +1272,11 @@ export class NPCScheduler {
         totalMinutes += lingerAtStop;
 
         // Walking from stop to final target
-        const walkFromPlan = this._buildWalkingPlanFromRoute(walkFromStopRoute);
+        const walkFromPlan = this._buildWalkingPlanFromRoute(walkFromStopRoute, walkMult);
         for (const seg of walkFromPlan.segments) {
             segments.push(seg);
             totalMinutes += seg.minutes;
         }
-
         return {
             totalMinutes,
             segments,
@@ -1301,45 +1321,25 @@ export class NPCScheduler {
      * weather/temperature/density, we fall back to sane defaults.
      */
     _getEnvironmentState(date) {
-        const world = this.world || {};
-        let weather = "clear";
-        let temperature = 15;
-        let density = 1;
-
-        // Try a few possible hooks; you can adapt to your actual API
-        if (typeof world.getEnvironmentAt === "function") {
-            const env = world.getEnvironmentAt(date) || {};
-            weather = env.weather || env.type || weather;
-            if (typeof env.temperature === "number") temperature = env.temperature;
-            if (typeof env.density === "number") density = env.density;
-        } else if (typeof world.getWeatherAt === "function") {
-            const env = world.getWeatherAt(date) || {};
-            weather = env.weather || env.type || weather;
-            if (typeof env.temperature === "number") temperature = env.temperature;
-        } else if (world.weather) {
-            const env = world.weather;
-            weather = env.weather || env.type || weather;
-            if (typeof env.temperature === "number") temperature = env.temperature;
+        if (!this.world) {
+            throw new Error("NPCScheduler._getEnvironmentState: world is not set");
         }
 
-        if (world.map && typeof world.map.density === "number") {
-            density = world.map.density;
-        } else if (typeof world.density === "number") {
-            density = world.density;
-        }
+        const env = this.world.getEnvironmentAt(date);
 
+        const { weather, temperature, density, season } = env;
         const hour = date.getHours();
         const isNight = hour >= 22 || hour < 6;
 
         const badWeather =
             typeof weather === "string" &&
-            ["rain", "storm", "snow", "snowstorm", "hail"].some((w) =>
+            [WeatherType.RAIN, WeatherType.SNOW, WeatherType.STORM].some((w) =>
                 weather.toLowerCase().includes(w)
             );
 
-        const isCold = typeof temperature === "number" && temperature < 0;
+        const isCold = temperature < 0;
 
-        return { weather, temperature, density, badWeather, isCold, isNight };
+        return { weather, temperature, density, badWeather, isCold, isNight, season };
     }
 
     // ---------------------------------------------------------------------
