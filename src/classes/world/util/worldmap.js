@@ -703,7 +703,7 @@ export class WorldMap {
             }
 
             // create edge (travel minutes still randomized 1..10 at world-gen)
-            const minutes = randInt(1, 10, map.rnd);
+            const minutes = randInt(1, 5, map.rnd);
             const distance = Math.round(dist(a, b));
 
             const edgeAB = new Street({

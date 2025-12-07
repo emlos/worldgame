@@ -63,6 +63,19 @@ export class World {
         this.temperatureC = this.weather.computeTemperature(this.time.date);
     }
 
+    // --- Environment snapshot for a given time ---
+    getEnvironmentAt(date = this.time.date) {
+        const d = date || this.time.date;
+
+        const temperature = this.weather.computeTemperature(d);
+        const weather = this.weather.kind; // current weather state
+        const density = this.density;
+
+        const season = this.season;
+
+        return { weather, temperature, density, season };
+    }
+
     // --- Queries ---
 
     // ---- Map helpers (delegated to WorldMap) ----
@@ -128,5 +141,9 @@ export class World {
 
     get edges() {
         return this.map.edges;
+    }
+
+    get density() {
+        return this.map.density;
     }
 }
