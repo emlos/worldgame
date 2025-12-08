@@ -48,7 +48,6 @@ function minutesBetween(a, b) {
  * Uses:
  *   - rule.dayKinds: [DayKind.*]
  *   - rule.daysOfWeek: [DAY_KEYS[*]]  (canonical)
- *   - rule.candidateDays: legacy alias for daysOfWeek
  */
 function ruleAppliesOnDay(rule, dayInfo, dayKey) {
     if (!rule) return false;
@@ -129,7 +128,7 @@ export class NPCScheduler {
         // Always align the requested date to the Monday of its week
         // and then clamp to midnight, so every schedule is strictly
         // Monday → Sunday regardless of current in-game day.
-        const base = this._weekStartForDate(weekStartDate || this.world.time.date);
+        const base = this._weekStartForDate(weekStartDate);
         const weekKey = weekKeyFrom(base);
 
         let perNpc = this.cache.get(npcId);
@@ -168,7 +167,7 @@ export class NPCScheduler {
             return { willMove: false, at: new Date(), nextSlot: null };
         }
         const origin = new Date(fromDate.getTime());
-        const limit = new Date(origin.getTime() + (Number(nextMinutes) || 0) * MS_PER_MINUTE);
+        const limit = new Date(origin.getTime() + nextMinutes * MS_PER_MINUTE);
 
         const weekStart = this._weekStartForDate(origin);
         const slots = this.getWeekSchedule(npc, weekStart);
@@ -194,13 +193,23 @@ export class NPCScheduler {
     // ---------------------------------------------------------------------
 
     _buildWeekSchedule(npc, weekStart) {
-        const npcId = String(npc.id || npc.key || npc.name);
-        const template = npc.scheduleTemplate || {};
-        const rules = Array.isArray(template.rules) ? template.rules : [];
-        if (!rules.length) return [];
+        const template = npc.scheduleTemplate;
+        const rules = template.rules;
 
         const weekStartMs = weekStart.getTime();
         const weekEndMs = weekStartMs + 7 * MS_PER_DAY;
+
+        const allowedSeasons = template.season || [];
+
+        if (allowedSeasons.length) {
+            const env = this._getEnvironmentState(weekStart);
+            const currentSeason = env.season;
+
+            // If current season is not in the whitelist → no schedule at all.
+            if (!allowedSeasons.includes(currentSeason)) {
+                return [];
+            }
+        }
 
         // 1) Generate intents for the whole week (no exact times yet)
         const intents = this._generateIntentsForWeek(npc, weekStart, rules);
@@ -221,7 +230,7 @@ export class NPCScheduler {
      * Week is always Monday–Sunday, independent of the current client day.
      */
     _weekStartForDate(date) {
-        const base = normalizeMidnight(date || this.world?.time?.date || new Date());
+        const base = normalizeMidnight(date);
         // JS getDay(): 0 = Sun, 1 = Mon, ... 6 = Sat
         const day = base.getDay();
         // Convert to Monday-based index: Mon=0, Tue=1, ... Sun=6
@@ -1317,14 +1326,8 @@ export class NPCScheduler {
 
     /**
      * Get environment/context at a given time.
-     * This is intentionally defensive: if your world doesn't yet expose
-     * weather/temperature/density, we fall back to sane defaults.
      */
     _getEnvironmentState(date) {
-        if (!this.world) {
-            throw new Error("NPCScheduler._getEnvironmentState: world is not set");
-        }
-
         const env = this.world.getEnvironmentAt(date);
 
         const { weather, temperature, density, season } = env;
@@ -1356,7 +1359,6 @@ export class NPCScheduler {
     _rulePassesProbability(rule) {
         if (!rule || rule.probability == null) return true;
         let p = Number(rule.probability);
-        if (!Number.isFinite(p)) return true;
         if (p <= 0) return false;
         if (p >= 1) return true;
         return this.rnd() < p;
@@ -1365,25 +1367,10 @@ export class NPCScheduler {
     _priorityForRule(rule) {
         const t = rule && rule.type;
         const p = RULE_PRIORITY && RULE_PRIORITY[t];
-        if (typeof p === "number") return p;
-        switch (t) {
-            case SCHEDULE_RULES.home:
-                return 0;
-            case SCHEDULE_RULES.random:
-                return 1;
-            case SCHEDULE_RULES.daily:
-                return 2;
-            case SCHEDULE_RULES.weekly:
-                return 2;
-            case SCHEDULE_RULES.fixed:
-                return 3;
-            default:
-                return 4;
-        }
+        return p;
     }
 
     _pickRandomTarget(targets) {
-        if (!Array.isArray(targets) || !targets.length) return null;
         const idx = (this.rnd() * targets.length) | 0;
         return targets[idx];
     }
