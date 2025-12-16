@@ -107,18 +107,9 @@ function populateNpcSelect() {
     sel.innerHTML = "";
 
     // NPC_REGISTRY is available globally because debug=true and data.js assigns to window
-    const list = Array.isArray(window.NPC_REGISTRY) ? window.NPC_REGISTRY : [];
+    const list = NPC_REGISTRY;
 
-    const usable = list.filter((d) => d && d.key && d.example !== true);
-
-    if (!usable.length) {
-        // fallback
-        const opt = document.createElement("option");
-        opt.value = "taylor";
-        opt.textContent = "taylor";
-        sel.appendChild(opt);
-        return;
-    }
+    const usable = list.filter((d) => d.key);
 
     for (const def of usable) {
         const opt = document.createElement("option");
@@ -306,8 +297,8 @@ function renderNpcInfo() {
     const getLoc = (id) =>
         world.getLocation ? world.getLocation(id) : world.locations.get(String(id));
 
-    const currentEl = byId("taylorCurrent");
-    const homeEl = byId("taylorHome");
+    const currentEl = byId("npcCurrentLoc");
+    const homeEl = byId("npcHome");
     const placesEl = byId("placesAtLoc");
 
     const homeLoc = getLoc(activeNpc.homeLocationId);
@@ -665,7 +656,7 @@ function getIntentLocationData(slot) {
 }
 
 function updateNextIntent() {
-    const el = byId("taylorNextIntent");
+    const el = byId("nextIntent");
     if (!el || !scheduleManager || !activeNpc) return;
 
     const peek = scheduleManager.peek(activeNpc, 30, world.time.date);
@@ -718,206 +709,557 @@ function highlightIntentLocation(enabled) {
 // Week schedule rendering
 // ---------------------------
 
+// Buckets slots by YYYY-MM-DD.
+function getDayBuckets(slots) {
+    const dayBuckets = new Map();
+
+    for (const slot of slots) {
+        const d = slot.from;
+        const dateKey = `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+
+        let bucket = dayBuckets.get(dateKey);
+        if (!bucket) {
+            bucket = { date: new Date(d.getFullYear(), d.getMonth(), d.getDate()), slots: [] };
+            dayBuckets.set(dateKey, bucket);
+        }
+        bucket.slots.push(slot);
+    }
+
+    return dayBuckets;
+}
+
+// Supports both slot formats:
+// - New: { activityType:"travel"|"stay", travelMode, travelSegmentKind, travelMeta, locationId, placeId, ... }
+// - Old: { target:{ type:"travel"|..., spec:{ mode, fromLocationId, toLocationId, microStop, pathEdges, ... }, locationId, placeId }, ... }
+function isTravelSlot(slot) {
+    if (!slot) return false;
+    if (slot.activityType) return slot.activityType === "travel";
+    return !!(slot.target && slot.target.type === "travel");
+}
+
+function getTravelModeForSlot(slot) {
+    if (!slot) return null;
+
+    // new schedule format
+    if (slot.activityType === "travel") {
+        return slot.travelMode || null;
+    }
+
+    // old schedule format
+    const spec = slot.target && slot.target.spec ? slot.target.spec : null;
+    const mode = spec && spec.mode ? spec.mode : null;
+
+    // old scheduler used "wait" to mean bus wait; group under "bus"
+    if (mode === "wait") return "bus";
+    return mode;
+}
+
+function groupDaySlotsForTravel(daySlots) {
+    const groups = [];
+    let currentGroup = null;
+
+    const commit = () => {
+        if (currentGroup && currentGroup.slots.length) groups.push(currentGroup);
+        currentGroup = null;
+    };
+
+    for (const slot of daySlots) {
+        const travel = isTravelSlot(slot);
+        const mode = travel ? getTravelModeForSlot(slot) : null;
+
+        if (!travel || !mode) {
+            // non-travel slot
+            commit();
+            groups.push({ type: "stay", slots: [slot] });
+            continue;
+        }
+
+        // travel slot
+        if (!currentGroup || currentGroup.type !== mode) {
+            commit();
+            currentGroup = { type: mode, slots: [slot] };
+        } else {
+            currentGroup.slots.push(slot);
+        }
+    }
+
+    commit();
+    return groups;
+}
+
+// Hover helper used by the week schedule UI. Uses the same highlight class as the old bus hover logic.
+// (We highlight edges; locations are handled elsewhere.)
+function highlightTravelGroupPath(group, enabled) {
+    if (!enabled) {
+        // Restore default highlights (home/current/active slot path)
+        updateMapHighlights();
+        return;
+    }
+
+    clearHighlightedBusPath();
+
+    const svg = byId("map")?.querySelector("svg");
+    if (!svg || !group || !Array.isArray(group.slots)) return;
+
+    const edgeKeys = new Set();
+    const addEdge = (a, b) => {
+        if (a == null || b == null) return;
+        const A = String(a);
+        const B = String(b);
+        edgeKeys.add(`${A}-${B}`);
+        edgeKeys.add(`${B}-${A}`);
+    };
+
+    for (const slot of group.slots) {
+        // New format
+        if (slot && slot.activityType === "travel") {
+            const kind = slot.travelSegmentKind;
+            const meta = slot.travelMeta || {};
+            const from = meta.fromLocationId;
+            const to = meta.toLocationId;
+
+            if (kind === "walk_edge") {
+                addEdge(from, to);
+                continue;
+            }
+
+            if (kind === "bus_ride" || kind === "car_drive") {
+                // Prefer reconstructing the multi-edge route if the world map API exists.
+                if (world?.map?.getTravelTotal && from != null && to != null) {
+                    const route = world.map.getTravelTotal(String(from), String(to));
+                    const locs = route && Array.isArray(route.locations) ? route.locations : null;
+                    if (locs && locs.length >= 2) {
+                        for (let i = 0; i < locs.length - 1; i++) addEdge(locs[i], locs[i + 1]);
+                        continue;
+                    }
+                }
+                addEdge(from, to);
+                continue;
+            }
+
+            // walk_linger / bus_wait / bus_linger etc → no edges
+            continue;
+        }
+
+        // Old format
+        if (slot && slot.target && slot.target.type === "travel") {
+            const spec = slot.target.spec || {};
+            const mode = spec.mode;
+
+            if (mode === "walk") {
+                if (!spec.microStop && spec.fromLocationId != null && spec.toLocationId != null) {
+                    addEdge(spec.fromLocationId, spec.toLocationId);
+                }
+                continue;
+            }
+
+            if (mode === "bus") {
+                const pathEdges = Array.isArray(spec.pathEdges) ? spec.pathEdges : [];
+                if (pathEdges.length) {
+                    for (const e of pathEdges) addEdge(e.fromId, e.toId);
+                    continue;
+                }
+
+                if (spec.fromLocationId != null && spec.toLocationId != null) {
+                    if (world?.map?.getTravelTotal) {
+                        const route = world.map.getTravelTotal(
+                            String(spec.fromLocationId),
+                            String(spec.toLocationId)
+                        );
+                        const locs =
+                            route && Array.isArray(route.locations) ? route.locations : null;
+                        if (locs && locs.length >= 2) {
+                            for (let i = 0; i < locs.length - 1; i++) addEdge(locs[i], locs[i + 1]);
+                        } else {
+                            addEdge(spec.fromLocationId, spec.toLocationId);
+                        }
+                    } else {
+                        addEdge(spec.fromLocationId, spec.toLocationId);
+                    }
+                }
+            }
+
+            // "wait" (bus waiting) and micro stops → no edges
+        }
+    }
+
+    svg.querySelectorAll("line.road-edge").forEach((line) => {
+        const a = line.dataset.a;
+        const b = line.dataset.b;
+        if (!a || !b) return;
+        if (edgeKeys.has(`${a}-${b}`)) line.classList.add("road-edge--highlight");
+    });
+}
+
 function renderWeekSchedule() {
-    const el = byId("weekSchedule");
-    if (!el || !weekSchedule || !world) return;
+    const container = byId("weekSchedule");
+    if (!container || !weekSchedule || !world) return;
 
     const slots = weekSchedule || [];
+    container.innerHTML = "";
+
     if (!slots.length) {
-        el.textContent = "No schedule slots for this week.";
+        container.textContent = "No schedule slots for this week.";
         return;
     }
 
     const getLoc = (id) =>
         world.getLocation ? world.getLocation(id) : world.locations.get(String(id));
 
-    const pad = (n) => (n < 10 ? "0" + n : "" + n);
-
-    const dayBuckets = new Map();
-    for (const slot of slots) {
-        const d = slot.from;
-        const y = d.getFullYear();
-        const m = pad(d.getMonth() + 1);
-        const day = pad(d.getDate());
-        const dateKey = `${y}-${m}-${day}`;
-
-        let bucket = dayBuckets.get(dateKey);
-        if (!bucket) {
-            bucket = { date: new Date(y, d.getMonth(), d.getDate()), slots: [] };
-            dayBuckets.set(dateKey, bucket);
-        }
-        bucket.slots.push(slot);
-    }
-
-    const sortedKeys = [...dayBuckets.keys()].sort();
-    const lines = [];
+    const now = world.time.date;
+    const activeSlot = findActiveSlotForTime(now);
 
     const formatTimeRange = (from, to) =>
-        `${pad(from.getHours())}:${pad(from.getMinutes())}–${pad(to.getHours())}:${pad(
+        `${pad2(from.getHours())}:${pad2(from.getMinutes())}–${pad2(to.getHours())}:${pad2(
             to.getMinutes()
         )}`;
 
-    const isTravelWalk = (slot) =>
-        slot &&
-        slot.target &&
-        slot.target.type === "travel" &&
-        slot.target.spec &&
-        slot.target.spec.mode === "walk";
+    const dayBuckets = getDayBuckets(slots);
+    const sortedKeys = [...dayBuckets.keys()].sort();
 
     for (const key of sortedKeys) {
         const { date, slots: daySlotsRaw } = dayBuckets.get(key);
         const daySlots = daySlotsRaw.slice().sort((a, b) => a.from - b.from);
 
         const dow = date.toLocaleDateString(undefined, { weekday: "short" });
-        const header = `${dow} ${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(
+        const headerText = `${dow} ${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(
             date.getDate()
         )}`;
-        lines.push(`<h3 class="schedule-day">${header}</h3>`);
 
-        let walkGroup = [];
+        const headerEl = document.createElement("h3");
+        headerEl.className = "schedule-day";
+        headerEl.textContent = headerText;
+        container.appendChild(headerEl);
 
-        const flushWalkGroup = () => {
-            if (!walkGroup.length) return;
+        const groups = groupDaySlotsForTravel(daySlots);
 
-            const first = walkGroup[0];
-            const last = walkGroup[walkGroup.length - 1];
-            const from = first.from;
-            const to = last.to;
+        for (const group of groups) {
+            if (group.type === "stay") {
+                // Render each stay slot normally
+                for (const slot of group.slots) {
+                    const from = slot.from;
+                    const to = slot.to;
+                    const timeStr = formatTimeRange(from, to);
 
-            const totalMinutes = Math.round((to.getTime() - from.getTime()) / 60000);
+                    // Resolve location/place for both slot formats
+                    let locId = null;
+                    let placeId = null;
+                    let isHomeTarget = false;
 
-            const streetNames = new Set();
-            for (const s of walkGroup) {
-                const spec = s.target && s.target.spec;
-                if (spec && spec.streetName) streetNames.add(spec.streetName);
-            }
-            const streetCount = streetNames.size || walkGroup.length;
+                    // New format
+                    if (slot && !slot.target) {
+                        locId =
+                            slot.locationId ??
+                            (slot.location && slot.location.id) ??
+                            activeNpc?.locationId ??
+                            activeNpc?.homeLocationId;
+                        placeId = slot.placeId ?? null;
+                        isHomeTarget =
+                            activeNpc?.homeLocationId != null &&
+                            locId != null &&
+                            String(locId) === String(activeNpc.homeLocationId);
+                    }
 
-            const timeStr = formatTimeRange(from, to);
-            const ruleId = first.sourceRuleId || "travel_auto";
-            const summaryHtml = `${timeStr} – walking (${totalMinutes} min, ${streetCount} streets) <span style="opacity:0.6;">[${ruleId}]</span>`;
+                    // Old format
+                    if (slot && slot.target && slot.target.type !== "travel") {
+                        const spec = slot.target.spec || {};
+                        locId =
+                            slot.target.locationId ??
+                            activeNpc?.locationId ??
+                            activeNpc?.homeLocationId;
+                        placeId = slot.target.placeId ?? null;
+                        isHomeTarget =
+                            slot.target.type === TARGET_TYPE.home || spec.type === TARGET_TYPE.home;
+                    }
 
-            const detailLines = [];
-            for (const step of walkGroup) {
-                const sFrom = step.from;
-                const sTo = step.to;
-                const stepTime = formatTimeRange(sFrom, sTo);
-                const spec = step.target && step.target.spec;
-                const streetName = spec && spec.streetName ? spec.streetName : "street";
-                const isMicro = spec && spec.microStop === true;
+                    const loc = locId != null ? getLoc(locId) : null;
 
-                let fromLoc = null;
-                let toLoc = null;
-                if (spec && spec.fromLocationId != null && spec.toLocationId != null) {
-                    fromLoc = getLoc(spec.fromLocationId);
-                    toLoc = getLoc(spec.toLocationId);
-                }
+                    let desc = loc ? `${loc.name} (${loc.id})` : "Unknown location";
 
-                let stepLabel;
-                if (isMicro) {
-                    const loc = toLoc || fromLoc;
-                    const locLabel = loc ? `${loc.name} (${loc.id})` : "location";
-                    stepLabel = `at ${locLabel}`;
-                } else {
-                    const fromLabel = fromLoc ? `${fromLoc.name} (${fromLoc.id})` : "";
-                    const toLabel = toLoc ? `${toLoc.name} (${toLoc.id})` : "";
-                    stepLabel =
-                        fromLabel && toLabel
-                            ? `${streetName} (${fromLabel} → ${toLabel})`
-                            : streetName;
-                }
+                    if (isHomeTarget) {
+                        desc += ` – ${TARGET_TYPE.home}`;
+                    } else if (placeId && loc && Array.isArray(loc.places)) {
+                        const placeObj = loc.places.find((p) => p.id == placeId);
+                        if (placeObj) {
+                            const label = placeObj.name || placeObj.key || placeObj.id;
+                            desc += ` – ${label}`;
+                        }
+                    }
 
-                detailLines.push(`<li>${stepTime} – ${stepLabel}</li>`);
-            }
+                    const sourceId = slot.sourceRuleId || "";
+                    const ruleType = slot.ruleType || "rule";
 
-            lines.push(
-                `<details class="schedule-slot schedule-slot--walk"><summary>${summaryHtml}</summary><ul>${detailLines.join(
-                    ""
-                )}</ul></details>`
-            );
+                    const div = document.createElement("div");
+                    const classNames = ["schedule-slot"];
+                    if (activeSlot && slot === activeSlot) classNames.push("schedule-slot--active");
+                    div.className = classNames.join(" ");
 
-            walkGroup = [];
-        };
+                    div.innerHTML =
+                        `${timeStr} – ${desc} ` +
+                        `<span style="opacity:0.6;">[${ruleType}${
+                            sourceId ? ": " + sourceId : ""
+                        }]</span>`;
 
-        for (const slot of daySlots) {
-            if (isTravelWalk(slot)) {
-                const last = walkGroup[walkGroup.length - 1];
-                if (!last || last.to.getTime() === slot.from.getTime()) walkGroup.push(slot);
-                else {
-                    flushWalkGroup();
-                    walkGroup.push(slot);
+                    container.appendChild(div);
                 }
                 continue;
             }
 
-            flushWalkGroup();
+            if (group.type === "walk") {
+                // Walking travel: collapse into <details>
+                const firstSlot = group.slots[0];
+                const lastSlot = group.slots[group.slots.length - 1];
 
-            const from = slot.from;
-            const to = slot.to;
-            const timeStr = formatTimeRange(from, to);
+                const from = firstSlot.from;
+                const to = lastSlot.to;
+                const timeStr = formatTimeRange(from, to);
 
-            let mode = false;
-            let targetDesc = "";
-            const sourceId = slot.sourceRuleId || "";
+                const totalMinutes = Math.round((to.getTime() - from.getTime()) / 60000);
 
-            if (slot.target) {
-                const spec = slot.target.spec || {};
-                const isHomeTarget =
-                    slot.target.type === TARGET_TYPE.home || spec.type === TARGET_TYPE.home;
+                const streets = group.slots.filter((s) => {
+                    // New format
+                    if (s && s.activityType === "travel")
+                        return s.travelSegmentKind === "walk_edge";
+                    // Old format
+                    const spec = s?.target?.spec || {};
+                    return s?.target?.type === "travel" && spec.mode === "walk" && !spec.microStop;
+                }).length;
 
-                if (slot.target.type === "travel") {
-                    mode = spec.mode || "travel";
-                    let modeLabel = "travel";
+                const details = document.createElement("details");
+                const classNames = [
+                    "schedule-slot",
+                    "schedule-slot--travel",
+                    "schedule-slot--travel-walk",
+                ];
+                if (activeSlot && group.slots.includes(activeSlot))
+                    classNames.push("schedule-slot--active");
+                details.className = classNames.join(" ");
 
-                    if (mode === "walk") modeLabel = "walking";
-                    else if (mode === "bus") modeLabel = "on the bus";
-                    else if (mode === "wait") modeLabel = "waiting for bus";
+                const summary = document.createElement("summary");
+                summary.textContent = `${timeStr} – Walking (${totalMinutes} min, ${streets} streets)`;
+                details.appendChild(summary);
 
-                    targetDesc = modeLabel;
-                } else {
-                    const locId = slot.target.locationId;
-                    const loc = locId ? getLoc(locId) : null;
-                    if (loc) {
-                        let place = "";
-                        if (isHomeTarget) {
-                            place = TARGET_TYPE.home;
-                        } else if (slot.target.placeId && Array.isArray(loc.places)) {
-                            const placeObj = loc.places.find((p) => p.id == slot.target.placeId);
-                            if (placeObj) place = placeObj.name || placeObj.key || "";
+                const list = document.createElement("ul");
+                list.style.margin = "4px 0 0 16px";
+                list.style.fontSize = "11px";
+
+                for (const slot of group.slots) {
+                    const li = document.createElement("li");
+                    const tStr = formatTimeRange(slot.from, slot.to);
+
+                    // New format
+                    if (slot && slot.activityType === "travel") {
+                        const kind = slot.travelSegmentKind;
+                        const meta = slot.travelMeta || {};
+
+                        if (kind === "walk_edge") {
+                            const aLoc = meta.fromLocationId ? getLoc(meta.fromLocationId) : null;
+                            const bLoc = meta.toLocationId ? getLoc(meta.toLocationId) : null;
+                            const aName = aLoc ? aLoc.name : meta.fromLocationId || "?";
+                            const bName = bLoc ? bLoc.name : meta.toLocationId || "?";
+                            li.textContent = `${tStr} – walk from ${aName} to ${bName}`;
+                        } else if (kind === "walk_linger") {
+                            const locId =
+                                slot.locationId ?? (slot.location && slot.location.id) ?? null;
+                            const loc = locId != null ? getLoc(locId) : null;
+                            const name = loc ? `${loc.name} (${loc.id})` : "location";
+                            li.textContent = `${tStr} – short stop at ${name}`;
+                        } else {
+                            li.textContent = `${tStr} – walking (segment)`;
                         }
 
-                        targetDesc = `${loc.name} (${loc.id})`;
-                        if (place) targetDesc += ` – ${place}`;
-                    } else {
-                        targetDesc = isHomeTarget ? TARGET_TYPE.home : "activity";
+                        list.appendChild(li);
+                        continue;
                     }
+
+                    // Old format
+                    const spec = slot?.target?.spec || {};
+                    const isMicro = spec.microStop === true;
+
+                    if (!isMicro && spec.fromLocationId != null && spec.toLocationId != null) {
+                        const aLoc = getLoc(spec.fromLocationId);
+                        const bLoc = getLoc(spec.toLocationId);
+                        const aName = aLoc ? aLoc.name : spec.fromLocationId || "?";
+                        const bName = bLoc ? bLoc.name : spec.toLocationId || "?";
+                        li.textContent = `${tStr} – walk from ${aName} to ${bName}`;
+                    } else {
+                        const locId =
+                            spec.toLocationId ??
+                            spec.fromLocationId ??
+                            activeNpc?.locationId ??
+                            activeNpc?.homeLocationId;
+                        const loc = locId != null ? getLoc(locId) : null;
+                        const name = loc ? `${loc.name} (${loc.id})` : "location";
+                        li.textContent = `${tStr} – short stop at ${name}`;
+                    }
+
+                    list.appendChild(li);
                 }
+
+                details.appendChild(list);
+
+                details.addEventListener("mouseenter", () => highlightTravelGroupPath(group, true));
+                details.addEventListener("mouseleave", () =>
+                    highlightTravelGroupPath(group, false)
+                );
+
+                container.appendChild(details);
+                continue;
             }
 
-            let extraAttrs = "";
-            const spec = slot.target && slot.target.spec;
-            if (slot.target && slot.target.type === "travel" && spec && spec.mode === "bus") {
-                const pathEdges = Array.isArray(spec.pathEdges) ? spec.pathEdges : [];
-                const serialized = pathEdges.map((e) => `${e.fromId}-${e.toId}`).join(",");
-                extraAttrs = ` class="schedule-slot schedule-slot--bus" data-bus-path="${serialized}"`;
-            } else {
-                extraAttrs = ` class="schedule-slot"`;
+            if (group.type === "bus") {
+                // Bus travel: show summary + breakdown (wait, ride, linger)
+                const firstSlot = group.slots[0];
+                const lastSlot = group.slots[group.slots.length - 1];
+
+                const from = firstSlot.from;
+                const to = lastSlot.to;
+                const timeStr = formatTimeRange(from, to);
+                const totalMinutes = Math.round((to.getTime() - from.getTime()) / 60000);
+
+                const details = document.createElement("details");
+                const classNames = [
+                    "schedule-slot",
+                    "schedule-slot--travel",
+                    "schedule-slot--travel-bus",
+                ];
+                if (activeSlot && group.slots.includes(activeSlot))
+                    classNames.push("schedule-slot--active");
+                details.className = classNames.join(" ");
+
+                const summary = document.createElement("summary");
+                summary.innerHTML = `<code>${timeStr} – Bus (${totalMinutes} min)</code>`;
+                details.appendChild(summary);
+
+                const list = document.createElement("ul");
+                list.style.margin = "4px 0 0 16px";
+                list.style.fontSize = "11px";
+
+                for (const slot of group.slots) {
+                    const li = document.createElement("li");
+                    const tStr = formatTimeRange(slot.from, slot.to);
+
+                    // New format
+                    if (slot && slot.activityType === "travel") {
+                        const kind = slot.travelSegmentKind;
+                        const meta = slot.travelMeta || {};
+
+                        if (kind === "bus_wait") {
+                            const stopId = slot.locationId ?? meta.busStopId ?? null;
+                            const stopLoc = stopId != null ? getLoc(stopId) : null;
+                            const name = stopLoc ? `${stopLoc.name} (${stopLoc.id})` : "bus stop";
+                            li.textContent = `${tStr} – waiting for bus at ${name}`;
+                        } else if (kind === "bus_ride") {
+                            const fromId = meta.fromLocationId;
+                            const toId = meta.toLocationId;
+                            const fromLoc = fromId ? getLoc(fromId) : null;
+                            const toLoc = toId ? getLoc(toId) : null;
+                            const fromName = fromLoc ? fromLoc.name : fromId || "?";
+                            const toName = toLoc ? toLoc.name : toId || "?";
+                            li.textContent = `${tStr} – on the bus (${fromName} → ${toName})`;
+                        } else if (kind === "bus_linger") {
+                            const stopId = slot.locationId ?? meta.busStopId ?? null;
+                            const stopLoc = stopId != null ? getLoc(stopId) : null;
+                            const name = stopLoc ? `${stopLoc.name} (${stopLoc.id})` : "bus stop";
+                            li.textContent = `${tStr} – short stop at ${name}`;
+                        } else {
+                            li.textContent = `${tStr} – bus travel (${kind || "segment"})`;
+                        }
+
+                        list.appendChild(li);
+                        continue;
+                    }
+
+                    // Old format
+                    const spec = slot?.target?.spec || {};
+                    const mode = spec.mode;
+
+                    if (mode === "wait") {
+                        const stopId =
+                            spec.toLocationId ??
+                            spec.fromLocationId ??
+                            activeNpc?.locationId ??
+                            activeNpc?.homeLocationId;
+                        const stopLoc = stopId != null ? getLoc(stopId) : null;
+                        const name = stopLoc ? `${stopLoc.name} (${stopLoc.id})` : "bus stop";
+                        li.textContent = `${tStr} – waiting for bus at ${name}`;
+                    } else if (mode === "bus") {
+                        const fromId = spec.fromLocationId;
+                        const toId = spec.toLocationId;
+                        const fromLoc = fromId != null ? getLoc(fromId) : null;
+                        const toLoc = toId != null ? getLoc(toId) : null;
+                        const fromName = fromLoc ? fromLoc.name : fromId || "?";
+                        const toName = toLoc ? toLoc.name : toId || "?";
+                        li.textContent = `${tStr} – on the bus (${fromName} → ${toName})`;
+                    } else {
+                        const stopId =
+                            spec.toLocationId ??
+                            spec.fromLocationId ??
+                            activeNpc?.locationId ??
+                            activeNpc?.homeLocationId;
+                        const stopLoc = stopId != null ? getLoc(stopId) : null;
+                        const name = stopLoc ? `${stopLoc.name} (${stopLoc.id})` : "bus stop";
+                        li.textContent = `${tStr} – bus travel (segment) at ${name}`;
+                    }
+
+                    list.appendChild(li);
+                }
+
+                details.appendChild(list);
+
+                details.addEventListener("mouseenter", () => highlightTravelGroupPath(group, true));
+                details.addEventListener("mouseleave", () =>
+                    highlightTravelGroupPath(group, false)
+                );
+
+                container.appendChild(details);
+                continue;
             }
 
-            lines.push(
-                `<div${extraAttrs}>${
-                    mode === "bus" ? `<code class="busline-hover">` : ""
-                }${timeStr} – ${targetDesc}${
-                    mode === "bus" ? "</code>" : ""
-                } <span style="opacity:0.6;">[${sourceId}]</span></div>`
-            );
+            if (group.type === "car") {
+                // Car travel: single summarized line with hover path highlight
+                const firstSlot = group.slots[0];
+                const lastSlot = group.slots[group.slots.length - 1];
+
+                const from = firstSlot.from;
+                const to = lastSlot.to;
+                const timeStr = formatTimeRange(from, to);
+                const totalMinutes = Math.round((to.getTime() - from.getTime()) / 60000);
+
+                const div = document.createElement("div");
+                const classNames = [
+                    "schedule-slot",
+                    "schedule-slot--travel",
+                    "schedule-slot--travel-car",
+                ];
+                if (activeSlot && group.slots.includes(activeSlot))
+                    classNames.push("schedule-slot--active");
+                div.className = classNames.join(" ");
+                div.innerHTML = `<code>${timeStr} – Travelling by car (${totalMinutes} min)</code>`;
+
+                div.addEventListener("mouseenter", () => highlightTravelGroupPath(group, true));
+                div.addEventListener("mouseleave", () => highlightTravelGroupPath(group, false));
+
+                container.appendChild(div);
+                continue;
+            }
+
+            // Unknown travel mode: just dump as plain slots
+            for (const slot of group.slots) {
+                const timeStr = formatTimeRange(slot.from, slot.to);
+                const div = document.createElement("div");
+                div.className = "schedule-slot";
+                div.textContent = `${timeStr} – [${group.type} travel]`;
+                container.appendChild(div);
+            }
         }
-
-        flushWalkGroup();
     }
 
-    el.innerHTML = lines.join("\n");
-    attachBusHoverHandlers();
+    // Scroll active slot into view if present
+    const activeEl =
+        container.querySelector(".schedule-slot--active") ||
+        container.querySelector("details.schedule-slot--active");
+    if (activeEl) activeEl.scrollIntoView({ block: "center" });
 }
 
 // ---------------------------
@@ -940,7 +1282,7 @@ function bindButtons() {
     const plus120 = byId("btnTimePlus120");
     const plusWeek = byId("btnTimePlusWeek");
     const reset = byId("btnResetWorld");
-    const nextIntentEl = byId("taylorNextIntent");
+    const nextIntentEl = byId("nextIntent");
     const autoBtn = byId("btnAutoForward");
 
     const slider = byId("speedSlider");

@@ -14,6 +14,50 @@
 </head>
 
 <style>
+
+    code {
+        background: #020305;
+        padding: 2px 4px;
+        border-radius: 4px;
+        font-size: 12px;
+    }
+
+
+    .schedule-day {
+        font-weight: 600;
+        margin-top: 6px;
+        margin-bottom: 2px;
+        color: var(--muted);
+    }
+
+    h3.schedule-day {
+        font-weight: 600;
+        margin-top: 6px;
+        margin-bottom: 2px;
+        color: var(--fg);
+        font-size: larger;
+    }
+
+    .schedule-slot {
+        margin-left: 8px;
+        margin-bottom: 1px;
+    }
+
+    .schedule-slot--walk summary {
+        cursor: pointer;
+    }
+
+    .schedule-slot--active {
+        outline: 2px solid #ffcc00;
+        background: rgba(255, 204, 0, 0.08);
+        border-radius: 4px;
+    }
+
+    .busline-hover:hover {
+        filter: brightness(1.5);
+        cursor: pointer;
+    }
+
     :root {
         --bg: #0b0d10;
         --fg: #e6ecf1;
@@ -107,20 +151,22 @@
         font-size: 12px;
     }
 
-    #taylorNextIntent {
+    #nextIntent {
         text-decoration: underline dotted;
         cursor: help;
     }
 
-    #weekSchedule {
-        font-size: 12px;
-        max-height: 400px;
+    
+   #weekSchedule {
+        max-height: 450px;
         overflow: auto;
         border-radius: 8px;
         padding: 8px;
         background: rgba(2, 4, 7, 0.5);
         border: 1px solid var(--line);
         white-space: pre-wrap;
+
+        line-height: 2;
     }
 
     h3.schedule-day {
@@ -170,7 +216,8 @@
             <div class="card">
                 <h1><span id="npcTitleName">NPC</span> - Map & Schedule Test</h1>
                 <p class="subtitle">
-                    Reproducible single-NPC inspector. Use the controls (or URL params) to match fuzz failures.
+                    Reproducible single-NPC inspector. Use the controls (or URL params) to match
+                    fuzz failures.
                 </p>
 
                 <div class="cfg-row">
@@ -204,7 +251,7 @@
                         <input id="cfgStartDate" type="date" />
                     </label>
 
-                    <div style="display:flex; gap:8px; flex-wrap:wrap">
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap">
                         <button id="btnApplyConfig">Load</button>
                         <button id="btnCopyLink">Copy link</button>
                     </div>
@@ -221,18 +268,18 @@
 
                 <div class="info-row">
                     <span class="label">Current location:</span>
-                    <span id="taylorCurrent">—</span><br />
+                    <span id="npcCurrentLoc">—</span><br />
                     <span class="label">Places at Current Location:</span>
                     <span id="placesAtLoc"></span>
                 </div>
                 <div class="info-row">
                     <span class="label">Home location:</span>
-                    <span id="taylorHome">—</span>
+                    <span id="npcHome">—</span>
                 </div>
 
                 <div class="info-row">
                     <span class="label">Next 30 min intent:</span>
-                    <span id="taylorNextIntent">—</span>
+                    <span id="nextIntent">—</span>
                 </div>
 
                 <p style="margin-top: 2px; font-size: 11px; color: var(--muted)">
@@ -258,15 +305,17 @@
                 </div>
 
                 <p style="margin-top: 8px; font-size: 12px; color: var(--muted)">
-                    On the map: <code>yellow</code> = current location, <code>green outline</code> = home.
-                    Click any node to teleport the NPC there manually.
+                    On the map: <code>yellow</code> = current location,
+                    <code>green outline</code> = home. Click any node to teleport the NPC there
+                    manually.
                 </p>
             </div>
 
             <div class="card">
                 <h2 style="margin-top: 0; font-size: 16px">Current week schedule</h2>
                 <p style="margin-top: 2px; font-size: 11px; color: var(--muted)">
-                    Hover the "on the bus" entries in schedule to see a highlighted path on the map.
+                    Hover the "on the bus" entries in schedule to see a highlighted path on the
+                    map.
                 </p>
                 <div id="weekSchedule">Loading…</div>
             </div>
