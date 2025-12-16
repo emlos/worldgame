@@ -1,5 +1,4 @@
 // tests/npc/npc_schedule_fuzz.js
-// Assumes (debug=true) modules expose: World, NPC, NPCScheduler, npcFromRegistryKey, makeRNG, MS_PER_DAY.
 
 const byId = (id) => document.getElementById(id);
 
@@ -15,6 +14,10 @@ function fmtDT(d) {
     return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())} ${pad2(
         d.getHours()
     )}:${pad2(d.getMinutes())}`;
+}
+
+function fmtYMD(d) {
+    return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
 }
 
 function minutesBetween(a, b) {
@@ -33,9 +36,19 @@ function weekStartForDate(date) {
     const mondayMs = base.getTime() - monIndex * MS_PER_DAY;
     return new Date(mondayMs);
 }
-
 function safeNumber(n, fallback = 0) {
     return Number.isFinite(n) ? n : fallback;
+}
+
+function buildInspectorUrl({ npcKey, seed, density, w, h, startDate }) {
+    const u = new URL("./world_map_single.html", window.location.href);
+    u.searchParams.set("npc", String(npcKey));
+    u.searchParams.set("seed", String(seed));
+    u.searchParams.set("density", String(density));
+    u.searchParams.set("w", String(w));
+    u.searchParams.set("h", String(h));
+    u.searchParams.set("start", fmtYMD(startDate));
+    return u.toString();
 }
 
 function validateWeekSlots(slots, weekStart, weekEnd) {
@@ -47,13 +60,11 @@ function validateWeekSlots(slots, weekStart, weekEnd) {
         return { ok: false, errors, warnings, stats: {} };
     }
 
-    // Defensive copy + sort
     const sorted = slots.slice().sort((a, b) => a?.from - b?.from || a?.to - b?.to);
 
     const weekStartMs = weekStart.getTime();
     const weekEndMs = weekEnd.getTime();
 
-    // Basic slot checks
     for (let i = 0; i < sorted.length; i++) {
         const s = sorted[i];
         const from = s?.from instanceof Date ? s.from : new Date(s?.from);
@@ -77,24 +88,20 @@ function validateWeekSlots(slots, weekStart, weekEnd) {
             );
         }
 
-        // Out of bounds: travel slots in npcai.js are not clamped, so we explicitly flag this.
-        if (fromMs < weekStartMs - 1) {
+        // out-of-bounds = warnings (useful for debugging travel spillover)
+        if (fromMs < weekStartMs - 1)
             warnings.push(
                 `Slot[${i}] starts before weekStart: ${fmtDT(from)} < ${fmtDT(weekStart)}`
             );
-        }
-        if (toMs > weekEndMs + 1) {
+        if (toMs > weekEndMs + 1)
             warnings.push(`Slot[${i}] ends after weekEnd: ${fmtDT(to)} > ${fmtDT(weekEnd)}`);
-        }
     }
 
-    // Gap/overlap checks
     if (sorted.length === 0) {
         errors.push("No slots generated (empty schedule).");
         return { ok: false, errors, warnings, stats: { slotCount: 0 } };
     }
 
-    // Leading coverage
     const firstFrom = sorted[0].from instanceof Date ? sorted[0].from : new Date(sorted[0].from);
     if (firstFrom.getTime() > weekStartMs) {
         const gap = minutesBetween(weekStart, firstFrom);
@@ -116,8 +123,6 @@ function validateWeekSlots(slots, weekStart, weekEnd) {
         const curFrom = cur.from instanceof Date ? cur.from : new Date(cur.from);
 
         const deltaMin = minutesBetween(prevTo, curFrom);
-
-        // Small floating/jitter tolerance
         const EPS = 0.0001;
 
         if (deltaMin > EPS) {
@@ -140,7 +145,6 @@ function validateWeekSlots(slots, weekStart, weekEnd) {
         }
     }
 
-    // Trailing coverage
     const lastTo =
         sorted[sorted.length - 1].to instanceof Date
             ? sorted[sorted.length - 1].to
@@ -153,10 +157,8 @@ function validateWeekSlots(slots, weekStart, weekEnd) {
         maxGapMin = Math.max(maxGapMin, gap);
     }
 
-    // Total covered time sanity (use merged-by-order; overlaps reduce effective coverage)
     const weekLenMin = (weekEndMs - weekStartMs) / MS_PER_MINUTE;
 
-    // Compute effective coverage (union length) by merging intervals.
     let coveredMin = 0;
     {
         const intervals = sorted
@@ -190,50 +192,38 @@ function validateWeekSlots(slots, weekStart, weekEnd) {
         maxOverlapMin,
     };
 
-    const ok = errors.length === 0;
-    return { ok, errors, warnings, stats, sorted };
+    return { ok: errors.length === 0, errors, warnings, stats, sorted };
 }
 
 function buildWorldAndNPC({ seed, npcKey, density, w, h, startDate }) {
     const rnd = makeRNG(seed);
 
-    const world = new World({
-        rnd,
-        density,
-        startDate,
-        w,
-        h,
-    });
+    const world = new World({ rnd, density, startDate, w, h });
 
     const base = npcFromRegistryKey(npcKey);
     if (!base) throw new Error(`npcFromRegistryKey("${npcKey}") returned null`);
 
+    const locIds = [...world.locations.keys()];
+    const homeLocId = locIds[0];
+
     const npc = new NPC({
         ...base,
-        locationId: base.locationId || null,
-        homeLocationId: base.homeLocationId || null,
-        homePlaceId: base.homePlaceId || null,
+        locationId: homeLocId,
+        homeLocationId: homeLocId,
+        homePlaceId: `home-${npcKey}-${seed}`,
         meta: base.meta || {},
     });
 
-    if (!npc.homeLocationId) {
-        npc.homeLocationId = npc.locationId || [...world.locations.keys()][0];
-    }
-    if (!npc.locationId) {
-        npc.locationId = npc.homeLocationId;
-    }
-
     const scheduler = new NPCScheduler({ world, rnd });
-    return { world, npc, scheduler, seed };
+    return { world, npc, scheduler };
 }
 
 function getDateInputOrToday() {
     const el = byId("startDate");
     if (!el || !el.value) return new Date();
-    // input[type=date] gives YYYY-MM-DD (local)
     const [y, m, d] = el.value.split("-").map((x) => parseInt(x, 10));
     if (!y || !m || !d) return new Date();
-    return new Date(y, m - 1, d, 9, 0, 0, 0); // 09:00 local (doesn't matter much)
+    return new Date(y, m - 1, d, 9, 0, 0, 0);
 }
 
 function setDefaultDateInput() {
@@ -241,47 +231,6 @@ function setDefaultDateInput() {
     if (!el) return;
     const d = new Date();
     el.value = `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
-}
-
-function summarizeFailure({ seed, npcKey, errors, warnings, stats, sorted, weekStart, weekEnd }) {
-    const lines = [];
-    lines.push(`Seed ${seed} (npc="${npcKey}")`);
-    lines.push(`Week: ${fmtDT(weekStart)} → ${fmtDT(weekEnd)}`);
-    lines.push(
-        `Slots=${stats.slotCount}, covered=${stats.coveredMin.toFixed(
-            2
-        )}m / ${stats.weekLenMin.toFixed(2)}m, uncovered=${stats.uncoveredMin.toFixed(
-            2
-        )}m, maxGap=${stats.maxGapMin.toFixed(2)}m, maxOverlap=${stats.maxOverlapMin.toFixed(2)}m`
-    );
-
-    if (warnings.length) {
-        lines.push(`Warnings (${warnings.length}):`);
-        warnings.slice(0, 6).forEach((w) => lines.push(`  - ${w}`));
-        if (warnings.length > 6) lines.push(`  ... +${warnings.length - 6} more`);
-    }
-
-    lines.push(`Errors (${errors.length}):`);
-    errors.slice(0, 10).forEach((e) => lines.push(`  - ${e}`));
-    if (errors.length > 10) lines.push(`  ... +${errors.length - 10} more`);
-
-    // Show a small slice of the timeline around the first few slots
-    lines.push(`Timeline sample (first 12 slots):`);
-    const sample = sorted.slice(0, 12);
-    for (let i = 0; i < sample.length; i++) {
-        const s = sample[i];
-        const from = s.from instanceof Date ? s.from : new Date(s.from);
-        const to = s.to instanceof Date ? s.to : new Date(s.to);
-        const dur = safeNumber(minutesBetween(from, to));
-        const kind = s.activityType || s.ruleType || "slot";
-        const rule = s.sourceRuleId ? ` rule=${s.sourceRuleId}` : "";
-        const loc = s.locationId != null ? ` loc=${s.locationId}` : "";
-        lines.push(
-            `  [${i}] ${fmtDT(from)} → ${fmtDT(to)} (${dur.toFixed(2)}m) ${kind}${rule}${loc}`
-        );
-    }
-
-    return lines.join("\n");
 }
 
 function runFuzz() {
@@ -294,17 +243,19 @@ function runFuzz() {
     const startDate = getDateInputOrToday();
 
     const out = byId("out");
+    const failLinks = byId("failLinks");
     out.textContent = "Running...\n";
+    if (failLinks) failLinks.innerHTML = "";
 
-    let pass = 0;
-    let fail = 0;
-    let warnCount = 0;
+    let pass = 0,
+        fail = 0,
+        warnCount = 0;
+    let totalSlots = 0,
+        maxGap = 0,
+        maxOverlap = 0;
 
-    let totalSlots = 0;
-    let maxGap = 0;
-    let maxOverlap = 0;
-
-    const failures = [];
+    const failures = []; // text blocks
+    const failuresMeta = []; // for link rendering
 
     for (let i = 0; i < iters; i++) {
         const seed = baseSeed + i;
@@ -322,12 +273,11 @@ function runFuzz() {
         } catch (e) {
             fail++;
             failures.push(`Seed ${seed}: setup failed: ${e?.message || e}`);
+            failuresMeta.push({ seed, npcKey, density, w, h, startDate, reason: "setup failed" });
             continue;
         }
 
-        // Get schedule
         const slots = scheduler.getCurrentWeekSchedule(npc);
-
         const wkStart = weekStartForDate(world.time.date);
         const wkEnd = new Date(wkStart.getTime() + 7 * MS_PER_DAY);
 
@@ -342,18 +292,55 @@ function runFuzz() {
             pass++;
         } else {
             fail++;
-            failures.push(
-                summarizeFailure({
-                    seed,
-                    npcKey,
-                    errors: res.errors,
-                    warnings: res.warnings,
-                    stats: res.stats,
-                    sorted: res.sorted || [],
-                    weekStart: wkStart,
-                    weekEnd: wkEnd,
-                })
+            failuresMeta.push({
+                seed,
+                npcKey,
+                density,
+                w,
+                h,
+                startDate,
+                reason: `${res.errors.length} error(s)`,
+            });
+
+            const lines = [];
+            lines.push(`Seed ${seed} (npc="${npcKey}")`);
+            lines.push(`World: w=${w}, h=${h}, density=${density}, startDate=${fmtDT(startDate)}`);
+            lines.push(`Week: ${fmtDT(wkStart)} → ${fmtDT(wkEnd)}`);
+            lines.push(
+                `Slots=${res.stats.slotCount}, covered=${res.stats.coveredMin.toFixed(
+                    2
+                )}m / ${res.stats.weekLenMin.toFixed(
+                    2
+                )}m, uncovered=${res.stats.uncoveredMin.toFixed(
+                    2
+                )}m, maxGap=${res.stats.maxGapMin.toFixed(
+                    2
+                )}m, maxOverlap=${res.stats.maxOverlapMin.toFixed(2)}m`
             );
+            if (res.warnings.length) {
+                lines.push(`Warnings (${res.warnings.length}):`);
+                res.warnings.slice(0, 6).forEach((w) => lines.push(`  - ${w}`));
+                if (res.warnings.length > 6) lines.push(`  ... +${res.warnings.length - 6} more`);
+            }
+            lines.push(`Errors (${res.errors.length}):`);
+            res.errors.slice(0, 10).forEach((e) => lines.push(`  - ${e}`));
+            if (res.errors.length > 10) lines.push(`  ... +${res.errors.length - 10} more`);
+            lines.push(`Timeline sample (first 12 slots):`);
+            (res.sorted || []).slice(0, 12).forEach((s, idx) => {
+                const from = s.from instanceof Date ? s.from : new Date(s.from);
+                const to = s.to instanceof Date ? s.to : new Date(s.to);
+                const dur = safeNumber(minutesBetween(from, to));
+                const kind = s.activityType || s.ruleType || "slot";
+                const rule = s.sourceRuleId ? ` rule=${s.sourceRuleId}` : "";
+                const loc = s.locationId != null ? ` loc=${s.locationId}` : "";
+                lines.push(
+                    `  [${idx}] ${fmtDT(from)} → ${fmtDT(to)} (${dur.toFixed(
+                        2
+                    )}m) ${kind}${rule}${loc}`
+                );
+            });
+
+            failures.push(lines.join("\n"));
         }
     }
 
@@ -389,6 +376,35 @@ function runFuzz() {
     }
 
     out.textContent = lines.join("\n");
+
+    // Render clickable inspector links
+    if (failLinks) {
+        if (!failuresMeta.length) {
+            failLinks.innerHTML = `<div style="opacity:.7">No failing seeds.</div>`;
+        } else {
+            const items = failuresMeta
+                .map((m) => {
+                    const href = buildInspectorUrl(m);
+                    const label = `Open seed ${m.seed} (${m.reason}) — npc=${m.npcKey}, w=${
+                        m.w
+                    }, h=${m.h}, density=${m.density}, start=${fmtYMD(m.startDate)}`;
+                    return `
+            <div style="margin:6px 0">
+              <a href="${href}" target="_blank" rel="noopener"
+                 style="display:inline-block;padding:6px 10px;border:1px solid #26323b;border-radius:8px;background:rgba(0,0,0,.2);text-decoration:none;color:#e6ecf1">
+                ${label}
+              </a>
+            </div>`;
+                })
+                .join("");
+
+            failLinks.innerHTML = `
+        <div style="margin-top:8px">
+          <div style="opacity:.8;margin-bottom:6px">Open failing runs in single inspector:</div>
+          ${items}
+        </div>`;
+        }
+    }
 }
 
 function init() {
