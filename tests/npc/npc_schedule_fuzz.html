@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NPC Schedule Fuzz Test</title>
+    <script>
+        const debug = true;
+    </script>
+    <script type="module" src="../../src/classes/classes.js"></script>
+    <script type="module" src="../../src/data/data.js"></script>
+    <script type="module" src="../../src/shared/modules.js"></script>
+    <style>
+        :root {
+            --bg: #0b0d10;
+            --fg: #e6ecf1;
+            --muted: #91a4b1;
+            --card: #11161b;
+            --line: #26323b;
+            --accent: #2d6cdf;
+            --ok: #16a34a;
+            --warn: #eab308;
+            --bad: #b91c1c;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            background: var(--bg);
+            color: var(--fg);
+            font: 14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, "Helvetica Neue", Arial;
+        }
+
+        .wrap {
+            max-width: 1200px;
+            margin: 24px auto;
+            padding: 0 16px;
+        }
+
+        a {
+            color: var(--accent);
+        }
+
+        h1 {
+            margin: 0 0 8px;
+            font-size: 20px;
+        }
+
+        .subtitle {
+            margin: 0 0 16px;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 14px;
+            margin: 12px 0;
+        }
+
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: end;
+        }
+
+        label {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        input,
+        select {
+            background: #0d1216;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            color: var(--fg);
+            padding: 8px 10px;
+            min-width: 140px;
+        }
+
+        button {
+            background: #1f2a33;
+            color: var(--fg);
+            border: 1px solid var(--line);
+            padding: 9px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #21323f;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 10px;
+            border-radius: 999px;
+            border: 1px solid var(--line);
+            font-size: 12px;
+            margin-right: 8px;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .pill.ok {
+            border-color: var(--ok);
+            color: #bbf7d0;
+        }
+
+        .pill.warn {
+            border-color: var(--warn);
+            color: #fef9c3;
+        }
+
+        .pill.bad {
+            border-color: var(--bad);
+            color: #fecaca;
+        }
+
+        pre {
+            margin: 0;
+            white-space: pre-wrap;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 12px;
+            overflow: auto;
+            max-height: 520px;
+            font-size: 12px;
+        }
+
+        .muted {
+            color: var(--muted);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+        <h1>NPC Schedule Fuzz Test</h1>
+        <p class="subtitle">
+            Generates schedules N times and checks for gaps/overlaps/out-of-bounds/invalid times.
+            (<a href="../../index.html">back</a>)
+        </p>
+
+        <div class="card">
+            <div class="row">
+                <label>
+                    NPC key
+                    <input id="npcKey" value="taylor" />
+                </label>
+
+                <label>
+                    Iterations (N)
+                    <input id="iters" type="number" min="1" step="1" value="200" />
+                </label>
+
+                <label>
+                    Base seed
+                    <input id="seed" type="number" step="1" value="12345" />
+                </label>
+
+                <label>
+                    World density
+                    <input id="density" type="number" min="0.01" max="1" step="0.01" value="0.15" />
+                </label>
+
+                <label>
+                    World size (W)
+                    <input id="w" type="number" min="10" step="1" value="70" />
+                </label>
+
+                <label>
+                    World size (H)
+                    <input id="h" type="number" min="10" step="1" value="50" />
+                </label>
+
+                <label>
+                    Start date (local)
+                    <input id="startDate" type="date" />
+                </label>
+
+                <button id="runBtn">Run fuzz</button>
+            </div>
+
+            <div style="margin-top: 10px">
+                <span class="pill ok" id="pillPass">Pass: —</span>
+                <span class="pill bad" id="pillFail">Fail: —</span>
+                <span class="pill warn" id="pillWarn">Warnings: —</span>
+                <span class="pill" id="pillStats">—</span>
+            </div>
+
+            <p class="muted" style="margin: 10px 0 0">
+                Tip: if you see failures, copy the failing seed and re-run with Iterations = 1 and Base seed = that
+                seed.
+            </p>
+        </div>
+
+        <div class="card">
+            <pre id="out">Ready.</pre>
+        </div>
+    </div>
+
+    <script src="./npc_schedule_fuzz.js"></script>
+</body>
+
+</html>
