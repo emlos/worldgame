@@ -407,7 +407,27 @@ function runFuzz() {
     }
 }
 
+function populateNpcSelect() {
+    const sel = byId("npcKey");
+    if (!sel) return;
+
+    sel.innerHTML = "";
+
+    // NPC_REGISTRY is available globally because debug=true and data.js assigns to window
+    const list = NPC_REGISTRY;
+
+    const usable = list.filter((d) => d.key);
+
+    for (const def of usable) {
+        const opt = document.createElement("option");
+        opt.value = def.key;
+        opt.textContent = def.key;
+        sel.appendChild(opt);
+    }
+}
+
 function init() {
+    populateNpcSelect()
     setDefaultDateInput();
     byId("runBtn").addEventListener("click", runFuzz);
 }

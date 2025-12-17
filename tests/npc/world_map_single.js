@@ -106,7 +106,6 @@ function populateNpcSelect() {
 
     sel.innerHTML = "";
 
-    // NPC_REGISTRY is available globally because debug=true and data.js assigns to window
     const list = NPC_REGISTRY;
 
     const usable = list.filter((d) => d.key);
@@ -145,20 +144,18 @@ function initWorldAndNpc(cfg) {
     });
 
     const base = npcFromRegistryKey(cfg.npcKey);
-    if (!base) {
-        console.error(`npcFromRegistryKey("${cfg.npcKey}") returned null`);
-        return;
-    }
 
     const locIds = [...world.locations.keys()];
-    const homeLocId = locIds[0];
+    // Random home location
+    const homeLocId = locIds[Math.floor(world.rnd() * locIds.length)];
+    const homePlaceId = `home-${cfg.npcKey}-${Math.floor(world.rnd() * 1e9)}`;
 
     activeNpc = new NPC({
         ...base,
         id: base.id || cfg.npcKey,
         locationId: homeLocId,
         homeLocationId: homeLocId,
-        homePlaceId: `home-${cfg.npcKey}-${cfg.seed}`,
+        homePlaceId: homePlaceId,
         meta: base.meta || {},
     });
 
@@ -619,40 +616,36 @@ function findFirstNonTravelSlotAfter(startSlot) {
 }
 
 function getIntentLocationData(slot) {
-    if (!slot || !slot.target || !world) return { loc: null, placeName: null, isHome: false };
+    if (!slot || !world) return { loc: null, placeName: null, isHome: false };
 
-    if (slot.target.type !== "travel") {
-        const locId = slot.target.locationId;
-        if (!locId) return { loc: null, placeName: null, isHome: false };
+    const getLoc = (id) => world.getLocation?.(id) || world.locations.get(String(id));
 
-        const loc = world.getLocation?.(locId) || world.locations.get(String(locId));
-        if (!loc) return { loc: null, placeName: null, isHome: false };
+    // Stay slot: location + place are directly on the slot
+    if (slot.activityType === "stay") {
+        const loc = slot.location || (slot.locationId != null ? getLoc(slot.locationId) : null);
+        const place = slot.place || null;
 
-        const spec = slot.target.spec || {};
-        const isHomeTarget =
-            slot.target.type === TARGET_TYPE.home || spec.type === TARGET_TYPE.home;
+        const isHome = slot.ruleType === SCHEDULE_RULES.home;
+        const placeName = place
+            ? place.name || place.key || String(place.id)
+            : isHome
+            ? "home"
+            : null;
 
-        let placeName = null;
-        if (isHomeTarget) {
-            placeName = TARGET_TYPE.home;
-        } else if (slot.target.placeId && Array.isArray(loc.places)) {
-            const placeObj = loc.places.find((p) => p.id == slot.target.placeId);
-            if (placeObj) placeName = placeObj.name || placeObj.key || null;
-        }
-
-        return { loc, placeName, isHome: isHomeTarget };
+        return { loc, placeName, isHome };
     }
 
-    const destSlot = findFirstNonTravelSlotAfter(slot);
-    if (destSlot && destSlot.target && destSlot.target.locationId)
-        return getIntentLocationData(destSlot);
+    // Travel slot: infer destination from the next stay slot
+    if (slot.activityType === "travel") {
+        const destSlot = findFirstNonTravelSlotAfter(slot);
+        if (destSlot) return getIntentLocationData(destSlot);
 
-    const spec = slot.target.spec || {};
-    const locId = spec.toLocationId;
-    if (locId == null) return { loc: null, placeName: null, isHome: false };
+        const toId = slot.travelMeta?.toLocationId ?? null;
+        const loc = toId != null ? getLoc(toId) : null;
+        return { loc, placeName: null, isHome: false };
+    }
 
-    const loc = world.getLocation?.(locId) || world.locations.get(String(locId));
-    return { loc, placeName: null, isHome: false };
+    return { loc: null, placeName: null, isHome: false };
 }
 
 function updateNextIntent() {
@@ -728,30 +721,14 @@ function getDayBuckets(slots) {
     return dayBuckets;
 }
 
-// Supports both slot formats:
-// - New: { activityType:"travel"|"stay", travelMode, travelSegmentKind, travelMeta, locationId, placeId, ... }
-// - Old: { target:{ type:"travel"|..., spec:{ mode, fromLocationId, toLocationId, microStop, pathEdges, ... }, locationId, placeId }, ... }
 function isTravelSlot(slot) {
-    if (!slot) return false;
-    if (slot.activityType) return slot.activityType === "travel";
-    return !!(slot.target && slot.target.type === "travel");
+    return slot.activityType === "travel";
 }
 
 function getTravelModeForSlot(slot) {
-    if (!slot) return null;
-
-    // new schedule format
-    if (slot.activityType === "travel") {
-        return slot.travelMode || null;
-    }
-
-    // old schedule format
-    const spec = slot.target && slot.target.spec ? slot.target.spec : null;
-    const mode = spec && spec.mode ? spec.mode : null;
-
-    // old scheduler used "wait" to mean bus wait; group under "bus"
-    if (mode === "wait") return "bus";
-    return mode;
+    if (!slot || slot.activityType !== "travel") return null;
+    // scheduler already uses "bus" for waits/rides/lingers :contentReference[oaicite:1]{index=1}
+    return slot.travelMode;
 }
 
 function groupDaySlotsForTravel(daySlots) {
@@ -785,6 +762,44 @@ function groupDaySlotsForTravel(daySlots) {
 
     commit();
     return groups;
+}
+
+function resolveLocAndPlaceForSlot(slot, getLoc) {
+    if (!slot) return { loc: null, place: null };
+
+    const loc = slot.location || (slot.locationId != null ? getLoc(slot.locationId) : null) || null;
+
+    // Prefer the already-attached place object from scheduler
+    let place = slot.place || null;
+
+    // If only placeId exists, try to resolve from location.places
+    if (!place && slot.placeId != null && loc && Array.isArray(loc.places)) {
+        place = loc.places.find((p) => String(p.id) === String(slot.placeId)) || null;
+    }
+
+    return { loc, place };
+}
+
+function formatStayLabel({ loc, place, slot, activeNpc }) {
+    const locName = loc ? loc.name : "Unknown location";
+
+    // If a concrete place was chosen, show: Location (Place)
+    if (place) {
+        const placeLabel = place.name || place.key || String(place.id);
+        return `${locName} (${placeLabel})`;
+    }
+
+    // If no place, show (home) only if it's actually home
+    const isHome =
+        slot?.isHomeTarget === true ||
+        (activeNpc?.homeLocationId != null &&
+            loc?.id != null &&
+            String(loc.id) === String(activeNpc.homeLocationId));
+
+    if (isHome) return `${locName} (home)`;
+
+    // Otherwise: just the location name. No numeric id fallback.
+    return locName;
 }
 
 // Hover helper used by the week schedule UI. Uses the same highlight class as the old bus hover logic.
@@ -941,50 +956,8 @@ function renderWeekSchedule() {
                     const to = slot.to;
                     const timeStr = formatTimeRange(from, to);
 
-                    // Resolve location/place for both slot formats
-                    let locId = null;
-                    let placeId = null;
-                    let isHomeTarget = false;
-
-                    // New format
-                    if (slot && !slot.target) {
-                        locId =
-                            slot.locationId ??
-                            (slot.location && slot.location.id) ??
-                            activeNpc?.locationId ??
-                            activeNpc?.homeLocationId;
-                        placeId = slot.placeId ?? null;
-                        isHomeTarget =
-                            activeNpc?.homeLocationId != null &&
-                            locId != null &&
-                            String(locId) === String(activeNpc.homeLocationId);
-                    }
-
-                    // Old format
-                    if (slot && slot.target && slot.target.type !== "travel") {
-                        const spec = slot.target.spec || {};
-                        locId =
-                            slot.target.locationId ??
-                            activeNpc?.locationId ??
-                            activeNpc?.homeLocationId;
-                        placeId = slot.target.placeId ?? null;
-                        isHomeTarget =
-                            slot.target.type === TARGET_TYPE.home || spec.type === TARGET_TYPE.home;
-                    }
-
-                    const loc = locId != null ? getLoc(locId) : null;
-
-                    let desc = loc ? `${loc.name} (${loc.id})` : "Unknown location";
-
-                    if (isHomeTarget) {
-                        desc += ` – ${TARGET_TYPE.home}`;
-                    } else if (placeId && loc && Array.isArray(loc.places)) {
-                        const placeObj = loc.places.find((p) => p.id == placeId);
-                        if (placeObj) {
-                            const label = placeObj.name || placeObj.key || placeObj.id;
-                            desc += ` – ${label}`;
-                        }
-                    }
+                    const { loc, place } = resolveLocAndPlaceForSlot(slot, getLoc);
+                    const desc = formatStayLabel({ loc, place, slot, activeNpc });
 
                     const sourceId = slot.sourceRuleId || "";
                     const ruleType = slot.ruleType || "rule";
