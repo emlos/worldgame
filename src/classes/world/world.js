@@ -119,7 +119,7 @@ export class World {
     }
 
     get season() {
-        return Weather.monthToSeason(this.time.date.getMonth());
+        return Weather.monthToSeason(this.time.date.getMonth() + 1);
     }
 
     get temperature() {
