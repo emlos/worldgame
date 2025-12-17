@@ -821,15 +821,67 @@ export class NPCScheduler {
             const winEnd = best.windowEnd;
 
             // Compute travel from currentLocation -> best.location
-            const travelPlan = this._computeTravelPlan(npc, currentLocation, best.location, cursor);
-            const arrivalMs = cursor.getTime() + travelPlan.minutes * MS_PER_MINUTE;
+            let travelPlan =
+                best.ruleType === SCHEDULE_RULES.home
+                    ? this._computeFastestTravelPlan(npc, currentLocation, best.location, cursor)
+                    : this._computeTravelPlan(npc, currentLocation, best.location, cursor);
 
-            // Check if arrival + minStay fits into the window
-            if (arrivalMs + best.minStay * MS_PER_MINUTE > winEnd.getTime()) {
-                // Can't fit this intent; drop it and continue
-                const idxDrop = remaining.indexOf(best);
-                if (idxDrop >= 0) remaining.splice(idxDrop, 1);
-                continue;
+            let arrivalMs = cursor.getTime() + (travelPlan.minutes || 0) * MS_PER_MINUTE;
+            const latestArrivalMs = winEnd.getTime() - best.minStay * MS_PER_MINUTE;
+
+            // If we can't arrive in time:
+            if (arrivalMs > latestArrivalMs) {
+                if (best.ruleType !== SCHEDULE_RULES.home) {
+                    // normal behavior: drop non-home intents that don't fit
+                    const idxDrop = remaining.indexOf(best);
+                    if (idxDrop >= 0) remaining.splice(idxDrop, 1);
+                    continue;
+                }
+
+                // HOME behavior: trim previous "stay" time to leave earlier (like your fixed-slot backtracking)
+                let safety = 0;
+                while (arrivalMs > latestArrivalMs && slots.length && safety < 40) {
+                    const lastSlot = slots[slots.length - 1];
+                    if (!lastSlot || lastSlot.activityType !== "stay") break;
+
+                    const lastDur = minutesBetween(lastSlot.from, lastSlot.to);
+                    if (lastDur <= 0) {
+                        slots.pop();
+                        continue;
+                    }
+
+                    const neededShiftMin = Math.ceil((arrivalMs - latestArrivalMs) / MS_PER_MINUTE);
+                    const shrinkBy = Math.min(neededShiftMin, lastDur);
+
+                    lastSlot.to = new Date(lastSlot.to.getTime() - shrinkBy * MS_PER_MINUTE);
+                    cursor = new Date(cursor.getTime() - shrinkBy * MS_PER_MINUTE);
+
+                    // If collapsed, pop and restore currentLocation/currentPlace from previous slot
+                    if (lastSlot.to <= lastSlot.from) {
+                        slots.pop();
+                        const prev = slots[slots.length - 1];
+                        if (prev && prev.activityType === "stay") {
+                            currentLocation = prev.location;
+                            currentPlace = prev.place || null;
+                        } else {
+                            currentLocation = homeLocation || null;
+                            currentPlace = null;
+                        }
+                    }
+
+                    // Recompute fastest travel for the earlier departure
+                    travelPlan = this._computeFastestTravelPlan(
+                        npc,
+                        currentLocation,
+                        best.location,
+                        cursor
+                    );
+                    arrivalMs = cursor.getTime() + (travelPlan.minutes || 0) * MS_PER_MINUTE;
+
+                    safety++;
+                }
+
+                // Still can't make it? Don't drop HOME. Just proceed; clampToWeek will ensure no "gap".
             }
 
             // Emit travel slots (if any)
@@ -1071,12 +1123,18 @@ export class NPCScheduler {
         // )
         let useBus = false;
         if (busCandidate) {
-            const busTotal = busCandidate.totalMinutes; // with waits, micro-stops, etc.
+            const busTotal = busCandidate.totalMinutes; // waits + micro-stops
             const busEdgesCondition = edgesCount > densityScaledEdgeThreshold;
-            const busTimeCondition = plainWalkMinutes > busTotal;
-            const busEnvCondition = preferVehicle;
 
-            if (busEnvCondition || busTimeCondition || busEdgesCondition) {
+            // Compare against FULL walking time (including micro-lingers), not plain Dijkstra minutes.
+            const busFasterThanWalk = busTotal < walkTotalMinutes;
+
+            // If we "preferVehicle" (night/cold/badWeather), only allow bus when it's not meaningfully worse.
+            const busNotMuchWorse = busTotal <= walkTotalMinutes + 3;
+
+            const busEnvCondition = preferVehicle && busNotMuchWorse;
+
+            if (busFasterThanWalk || busEnvCondition || busEdgesCondition) {
                 useBus = true;
             }
         }
@@ -1104,6 +1162,77 @@ export class NPCScheduler {
             minutes: walkPlan.totalMinutes,
             segments: walkPlan.segments,
         };
+    }
+
+    _computeFastestTravelPlan(npc, currentLocation, targetLocation, departureTime) {
+        const world = this.world;
+        const map = world && world.map;
+        const template = npc.scheduleTemplate || {};
+
+        if (!map || !world.locations || !currentLocation || !targetLocation) {
+            return { mode: "none", minutes: 0, segments: [] };
+        }
+
+        const fromId = String(currentLocation.id);
+        const toId = String(targetLocation.id);
+        if (!fromId || !toId || fromId === toId) {
+            return { mode: "none", minutes: 0, segments: [] };
+        }
+
+        const walkRoute = map.getTravelTotal(fromId, toId);
+        if (!walkRoute || !Number.isFinite(walkRoute.minutes)) {
+            return { mode: "none", minutes: 0, segments: [] };
+        }
+
+        const walkMult =
+            typeof template.travelModifier === "number" && template.travelModifier > 0
+                ? template.travelModifier
+                : 1;
+
+        const walkPlan = this._buildWalkingPlanFromRoute(walkRoute, walkMult);
+        let best = { mode: "walk", minutes: walkPlan.totalMinutes, segments: walkPlan.segments };
+
+        if (template.useBus) {
+            const env = this._getEnvironmentState(departureTime);
+            const busCandidate = this._buildBusPlan(
+                npc,
+                currentLocation,
+                targetLocation,
+                departureTime,
+                walkRoute,
+                env,
+                walkMult
+            );
+            if (busCandidate && busCandidate.totalMinutes < best.minutes) {
+                best = {
+                    mode: "bus",
+                    minutes: busCandidate.totalMinutes,
+                    segments: busCandidate.segments,
+                };
+            }
+        }
+
+        if (template.useCar) {
+            const baseWalkMinutes = walkRoute.minutes;
+            const carMinutes = Math.ceil(baseWalkMinutes * 0.4);
+            if (Number.isFinite(carMinutes) && carMinutes >= 0 && carMinutes < best.minutes) {
+                best = {
+                    mode: "car",
+                    minutes: carMinutes,
+                    segments: [
+                        {
+                            mode: "car",
+                            kind: "car_drive",
+                            minutes: carMinutes,
+                            fromLocationId: fromId,
+                            toLocationId: toId,
+                        },
+                    ],
+                };
+            }
+        }
+
+        return best;
     }
 
     /**
@@ -1225,8 +1354,9 @@ export class NPCScheduler {
         const minute = arrivalAtStop.getMinutes();
         const minutesSinceMidnight = hour * 60 + minute;
 
-        const isNight = env.isNight;
-        const freq = isNight ? freqNight : freqDay;
+        const hStop = arrivalAtStop.getHours();
+        const isNightAtStop = hStop >= 22 || hStop < 6;
+        const freq = isNightAtStop ? freqNight : freqDay;
 
         let waitMinutes = 0;
         if (freq > 0) {
