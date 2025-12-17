@@ -195,22 +195,21 @@ function validateWeekSlots(slots, weekStart, weekEnd) {
     return { ok: errors.length === 0, errors, warnings, stats, sorted };
 }
 
-function buildWorldAndNPC({ seed, npcKey, density, w, h, startDate }) {
-    const rnd = makeRNG(seed);
-
+function buildWorldAndNPC({ seed, npcKey, density, w, h, startDate, rnd }) {
     const world = new World({ rnd, density, startDate, w, h });
 
     const base = npcFromRegistryKey(npcKey);
     if (!base) throw new Error(`npcFromRegistryKey("${npcKey}") returned null`);
 
     const locIds = [...world.locations.keys()];
-    const homeLocId = locIds[0];
+    const homeLocId = locIds[Math.floor(world.rnd() * locIds.length)];
+    const homePlaceId = `home-${npcKey}-${Math.floor(world.rnd() * 1e9)}`;
 
     const npc = new NPC({
         ...base,
         locationId: homeLocId,
         homeLocationId: homeLocId,
-        homePlaceId: `home-${npcKey}-${seed}`,
+        homePlaceId: homePlaceId,
         meta: base.meta || {},
     });
 
@@ -218,19 +217,19 @@ function buildWorldAndNPC({ seed, npcKey, density, w, h, startDate }) {
     return { world, npc, scheduler };
 }
 
-function getDateInputOrToday() {
-    const el = byId("startDate");
-    if (!el || !el.value) return new Date();
-    const [y, m, d] = el.value.split("-").map((x) => parseInt(x, 10));
-    if (!y || !m || !d) return new Date();
-    return new Date(y, m - 1, d, 9, 0, 0, 0);
+function randomDate(rnd) {
+    // No valid input -> random date between 2000-01-01 and 2025-12-31 (local time), at 09:00
+    const start = new Date(2000, 0, 1, 9, 0, 0, 0).getTime();
+    const end = new Date(2030, 11, 31, 9, 0, 0, 0).getTime();
+    const t = start + Math.floor(rnd() * (end - start + 1));
+    return new Date(t);
 }
 
 function setDefaultDateInput() {
     const el = byId("startDate");
     if (!el) return;
     const d = new Date();
-    el.value = `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+    //el.value = `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
 }
 
 function runFuzz() {
@@ -240,7 +239,6 @@ function runFuzz() {
     const density = Math.min(1, Math.max(0.01, parseFloat(byId("density").value) || 0.15));
     const w = Math.max(10, parseInt(byId("w").value, 10) || 70);
     const h = Math.max(10, parseInt(byId("h").value, 10) || 50);
-    const startDate = getDateInputOrToday();
 
     const out = byId("out");
     const failLinks = byId("failLinks");
@@ -260,6 +258,9 @@ function runFuzz() {
     for (let i = 0; i < iters; i++) {
         const seed = baseSeed + i;
 
+        const rnd = makeRNG(seed);
+        const startDate = randomDate(rnd);
+
         let world, npc, scheduler;
         try {
             ({ world, npc, scheduler } = buildWorldAndNPC({
@@ -269,6 +270,7 @@ function runFuzz() {
                 w,
                 h,
                 startDate,
+                rnd,
             }));
         } catch (e) {
             fail++;
@@ -427,8 +429,7 @@ function populateNpcSelect() {
 }
 
 function init() {
-    populateNpcSelect()
-    setDefaultDateInput();
+    populateNpcSelect();
     byId("runBtn").addEventListener("click", runFuzz);
 }
 
