@@ -10,6 +10,14 @@ import {
 const MINUTES_PER_DAY = 24 * 60;
 const MS_PER_MINUTE = 60 * 1000;
 
+// We build each week's timeline with a small lookahead past Monday 00:00.
+// This prevents Sunday-night rules (that cross midnight) from being clipped,
+// and gives us a deterministic "handoff" prefix for the next week's schedule.
+//
+// 12h is enough for typical "nightlife → sleep" patterns (e.g. 20:00–03:00 + travel),
+// without swallowing too much of Monday's daytime schedule.
+const ROLLOVER_BUFFER_MINUTES = 12 * 60;
+
 /** Parse "HH:MM" (24h) to minutes since midnight. Allows "24:00". */
 function parseTimeToMinutes(str) {
     if (!str) return 0;
@@ -111,7 +119,11 @@ export class NPCScheduler {
     constructor({ world, rnd }) {
         this.world = world;
         this.rnd = rnd || Math.random;
-        // cache: npcId -> weekKey -> { startDate, endDate, slots: [] }
+        // cache: npcId -> weekKey -> {
+        //   startDate, endDate,
+        //   slots: slots clamped to [startDate, endDate)
+        //   carrySlots: slots in [endDate, endDate + ROLLOVER_BUFFER)
+        // }
         this.cache = new Map();
     }
 
@@ -139,12 +151,43 @@ export class NPCScheduler {
         const cached = perNpc.get(weekKey);
         if (cached) return cached.slots;
 
-        const slots = this._buildWeekSchedule(npc, base);
+        // Seed week rollover from the previous cached week (if present).
+        // We intentionally do NOT auto-generate the previous week here to avoid
+        // recursive "generate all weeks back in time" cascades.
+        const prevBase = new Date(base.getTime() - 7 * MS_PER_DAY);
+        const prevKey = weekKeyFrom(prevBase);
+        const prevCached = perNpc.get(prevKey) || null;
+        const seedSlots = Array.isArray(prevCached?.carrySlots) ? prevCached.carrySlots : [];
+
+        // If the previous week didn't have any carrySlots (common when the last slot ends exactly at Monday 00:00),
+        // we still want to start the new week from the previous week's final location rather than "snap" to home.
+        let seedState = null;
+        if (
+            (!seedSlots || !seedSlots.length) &&
+            Array.isArray(prevCached?.slots) &&
+            prevCached.slots.length
+        ) {
+            const last = prevCached.slots[prevCached.slots.length - 1];
+            if (last) {
+                if (last.activityType === "stay") {
+                    seedState = { location: last.location || null, place: last.place || null };
+                } else if (last.activityType === "travel") {
+                    const toId = last.travelMeta?.toLocationId || null;
+                    const loc =
+                        (toId && this.world?.locations?.get(String(toId))) || last.location || null;
+                    seedState = { location: loc, place: null };
+                }
+            }
+        }
+
+        const built = this._buildWeekSchedule(npc, base, { seedSlots, seedState });
+        const slots = built.slots;
 
         perNpc.set(weekKey, {
             startDate: base,
             endDate: new Date(base.getTime() + 7 * MS_PER_DAY),
             slots,
+            carrySlots: built.carrySlots || [],
         });
 
         return slots;
@@ -166,19 +209,36 @@ export class NPCScheduler {
         if (!npc || !this.world) {
             return { willMove: false, at: new Date(), nextSlot: null };
         }
+
         const origin = new Date(fromDate.getTime());
         const limit = new Date(origin.getTime() + nextMinutes * MS_PER_MINUTE);
 
         const weekStart = this._weekStartForDate(origin);
-        const slots = this.getWeekSchedule(npc, weekStart);
+        const weekEnd = new Date(weekStart.getTime() + 7 * MS_PER_DAY);
+
+        // Search this week, and if the peek window crosses the boundary, also search next week.
+        // This fixes Sunday-night peeks missing Monday-early rollover travel/home.
+        const candidates = [];
+
+        const thisWeekSlots = this.getWeekSchedule(npc, weekStart);
+        if (Array.isArray(thisWeekSlots) && thisWeekSlots.length) {
+            candidates.push(...thisWeekSlots);
+        }
+
+        if (limit > weekEnd) {
+            const nextWeekStart = new Date(weekStart.getTime() + 7 * MS_PER_DAY);
+            const nextWeekSlots = this.getWeekSchedule(npc, nextWeekStart);
+            if (Array.isArray(nextWeekSlots) && nextWeekSlots.length) {
+                candidates.push(...nextWeekSlots);
+            }
+        }
 
         let best = null;
-        for (const slot of slots) {
+        for (const slot of candidates) {
+            if (!slot) continue;
             if (slot.from <= origin) continue;
             if (slot.from > limit) continue;
-            if (!best || slot.from < best.from) {
-                best = slot;
-            }
+            if (!best || slot.from < best.from) best = slot;
         }
 
         if (!best) {
@@ -192,12 +252,13 @@ export class NPCScheduler {
     // Internal: schedule construction
     // ---------------------------------------------------------------------
 
-    _buildWeekSchedule(npc, weekStart) {
+    _buildWeekSchedule(npc, weekStart, { seedSlots = [], seedState = null } = {}) {
         const template = npc.scheduleTemplate;
         const rules = template.rules;
 
         const weekStartMs = weekStart.getTime();
         const weekEndMs = weekStartMs + 7 * MS_PER_DAY;
+        const horizonEndMs = weekEndMs + ROLLOVER_BUFFER_MINUTES * MS_PER_MINUTE;
 
         const allowedSeasons = template.season || [];
 
@@ -207,22 +268,45 @@ export class NPCScheduler {
 
             // If current season is not in the whitelist → no schedule at all.
             if (!allowedSeasons.includes(currentSeason)) {
-                return [];
+                return { slots: [], carrySlots: [] };
             }
         }
 
-        // 1) Generate intents for the whole week (no exact times yet)
-        const intents = this._generateIntentsForWeek(npc, weekStart, rules);
+        // 1) Generate intents for the week + small lookahead.
+        const intents = this._generateIntentsForWeek(npc, weekStart, rules, {
+            horizonEnd: new Date(horizonEndMs),
+        });
 
-        // 2) Build a continuous week-long timeline from intents + travel.
-        const slots = this._buildWeekTimelineFromIntents(
+        // 2) Build a continuous timeline from intents + travel, including lookahead.
+        const horizonSlots = this._buildWeekTimelineFromIntents(
             npc,
             intents,
             weekStart,
-            new Date(weekEndMs)
+            new Date(horizonEndMs),
+            { seedSlots, seedState }
         );
 
-        return slots;
+        // 3) Clamp/slice into "this week" and "carryover".
+        const clampRange = (slots, aMs, bMs) => {
+            const out = [];
+            for (const s of slots) {
+                const fromMs = s.from.getTime();
+                const toMs = s.to.getTime();
+                if (toMs <= aMs) continue;
+                if (fromMs >= bMs) continue;
+                const from = new Date(Math.max(fromMs, aMs));
+                const to = new Date(Math.min(toMs, bMs));
+                if (to <= from) continue;
+                out.push({ ...s, from, to });
+            }
+            out.sort((a, b) => a.from - b.from || a.to - b.to);
+            return out;
+        };
+
+        const weekSlots = clampRange(horizonSlots, weekStartMs, weekEndMs);
+        const carrySlots = clampRange(horizonSlots, weekEndMs, horizonEndMs);
+
+        return { slots: weekSlots, carrySlots };
     }
 
     /**
@@ -243,14 +327,20 @@ export class NPCScheduler {
     // INTENT GENERATION
     // ---------------------------------------------------------------------
 
-    _generateIntentsForWeek(npc, weekStart, rules) {
+    _generateIntentsForWeek(npc, weekStart, rules, { horizonEnd = null } = {}) {
         const npcId = String(npc.id || npc.key || npc.name);
         const intents = [];
 
         const weekStartMs = weekStart.getTime();
+        const horizonMs =
+            (horizonEnd && horizonEnd.getTime && horizonEnd.getTime()) ||
+            weekStartMs + 7 * MS_PER_DAY;
+        // How many day "bases" we should generate per-day intents for.
+        // Example: week + 12h rollover buffer => 8 day bases (Mon..next Mon).
+        const dayCount = Math.max(7, Math.ceil((horizonMs - weekStartMs) / MS_PER_DAY));
 
         // First pass: per-day rules (home, fixed, random, daily)
-        for (let dayOffset = 0; dayOffset < 7; dayOffset++) {
+        for (let dayOffset = 0; dayOffset < dayCount; dayOffset++) {
             const dayDate = new Date(weekStartMs + dayOffset * MS_PER_DAY);
             const dayInfo = this.world.getDayInfo(dayDate);
             const dow = dayDate.getDay(); // 0=Sun
@@ -561,7 +651,13 @@ export class NPCScheduler {
      *   - During bus/car ride, NPC is "in transit" and not at any map location.
      *   - The only teleport is when currentLocationId === targetLocationId.
      */
-    _buildWeekTimelineFromIntents(npc, intents, weekStart, weekEnd) {
+    _buildWeekTimelineFromIntents(
+        npc,
+        intents,
+        weekStart,
+        weekEnd,
+        { seedSlots = [], seedState = null } = {}
+    ) {
         const npcId = String(npc.id || npc.key || npc.name);
         const weekStartMs = weekStart.getTime();
         const weekEndMs = weekEnd.getTime();
@@ -584,10 +680,19 @@ export class NPCScheduler {
         });
 
         let cursor = new Date(weekStartMs);
-        let currentLocation = homeLocation || null;
-        let currentPlace = null;
 
-        const clampToWeek = (d) =>
+        // Base start state:
+        //   1) previous week's end state (seedState)
+        //   2) NPC's persisted location (useful for tests/spawn)
+        //   3) home
+        let currentLocation =
+            (seedState && seedState.location) ||
+            (npc.locationId && this.world?.locations?.get(String(npc.locationId))) ||
+            homeLocation ||
+            null;
+        let currentPlace = (seedState && seedState.place) || null;
+
+        const clampToHorizon = (d) =>
             new Date(Math.min(Math.max(d.getTime(), weekStartMs), weekEndMs));
 
         const pushSlot = (from, to, location, place, sourceRuleId, ruleType, extra = {}) => {
@@ -606,6 +711,45 @@ export class NPCScheduler {
                 ...extra,
             });
         };
+
+        // If the previous week provided a carryover prefix, splice it in.
+        if (Array.isArray(seedSlots) && seedSlots.length) {
+            const usable = seedSlots
+                .filter((s) => s && s.from && s.to)
+                .map((s) => ({ ...s }))
+                .filter((s) => {
+                    const fromMs = new Date(s.from).getTime();
+                    const toMs = new Date(s.to).getTime();
+                    return toMs > weekStartMs && fromMs < weekEndMs;
+                })
+                .map((s) => {
+                    const from = new Date(Math.max(new Date(s.from).getTime(), weekStartMs));
+                    const to = new Date(Math.min(new Date(s.to).getTime(), weekEndMs));
+                    return { ...s, npcId, from, to };
+                })
+                .filter((s) => s.to > s.from)
+                .sort((a, b) => a.from - b.from || a.to - b.to);
+
+            for (const s of usable) slots.push(s);
+
+            const last = slots[slots.length - 1];
+            if (last) {
+                cursor = new Date(last.to.getTime());
+
+                if (last.activityType === "stay") {
+                    currentLocation = last.location || null;
+                    currentPlace = last.place || null;
+                } else if (last.activityType === "travel") {
+                    const toId = last.travelMeta?.toLocationId || null;
+                    currentLocation =
+                        (toId && this.world?.locations?.get(String(toId))) ||
+                        last.location ||
+                        currentLocation ||
+                        null;
+                    currentPlace = null;
+                }
+            }
+        }
 
         while (cursor < weekEnd) {
             // Find the best intent we can schedule starting at or after `cursor`
@@ -657,6 +801,175 @@ export class NPCScheduler {
 
             if (!best) {
                 break;
+            }
+
+            // ---- HOME SLOTS: try to be at home by windowStart (sleep starts at 'from') ----
+            // Without this, "home" blocks like 03:00–10:00 can end up starting travel at 03:00,
+            // which makes the NPC appear to arrive "late" for sleep.
+            if (best.ruleType === SCHEDULE_RULES.home && cursor < best.windowStart) {
+                const winStart = best.windowStart;
+                const winEnd = best.windowEnd;
+
+                // 1) First, see if leaving now would already be too late.
+                let travelPlan = this._computeFastestTravelPlan(
+                    npc,
+                    currentLocation,
+                    best.location,
+                    cursor
+                );
+                let travelMinutes = travelPlan.minutes || 0;
+                let arrivalIfLeaveNow = new Date(cursor.getTime() + travelMinutes * MS_PER_MINUTE);
+
+                // 2) If we'd arrive after the home window starts, backtrack by shrinking previous stays.
+                let safety = 0;
+                while (arrivalIfLeaveNow > winStart && slots.length && safety < 30) {
+                    const lastSlot = slots[slots.length - 1];
+                    if (!lastSlot || lastSlot.activityType !== "stay") break;
+
+                    const lastDur = minutesBetween(lastSlot.from, lastSlot.to);
+                    if (lastDur <= 0) {
+                        slots.pop();
+                        continue;
+                    }
+
+                    const neededShiftMin = Math.ceil(
+                        (arrivalIfLeaveNow.getTime() - winStart.getTime()) / MS_PER_MINUTE
+                    );
+                    const shrinkBy = Math.min(neededShiftMin, lastDur);
+
+                    lastSlot.to = new Date(lastSlot.to.getTime() - shrinkBy * MS_PER_MINUTE);
+                    cursor = new Date(cursor.getTime() - shrinkBy * MS_PER_MINUTE);
+
+                    if (lastSlot.to <= lastSlot.from) {
+                        slots.pop();
+                        const prev = slots[slots.length - 1];
+                        if (prev && prev.activityType === "stay") {
+                            currentLocation = prev.location;
+                            currentPlace = prev.place || null;
+                        } else {
+                            currentLocation = homeLocation || currentLocation || null;
+                            currentPlace = null;
+                        }
+                    }
+
+                    travelPlan = this._computeFastestTravelPlan(
+                        npc,
+                        currentLocation,
+                        best.location,
+                        cursor
+                    );
+                    travelMinutes = travelPlan.minutes || 0;
+                    arrivalIfLeaveNow = new Date(cursor.getTime() + travelMinutes * MS_PER_MINUTE);
+                    safety++;
+                }
+
+                // 3) If leaving now is early enough, delay departure so arrival is ~winStart.
+                // Use a short fixed-point iteration because bus waits can change with departure time.
+                let depart = new Date(cursor.getTime());
+                if (arrivalIfLeaveNow <= winStart) {
+                    let candidate = new Date(winStart.getTime() - travelMinutes * MS_PER_MINUTE);
+                    if (candidate > cursor) {
+                        depart = candidate;
+                        for (let i = 0; i < 3; i++) {
+                            const plan = this._computeFastestTravelPlan(
+                                npc,
+                                currentLocation,
+                                best.location,
+                                depart
+                            );
+                            const mins = plan.minutes || 0;
+                            const nextCandidate = new Date(
+                                winStart.getTime() - mins * MS_PER_MINUTE
+                            );
+                            travelPlan = plan;
+                            travelMinutes = mins;
+                            if (nextCandidate <= cursor) {
+                                depart = new Date(cursor.getTime());
+                                break;
+                            }
+                            if (Math.abs(nextCandidate.getTime() - depart.getTime()) < 60 * 1000) {
+                                depart = nextCandidate;
+                                break;
+                            }
+                            depart = nextCandidate;
+                        }
+                    }
+                }
+
+                // Fill the idle gap up to departure, if any.
+                if (depart > cursor) {
+                    const lastSlot = slots[slots.length - 1];
+                    if (
+                        lastSlot &&
+                        lastSlot.activityType === "stay" &&
+                        lastSlot.to.getTime() === cursor.getTime() &&
+                        lastSlot.locationId === (currentLocation && currentLocation.id) &&
+                        lastSlot.placeId === (currentPlace && currentPlace.id)
+                    ) {
+                        lastSlot.to = depart;
+                    } else if (currentLocation) {
+                        pushSlot(cursor, depart, currentLocation, currentPlace, null, null, {
+                            activityType: "stay",
+                            isIdle: true,
+                        });
+                    }
+                    cursor = depart;
+                }
+
+                // Emit travel segments starting at `cursor`.
+                let t = new Date(cursor.getTime());
+                for (const seg of travelPlan.segments) {
+                    const segFrom = new Date(t.getTime());
+                    const segTo = new Date(t.getTime() + seg.minutes * MS_PER_MINUTE);
+                    let loc = null;
+                    let place = null;
+                    if (seg.locationId) {
+                        loc = this.world?.locations?.get(String(seg.locationId)) || null;
+                    }
+                    if (seg.place && seg.place.id) {
+                        place = seg.place;
+                    }
+
+                    pushSlot(segFrom, segTo, loc, place, best.ruleId, best.ruleType, {
+                        activityType: "travel",
+                        travelMode: seg.mode,
+                        travelSegmentKind: seg.kind,
+                        travelMeta: {
+                            fromLocationId: seg.fromLocationId || null,
+                            toLocationId: seg.toLocationId || null,
+                            busStopId: seg.busStopId || null,
+                        },
+                    });
+
+                    t = segTo;
+                }
+
+                const arrival = t;
+
+                // Stay home until the end of the block (or horizon end).
+                const stayFrom = clampToHorizon(arrival);
+                const stayTo = clampToHorizon(winEnd);
+                if (stayTo > stayFrom) {
+                    pushSlot(
+                        stayFrom,
+                        stayTo,
+                        best.location,
+                        best.place,
+                        best.ruleId,
+                        best.ruleType,
+                        {
+                            activityType: "stay",
+                        }
+                    );
+                }
+
+                currentLocation = best.location;
+                currentPlace = best.place || null;
+                cursor = stayTo;
+
+                const idxHome = remaining.indexOf(best);
+                if (idxHome >= 0) remaining.splice(idxHome, 1);
+                continue;
             }
 
             // ---- HARD FIXED SLOTS: adjust previous flexible slot if needed, then travel → stay ----
@@ -761,8 +1074,8 @@ export class NPCScheduler {
                 // 4) Stay at the fixed location from arrival until the fixed window end.
                 // If arrival <= winStart, they are early; if slightly later, they're a bit late,
                 // but the 09:00–15:00 window is still the "hard" presence window we aim for.
-                const stayFrom = clampToWeek(arrival);
-                const stayTo = clampToWeek(winEnd);
+                const stayFrom = clampToHorizon(arrival);
+                const stayTo = clampToHorizon(winEnd);
 
                 if (stayTo > stayFrom) {
                     pushSlot(
@@ -789,7 +1102,7 @@ export class NPCScheduler {
             }
 
             if (bestAvailableStart > cursor && best.ruleType !== SCHEDULE_RULES.fixed) {
-                const gapEnd = clampToWeek(bestAvailableStart);
+                const gapEnd = clampToHorizon(bestAvailableStart);
 
                 if (currentLocation && gapEnd > cursor) {
                     const lastSlot = slots[slots.length - 1];
@@ -880,8 +1193,6 @@ export class NPCScheduler {
 
                     safety++;
                 }
-
-                // Still can't make it? Don't drop HOME. Just proceed; clampToWeek will ensure no "gap".
             }
 
             // Emit travel slots (if any)
@@ -938,8 +1249,8 @@ export class NPCScheduler {
 
             const leave = new Date(arrival.getTime() + staySpan * MS_PER_MINUTE);
 
-            const fromStay = clampToWeek(arrival);
-            const toStay = clampToWeek(leave);
+            const fromStay = clampToHorizon(arrival);
+            const toStay = clampToHorizon(leave);
 
             pushSlot(fromStay, toStay, best.location, best.place, best.ruleId, best.ruleType, {
                 activityType: "stay",
@@ -952,6 +1263,34 @@ export class NPCScheduler {
             // Remove the intent now that it's consumed
             const idx = remaining.indexOf(best);
             if (idx >= 0) remaining.splice(idx, 1);
+        }
+
+        // Trailing fill: if we ran out of intents, keep the NPC somewhere until weekEnd.
+        // This is the direct fix for "end-of-week gaps" where the NPC would otherwise
+        // disappear for the remaining minutes.
+        if (cursor < weekEnd) {
+            const end = clampToHorizon(weekEnd);
+            const loc = currentLocation || homeLocation || null;
+            const place = loc === currentLocation ? currentPlace : null;
+
+            if (loc && end > cursor) {
+                const lastSlot = slots[slots.length - 1];
+                if (
+                    lastSlot &&
+                    lastSlot.activityType === "stay" &&
+                    lastSlot.to.getTime() === cursor.getTime() &&
+                    lastSlot.locationId === loc.id &&
+                    lastSlot.placeId === (place && place.id)
+                ) {
+                    lastSlot.to = end;
+                } else {
+                    pushSlot(cursor, end, loc, place, null, null, {
+                        activityType: "stay",
+                        isIdle: true,
+                    });
+                }
+                cursor = end;
+            }
         }
 
         // Ensure sorted by time
