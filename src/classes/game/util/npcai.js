@@ -730,6 +730,21 @@ export class NPCScheduler {
                 .filter((s) => s.to > s.from)
                 .sort((a, b) => a.from - b.from || a.to - b.to);
 
+            if (usable.length) {
+                const first = usable[0];
+                if (first.from.getTime() > weekStartMs && currentLocation) {
+                    pushSlot(
+                        new Date(weekStartMs),
+                        first.from,
+                        currentLocation,
+                        currentPlace,
+                        null,
+                        null,
+                        { activityType: "stay", isIdle: true }
+                    );
+                }
+            }
+
             for (const s of usable) slots.push(s);
 
             const last = slots[slots.length - 1];
