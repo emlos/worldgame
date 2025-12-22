@@ -26,6 +26,7 @@ function fmtYMD(d) {
 }
 
 function parseNum(val, fallback) {
+    if (val === null || val === undefined || val === "") return fallback;
     const n = Number(val);
     return Number.isFinite(n) ? n : fallback;
 }
@@ -55,8 +56,9 @@ function getConfigFromUrl() {
     const npc = p.get("npc") || "taylor";
     const seed = Math.trunc(parseNum(p.get("seed"), Date.now()));
     const density = Math.max(0.01, Math.min(1, parseNum(p.get("density"), 0.15)));
-    const w = Math.max(10, Math.trunc(parseNum(p.get("w"), 70)));
+    const w = Math.max(10, Math.trunc(parseNum(p.get("w"), 50)));
     const h = Math.max(10, Math.trunc(parseNum(p.get("h"), 50)));
+
     const start = parseStartDateFromYMD(p.get("start"));
 
     return { npcKey: npc, seed, density, w, h, startDate: start };
@@ -66,8 +68,8 @@ function getConfigFromUI() {
     const npcKey = String(byId("cfgNpc")?.value || "taylor").trim() || "taylor";
     const seed = Math.trunc(parseNum(byId("cfgSeed")?.value, Date.now()));
     const density = Math.max(0.01, Math.min(1, parseNum(byId("cfgDensity")?.value, 0.15)));
-    const w = Math.max(10, Math.trunc(parseNum(byId("cfgW")?.value, 70)));
-    const h = Math.max(10, Math.trunc(parseNum(byId("cfgH")?.value, 50)));
+    const w = Math.max(10, Math.trunc(parseNum(p.get("w"), 50)));
+    const h = Math.max(10, Math.trunc(parseNum(p.get("h"), 50)));
 
     const ymd = byId("cfgStartDate")?.value;
     const startDate = parseStartDateFromYMD(ymd);
@@ -710,11 +712,16 @@ function getDayBuckets(slots) {
 
     for (const slot of slots) {
         const d = slot.from;
-        const dateKey = `${d.getUTCFullYear()}-${pad2(d.getUTCMonth() + 1)}-${pad2(d.getUTCDate())}`;
+        const dateKey = `${d.getUTCFullYear()}-${pad2(d.getUTCMonth() + 1)}-${pad2(
+            d.getUTCDate()
+        )}`;
 
         let bucket = dayBuckets.get(dateKey);
         if (!bucket) {
-            bucket = { date: new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())), slots: [] };
+            bucket = {
+                date: new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())),
+                slots: [],
+            };
             dayBuckets.set(dateKey, bucket);
         }
         bucket.slots.push(slot);
@@ -938,7 +945,7 @@ function renderWeekSchedule() {
         const { date, slots: daySlotsRaw } = dayBuckets.get(key);
         const daySlots = daySlotsRaw.slice().sort((a, b) => a.from - b.from);
 
-        const dow = date.toLocaleDateString(undefined, { weekday: "short", timeZone: "UTC" })
+        const dow = date.toLocaleDateString(undefined, { weekday: "short", timeZone: "UTC" });
         const headerText = `${dow} ${date.getUTCFullYear()}-${pad2(date.getUTCMonth() + 1)}-${pad2(
             date.getUTCDate()
         )}`;
