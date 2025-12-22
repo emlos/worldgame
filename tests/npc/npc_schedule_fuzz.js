@@ -11,13 +11,13 @@ function pad2(n) {
 
 function fmtDT(d) {
     if (!(d instanceof Date) || Number.isNaN(d.getTime())) return "InvalidDate";
-    return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())} ${pad2(
-        d.getHours()
-    )}:${pad2(d.getMinutes())}`;
+    return `${d.getUTCFullYear()}-${pad2(d.getUTCMonth() + 1)}-${pad2(d.getUTCDate())} ${pad2(
+        d.getUTCHours()
+    )}:${pad2(d.getUTCMinutes())}`;
 }
 
 function fmtYMD(d) {
-    return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+    return `${d.getUTCFullYear()}-${pad2(d.getUTCMonth() + 1)}-${pad2(d.getUTCDate())}`;
 }
 
 function minutesBetween(a, b) {
@@ -25,13 +25,13 @@ function minutesBetween(a, b) {
 }
 
 function normalizeMidnight(date) {
-    return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
+    return new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 0, 0, 0, 0);
 }
 
 // Monday 00:00 local
 function weekStartForDate(date) {
     const base = normalizeMidnight(date);
-    const day = base.getDay(); // 0=Sun, 1=Mon ...
+    const day = base.getUTCDay(); // 0=Sun, 1=Mon ...
     const monIndex = (day + 6) % 7; // Mon=0 ... Sun=6
     const mondayMs = base.getTime() - monIndex * MS_PER_DAY;
     return new Date(mondayMs);
@@ -229,7 +229,7 @@ function setDefaultDateInput() {
     const el = byId("startDate");
     if (!el) return;
     const d = new Date();
-    //el.value = `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+    //el.value = `${d.getUTCFullYear()}-${pad2(d.getUTCMonth() + 1)}-${pad2(d.getUTCDate())}`;
 }
 
 function runFuzz() {

@@ -315,7 +315,7 @@ export class NPCScheduler {
      */
     _weekStartForDate(date) {
         const base = normalizeMidnight(date);
-        // JS getDay(): 0 = Sun, 1 = Mon, ... 6 = Sat
+        // JS getUTCDay(): 0 = Sun, 1 = Mon, ... 6 = Sat
         const day = base.getUTCDay();
         // Convert to Monday-based index: Mon=0, Tue=1, ... Sun=6
         const monIndex = (day + 6) % 7;

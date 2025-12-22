@@ -22,7 +22,7 @@ function pad2(n) {
     return String(n).padStart(2, "0");
 }
 function fmtYMD(d) {
-    return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+    return `${d.getUTCFullYear()}-${pad2(d.getUTCMonth() + 1)}-${pad2(d.getUTCDate())}`;
 }
 
 function parseNum(val, fallback) {
@@ -37,12 +37,14 @@ function parseStartDateFromYMD(ymd) {
         .split("-")
         .map((x) => parseInt(x, 10));
     if (!y || !m || !d) return new Date();
-    return new Date(y, m - 1, d, 9, 0, 0, 0);
+    return new Date(Date.UTC(y, m - 1, d, 9, 0, 0, 0));
 }
 
 function weekStartForDate(date) {
-    const base = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
-    const day = base.getDay(); // 0=Sun, 1=Mon ...
+    const base = new Date(
+        Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 0, 0, 0, 0)
+    );
+    const day = base.getUTCDay(); // 0=Sun, 1=Mon ...
     const monIndex = (day + 6) % 7; // Mon=0 ... Sun=6
     return new Date(base.getTime() - monIndex * MS_PER_DAY);
 }
@@ -128,7 +130,7 @@ function getCurrentWeekScheduleFor(npc) {
 
     // mimic old API: attach metadata onto the array
     slots.startDate = weekStart;
-    slots.endDate = new Date(weekStart.getTime() + 7 * MS_PER_DAY);
+    slots.endDate = new Date(Date.UTC(weekStart.getTime() + 7 * MS_PER_DAY));
     return slots;
 }
 
@@ -263,8 +265,8 @@ function renderWorldTime() {
     const el = byId("worldTime");
     if (!el || !world) return;
     const d = world.time.date;
-    const dateStr = `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
-    const timeStr = `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+    const dateStr = `${d.getUTCFullYear()}-${pad2(d.getUTCMonth() + 1)}-${pad2(d.getUTCDate())}`;
+    const timeStr = `${pad2(d.getUTCHours())}:${pad2(d.getUTCMinutes())}`;
     el.textContent = `${dateStr} ${timeStr}`;
 }
 
@@ -662,7 +664,7 @@ function updateNextIntent() {
 
     const slot = nextIntentSlot;
     const from = slot.from;
-    const timeStr = `${pad2(from.getHours())}:${pad2(from.getMinutes())}`;
+    const timeStr = `${pad2(from.getUTCHours())}:${pad2(from.getUTCMinutes())}`;
 
     const { loc, placeName } = getIntentLocationData(slot);
 
@@ -708,11 +710,11 @@ function getDayBuckets(slots) {
 
     for (const slot of slots) {
         const d = slot.from;
-        const dateKey = `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+        const dateKey = `${d.getUTCFullYear()}-${pad2(d.getUTCMonth() + 1)}-${pad2(d.getUTCDate())}`;
 
         let bucket = dayBuckets.get(dateKey);
         if (!bucket) {
-            bucket = { date: new Date(d.getFullYear(), d.getMonth(), d.getDate()), slots: [] };
+            bucket = { date: new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())), slots: [] };
             dayBuckets.set(dateKey, bucket);
         }
         bucket.slots.push(slot);
@@ -925,8 +927,8 @@ function renderWeekSchedule() {
     const activeSlot = findActiveSlotForTime(now);
 
     const formatTimeRange = (from, to) =>
-        `${pad2(from.getHours())}:${pad2(from.getMinutes())}–${pad2(to.getHours())}:${pad2(
-            to.getMinutes()
+        `${pad2(from.getUTCHours())}:${pad2(from.getUTCMinutes())}–${pad2(to.getUTCHours())}:${pad2(
+            to.getUTCMinutes()
         )}`;
 
     const dayBuckets = getDayBuckets(slots);
@@ -936,9 +938,9 @@ function renderWeekSchedule() {
         const { date, slots: daySlotsRaw } = dayBuckets.get(key);
         const daySlots = daySlotsRaw.slice().sort((a, b) => a.from - b.from);
 
-        const dow = date.toLocaleDateString(undefined, { weekday: "short" });
-        const headerText = `${dow} ${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(
-            date.getDate()
+        const dow = date.toLocaleDateString(undefined, { weekday: "short", timeZone: "UTC" })
+        const headerText = `${dow} ${date.getUTCFullYear()}-${pad2(date.getUTCMonth() + 1)}-${pad2(
+            date.getUTCDate()
         )}`;
 
         const headerEl = document.createElement("h3");

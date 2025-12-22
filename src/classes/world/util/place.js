@@ -36,8 +36,8 @@ function getDayIndexAndMinutes(atTime) {
     // Primary: native Date
     if (atTime instanceof Date) {
         return {
-            dayIndex: atTime.getDay(), // 0 = Sun
-            minutes: atTime.getHours() * 60 + atTime.getMinutes(),
+            dayIndex: atTime.getUTCDay(), // 0 = Sun
+            minutes: atTime.getUTCHours() * 60 + atTime.getUTCMinutes(),
         };
     }
     if (!atTime || typeof atTime !== "object") return null;

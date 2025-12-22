@@ -25,7 +25,7 @@ const NPCS = ["taylor", "shade", "officer_vega", "clara", "mike", "vincent"];
 // Bridge to new NPCScheduler API (returns an array with .startDate/.endDate attached)
 function getCurrentWeekScheduleFor(npc) {
     const now = world.time.date;
-    const weekStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()); // midnight today
+    const weekStart = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()); // midnight today
     const slots = scheduleManager.getWeekSchedule(npc, weekStart);
 
     // mimic old API: attach metadata onto the array
@@ -110,14 +110,14 @@ function getDayBuckets(slots) {
 
     for (const slot of slots) {
         const d = slot.from;
-        const y = d.getFullYear();
-        const m = pad2(d.getMonth() + 1);
-        const day = pad2(d.getDate());
+        const y = d.getUTCFullYear();
+        const m = pad2(d.getUTCMonth() + 1);
+        const day = pad2(d.getUTCDate());
         const dateKey = `${y}-${m}-${day}`;
 
         let bucket = dayBuckets.get(dateKey);
         if (!bucket) {
-            bucket = { date: new Date(y, d.getMonth(), d.getDate()), slots: [] };
+            bucket = { date: new Date(y, d.getUTCMonth(), d.getUTCDate()), slots: [] };
             dayBuckets.set(dateKey, bucket);
         }
         bucket.slots.push(slot);
@@ -241,8 +241,8 @@ function renderWorldTime() {
     if (!el || !world) return;
     const d = world.time.date;
     const pad = (n) => (n < 10 ? "0" + n : "" + n);
-    const dateStr = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-    const timeStr = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    const dateStr = `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}`;
+    const timeStr = `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}`;
     el.textContent = `${dateStr} ${timeStr}`;
 }
 
@@ -822,7 +822,7 @@ function updateNextIntentText(npcState) {
     const slot = npcState.nextIntentSlot;
     const from = slot.from;
     const pad = (n) => (n < 10 ? "0" + n : "" + n);
-    const timeStr = `${pad(from.getHours())}:${pad(from.getMinutes())}`;
+    const timeStr = `${pad(from.getUTCHours())}:${pad(from.getUTCMinutes())}`;
 
     const { loc, placeName } = getIntentLocationData(npcState, slot);
 
@@ -885,8 +885,8 @@ function renderNpcWeekSchedule(npcState) {
     const activeSlot = findActiveSlotForTime(slots, now);
 
     const formatTimeRange = (from, to) =>
-        `${pad2(from.getHours())}:${pad2(from.getMinutes())}–${pad2(to.getHours())}:${pad2(
-            to.getMinutes()
+        `${pad2(from.getUTCHours())}:${pad2(from.getUTCMinutes())}–${pad2(to.getUTCHours())}:${pad2(
+            to.getUTCMinutes()
         )}`;
 
     for (const key of sortedKeys) {
@@ -894,8 +894,8 @@ function renderNpcWeekSchedule(npcState) {
         const daySlots = daySlotsRaw.slice().sort((a, b) => a.from - b.from);
 
         const dow = date.toLocaleDateString(undefined, { weekday: "short" });
-        const headerText = `${dow} ${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(
-            date.getDate()
+        const headerText = `${dow} ${date.getUTCFullYear()}-${pad2(date.getUTCMonth() + 1)}-${pad2(
+            date.getUTCDate()
         )}`;
 
         const headerEl = document.createElement("h3");

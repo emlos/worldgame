@@ -39,9 +39,9 @@ function init() {
 
   // ------- Formatters -------
   const pad2 = (n) => String(n).padStart(2, "0");
-  const fmtDate = (d) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
-  const fmtTime = (d) => `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
-  const dowName = (d) => [DAY_KEYS[0], DAY_KEYS[1], DAY_KEYS[2], DAY_KEYS[3], DAY_KEYS[4], DAY_KEYS[5], DAY_KEYS[6]][d.getDay()];
+  const fmtDate = (d) => `${d.getUTCFullYear()}-${pad2(d.getUTCMonth() + 1)}-${pad2(d.getUTCDate())}`;
+  const fmtTime = (d) => `${pad2(d.getUTCHours())}:${pad2(d.getUTCMinutes())}`;
+  const dowName = (d) => [DAY_KEYS[0], DAY_KEYS[1], DAY_KEYS[2], DAY_KEYS[3], DAY_KEYS[4], DAY_KEYS[5], DAY_KEYS[6]][d.getUTCDay()];
   const monthName = (mIdx) => ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][mIdx];
 
   // ------- Controls (buttons & inputs) -------
@@ -66,13 +66,13 @@ function init() {
       const d = el("input", { id: "jumpDate", type: "date" });
       // default to current world date
       const wd = world.time.date;
-      d.value = `${wd.getFullYear()}-${pad2(wd.getMonth() + 1)}-${pad2(wd.getDate())}`;
+      d.value = `${wd.getUTCFullYear()}-${pad2(wd.getUTCMonth() + 1)}-${pad2(wd.getUTCDate())}`;
       return d;
     })(),
     (() => {
       const t = el("input", { id: "jumpTime", type: "time", step: "60" });
       const wd = world.time.date;
-      t.value = `${pad2(wd.getHours())}:${pad2(wd.getMinutes())}`;
+      t.value = `${pad2(wd.getUTCHours())}:${pad2(wd.getUTCMinutes())}`;
       return t;
     })(),
     el("button", { id: "doJump" }, "Go")
@@ -126,13 +126,13 @@ function init() {
     const c = byId("calendar");
     c.innerHTML = "";
     const d = world.time.date;
-    const year = d.getFullYear();
-    const month = d.getMonth(); // 0..11
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const year = d.getUTCFullYear();
+    const month = d.getUTCMonth(); // 0..11
+    const daysInMonth = new Date(year, month + 1, 0).getUTCDate();
 
     const rows = [];
     for (let day = 1; day <= daysInMonth; day++) {
-      const dt = new Date(year, month, day, d.getHours(), d.getMinutes());
+      const dt = new Date(year, month, day, d.getUTCHours(), d.getUTCMinutes());
       const info = world.getDayInfo(dt);
       rows.push([
         `${monthName(month)} ${pad2(day)}, ${year}`,
@@ -172,7 +172,7 @@ function init() {
       if (month <= 5) return Season.SPRING;
       if (month <= 8) return Season.SUMMER;
       return Season.AUTUMN;
-    })(world.time.date.getMonth() + 1);
+    })(world.time.date.getUTCMonth() + 1);
 
     world.temperatureC = world.weather.computeTemperature();
 

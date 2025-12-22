@@ -10,7 +10,7 @@
  */
 export function duringHours(fromHour, toHour) {
   return (game) => {
-    const h = game.world.time.date.getHours();
+    const h = game.world.time.date.getUTCHours();
     if (fromHour <= toHour) {
       return h >= fromHour && h < toHour;
     }
