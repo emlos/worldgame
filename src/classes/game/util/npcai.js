@@ -658,6 +658,31 @@ export class NPCScheduler {
         weekEnd,
         { seedSlots = [], seedState = null } = {}
     ) {
+        const resolveIntentTarget = (intent) => {
+            if (!intent) return;
+
+            // Already resolved
+            if (intent.location) return;
+
+            // Deferred nearest choice
+            if (intent.nearest && Array.isArray(intent.candidates) && intent.candidates.length) {
+                const originLoc = currentLocation || homeLocation || null;
+                const pick = this._pickNearestCandidate(intent.candidates, originLoc?.id);
+
+                if (pick) {
+                    intent.location = pick.location;
+                    intent.place = pick.place || null;
+                    return;
+                }
+            }
+
+            // Worst-case fallback: go home
+            if (!intent.location && homeLocation) {
+                intent.location = homeLocation;
+                intent.place = null;
+            }
+        };
+
         const npcId = String(npc.id || npc.key || npc.name);
         const weekStartMs = weekStart.getTime();
         const weekEndMs = weekEnd.getTime();
@@ -817,6 +842,8 @@ export class NPCScheduler {
             if (!best) {
                 break;
             }
+
+            resolveIntentTarget(best);
 
             // ---- HOME SLOTS: try to be at home by windowStart (sleep starts at 'from') ----
             // Without this, "home" blocks like 03:00–10:00 can end up starting travel at 03:00,
@@ -1880,14 +1907,11 @@ export class NPCScheduler {
         if (!target || !this.world) return [];
 
         const isOpenForSpan = (place) => {
-            if (!respectOpeningHours || !place || typeof place.isOpen !== "function") {
-                return true;
-            }
+            if (!respectOpeningHours || !place || typeof place.isOpen !== "function") return true;
             const endCheck = new Date(to.getTime() - MS_PER_MINUTE);
             return place.isOpen(from) && place.isOpen(endCheck);
         };
 
-        // --- Home target ---
         if (target.type === TARGET_TYPE.home) {
             const homeLoc = this._getHomeLocation(npc);
             if (!homeLoc) return [];
@@ -1896,14 +1920,12 @@ export class NPCScheduler {
 
         const locations = this.world.locations || new Map();
 
-        // Unified candidate list
         const baseCandidates = Array.isArray(target.candidates)
             ? target.candidates
             : target.candidates != null
             ? [target.candidates]
             : [];
 
-        // Legacy key/category fields
         const legacyKeys =
             target.key != null
                 ? [target.key]
@@ -1922,7 +1944,7 @@ export class NPCScheduler {
         let keysList = [];
         let categoryList = [];
 
-        if (target.type === TARGET_TYPE.placeKeys || target.type === TARGET_TYPE.placeKeys) {
+        if (target.type === TARGET_TYPE.placeKeys) {
             keysList = baseCandidates.length ? baseCandidates : legacyKeys;
         } else if (target.type === TARGET_TYPE.placeCategory) {
             categoryList = baseCandidates.length ? baseCandidates : legacyCategories;
@@ -1931,7 +1953,7 @@ export class NPCScheduler {
         const isCandidatePlace = (place) => {
             if (!place) return false;
 
-            if (target.type === TARGET_TYPE.placeKeys || target.type === TARGET_TYPE.placeKeys) {
+            if (target.type === TARGET_TYPE.placeKeys) {
                 if (!keysList.length) return false;
                 return keysList.includes(place.key);
             }
@@ -1957,24 +1979,8 @@ export class NPCScheduler {
             }
         }
 
-        // If nearest is requested, collapse to the nearest candidate
-        if (target.nearest && items.length && this.world.map && npc && npc.homeLocationId) {
-            const originId = String(npc.homeLocationId);
-            let best = null;
-            let bestMinutes = Infinity;
-            for (const item of items) {
-                const minutes = this.world.map.getTravelMinutes
-                    ? this.world.map.getTravelMinutes(originId, item.location.id)
-                    : 0;
-                if (!Number.isFinite(minutes)) continue;
-                if (minutes < bestMinutes) {
-                    bestMinutes = minutes;
-                    best = item;
-                }
-            }
-            return best ? [best] : items;
-        }
-
+        // DO NOT collapse to nearest here.
+        // defer "nearest" until scheduling time, when we know currentLocation.
         return items;
     }
 
@@ -1987,7 +1993,11 @@ export class NPCScheduler {
         const respectOpeningHours = !!rule.respectOpeningHours;
 
         let allCandidates = [];
+        let wantsNearest = false;
+
         for (const target of targets) {
+            if (target && target.nearest) wantsNearest = true;
+
             const candidatesForTarget = this._collectCandidatesForTarget({
                 npc,
                 target,
@@ -1995,6 +2005,7 @@ export class NPCScheduler {
                 to,
                 respectOpeningHours,
             });
+
             if (candidatesForTarget && candidatesForTarget.length) {
                 allCandidates = allCandidates.concat(candidatesForTarget);
             }
@@ -2002,24 +2013,57 @@ export class NPCScheduler {
 
         if (!allCandidates.length) return null;
 
+        if (wantsNearest) {
+            // Defer picking until timeline build (we need currentLocation there).
+            return {
+                location: null,
+                place: null,
+                candidates: allCandidates,
+                nearest: true,
+            };
+        }
+
         const idx = (this.rnd() * allCandidates.length) | 0;
         const chosen = allCandidates[idx];
         return {
             location: chosen.location,
             place: chosen.place || null,
+            candidates: null,
+            nearest: false,
         };
     }
 
-    /**
-     * Backwards compat: resolve a single target object using the same logic
-     * as rule.targets.
-     */
-    _pickLocationForTarget({ npc, target, from, to, respectOpeningHours }) {
-        const syntheticRule = {
-            targets: target ? [target] : [],
-            respectOpeningHours: !!respectOpeningHours,
-        };
-        return this._pickLocationFromTargets({ npc, rule: syntheticRule, from, to });
+    _pickNearestCandidate(candidates, originLocationId) {
+        if (!candidates || !candidates.length) return null;
+        if (!this.world?.map || !originLocationId) {
+            // fallback to random if we can’t compute distance
+            return candidates[(this.rnd() * candidates.length) | 0] || null;
+        }
+
+        const originId = String(originLocationId);
+        let best = null;
+        let bestMinutes = Infinity;
+
+        for (const item of candidates) {
+            const locId = item?.location?.id;
+            if (!locId) continue;
+
+            const minutes = this.world.map.getTravelMinutes
+                ? this.world.map.getTravelMinutes(originId, locId)
+                : NaN;
+
+            if (!Number.isFinite(minutes)) continue;
+
+            if (minutes < bestMinutes) {
+                bestMinutes = minutes;
+                best = item;
+            } else if (minutes === bestMinutes && this.rnd() < 0.5) {
+                // tie-break
+                best = item;
+            }
+        }
+
+        return best || candidates[(this.rnd() * candidates.length) | 0] || null;
     }
 
     _getHomeLocation(npc) {
