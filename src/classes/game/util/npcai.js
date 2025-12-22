@@ -1992,12 +1992,11 @@ export class NPCScheduler {
         const targets = Array.isArray(rule.targets) ? rule.targets : [];
         const respectOpeningHours = !!rule.respectOpeningHours;
 
-        let allCandidates = [];
-        let wantsNearest = false;
+        // `nearest: true` only affect the target *entry* that declares it
+        // "nearest among the union", set `rule.nearest = true`.
 
+        const groups = [];
         for (const target of targets) {
-            if (target && target.nearest) wantsNearest = true;
-
             const candidatesForTarget = this._collectCandidatesForTarget({
                 npc,
                 target,
@@ -2007,14 +2006,16 @@ export class NPCScheduler {
             });
 
             if (candidatesForTarget && candidatesForTarget.length) {
-                allCandidates = allCandidates.concat(candidatesForTarget);
+                groups.push({ target, candidates: candidatesForTarget });
             }
         }
 
-        if (!allCandidates.length) return null;
+        if (!groups.length) return null;
 
-        if (wantsNearest) {
-            // Defer picking until timeline build (we need currentLocation there).
+        // Optional: allow rule-level "nearest across all targets".
+        if (rule && rule.nearest) {
+            const allCandidates = groups.flatMap((g) => g.candidates);
+            if (!allCandidates.length) return null;
             return {
                 location: null,
                 place: null,
@@ -2023,8 +2024,32 @@ export class NPCScheduler {
             };
         }
 
-        const idx = (this.rnd() * allCandidates.length) | 0;
-        const chosen = allCandidates[idx];
+        // Pick which target block we are going to satisfy.
+        // Weighted by number of concrete candidates (more options => more likely).
+        const total = groups.reduce((s, g) => s + (g.candidates?.length || 0), 0);
+        let r = this.rnd() * total;
+        let picked = groups[0];
+        for (const g of groups) {
+            r -= g.candidates.length;
+            if (r <= 0) {
+                picked = g;
+                break;
+            }
+        }
+
+        // If this particular target requests nearest, defer *only* that group's candidates.
+        if (picked?.target?.nearest) {
+            return {
+                location: null,
+                place: null,
+                candidates: picked.candidates,
+                nearest: true,
+            };
+        }
+
+        // Otherwise pick a concrete candidate randomly from that target group.
+        const idx = (this.rnd() * picked.candidates.length) | 0;
+        const chosen = picked.candidates[idx];
         return {
             location: chosen.location,
             place: chosen.place || null,
@@ -2048,10 +2073,15 @@ export class NPCScheduler {
             const locId = item?.location?.id;
             if (!locId) continue;
 
-            const minutes = this.world.map.getTravelMinutes
-                ? this.world.map.getTravelMinutes(originId, locId)
-                : NaN;
+            // Use getTravelTotal rather than getTravelMinutes so we only consider
+            // candidates that actually have a reconstructable path (and finite minutes).
+            // This prevents "nearest" from selecting disconnected locations that would
+            // later produce a mode:"none" travel plan (effectively teleporting).
+            const route = this.world.map.getTravelTotal
+                ? this.world.map.getTravelTotal(originId, locId)
+                : null;
 
+            const minutes = route?.minutes;
             if (!Number.isFinite(minutes)) continue;
 
             if (minutes < bestMinutes) {
