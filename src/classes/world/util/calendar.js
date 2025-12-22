@@ -99,15 +99,15 @@ export class Calendar {
      * Get info for a specific Date.
      */
     getDayInfo(date) {
-        const y = date.getFullYear();
-        const key = ymd(y, date.getMonth() + 1, date.getDate());
+        const y = date.getUTCFullYear();
+        const key = ymd(y, date.getUTCMonth() + 1, date.getUTCDate());
         const info = this.map.get(key) || {
             holidays: [],
             specials: [],
             dayOff: false,
         };
 
-        const dow = date.getDay(); // 0=Sunday
+        const dow = date.getUTCDay(); // 0=Sunday
         const isWeekend = dow === 0 || dow === 6;
         const dayOff = info.dayOff || isWeekend;
 
@@ -121,17 +121,17 @@ export class Calendar {
 
     daysUntil(name, fromDate) {
         const target = name.toLowerCase();
-        const fromYear = fromDate.getFullYear();
+        const fromYear = fromDate.getUTCFullYear();
 
         if (fromYear !== this.year) {
             return undefined;
         }
 
-        const fromMidnight = new Date(
+        const fromMidnight = new Date(Date.UTC(
             fromYear,
-            fromDate.getMonth(),
-            fromDate.getDate()
-        );
+            fromDate.getUTCMonth(),
+            fromDate.getUTCDate()
+        ));
 
         let best = Infinity;
 
@@ -150,7 +150,7 @@ export class Calendar {
 
             if (y !== fromYear) continue;
 
-            const targetDate = new Date(y, m, d);
+            const targetDate = new Date(Date.UTC(y, m, d));
             const diffDays = Math.round(
                 (targetDate - fromMidnight) / MS_PER_DAY
             );

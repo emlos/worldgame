@@ -10,7 +10,7 @@ export class World {
         // Time & calendar
         this.time = new WorldTime({ startDate, rnd: this.rnd });
         this.calendar = new Calendar({
-            year: this.time.date.getFullYear(),
+            year: this.time.date.getUTCFullYear(),
             rnd: this.rnd,
         });
 
@@ -51,7 +51,7 @@ export class World {
         this.time.advanceMinutes(minutes);
 
         // If year changed, rebuild calendar
-        const newYear = this.time.date.getFullYear();
+        const newYear = this.time.date.getUTCFullYear();
         if (newYear !== this.calendar.year) {
             this.calendar.setYear(newYear);
         }
@@ -108,7 +108,7 @@ export class World {
     }
 
     getCurrentHolidayNames() {
-        const info = this.calendar.getDayInfo(this.date);
+        const info = this.calendar.getDayInfo(this.time.date);
         const all = [...info.holidays, ...info.specials];
 
         return all.map((h) => (typeof h === "string" ? h : h.name));
@@ -119,7 +119,7 @@ export class World {
     }
 
     get season() {
-        return Weather.monthToSeason(this.time.date.getMonth() + 1);
+        return Weather.monthToSeason(this.time.date.getUTCMonth() + 1);
     }
 
     get temperature() {

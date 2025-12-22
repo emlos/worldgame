@@ -14,8 +14,8 @@ export class Weather {
     this._rnd = rnd;
     this._date = new Date(startDate);
     // Current weather state (string). If not given, pick seasonally at start time.
-    const season = Weather.monthToSeason(this._date.getMonth() + 1);
-    const hour = this._date.getHours();
+    const season = Weather.monthToSeason(this._date.getUTCMonth() + 1);
+    const hour = this._date.getUTCHours();
     this._state = initial ?? Weather._nextWeather(null, season, this._rnd, hour, 0);
     this._runHours = 0; // how many consecutive hours we’ve stayed in the same state
   }
@@ -38,8 +38,8 @@ export class Weather {
 
     while (cursor <= endMs - 1) {
       const d = new Date(cursor);
-      const season = Weather.monthToSeason(d.getMonth() + 1);
-      const next = Weather._nextWeather(this._state, season, this._rnd, d.getHours(), this._runHours);
+      const season = Weather.monthToSeason(d.getUTCMonth() + 1);
+      const next = Weather._nextWeather(this._state, season, this._rnd, d.getUTCHours(), this._runHours);
       if (next === this._state) this._runHours++;
       else {
         this._state = next;
@@ -52,11 +52,11 @@ export class Weather {
 
   /** Compute ambient temperature (°C) for a given date and the current weather kind. */
   computeTemperature(date = this._date) {
-    const season = Weather.monthToSeason(date.getMonth() + 1);
+    const season = Weather.monthToSeason(date.getUTCMonth() + 1);
     const [tMin, tMax] = Weather._seasonalTempBand(season);
 
     // Diurnal cycle: min ~4:00, max ~15:00
-    const h = date.getHours() + date.getMinutes() / 60;
+    const h = date.getUTCHours() + date.getUTCMinutes() / 60;
     const phase = Math.sin(((h - 4) / 24) * Math.PI * 2); // -1..1
     const mean = tMin + (tMax - tMin) * 0.6;
     const swing = (tMax - tMin) * 0.5;

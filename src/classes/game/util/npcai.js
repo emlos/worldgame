@@ -31,20 +31,20 @@ function parseTimeToMinutes(str) {
 }
 
 function ymdKey(date) {
-    // Local-date-based key (YYYY-MM-DD) so caching & week grouping
-    // are stable regardless of the machine's timezone.
-    const y = date.getFullYear();
-    const m = String(date.getMonth() + 1).padStart(2, "0");
-    const d = String(date.getDate()).padStart(2, "0");
+    // UTC-date-based key (YYYY-MM-DD) so caching & week grouping are stable
+    // regardless of the user's machine timezone / DST.
+    const y = date.getUTCFullYear();
+    const m = String(date.getUTCMonth() + 1).padStart(2, "0");
+    const d = String(date.getUTCDate()).padStart(2, "0");
     return `${y}-${m}-${d}`;
 }
 
 function weekKeyFrom(date) {
-    return ymdKey(new Date(date.getFullYear(), date.getMonth(), date.getDate()));
+    return ymdKey(date);
 }
 
 function normalizeMidnight(date) {
-    return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
+    return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 0, 0, 0, 0));
 }
 
 function minutesBetween(a, b) {
@@ -207,7 +207,7 @@ export class NPCScheduler {
      */
     peek(npc, nextMinutes, fromDate = this.world.time.date) {
         if (!npc || !this.world) {
-            return { willMove: false, at: new Date(), nextSlot: null };
+            return { willMove: false, at: new Date(fromDate?.getTime?.() ?? Date.now()), nextSlot: null };
         }
 
         const origin = new Date(fromDate.getTime());
@@ -316,7 +316,7 @@ export class NPCScheduler {
     _weekStartForDate(date) {
         const base = normalizeMidnight(date);
         // JS getDay(): 0 = Sun, 1 = Mon, ... 6 = Sat
-        const day = base.getDay();
+        const day = base.getUTCDay();
         // Convert to Monday-based index: Mon=0, Tue=1, ... Sun=6
         const monIndex = (day + 6) % 7;
         const mondayMs = base.getTime() - monIndex * MS_PER_DAY;
@@ -343,7 +343,7 @@ export class NPCScheduler {
         for (let dayOffset = 0; dayOffset < dayCount; dayOffset++) {
             const dayDate = new Date(weekStartMs + dayOffset * MS_PER_DAY);
             const dayInfo = this.world.getDayInfo(dayDate);
-            const dow = dayDate.getDay(); // 0=Sun
+            const dow = dayDate.getUTCDay(); // 0=Sun
             const dayKey = DAY_KEYS[dow];
 
             for (const rule of rules) {
@@ -586,7 +586,7 @@ export class NPCScheduler {
         for (let dayOffset = 0; dayOffset < 7; dayOffset++) {
             const dayDate = new Date(weekStart.getTime() + dayOffset * MS_PER_DAY);
             const dayInfo = this.world.getDayInfo(dayDate);
-            const dow = dayDate.getDay();
+            const dow = dayDate.getUTCDay();
             const dayKey = DAY_KEYS[dow];
             if (ruleAppliesOnDay(rule, dayInfo, dayKey)) {
                 candidates.push(dayDate);
@@ -1731,11 +1731,11 @@ export class NPCScheduler {
         const freqDay = props.busFrequencyDay;
         const freqNight = props.busFrequencyNight;
 
-        const hour = arrivalAtStop.getHours();
-        const minute = arrivalAtStop.getMinutes();
+        const hour = arrivalAtStop.getUTCHours();
+        const minute = arrivalAtStop.getUTCMinutes();
         const minutesSinceMidnight = hour * 60 + minute;
 
-        const hStop = arrivalAtStop.getHours();
+        const hStop = arrivalAtStop.getUTCHours();
         const isNightAtStop = hStop >= 22 || hStop < 6;
         const freq = isNightAtStop ? freqNight : freqDay;
 
@@ -1842,7 +1842,7 @@ export class NPCScheduler {
         const env = this.world.getEnvironmentAt(date);
 
         const { weather, temperature, density, season } = env;
-        const hour = date.getHours();
+        const hour = date.getUTCHours();
         const isNight = hour >= 22 || hour < 6;
 
         const badWeather =

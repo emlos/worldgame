@@ -25,18 +25,8 @@ export class Moon {
      *  - angle: phase angle in degrees (0..360)
      */
     getInfo(date = this._date) {
-        const tDays =
-            (Date.UTC(
-                date.getFullYear(),
-                date.getMonth(),
-                date.getDate(),
-                date.getHours(),
-                date.getMinutes(),
-                date.getSeconds(),
-                date.getMilliseconds()
-            ) -
-                EPOCH_MS) /
-            MS_PER_DAY;
+        // Use absolute milliseconds; avoid local-time getters so results don't depend on user timezone/DST.
+        const tDays = (date.getTime() - EPOCH_MS) / MS_PER_DAY;
 
         const age = posMod(tDays, SYNODIC);
         const angle = (360 * age) / SYNODIC; // 0..360

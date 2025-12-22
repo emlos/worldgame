@@ -1,18 +1,35 @@
 export class WorldTime {
-  constructor({ startDate = new Date(), rnd }) {
-    this.date = new Date(startDate.getTime()); // includes time
+  constructor({ startDate = new Date(), rnd } = {}) {
+    // Treat the Date as an absolute timestamp (ms since epoch). All *calendar* math
+    // in the game should use UTC getters to stay independent of the user's timezone/DST.
+    const startMs =
+      typeof startDate === "number"
+        ? startDate
+        : startDate instanceof Date
+        ? startDate.getTime()
+        : new Date(startDate).getTime();
+
+    this.date = new Date(startMs);
     this.rnd = rnd;
   }
-  /** advance minutes, return number of day rollovers */
+
+  /**
+   * Advance world time by N minutes.
+   * Returns the number of UTC-midnight crossings (can be >1 if mins is large).
+   */
   advanceMinutes(mins) {
-    const beforeDay = this.date.getDate();
+    const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
+    const beforeDayIndex = Math.floor(
+      Date.UTC(this.date.getUTCFullYear(), this.date.getUTCMonth(), this.date.getUTCDate()) / MS_PER_DAY
+    );
+
     this.date = new Date(this.date.getTime() + mins * 60 * 1000);
-    const afterDay = this.date.getDate();
-    // naive: counts cross‑month properly by diffing dates via time delta
-    const diffDays = Math.floor((this.date - new Date(this.date.getFullYear(), this.date.getMonth(), this.date.getDate())) / (24 * 60 * 60 * 1000));
-    // simpler: recompute by midnight crossings
-    return this.date.toDateString() !== new Date(this.date.getTime() - mins * 60 * 1000).toDateString() ? 1 : 0;
+
+    const afterDayIndex = Math.floor(
+      Date.UTC(this.date.getUTCFullYear(), this.date.getUTCMonth(), this.date.getUTCDate()) / MS_PER_DAY
+    );
+
+    return afterDayIndex - beforeDayIndex;
   }
 }
-
-
