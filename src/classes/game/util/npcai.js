@@ -44,7 +44,9 @@ function weekKeyFrom(date) {
 }
 
 function normalizeMidnight(date) {
-    return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 0, 0, 0, 0));
+    return new Date(
+        Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 0, 0, 0, 0)
+    );
 }
 
 function minutesBetween(a, b) {
@@ -107,6 +109,7 @@ function makeWindowRange(baseDate, time) {
  *   windowEnd: Date,
  *   minStay: number, // minutes
  *   maxStay: number, // minutes
+ *   roundStay: number, // minutes (0 => no rounding)
  *   location: Location,
  *   place: Place|null,
  * }
@@ -207,7 +210,11 @@ export class NPCScheduler {
      */
     peek(npc, nextMinutes, fromDate = this.world.time.date) {
         if (!npc || !this.world) {
-            return { willMove: false, at: new Date(fromDate?.getTime?.() ?? Date.now()), nextSlot: null };
+            return {
+                willMove: false,
+                at: new Date(fromDate?.getTime?.() ?? Date.now()),
+                nextSlot: null,
+            };
         }
 
         const origin = new Date(fromDate.getTime());
@@ -507,6 +514,8 @@ export class NPCScheduler {
         const stay = rule.stayMinutes || {};
         const minStay = Math.max(1, Number(stay.min) || 30);
         const maxStay = Math.max(minStay, Number(stay.max) || minStay);
+        const roundStay = Math.floor(Number(stay.round));
+
         if (windowMinutes < minStay) return;
 
         const locInfo = this._pickLocationFromTargets({
@@ -529,6 +538,7 @@ export class NPCScheduler {
             windowEnd: end,
             minStay,
             maxStay,
+            roundStay: roundStay || 0,
             location: locInfo.location,
             place: locInfo.place || null,
             nearest: !!locInfo.nearest,
@@ -547,6 +557,7 @@ export class NPCScheduler {
         const stay = rule.stayMinutes || {};
         const minStay = Math.max(1, Number(stay.min) || 30);
         const maxStay = Math.max(minStay, Number(stay.max) || minStay);
+        const roundStay = Math.floor(Number(stay.round));
 
         if (windowMinutes < minStay) return;
 
@@ -576,11 +587,12 @@ export class NPCScheduler {
                 windowEnd: end,
                 minStay,
                 maxStay,
+                roundStay: roundStay || 0,
                 location: locInfo.location,
-            place: locInfo.place || null,
-            nearest: !!locInfo.nearest,
-            candidates: locInfo.candidates || null,
-            stayUntilNext: !!locInfo.stayUntilNext,
+                place: locInfo.place || null,
+                nearest: !!locInfo.nearest,
+                candidates: locInfo.candidates || null,
+                stayUntilNext: !!locInfo.stayUntilNext,
             });
         }
     }
@@ -589,6 +601,7 @@ export class NPCScheduler {
         const stay = rule.stayMinutes || {};
         const minStay = Math.max(1, Number(stay.min) || 30);
         const maxStay = Math.max(minStay, Number(stay.max) || minStay);
+        const roundStay = Math.floor(Number(stay.round));
 
         // Determine candidate days in this week
         const candidates = [];
@@ -631,6 +644,7 @@ export class NPCScheduler {
             windowEnd: end,
             minStay,
             maxStay,
+            roundStay: roundStay || 0,
             location: locInfo.location,
             place: locInfo.place || null,
             nearest: !!locInfo.nearest,
@@ -670,7 +684,7 @@ export class NPCScheduler {
         weekEnd,
         { seedSlots = [], seedState = null } = {}
     ) {
-        const resolveIntentTarget = (intent) => {
+        const resolveIntentTarget = (intent, originLocationOverride = null) => {
             if (!intent) return;
 
             // Already resolved
@@ -678,7 +692,7 @@ export class NPCScheduler {
 
             // Deferred nearest choice
             if (intent.nearest && Array.isArray(intent.candidates) && intent.candidates.length) {
-                const originLoc = currentLocation || homeLocation || null;
+                const originLoc = originLocationOverride || currentLocation || homeLocation || null;
                 const pick = this._pickNearestCandidate(intent.candidates, originLoc?.id);
 
                 if (pick) {
@@ -1299,6 +1313,84 @@ export class NPCScheduler {
                 // existing behavior for random/daily/weekly/etc
                 staySpan =
                     best.minStay + Math.floor(this.rnd() * (maxPossibleStay - best.minStay + 1));
+
+                // Optional rounding: round stay minutes to a fixed increment.
+                // Example: round=10 => 20,30,40...
+                const round = Number(best.roundStay) || 0;
+                if (round > 1) {
+                    // Round to nearest multiple, then clamp to the feasible [minStay, maxPossibleStay] range.
+                    let rounded = Math.round(staySpan / round) * round;
+
+                    // If rounding overshoots what fits in the current window, round down in `round` steps.
+                    while (rounded > maxPossibleStay) rounded -= round;
+
+                    // Never go below minStay.
+                    if (rounded < best.minStay) rounded = best.minStay;
+
+                    // If rounding up would cause us to miss the next HARD slot (fixed/home),
+                    // keep rounding down in `round` steps until we can still arrive on time.
+                    const findNextHardIntent = () => {
+                        let next = null;
+                        for (const it of remaining) {
+                            if (!it || it === best) continue;
+                            if (
+                                it.ruleType !== SCHEDULE_RULES.fixed &&
+                                it.ruleType !== SCHEDULE_RULES.home
+                            )
+                                continue;
+
+                            // If the hard window has already ended before we could even leave, ignore it.
+                            if (it.windowEnd <= arrival) continue;
+
+                            if (!next || it.windowStart < next.windowStart) next = it;
+                        }
+                        return next;
+                    };
+
+                    const nextHard = findNextHardIntent();
+                    if (nextHard) {
+                        resolveIntentTarget(nextHard, best.location);
+
+                        if (nextHard.location) {
+                            const latestAllowedArrival = nextHard.windowStart;
+
+                            let safety = 0;
+                            while (rounded > best.minStay && safety < 100) {
+                                const depart = new Date(
+                                    arrival.getTime() + rounded * MS_PER_MINUTE
+                                );
+
+                                const plan =
+                                    nextHard.ruleType === SCHEDULE_RULES.home
+                                        ? this._computeFastestTravelPlan(
+                                              npc,
+                                              best.location,
+                                              nextHard.location,
+                                              depart
+                                          )
+                                        : this._computeTravelPlan(
+                                              npc,
+                                              best.location,
+                                              nextHard.location,
+                                              depart
+                                          );
+
+                                const arriveNext = new Date(
+                                    depart.getTime() + (plan.minutes || 0) * MS_PER_MINUTE
+                                );
+
+                                if (arriveNext <= latestAllowedArrival) break;
+
+                                rounded -= round;
+                                safety++;
+                            }
+
+                            if (rounded < best.minStay) rounded = best.minStay;
+                        }
+                    }
+
+                    staySpan = rounded;
+                }
             }
 
             const leave = new Date(arrival.getTime() + staySpan * MS_PER_MINUTE);
