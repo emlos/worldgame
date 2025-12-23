@@ -491,6 +491,9 @@ export class NPCScheduler {
             maxStay: durMinutes,
             location: locInfo.location,
             place: locInfo.place || null,
+            nearest: !!locInfo.nearest,
+            candidates: locInfo.candidates || null,
+            stayUntilNext: !!locInfo.stayUntilNext,
         });
     }
 
@@ -528,6 +531,9 @@ export class NPCScheduler {
             maxStay,
             location: locInfo.location,
             place: locInfo.place || null,
+            nearest: !!locInfo.nearest,
+            candidates: locInfo.candidates || null,
+            stayUntilNext: !!locInfo.stayUntilNext,
         });
     }
 
@@ -571,7 +577,10 @@ export class NPCScheduler {
                 minStay,
                 maxStay,
                 location: locInfo.location,
-                place: locInfo.place || null,
+            place: locInfo.place || null,
+            nearest: !!locInfo.nearest,
+            candidates: locInfo.candidates || null,
+            stayUntilNext: !!locInfo.stayUntilNext,
             });
         }
     }
@@ -624,6 +633,9 @@ export class NPCScheduler {
             maxStay,
             location: locInfo.location,
             place: locInfo.place || null,
+            nearest: !!locInfo.nearest,
+            candidates: locInfo.candidates || null,
+            stayUntilNext: !!locInfo.stayUntilNext,
         });
     }
 
@@ -1281,7 +1293,7 @@ export class NPCScheduler {
             }
 
             let staySpan;
-            if (best.ruleType === SCHEDULE_RULES.home) {
+            if (best.ruleType === SCHEDULE_RULES.home || best.stayUntilNext) {
                 staySpan = maxPossibleStay;
             } else {
                 // existing behavior for random/daily/weekly/etc
@@ -2021,6 +2033,7 @@ export class NPCScheduler {
                 place: null,
                 candidates: allCandidates,
                 nearest: true,
+                stayUntilNext: false,
             };
         }
 
@@ -2044,6 +2057,7 @@ export class NPCScheduler {
                 place: null,
                 candidates: picked.candidates,
                 nearest: true,
+                stayUntilNext: !!picked?.target?.stay,
             };
         }
 
@@ -2055,6 +2069,7 @@ export class NPCScheduler {
             place: chosen.place || null,
             candidates: null,
             nearest: false,
+            stayUntilNext: !!picked?.target?.stay,
         };
     }
 
