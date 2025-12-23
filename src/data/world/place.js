@@ -81,6 +81,7 @@ export const PLACE_REGISTRY = [
             LOCATION_TAGS.industrial,
             LOCATION_TAGS.urban,
             LOCATION_TAGS.rural,
+            LOCATION_TAGS.poor,
         ],
         weight: 1,
         props: { icon: "🚔", category: [PLACE_TAGS.safety, PLACE_TAGS.civic], ages: { min: 16 } },
@@ -172,6 +173,7 @@ export const PLACE_REGISTRY = [
             LOCATION_TAGS.urban,
             LOCATION_TAGS.commercial,
             LOCATION_TAGS.suburban_hub,
+            LOCATION_TAGS.poor,
         ],
         weight: 3,
         props: { icon: "🅿️", category: [PLACE_TAGS.service] },
@@ -195,6 +197,7 @@ export const PLACE_REGISTRY = [
             LOCATION_TAGS.rural,
             LOCATION_TAGS.commercial,
             LOCATION_TAGS.coastal,
+            LOCATION_TAGS.poor,
         ],
         weight: 2,
         props: { icon: "⛽", category: [PLACE_TAGS.service] },
@@ -256,6 +259,7 @@ export const PLACE_REGISTRY = [
             LOCATION_TAGS.parkland,
             LOCATION_TAGS.residential,
             LOCATION_TAGS.rural,
+            LOCATION_TAGS.poor,
         ],
         weight: 3,
         props: { icon: "🌳", category: [PLACE_TAGS.leisure, PLACE_TAGS.culture] },
@@ -438,6 +442,7 @@ export const PLACE_REGISTRY = [
             LOCATION_TAGS.urban_edge,
             LOCATION_TAGS.suburban_hub,
             LOCATION_TAGS.rural,
+            LOCATION_TAGS.poor,
         ],
         weight: 2,
         props: { icon: "🏠", category: [PLACE_TAGS.civic, PLACE_TAGS.leisure] },
@@ -479,10 +484,8 @@ export const PLACE_REGISTRY = [
             LOCATION_TAGS.suburban_hub,
             LOCATION_TAGS.parkland,
             LOCATION_TAGS.rural,
-            LOCATION_TAGS.historic,
-            LOCATION_TAGS.tourism,
             LOCATION_TAGS.commercial,
-            LOCATION_TAGS.industrial,
+            LOCATION_TAGS.poor,
         ],
         weight: 1,
         props: { icon: "🧺", category: [PLACE_TAGS.commerce, PLACE_TAGS.leisure] },
@@ -523,6 +526,7 @@ export const PLACE_REGISTRY = [
             LOCATION_TAGS.commercial,
             LOCATION_TAGS.rural,
             LOCATION_TAGS.coastal,
+            LOCATION_TAGS.poor,
         ],
         weight: 4,
         props: { icon: "🏪", category: [PLACE_TAGS.commerce] },
@@ -535,7 +539,6 @@ export const PLACE_REGISTRY = [
         label: "Restaurant",
         minDistance: 2,
         allowedTags: [
-            LOCATION_TAGS.urban_core,
             LOCATION_TAGS.urban_center,
             LOCATION_TAGS.urban,
             LOCATION_TAGS.suburban,
@@ -614,14 +617,17 @@ export const PLACE_REGISTRY = [
             LOCATION_TAGS.rural,
             LOCATION_TAGS.coastal,
             LOCATION_TAGS.wealthy,
+            LOCATION_TAGS.poor,
         ],
         weight: 4,
         props: {
             icon: "🍺",
             category: [PLACE_TAGS.food, PLACE_TAGS.nightlife, PLACE_TAGS.leisure],
         },
-        nameFn: ({ rnd }) =>
-            `${pick(["The Anchor", "The Fox", "The Lantern", "The Brass Rail"], rnd)}`,
+        nameFn: ({ rnd, tags }) =>
+            has(tags, LOCATION_TAGS.poor)
+                ? `${pick(["The Rusty Nail", "The Broken Wheel", "The Drunken Sailor"], rnd)}`
+                : `${pick(["The Anchor", "The Fox", "The Lantern", "The Brass Rail"], rnd)}`,
         minCount: 1,
     },
     {
@@ -657,14 +663,14 @@ export const PLACE_REGISTRY = [
             LOCATION_TAGS.residential,
             LOCATION_TAGS.commercial,
             LOCATION_TAGS.rural,
-            LOCATION_TAGS.historic,
+            LOCATION_TAGS.poor,
         ],
         weight: 2,
         props: { icon: "🥩", category: [PLACE_TAGS.food] },
         nameFn: ({ rnd, tags }) =>
-            has(tags, LOCATION_TAGS.historic)
-                ? `${pick(["Old Town", "Market"], rnd)} Butcher`
-                : `${pick(["Prime Cuts", "Riverside", "Maple"], rnd)} Butcher`,
+            has(tags, LOCATION_TAGS.poor)
+                ? `${pick(["Budget Meats", "Family Butcher"], rnd)}`
+                : `${pick(["Prime Cuts", "Riverside", "Harborview"], rnd)} Butcher's`,
         minCount: 1,
     },
 
@@ -811,6 +817,7 @@ export const PLACE_REGISTRY = [
             LOCATION_TAGS.historic,
             LOCATION_TAGS.residential,
             LOCATION_TAGS.rural,
+            LOCATION_TAGS.poor,
         ],
         weight: 1,
         props: {
@@ -838,6 +845,7 @@ export const PLACE_REGISTRY = [
             LOCATION_TAGS.urban_edge,
             LOCATION_TAGS.suburban,
             LOCATION_TAGS.historic,
+            LOCATION_TAGS.poor,
         ],
         weight: 1,
         props: {
@@ -971,6 +979,7 @@ export const PLACE_REGISTRY = [
             LOCATION_TAGS.residential,
             LOCATION_TAGS.suburban_hub,
             LOCATION_TAGS.rural,
+            LOCATION_TAGS.poor,
         ],
         weight: 1,
         props: { icon: "🚓", category: [PLACE_TAGS.safety, PLACE_TAGS.civic, PLACE_TAGS.service] },
@@ -1011,6 +1020,7 @@ export const PLACE_REGISTRY = [
             LOCATION_TAGS.suburban,
             LOCATION_TAGS.coastal,
             LOCATION_TAGS.commercial,
+            LOCATION_TAGS.poor,
         ],
         weight: 3,
         props: { icon: "📦", category: [PLACE_TAGS.industry] },
@@ -1111,6 +1121,17 @@ export const PLACE_REGISTRY = [
         minCount: 1,
     },
 
+    {
+        key: "dorm",
+        label: "Dormitory",
+        minDistance: 10,
+        allowedTags: [LOCATION_TAGS.education, LOCATION_TAGS.urban_center, LOCATION_TAGS.poor],
+        weight: 1,
+        props: { icon: "🏫", category: [PLACE_TAGS.housing, PLACE_TAGS.education] },
+        nameFn: ({ rnd }) => `${pick(["Campus", "University", "Student"], rnd)} Dormitory`,
+        minCount: 1,
+    },
+
     // ────────────────────────────
     // WATERFRONT
     // ────────────────────────────
@@ -1168,6 +1189,7 @@ export const PLACE_REGISTRY = [
             LOCATION_TAGS.urban_edge,
             LOCATION_TAGS.industrial,
             LOCATION_TAGS.rural,
+            LOCATION_TAGS.poor,
         ],
         weight: 1,
         props: { icon: "🕵️", category: [PLACE_TAGS.crime, PLACE_TAGS.industry] },
@@ -1202,6 +1224,7 @@ export const PLACE_REGISTRY = [
             LOCATION_TAGS.industrial,
             LOCATION_TAGS.rural,
             LOCATION_TAGS.suburban_hub,
+            LOCATION_TAGS.poor,
         ],
         weight: 1,
         props: { icon: "🚧", category: [PLACE_TAGS.crime] },
@@ -1220,6 +1243,7 @@ export const PLACE_REGISTRY = [
             LOCATION_TAGS.residential,
             LOCATION_TAGS.industrial,
             LOCATION_TAGS.wealthy,
+            LOCATION_TAGS.poor,
         ],
         weight: 1,
         props: { icon: "🚷", category: [PLACE_TAGS.crime] },
@@ -1245,6 +1269,7 @@ export const PLACE_REGISTRY = [
             LOCATION_TAGS.parkland,
             LOCATION_TAGS.suburban,
             LOCATION_TAGS.tourism,
+            LOCATION_TAGS.poor,
         ],
         weight: 1,
         props: {
@@ -1286,7 +1311,7 @@ export const PLACE_REGISTRY = [
             LOCATION_TAGS.tourism,
         ],
         weight: 1,
-        props: { icon: "👙", category: [PLACE_TAGS.crime, PLACE_TAGS.nsfw] },
+        props: { icon: "👙", category: [PLACE_TAGS.crime, PLACE_TAGS.nsfw], ages: { min: 18 } },
         nameFn: ({ rnd }) =>
             `${pick(
                 ["Class Act Club", "Essence", "Sleazy Susie's", "The Man Cave", "Liberte Club"],
@@ -1432,7 +1457,7 @@ export const PLACE_REGISTRY = [
             LOCATION_TAGS.parkland,
             LOCATION_TAGS.urban_edge,
             LOCATION_TAGS.transport, // Bus/Train stations
-            LOCATION_TAGS.industrial,
+            LOCATION_TAGS.industrial, LOCATION_TAGS.poor
         ],
         weight: 2,
         props: {
@@ -1823,11 +1848,11 @@ export const DEFAULT_OPENING_HOURS_BY_KEY = {
     //NSFW
     adult_store: hoursEveryDay("10:00", "02:00"), // Late night retail
     love_hotel: hoursAllDay(), // 24/7 short stay
-    dungeon_club: hoursWeekdays({ 
-        from: "21:00", 
-        to: "05:00", 
+    dungeon_club: hoursWeekdays({
+        from: "21:00",
+        to: "05:00",
         saturday: { from: "21:00", to: "06:00" }, // Weekend focused
-        sunday: { from: "20:00", to: "02:00" }
+        sunday: { from: "20:00", to: "02:00" },
     }),
     massage_parlor: hoursEveryDay("10:00", "00:00"),
     escort_agency: hoursWeekdays({ from: "10:00", to: "20:00" }), // The office hours (appointments are 24/7)

@@ -16,6 +16,7 @@ export const LOCATION_TAGS = {
     dense: "dense",
     coastal: "coastal",
     wealthy: "wealthy",
+    poor: "poor",
 };
 
 /**
@@ -39,6 +40,7 @@ export const LOCATION_REGISTRY = [
             LOCATION_TAGS.urban,
             LOCATION_TAGS.commercial,
             LOCATION_TAGS.dense,
+
         ],
         weight: 3,
         min: 1,
@@ -67,6 +69,19 @@ export const LOCATION_REGISTRY = [
             LOCATION_TAGS.tourism,
         ],
         weight: 2,
+    },
+       {
+        key: "slums",
+        label: "Slums",
+        tags: [
+            LOCATION_TAGS.urban_core,
+            LOCATION_TAGS.urban_center,
+            LOCATION_TAGS.urban,
+            LOCATION_TAGS.poor,
+            LOCATION_TAGS.dense,
+            
+        ],
+        weight: 1,
     },
 
     // ==============================================
@@ -162,6 +177,12 @@ export const LOCATION_REGISTRY = [
         weight: 3,
     },
     {
+        key: "industrial_derelict",
+        label: "Derelict Industrial Zone",
+        tags: [LOCATION_TAGS.industrial, LOCATION_TAGS.urban_edge, LOCATION_TAGS.poor],
+        weight: 1,
+    },
+    {
         key: "tech_park",
         label: "Innovation Tech Park",
         tags: [
@@ -231,6 +252,19 @@ export const LOCATION_REGISTRY = [
         ],
         weight: 2,
     },
+    {
+        key: "student_village",
+        label: "Student Village",
+        tags: [
+            LOCATION_TAGS.education,
+            LOCATION_TAGS.historic,
+            LOCATION_TAGS.poor,
+            LOCATION_TAGS.commercial,
+            LOCATION_TAGS.urban_edge
+        ],
+        weight: 1,
+        max: 1
+    },
 
     // ==============================================
     // RURAL & GREEN SPACES
@@ -251,6 +285,12 @@ export const LOCATION_REGISTRY = [
         label: "Rural Edge",
         tags: [LOCATION_TAGS.rural, LOCATION_TAGS.residential],
         weight: 3,
+    },
+    {
+        key: "farmland",
+        label: "Farmland",
+        tags: [LOCATION_TAGS.rural, LOCATION_TAGS.industrial, LOCATION_TAGS.poor],
+        weight: 1,
     },
     {
         key: "agri_belt",
