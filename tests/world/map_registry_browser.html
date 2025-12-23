@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>World Registry Browser</title>
+
+        <script>
+            const debug = true;
+        </script>
+
+        <!-- match other tests -->
+        <script type="module" src="../../src/classes/classes.js"></script>
+        <script type="module" src="../../src/data/data.js"></script>
+        <script type="module" src="../../src/shared/modules.js"></script>
+
+        <style>
+            :root {
+                --bg: #0b0d10;
+                --fg: #e6ecf1;
+                --muted: #91a4b1;
+                --card: #11161b;
+                --line: #26323b;
+                --accent: #61dafb;
+                --warn: #ffd166;
+            }
+            html,
+            body {
+                margin: 0;
+                padding: 0;
+                background: var(--bg);
+                color: var(--fg);
+                font: 14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, "Helvetica Neue",
+                    Arial;
+            }
+            .wrap {
+
+                margin: 32px auto;
+                padding: 0 16px;
+            }
+            h1 {
+                font-size: 20px;
+                margin: 0 0 16px;
+            }
+            h2 {
+                font-size: 16px;
+                margin: 0 0 8px;
+                color: var(--muted);
+            }
+            a {
+                color: var(--accent);
+                text-decoration: none;
+            }
+            a:hover {
+                text-decoration: underline;
+            }
+
+            .row {
+                display: flex;
+                gap: 8px;
+                flex-wrap: wrap;
+                align-items: center;
+                margin: 10px 0 16px;
+            }
+
+            .card {
+                background: var(--card);
+                border: 1px solid var(--line);
+                border-radius: 12px;
+                padding: 16px;
+                margin: 12px 0;
+            }
+
+            .tabs {
+                display: flex;
+                gap: 8px;
+                flex-wrap: wrap;
+                margin: 12px 0;
+            }
+            .tabbtn {
+                background: #1f2a33;
+                color: var(--fg);
+                border: 1px solid var(--line);
+                padding: 8px 10px;
+                border-radius: 10px;
+                cursor: pointer;
+            }
+            .tabbtn:hover {
+                background: #21323f;
+            }
+            .tabbtn.active {
+                border-color: var(--accent);
+                box-shadow: 0 0 0 1px #000 inset;
+            }
+            .panel {
+                display: none;
+            }
+            .panel.active {
+                display: block;
+            }
+
+            .grid {
+                display: grid;
+                grid-template-columns: 320px 1fr;
+                gap: 12px;
+            }
+            @media (max-width: 980px) {
+                .grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+
+            .tagControls {
+                display: flex;
+                gap: 8px;
+                margin-bottom: 10px;
+            }
+
+            .taglist {
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+            }
+            .tagitem {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                padding: 6px 8px;
+                border-radius: 10px;
+                border: 1px solid transparent;
+            }
+            .tagitem:hover {
+                border-color: var(--line);
+                background: #0d1216;
+            }
+            .tagitem .count {
+                margin-left: auto;
+                color: var(--muted);
+                font-variant-numeric: tabular-nums;
+            }
+            .tagitem input {
+                transform: translateY(1px);
+            }
+            .warn {
+                color: var(--warn);
+                font-weight: 700;
+                margin-left: 2px;
+            }
+
+            .small {
+                color: var(--muted);
+                font-size: 12px;
+            }
+
+            .items {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .item {
+                border: 1px solid var(--line);
+                border-radius: 12px;
+                padding: 12px;
+                background: #0d1216;
+                transition: outline 80ms, opacity 80ms, transform 80ms;
+            }
+            .item .title {
+                display: flex;
+                align-items: baseline;
+                justify-content: space-between;
+                gap: 10px;
+                margin-bottom: 8px;
+            }
+            .item .title b {
+                font-size: 14px;
+            }
+            .item .title .key {
+                color: var(--muted);
+                font-size: 12px;
+            }
+
+            .item.dim {
+                opacity: 0.28;
+            }
+            .item.hover-match {
+                outline: 2px solid var(--accent);
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            th,
+            td {
+                border-top: 1px solid var(--line);
+                padding: 6px 8px;
+                text-align: left;
+                vertical-align: top;
+            }
+            th {
+                font-weight: 600;
+                color: var(--muted);
+                width: 220px;
+            }
+            tr:first-child > th,
+            tr:first-child > td {
+                border-top: 0;
+            }
+
+            code {
+                background: #0d1216;
+                padding: 2px 6px;
+                border-radius: 6px;
+                border: 1px solid var(--line);
+            }
+            .badges {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+            .badge {
+                border: 1px solid var(--line);
+                border-radius: 999px;
+                padding: 2px 8px;
+                font-size: 12px;
+                color: var(--muted);
+                background: #0b0d10;
+            }
+
+            button {
+                background: #1f2a33;
+                color: var(--fg);
+                border: 1px solid var(--line);
+                padding: 7px 10px;
+                border-radius: 10px;
+                cursor: pointer;
+            }
+            button:hover {
+                background: #21323f;
+            }
+
+            /* recursive pretty */
+            details {
+                border: 1px solid var(--line);
+                border-radius: 10px;
+                padding: 6px 8px;
+                background: #0b0d10;
+            }
+            details > summary {
+                cursor: pointer;
+                color: var(--muted);
+                user-select: none;
+            }
+            details pre {
+                margin: 8px 0 0;
+            }
+
+            .hoursBlock {
+                margin-top: 10px;
+                border-top: 1px solid var(--line);
+                padding-top: 10px;
+            }
+            .hoursLabel {
+                color: var(--muted);
+                font-weight: 600;
+                margin-bottom: 6px;
+            }
+            .hoursLines {
+                font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+                    "Liberation Mono", "Courier New", monospace;
+                font-size: 12px;
+                color: var(--fg);
+                white-space: pre;
+            }
+
+            /* Modal */
+            .modal {
+                position: fixed;
+                inset: 0;
+                display: none;
+                align-items: center;
+                justify-content: center;
+                background: rgba(0, 0, 0, 0.6);
+                z-index: 9999;
+                padding: 18px;
+            }
+            .modal.open {
+                display: flex;
+            }
+            .modal .modalCard {
+                width: min(920px, 100%);
+                max-height: min(80vh, 900px);
+                overflow: auto;
+                background: var(--card);
+                border: 1px solid var(--line);
+                border-radius: 14px;
+                padding: 16px;
+            }
+            .modal .modalTop {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 10px;
+                margin-bottom: 10px;
+            }
+            .modal .modalTop b {
+                font-size: 14px;
+            }
+            .xbtn {
+                background: transparent;
+                border: 1px solid var(--line);
+                border-radius: 10px;
+                padding: 6px 10px;
+            }
+            .xbtn:hover {
+                background: #0d1216;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="wrap">
+            <h1>World – Registry Browser</h1>
+            <p class="small"><a href="../../index.html">back</a></p>
+
+            <div class="tabs">
+                <button class="tabbtn active" data-tab="locations">Locations</button>
+                <button class="tabbtn" data-tab="places">Places</button>
+                <button class="tabbtn" data-tab="streets">Streets</button>
+            </div>
+
+            <!-- LOCATIONS -->
+            <div class="panel active" id="tab-locations">
+                <div class="card">
+                    <div class="row">
+                        <b>LOCATION_REGISTRY</b>
+                        <span class="small" id="loc-status"></span>
+                    </div>
+                    <div class="grid">
+                        <div class="card">
+                            <h2>Location tags</h2>
+                            <div class="small">Hover a tag to highlight matching locations.</div>
+                            <div id="loc-taglist"></div>
+                        </div>
+                        <div class="card">
+                            <h2>Locations</h2>
+                            <div class="items" id="loc-items"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PLACES -->
+            <div class="panel" id="tab-places">
+                <div class="card">
+                    <div class="row">
+                        <b>PLACE_REGISTRY</b>
+                        <span class="small" id="place-status"></span>
+                    </div>
+                    <div class="grid">
+                        <div class="card">
+                            <h2>Place categories</h2>
+                            <div class="small">Hover a category to highlight matching places.</div>
+                            <div id="place-taglist"></div>
+                        </div>
+                        <div class="card">
+                            <h2>Places</h2>
+                            <div class="items" id="place-items"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STREETS -->
+            <div class="panel" id="tab-streets">
+                <div class="card">
+                    <div class="row">
+                        <b>STREET_REGISTRY</b>
+                        <span class="small" id="street-status"></span>
+                    </div>
+                    <div class="grid">
+                        <div class="card">
+                            <h2>Street tags</h2>
+                            <div class="small">Hover a tag to highlight matching streets.</div>
+                            <div id="street-taglist"></div>
+                        </div>
+                        <div class="card">
+                            <h2>Streets</h2>
+                            <div class="items" id="street-items"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Opening Hours modal (still available) -->
+        <div class="modal" id="hours-modal" role="dialog" aria-modal="true">
+            <div class="modalCard">
+                <div class="modalTop">
+                    <b id="hours-title">Opening hours</b>
+                    <button class="xbtn" id="hours-close">Close</button>
+                </div>
+                <div id="hours-body"></div>
+            </div>
+        </div>
+
+        <script src="./map_registry_browser.js"></script>
+    </body>
+</html>
