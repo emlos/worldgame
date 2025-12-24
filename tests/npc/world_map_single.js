@@ -8,11 +8,35 @@ let scheduleManager = null;
 let weekSchedule = null; // array of slots with .startDate/.endDate attached
 
 let locationNodes = new Map();
-let projectedPositions = new Map();
 let nextIntentSlot = null;
 
 let autoForwardTimer = null;
 let isAutoForwarding = false;
+
+function computeSpeedMs() {
+    const slider = byId("speedSlider");
+    const v = slider ? Number(slider.value) : 0;
+    return Math.max(10, 1000 - 1.9 * v);
+}
+
+function updateSpeedLabel() {
+    const label = byId("speedLabel");
+    if (!label) return;
+    const speedMs = computeSpeedMs();
+    label.textContent = `Speed: ${(speedMs / 1000).toFixed(2)}s per +1 min`;
+}
+
+function stopAutoForwarding() {
+    if (autoForwardTimer !== null) {
+        clearInterval(autoForwardTimer);
+        autoForwardTimer = null;
+    }
+    isAutoForwarding = false;
+
+    const autoBtn = byId("btnAutoForward");
+    if (autoBtn) autoBtn.textContent = "Play Schedule";
+}
+
 
 // ---------------------------
 // URL + config helpers
@@ -68,8 +92,8 @@ function getConfigFromUI() {
     const npcKey = String(byId("cfgNpc")?.value || "taylor").trim() || "taylor";
     const seed = Math.trunc(parseNum(byId("cfgSeed")?.value, Date.now()));
     const density = Math.max(0.01, Math.min(1, parseNum(byId("cfgDensity")?.value, 0.15)));
-    const w = Math.max(10, Math.trunc(parseNum(p.get("w"), 50)));
-    const h = Math.max(10, Math.trunc(parseNum(p.get("h"), 50)));
+    const w = Math.max(10, Math.trunc(parseNum(byId("cfgW")?.value, 50)));
+    const h = Math.max(10, Math.trunc(parseNum(byId("cfgH")?.value, 50)));
 
     const ymd = byId("cfgStartDate")?.value;
     const startDate = parseStartDateFromYMD(ymd);
@@ -132,11 +156,13 @@ function getCurrentWeekScheduleFor(npc) {
 
     // mimic old API: attach metadata onto the array
     slots.startDate = weekStart;
-    slots.endDate = new Date(Date.UTC(weekStart.getTime() + 7 * MS_PER_DAY));
+    slots.endDate = new Date(weekStart.getTime() + 7 * MS_PER_DAY);
     return slots;
 }
 
 function initWorldAndNpc(cfg) {
+    // Ensure we don't keep advancing the old world after re-init.
+    stopAutoForwarding();
     const rnd = makeRNG(cfg.seed);
 
     world = new World({
@@ -366,7 +392,6 @@ function renderMap(cfg) {
 
     host.innerHTML = "";
     locationNodes = new Map();
-    projectedPositions = new Map();
 
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
 
@@ -454,7 +479,6 @@ function renderMap(cfg) {
 
     for (const [id, loc] of world.locations.entries()) {
         const pos = project(rawPos.get(id));
-        projectedPositions.set(id, pos);
 
         const node = document.createElementNS(svg.namespaceURI, "circle");
         node.setAttribute("cx", String(pos.x));
@@ -466,12 +490,6 @@ function renderMap(cfg) {
         node.dataset.locationId = id;
         node.style.cursor = "pointer";
 
-        node.addEventListener("click", () => {
-            activeNpc.setLocation(id);
-            updateMapHighlights();
-            renderNpcInfo();
-            updateNextIntent();
-        });
 
         const label = document.createElementNS(svg.namespaceURI, "text");
         label.setAttribute("x", String(pos.x + 10));
@@ -519,45 +537,7 @@ function highlightBusPathForSlot(slot) {
     });
 }
 
-function highlightBusPathFromElement(el) {
-    const pathStr = el?.getAttribute("data-bus-path");
-    if (!pathStr) return;
 
-    const pairs = pathStr.split(",").filter(Boolean);
-    if (!pairs.length) return;
-
-    const svg = byId("map")?.querySelector("svg");
-    if (!svg) return;
-
-    svg.querySelectorAll("line.road-edge").forEach((line) => {
-        const a = line.dataset.a;
-        const b = line.dataset.b;
-        const key1 = `${a}-${b}`;
-        const key2 = `${b}-${a}`;
-        if (pairs.includes(key1) || pairs.includes(key2))
-            line.classList.add("road-edge--highlight");
-    });
-}
-
-function attachBusHoverHandlers() {
-    const container = byId("weekSchedule");
-    if (!container) return;
-    if (container._busHoverBound) return;
-    container._busHoverBound = true;
-
-    container.addEventListener("mouseover", (ev) => {
-        const el = ev.target.closest(".schedule-slot--bus");
-        if (!el || !container.contains(el)) return;
-        clearHighlightedBusPath();
-        highlightBusPathFromElement(el);
-    });
-
-    container.addEventListener("mouseout", (ev) => {
-        const el = ev.target.closest(".schedule-slot--bus");
-        if (!el || !container.contains(el)) return;
-        clearHighlightedBusPath();
-    });
-}
 
 function updateMapHighlights() {
     if (!activeNpc || !world) return;
@@ -1277,6 +1257,7 @@ function bindButtons() {
 
     if (reset) {
         reset.addEventListener("click", () => {
+            stopAutoForwarding();
             const cfg = getConfigFromUI();
             cfg.seed = Date.now();
             applyConfigToUI(cfg);
@@ -1285,32 +1266,32 @@ function bindButtons() {
         });
     }
 
-    if (slider && label) {
+    if (slider) {
         slider.addEventListener("input", () => {
-            const speedMs = Math.max(10, 1000 - 1.9 * Number(slider.value));
-            label.textContent = `Speed: ${(speedMs / 1000).toFixed(2)}s per +1 min`;
+            updateSpeedLabel();
+
+            // If auto-forward is running, apply the new speed immediately.
+            if (isAutoForwarding) {
+                const speedMs = computeSpeedMs();
+                if (autoForwardTimer !== null) clearInterval(autoForwardTimer);
+                autoForwardTimer = setInterval(() => advanceWorldMinutes(1), speedMs);
+            }
         });
     }
 
-    if (autoBtn && slider) {
-        autoBtn.addEventListener("click", () => {
-            const speedMs = Math.max(10, 1000 - 1.9 * Number(slider.value));
+    // Initialize the label once.
+    updateSpeedLabel();
 
+    if (autoBtn) {
+        autoBtn.addEventListener("click", () => {
             if (!isAutoForwarding) {
                 isAutoForwarding = true;
                 autoBtn.textContent = "Pause Auto";
 
-                autoForwardTimer = setInterval(() => {
-                    advanceWorldMinutes(1);
-                }, speedMs);
+                const speedMs = computeSpeedMs();
+                autoForwardTimer = setInterval(() => advanceWorldMinutes(1), speedMs);
             } else {
-                isAutoForwarding = false;
-                autoBtn.textContent = "Play Schedule";
-
-                if (autoForwardTimer !== null) {
-                    clearInterval(autoForwardTimer);
-                    autoForwardTimer = null;
-                }
+                stopAutoForwarding();
             }
         });
     }
@@ -1331,6 +1312,7 @@ function bindConfigControls() {
 
     if (applyBtn) {
         applyBtn.addEventListener("click", () => {
+            stopAutoForwarding();
             const cfg = getConfigFromUI();
             updateUrlFromConfig(cfg);
             initWorldAndNpc(cfg);
@@ -1347,6 +1329,8 @@ function bindConfigControls() {
                 setTimeout(() => (copyBtn.textContent = "Copy link"), 800);
             } catch (e) {
                 console.warn("Clipboard copy failed:", e);
+                // Fallback for non-secure contexts / denied permissions.
+                window.prompt("Copy this link:", window.location.href);
             }
         });
     }
