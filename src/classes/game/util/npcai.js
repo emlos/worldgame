@@ -30,6 +30,37 @@ function parseTimeToMinutes(str) {
     return h * 60 + m;
 }
 
+/**
+ * Check whether a UTC time falls within a daily window {from:"HH:MM", to:"HH:MM"}.
+ * - Missing/invalid window => allowed
+ * - Supports overnight windows (e.g., 22:00–06:00)
+ * - Treats from === to as "always"
+ */
+function isUtcTimeInWindow(date, window) {
+    if (!window || (!window.from && !window.to)) return true;
+
+    const fromM = parseTimeToMinutes(window.from || "00:00");
+    const toM = parseTimeToMinutes(window.to || "24:00");
+    if (fromM === toM) return true;
+
+    const t = date.getUTCHours() * 60 + date.getUTCMinutes();
+
+    if (toM > fromM) return t >= fromM && t < toM;
+    // wraps midnight
+    return t >= fromM || t < toM;
+}
+
+/**
+ * Optional "fromDuration" gate for a transport mode.
+ * If not provided (or <= 0), allow regardless of trip length.
+ * Uses walking time including micro-lingers.
+ */
+function allowsFromDuration(fromDuration, walkTotalMinutes) {
+    const d = Number(fromDuration);
+    if (!Number.isFinite(d) || d <= 0) return true;
+    return walkTotalMinutes > d;
+}
+
 function ymdKey(date) {
     // UTC-date-based key (YYYY-MM-DD) so caching & week grouping are stable
     // regardless of the user's machine timezone / DST.
@@ -667,12 +698,12 @@ export class NPCScheduler {
      *       * At each intermediate node, NPC lingers 1–2 minutes (still "travel" state),
      *         so the player can encounter them mid-journey.
      *   - Bus:
-     *       * Only if NPC.useBus and bus conditions apply.
+     *       * Only if npc.scheduleTemplate.transport.bus.use and bus conditions apply.
      *       * Walk to nearest bus_stop, wait for bus, ride (shortened by travelTimeMult),
      *         arrive at nearest bus_stop to target, linger 1–2 minutes,
      *         then walk if needed.
      *   - Car:
-     *       * Only if NPC.useCar and car conditions apply.
+     *       * Only if npc.scheduleTemplate.transport.car.use and car conditions apply.
      *       * Single travel block, faster (0.4x path time), no intermediate locations.
      *   - During bus/car ride, NPC is "in transit" and not at any map location.
      *   - The only teleport is when currentLocationId === targetLocationId.
@@ -1541,8 +1572,19 @@ export class NPCScheduler {
         const preferVehicle = env.badWeather || env.isCold || env.isNight;
         const densityScaledEdgeThreshold = Math.max(1, Math.round(3 * density));
 
-        const canUseBus = !!template.useBus;
-        const canUseCar = !!template.useCar;
+        const transport = template.transport || {};
+        const busCfg = transport.bus || {};
+        const carCfg = transport.car || {};
+
+        const canUseBus =
+            !!busCfg.use &&
+            isUtcTimeInWindow(departureTime, busCfg.window) &&
+            allowsFromDuration(busCfg.fromDuration, walkTotalMinutes);
+
+        const canUseCar =
+            !!carCfg.use &&
+            isUtcTimeInWindow(departureTime, carCfg.window) &&
+            allowsFromDuration(carCfg.fromDuration, walkTotalMinutes);
 
         // --- Build a bus candidate plan (but don't decide yet) ---
         let busCandidate = null;
@@ -1677,7 +1719,21 @@ export class NPCScheduler {
         const walkPlan = this._buildWalkingPlanFromRoute(walkRoute, walkMult);
         let best = { mode: "walk", minutes: walkPlan.totalMinutes, segments: walkPlan.segments };
 
-        if (template.useBus) {
+        const transport = template.transport || {};
+        const busCfg = transport.bus || {};
+        const carCfg = transport.car || {};
+
+        const canUseBus =
+            !!busCfg.use &&
+            isUtcTimeInWindow(departureTime, busCfg.window) &&
+            allowsFromDuration(busCfg.fromDuration, walkPlan.totalMinutes);
+
+        const canUseCar =
+            !!carCfg.use &&
+            isUtcTimeInWindow(departureTime, carCfg.window) &&
+            allowsFromDuration(carCfg.fromDuration, walkPlan.totalMinutes);
+
+        if (canUseBus) {
             const env = this._getEnvironmentState(departureTime);
             const busCandidate = this._buildBusPlan(
                 npc,
@@ -1697,7 +1753,7 @@ export class NPCScheduler {
             }
         }
 
-        if (template.useCar) {
+        if (canUseCar) {
             const baseWalkMinutes = walkRoute.minutes;
             const carMinutes = Math.ceil(baseWalkMinutes * 0.4);
             if (Number.isFinite(carMinutes) && carMinutes >= 0 && carMinutes < best.minutes) {

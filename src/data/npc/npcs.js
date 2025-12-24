@@ -11,7 +11,6 @@ import {
 
 // Basic templates the game can turn into NPC instances
 // Each NPC gets a scheduleTemplate that the ScheduleManager uses to generate daily schedules
-//TODO: more granular bus use controls -> use during day/night, weather considerations, car vs bus use, etc
 export const NPC_REGISTRY = [
     {
         example: true, // not a real NPC, just an example
@@ -48,7 +47,10 @@ export const NPC_REGISTRY = [
         bodyTemplate: HUMAN_BODY_TEMPLATE,
 
         scheduleTemplate: {
-            useBus: true,
+            transport: {
+                bus: { use: true },
+                car: { use: false },
+            },
             rules: [
                 // 1) Sleep: between 22:00 and 06:00 at home
                 // ALWAYS
@@ -213,7 +215,10 @@ export const NPC_REGISTRY = [
              *  - Commits robberies late at night / very early morning
              *  - Occasionally visits a crime den to sell goods
              */
-            useBus: true,
+            transport: {
+                bus: { use: true,  },
+                car: { use: true, window: {from: "22:00", to: "05:00"}, fromDuration: 10},
+            },
             rules: [
                 // 1) Daytime hideout/sleep: 05:00–13:00 at home
                 //ALWAYS
@@ -568,7 +573,10 @@ export const NPC_REGISTRY = [
              *  - Patrol windows overlap heavily with Shade's activity
              *  - Slight randomness so not every night looks identical
              */
-            useBus: true,
+            transport: {
+                bus: { use: true, window: { from: "06:00", to: "16:00" } },
+                car: { use: true, window: { from: "16:00", to: "06:00" }, fromDuration: 8 },
+            },
             rules: [
                 // 1) Daytime sleep at home: 06:00–14:00
                 {
@@ -806,7 +814,10 @@ export const NPC_REGISTRY = [
              *  - Short lunch break wandering to cafeteria / staff areas
              *  - After-school errands in town, then home for the evening
              */
-            useBus: true,
+            transport: {
+                bus: { use: true },
+                car: { use: false },
+            },
             rules: [
                 // 1) Night sleep at home: 22:00–06:00
                 {
@@ -973,7 +984,10 @@ export const NPC_REGISTRY = [
              *  - SCHEDULE_RULES.home / fixed / random / weekly
              *  - Existing PLACE_TAGS (culture, history, leisure, commerce, food, service, nightlife)
              */
-            useBus: true,
+            transport: {
+                bus: { use: true },
+                car: { use: false },
+            },
             rules: [
                 // 1) Night sleep at hotel: 23:00–07:00 at TARGET_TYPE.home
                 {
@@ -1128,8 +1142,10 @@ export const NPC_REGISTRY = [
              *  - Heavy nightlife most nights, with one especially wild weekly night.
              *
              */
-            useBus: false,
-            useCar: true, // he can afford it lol. travelTimeMult: 0.15, compared to bus' 0.3
+            transport: {
+                bus: { use: false },
+                car: { use: true }, 
+            },
             rules: [
                 // 1) Late sleep at penthouse: 03:00–10:00
                 {
