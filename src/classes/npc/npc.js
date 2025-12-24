@@ -24,6 +24,7 @@ export class NPC {
      * @param {string|null} opts.locationId - current world Location id
      * @param {string|null} opts.homeLocationId - where their home is
      * @param {string|null} opts.homePlaceId    - Place.id of their home
+     * @param {object|null} opts.homePreference - preferences used to generate/assign their home
      * @param {object} opts.meta - arbitrary metadata (tags, registry key, etc)
      */
     constructor({
@@ -37,6 +38,7 @@ export class NPC {
         locationId = null,
         homeLocationId = null,
         homePlaceId = null,
+        homePreference = null,
         scheduleTemplate = null,
         meta = {},
     } = {}) {
@@ -67,6 +69,7 @@ export class NPC {
         this.locationId = locationId; // "where are they now?"
         this.homeLocationId = homeLocationId; // which Location contains their home
         this.homePlaceId = homePlaceId; // Place.id of their home inside that location
+        this.homePreference = homePreference; // home assignment rules/template (may contain functions)
 
         // reference to the template rules
         this.scheduleTemplate = scheduleTemplate;

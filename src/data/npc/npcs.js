@@ -1,9 +1,16 @@
 import { Gender, HUMAN_BODY_TEMPLATE, PronounSets } from "../../shared/modules.js";
-import { DAY_KEYS, DayKind, TARGET_TYPE, PLACE_TAGS, SCHEDULE_RULES, Season } from "../data.js";
+import {
+    DAY_KEYS,
+    DayKind,
+    TARGET_TYPE,
+    PLACE_TAGS,
+    SCHEDULE_RULES,
+    Season,
+    LOCATION_TAGS,
+} from "../data.js";
 
 // Basic templates the game can turn into NPC instances
 // Each NPC gets a scheduleTemplate that the ScheduleManager uses to generate daily schedules
-//TODO: figure out a graceful way to handle same schedule_rules priorities. sth with probability should take priority over a rule without. if theres two rule random, the one without probability should act as fallbacl
 //TODO: more granular bus use controls -> use during day/night, weather considerations, car vs bus use, etc
 export const NPC_REGISTRY = [
     {
@@ -26,7 +33,16 @@ export const NPC_REGISTRY = [
             intelligence: 4,
             charisma: 3,
         },
-        preferLocationsWith: [PLACE_TAGS.housing], //generate home at location with as many of those tagged places as possible
+        homePreference: {
+            nameFn: (chosenLocation) =>
+                chosenLocation.places.find((p) => p.key === "dorm" || p.key === "apartment_complex")
+                    ? "Taylor's flat"
+                    : "Taylor's home",
+
+            withKey: ["dorm", "apartment_complex"],
+            withPlaceCategory: [PLACE_TAGS.housing],
+            withLocationCategory: [LOCATION_TAGS.poor, LOCATION_TAGS.urban_center],
+        },
         tags: ["human", "romance"],
 
         bodyTemplate: HUMAN_BODY_TEMPLATE,
@@ -53,7 +69,7 @@ export const NPC_REGISTRY = [
                     dayKinds: [DayKind.WORKDAY], // uses Calendar DayKind
                     daysOfWeek: [DAY_KEYS[1], DAY_KEYS[2], DAY_KEYS[3], DAY_KEYS[4], DAY_KEYS[5]],
                     window: { from: "06:00", to: "09:00" },
-                    stayMinutes: { min: 20, max: 120 },
+                    stayMinutes: { min: 20, max: 120, round: 10 },
                     targets: [
                         {
                             type: TARGET_TYPE.placeKeys,
@@ -181,9 +197,13 @@ export const NPC_REGISTRY = [
             intelligence: 3,
             charisma: 2,
         },
-        preferLocationsWith: [PLACE_TAGS.crime, PLACE_TAGS.housing], //generate home at location with as many of those tagged places as possible
         tags: ["human", "criminal", "romance"],
         bodyTemplate: HUMAN_BODY_TEMPLATE,
+
+        homePreference: {
+            nameFn: () => "Shade's hideout",
+            withPlaceCategory: [PLACE_TAGS.crime, PLACE_TAGS.housing],
+        },
 
         scheduleTemplate: {
             /**
@@ -371,7 +391,6 @@ export const NPC_REGISTRY = [
                         {
                             type: TARGET_TYPE.placeCategory,
                             candidates: [PLACE_TAGS.nightlife, PLACE_TAGS.crime],
-                            alwaysMove: true, //TODO: always force a change of place
                         },
                     ],
                     respectOpeningHours: true,
@@ -391,120 +410,125 @@ export const NPC_REGISTRY = [
                     },
                     respectOpeningHours: false,
                     probability: 0.05,
-
-                    priority: 9999, //TODO: if other rules of same type are in the same time slot, rule with highest priority is the one thta completely overrides the other rule
                 },
             ],
         },
     },
 
-    {
-        key: "luce",
-        name: "Luce",
-        shortName: "Luce",
-        nicknames: ["Luce", "Lulu"],
+    // {
+    //     key: "luce",
+    //     name: "Luce",
+    //     shortName: "Luce",
+    //     nicknames: ["Luce", "Lulu"],
 
-        description:
-            "Luce is a friendly ghost who haunts the city, often trying to make contact with the living in subtle ways.",
+    //     description:
+    //         "Luce is a friendly ghost who haunts the city, often trying to make contact with the living in subtle ways.",
 
-        age: 178,
-        gender: Gender.NB,
-        pronouns: PronounSets.THEY_THEM,
+    //     age: 178,
+    //     gender: Gender.NB,
+    //     pronouns: PronounSets.THEY_THEM,
 
-        stats: {
-            looks: 0, // ethereal
-            strength: 0,
-            intelligence: 3,
-            charisma: 4,
-        },
-        preferLocationsWith: [PLACE_TAGS.supernatural, PLACE_TAGS.history], //generate home at location with as many of those tagged places as possible
-        tags: ["ghost", "supernatural", "romance"],
+    //     stats: {
+    //         looks: 0, // ethereal
+    //         strength: 0,
+    //         intelligence: 3,
+    //         charisma: 4,
+    //     },
+    //     homePreference: {
+    //         nameFn: (chosenLocation) =>
+    //             chosenLocation.places.find((p) => p.key == "cementery")
+    //                 ? "Empty Crypt"
+    //                 : "Roadside grave",
 
-        // If you don't have a ghost body template, just reuse HUMAN_BODY_TEMPLATE for now.
-        bodyTemplate: HUMAN_BODY_TEMPLATE, //GHOST_BODY_TEMPLATE,
+    //         withPlaceCategory: [PLACE_TAGS.history, PLACE_TAGS.supernatural],
+    //     },
+    //     tags: ["ghost", "supernatural", "romance"],
 
-        scheduleTemplate: {
-            /**
-             * Luce is a friendly ghost that:
-             *  - "anchors" around their old resting place during the day
-             *  - in the evening and night, occasionally enters a FOLLOW mode
-             *    where they try to move in the player's/npc's direction
-             */
-            useBus: false, // ghosts don't use buses
-            travelModifier: 1.5, //TODO: travel duration is multiplied by this globally, unless specified otherwise in a rule
-            rules: [
-                // 1) Daytime anchor: 06:00–18:00 at home/resting place
-                {
-                    id: "luce_daytime_anchor",
-                    type: SCHEDULE_RULES.home,
-                    timeBlocks: [{ from: "06:00", to: "18:00" }],
-                },
+    //     // If you don't have a ghost body template, just reuse HUMAN_BODY_TEMPLATE for now.
+    //     bodyTemplate: HUMAN_BODY_TEMPLATE, //GHOST_BODY_TEMPLATE,
 
-                // 2) Early evening ambient wandering near historical / spiritual places.
-                //    This is mostly flavour, gives Luce somewhere to be when not following.
-                {
-                    id: "luce_evening_wander",
-                    type: SCHEDULE_RULES.random,
-                    dayKinds: [DayKind.WORKDAY, DayKind.DAY_OFF],
-                    window: { from: "18:00", to: "21:00" },
-                    stayMinutes: { min: 30, max: 60 },
-                    targets: [
-                        {
-                            type: TARGET_TYPE.placeCategory,
-                            candidates: [
-                                PLACE_TAGS.history,
-                                PLACE_TAGS.culture,
-                                PLACE_TAGS.supernatural,
-                            ],
-                        },
-                        { type: TARGET_TYPE.home },
-                    ],
-                    respectOpeningHours: false,
-                    probability: 0.5, // some evenings they just don't show up
-                },
+    //     scheduleTemplate: {
+    //         /**
+    //          * Luce is a friendly ghost that:
+    //          *  - "anchors" around their old resting place during the day
+    //          *  - in the evening and night, occasionally enters a FOLLOW mode
+    //          *    where they try to move in the player's/npc's direction
+    //          */
+    //         useBus: false, // ghosts don't use buses
+    //         travelModifier: 1.5, //slower then humans
+    //         rules: [
+    //             // 1) Daytime anchor: 06:00–18:00 at home/resting place
+    //             {
+    //                 id: "luce_daytime_anchor",
+    //                 type: SCHEDULE_RULES.home,
+    //                 timeBlocks: [{ from: "06:00", to: "18:00" }],
+    //             },
 
-                // 3) Main haunting: Luce follows the player. this activity ends once luce finds player
-                //    They try to move roughly toward the player's current / last known position.
-                {
-                    id: "luce_follow_player",
-                    type: SCHEDULE_RULES.follow, //TODO: for scheduling purposes works like daily but with no set location, indicated follow behavior for game engine
-                    dayKinds: [DayKind.WORKDAY, DayKind.DAY_OFF],
-                    window: { from: "21:00", to: "06:00" }, //time window the rule can be applied at
-                    variants: [
-                        //TODO: pick one for every slot this rule generates
-                        {
-                            id: "luce_follow_light",
-                            window: { from: "21:00", to: "00:00" }, //start and end times for this variants
-                            updateIntervalMinutes: 15, // how often to re-evaluate where the player is
-                            loseInterestDistance: 10, // if after updateIntervalMinutes they're this far away, stop following, scales with density
-                            speedMult: 0.8, // movement speed multiplier while following
-                            weight: 0.7, // chance this variant will be picked when rule is active
-                        },
-                        // 4) Occasional deep-night haunting
-                        {
-                            id: "luce_follow_medium",
-                            window: { from: "00:00", to: "03:00" },
-                            followTarget: "player",
-                            updateIntervalMinutes: 10,
-                            loseInterestDistance: 12,
-                            speedMult: 1.1,
-                            weight: 0.25,
-                        },
-                        {
-                            id: "luce_follow_nightmare",
-                            window: { from: "00:00", to: "06:00" },
-                            followTarget: "player",
-                            updateIntervalMinutes: 5,
-                            loseInterestDistance: 15,
-                            speedMult: 1.5,
-                            weight: 0.05,
-                        },
-                    ],
-                    probability: 0.3, // chance per valid day this rule is active
-                },
-            ],
-        },
-    },
+    //             // 2) Early evening ambient wandering near historical / spiritual places.
+    //             //    This is mostly flavour, gives Luce somewhere to be when not following.
+    //             {
+    //                 id: "luce_evening_wander",
+    //                 type: SCHEDULE_RULES.random,
+    //                 dayKinds: [DayKind.WORKDAY, DayKind.DAY_OFF],
+    //                 window: { from: "18:00", to: "21:00" },
+    //                 stayMinutes: { min: 30, max: 60 },
+    //                 targets: [
+    //                     {
+    //                         type: TARGET_TYPE.placeCategory,
+    //                         candidates: [
+    //                             PLACE_TAGS.history,
+    //                             PLACE_TAGS.culture,
+    //                             PLACE_TAGS.supernatural,
+    //                         ],
+    //                     },
+    //                     { type: TARGET_TYPE.home },
+    //                 ],
+    //                 respectOpeningHours: false,
+    //                 probability: 0.5, // some evenings they just don't show up
+    //             },
+
+    //             // 3) Main haunting: Luce follows the player. this activity ends once luce finds player
+    //             //    They try to move roughly toward the player's current / last known position.
+    //             {
+    //                 id: "luce_follow_player",
+    //                 type: SCHEDULE_RULES.follow, //TODO: for scheduling purposes works like daily but with no set location, indicated follow behavior for game engine
+    //                 dayKinds: [DayKind.WORKDAY, DayKind.DAY_OFF],
+    //                 window: { from: "21:00", to: "06:00" }, //time window the rule can be applied at
+    //                 variants: [
+    //                     //TODO: pick one for every slot this rule generates
+    //                     {
+    //                         id: "luce_follow_light",
+    //                         window: { from: "21:00", to: "00:00" }, //start and end times for this variants
+    //                         updateIntervalMinutes: 15, // how often to re-evaluate where the player is
+    //                         loseInterestDistance: 10, // if after updateIntervalMinutes they're this far away, stop following, scales with density
+    //                         speedMult: 0.8, // movement speed multiplier while following
+    //                         weight: 0.7, // chance this variant will be picked when rule is active
+    //                     },
+    //                     // 4) Occasional deep-night haunting
+    //                     {
+    //                         id: "luce_follow_medium",
+    //                         window: { from: "00:00", to: "03:00" },
+    //                         followTarget: "player",
+    //                         updateIntervalMinutes: 10,
+    //                         loseInterestDistance: 12,
+    //                         speedMult: 1.1,
+    //                         weight: 0.25,
+    //                     },
+    //                     {
+    //                         id: "luce_follow_nightmare",
+    //                         window: { from: "00:00", to: "06:00" },
+    //                         followTarget: "player",
+    //                         updateIntervalMinutes: 5,
+    //                         loseInterestDistance: 15,
+    //                         speedMult: 1.5,
+    //                         weight: 0.05,
+    //                     },
+    //                 ],
+    //                 probability: 0.3, // chance per valid day this rule is active
+    //             },
+    //         ],
+    //     },
+    // },
 
     {
         key: "officer_vega",
@@ -524,7 +548,16 @@ export const NPC_REGISTRY = [
         },
 
         tags: ["human", "cop"],
-        preferLocationsWith: [PLACE_TAGS.safety, PLACE_TAGS.transport, PLACE_TAGS.housing], //generate home at location with as many of those tagged places as possible
+        homePreference: {
+            nameFn: (chosenLocation) => "Officer Vega's Apartment",
+
+            withLocationCategory: [
+                LOCATION_TAGS.urban_edge,
+                LOCATION_TAGS.suburban,
+                LOCATION_TAGS.residential,
+                LOCATION_TAGS.industrial,
+            ],
+        },
         bodyTemplate: HUMAN_BODY_TEMPLATE,
 
         scheduleTemplate: {
@@ -541,7 +574,7 @@ export const NPC_REGISTRY = [
                 {
                     id: "vega_daytime_sleep",
                     type: SCHEDULE_RULES.home,
-                    timeBlocks: [{ from: "06:00", to: "14:00" }],
+                    timeBlocks: [{ from: "03:00", to: "10:00" }],
                 },
 
                 // [GAP FILLER] Workday Pre-shift: 14:00–16:00
@@ -550,7 +583,7 @@ export const NPC_REGISTRY = [
                     id: "vega_preshift_routine",
                     type: SCHEDULE_RULES.random,
                     dayKinds: [DayKind.WORKDAY],
-                    window: { from: "14:00", to: "16:00" },
+                    window: { from: "10:00", to: "16:00" },
                     stayMinutes: { min: 30, max: 60 },
                     targets: [
                         {
@@ -559,7 +592,12 @@ export const NPC_REGISTRY = [
                         },
                         {
                             type: TARGET_TYPE.placeCategory,
-                            candidates: [PLACE_TAGS.food],
+                            candidates: [
+                                PLACE_TAGS.food,
+                                PLACE_TAGS.civic,
+                                PLACE_TAGS.service,
+                                PLACE_TAGS.safety,
+                            ],
                         },
                         { type: TARGET_TYPE.home },
                     ],
@@ -700,7 +738,7 @@ export const NPC_REGISTRY = [
                     id: "vega_day_off_chores",
                     type: SCHEDULE_RULES.random,
                     dayKinds: [DayKind.DAY_OFF],
-                    window: { from: "14:00", to: "20:00" },
+                    window: { from: "10:00", to: "20:00" },
                     stayMinutes: { min: 45, max: 120 },
                     targets: [
                         {
@@ -738,7 +776,24 @@ export const NPC_REGISTRY = [
             intelligence: 4,
             charisma: 4,
         },
-        preferLocationsWith: [PLACE_TAGS.culture, PLACE_TAGS.safety, PLACE_TAGS.housing], //generate home at location with as many of those tagged places as possible
+        homePreference: {
+            nameFn: (chosenLocation) =>
+                chosenLocation.places.find((p) => p.key === "apartment_complex")
+                    ? "Clara's flat"
+                    : "Clara's home",
+
+            withKey: ["apartment_complex"],
+            withPlaceCategory: [PLACE_TAGS.housing],
+            withLocationCategory: [
+                LOCATION_TAGS.poor,
+                LOCATION_TAGS.commercial,
+                LOCATION_TAGS.urban,
+                LOCATION_TAGS.suburban,
+                LOCATION_TAGS.residential,
+                LOCATION_TAGS.dense,
+                LOCATION_TAGS.urban_center,
+            ],
+        },
         tags: ["human", "staff"],
 
         bodyTemplate: HUMAN_BODY_TEMPLATE,
@@ -806,7 +861,6 @@ export const NPC_REGISTRY = [
                         { type: TARGET_TYPE.home }, // sometimes goes straight home
                     ],
                     respectOpeningHours: true,
-                    probability: 0.7,
                 },
 
                 // 4) Part-time job / side activities on days off:
@@ -897,8 +951,11 @@ export const NPC_REGISTRY = [
             intelligence: 3,
             charisma: 4,
         },
-        preferLocationsWith: [PLACE_TAGS.culture, PLACE_TAGS.history, PLACE_TAGS.leisure], //generate home at location with as many of those tagged places as possible
-        //TODO: add way to force hotel/motel place as home loc. function?
+        homePreference: {
+            nameFn: (chosenLocation) => "Mike's Room",
+
+            withKey: ["motel", "hotel"],
+        },
 
         tags: ["human", "tourist"],
 
@@ -1023,7 +1080,7 @@ export const NPC_REGISTRY = [
                 },
             ],
 
-            season: [Season.SUMMER, Season.WINTER], //TODO: mike only visits the city in summer and winter -> doesnt exist on map/doesnt have a schedule otherwise
+            season: [Season.SUMMER, Season.WINTER],
         },
     },
 
@@ -1048,12 +1105,16 @@ export const NPC_REGISTRY = [
         },
 
         tags: ["human", "romance", "corporate"],
-        preferLocationsWith: [
-            PLACE_TAGS.commerce,
-            PLACE_TAGS.leisure,
-            PLACE_TAGS.food,
-            PLACE_TAGS.culture,
-        ],
+        homePreference: {
+            nameFn: (chosenLocation) => "Vincent's Penthouse",
+
+            withPlaceCategory: [PLACE_TAGS.housing, PLACE_TAGS.industry, PLACE_TAGS.culture],
+            withLocationCategory: [
+                LOCATION_TAGS.wealthy,
+                LOCATION_TAGS.suburban_hub,
+                LOCATION_TAGS.historic,
+            ],
+        },
         bodyTemplate: HUMAN_BODY_TEMPLATE,
 
         scheduleTemplate: {
@@ -1345,6 +1406,7 @@ export function npcFromRegistryKey(key) {
         stats: def.stats,
         bodyTemplate: def.bodyTemplate,
         scheduleTemplate: def.scheduleTemplate,
+        homePreference: def.homePreference,
         meta: {
             tags: def.tags || [],
             shortName: def.shortName || def.name,
