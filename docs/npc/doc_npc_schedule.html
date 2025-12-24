@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>NPC Schedule Rules (Scheduler Reference)</title>
+        <style>
+            :root {
+                --bg: #0b0f14;
+                --panel: #121a23;
+                --text: #e6edf3;
+                --muted: #9fb0c0;
+                --line: #233041;
+                --code: #0e1520;
+                --accent: #7dd3fc;
+                --warn: #fbbf24;
+                --bad: #fb7185;
+                --good: #86efac;
+            }
+
+            html,
+            body {
+                margin: 0;
+                padding: 0;
+                background: var(--bg);
+                color: var(--text);
+                font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell,
+                    Noto Sans, sans-serif;
+                line-height: 1.55;
+            }
+
+            a {
+                color: var(--accent);
+                text-decoration: none;
+            }
+
+            a:hover {
+                text-decoration: underline;
+            }
+
+            header {
+                padding: 32px 18px 18px;
+                border-bottom: 1px solid var(--line);
+            }
+
+            header h1 {
+                margin: 0 0 8px;
+                font-size: 28px;
+                letter-spacing: 0.2px;
+            }
+
+            header p {
+                margin: 0;
+                color: var(--muted);
+                max-width: 980px;
+            }
+
+            main {
+                max-width: 980px;
+                margin: 0 auto;
+                padding: 18px;
+            }
+
+            section {
+                background: var(--panel);
+                border: 1px solid var(--line);
+                border-radius: 14px;
+                padding: 18px;
+                margin: 14px 0;
+            }
+
+            h2 {
+                margin: 0 0 10px;
+                font-size: 20px;
+            }
+
+            h3 {
+                margin: 18px 0 8px;
+                font-size: 16px;
+                color: var(--accent);
+            }
+
+            .pill {
+                display: inline-block;
+                padding: 2px 10px;
+                border-radius: 999px;
+                border: 1px solid var(--line);
+                background: rgba(255, 255, 255, 0.03);
+                font-size: 12px;
+                color: var(--muted);
+            }
+
+            .pill.req {
+                color: var(--good);
+                border-color: rgba(134, 239, 172, 0.35);
+            }
+
+            .pill.opt {
+                color: var(--accent);
+                border-color: rgba(125, 211, 252, 0.35);
+            }
+
+            .pill.warn {
+                color: var(--warn);
+                border-color: rgba(251, 191, 36, 0.35);
+            }
+
+            .pill.bad {
+                color: var(--bad);
+                border-color: rgba(251, 113, 133, 0.35);
+            }
+
+            .note {
+                border-left: 4px solid rgba(125, 211, 252, 0.6);
+                padding: 10px 12px;
+                background: rgba(125, 211, 252, 0.06);
+                border-radius: 10px;
+                color: var(--muted);
+            }
+
+            .warnbox {
+                border-left: 4px solid rgba(251, 191, 36, 0.75);
+                padding: 10px 12px;
+                background: rgba(251, 191, 36, 0.07);
+                border-radius: 10px;
+                color: var(--muted);
+            }
+
+            .badbox {
+                border-left: 4px solid rgba(251, 113, 133, 0.75);
+                padding: 10px 12px;
+                background: rgba(251, 113, 133, 0.07);
+                border-radius: 10px;
+                color: var(--muted);
+            }
+
+            code,
+            pre {
+                font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono,
+                    monospace;
+            }
+
+            pre {
+                background: var(--code);
+                border: 1px solid var(--line);
+                border-radius: 14px;
+                padding: 14px;
+                overflow: auto;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 10px 0;
+            }
+
+            th,
+            td {
+                border-bottom: 1px solid var(--line);
+                padding: 10px 10px;
+                vertical-align: top;
+            }
+
+            th {
+                color: var(--muted);
+                font-weight: 600;
+                text-align: left;
+                font-size: 13px;
+            }
+
+            td {
+                font-size: 14px;
+            }
+
+            ul {
+                margin: 8px 0 8px 20px;
+            }
+
+            .grid2 {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            @media (min-width: 900px) {
+                .grid2 {
+                    grid-template-columns: 1fr 1fr;
+                }
+            }
+
+            footer {
+                color: var(--muted);
+                padding: 24px 18px 40px;
+                text-align: center;
+            }
+
+            .kbd {
+                font-family: ui-monospace, monospace;
+                border: 1px solid var(--line);
+                padding: 1px 6px;
+                border-radius: 7px;
+                background: rgba(255, 255, 255, 0.03);
+                color: var(--text);
+            }
+        </style>
+    </head>
+
+    <body>
+        <header>
+            <h1>NPC Schedule Rules — Scheduler Reference</h1>
+            <p>
+                This page documents how to write <code>scheduleTemplate</code> rules for NPCs in
+                <code>src/data/npc/npcs.js</code>, as interpreted by the scheduler in
+                <code>src/classes/game/util/npcai.js</code>. It focuses on options the scheduler
+                currently recognizes and uses (unknown fields are ignored).
+            </p>
+            <p><a href="../../index.html">back</a></p>
+        </header>
+
+        <main>
+            <section>
+                <h2>Quick mental model</h2>
+                <div class="grid2">
+                    <div>
+                        <h3>What you write</h3>
+                        <ul>
+                            <li>An NPC has a <code>scheduleTemplate</code>.</li>
+                            <li>
+                                The template contains <code>rules</code> (what the NPC wants to do)
+                                and optional movement settings.
+                            </li>
+                            <li>Rules generate "visit intents" for a week.</li>
+                            <li>
+                                The scheduler turns intents into a continuous timeline with travel
+                                time between locations.
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>What the scheduler guarantees</h3>
+                        <ul>
+                            <li>
+                                Schedule is generated as a week:
+                                <strong>Monday 00:00 → next Monday 00:00</strong> (UTC-based).
+                            </li>
+                            <li>Slots never overlap; travel is explicit (walk/bus/car).</li>
+                            <li>
+                                Rules with higher built-in priority win conflicts (<code>
+                                    fixed</code
+                                >
+                                beats <code>random</code>, etc.).
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="note">
+                    <strong>Times are UTC.</strong> Rule windows use
+                    <code>Date.getUTCHours()</code>/<code>getUTCMinutes()</code> internally. Use 24h
+                    strings like <code>"06:00"</code>, <code>"22:30"</code>, and
+                    <code>"24:00"</code>.
+                </div>
+            </section>
+
+            <section>
+                <h2>Top-level structure</h2>
+
+                <pre><code>{
+  // NPC-level schedule config:
+  scheduleTemplate: {
+    // Optional: season whitelist. If set, NPC has NO schedule when current season is not included.
+    season: [Season.SUMMER, Season.AUTUMN],
+
+    // Optional: walking speed modifier. 1 = normal, 1.5 = slower, 0.8 = faster.
+    travelModifier: 1,
+
+    // Optional: transport preferences (bus/car).
+    transport: {
+      bus: { use: true, window: { from: "06:00", to: "22:00" }, fromDuration: 0 },
+      car: { use: false, window: { from: "00:00", to: "24:00" }, fromDuration: 10 },
+    },
+
+    // Required: the schedule rules.
+    rules: [ /* ...rules... */ ],
+  }
+}</code></pre>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Field</th>
+                            <th>Required?</th>
+                            <th>Meaning</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>scheduleTemplate.rules</code></td>
+                            <td><span class="pill req">required</span></td>
+                            <td>
+                                Array of rule objects. If missing/empty, scheduler produces no
+                                schedule.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>scheduleTemplate.season</code></td>
+                            <td><span class="pill opt">optional</span></td>
+                            <td>
+                                Season whitelist. If provided and the current season is not
+                                included, the scheduler returns an empty schedule.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>scheduleTemplate.travelModifier</code></td>
+                            <td><span class="pill opt">optional</span></td>
+                            <td>
+                                Walking speed multiplier (only affects walking segments). Must be a
+                                positive number. Default: <code>1</code>.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>scheduleTemplate.transport</code></td>
+                            <td><span class="pill opt">optional</span></td>
+                            <td>Controls whether bus/car are considered, and when.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Transport config fields</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Field</th>
+                            <th>Required?</th>
+                            <th>Meaning</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>transport.bus.use</code>, <code>transport.car.use</code></td>
+                            <td><span class="pill opt">optional</span></td>
+                            <td>
+                                Enable/disable that transport mode. Default: <code>false</code> when
+                                omitted.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>transport.*.window</code></td>
+                            <td><span class="pill opt">optional</span></td>
+                            <td>
+                                Daily UTC time window where this transport mode is allowed. Missing
+                                window means "allowed at all times". Supports overnight windows
+                                (e.g. <code>22:00 → 05:00</code>).
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>transport.*.fromDuration</code></td>
+                            <td><span class="pill opt">optional</span></td>
+                            <td>
+                                Minimum trip length (in minutes) before this transport mode is
+                                allowed. If missing or ≤ 0, the mode is allowed regardless of trip
+                                length. It compares against the computed walking trip time
+                                (including micro-lingers).
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="warnbox">
+                    The scheduler decides between walk/bus/car dynamically based on environment
+                    (night/cold/bad weather), route complexity, and relative speed. Even if
+                    <code>use: true</code>, the mode might not be chosen.
+                </div>
+            </section>
+
+            <section>
+                <h2>Rule types</h2>
+                <p>
+                    <code>rule.type</code> must be one of the <code>SCHEDULE_RULES</code> values.
+                    Currently handled by the scheduler: <code>home</code>, <code>fixed</code>,
+                    <code>random</code>, <code>daily</code>, <code>weekly</code>.
+                    <code>follow</code> (and any unknown types) are ignored.
+                </p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>What it does</th>
+                            <th>Typical use</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>SCHEDULE_RULES.home</code></td>
+                            <td>
+                                Creates hard "be at home" intents for specific
+                                <code>timeBlocks</code> on every day.
+                            </td>
+                            <td>Sleep, long at-home blocks.</td>
+                        </tr>
+                        <tr>
+                            <td><code>SCHEDULE_RULES.fixed</code></td>
+                            <td>Creates a hard intent occupying the entire <code>window</code>.</td>
+                            <td>School, work shifts, standing appointments.</td>
+                        </tr>
+                        <tr>
+                            <td><code>SCHEDULE_RULES.random</code></td>
+                            <td>
+                                Creates multiple "soft" intents within a <code>window</code>, each
+                                picking a target from your <code>targets</code> list. Actual number
+                                is estimated from window length and average stay.
+                            </td>
+                            <td>Errands, wandering, "fill time with activities".</td>
+                        </tr>
+                        <tr>
+                            <td><code>SCHEDULE_RULES.daily</code></td>
+                            <td>
+                                Creates at most one "soft" intent per eligible day within the
+                                <code>window</code>.
+                            </td>
+                            <td>"Once per day" routine (gym, café, walk).</td>
+                        </tr>
+                        <tr>
+                            <td><code>SCHEDULE_RULES.weekly</code></td>
+                            <td>
+                                Picks one eligible day per week, then creates a single intent within
+                                the <code>window</code>.
+                            </td>
+                            <td>Weekly events (bar night, therapy, market day).</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="note">
+                    "Hard" vs "soft": <code>home</code> and <code>fixed</code> are treated as hard
+                    anchors when resolving conflicts. Soft intents (random/daily/weekly) will be
+                    shortened/shifted around to avoid missing hard anchors.
+                </div>
+            </section>
+
+            <section>
+                <h2>Rule object: fields</h2>
+
+                <p>
+                    Every rule is a plain object. Unknown fields are ignored. Below are the fields
+                    the scheduler actually reads.
+                </p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Field</th>
+                            <th>Required?</th>
+                            <th>Applies to</th>
+                            <th>Meaning</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>id</code></td>
+                            <td><span class="pill opt">optional</span></td>
+                            <td>All</td>
+                            <td>
+                                String ID used for debugging and for linking schedule slots back to
+                                the rule. Recommended to keep stable.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>type</code></td>
+                            <td><span class="pill req">required</span></td>
+                            <td>All</td>
+                            <td>One of <code>SCHEDULE_RULES.*</code>.</td>
+                        </tr>
+
+                        <tr>
+                            <td><code>dayKinds</code></td>
+                            <td><span class="pill opt">optional</span></td>
+                            <td>All except <code>home</code></td>
+                            <td>
+                                Limits rule to specific day kinds (from the calendar):
+                                <code>DayKind.WORKDAY</code>, <code>DayKind.DAY_OFF</code>. Can be a
+                                single value or an array.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>daysOfWeek</code></td>
+                            <td><span class="pill opt">optional</span></td>
+                            <td>All except <code>home</code></td>
+                            <td>
+                                Limits rule to specific weekdays. Use <code>DAY_KEYS</code> values:
+                                <code>"sun"</code>, <code>"mon"</code>, <code>"tue"</code>,
+                                <code>"wed"</code>, <code>"thu"</code>, <code>"fri"</code>,
+                                <code>"sat"</code>. Can be a single value or an array.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>candidateDays</code></td>
+                            <td>
+                                <span class="pill opt">optional</span>
+                                <span class="pill warn">alias</span>
+                            </td>
+                            <td>All except <code>home</code></td>
+                            <td>
+                                Alias for <code>daysOfWeek</code>. If both are present,
+                                <code>daysOfWeek</code> wins.
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td><code>probability</code></td>
+                            <td><span class="pill opt">optional</span></td>
+                            <td>All</td>
+                            <td>
+                                Chance the rule runs.
+                                <ul>
+                                    <li><code>undefined/null</code> → always</li>
+                                    <li>≤ 0 → never</li>
+                                    <li>≥ 1 → always</li>
+                                    <li>Between 0–1 → RNG check</li>
+                                </ul>
+                                For <code>weekly</code>, this check happens once per week. For other
+                                types, once per eligible day.
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td><code>timeBlocks</code></td>
+                            <td><span class="pill req">required</span> (for <code>home</code>)</td>
+                            <td><code>home</code></td>
+                            <td>
+                                Array of <code>{from,to}</code> blocks in a day where NPC must be
+                                home. <span class="pill bad">cannot cross midnight</span> (if
+                                <code>to ≤ from</code> the block is ignored). Split overnight sleep
+                                into two blocks instead.
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td><code>window</code></td>
+                            <td>
+                                <span class="pill req">required</span> (for non-home rule types)
+                            </td>
+                            <td>
+                                <code>fixed</code>, <code>random</code>, <code>daily</code>,
+                                <code>weekly</code>
+                            </td>
+                            <td>
+                                A daily time window <code>{from:"HH:MM", to:"HH:MM"}</code>.
+                                Overnight windows are allowed (e.g. <code>22:00 → 03:00</code>).
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td><code>stayMinutes</code></td>
+                            <td><span class="pill opt">optional</span></td>
+                            <td>
+                                <code>random</code>, <code>daily</code>, <code>weekly</code> (also
+                                read by some helpers)
+                            </td>
+                            <td>
+                                Controls how long the NPC stays per visit.
+                                <pre><code>stayMinutes: { min: 20, max: 120, round: 10 }</code></pre>
+                                Defaults if missing:
+                                <code>min = 30</code>, <code>max = min</code>.
+                                <code>round</code> rounds stay to nearest multiple (minutes), then
+                                clamps to fit the window and hard anchors.
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td><code>targets</code></td>
+                            <td>
+                                <span class="pill req">required</span> (for non-home rule types)
+                            </td>
+                            <td>
+                                <code>fixed</code>, <code>random</code>, <code>daily</code>,
+                                <code>weekly</code>
+                            </td>
+                            <td>
+                                Array of target entries (see next section).
+                                <span class="pill bad">Must be an array</span> — a single object
+                                will be treated as "no targets".
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td><code>nearest</code></td>
+                            <td><span class="pill opt">optional</span></td>
+                            <td>
+                                <code>fixed</code>, <code>random</code>, <code>daily</code>,
+                                <code>weekly</code>
+                            </td>
+                            <td>
+                                Rule-level nearest: if <code>true</code>, the scheduler picks the
+                                nearest candidate across <em>all</em> targets combined (instead of
+                                randomizing per-target group).
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td><code>respectOpeningHours</code></td>
+                            <td><span class="pill opt">optional</span></td>
+                            <td>Any rule using place targets</td>
+                            <td>
+                                If <code>true</code>, candidate places must be open at the start of
+                                the window and still open at (window end − 1 minute). This is a
+                                coarse filter: it does not split windows around opening hours.
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td><code>respectAgeRestriction</code></td>
+                            <td><span class="pill opt">optional</span></td>
+                            <td>Any rule using place targets</td>
+                            <td>
+                                <strong>Default: true.</strong> When true (or absent), places with
+                                <code>place.props.ages</code> gates are filtered out if the NPC's
+                                <code>age</code> is below <code>ages.min</code> or above
+                                <code>ages.max</code>. When set to <code>false</code>, the NPC can
+                                target age-gated places anyway.
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td><code>disallowedTargets</code></td>
+                            <td><span class="pill opt">optional</span></td>
+                            <td>Any rule using targets</td>
+                            <td>
+                                Optional "forbidden pool" filter applied when resolving
+                                <code>targets</code>. Same shape as target entries, but only
+                                supports <code>home</code>, <code>placeKeys</code>, and
+                                <code>placeCategory</code>. Any other types are logged to the
+                                console and ignored.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="warnbox">
+                    If your <code>window</code> is shorter than <code>stayMinutes.min</code>, the
+                    rule produces no intents. For <code>fixed</code>, stayMinutes is ignored (it
+                    always occupies the full window).
+                </div>
+            </section>
+
+            <section>
+                <h2>Targets</h2>
+
+                <p>
+                    A rule’s <code>targets</code> is an array of "target entries". Each entry
+                    expands into a pool of concrete places across the world. The scheduler then
+                    picks from that pool (randomly or by nearest, depending on settings).
+                </p>
+
+                <h3>Supported target types</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Target type</th>
+                            <th>Required fields</th>
+                            <th>Meaning</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>TARGET_TYPE.home</code></td>
+                            <td>none</td>
+                            <td>Targets the NPC’s home location.</td>
+                        </tr>
+                        <tr>
+                            <td><code>TARGET_TYPE.placeKeys</code></td>
+                            <td><code>candidates</code> (string or array)</td>
+                            <td>
+                                Selects any place whose <code>place.key</code> matches one of the
+                                candidates.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>TARGET_TYPE.placeCategory</code></td>
+                            <td><code>candidates</code> (tag or array)</td>
+                            <td>
+                                Selects any place whose <code>place.props.category</code> contains
+                                one of the candidates.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="badbox">
+                    The scheduler currently does <strong>not</strong> resolve
+                    <code>TARGET_TYPE.npc</code>, <code>TARGET_TYPE.player</code>, or
+                    <code>TARGET_TYPE.unavailable</code> into real locations. If used in
+                    <code>targets</code>, they produce no candidates.
+                </div>
+
+                <h3>Target entry fields</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Field</th>
+                            <th>Required?</th>
+                            <th>Meaning</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>type</code></td>
+                            <td><span class="pill req">required</span></td>
+                            <td>One of the supported target types above.</td>
+                        </tr>
+                        <tr>
+                            <td><code>candidates</code></td>
+                            <td><span class="pill req">required</span> (for place targets)</td>
+                            <td>
+                                For <code>placeKeys</code> / <code>placeCategory</code>: a
+                                string/tag or array. Missing/empty means that target entry
+                                contributes no candidates.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>nearest</code></td>
+                            <td><span class="pill opt">optional</span></td>
+                            <td>
+                                If true, the scheduler chooses the nearest place among the
+                                candidates for <em>this entry</em> (based on current location at
+                                scheduling time). If omitted/false, a random candidate is chosen
+                                from this entry’s pool.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>stay</code></td>
+                            <td><span class="pill opt">optional</span></td>
+                            <td>
+                                If true, the visit will try to consume the maximum possible stay
+                                time for the intent (instead of picking a random duration between
+                                <code>min</code> and <code>max</code>). Works best when
+                                <code>stayMinutes.max</code> is large enough to fill the window.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Legacy fields (supported but prefer <code>candidates</code>)</h3>
+                <div class="note">
+                    Target entries also accept legacy fields for backwards compatibility:
+                    <ul>
+                        <li>
+                            <code>key</code> / <code>keys</code> (as a string or array) for
+                            <code>placeKeys</code>
+                        </li>
+                        <li>
+                            <code>categories</code> (tag or array) for <code>placeCategory</code>
+                        </li>
+                    </ul>
+                    If <code>candidates</code> is present, it is used in preference to legacy
+                    fields.
+                </div>
+            </section>
+
+            <section>
+                <h2>disallowedTargets (forbidden pool) details</h2>
+
+                <p>
+                    <code>disallowedTargets</code> is optional and is applied <em>after</em> targets
+                    are expanded into concrete candidates, but before the scheduler chooses which
+                    place to go to.
+                </p>
+
+                <pre><code>disallowedTargets: [
+  { type: TARGET_TYPE.placeKeys, candidates: ["mall"] },
+  { type: TARGET_TYPE.placeCategory, candidates: [PLACE_TAGS.nightlife, PLACE_TAGS.luxury] },
+  { type: TARGET_TYPE.home } // prevents choosing home when home is included as a target
+]</code></pre>
+
+                <ul>
+                    <li>
+                        <code>placeKeys</code> removes any place whose
+                        <code>place.key</code> matches.
+                    </li>
+                    <li>
+                        <code>placeCategory</code> removes any place whose
+                        <code>place.props.category</code> intersects the forbidden tags.
+                    </li>
+                    <li>
+                        <code>home</code> removes the home location candidate (only matters if you
+                        include <code>home</code> in <code>targets</code>).
+                    </li>
+                </ul>
+
+                <div class="warnbox">
+                    Only <code>home</code>, <code>placeKeys</code>, <code>placeCategory</code> are
+                    valid in <code>disallowedTargets</code>. Any other type is
+                    <strong>ignored</strong> and will print a console warning.
+                </div>
+            </section>
+
+            <section>
+                <h2>Examples</h2>
+
+                <h3>1) Sleep at home (home rule)</h3>
+                <pre><code>{
+  id: "sleep_at_home",
+  type: SCHEDULE_RULES.home,
+  // Required for home: timeBlocks (must not cross midnight)
+  timeBlocks: [
+    { from: "00:00", to: "06:00" },
+    { from: "22:00", to: "24:00" },
+  ],
+}</code></pre>
+
+                <h3>2) Fixed appointment (fixed rule)</h3>
+                <pre><code>{
+  id: "attend_school",
+  type: SCHEDULE_RULES.fixed,
+  dayKinds: [DayKind.WORKDAY],
+  daysOfWeek: ["mon","tue","wed","thu","fri"],
+  window: { from: "09:00", to: "15:00" },
+  targets: [
+    { type: TARGET_TYPE.placeKeys, candidates: ["high_school"], nearest: true },
+  ],
+  // Optional filters:
+  respectOpeningHours: true,
+  respectAgeRestriction: true,
+}</code></pre>
+
+                <h3>3) Random errands with forbidden pool</h3>
+                <pre><code>{
+  id: "before_school_morning",
+  type: SCHEDULE_RULES.random,
+  dayKinds: [DayKind.WORKDAY],
+  window: { from: "06:00", to: "09:00" },
+  stayMinutes: { min: 20, max: 120, round: 10 },
+  targets: [
+    { type: TARGET_TYPE.placeKeys, candidates: ["library"] },
+    { type: TARGET_TYPE.placeKeys, candidates: ["high_school"], nearest: true, stay: true },
+    { type: TARGET_TYPE.placeCategory, candidates: [PLACE_TAGS.leisure, PLACE_TAGS.food] },
+    { type: TARGET_TYPE.home },
+  ],
+  disallowedTargets: [
+    { type: TARGET_TYPE.placeKeys, candidates: ["mall"] },
+    { type: TARGET_TYPE.placeCategory, candidates: [PLACE_TAGS.nightlife, PLACE_TAGS.luxury] },
+  ],
+  respectOpeningHours: true,
+}</code></pre>
+
+                <h3>4) Age-gated targets: override restriction per rule</h3>
+                <pre><code>{
+  id: "juvenile_break_in",
+  type: SCHEDULE_RULES.daily,
+  window: { from: "18:00", to: "20:00" },
+  stayMinutes: { min: 20, max: 60 },
+  targets: [
+    { type: TARGET_TYPE.placeKeys, candidates: ["jail"] }
+  ],
+  // Default is true; set to false to ignore place.props.ages.min/max
+  respectAgeRestriction: false,
+}</code></pre>
+            </section>
+
+            <section>
+                <h2>Common pitfalls</h2>
+                <ul>
+                    <li>
+                        <strong>Targets must be an array.</strong> A single object
+                        <code>targets: {...}</code> will be treated as no targets.
+                    </li>
+                    <li>
+                        <strong>Home timeBlocks can’t cross midnight.</strong> Split into two blocks
+                        instead.
+                    </li>
+                    <li>
+                        <strong>Opening hours filter is coarse.</strong> If a place closes
+                        mid-window, it’s excluded entirely (when <code>respectOpeningHours</code> is
+                        true).
+                    </li>
+                    <li>
+                        <strong>Age restriction defaults on.</strong> If an NPC is under
+                        <code>ages.min</code> (or over <code>ages.max</code>), that place is
+                        excluded unless <code>respectAgeRestriction: false</code>.
+                    </li>
+                    <li>
+                        <strong>Unknown rule/target types are ignored.</strong> If something "does
+                        nothing", check the console and verify you used a supported type.
+                    </li>
+                </ul>
+            </section>
+        </main>
+    </body>
+</html>

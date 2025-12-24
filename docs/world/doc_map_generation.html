@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>World Map Generation & World Data Reference</title>
+        <style>
+            :root {
+                --bg: #0b0f14;
+                --panel: #121a23;
+                --text: #e6edf3;
+                --muted: #9fb0c0;
+                --line: #233041;
+                --code: #0e1520;
+                --accent: #7dd3fc;
+                --warn: #fbbf24;
+                --bad: #fb7185;
+                --good: #86efac;
+            }
+            html,
+            body {
+                margin: 0;
+                padding: 0;
+                background: var(--bg);
+                color: var(--text);
+                font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell,
+                    Noto Sans, sans-serif;
+                line-height: 1.55;
+            }
+            a {
+                color: var(--accent);
+                text-decoration: none;
+            }
+            a:hover {
+                text-decoration: underline;
+            }
+            header {
+                padding: 32px 18px 18px;
+                border-bottom: 1px solid var(--line);
+            }
+            header h1 {
+                margin: 0 0 8px;
+                font-size: 28px;
+                letter-spacing: 0.2px;
+            }
+            header p {
+                margin: 0;
+                color: var(--muted);
+                max-width: 980px;
+            }
+            main {
+                max-width: 980px;
+                margin: 0 auto;
+                padding: 18px;
+            }
+            section {
+                background: var(--panel);
+                border: 1px solid var(--line);
+                border-radius: 14px;
+                padding: 18px;
+                margin: 14px 0;
+            }
+            h2 {
+                margin: 0 0 10px;
+                font-size: 20px;
+            }
+            h3 {
+                margin: 18px 0 8px;
+                font-size: 16px;
+                color: var(--accent);
+            }
+            .pill {
+                display: inline-block;
+                padding: 2px 10px;
+                border-radius: 999px;
+                border: 1px solid var(--line);
+                background: rgba(255, 255, 255, 0.03);
+                font-size: 12px;
+                color: var(--muted);
+            }
+            .pill.req {
+                color: var(--good);
+                border-color: rgba(134, 239, 172, 0.35);
+            }
+            .pill.opt {
+                color: var(--accent);
+                border-color: rgba(125, 211, 252, 0.35);
+            }
+            .pill.warn {
+                color: var(--warn);
+                border-color: rgba(251, 191, 36, 0.35);
+            }
+            .pill.bad {
+                color: var(--bad);
+                border-color: rgba(251, 113, 133, 0.35);
+            }
+            .note {
+                border-left: 4px solid rgba(125, 211, 252, 0.6);
+                padding: 10px 12px;
+                background: rgba(125, 211, 252, 0.06);
+                border-radius: 10px;
+                color: var(--muted);
+            }
+            .warnbox {
+                border-left: 4px solid rgba(251, 191, 36, 0.75);
+                padding: 10px 12px;
+                background: rgba(251, 191, 36, 0.07);
+                border-radius: 10px;
+                color: var(--muted);
+            }
+            .badbox {
+                border-left: 4px solid rgba(251, 113, 133, 0.75);
+                padding: 10px 12px;
+                background: rgba(251, 113, 133, 0.07);
+                border-radius: 10px;
+                color: var(--muted);
+            }
+            code,
+            pre {
+                font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono,
+                    monospace;
+            }
+            pre {
+                background: var(--code);
+                border: 1px solid var(--line);
+                border-radius: 14px;
+                padding: 14px;
+                overflow: auto;
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 10px 0;
+            }
+            th,
+            td {
+                border-bottom: 1px solid var(--line);
+                padding: 10px 10px;
+                vertical-align: top;
+            }
+            th {
+                color: var(--muted);
+                font-weight: 600;
+                text-align: left;
+                font-size: 13px;
+            }
+            td {
+                font-size: 14px;
+            }
+            ul {
+                margin: 8px 0 8px 20px;
+            }
+            .grid2 {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            @media (min-width: 900px) {
+                .grid2 {
+                    grid-template-columns: 1fr 1fr;
+                }
+            }
+            footer {
+                color: var(--muted);
+                padding: 24px 18px 40px;
+                text-align: center;
+            }
+            .kbd {
+                font-family: ui-monospace, monospace;
+                border: 1px solid var(--line);
+                padding: 1px 6px;
+                border-radius: 7px;
+                background: rgba(255, 255, 255, 0.03);
+                color: var(--text);
+            }
+        </style>
+    </head>
+
+    <body>
+        <header>
+            <h1>World Map Generation & World Data Reference</h1>
+            <p>
+                This page documents how the procedural world map is generated
+                (<code>src/classes/world/util/worldmap.js</code>), and how to add new districts,
+                streets, and places (<code>src/data/world/location.js</code>,
+                <code>src/data/world/street.js</code>, <code>src/data/world/place.js</code>). It
+                describes structures and expectations without listing the actual tags/entries (those
+                live in the data files).
+            </p>
+        </header>
+
+        <main>
+            <section>
+                <h2>Quick mental model</h2>
+                <div class="grid2">
+                    <div>
+                        <h3>What the “map” is</h3>
+                        <ul>
+                            <li><strong>Locations</strong> = nodes in a graph (districts).</li>
+                            <li>
+                                <strong>Streets</strong> = edges between locations (travel links).
+                            </li>
+                            <li>
+                                <strong>Places</strong> = points-of-interest attached to locations
+                                (shops, parks, stations, etc.).
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>Where data comes from</h3>
+                        <ul>
+                            <li><code>LOCATION_REGISTRY</code> defines district types & tags.</li>
+                            <li>
+                                <code>STREET_REGISTRY</code> is a pool of street names with tags
+                                (used for naming runs of edges).
+                            </li>
+                            <li>
+                                <code>PLACE_REGISTRY</code> defines place types, placement
+                                constraints, and place props.
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="note">
+                    IDs in the world graph are stored as <strong>strings</strong> internally. Even
+                    if you pass numbers, they’re normalized via <code>String(id)</code>.
+                </div>
+            </section>
+
+            <section>
+                <h2>WorldMap constructor inputs</h2>
+
+                <pre><code>new WorldMap({
+  rnd,              // required for deterministic generation
+  density: 0.0,     // 0..1 (affects location count + extra places + street name runs)
+  mapWidth: 100,    // layout coordinate span (x)
+  mapHeight: 50,    // layout coordinate span (y)
+})</code></pre>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Option</th>
+                            <th>Required?</th>
+                            <th>Meaning</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>rnd</code></td>
+                            <td><span class="pill req">required</span></td>
+                            <td>
+                                Random number generator function returning 0..1. Used everywhere
+                                (layout, edges, names, placement).
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>density</code></td>
+                            <td><span class="pill opt">optional</span></td>
+                            <td>
+                                0..1. Higher density generally means more locations and more
+                                “extras” for places, and longer continuous street name runs.
+                                Default: 0.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>mapWidth</code>, <code>mapHeight</code></td>
+                            <td><span class="pill opt">optional</span></td>
+                            <td>
+                                Used only for the 2D layout (for spacing and street crossing
+                                checks). Travel time is not derived from these values.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section>
+                <h2>Generation pipeline (what happens, in order)</h2>
+
+                <ol>
+                    <li>
+                        <strong>Create locations</strong> (district types + tags) and lay them out
+                        on a jittered grid.
+                    </li>
+                    <li>
+                        <strong>Connect the graph</strong> using a planar Euclidean MST plus a few
+                        extra local edges (no crossings).
+                    </li>
+                    <li>
+                        <strong>Name streets</strong> by grouping edges into “runs” and assigning
+                        names from <code>STREET_REGISTRY</code>.
+                    </li>
+                    <li>
+                        <strong>Populate places</strong> into locations using
+                        <code>PLACE_REGISTRY</code>, capacity limits, and density.
+                    </li>
+                </ol>
+
+                <div class="note">
+                    “No crossings” means edges are skipped if they would geometrically intersect
+                    existing edges (except at shared endpoints). That helps keep the map readable
+                    and mostly planar.
+                </div>
+            </section>
+
+            <section>
+                <h2>Locations (districts)</h2>
+                <p>
+                    District types are defined in <code>src/data/world/location.js</code> as
+                    <code>LOCATION_REGISTRY</code> entries. During generation, the engine picks
+                    district definitions to match required minimums first, then fills the rest using
+                    weighted random picks while respecting optional max caps.
+                </p>
+
+                <h3>LOCATION_REGISTRY entry shape</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Field</th>
+                            <th>Required?</th>
+                            <th>Meaning / rules</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>key</code></td>
+                            <td><span class="pill req">required</span></td>
+                            <td>Unique identifier for the district type (string).</td>
+                        </tr>
+                        <tr>
+                            <td><code>label</code></td>
+                            <td><span class="pill opt">optional</span></td>
+                            <td>
+                                Human-readable base name. Used by default naming if present;
+                                otherwise falls back to <code>key</code>.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>tags</code></td>
+                            <td><span class="pill opt">optional</span></td>
+                            <td>
+                                Array of district tags (strings). Places and street names use these
+                                tags for placement/naming bias. (Tags themselves are declared in the
+                                same file; this doc does not list them.)
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>weight</code></td>
+                            <td><span class="pill opt">optional</span></td>
+                            <td>
+                                Relative chance of being chosen when filling non-required slots.
+                                Default: 1.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>min</code></td>
+                            <td><span class="pill opt">optional</span></td>
+                            <td>
+                                Hard minimum count of this district type in the map. Mins are
+                                applied first. If overall location count is too small, mins are
+                                satisfied until the map runs out of slots.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>max</code></td>
+                            <td><span class="pill opt">optional</span></td>
+                            <td>
+                                Maximum count of this district type. When the generator fills
+                                remaining slots, it avoids exceeding max.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>How locations are positioned</h3>
+                <ul>
+                    <li>
+                        Locations are laid out on a grid (columns ≈ √N), then jittered inside each
+                        cell.
+                    </li>
+                    <li>
+                        Coordinates are stored on the location as <code>x</code>/<code>y</code>.
+                    </li>
+                    <li>
+                        Coordinates are used for connection geometry (distance sorting, crossing
+                        tests), not for travel time.
+                    </li>
+                </ul>
+
+                <div class="warnbox">
+                    Naming: the default district name function appends a letter suffix (A, B, C, …)
+                    when multiple districts share the same base. So you typically get names like
+                    “Downtown A”, “Downtown B”, etc.
+                </div>
+            </section>
+
+            <section>
+                <h2>Graph connection (streets)</h2>
+
+                <h3>How edges are created</h3>
+                <ul>
+                    <li>
+                        All location pairs are considered with Euclidean distance
+                        <code>hypot(dx, dy)</code>.
+                    </li>
+                    <li>
+                        A minimum spanning tree (Kruskal) is built first (planar in Euclidean
+                        space).
+                    </li>
+                    <li>
+                        Then, a few extra edges per node are attempted to nearby nodes (k-nearest
+                        neighbors).
+                    </li>
+                    <li>
+                        Any edge that would cross an existing edge is skipped (unless it shares an
+                        endpoint).
+                    </li>
+                </ul>
+
+                <h3>Street (edge) properties</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Property</th>
+                            <th>Meaning</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>minutes</code></td>
+                            <td>
+                                Travel time for that edge. Set once at generation time and clamped
+                                to 1–5 minutes. (This is what pathfinding uses.)
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>distance</code></td>
+                            <td>
+                                Purely descriptive distance value (meters), derived from Euclidean
+                                layout distance and floored to ≥ 50. It does not currently drive
+                                travel time.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>streetName</code></td>
+                            <td>Name assigned after the graph is built (see below).</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="note">
+                    Pathfinding uses <code>getTravelMinutes()</code> /
+                    <code>getTravelTotal()</code>, both based on summed <code>edge.minutes</code>.
+                    The returned <code>getTravelTotal()</code> also includes the sequence of
+                    location IDs and edge objects.
+                </div>
+            </section>
+
+            <section>
+                <h2>Street naming</h2>
+                <p>
+                    Street naming does <em>not</em> come from the generated geometry directly.
+                    Instead, edges are grouped into “runs” and each run gets a name. Names are
+                    chosen from <code>STREET_REGISTRY</code> and each registry entry is used at most
+                    once per map.
+                </p>
+
+                <h3>STREET_REGISTRY entry shape</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Field</th>
+                            <th>Required?</th>
+                            <th>Meaning</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>key</code></td>
+                            <td><span class="pill req">required</span></td>
+                            <td>
+                                Unique identifier for the name entry. Used to prevent reuse within
+                                one generated map.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>name</code></td>
+                            <td><span class="pill req">required</span></td>
+                            <td>The actual street name string (“Market Street”, etc.).</td>
+                        </tr>
+                        <tr>
+                            <td><code>tags</code></td>
+                            <td><span class="pill opt">optional</span></td>
+                            <td>
+                                Location tags this street “fits”. When a run starts near a location,
+                                entries whose tags overlap that location’s tags are weighted higher.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Run formation rules (important if you care about naming feel)</h3>
+                <ul>
+                    <li>
+                        Runs prefer starting from edges touching low-degree nodes (dead-ends / small
+                        junctions).
+                    </li>
+                    <li>
+                        Runs extend by following unassigned incident edges, avoiding immediately
+                        going back if alternatives exist.
+                    </li>
+                    <li>
+                        At intersections (degree ≥ 3), the run may stop once it has at least 2
+                        edges.
+                    </li>
+                    <li>
+                        <strong>Density increases run length.</strong> Higher density increases both
+                        the max run length and the chance to continue through intersections.
+                    </li>
+                    <li>
+                        If a run ends up as a single edge and can’t be extended, the algorithm tries
+                        to “merge” it into a neighboring already-named street.
+                    </li>
+                    <li>
+                        If the registry is exhausted, the engine falls back to
+                        <code>"Road 1"</code>, <code>"Road 2"</code>, …
+                    </li>
+                </ul>
+            </section>
+
+            <section>
+                <h2>Places: how they’re generated</h2>
+
+                <div class="grid2">
+                    <div>
+                        <h3>Key constraints</h3>
+                        <ul>
+                            <li>
+                                Each location has a hard capacity:
+                                <code>capacityPerLocation = 10</code>.
+                            </li>
+                            <li>
+                                Place types can define <code>maxCount</code> and
+                                <code>minDistance</code> constraints.
+                            </li>
+                            <li>
+                                Place types can be limited to certain district tags via
+                                <code>allowedTags</code>.
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>Placement stages</h3>
+                        <ol>
+                            <li>
+                                <strong>Stage 0:</strong> greedy bus stops (special case; see below)
+                            </li>
+                            <li><strong>Stage 1:</strong> satisfy minimum counts and singletons</li>
+                            <li>
+                                <strong>Stage 2:</strong> density-driven extras (respects soft
+                                targets)
+                            </li>
+                            <li><strong>Stage 3:</strong> ensure at least 1 place per location</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <h3>PLACE_REGISTRY entry shape</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Field</th>
+                            <th>Required?</th>
+                            <th>Meaning / rules</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>key</code></td>
+                            <td><span class="pill req">required</span></td>
+                            <td>
+                                Unique place type key (string). The generator and schedulers use
+                                this key heavily.
+                                <span class="pill bad">Don’t use <code>id</code> instead</span> —
+                                map generation reads <code>key</code>.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>label</code></td>
+                            <td><span class="pill opt">optional</span></td>
+                            <td>Human-readable label used as a fallback for naming.</td>
+                        </tr>
+                        <tr>
+                            <td><code>props</code></td>
+                            <td><span class="pill opt">optional</span></td>
+                            <td>
+                                Arbitrary metadata copied into the instantiated
+                                <code>Place.props</code> (icons, categories, opening hours, age
+                                gates, etc.). Documented below.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>nameFn(context)</code></td>
+                            <td><span class="pill opt">optional</span></td>
+                            <td>
+                                Function returning the base name for an instance. Called during
+                                placement.
+                                <strong>Context shape:</strong>
+                                <pre><code>({ tags, rnd, index, locationId }) =&gt; "Some Name"</code></pre>
+                                where <code>tags</code> are the location’s district tags,
+                                <code>rnd</code> is RNG, and <code>index</code> counts prior
+                                placements of the same key.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>allowedTags</code></td>
+                            <td><span class="pill opt">optional</span></td>
+                            <td>
+                                Array of district tags. If provided, the place can only be placed in
+                                locations that contain <em>any</em> of these tags. If omitted, the
+                                place may be placed anywhere (subject to other constraints).
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>minCount</code></td>
+                            <td><span class="pill opt">optional</span></td>
+                            <td>
+                                Minimum number of instances the generator will try to place in Stage
+                                1. Default is effectively 0.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>maxCount</code></td>
+                            <td><span class="pill opt">optional</span></td>
+                            <td>
+                                Maximum number of instances. If omitted, effectively unlimited. (But
+                                you still hit per-location capacity and distance constraints.)
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>minDistance</code></td>
+                            <td><span class="pill opt">optional</span></td>
+                            <td>
+                                Minimum distance between two instances of the same key. Important:
+                                when no custom distance function is supplied, this is a
+                                <strong>graph hop count</strong> (BFS steps), not meters.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>weight</code></td>
+                            <td><span class="pill opt">optional</span></td>
+                            <td>
+                                Stored on the definition but not directly used by the current
+                                placement algorithm (placement is driven primarily by min/max
+                                counts, density extras, and constraints).
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="warnbox">
+                    Placement is best-effort: if constraints are too strict (e.g., very high
+                    <code>minDistance</code> with few candidate districts), the generator may stop
+                    early and place fewer than requested.
+                </div>
+            </section>
+
+            <section>
+                <h2>How density affects the world</h2>
+                <ul>
+                    <li>
+                        <strong>Location count:</strong> when <code>locationCount</code> is not
+                        explicitly provided, it’s derived from required minimum places. Higher
+                        <code>density</code> increases the computed number of locations.
+                    </li>
+                    <li>
+                        <strong>Extra places:</strong> if a place type has a finite
+                        <code>maxCount</code>, density can add “extra” instances up to that cap in
+                        Stage 2.
+                    </li>
+                    <li>
+                        <strong>Soft per-location targets:</strong> Stage 2 uses a per-location
+                        “soft target” (based on node degree) to discourage overstuffing one location
+                        with all the extras.
+                    </li>
+                    <li>
+                        <strong>Street name runs:</strong> higher density produces longer continuous
+                        street name runs.
+                    </li>
+                </ul>
+
+                <div class="note">
+                    The generator still hard-limits places per location to 10 total instances
+                    (including bus stops).
+                </div>
+            </section>
+
+            <section>
+                <h2>Why bus stops are special</h2>
+
+                <p>
+                    The key <code>"bus_stop"</code> is handled specially in
+                    <code>worldmap.js</code>: the generator first performs a greedy placement pass
+                    that tries to place bus stops widely across the map, subject only to
+                    <code>minDistance</code> between bus stops.
+                </p>
+
+                <ul>
+                    <li>Bus stops are placed <strong>before</strong> other place types.</li>
+                    <li>
+                        This greedy pass intentionally bypasses the usual “soft target” and capacity
+                        checks used for extras.
+                    </li>
+                    <li>
+                        Bus stops still consume a slot in the location’s capacity, so placing “a bus
+                        stop everywhere” reduces room for other places.
+                    </li>
+                </ul>
+
+                <h3>Bus travel in NPC movement</h3>
+                <p>
+                    NPC bus travel looks for the nearest place whose <code>place.key</code> is
+                    either <code>"bus_stop"</code> or <code>"bus_station"</code>. If you add a new
+                    bus-station-like place, ensure it uses one of those keys <em>or</em> update the
+                    lookup logic.
+                </p>
+
+                <h3>Bus stop props that matter</h3>
+                <ul>
+                    <li>
+                        <code>props.travelTimeMult</code> — bus ride time multiplier (smaller =
+                        faster bus)
+                    </li>
+                    <li>
+                        <code>props.busFrequencyDay</code> / <code>props.busFrequencyNight</code> —
+                        minutes between buses, used to compute wait time
+                    </li>
+                </ul>
+
+                <div class="warnbox">
+                    If a “bus stop” place lacks those props, bus planning may fail or behave
+                    strangely. Keep those fields present on any bus-stop-like place used by the bus
+                    system.
+                </div>
+            </section>
+
+            <section>
+                <h2>Place props</h2>
+                <p>
+                    <code>props</code> is a free-form object copied onto the instantiated
+                    <code>Place</code>. The engine currently cares about the fields below;
+                    additional fields are allowed for UI or gameplay logic.
+                </p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>props field</th>
+                            <th>Type</th>
+                            <th>Meaning / used by</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>icon</code></td>
+                            <td>string</td>
+                            <td>UI label (emoji, etc.).</td>
+                        </tr>
+                        <tr>
+                            <td><code>category</code></td>
+                            <td>string or array</td>
+                            <td>
+                                Place categories/tags. Used by target selection
+                                (<code>placeCategory</code>) and by opening-hours inference (default
+                                schedule is chosen using the first category when no key override
+                                exists).
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>openingHours</code></td>
+                            <td>schedule object</td>
+                            <td>
+                                Weekly schedule used by <code>Place.isOpen(atTime)</code> and by NPC
+                                scheduling when rules have <code>respectOpeningHours</code>. If
+                                omitted, opening hours are inferred (by key first, then by category,
+                                otherwise 24/7).
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>ages</code></td>
+                            <td><code>{min?: number, max?: number}</code></td>
+                            <td>
+                                Age gate used by the NPC scheduler when
+                                <code>respectAgeRestriction</code> is true/absent on a rule. If the
+                                NPC’s age is below <code>min</code> or above <code>max</code>, the
+                                place is excluded unless the rule opts out.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>travelTimeMult</code></td>
+                            <td>number</td>
+                            <td>Bus-only: multiplier applied to bus ride time.</td>
+                        </tr>
+                        <tr>
+                            <td><code>busFrequencyDay</code>, <code>busFrequencyNight</code></td>
+                            <td>number (minutes)</td>
+                            <td>Bus-only: used to compute waiting time aligned to the clock.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="note">
+                    Place instances clone <code>openingHours</code> so each place has its own
+                    schedule object (no shared mutation).
+                </div>
+            </section>
+
+            <section>
+                <h2>Opening hours: format & inference</h2>
+
+                <h3>Schedule format</h3>
+                <p>
+                    <code>openingHours</code> is a map of day keys to arrays of slots. Day keys are
+                    3-letter lowercase strings (mon/tue/wed/thu/fri/sat/sun). Slots can be objects
+                    or two-element arrays.
+                </p>
+
+                <pre><code>props: {
+  openingHours: {
+    mon: [{ from: "09:00", to: "17:00" }],
+    tue: [["09:00", "17:00"]],
+    wed: [],
+    thu: [{ from: "09:00", to: "17:00" }],
+    fri: [{ from: "09:00", to: "17:00" }],
+    sat: [{ from: "10:00", to: "14:00" }],
+    sun: []
+  }
+}</code></pre>
+
+                <h3>Crossing midnight</h3>
+                <p>
+                    A slot where <code>to</code> is earlier than <code>from</code> is treated as
+                    “overnight”: e.g. <code>18:00 → 03:00</code> means open 18:00–24:00 on that day,
+                    and 00:00–03:00 on the next day. The <code>Place.isOpen()</code> implementation
+                    checks both the same day and the “after midnight” remainder of the previous day.
+                </p>
+
+                <h3>Default opening hours</h3>
+                <ul>
+                    <li>If <code>props.openingHours</code> is present, it wins.</li>
+                    <li>
+                        Else, if the place key has an override in
+                        <code>DEFAULT_OPENING_HOURS_BY_KEY</code>, it uses that.
+                    </li>
+                    <li>
+                        Else, if the first <code>props.category</code> has a default in
+                        <code>DEFAULT_OPENING_HOURS_BY_CATEGORY</code>, it uses that.
+                    </li>
+                    <li>Else, the default is 24/7.</li>
+                </ul>
+
+                <div class="warnbox">
+                    Opening-hour checks use UTC day/hour/minute (from <code>Date.getUTCDay()</code>,
+                    etc.). If your game presents local time to players, keep that mapping in mind
+                    when authoring schedules.
+                </div>
+            </section>
+
+            <section>
+                <h2>How to add new content</h2>
+
+                <h3>Add a new district type (location)</h3>
+                <ol>
+                    <li>
+                        Edit <code>src/data/world/location.js</code> and add an entry to
+                        <code>LOCATION_REGISTRY</code>.
+                    </li>
+                    <li>
+                        Give it a unique <code>key</code>, a <code>label</code>, and a set of
+                        <code>tags</code> that will matter for placement and naming.
+                    </li>
+                    <li>
+                        If you want it to always appear, add <code>min</code>. If you want to cap
+                        it, add <code>max</code>.
+                    </li>
+                </ol>
+
+                <h3>Add new street name variants</h3>
+                <ol>
+                    <li>
+                        Edit <code>src/data/world/street.js</code> and add an entry to
+                        <code>STREET_REGISTRY</code>.
+                    </li>
+                    <li>Give it a unique <code>key</code> and a <code>name</code>.</li>
+                    <li>
+                        Optionally add <code>tags</code> that match district tags where that street
+                        name “fits”.
+                    </li>
+                </ol>
+                <div class="note">
+                    Street registry entries are a <em>name pool</em>. They don’t create streets —
+                    they only influence naming of generated edges.
+                </div>
+
+                <h3>Add a new place type</h3>
+                <ol>
+                    <li>
+                        Edit <code>src/data/world/place.js</code> and add a
+                        <code>PLACE_REGISTRY</code> entry with a unique <code>key</code>.
+                    </li>
+                    <li>
+                        Choose <code>allowedTags</code> carefully to ensure there are enough
+                        candidate locations.
+                    </li>
+                    <li>
+                        Use <code>minCount</code> / <code>maxCount</code> to control how many
+                        appear. Use <code>minDistance</code> to spread them out.
+                    </li>
+                    <li>
+                        Set <code>props.category</code> so NPC target selection and opening-hour
+                        defaults work.
+                    </li>
+                    <li>
+                        If it has special access rules (age, opening hours), set
+                        <code>props.ages</code> and/or <code>props.openingHours</code>.
+                    </li>
+                    <li>If it’s bus-related, include the bus props described above.</li>
+                </ol>
+
+                <div class="badbox">
+                    Avoid impossible combinations:
+                    <ul>
+                        <li>
+                            Very small candidate set + very high <code>minCount</code> or
+                            <code>minDistance</code>
+                        </li>
+                        <li>
+                            <code>maxCount</code> lower than <code>minCount</code> (the generator
+                            clamps, but it won’t do what you expect)
+                        </li>
+                        <li>
+                            Leaving <code>props.category</code> empty when you want NPCs to find the
+                            place by category
+                        </li>
+                    </ul>
+                </div>
+            </section>
+
+            <section>
+                <h2>Name functions: what they receive</h2>
+
+                <h3>Place <code>nameFn</code></h3>
+                <p>Called during instantiation in the generator. Signature is effectively:</p>
+                <pre><code>nameFn({
+  tags,        // the location's district tags (array)
+  rnd,         // RNG function (0..1)
+  index,       // 0-based count of already-placed instances of this place key
+  locationId,  // the location ID where this instance is being created
+}) =&gt; string</code></pre>
+                <p>
+                    The generator enforces uniqueness per place key: if the name repeats, it
+                    auto-suffixes “ 2”, “ 3”, … up to 99. If it can’t find a unique name, that
+                    placement attempt is abandoned.
+                </p>
+
+                <h3>District naming</h3>
+                <p>
+                    District naming is currently handled inside <code>worldmap.js</code> by a
+                    default naming function. If you want custom district naming, you’d change the
+                    call site in <code>createLocations()</code>.
+                </p>
+            </section>
+        </main>
+    </body>
+</html>
