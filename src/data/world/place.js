@@ -27,6 +27,7 @@ export const PLACE_TAGS = {
     crime: "crime",
     supernatural: "supernatural",
     nsfw: "***",
+    luxury: "luxury",
 };
 
 export const PLACE_REGISTRY = [

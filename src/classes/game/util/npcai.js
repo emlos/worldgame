@@ -2051,6 +2051,130 @@ export class NPCScheduler {
     // ---------------------------------------------------------------------
 
     /**
+     * Normalize optional rule.disallowedTargets into fast lookup sets.
+     *
+     * Supported disallowedTargets entries:
+     *   - { type: TARGET_TYPE.home }
+     *   - { type: TARGET_TYPE.placeKeys,      candidates: ["key", ...] }
+     *   - { type: TARGET_TYPE.placeCategory, candidates: [PLACE_TAGS.*] }
+     *
+     * Any other types are logged and ignored.
+     */
+    _normalizeDisallowedTargets(rule) {
+        const list = Array.isArray(rule?.disallowedTargets) ? rule.disallowedTargets : [];
+        if (!list.length) {
+            return { disallowHome: false, placeKeys: null, placeCategories: null };
+        }
+
+        const keys = new Set();
+        const cats = new Set();
+        let disallowHome = false;
+
+        for (const entry of list) {
+            const type = entry?.type;
+
+            if (type === TARGET_TYPE.home) {
+                disallowHome = true;
+                continue;
+            }
+
+            // Collect candidates with the same leniency we use for rule.targets
+            const baseCandidates = Array.isArray(entry?.candidates)
+                ? entry.candidates
+                : entry?.candidates != null
+                ? [entry.candidates]
+                : [];
+
+            const legacyKeys =
+                entry?.key != null
+                    ? [entry.key]
+                    : Array.isArray(entry?.keys)
+                    ? entry.keys
+                    : entry?.keys != null
+                    ? [entry.keys]
+                    : [];
+
+            const legacyCategories = Array.isArray(entry?.categories)
+                ? entry.categories
+                : entry?.categories != null
+                ? [entry.categories]
+                : [];
+
+            if (type === TARGET_TYPE.placeKeys) {
+                const listKeys = baseCandidates.length ? baseCandidates : legacyKeys;
+                for (const k of listKeys) {
+                    if (k == null) continue;
+                    keys.add(String(k));
+                }
+                continue;
+            }
+
+            if (type === TARGET_TYPE.placeCategory) {
+                const listCats = baseCandidates.length ? baseCandidates : legacyCategories;
+                for (const c of listCats) {
+                    if (c == null) continue;
+                    cats.add(c);
+                }
+                continue;
+            }
+
+            // Unsupported type for disallowedTargets.
+            // Intentionally do not throw; just warn so content authors can spot it.
+            // eslint-disable-next-line no-console
+            console.warn(
+                "[NPCScheduler] Ignoring disallowedTargets entry with unsupported type:",
+                type,
+                entry
+            );
+        }
+
+        return {
+            disallowHome,
+            placeKeys: keys.size ? keys : null,
+            placeCategories: cats.size ? cats : null,
+        };
+    }
+
+    _filterCandidatesByDisallowed(candidates, disallowed, npc) {
+        if (!candidates || !candidates.length) return [];
+        if (!disallowed) return candidates;
+
+        const keys = disallowed.placeKeys;
+        const cats = disallowed.placeCategories;
+        const disallowHome = !!disallowed.disallowHome;
+
+        const homeLoc = disallowHome ? this._getHomeLocation(npc) : null;
+        const homeId = homeLoc?.id != null ? String(homeLoc.id) : null;
+
+        // Fast path: nothing to filter
+        if (!keys && !cats && !disallowHome) return candidates;
+
+        return candidates.filter((item) => {
+            const place = item?.place || null;
+
+            // Home candidate (place:null)
+            if (!place) {
+                if (!disallowHome) return true;
+                const locId = item?.location?.id;
+                if (homeId == null || locId == null) return true;
+                return String(locId) !== homeId;
+            }
+
+            if (keys && keys.has(String(place.key))) return false;
+
+            if (cats) {
+                const cat = place.props && place.props.category;
+                if (cat) {
+                    const list = Array.isArray(cat) ? cat : [cat];
+                    if (list.some((c) => cats.has(c))) return false;
+                }
+            }
+
+            return true;
+        });
+    }
+
+    /**
      * Expand a single target into concrete (location, place) candidates.
      *
      * Unified target schema:
@@ -2152,6 +2276,8 @@ export class NPCScheduler {
         const targets = Array.isArray(rule.targets) ? rule.targets : [];
         const respectOpeningHours = !!rule.respectOpeningHours;
 
+        const disallowed = this._normalizeDisallowedTargets(rule);
+
         // `nearest: true` only affect the target *entry* that declares it
         // "nearest among the union", set `rule.nearest = true`.
 
@@ -2165,8 +2291,14 @@ export class NPCScheduler {
                 respectOpeningHours,
             });
 
-            if (candidatesForTarget && candidatesForTarget.length) {
-                groups.push({ target, candidates: candidatesForTarget });
+            const filteredCandidates = this._filterCandidatesByDisallowed(
+                candidatesForTarget,
+                disallowed,
+                npc
+            );
+
+            if (filteredCandidates && filteredCandidates.length) {
+                groups.push({ target, candidates: filteredCandidates });
             }
         }
 

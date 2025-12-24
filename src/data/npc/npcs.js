@@ -88,6 +88,12 @@ export const NPC_REGISTRY = [
                             candidates: [PLACE_TAGS.leisure, PLACE_TAGS.food, PLACE_TAGS.commerce],
                         },
                     ],
+                    disallowedTargets: [
+                        {
+                            type: TARGET_TYPE.placeCategory,
+                            candidates: [PLACE_TAGS.nightlife, PLACE_TAGS.luxury], // avoid nightlife places in the morning
+                        },
+                    ],
                     respectOpeningHours: true,
                 },
 
@@ -130,6 +136,12 @@ export const NPC_REGISTRY = [
                             type: TARGET_TYPE.home, // can also choose to stay at home
                         },
                     ],
+                    disallowedTargets: [
+                        {
+                            type: TARGET_TYPE.placeCategory,
+                            candidates: [PLACE_TAGS.nightlife, PLACE_TAGS.luxury],
+                        },
+                    ],
                     respectOpeningHours: true,
                 },
 
@@ -159,6 +171,12 @@ export const NPC_REGISTRY = [
                             type: TARGET_TYPE.home, // can also choose to stay at home
                         },
                     ],
+                    disallowedTargets: [
+                        {
+                            type: TARGET_TYPE.placeCategory,
+                            candidates: [PLACE_TAGS.nightlife, PLACE_TAGS.luxury],
+                        },
+                    ],
                     respectOpeningHours: true,
                 },
 
@@ -175,6 +193,12 @@ export const NPC_REGISTRY = [
                         {
                             type: TARGET_TYPE.placeCategory,
                             candidates: [PLACE_TAGS.nightlife],
+                        },
+                    ],
+                    disallowedTargets: [
+                        {
+                            type: TARGET_TYPE.placeCategory,
+                            candidates: [PLACE_TAGS.luxury],
                         },
                     ],
                     respectOpeningHours: true,
@@ -216,8 +240,8 @@ export const NPC_REGISTRY = [
              *  - Occasionally visits a crime den to sell goods
              */
             transport: {
-                bus: { use: true,  },
-                car: { use: true, window: {from: "22:00", to: "05:00"}, fromDuration: 10},
+                bus: { use: true },
+                car: { use: true, window: { from: "22:00", to: "05:00" }, fromDuration: 10 },
             },
             rules: [
                 // 1) Daytime hideout/sleep: 05:00–13:00 at home
@@ -410,7 +434,7 @@ export const NPC_REGISTRY = [
                     daysOfWeek: [...DAY_KEYS],
                     window: { from: "00:00", to: "24:00" },
                     stayMinutes: { min: 24 * 60, max: 7 * 24 * 60, round: 24 * 60 }, //TODO: round the duration of the slot to round value in minutes
-                    target: {
+                    targets: {
                         type: TARGET_TYPE.unavailable, //TODO: new type, npc not in any location, they do not exist or move or plan anything until stayminutes are over
                     },
                     respectOpeningHours: false,
@@ -1144,7 +1168,7 @@ export const NPC_REGISTRY = [
              */
             transport: {
                 bus: { use: false },
-                car: { use: true }, 
+                car: { use: true },
             },
             rules: [
                 // 1) Late sleep at penthouse: 03:00–10:00
