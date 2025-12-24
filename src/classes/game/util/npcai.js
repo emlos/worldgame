@@ -2187,13 +2187,34 @@ export class NPCScheduler {
      *   - target.categories
      *   - type TARGET_TYPE.placeKeys
      */
-    _collectCandidatesForTarget({ npc, target, from, to, respectOpeningHours }) {
+    _collectCandidatesForTarget({ npc, target, from, to, respectOpeningHours, respectAgeRestriction }) {
         if (!target || !this.world) return [];
 
         const isOpenForSpan = (place) => {
             if (!respectOpeningHours || !place || typeof place.isOpen !== "function") return true;
             const endCheck = new Date(to.getTime() - MS_PER_MINUTE);
             return place.isOpen(from) && place.isOpen(endCheck);
+        };
+
+        const isAllowedByAge = (place) => {
+            // respectAgeRestriction defaults to true.
+            if (respectAgeRestriction === false) return true;
+            if (!place) return true;
+
+            const ageGate = place?.props?.ages;
+            if (!ageGate) return true;
+
+            const age = Number(npc?.age);
+            // If age is unknown, don't block by default.
+            if (!Number.isFinite(age)) return true;
+
+            const min = Number(ageGate?.min);
+            const max = Number(ageGate?.max);
+
+            if (Number.isFinite(min) && age < min) return false;
+            if (Number.isFinite(max) && age > max) return false;
+
+            return true;
         };
 
         if (target.type === TARGET_TYPE.home) {
@@ -2259,6 +2280,7 @@ export class NPCScheduler {
             for (const place of places) {
                 if (!isCandidatePlace(place)) continue;
                 if (!isOpenForSpan(place)) continue;
+                if (!isAllowedByAge(place)) continue;
                 items.push({ location: loc, place });
             }
         }
@@ -2275,6 +2297,8 @@ export class NPCScheduler {
     _pickLocationFromTargets({ npc, rule, from, to }) {
         const targets = Array.isArray(rule.targets) ? rule.targets : [];
         const respectOpeningHours = !!rule.respectOpeningHours;
+        // respectAgeRestriction defaults to true. Set to false to ignore place.props.ages gates.
+        const respectAgeRestriction = rule?.respectAgeRestriction !== false;
 
         const disallowed = this._normalizeDisallowedTargets(rule);
 
@@ -2289,6 +2313,7 @@ export class NPCScheduler {
                 from,
                 to,
                 respectOpeningHours,
+                respectAgeRestriction,
             });
 
             const filteredCandidates = this._filterCandidatesByDisallowed(
