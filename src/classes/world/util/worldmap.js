@@ -166,8 +166,7 @@ function generatePlaces({
         }
 
         // For density 0, bias closer to min; for density 1, allow max
-        const t = density01;
-        const target = Math.round(minSlots * density + maxSlots * t);
+        const target = Math.round(minSlots*(1-density) + maxSlots*density);
 
         softTarget.set(String(locId), target);
     }
@@ -195,12 +194,6 @@ function generatePlaces({
             for (const locId of locations) set.add(locId);
         }
 
-        // Train station only where degree === 1
-        if (def.key === "train_station") {
-            for (const locId of Array.from(set)) {
-                if ((degree.get(locId) || 0) !== 1) set.delete(locId);
-            }
-        }
 
         return Array.from(set);
     }
@@ -218,7 +211,7 @@ function generatePlaces({
         const key = def.key;
         const max = Number.isFinite(def.maxCount) ? def.maxCount : Infinity;
 
-        let min = def.minCount ?? 0;
+        let min = def.minCount ?? 1;
         const ext = baseTargetCounts[key];
         if (Number.isFinite(ext)) {
             min = Math.max(min, ext);
@@ -260,11 +253,6 @@ function generatePlaces({
         const used = locationUsage.get(locKey) || 0;
         if (used >= capacityPerLocation) return false;
 
-        if (respectSoftTarget) {
-            const soft = softTarget.get(locKey) ?? capacityPerLocation;
-            if (used >= soft) return false;
-        }
-
         const locTagsRaw = getTag(locId) || [];
         const locTags = Array.isArray(locTagsRaw) ? locTagsRaw : [locTagsRaw];
 
@@ -272,9 +260,6 @@ function generatePlaces({
             if (!def.allowedTags.some((t) => locTags.includes(t))) return false;
         }
 
-        if (def.key === "train_station" && (degree.get(locId) || 0) !== 1) {
-            return false;
-        }
 
         if (Number.isFinite(def.maxCount)) {
             const already = totalByKey.get(def.key) || 0;
@@ -496,7 +481,6 @@ function generatePlaces({
                         (totalByKey.get(def.key) || 0) >= def.maxCount
                     )
                         return false;
-                    if (def.key === "train_station" && (degree.get(locId) || 0) !== 1) return false;
 
                     const sameKeyPlaced = placedByKey.get(def.key) || [];
                     if (
@@ -704,20 +688,17 @@ export class WorldMap {
 
             // create edge (travel minutes still randomized 1..10 at world-gen)
             const minutes = randInt(1, 5, map.rnd);
-            const distance = Math.round(dist(a, b));
 
             const edgeAB = new Street({
                 a: a.id,
                 b: b.id,
                 minutes,
-                distance,
                 streetName: null,
             }); //defer naming
             const edgeBA = new Street({
                 a: b.id,
                 b: a.id,
                 minutes,
-                distance,
                 streetName: null,
             });
 

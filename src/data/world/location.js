@@ -40,7 +40,6 @@ export const LOCATION_REGISTRY = [
             LOCATION_TAGS.urban,
             LOCATION_TAGS.commercial,
             LOCATION_TAGS.dense,
-
         ],
         weight: 3,
         min: 1,
@@ -70,7 +69,7 @@ export const LOCATION_REGISTRY = [
         ],
         weight: 2,
     },
-       {
+    {
         key: "slums",
         label: "Slums",
         tags: [
@@ -79,7 +78,6 @@ export const LOCATION_REGISTRY = [
             LOCATION_TAGS.urban,
             LOCATION_TAGS.poor,
             LOCATION_TAGS.dense,
-            
         ],
         weight: 1,
     },
@@ -107,7 +105,7 @@ export const LOCATION_REGISTRY = [
             LOCATION_TAGS.wealthy,
             LOCATION_TAGS.parkland,
             LOCATION_TAGS.historic,
-            LOCATION_TAGS.tourism
+            LOCATION_TAGS.tourism,
         ],
         weight: 1,
     },
@@ -208,6 +206,7 @@ export const LOCATION_REGISTRY = [
         ],
         weight: 1,
         max: 1,
+        min: 1,
     },
     {
         key: "boardwalk",
@@ -260,10 +259,10 @@ export const LOCATION_REGISTRY = [
             LOCATION_TAGS.historic,
             LOCATION_TAGS.poor,
             LOCATION_TAGS.commercial,
-            LOCATION_TAGS.urban_edge
+            LOCATION_TAGS.urban_edge,
         ],
         weight: 1,
-        max: 1
+        max: 1,
     },
 
     // ==============================================

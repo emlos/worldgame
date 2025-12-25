@@ -32,7 +32,7 @@ export const PLACE_TAGS = {
 
 export const PLACE_REGISTRY = [
     {
-        id: "player_home",
+        key: "player_home",
         label: "Player Home",
         props: { icon: "🏠", category: [PLACE_TAGS.housing] },
         nameFn: ({}) => `Your Home`,
