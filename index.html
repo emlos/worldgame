@@ -11,63 +11,79 @@
         <script type="module" src="/src/data/data.js"></script>
         <script type="module" src="/src/shared/modules.js"></script>
     </head>
+    <style>
+        .columns {
+            display: flex;
+            flex-direction: row;
+            gap: 2rem;
+        }
+    </style>
 
     <body>
-        <div class="column">
-            <h1>Game tests</h1>
-            <h2>Player Tests</h2>
-            <ul>
-                <li>
-                    <a href="./tests/player/player_data_full.html">complete player data display</a>
-                </li>
-            </ul>
-            <h2>NPC Tests</h2>
-            <ul>
-                <li>
-                    <a href="./tests/npc/npc_random_data_full.html"
-                        >complete random npc data display</a
-                    >
-                </li>
-                <li><a href="./tests/npc/world_map_single.html">single npc map interaction</a></li>
-                <li>
-                    <a href="./tests/npc/world_map_multiple_npc.html"
-                        >multiple npc map interaction</a
-                    >
-                </li>
-            </ul>
-            <h3>npc schedule tests</h3>
-            <ul>
-                <li>
-                    <a href="./tests/npc/npc_schedule_coverage.html"
-                        >rule inspector for npc schedules</a
-                    >
-                </li>
-                <li><a href="./tests/npc/npc_schedule_fuzz.html">schedule fuzz tests</a></li>
-            </ul>
-            <h2>World Tests</h2>
-            <ul>
-                <li>
-                    <a href="./tests/world/world_random_data_full.html"
-                        >complete world random data display</a
-                    >
-                </li>
-                <li><a href="./tests/world/world_map_full.html">in depth map testing</a></li>
-            </ul>
-        </div>
+        <div class="columns">
+            <div class="column">
+                <h1>Game tests</h1>
+                <h2>Player Tests</h2>
+                <ul>
+                    <li>
+                        <a href="./tests/player/player_data_full.html"
+                            >complete player data display</a
+                        >
+                    </li>
+                </ul>
+                <h2>NPC Tests</h2>
+                <ul>
+                    <li>
+                        <a href="./tests/npc/npc_random_data_full.html"
+                            >complete random npc data display</a
+                        >
+                    </li>
+                    <li>
+                        <a href="./tests/npc/world_map_single.html">single npc map interaction</a>
+                    </li>
+                    <li>
+                        <a href="./tests/npc/world_map_multiple_npc.html"
+                            >multiple npc map interaction</a
+                        >
+                    </li>
+                </ul>
+                <h3>npc schedule tests</h3>
+                <ul>
+                    <li>
+                        <a href="./tests/npc/npc_schedule_coverage.html"
+                            >rule inspector for npc schedules</a
+                        >
+                    </li>
+                    <li><a href="./tests/npc/npc_schedule_fuzz.html">schedule fuzz tests</a></li>
+                </ul>
+                <h2>World Tests</h2>
+                <ul>
+                    <li>
+                        <a href="./tests/world/world_random_data_full.html"
+                            >complete world random data display</a
+                        >
+                    </li>
+                    <li><a href="./tests/world/world_map_full.html">in depth map testing</a></li>
+                </ul>
+            </div>
 
-        <div class="column">
-            <h1>Game docs</h1>
-            <h2>Npcs</h2>
-            <ul>
-                <li><a href="./docs/npc/doc_npc_schedule.html">Npc scheduler and rules</a></li>
-            </ul>
-            <h2>Worldmap</h2>
-            <ul>
-                <li><a href="./docs/world/map_registry_browser.html">map registry viewver</a></li>
-                <li><a href="./docs/world/doc_map_generation.html">map generation and rules</a></li>
-            </ul>
+            <div class="column">
+                <h1>Game docs</h1>
+                <h2>Npcs</h2>
+                <ul>
+                    <li><a href="./docs/npc/doc_npc_schedule.html">Npc scheduler and rules</a></li>
+                </ul>
+                <h2>Worldmap</h2>
+                <ul>
+                    <li>
+                        <a href="./docs/world/map_registry_browser.html">map registry viewver</a>
+                    </li>
+                    <li>
+                        <a href="./docs/world/doc_map_generation.html">map generation and rules</a>
+                    </li>
+                </ul>
+            </div>
         </div>
-
         <section id="changelog">
             <h2>Recent changes</h2>
             <ul id="commits"></ul>
