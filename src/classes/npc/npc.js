@@ -52,6 +52,8 @@ export class NPC {
             this.stats[k] = new Stat(Number(v) || 0);
         }
 
+        this.flags = {}; // arbitrary boolean flags for game logic
+
         // Identity -------------------------------------------------
         this.gender = gender;
         this.pronouns = { ...pronouns };
@@ -123,6 +125,21 @@ export class NPC {
             if (mods?.mult) mods.mult.forEach((m) => temp.addMult(m));
         }
         return temp.value;
+    }
+
+    //sets a flag to a value (default true)
+    setFlag(flag, value = true) {
+        this.flags[flag] = value;
+    }
+
+    //returns the value of a flag
+    getFlag(flag) {
+        return !!this.flags[flag];
+    }
+
+    //returns if a flag exists and is not undefined
+    hasFlag(flag) {
+        return this.flags[flag] !== undefined;
     }
 
     // --- Traits ---
