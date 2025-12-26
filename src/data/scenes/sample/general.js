@@ -4,6 +4,7 @@
  * Demonstrates:
  *  - a "home" place scene (placeKey: player_home)
  *  - a "street" virtual place scene (placeKey: street)
+ *  - conditional text blocks inside a single scene
  *  - a random flavour text scene
  *  - a high-priority conditional scene (ambulance) that takes over when injured
  */
@@ -16,11 +17,26 @@ export const SCENES = [
             placeKey: "player_home",
             notPlayerFlags: ["injured"],
         },
-        textKey: "scene.home.default.text",
+
+        // One guaranteed text + optional conditional paragraphs.
+        // This avoids having to create a separate scene for every variant.
+        text: [
+            "scene.home.default.text",
+            { when: { timeOfDay: "morning" }, key: "scene.home.default.morning" },
+            { when: { timeOfDay: "evening" }, key: "scene.home.default.evening" },
+            { when: { npcsPresent: ["taylor"] }, key: "scene.home.default.taylorPresent" },
+            {
+                when: { playerFlags: ["waitingForPackage"] },
+                key: "scene.home.default.waitingForPackage",
+            },
+            "\n", //TODO add newline handling
+            "Ain't life nice?"
+        ],
+
         choices: [
             {
                 id: "home.goOutside",
-                textKey: "choice.home.goOutside",
+                textKey: "choice.home.goOutside", //TODO: add random scene choosing from pool
                 minutes: 2,
                 setPlaceKey: "street",
                 nextSceneId: "street.default",
@@ -30,6 +46,20 @@ export const SCENES = [
                 textKey: "choice.home.tidyUp",
                 minutes: 30,
                 nextSceneId: "home.tidyUp",
+            },
+            {
+                id: "home.waitForPackage",
+                textKey: "choice.home.waitForPackage",
+                minutes: 1,
+                setFlag: "waitingForPackage",
+                nextSceneId: "home.default",
+            },
+            {
+                id: "home.stopWaitingForPackage",
+                textKey: "choice.home.stopWaitingForPackage",
+                minutes: 1,
+                clearFlag: "waitingForPackage",
+                nextSceneId: "home.default",
             },
             {
                 // Demo of a flag-triggered, high-priority scene.
@@ -50,7 +80,7 @@ export const SCENES = [
             notPlayerFlags: ["injured"],
         },
         // Pick 1 at random each time the scene is entered
-        textKeys: [
+        textKeys: [ //TODO: unify the text and denote when to pick random text. maybe {when ..., random: true, key: [scene.home.whatever1, scene.home.whatever2..]}
             "scene.home.tidyUp.flavortext.0",
             "scene.home.tidyUp.flavortext.1",
             "scene.home.tidyUp.flavortext.2",

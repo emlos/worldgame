@@ -9,6 +9,7 @@
  *  - Priority resolution
  *  - Choices that advance time, set/clear flags, move/set place,
  *    and jump to a specific next scene
+ *  - Conditional text blocks within a single scene (avoid variants)
  */
 
 const uniq = (arr) => Array.from(new Set(arr));
@@ -108,7 +109,7 @@ export class SceneManager {
 
         if (!nextId) return null;
 
-        // Pick a random textKey if the scene offers multiple
+        // Pick a random textKey if the scene offers multiple (legacy: def.textKeys)
         const def = this.getSceneDef(nextId);
         if (def && Array.isArray(def.textKeys) && def.textKeys.length) {
             const pick = def.textKeys[(this.rnd() * def.textKeys.length) | 0];
@@ -130,11 +131,8 @@ export class SceneManager {
         if (!def) return null;
 
         const vars = this._buildVars();
-        const chosenTextKey = this._chosenTextKey.get(id);
-        const textKey = chosenTextKey || def.textKey;
-        const t = this.localizer
-            ? this.localizer.t(textKey, vars)
-            : textKey || "";
+
+        const resolved = this._resolveSceneText({ def, sceneId: id, vars });
 
         const choices = (def.choices || []).map((c) => {
             const minutes = Number(c.minutes) || 0;
@@ -152,10 +150,89 @@ export class SceneManager {
         return {
             id,
             def,
-            textKey,
-            text: t,
+            // For debugging / tooling:
+            textKey: resolved.primaryTextKey,
+            textKeys: resolved.textKeys,
+            text: resolved.text,
             vars,
             choices,
+        };
+    }
+
+    /**
+     * Resolve scene text from:
+     *  - def.text (string key)
+     *  - def.text (array of blocks)
+     *  - legacy: def.textKey / def.textKeys
+     *
+     * Array block formats:
+     *  - "scene.some.text" (always)
+     *  - { when: { ...conditions }, key: "scene.some.extra" }
+     *  - { when: { ... }, keys: ["...", "..."], pick: "random" }
+     */
+    _resolveSceneText({ def, sceneId, vars }) {
+        const joiner = typeof def.textJoiner === "string" ? def.textJoiner : "\n\n";
+
+        // Build a list of blocks to evaluate.
+        let blocks = null;
+        if (Array.isArray(def.text)) {
+            blocks = def.text;
+        } else if (typeof def.text === "string") {
+            blocks = [def.text];
+        }
+
+        // Legacy fallback: use chosen random textKey or def.textKey
+        const chosenTextKey = this._chosenTextKey.get(sceneId);
+        const legacyPrimary = chosenTextKey || def.textKey || null;
+        if (!blocks) {
+            blocks = legacyPrimary ? [legacyPrimary] : [];
+        }
+
+        const out = [];
+        const usedKeys = [];
+
+        for (const block of blocks) {
+            // Block: string => always include
+            if (typeof block === "string") {
+                if (!block) continue;
+                usedKeys.push(block);
+                out.push(this.localizer ? this.localizer.t(block, vars) : block);
+                continue;
+            }
+
+            if (!block || typeof block !== "object") continue;
+
+            const cond = block.when || block.if || block.conditions || null;
+            if (cond && !this._matchesConditions(cond)) continue;
+
+            const directKey = block.key || block.textKey || null;
+            const keyList = Array.isArray(block.keys || block.textKeys)
+                ? block.keys || block.textKeys
+                : null;
+
+            let keys = [];
+            if (directKey) keys = [directKey];
+            else if (keyList) keys = keyList.filter(Boolean).map(String);
+            else continue;
+
+            if ((block.pick || block.mode) === "random" || block.random === true) {
+                const pick = keys.length ? keys[(this.rnd() * keys.length) | 0] : null;
+                keys = pick ? [pick] : [];
+            }
+
+            for (const k of keys) {
+                usedKeys.push(k);
+                out.push(this.localizer ? this.localizer.t(k, vars) : k);
+            }
+        }
+
+        // Filter empty strings, but keep intentional whitespace in strings.
+        const text = out.filter((s) => typeof s === "string" && s.length > 0).join(joiner);
+
+        return {
+            text,
+            textKeys: usedKeys,
+            primaryTextKey: legacyPrimary || usedKeys[0] || null,
         };
     }
 
@@ -220,29 +297,37 @@ export class SceneManager {
     // --------------------------
 
     _matches(def) {
-        const c = def?.conditions || {};
+        return this._matchesConditions(def?.conditions || {});
+    }
+
+    /**
+     * Evaluate a condition object.
+     * This is shared by scene selection AND conditional text blocks.
+     */
+    _matchesConditions(c) {
+        const cond = c || {};
 
         // Location id (district node)
-        if (c.locationId && String(c.locationId) !== String(this.game.currentLocationId)) {
+        if (cond.locationId && String(cond.locationId) !== String(this.game.currentLocationId)) {
             return false;
         }
 
         // Location tags
-        const locationTags = normalizeStringSet(c.locationTags || c.locationTag);
+        const locationTags = normalizeStringSet(cond.locationTags || cond.locationTag);
         if (locationTags.length) {
             const tags = normalizeStringSet(this.game.location?.tags || []);
             if (!locationTags.some((t) => tags.includes(t))) return false;
         }
 
         // Place key (sub-location)
-        const placeKeys = normalizeStringSet(c.placeKeys || c.placeKey);
+        const placeKeys = normalizeStringSet(cond.placeKeys || cond.placeKey);
         if (placeKeys.length) {
             const cur = this.game.currentPlaceKey;
             if (!cur || !placeKeys.includes(String(cur))) return false;
         }
 
         // NPCs present in current location
-        const requiredNPCs = normalizeStringSet(c.npcsPresent || c.npcPresent);
+        const requiredNPCs = normalizeStringSet(cond.npcsPresent || cond.npcPresent);
         if (requiredNPCs.length) {
             const here = new Set(this.game.getNPCsAtLocation().map((n) => String(n.id)));
             for (const id of requiredNPCs) {
@@ -251,14 +336,14 @@ export class SceneManager {
         }
 
         // Time of day
-        const tod = normalizeStringSet(c.timeOfDay);
+        const tod = normalizeStringSet(cond.timeOfDay);
         if (tod.length) {
             const current = timeOfDayFromHourUTC(this.game.now.getUTCHours());
             if (!tod.includes(current)) return false;
         }
 
         // Player story flags
-        const flags = normalizeStringSet(c.playerFlags || c.playerFlag);
+        const flags = normalizeStringSet(cond.playerFlags || cond.playerFlag);
         if (flags.length) {
             for (const f of flags) {
                 if (!this._hasPlayerFlag(f)) return false;
@@ -266,7 +351,7 @@ export class SceneManager {
         }
 
         // Negative flags
-        const notFlags = normalizeStringSet(c.notPlayerFlags || c.notPlayerFlag);
+        const notFlags = normalizeStringSet(cond.notPlayerFlags || cond.notPlayerFlag);
         if (notFlags.length) {
             for (const f of notFlags) {
                 if (this._hasPlayerFlag(f)) return false;
@@ -315,7 +400,9 @@ export class SceneManager {
                 key: this.game.currentPlaceKey ?? null,
                 name:
                     place?.name ??
-                    (this.game.currentPlaceKey === "street" ? streetName : this.game.currentPlaceKey),
+                    (this.game.currentPlaceKey === "street"
+                        ? streetName
+                        : this.game.currentPlaceKey),
             },
             street: {
                 name: streetName,
