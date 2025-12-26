@@ -23,20 +23,15 @@ function normalizeStringSet(v) {
     return uniq(asArray(v).filter(Boolean).map(String));
 }
 
-function timeOfDayFromHourUTC(hour) {
-    // Simple buckets you can refine later.
-    // night: 22-4, morning: 5-10, day: 11-16, evening: 17-21
-    const h = ((Number(hour) % 24) + 24) % 24;
-    if (h >= 22 || h <= 4) return "night";
-    if (h >= 5 && h <= 10) return "morning";
-    if (h >= 11 && h <= 16) return "day";
-    return "evening";
-}
-
 function normalizeHour24(hour) {
     const h = Number(hour);
     if (!Number.isFinite(h)) return 0;
     return ((h % 24) + 24) % 24;
+}
+
+function toFiniteNumber(v, fallback = 0) {
+    const n = typeof v === "number" ? v : Number(v);
+    return Number.isFinite(n) ? n : fallback;
 }
 
 /**
@@ -90,6 +85,53 @@ function matchesHourGate(rule, currentHourUTC) {
     return true;
 }
 
+/**
+ * Generic numeric gating (for player stats, meter skills, etc).
+ *
+ * Supported forms:
+ *  - 5                      (exact)
+ *  - [3, 4, 5]              (any)
+ *  - { gte: 5 }             (comparators, AND-ed)
+ *  - { between: [3, 7] }    (inclusive)
+ */
+function matchesNumberGate(rule, value) {
+    const v = toFiniteNumber(value, NaN);
+
+    if (rule == null) return true;
+
+    if (typeof rule === "number" || typeof rule === "string") {
+        return v === toFiniteNumber(rule, NaN);
+    }
+
+    if (Array.isArray(rule)) {
+        const set = rule.map((x) => toFiniteNumber(x, NaN));
+        return set.includes(v);
+    }
+
+    if (typeof rule !== "object") return false;
+
+    if (Array.isArray(rule.between) && rule.between.length >= 2) {
+        const lo = toFiniteNumber(rule.between[0], NaN);
+        const hi = toFiniteNumber(rule.between[1], NaN);
+        if (!(v >= lo && v <= hi)) return false;
+    }
+
+    if (rule.gt != null && !(v > toFiniteNumber(rule.gt, NaN))) return false;
+    if (rule.gte != null && !(v >= toFiniteNumber(rule.gte, NaN))) return false;
+    if (rule.lt != null && !(v < toFiniteNumber(rule.lt, NaN))) return false;
+    if (rule.lte != null && !(v <= toFiniteNumber(rule.lte, NaN))) return false;
+
+    if (rule.eq != null && !(v === toFiniteNumber(rule.eq, NaN))) return false;
+    if (rule.ne != null && !(v !== toFiniteNumber(rule.ne, NaN))) return false;
+
+    return true;
+}
+
+function getConditionBlock(obj) {
+    if (!obj || typeof obj !== "object") return null;
+    // Normalize naming: anywhere you can write conditions, you can use any of these keys.
+    return obj.when || obj.if || obj.conditions || obj.condition || null;
+}
 
 function formatMinutesSuffix(localizer, minutes) {
     if (!localizer) return "";
@@ -202,22 +244,26 @@ export class SceneManager {
 
         const resolved = this._resolveSceneText({ def, sceneId: id, vars });
 
-        const choices = (def.choices || []).map((c) => {
+        const choices = [];
+        for (const c of def.choices || []) {
+            const cond = getConditionBlock(c);
+            if (cond && !this._matchesConditions(cond)) continue;
+
             const minutes = Number(c.minutes) || 0;
             const choiceVars = { ...vars, minutes };
 
             const baseLabel = this.localizer ? this.localizer.t(c.textKey, choiceVars) : c.textKey;
             const hideMinutes = c?.hideMinutes === true || c?.showMinutes === false;
-            const label =
-                baseLabel + (hideMinutes ? "" : formatMinutesSuffix(this.localizer, minutes));
-            return {
+            const label = baseLabel + (hideMinutes ? "" : formatMinutesSuffix(this.localizer, minutes));
+
+            choices.push({
                 id: String(c.id),
                 textKey: c.textKey,
                 text: label,
                 minutes,
                 _def: c,
-            };
-        });
+            });
+        }
 
         return {
             id,
@@ -274,7 +320,7 @@ export class SceneManager {
 
             if (!block || typeof block !== "object") continue;
 
-            const cond = block.when || block.if || block.conditions || null;
+            const cond = getConditionBlock(block);
             if (cond && !this._matchesConditions(cond)) continue;
 
             const directKey = block.key || block.textKey || null;
@@ -369,14 +415,67 @@ export class SceneManager {
     // --------------------------
 
     _matches(def) {
-        return this._matchesConditions(def?.conditions || {});
+        // Normalize naming at the scene-def level: you can write `conditions`, `when`, or `if`.
+        const cond = getConditionBlock(def) || def?.conditions || def?.when || def?.if || {};
+        return this._matchesConditions(cond);
+    }
+
+    _getPlayerStatValue(statName, { base = false } = {}) {
+        const name = String(statName);
+        const p = this.game.player;
+        if (!p) return 0;
+
+        if (base && typeof p.getStatBase === "function") return toFiniteNumber(p.getStatBase(name), 0);
+        if (typeof p.getStatValue === "function") return toFiniteNumber(p.getStatValue(name), 0);
+
+        // fallback if a custom player model is used
+        const raw = p?.stats?.[name];
+        if (raw && typeof raw === "object") {
+            if (base && raw.base != null) return toFiniteNumber(raw.base, 0);
+            if (raw.value != null) return toFiniteNumber(raw.value, 0);
+        }
+        return toFiniteNumber(raw, 0);
+    }
+
+    _getPlayerSkillValue(skillName) {
+        const p = this.game.player;
+        const sk = p?.getSkill?.(String(skillName));
+        if (!sk) return NaN;
+        return toFiniteNumber(sk.value, NaN);
     }
 
     /**
      * Evaluate a condition object.
-     * This is shared by scene selection AND conditional text blocks.
+     * This is shared by scene selection, conditional text blocks, and conditional choices.
      */
     _matchesConditions(c) {
+        if (c == null) return true;
+
+        // Boolean combinators -------------------------------------------------
+        // Default behavior for objects is AND (all keys must match).
+        if (Array.isArray(c)) {
+            // Treat arrays as implicit AND.
+            return c.every((x) => this._matchesConditions(x));
+        }
+
+        if (typeof c !== "object") return !!c;
+
+        const andList = c.and || c.all;
+        if (Array.isArray(andList)) {
+            if (!andList.every((x) => this._matchesConditions(x))) return false;
+        }
+
+        const orList = c.or || c.any;
+        if (Array.isArray(orList)) {
+            if (!orList.some((x) => this._matchesConditions(x))) return false;
+        }
+
+        const notBlock = c.not;
+        if (notBlock != null) {
+            if (this._matchesConditions(notBlock)) return false;
+        }
+
+        // Core matchers -------------------------------------------------------
         const cond = c || {};
 
         // Location id (district node)
@@ -414,12 +513,6 @@ export class SceneManager {
             if (!matchesHourGate(hourGate, currentHour)) return false;
         }
 
-        // Time of day (deprecated; kept for backwards compatibility)
-        const tod = normalizeStringSet(cond.timeOfDay);
-        if (tod.length) {
-            const current = timeOfDayFromHourUTC(this.game.now.getUTCHours());
-            if (!tod.includes(current)) return false;
-        }
 
         // Player story flags
         const flags = normalizeStringSet(cond.playerFlags || cond.playerFlag);
@@ -434,6 +527,43 @@ export class SceneManager {
         if (notFlags.length) {
             for (const f of notFlags) {
                 if (this._hasPlayerFlag(f)) return false;
+            }
+        }
+
+        // Player stats (computed by default)
+        const stats = cond.playerStats || cond.stats;
+        if (stats && typeof stats === "object" && !Array.isArray(stats)) {
+            for (const [statName, rule] of Object.entries(stats)) {
+                if (rule == null) continue;
+
+                // Allow { strength: { gte: 5, base: true } }
+                const base = !!(rule && typeof rule === "object" && rule.base === true);
+                const v = this._getPlayerStatValue(statName, { base });
+
+                if (!matchesNumberGate(rule, v)) return false;
+            }
+        }
+
+        // Single stat shorthand:
+        //  { playerStat: { name: "strength", gte: 5 } }
+        //  { playerStat: { stat: "strength", between: [3,7] } }
+        if (cond.playerStat && typeof cond.playerStat === "object") {
+            const { name, stat, base, ...gate } = cond.playerStat;
+            const statName = name || stat;
+            if (statName) {
+                const v = this._getPlayerStatValue(statName, { base: !!base });
+                if (!matchesNumberGate(gate, v)) return false;
+            }
+        }
+
+        // Meter skills (0..1), if you want to gate on them.
+        // Example: { playerSkills: { athletics: { gte: 0.6 } } }
+        const skills = cond.playerSkills || cond.skills;
+        if (skills && typeof skills === "object" && !Array.isArray(skills)) {
+            for (const [skillName, rule] of Object.entries(skills)) {
+                if (rule == null) continue;
+                const v = this._getPlayerSkillValue(skillName);
+                if (!matchesNumberGate(rule, v)) return false;
             }
         }
 
@@ -462,12 +592,20 @@ export class SceneManager {
             name: n.name,
         }));
 
+        // Precompute player stats (useful both for UI text and for i18n interpolation).
+        const playerStats = {};
+        const p = this.game.player;
+        if (p?.stats && typeof p.getStatValue === "function") {
+            for (const k of Object.keys(p.stats)) {
+                playerStats[k] = this._getPlayerStatValue(k);
+            }
+        }
+
         return {
             time: {
                 hour: d.getUTCHours(),
                 minute: d.getUTCMinutes(),
                 hhmm: `${pad2(d.getUTCHours())}:${pad2(d.getUTCMinutes())}`,
-                tod: timeOfDayFromHourUTC(d.getUTCHours()),
             },
             location: {
                 id: loc?.id ?? null,
@@ -485,6 +623,9 @@ export class SceneManager {
             },
             street: {
                 name: streetName,
+            },
+            player: {
+                stats: playerStats,
             },
             npcsHere,
         };

@@ -9,7 +9,7 @@
  *  - a high-priority conditional scene (ambulance) that takes over when injured
  */
 
-import { TIME_OF_DAY } from "../../../shared/modules.js";
+import { TIME_OF_DAY } from "../util/common.js";
 
 //TODO: some sort of visual editor for scenes might be nice
 export const SCENES = [
@@ -39,10 +39,10 @@ export const SCENES = [
         choices: [
             {
                 id: "home.goOutside",
-                textKey: "choice.home.goOutside", //TODO: add random scene choosing from pool
+                textKey: "choice.home.goOutside", 
                 minutes: 2,
                 setPlaceKey: "street",
-                nextSceneId: "street.default",
+                nextSceneId: "street.default", //TODO: add random scene choosing from pool
             },
             {
                 id: "home.tidyUp",
