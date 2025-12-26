@@ -1,0 +1,326 @@
+/**
+ * SceneManager
+ * ------------------------------------------------------------------
+ * A tiny Twine-like scene runner.
+ *
+ * Supports, for now:
+ *  - Conditions: locationId, locationTag, placeKey, required NPCs,
+ *    time of day, player flags
+ *  - Priority resolution
+ *  - Choices that advance time, set/clear flags, move/set place,
+ *    and jump to a specific next scene
+ */
+
+const uniq = (arr) => Array.from(new Set(arr));
+
+function asArray(v) {
+    if (v == null) return [];
+    return Array.isArray(v) ? v : [v];
+}
+
+function normalizeStringSet(v) {
+    return uniq(asArray(v).filter(Boolean).map(String));
+}
+
+function timeOfDayFromHourUTC(hour) {
+    // Simple buckets you can refine later.
+    // night: 22-4, morning: 5-10, day: 11-16, evening: 17-21
+    const h = ((Number(hour) % 24) + 24) % 24;
+    if (h >= 22 || h <= 4) return "night";
+    if (h >= 5 && h <= 10) return "morning";
+    if (h >= 11 && h <= 16) return "day";
+    return "evening";
+}
+
+export class SceneManager {
+    constructor({ game, scenes = [], localizer = null, rnd = Math.random } = {}) {
+        if (!game) throw new Error("SceneManager requires { game }");
+        this.game = game;
+        this.rnd = rnd || Math.random;
+        this.localizer = localizer;
+
+        this._sceneDefs = new Map(); // id -> def
+        this.registerScenes(scenes);
+
+        this.activeSceneId = null;
+        this._queue = []; // [{ sceneId, priority }]
+
+        // Remember last picked textKey for a scene (for random textKeys arrays)
+        this._chosenTextKey = new Map();
+    }
+
+    setLocalizer(localizer) {
+        this.localizer = localizer;
+        this.update();
+    }
+
+    registerScenes(defs) {
+        for (const def of defs || []) {
+            if (!def || !def.id) continue;
+            this._sceneDefs.set(String(def.id), def);
+        }
+    }
+
+    getSceneDef(id) {
+        return this._sceneDefs.get(String(id)) || null;
+    }
+
+    queueScene(sceneId, priority = 999) {
+        const id = String(sceneId);
+        if (!this._sceneDefs.has(id)) {
+            throw new Error(`Cannot queue unknown scene '${id}'`);
+        }
+        this._queue.push({ sceneId: id, priority: Number(priority) || 0 });
+        // keep highest priority at the end for O(1) pop
+        this._queue.sort((a, b) => (a.priority || 0) - (b.priority || 0));
+        this.update();
+    }
+
+    // --------------------------
+    // Resolution
+    // --------------------------
+
+    update({ forceSceneId = null } = {}) {
+        let nextId = forceSceneId ? String(forceSceneId) : null;
+
+        // 1) Forced queue (e.g. urgent medical scene)
+        if (!nextId && this._queue.length) {
+            nextId = this._queue.pop().sceneId;
+        }
+
+        // 2) Best matching scene by conditions + priority
+        if (!nextId) {
+            const matches = [];
+            for (const def of this._sceneDefs.values()) {
+                if (this._matches(def)) matches.push(def);
+            }
+            if (matches.length) {
+                matches.sort((a, b) => (b.priority || 0) - (a.priority || 0));
+                nextId = String(matches[0].id);
+            }
+        }
+
+        // 3) Fallback to any scene (stable) if nothing matches
+        if (!nextId) {
+            const first = this._sceneDefs.keys().next();
+            nextId = first.done ? null : first.value;
+        }
+
+        if (!nextId) return null;
+
+        // Pick a random textKey if the scene offers multiple
+        const def = this.getSceneDef(nextId);
+        if (def && Array.isArray(def.textKeys) && def.textKeys.length) {
+            const pick = def.textKeys[(this.rnd() * def.textKeys.length) | 0];
+            this._chosenTextKey.set(nextId, pick);
+        } else {
+            this._chosenTextKey.delete(nextId);
+        }
+
+        this.activeSceneId = nextId;
+
+        const presentation = this.getPresentation(nextId);
+        this.game.startScene(presentation);
+        return presentation;
+    }
+
+    getPresentation(sceneId = this.activeSceneId) {
+        const id = String(sceneId || "");
+        const def = this.getSceneDef(id);
+        if (!def) return null;
+
+        const vars = this._buildVars();
+        const chosenTextKey = this._chosenTextKey.get(id);
+        const textKey = chosenTextKey || def.textKey;
+        const t = this.localizer
+            ? this.localizer.t(textKey, vars)
+            : textKey || "";
+
+        const choices = (def.choices || []).map((c) => {
+            const minutes = Number(c.minutes) || 0;
+            const choiceVars = { ...vars, minutes };
+            const label = this.localizer ? this.localizer.t(c.textKey, choiceVars) : c.textKey;
+            return {
+                id: String(c.id),
+                textKey: c.textKey,
+                text: label,
+                minutes,
+                _def: c,
+            };
+        });
+
+        return {
+            id,
+            def,
+            textKey,
+            text: t,
+            vars,
+            choices,
+        };
+    }
+
+    // --------------------------
+    // Choice handling
+    // --------------------------
+
+    choose(choiceId) {
+        const scene = this.getPresentation();
+        if (!scene) return null;
+        const id = String(choiceId);
+        const choice = scene.choices.find((c) => c.id === id) || null;
+        if (!choice) throw new Error(`Unknown choice '${id}' for scene '${scene.id}'`);
+
+        const c = choice._def || {};
+
+        // We run everything through a single action so:
+        // - time is advanced
+        // - changes are logged
+        // - scene auto-refresh happens consistently
+        this.game.runAction({
+            label: c.textKey || id,
+            minutes: Number(c.minutes) || 0,
+            apply: (game) => {
+                // Place movement (within current location)
+                if (typeof c.setPlaceKey === "string") {
+                    game.setCurrentPlace({ placeId: null, placeKey: c.setPlaceKey });
+                }
+                if (typeof c.setPlaceId === "string") {
+                    game.setCurrentPlace({ placeId: c.setPlaceId, placeKey: null });
+                }
+
+                // Location movement
+                if (typeof c.moveToLocationId === "string") {
+                    game.moveTo(c.moveToLocationId);
+                }
+                if (c.moveToHome === true && game.homeLocationId) {
+                    game.moveTo(game.homeLocationId);
+                    game.setCurrentPlace({ placeId: game.homePlaceId, placeKey: null });
+                }
+
+                // Flags
+                for (const f of normalizeStringSet(c.setFlags || c.setFlag)) game.setFlag(f, true);
+                for (const f of normalizeStringSet(c.clearFlags || c.clearFlag)) game.clearFlag(f);
+
+                // Optional: enqueue an urgent scene immediately
+                if (c.queueSceneId) {
+                    this.queueScene(c.queueSceneId, c.queuePriority ?? 999);
+                }
+            },
+        });
+
+        // Scene jump: if specified, force it even if it doesn't "match".
+        if (typeof c.nextSceneId === "string") {
+            return this.update({ forceSceneId: c.nextSceneId });
+        }
+        return this.update();
+    }
+
+    // --------------------------
+    // Condition evaluation
+    // --------------------------
+
+    _matches(def) {
+        const c = def?.conditions || {};
+
+        // Location id (district node)
+        if (c.locationId && String(c.locationId) !== String(this.game.currentLocationId)) {
+            return false;
+        }
+
+        // Location tags
+        const locationTags = normalizeStringSet(c.locationTags || c.locationTag);
+        if (locationTags.length) {
+            const tags = normalizeStringSet(this.game.location?.tags || []);
+            if (!locationTags.some((t) => tags.includes(t))) return false;
+        }
+
+        // Place key (sub-location)
+        const placeKeys = normalizeStringSet(c.placeKeys || c.placeKey);
+        if (placeKeys.length) {
+            const cur = this.game.currentPlaceKey;
+            if (!cur || !placeKeys.includes(String(cur))) return false;
+        }
+
+        // NPCs present in current location
+        const requiredNPCs = normalizeStringSet(c.npcsPresent || c.npcPresent);
+        if (requiredNPCs.length) {
+            const here = new Set(this.game.getNPCsAtLocation().map((n) => String(n.id)));
+            for (const id of requiredNPCs) {
+                if (!here.has(id)) return false;
+            }
+        }
+
+        // Time of day
+        const tod = normalizeStringSet(c.timeOfDay);
+        if (tod.length) {
+            const current = timeOfDayFromHourUTC(this.game.now.getUTCHours());
+            if (!tod.includes(current)) return false;
+        }
+
+        // Player story flags
+        const flags = normalizeStringSet(c.playerFlags || c.playerFlag);
+        if (flags.length) {
+            for (const f of flags) {
+                if (!this._hasPlayerFlag(f)) return false;
+            }
+        }
+
+        // Negative flags
+        const notFlags = normalizeStringSet(c.notPlayerFlags || c.notPlayerFlag);
+        if (notFlags.length) {
+            for (const f of notFlags) {
+                if (this._hasPlayerFlag(f)) return false;
+            }
+        }
+
+        return true;
+    }
+
+    _hasPlayerFlag(flag) {
+        const key = String(flag);
+        if (this.game.hasFlag(key)) return true;
+        const sk = this.game.player?.getSkill?.(key);
+        return sk?.type === "flag" && !!sk.value;
+    }
+
+    _buildVars() {
+        const d = this.game.now;
+        const pad2 = (n) => String(n).padStart(2, "0");
+        const loc = this.game.location;
+        const place = this.game.currentPlace;
+
+        // pick any connected street name as "the street" near you
+        const anyEdge = loc?.neighbors?.size ? loc.neighbors.values().next().value : null;
+        const streetName = anyEdge?.streetName || "Street";
+
+        const npcsHere = this.game.getNPCsAtLocation().map((n) => ({
+            id: String(n.id),
+            name: n.name,
+        }));
+
+        return {
+            time: {
+                hour: d.getUTCHours(),
+                minute: d.getUTCMinutes(),
+                hhmm: `${pad2(d.getUTCHours())}:${pad2(d.getUTCMinutes())}`,
+                tod: timeOfDayFromHourUTC(d.getUTCHours()),
+            },
+            location: {
+                id: loc?.id ?? null,
+                name: loc?.name ?? "",
+                tags: uniq(loc?.tags || []),
+            },
+            place: {
+                id: place?.id ?? null,
+                key: this.game.currentPlaceKey ?? null,
+                name:
+                    place?.name ??
+                    (this.game.currentPlaceKey === "street" ? streetName : this.game.currentPlaceKey),
+            },
+            street: {
+                name: streetName,
+            },
+            npcsHere,
+        };
+    }
+}

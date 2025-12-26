@@ -9,6 +9,9 @@ import * as weather from "./world/weather.js";
 import * as scheduling from "./npc/scheduling.js";
 import * as npc from "./npc/npcs.js";
 
+import * as strings_en from "./i18n/en.js";
+import * as strings_pl from "./i18n/pl.js";
+
 
 export * from "./world/time.js";
 export * from "./world/calendar.js";
@@ -20,6 +23,9 @@ export * from "./world/weather.js";
 
 export * from "./npc/scheduling.js";
 export * from "./npc/npcs.js";
+
+export * from "./i18n/en.js";
+export * from "./i18n/pl.js";
 
 
 if (debug) {
@@ -34,5 +40,8 @@ if (debug) {
 
         ...npc,
         ...scheduling,
+
+        ...strings_en,
+        ...strings_pl,
     });
 }

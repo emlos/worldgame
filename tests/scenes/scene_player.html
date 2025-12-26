@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Scene Player (Twine-like)</title>
+        <script>
+            const debug = true;
+        </script>
+        <script type="module" src="../../src/classes/classes.js"></script>
+        <script type="module" src="../../src/data/data.js"></script>
+        <script type="module" src="../../src/shared/modules.js"></script>
+    </head>
+    <style>
+        :root {
+            --bg: #0b0d10;
+            --fg: #e6ecf1;
+            --muted: #91a4b1;
+            --card: #11161b;
+            --line: #26323b;
+        }
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            background: var(--bg);
+            color: var(--fg);
+            font: 14px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, "Helvetica Neue",
+                Arial;
+        }
+        .wrap {
+            max-width: 900px;
+            margin: 28px auto;
+            padding: 0 16px;
+        }
+        .top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 16px;
+            margin: 12px 0;
+        }
+        h1 {
+            font-size: 18px;
+            margin: 0;
+        }
+        .meta {
+            color: var(--muted);
+            font-size: 12px;
+        }
+        .choices {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 14px;
+        }
+        button {
+            text-align: left;
+            background: #1f2a33;
+            color: var(--fg);
+            border: 1px solid var(--line);
+            padding: 10px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #21323f;
+        }
+        select {
+            background: #1f2a33;
+            color: var(--fg);
+            border: 1px solid var(--line);
+            padding: 8px 10px;
+            border-radius: 10px;
+        }
+        a {
+            color: var(--fg);
+        }
+        code {
+            background: #0d1216;
+            padding: 2px 6px;
+            border-radius: 6px;
+            border: 1px solid var(--line);
+        }
+    </style>
+
+    <body>
+        <div class="wrap">
+            <div class="top">
+                <div>
+                    <h1>Scene Player (Twine-like)</h1>
+                    <div class="meta"><a href="../../index.html">back</a></div>
+                </div>
+                <label class="meta">
+                    Language
+                    <select id="lang">
+                        <option value="en">English</option>
+                        <option value="pl">Polski</option>
+                    </select>
+                </label>
+            </div>
+
+            <div class="card" id="status"></div>
+            <div class="card" id="scene"></div>
+        </div>
+
+        <script src="./scene_player.js"></script>
+    </body>
+</html>

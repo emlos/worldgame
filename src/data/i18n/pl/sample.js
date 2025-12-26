@@ -1,0 +1,26 @@
+export const CHOICES = {
+    "choice.home.goOutside": "Wyjdź na zewnątrz ({minutes} min)",
+    "choice.home.goInside": "Wróć do domu ({minutes} min)",
+    "choice.home.tidyUp": "Posprzątaj w domu ({minutes} min)",
+    "choice.home.return": "Gotowe",
+    "choice.home.getInjured": "Zrób sobie krzywdę (demo)",
+
+    "choice.street.getInjured": "Potknij się i zrób sobie krzywdę (demo)",
+
+    "choice.ambulance.help": "Pozwól udzielić sobie pomocy ({minutes} min)",
+};
+
+export const SCENES = {
+    "scene.home.default.text": "Jesteś w domu. Jest przytulnie i znajomo.",
+
+    "scene.home.tidyUp.flavortext.0": "Ścierasz kurz z półek i czujesz, że masz większą kontrolę.",
+    "scene.home.tidyUp.flavortext.1": "Zamiatasz podłogę. Od razu wygląda lepiej.",
+    "scene.home.tidyUp.flavortext.2": "Składasz ubrania i układasz je równo.",
+    "scene.home.tidyUp.flavortext.3": "Wynosisz śmieci. Do środka wpada trochę świeżego powietrza.",
+    "scene.home.tidyUp.flavortext.4": "Wycierasz blat. Czysto, prosto, zrobione.",
+
+    "scene.street.default.text": "Jesteś na zewnątrz na ulicy {street.name}. Wokół czuć zgiełk miasta.",
+
+    "scene.ambulance.arrives.text":
+        "Syreny rozcinają powietrze. Podjeżdża karetka — chyba potrzebujesz pomocy.",
+};
