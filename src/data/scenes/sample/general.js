@@ -8,6 +8,9 @@
  *  - a random flavour text scene
  *  - a high-priority conditional scene (ambulance) that takes over when injured
  */
+
+import { TIME_OF_DAY } from "../../../shared/modules.js";
+
 //TODO: some sort of visual editor for scenes might be nice
 export const SCENES = [
     {
@@ -22,8 +25,8 @@ export const SCENES = [
         // This avoids having to create a separate scene for every variant.
         text: [
             "scene.home.default.text",
-            { when: { timeOfDay: "morning" }, key: "scene.home.default.morning" },
-            { when: { timeOfDay: "evening" }, key: "scene.home.default.evening" },
+            { when: { hour: TIME_OF_DAY.morning }, key: "scene.home.default.morning" },
+            { when: { hour: TIME_OF_DAY.evening }, key: "scene.home.default.evening" },
             { when: { npcsPresent: ["taylor"] }, key: "scene.home.default.taylorPresent" },
             {
                 when: { playerFlags: ["waitingForPackage"] },

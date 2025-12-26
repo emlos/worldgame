@@ -9,6 +9,8 @@ import * as stat from "./classes/stat.js";
 import * as trait from "./classes/trait.js";
 import * as body from "./classes/body.js";
 
+import * as screenConds from "./scenes/conditions.js";
+
 export * from "./classes/clothing.js";
 export * from "./classes/pronouns.js";
 export * from "./classes/relationship.js";
@@ -19,6 +21,8 @@ export * from "./util/util.js";
 export * from "./util/random.js";
 export * from "./util/date.js";
 export * from "./classes/body.js";
+
+export * from "./scenes/conditions.js";
 
 if (debug) {
     Object.assign(window, {
@@ -32,5 +36,7 @@ if (debug) {
         ...relationship,
         ...body,
         ...date,
+
+        ...screenConds
     });
 }

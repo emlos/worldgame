@@ -33,6 +33,64 @@ function timeOfDayFromHourUTC(hour) {
     return "evening";
 }
 
+function normalizeHour24(hour) {
+    const h = Number(hour);
+    if (!Number.isFinite(h)) return 0;
+    return ((h % 24) + 24) % 24;
+}
+
+/**
+ * Hour gating for scene conditions.
+ *
+ * Supported forms:
+ *  - hour: 18                (exact hour)
+ *  - hour: [18, 19, 20]      (any of these hours)
+ *  - hour: { gte: 18, lt: 24 }  (comparators, AND-ed)
+ *  - hour: { between: [22, 5] } (wraps midnight; start inclusive, end exclusive)
+ */
+function matchesHourGate(rule, currentHourUTC) {
+    const h = normalizeHour24(currentHourUTC);
+
+    if (rule == null) return true;
+
+    // exact match / list match
+    if (typeof rule === "number" || typeof rule === "string") {
+        return h === normalizeHour24(rule);
+    }
+    if (Array.isArray(rule)) {
+        return rule.map(normalizeHour24).includes(h);
+    }
+
+    if (typeof rule !== "object") return false;
+
+    // between: [start, end)
+    if (Array.isArray(rule.between) && rule.between.length >= 2) {
+        const start = normalizeHour24(rule.between[0]);
+        const end = normalizeHour24(rule.between[1]);
+
+        // If identical, treat as "all day" rather than "empty set"
+        if (start !== end) {
+            if (start < end) {
+                if (!(h >= start && h < end)) return false;
+            } else {
+                // wraps midnight, e.g. [22, 5)
+                if (!(h >= start || h < end)) return false;
+            }
+        }
+    }
+
+    if (rule.gt != null && !(h > Number(rule.gt))) return false;
+    if (rule.gte != null && !(h >= Number(rule.gte))) return false;
+    if (rule.lt != null && !(h < Number(rule.lt))) return false;
+    if (rule.lte != null && !(h <= Number(rule.lte))) return false;
+
+    if (rule.eq != null && !(h === normalizeHour24(rule.eq))) return false;
+    if (rule.ne != null && !(h !== normalizeHour24(rule.ne))) return false;
+
+    return true;
+}
+
+
 function formatMinutesSuffix(localizer, minutes) {
     if (!localizer) return "";
     const m = Number(minutes) || 0;
@@ -349,7 +407,14 @@ export class SceneManager {
             }
         }
 
-        // Time of day
+        // Hour gate (world time)
+        const hourGate = cond.hour ?? cond.hours ?? cond.hourOfDay;
+        if (hourGate != null) {
+            const currentHour = this.game.now.getUTCHours();
+            if (!matchesHourGate(hourGate, currentHour)) return false;
+        }
+
+        // Time of day (deprecated; kept for backwards compatibility)
         const tod = normalizeStringSet(cond.timeOfDay);
         if (tod.length) {
             const current = timeOfDayFromHourUTC(this.game.now.getUTCHours());
