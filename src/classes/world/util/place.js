@@ -5,15 +5,9 @@ import {
     DEFAULT_OPENING_HOURS_BY_KEY,
     DEFAULT_OPENING_HOURS,
 } from "../../../data/data.js";
+import { parseTimeToMinutes } from "../../../shared/modules.js";
 
-function parseTimeToMinutes(str) {
-    if (!str) return null;
-    const [h, m] = String(str)
-        .split(":")
-        .map((n) => Number(n) || 0);
-    if (h === 24 && m === 0) return 24 * 60; // allow "24:00"
-    return h * 60 + m;
-}
+const parseTimeOrNull = (str) => parseTimeToMinutes(str, { nullOnEmpty: true });
 
 function normalizeSlots(slots) {
     if (!slots) return [];
@@ -83,8 +77,8 @@ function isOpenForSchedule(schedule, dayIndex, minutes) {
 
     // 1) same-day slots
     for (const slot of todaySlots) {
-        const start = parseTimeToMinutes(slot.from);
-        const end = parseTimeToMinutes(slot.to);
+        const start = parseTimeOrNull(slot.from);
+        const end = parseTimeOrNull(slot.to);
         if (start == null || end == null) continue;
 
         if (end > start) {
@@ -99,8 +93,8 @@ function isOpenForSchedule(schedule, dayIndex, minutes) {
 
     // 2) after-midnight part of previous day’s overnight slots
     for (const slot of prevSlots) {
-        const start = parseTimeToMinutes(slot.from);
-        const end = parseTimeToMinutes(slot.to);
+        const start = parseTimeOrNull(slot.from);
+        const end = parseTimeOrNull(slot.to);
         if (start == null || end == null) continue;
 
         if (end < start) {

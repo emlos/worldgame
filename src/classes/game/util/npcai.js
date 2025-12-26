@@ -6,6 +6,12 @@ import {
     MS_PER_DAY,
     WeatherType,
 } from "../../../data/data.js";
+import {
+    parseTimeToMinutes,
+    ymdFromUTCDate,
+    utcMidnight,
+    weightedPick,
+} from "../../../shared/modules.js";
 
 const MINUTES_PER_DAY = 24 * 60;
 const MS_PER_MINUTE = 60 * 1000;
@@ -19,16 +25,7 @@ const MS_PER_MINUTE = 60 * 1000;
 const ROLLOVER_BUFFER_MINUTES = 12 * 60;
 
 /** Parse "HH:MM" (24h) to minutes since midnight. Allows "24:00". */
-function parseTimeToMinutes(str) {
-    if (!str) return 0;
-    const [hStr, mStr] = String(str).split(":");
-    let h = parseInt(hStr, 10) || 0;
-    let m = parseInt(mStr, 10) || 0;
-    if (h === 24 && m === 0) return MINUTES_PER_DAY;
-    h = Math.max(0, Math.min(24, h));
-    m = Math.max(0, Math.min(59, m));
-    return h * 60 + m;
-}
+const parseTimeToMinutes0 = (str) => parseTimeToMinutes(str, { defaultValue: 0 });
 
 /**
  * Check whether a UTC time falls within a daily window {from:"HH:MM", to:"HH:MM"}.
@@ -39,8 +36,8 @@ function parseTimeToMinutes(str) {
 function isUtcTimeInWindow(date, window) {
     if (!window || (!window.from && !window.to)) return true;
 
-    const fromM = parseTimeToMinutes(window.from || "00:00");
-    const toM = parseTimeToMinutes(window.to || "24:00");
+    const fromM = parseTimeToMinutes0(window.from || "00:00");
+    const toM = parseTimeToMinutes0(window.to || "24:00");
     if (fromM === toM) return true;
 
     const t = date.getUTCHours() * 60 + date.getUTCMinutes();
@@ -61,23 +58,8 @@ function allowsFromDuration(fromDuration, walkTotalMinutes) {
     return walkTotalMinutes > d;
 }
 
-function ymdKey(date) {
-    // UTC-date-based key (YYYY-MM-DD) so caching & week grouping are stable
-    // regardless of the user's machine timezone / DST.
-    const y = date.getUTCFullYear();
-    const m = String(date.getUTCMonth() + 1).padStart(2, "0");
-    const d = String(date.getUTCDate()).padStart(2, "0");
-    return `${y}-${m}-${d}`;
-}
-
 function weekKeyFrom(date) {
-    return ymdKey(date);
-}
-
-function normalizeMidnight(date) {
-    return new Date(
-        Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 0, 0, 0, 0)
-    );
+    return ymdFromUTCDate(date);
 }
 
 function minutesBetween(a, b) {
@@ -112,8 +94,8 @@ function ruleAppliesOnDay(rule, dayInfo, dayKey) {
  * If to < from, spans midnight into the next day.
  */
 function makeWindowRange(baseDate, time) {
-    const fromM = parseTimeToMinutes(time.from);
-    const toM = parseTimeToMinutes(time.to);
+    const fromM = parseTimeToMinutes0(time.from);
+    const toM = parseTimeToMinutes0(time.to);
     const start = new Date(baseDate.getTime() + fromM * MS_PER_MINUTE);
     let end;
     if (toM >= fromM) {
@@ -352,7 +334,7 @@ export class NPCScheduler {
      * Week is always Monday–Sunday, independent of the current client day.
      */
     _weekStartForDate(date) {
-        const base = normalizeMidnight(date);
+        const base = utcMidnight(date);
         // JS getUTCDay(): 0 = Sun, 1 = Mon, ... 6 = Sat
         const day = base.getUTCDay();
         // Convert to Monday-based index: Mon=0, Tue=1, ... Sun=6
@@ -475,8 +457,8 @@ export class NPCScheduler {
 
         for (const block of timeBlocks) {
             if (!block || !block.from || !block.to) continue;
-            const fromM = parseTimeToMinutes(block.from);
-            const toM = parseTimeToMinutes(block.to);
+            const fromM = parseTimeToMinutes0(block.from);
+            const toM = parseTimeToMinutes0(block.to);
             if (toM <= fromM) continue; // per spec, home rules won't cross midnight
 
             const start = new Date(dayDate.getTime() + fromM * MS_PER_MINUTE);
@@ -2187,7 +2169,14 @@ export class NPCScheduler {
      *   - target.categories
      *   - type TARGET_TYPE.placeKeys
      */
-    _collectCandidatesForTarget({ npc, target, from, to, respectOpeningHours, respectAgeRestriction }) {
+    _collectCandidatesForTarget({
+        npc,
+        target,
+        from,
+        to,
+        respectOpeningHours,
+        respectAgeRestriction,
+    }) {
         if (!target || !this.world) return [];
 
         const isOpenForSpan = (place) => {
@@ -2344,16 +2333,8 @@ export class NPCScheduler {
 
         // Pick which target block we are going to satisfy.
         // Weighted by number of concrete candidates (more options => more likely).
-        const total = groups.reduce((s, g) => s + (g.candidates?.length || 0), 0);
-        let r = this.rnd() * total;
-        let picked = groups[0];
-        for (const g of groups) {
-            r -= g.candidates.length;
-            if (r <= 0) {
-                picked = g;
-                break;
-            }
-        }
+        const picked =
+            weightedPick(groups, this.rnd, (g) => g.candidates?.length || 0) || groups[0];
 
         // If this particular target requests nearest, defer *only* that group's candidates.
         if (picked?.target?.nearest) {

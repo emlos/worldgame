@@ -12,6 +12,7 @@
  *  - Conditional text blocks within a single scene (avoid variants)
  */
 
+import { formatHHMMUTC } from "../../../shared/modules.js";
 const uniq = (arr) => Array.from(new Set(arr));
 
 function asArray(v) {
@@ -254,7 +255,8 @@ export class SceneManager {
 
             const baseLabel = this.localizer ? this.localizer.t(c.textKey, choiceVars) : c.textKey;
             const hideMinutes = c?.hideMinutes === true || c?.showMinutes === false;
-            const label = baseLabel + (hideMinutes ? "" : formatMinutesSuffix(this.localizer, minutes));
+            const label =
+                baseLabel + (hideMinutes ? "" : formatMinutesSuffix(this.localizer, minutes));
 
             choices.push({
                 id: String(c.id),
@@ -425,7 +427,8 @@ export class SceneManager {
         const p = this.game.player;
         if (!p) return 0;
 
-        if (base && typeof p.getStatBase === "function") return toFiniteNumber(p.getStatBase(name), 0);
+        if (base && typeof p.getStatBase === "function")
+            return toFiniteNumber(p.getStatBase(name), 0);
         if (typeof p.getStatValue === "function") return toFiniteNumber(p.getStatValue(name), 0);
 
         // fallback if a custom player model is used
@@ -513,7 +516,6 @@ export class SceneManager {
             if (!matchesHourGate(hourGate, currentHour)) return false;
         }
 
-
         // Player story flags
         const flags = normalizeStringSet(cond.playerFlags || cond.playerFlag);
         if (flags.length) {
@@ -579,7 +581,6 @@ export class SceneManager {
 
     _buildVars() {
         const d = this.game.now;
-        const pad2 = (n) => String(n).padStart(2, "0");
         const loc = this.game.location;
         const place = this.game.currentPlace;
 
@@ -605,7 +606,7 @@ export class SceneManager {
             time: {
                 hour: d.getUTCHours(),
                 minute: d.getUTCMinutes(),
-                hhmm: `${pad2(d.getUTCHours())}:${pad2(d.getUTCMinutes())}`,
+                hhmm: formatHHMMUTC(d),
             },
             location: {
                 id: loc?.id ?? null,

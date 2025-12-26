@@ -1,21 +1,10 @@
-import { clamp01 } from "../../../shared/modules.js";
+import { clamp01, weightedPick } from "../../../shared/modules.js";
 import { Location, Place } from "../module.js";
 import { LOCATION_REGISTRY, PLACE_REGISTRY, STREET_REGISTRY } from "../../../data/data.js";
 
 const capacityPerLocation = 10;
 
 const dist = (A, B) => Math.hypot(A.x - B.x, A.y - B.y);
-
-/** Weighted choice helper. items: [{item, weight}] */
-function weightedPick(defs, rnd) {
-    const total = defs.reduce((s, d) => s + (d.weight || 1), 0);
-    let r = rnd() * total;
-    for (const d of defs) {
-        r -= d.weight || 1;
-        if (r <= 0) return d;
-    }
-    return defs[defs.length - 1];
-}
 
 /**
  * Choose district definitions for a number of locations.
