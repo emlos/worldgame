@@ -33,6 +33,16 @@ function timeOfDayFromHourUTC(hour) {
     return "evening";
 }
 
+function formatMinutesSuffix(localizer, minutes) {
+    if (!localizer) return "";
+    const m = Number(minutes) || 0;
+    if (m <= 0) return "";
+
+    const unitKey = m === 1 ? "time.minute.singular" : "time.minute.plural";
+    const unit = localizer.t(unitKey);
+    return ` (${m} ${unit})`;
+}
+
 export class SceneManager {
     constructor({ game, scenes = [], localizer = null, rnd = Math.random } = {}) {
         if (!game) throw new Error("SceneManager requires { game }");
@@ -137,7 +147,11 @@ export class SceneManager {
         const choices = (def.choices || []).map((c) => {
             const minutes = Number(c.minutes) || 0;
             const choiceVars = { ...vars, minutes };
-            const label = this.localizer ? this.localizer.t(c.textKey, choiceVars) : c.textKey;
+
+            const baseLabel = this.localizer ? this.localizer.t(c.textKey, choiceVars) : c.textKey;
+            const hideMinutes = c?.hideMinutes === true || c?.showMinutes === false;
+            const label =
+                baseLabel + (hideMinutes ? "" : formatMinutesSuffix(this.localizer, minutes));
             return {
                 id: String(c.id),
                 textKey: c.textKey,

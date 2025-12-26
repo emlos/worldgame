@@ -40,3 +40,9 @@ const misc = {
     "time.year.singular": "rok",
     "time.year.plural": "lata",
 }
+
+export const COMMON = {
+    ...UI,
+    ...MESSAGES,
+    ...misc,
+};

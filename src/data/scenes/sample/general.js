@@ -8,7 +8,7 @@
  *  - a random flavour text scene
  *  - a high-priority conditional scene (ambulance) that takes over when injured
  */
-
+//TODO: some sort of visual editor for scenes might be nice
 export const SCENES = [
     {
         id: "home.default",
@@ -51,7 +51,7 @@ export const SCENES = [
                 id: "home.waitForPackage",
                 textKey: "choice.home.waitForPackage",
                 minutes: 1,
-                setFlag: "waitingForPackage",
+                setFlag: "waitingForPackage", //TODO: group sets/clears/effects/etc in one object
                 nextSceneId: "home.default",
             },
             {
@@ -135,7 +135,8 @@ export const SCENES = [
             {
                 id: "ambulance.help",
                 textKey: "choice.ambulance.help",
-                minutes: 15,
+                minutes: 30,
+                minutesHidden:  true, //TODO, display minute amount as ???
                 clearFlag: "injured",
                 // Send the player home as a simple resolution.
                 setPlaceKey: "player_home",

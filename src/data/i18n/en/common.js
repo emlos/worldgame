@@ -40,3 +40,10 @@ const misc = {
     "time.year.singular": "year",
     "time.year.plural": "years",
 }
+
+export const COMMON = {
+    ...UI,
+    ...MESSAGES,
+    ...misc,
+};
+

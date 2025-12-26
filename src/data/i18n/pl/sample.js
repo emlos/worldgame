@@ -1,7 +1,7 @@
 export const CHOICES = {
-    "choice.home.goOutside": "Wyjdź na zewnątrz ({minutes} min)",
-    "choice.home.goInside": "Wróć do domu ({minutes} min)",
-    "choice.home.tidyUp": "Posprzątaj w domu ({minutes} min)",
+    "choice.home.goOutside": "Wyjdź na zewnątrz",
+    "choice.home.goInside": "Wróć do domu",
+    "choice.home.tidyUp": "Posprzątaj w domu",
     "choice.home.return": "Gotowe",
     "choice.home.getInjured": "Zrób sobie krzywdę (demo)",
 
@@ -10,7 +10,7 @@ export const CHOICES = {
 
     "choice.street.getInjured": "Potknij się i zrób sobie krzywdę (demo)",
 
-    "choice.ambulance.help": "Pozwól udzielić sobie pomocy ({minutes} min)",
+    "choice.ambulance.help": "Pozwól udzielić sobie pomocy",
 };
 
 export const SCENES = {
