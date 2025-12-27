@@ -1,7 +1,7 @@
-// tests/i18n/i18n_audit.js
+// tests/scenes/i18n_checker.js
 // I18N Coverage / Diff tool
 // ------------------------------------------------------------
-// Open: tests/i18n/i18n_audit.html
+// Open: tests/scenes/i18n_checker.html
 
 import { SCENE_DEFS } from "../../src/data/scenes/index.js";
 
@@ -66,6 +66,10 @@ function collectSceneI18nKeys(sceneDefs) {
 
         if (typeof def.textKey === "string" && isKeyCandidate(def.textKey)) used.add(def.textKey);
 
+        // Additional common aliases used by some scene packs.
+        if (typeof def.titleKey === "string" && isKeyCandidate(def.titleKey)) used.add(def.titleKey);
+        if (typeof def.descKey === "string" && isKeyCandidate(def.descKey)) used.add(def.descKey);
+
         if (Array.isArray(def.textKeys)) {
             for (const k of def.textKeys)
                 if (typeof k === "string" && isKeyCandidate(k)) used.add(k);
@@ -81,12 +85,25 @@ function collectSceneI18nKeys(sceneDefs) {
                             rawLiterals.push({ sceneId: def.id, text: lit });
                         }
                     }
-                } else if (
-                    isPlainObject(part) &&
-                    typeof part.key === "string" &&
-                    isKeyCandidate(part.key)
-                ) {
-                    used.add(part.key);
+                } else if (isPlainObject(part)) {
+                    // The scene text block format supports a few shapes.
+                    // Examples:
+                    //  - { when: {...}, key: "scene.foo" }
+                    //  - { when: {...}, keys: ["scene.a", "scene.b"], pick: "random" }
+                    if (typeof part.key === "string" && isKeyCandidate(part.key)) used.add(part.key);
+
+                    if (typeof part.textKey === "string" && isKeyCandidate(part.textKey))
+                        used.add(part.textKey);
+
+                    if (Array.isArray(part.keys)) {
+                        for (const k of part.keys)
+                            if (typeof k === "string" && isKeyCandidate(k)) used.add(k);
+                    }
+
+                    if (Array.isArray(part.textKeys)) {
+                        for (const k of part.textKeys)
+                            if (typeof k === "string" && isKeyCandidate(k)) used.add(k);
+                    }
                 }
             }
         }
@@ -95,6 +112,11 @@ function collectSceneI18nKeys(sceneDefs) {
             for (const ch of def.choices) {
                 if (ch && typeof ch.textKey === "string" && isKeyCandidate(ch.textKey))
                     used.add(ch.textKey);
+
+                if (ch && Array.isArray(ch.textKeys)) {
+                    for (const k of ch.textKeys)
+                        if (typeof k === "string" && isKeyCandidate(k)) used.add(k);
+                }
             }
         }
     }
@@ -110,6 +132,8 @@ async function loadLanguageModules(langCode) {
         common: null,
         testScenes: null,
         testChoices: null,
+        traversalScenes: null,
+        traversalChoices: null,
         sampleScenes: null,
         sampleChoices: null,
         errors: [],
@@ -126,12 +150,16 @@ async function loadLanguageModules(langCode) {
 
     const common = await safeImport(`${base}/common.js`);
     const test = await safeImport(`${base}/test.js`);
+    const traversal = await safeImport(`${base}/traversal.js`);
     const sample = await safeImport(`${base}/sample.js`);
 
     if (common?.COMMON) out.common = common.COMMON;
 
     if (test?.SCENES) out.testScenes = test.SCENES;
     if (test?.CHOICES) out.testChoices = test.CHOICES;
+
+    if (traversal?.SCENES) out.traversalScenes = traversal.SCENES;
+    if (traversal?.CHOICES) out.traversalChoices = traversal.CHOICES;
 
     if (sample?.SCENES) out.sampleScenes = sample.SCENES;
     if (sample?.CHOICES) out.sampleChoices = sample.CHOICES;
@@ -145,6 +173,8 @@ function buildCollisionReport(mods) {
         { name: "common", dict: mods.common || {} },
         { name: "test.SCENES", dict: mods.testScenes || {} },
         { name: "test.CHOICES", dict: mods.testChoices || {} },
+        { name: "traversal.SCENES", dict: mods.traversalScenes || {} },
+        { name: "traversal.CHOICES", dict: mods.traversalChoices || {} },
         { name: "sample.SCENES", dict: mods.sampleScenes || {} },
         { name: "sample.CHOICES", dict: mods.sampleChoices || {} },
     ];
@@ -310,7 +340,7 @@ function buildOverviewHTML() {
                 <div class="small muted">
                     <div>• Missing keys: per language vs the union of keys across all loaded languages.</div>
                     <div>• Placeholder mismatches: compares <code>{placeholders}</code> vs the baseline language.</div>
-                    <div>• Key conflicts: same key defined in multiple source modules (common/test/sample) with different values.</div>
+                    <div>• Key conflicts: same key defined in multiple source modules (common/test/traversal/sample) with different values.</div>
                     <div>• Scene coverage: keys referenced by <code>src/data/scenes/**</code> vs translations.</div>
                 </div>
             </div>
