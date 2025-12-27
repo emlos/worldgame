@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Scene writer</title>
+        <script>
+            const debug = true;
+        </script>
+        <script type="module" src="../../src/data/data.js"></script>
+        <script type="module" src="../../src/classes/classes.js"></script>
+        <script type="module" src="../../src/shared/modules.js"></script>
+        <script type="module" src="./scene_writer.js"></script>
+        <style>
+            :root {
+                --bg: #0b0d10;
+                --fg: #e6ecf1;
+                --muted: #91a4b1;
+                --card: #11161b;
+                --line: #26323b;
+                --good: #3ddc97;
+            }
+            html,
+            body {
+                margin: 0;
+                padding: 0;
+                background: var(--bg);
+                color: var(--fg);
+                font: 14px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu,
+                    "Helvetica Neue", Arial;
+            }
+            a {
+                color: var(--good);
+                text-decoration: none;
+            }
+            a:hover {
+                text-decoration: underline;
+            }
+            .wrap {
+                max-width: 1200px;
+                margin: 28px auto;
+                padding: 0 16px;
+            }
+            .top {
+                display: flex;
+                align-items: baseline;
+                justify-content: space-between;
+                gap: 12px;
+                flex-wrap: wrap;
+                margin-bottom: 14px;
+            }
+            h1 {
+                font-size: 18px;
+                margin: 0;
+            }
+            .meta {
+                color: var(--muted);
+                font-size: 12px;
+            }
+            .grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 16px;
+            }
+            @media (max-width: 920px) {
+                .grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+            .card {
+                background: var(--card);
+                border: 1px solid var(--line);
+                border-radius: 14px;
+                padding: 16px;
+            }
+            h2 {
+                font-size: 14px;
+                margin: 0 0 10px;
+            }
+            label {
+                display: block;
+                color: var(--muted);
+                font-size: 12px;
+                margin: 10px 0 6px;
+            }
+            input,
+            textarea,
+            select {
+                width: 100%;
+                box-sizing: border-box;
+                background: #1f2a33;
+                color: var(--fg);
+                border: 1px solid var(--line);
+                padding: 8px 10px;
+                border-radius: 10px;
+            }
+            textarea {
+                min-height: 90px;
+                resize: vertical;
+                font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+                    "Liberation Mono", "Courier New", monospace;
+                font-size: 12px;
+            }
+            .row {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+            }
+            .inline {
+                display: flex;
+                gap: 10px;
+                flex-wrap: wrap;
+                align-items: center;
+            }
+            .inline > * {
+                flex: 1 1 auto;
+            }
+            .btn {
+                background: #1f2a33;
+                color: var(--fg);
+                border: 1px solid var(--line);
+                padding: 8px 10px;
+                border-radius: 10px;
+                cursor: pointer;
+            }
+            .btn:hover {
+                background: #21323f;
+            }
+            .btn.small {
+                padding: 6px 8px;
+                font-size: 12px;
+            }
+            .btn.danger {
+                border-color: #5c2a2a;
+            }
+            .pill {
+                display: inline-block;
+                padding: 3px 8px;
+                border: 1px solid var(--line);
+                border-radius: 999px;
+                color: var(--muted);
+                font-size: 12px;
+            }
+            .list {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                margin-top: 10px;
+            }
+            .item {
+                border: 1px solid var(--line);
+                border-radius: 12px;
+                padding: 12px;
+            }
+            .itemHeader {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 12px;
+            }
+            .itemHeader strong {
+                font-size: 13px;
+            }
+            .muted {
+                color: var(--muted);
+            }
+            .copyRow {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 10px;
+                margin-top: 8px;
+            }
+            .copyRow .hint {
+                color: var(--muted);
+                font-size: 12px;
+            }
+            pre {
+                margin: 0;
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+                    "Liberation Mono", "Courier New", monospace;
+                font-size: 12px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="wrap">
+            <div class="top">
+                <div>
+                    <h1>Scene writer</h1>
+                    <div class="meta">
+                        Build a scene definition + i18n entries you can copy/paste into your scene packs.
+                    </div>
+                </div>
+                <div class="meta"><a href="../../index.html">← back to index</a></div>
+            </div>
+
+            <div class="grid">
+                <div class="card" id="editor"></div>
+                <div class="card" id="output"></div>
+            </div>
+        </div>
+    </body>
+</html>
