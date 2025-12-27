@@ -15,6 +15,8 @@ export const SCENES = [
     {
         id: "world.outside.default",
         priority: 0,
+        // "Menu" scene for being outside: allow auto-injected traversal.
+        autoChoices: { traversal: true },
         conditions: {
             outside: true,
         },
@@ -188,6 +190,8 @@ export const SCENES = [
     {
         id: "place.default",
         priority: 0,
+        // Generic "lobby" for any place without bespoke scenes: allow auto Exit.
+        autoChoices: { exit: true },
         conditions: {
             inPlace: true,
         },

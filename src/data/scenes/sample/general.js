@@ -16,6 +16,8 @@ export const SCENES = [
     {
         id: "home.default",
         priority: 10,
+        // "Menu" scene for the player's home: allow auto-injected Exit.
+        autoChoices: { exit: true },
         conditions: {
             placeKey: "player_home",
             notPlayerFlags: ["injured"],

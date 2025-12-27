@@ -274,6 +274,11 @@ export const SCENES = [
     id: "home.default",                     // &lt;-- required, globally unique
     priority: 10,                            // higher wins if multiple scenes match
 
+
+    // Auto-generated navigation buttons (default is OFF):
+    // - traversal: add connected-locations + places when outside
+    // - exit: add an Exit button when inside a place
+    autoChoices: { exit: true },
     // You can write `conditions`, `when`, or `if` at the scene root.
     conditions: {
       placeKey: "player_home",
@@ -357,6 +362,17 @@ export const SCENES = [
                             <td>Array of choice objects (buttons).</td>
                             <td>See <a href="#choices">Choices</a>.</td>
                         </tr>
+                        <tr>
+                            <td><code>autoChoices</code> / <code>menu</code> <span class="pill opt">optional</span></td>
+                            <td>Opt in to auto-generated navigation choices (travel / exit).</td>
+                            <td>
+                                Default is <code>false</code> (no auto injection). Use one of:
+                                <code>autoChoices: true</code> (both), <code>autoChoices: { traversal: true }</code>,
+                                <code>autoChoices: { exit: true }</code>, or <code>menu: true</code>/<code>isMenu: true</code> (both).
+                                You can also override with <code>autoTraversal</code> / <code>autoExit</code>.
+                            </td>
+                        </tr>
+
                     </tbody>
                 </table>
             </section>
@@ -558,9 +574,10 @@ export const SCENES = [
                 <h2>World traversal (auto-generated)</h2>
 
                 <p>
-                    The SceneManager can automatically generate <strong>travel choices</strong> when the player is
-                    <strong>outside</strong> (not inside any place), and automatically add an <strong>Exit</strong> choice
-                    when the player is <strong>inside</strong> a place.
+                    The SceneManager can automatically generate <strong>travel choices</strong> (when outside) and an
+                    <strong>Exit</strong> choice (when inside). <strong>This is opt-in per scene</strong>:
+                    auto-generated navigation is only injected when the <em>currently active scene</em> enables it via
+                    <code>autoChoices</code> (or <code>menu</code>/<code>isMenu</code>).
                 </p>
 
                 <h3>Outside</h3>
@@ -570,7 +587,7 @@ export const SCENES = [
                         <code>world.outside.default</code>.
                     </li>
                     <li>
-                        Regardless of which outdoor scene is currently active, the SceneManager injects:
+                        If the active scene enables <code>autoChoices.traversal</code>, the SceneManager injects:
                         <ul>
                             <li><strong>Connected locations</strong>: one choice per neighbor edge (uses edge minutes).</li>
                             <li>
@@ -589,13 +606,19 @@ export const SCENES = [
                         <code>"You're in {place.name}."</code>
                     </li>
                     <li>
-                        The SceneManager injects an <strong>Exit</strong> choice unless you already defined one.
+                        If the active scene enables <code>autoChoices.exit</code>, the SceneManager injects an <strong>Exit</strong> choice unless you already defined one.
                         Exiting is represented as clearing place state (outside = no <code>placeId</code> and no <code>placeKey</code>).
                     </li>
                 </ul>
 
                 <h3>Writer controls</h3>
                 <ul>
+                    <li>
+                        <strong>Enable auto navigation on a “lobby/menu” scene</strong> by setting:
+                        <code>autoChoices: true</code> (both), <code>autoChoices: { traversal: true }</code> (outside travel),
+                        or <code>autoChoices: { exit: true }</code> (inside exit).
+                        Shorthand: <code>menu: true</code>/<code>isMenu: true</code> enables both.
+                    </li>
                     <li>
                         To provide a custom exit, define a choice with <code>exitToOutside: true</code>
                         (or <code>setPlaceId: null</code> / <code>setPlaceKey: null</code>).
@@ -608,7 +631,7 @@ export const SCENES = [
 
                 <div class="note">
                     This system is intended to reduce boilerplate: writers can focus on special scenes, while
-                    navigation stays consistent across the whole world.
+                    navigation stays consistent across the whole world. For event/cutscene scenes (e.g. ambulance, combat), simply omit <code>autoChoices</code> so no automatic Exit/Travel buttons appear.
                 </div>
             </section>
 <section id="conditions">

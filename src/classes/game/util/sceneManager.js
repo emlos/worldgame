@@ -344,6 +344,10 @@ export class SceneManager {
 
         const resolved = this._resolveSceneText({ def, sceneId: id, vars });
 
+        // Scene-level toggle for auto-generated navigation choices (exit/traversal).
+        // Default is OFF; only scenes that opt in will get injected choices.
+        const auto = this._normalizeAutoChoices(def);
+
         const choices = [];
         for (const c of def.choices || []) {
             const cond = getConditionBlock(c);
@@ -359,15 +363,15 @@ export class SceneManager {
             choices.push(presented);
         }
 
-        // --- Auto world traversal -------------------------------------------------
-        // When outside (not inside a place), add travel options to connected locations
-        // and places available in the current location.
-        if (isOutside(this.game)) {
+        // --- Auto navigation choices (opt-in per scene) ---------------------------
+        // When outside (not inside a place), optionally add travel options to
+        // connected locations and places available in the current location.
+        if (auto.traversal === true && isOutside(this.game)) {
             this._injectTraversalChoices({ choices, vars });
         }
 
-        // When inside any place (real or virtual), ensure an Exit option exists.
-        if (isInsidePlace(this.game)) {
+        // When inside any place (real or virtual), optionally ensure an Exit option exists.
+        if (auto.exit === true && isInsidePlace(this.game)) {
             this._injectExitChoice({ choices, vars });
         }
 
@@ -400,6 +404,47 @@ export class SceneManager {
             disabled: false,
             _def: def,
         };
+    }
+
+    /**
+     * Normalize the scene-level auto-choice config.
+     *
+     * Supported forms:
+     *  - (default) omitted -> { traversal: false, exit: false }
+     *  - { menu: true } or { isMenu: true } -> both true
+     *  - { autoChoices: true } -> both true
+     *  - { autoChoices: { traversal: true, exit: true } }
+     *  - { autoTraversal: true/false } and/or { autoExit: true/false } (overrides)
+     */
+    _normalizeAutoChoices(def) {
+        // Default: no auto-injected navigation choices.
+        const out = { traversal: false, exit: false };
+        if (!def || typeof def !== "object") return out;
+
+        // Convenience toggles: menu/isMenu implies both.
+        if (def.menu === true || def.isMenu === true) {
+            out.traversal = true;
+            out.exit = true;
+        }
+
+        // Primary shape: autoChoices (boolean or object).
+        const ac = def.autoChoices;
+        if (ac === true) {
+            out.traversal = true;
+            out.exit = true;
+        } else if (ac && typeof ac === "object") {
+            if (ac.traversal === true || ac.travel === true) out.traversal = true;
+            if (ac.exit === true) out.exit = true;
+        }
+
+        // Explicit overrides.
+        if (def.autoTraversal === true || def.autoTravel === true) out.traversal = true;
+        if (def.autoTraversal === false || def.autoTravel === false) out.traversal = false;
+
+        if (def.autoExit === true) out.exit = true;
+        if (def.autoExit === false) out.exit = false;
+
+        return out;
     }
 
     _injectTraversalChoices({ choices, vars }) {
