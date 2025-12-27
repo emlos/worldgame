@@ -426,6 +426,10 @@ export const SCENES = [
     // Optional condition gate for showing the choice:
     when: { notPlayerFlags: ["injured"] },
 
+    // If the conditions do not match, the choice is normally hidden.
+    // Set showAnyway to show it as a disabled (unclickable) button instead:
+    // showAnyway: true,
+
     // Optional extra interpolation vars for the label:
     vars: { destName: "Market Square" },
 
@@ -495,7 +499,20 @@ export const SCENES = [
                         <tr>
                             <td><code>when</code> / <code>if</code> / <code>conditions</code> <span class="pill opt">optional</span></td>
                             <td>Condition gate to show the choice.</td>
-                            <td>Uses the same condition language as scenes and text blocks.</td>
+                            <td>
+                                Uses the same condition language as scenes and text blocks.
+                                If the condition does not match, the choice is hidden by default.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>showAnyway</code> <span class="pill opt">optional</span></td>
+                            <td>Show the choice even when its conditions do not match.</td>
+                            <td>
+                                When <code>showAnyway: true</code> and the choice conditions fail,
+                                the UI renders a disabled button and <code>SceneManager.choose()</code>
+                                refuses to execute it.
+                                Aliases: <code>showDisabled</code>, <code>showIfDisabled</code>.
+                            </td>
                         </tr>
                         <tr>
                             <td><code>setPlaceKey</code> / <code>setPlaceId</code></td>

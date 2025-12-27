@@ -47,6 +47,8 @@ export const SCENES = [
                 id: "home.waitForPackage",
                 textKey: "choice.home.waitForPackage",
                 minutes: 1,
+                // Only show this option if the player isn't already waiting for a package.
+                when: { notPlayerFlags: ["waitingForPackage"] },
                 setFlag: "waitingForPackage", //TODO: group sets/clears/effects/etc in one object
                 nextSceneId: "home.default",
             },
@@ -54,6 +56,9 @@ export const SCENES = [
                 id: "home.stopWaitingForPackage",
                 textKey: "choice.home.stopWaitingForPackage",
                 minutes: 1,
+                // Demo: show the button always, but disable it unless the player is actually waiting.
+                when: { playerFlags: ["waitingForPackage"] },
+                showAnyway: true,
                 clearFlag: "waitingForPackage",
                 nextSceneId: "home.default",
             },

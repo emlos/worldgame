@@ -347,24 +347,16 @@ export class SceneManager {
         const choices = [];
         for (const c of def.choices || []) {
             const cond = getConditionBlock(c);
-            if (cond && !this._matchesConditions(cond)) continue;
+            const ok = !cond || this._matchesConditions(cond);
 
-            const minutes = Number(c.minutes) || 0;
-            const extraVars = c && typeof c.vars === "object" && !Array.isArray(c.vars) ? c.vars : null;
-            const choiceVars = { ...vars, ...(extraVars || {}), minutes };
+            // Choice-level conditions work like scene/text conditions.
+            // If a choice doesn't match, it is normally hidden, unless showAnyway is true.
+            const showAnyway = c?.showAnyway === true || c?.showDisabled === true || c?.showIfDisabled === true;
+            if (!ok && !showAnyway) continue;
 
-            const baseLabel = this.localizer ? this.localizer.t(c.textKey, choiceVars) : c.textKey;
-            const hideMinutes = c?.hideMinutes === true || c?.minutesHidden === true || c?.showMinutes === false;
-            const label =
-                baseLabel + (hideMinutes ? "" : formatMinutesSuffix(this.localizer, minutes));
-
-            choices.push({
-                id: String(c.id),
-                textKey: c.textKey,
-                text: label,
-                minutes,
-                _def: c,
-            });
+            const presented = this._presentChoice(c, vars);
+            if (!ok) presented.disabled = true;
+            choices.push(presented);
         }
 
         // --- Auto world traversal -------------------------------------------------
@@ -405,6 +397,7 @@ export class SceneManager {
             textKey: def.textKey,
             text: label,
             minutes,
+            disabled: false,
             _def: def,
         };
     }
@@ -580,7 +573,14 @@ export class SceneManager {
         const choice = scene.choices.find((c) => c.id === id) || null;
         if (!choice) throw new Error(`Unknown choice '${id}' for scene '${scene.id}'`);
 
+        // If the choice is present but disabled (showAnyway), do not proceed.
+        if (choice.disabled) return scene;
+
         const c = choice._def || {};
+
+        // Safety: re-check conditions at click-time too.
+        const cond = getConditionBlock(c);
+        if (cond && !this._matchesConditions(cond)) return scene;
 
         // We run everything through a single action so:
         // - time is advanced

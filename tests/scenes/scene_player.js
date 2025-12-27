@@ -89,7 +89,16 @@ function init() {
         const choices = el("div", { class: "choices" });
         for (const c of scene.choices || []) {
             const btn = el("button", { type: "button" }, el("span", { text: c.text }));
+
+            // Choices can be visible-but-disabled (showAnyway) when their conditions don't match.
+            if (c.disabled) {
+                btn.disabled = true;
+                btn.title = "Unavailable";
+            }
+
             btn.addEventListener("click", () => {
+                // Extra guard: the SceneManager will also refuse disabled choices.
+                if (c.disabled) return;
                 game.sceneManager.choose(c.id);
                 render();
             });
