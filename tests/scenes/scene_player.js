@@ -19,12 +19,30 @@ function init() {
         )}:${pad2(d.getUTCMinutes())} UTC`;
 
     // Create a game seeded for stable refreshes.
-    const game = new Game({ seed: 12345, strings: STRINGS_EN });
+    // NOTE: scenes do not resolve until Start Game is pressed.
+    const game = new Game({ seed: 12345, strings: STRINGS_EN, autoStartScenes: false });
+    let started = false;
 
     function setLanguage(lang) {
         const dict = lang === "pl" ? STRINGS_PL : STRINGS_EN;
         game.localizer = new Localizer(dict);
         game.sceneManager.setLocalizer(game.localizer);
+    }
+
+    function ensureStarted({ forceSceneId = null } = {}) {
+        const id = forceSceneId ? String(forceSceneId).trim() : "";
+        if (!started) {
+            game.startGame({ forceSceneId: id || null });
+            started = true;
+        } else if (id) {
+            // Allow testing fallback behavior by forcing a scene id.
+            game.sceneManager.update({ forceSceneId: id });
+        }
+
+        const startedEl = byId("started");
+        const startBtn = byId("start");
+        if (startedEl) startedEl.textContent = started ? "(started)" : "(not started)";
+        if (startBtn) startBtn.disabled = started;
     }
 
     function render() {
@@ -55,6 +73,11 @@ function init() {
 
         sceneBox.innerHTML = "";
 
+        if (!started) {
+            sceneBox.append(el("div", { class: "meta", text: "Click \"Start game\" to begin." }));
+            return;
+        }
+
         if (!scene) {
             sceneBox.append(el("div", { text: "No scene resolved." }));
             return;
@@ -81,7 +104,21 @@ function init() {
         render();
     });
 
+    byId("start").addEventListener("click", () => {
+        ensureStarted();
+        render();
+    });
+
+    byId("go").addEventListener("click", () => {
+        const force = byId("forceScene")?.value?.trim() || "";
+        ensureStarted({ forceSceneId: force || null });
+        render();
+    });
+
     setLanguage("en");
+    // Keep the game idle until the user presses "Start game".
+    const startedEl = byId("started");
+    if (startedEl) startedEl.textContent = "(not started)";
     render();
 }
 

@@ -80,6 +80,34 @@
             padding: 8px 10px;
             border-radius: 10px;
         }
+        input {
+            background: #1f2a33;
+            color: var(--fg);
+            border: 1px solid var(--line);
+            padding: 8px 10px;
+            border-radius: 10px;
+        }
+        .controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .controls .left,
+        .controls .right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .controls label {
+            color: var(--muted);
+            font-size: 12px;
+        }
+        .controls input {
+            min-width: 260px;
+        }
         a {
             color: var(--fg);
         }
@@ -105,6 +133,20 @@
                         <option value="pl">Polski</option>
                     </select>
                 </label>
+            </div>
+
+            <div class="card controls">
+                <div class="left">
+                    <button id="start" type="button">Start game</button>
+                    <span class="meta" id="started">(not started)</span>
+                </div>
+                <div class="right">
+                    <label>
+                        Force scene id
+                        <input id="forceScene" type="text" placeholder="e.g. system.fallback (or a bogus id to test fallback)" />
+                    </label>
+                    <button id="go" type="button">Go</button>
+                </div>
             </div>
 
             <div class="card" id="status"></div>

@@ -14,6 +14,12 @@ export class Game {
         npcTemplates = NPC_REGISTRY,
         strings = null,
         scenes = SCENE_DEFS,
+        // SceneManager: first scene shown on start (first update)
+        defaultSceneId = null,
+        // SceneManager: shown when next scene can't be resolved
+        fallbackSceneId = null,
+        // If false, scenes will not resolve until game.startGame() is called.
+        autoStartScenes = true,
     } = {}) {
         // --- core random seed ---
         this.seed = seed >>> 0;
@@ -75,8 +81,12 @@ export class Game {
             scenes,
             localizer: this.localizer,
             rnd: this.rnd,
+            defaultSceneId,
+            fallbackSceneId,
+            autoStart: autoStartScenes,
         });
-        this.sceneManager.update();
+
+        if (autoStartScenes) this.startGame();
     }
 
     // --------------------------
@@ -211,6 +221,14 @@ export class Game {
     endScene() {
         this.currentScene = null;
         for (const cb of this._listeners.scene) cb(this, null);
+    }
+
+
+    /**
+     * Start resolving scenes. Useful for a UI "Start Game" button.
+     */
+    startGame({ forceSceneId = null } = {}) {
+        return this.sceneManager?.start({ forceSceneId });
     }
 
     // --------------------------

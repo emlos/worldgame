@@ -145,14 +145,36 @@ function formatMinutesSuffix(localizer, minutes) {
 }
 
 export class SceneManager {
-    constructor({ game, scenes = [], localizer = null, rnd = Math.random } = {}) {
+    constructor({
+        game,
+        scenes = [],
+        localizer = null,
+        rnd = Math.random,
+        // If false, SceneManager will not resolve any scene until start() is called.
+        autoStart = true,
+        // The very first scene shown when the game starts (first update).
+        // If omitted, SceneManager will try to pick a reasonable default.
+        defaultSceneId = null,
+        // Scene to show when we cannot resolve a next scene (invalid forced id,
+        // nothing matches, etc). If omitted, SceneManager will fall back to the
+        // first registered scene.
+        fallbackSceneId = null,
+    } = {}) {
         if (!game) throw new Error("SceneManager requires { game }");
         this.game = game;
         this.rnd = rnd || Math.random;
         this.localizer = localizer;
 
+        this._started = Boolean(autoStart);
+
+        this.defaultSceneId = defaultSceneId ? String(defaultSceneId) : null;
+        this.fallbackSceneId = fallbackSceneId ? String(fallbackSceneId) : null;
+
         this._sceneDefs = new Map(); // id -> def
         this.registerScenes(scenes);
+
+        // Only use defaultSceneId once (on the first resolution).
+        this._hasShownDefaultScene = false;
 
         this.activeSceneId = null;
         this._queue = []; // [{ sceneId, priority }]
@@ -171,6 +193,16 @@ export class SceneManager {
             if (!def || !def.id) continue;
             this._sceneDefs.set(String(def.id), def);
         }
+
+        // Late-bind defaults if caller didn't specify them.
+        // This keeps the SceneManager usable out of the box for sample packs.
+        if (!this.defaultSceneId) {
+            if (this._sceneDefs.has("game.start")) this.defaultSceneId = "game.start";
+            else if (this._sceneDefs.has("home.default")) this.defaultSceneId = "home.default";
+        }
+        if (!this.fallbackSceneId) {
+            if (this._sceneDefs.has("system.fallback")) this.fallbackSceneId = "system.fallback";
+        }
     }
 
     getSceneDef(id) {
@@ -188,12 +220,41 @@ export class SceneManager {
         this.update();
     }
 
+
+    /**
+     * Start resolving scenes (use for "Start Game" buttons).
+     * Resets the one-time default-scene selection.
+     */
+    start({ forceSceneId = null } = {}) {
+        this._started = true;
+        this._hasShownDefaultScene = false;
+        return this.update({ forceSceneId });
+    }
+
     // --------------------------
     // Resolution
     // --------------------------
 
     update({ forceSceneId = null } = {}) {
+        if (!this._started) return null;
+
         let nextId = forceSceneId ? String(forceSceneId) : null;
+
+        // 0) Initial/default scene
+        if (!nextId && !this._hasShownDefaultScene && this.defaultSceneId) {
+            if (this._sceneDefs.has(this.defaultSceneId)) {
+                nextId = this.defaultSceneId;
+            }
+            this._hasShownDefaultScene = true;
+        }
+
+        // If a forced id is invalid, route to fallback (instead of breaking).
+        if (nextId && !this._sceneDefs.has(nextId)) {
+            nextId = null;
+            if (this.fallbackSceneId && this._sceneDefs.has(this.fallbackSceneId)) {
+                nextId = this.fallbackSceneId;
+            }
+        }
 
         // 1) Forced queue (e.g. urgent medical scene)
         if (!nextId && this._queue.length) {
@@ -214,11 +275,16 @@ export class SceneManager {
 
         // 3) Fallback to any scene (stable) if nothing matches
         if (!nextId) {
-            const first = this._sceneDefs.keys().next();
-            nextId = first.done ? null : first.value;
+            // Prefer an explicit fallback scene if configured.
+            if (this.fallbackSceneId && this._sceneDefs.has(this.fallbackSceneId)) {
+                nextId = this.fallbackSceneId;
+            } else {
+                const first = this._sceneDefs.keys().next();
+                nextId = first.done ? null : first.value;
+            }
         }
 
-        if (!nextId) return null;
+        if (!nextId || !this._sceneDefs.has(nextId)) return null;
 
         // Pick a random textKey if the scene offers multiple (legacy: def.textKeys)
         const def = this.getSceneDef(nextId);
@@ -232,6 +298,16 @@ export class SceneManager {
         this.activeSceneId = nextId;
 
         const presentation = this.getPresentation(nextId);
+        // If the def was somehow removed mid-flight, do not crash.
+        if (!presentation) {
+            if (this.fallbackSceneId && this._sceneDefs.has(this.fallbackSceneId)) {
+                this.activeSceneId = this.fallbackSceneId;
+                const fb = this.getPresentation(this.fallbackSceneId);
+                this.game.startScene(fb);
+                return fb;
+            }
+            return null;
+        }
         this.game.startScene(presentation);
         return presentation;
     }

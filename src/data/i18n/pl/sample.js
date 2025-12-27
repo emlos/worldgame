@@ -11,6 +11,8 @@ export const CHOICES = {
     "choice.street.getInjured": "Potknij się i zrób sobie krzywdę (demo)",
 
     "choice.ambulance.help": "Pozwól udzielić sobie pomocy",
+
+    "choice.system.fallback.continue": "Kontynuuj",
 };
 
 export const SCENES = {
@@ -32,4 +34,7 @@ export const SCENES = {
 
     "scene.ambulance.arrives.text":
         "Syreny rozcinają powietrze. Podjeżdża karetka — chyba potrzebujesz pomocy.",
+
+    "scene.system.fallback.text":
+        "Coś poszło nie tak podczas wybierania następnej sceny. Spróbujmy wrócić na właściwe tory.",
 };

@@ -11,6 +11,8 @@ export const CHOICES = {
     "choice.street.getInjured": "Trip and get hurt (demo)",
 
     "choice.ambulance.help": "Accept help",
+
+    "choice.system.fallback.continue": "Continue",
 };
 
 export const SCENES = {
@@ -32,4 +34,7 @@ export const SCENES = {
 
     "scene.ambulance.arrives.text":
         "Sirens cut through the air. An ambulance pulls up — you might need help.",
+
+    "scene.system.fallback.text":
+        "Something went wrong while resolving the next scene. Let's get you back on track.",
 };

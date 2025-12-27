@@ -147,4 +147,22 @@ export const SCENES = [
             },
         ],
     },
+
+    // Last-resort scene.
+    // Shown when a forced nextSceneId is invalid, or when no scene can be resolved.
+    {
+        id: "system.fallback",
+        priority: -9999,
+        // Intentionally no conditions.
+        textKey: "scene.system.fallback.text",
+        choices: [
+            {
+                id: "system.fallback.continue",
+                textKey: "choice.system.fallback.continue",
+                minutes: 0,
+                // Try to put the player somewhere sane; resolver will pick the best match.
+                setPlaceKey: "player_home",
+            },
+        ],
+    },
 ];
