@@ -214,6 +214,7 @@
                 <a href="#scene-definition">Scene definition</a>
                 <a href="#text-blocks">Text blocks</a>
                 <a href="#choices">Choices</a>
+                <a href="#world-traversal">World traversal</a>
                 <a href="#conditions">Conditions</a>
                 <a href="#number-gates">Numeric gates</a>
                 <a href="#vars">Localization vars</a>
@@ -236,7 +237,7 @@
                         </tr>
                         <tr>
                             <td>Scene packs (data)</td>
-                            <td><code>src/data/scenes/*</code> (example: <code>src/data/scenes/sample/general.js</code>)</td>
+                            <td><code>src/data/scenes/*</code> (examples: <code>src/data/scenes/sample/general.js</code>, <code>src/data/scenes/system/traversal.js</code>)</td>
                         </tr>
                         <tr>
                             <td>Scene registry</td>
@@ -282,20 +283,28 @@ export const SCENES = [
     // Text can be a string key OR an array of blocks.
     textKey: "scene.home.default.text",     // legacy (still supported)
 
-    // or
+    // or (recommended)
     text: [
       "scene.home.default.text",
-      { when: { hour: 18 }, key: "scene.home.default.evening" },
+      { when: { hour: TIME_OF_DAY.evening }, key: "scene.home.default.evening" },
+
+      // Multiple keys (all included)
+      { when: { playerFlags: ["injured"] }, keys: [
+          "scene.injured.0",
+          "scene.injured.1",
+      ]},
+
+      // Random pick from a list
+      { keys: ["scene.flavour.0", "scene.flavour.1"], pick: "random" },
     ],
 
     // Choices are buttons the player can click.
     choices: [
       {
-        id: "home.goOutside",
-        textKey: "choice.home.goOutside",
-        minutes: 2,
-        setPlaceKey: "street",
-        nextSceneId: "street.default",
+        id: "home.tidyUp",
+        textKey: "choice.home.tidyUp",
+        minutes: 10,
+        setFlag: "homeIsTidy",
       },
     ],
   },
@@ -335,7 +344,7 @@ export const SCENES = [
                             <td><code>textKey</code> / <code>textKeys</code> <span class="pill opt">optional</span></td>
                             <td>Legacy text fields.</td>
                             <td>
-                                If <code>textKeys</code> is an array, one key is picked at random each time the scene is entered.
+                                If <code>textKeys</code> is an array, one key is picked at random each time the scene is resolved (typically when entered, and whenever the resolver re-runs).
                             </td>
                         </tr>
                         <tr>
@@ -367,11 +376,11 @@ export const SCENES = [
                             <li><strong>String</strong>: treated as an i18n key (or literal text if the key doesn’t exist).</li>
                             <li>
                                 <strong>Conditional block object</strong>:
-                                <code>{ when/if/conditions: {...}, key: "..." }</code>
+                                <code>{ when/if/conditions: {...}, key: "..." }</code> (also <code>textKey</code>)
                             </li>
                             <li>
                                 <strong>Multi-key block</strong>:
-                                <code>{ keys: ["...","..."], pick: "random" }</code>
+                                <code>{ keys: ["...","..."], pick: "random" }</code> (also <code>textKeys</code>, or <code>random: true</code>)
                             </li>
                         </ul>
                     </div>
@@ -410,28 +419,35 @@ export const SCENES = [
 
                 <pre><code>choices: [
   {
-    id: "home.goOutside",                  // required
-    textKey: "choice.home.goOutside",      // required (localization key)
-    minutes: 2,                             // optional (defaults to 0)
+    id: "travel.toMarket",                 // required (unique within the scene)
+    textKey: "choice.travel.toLocation",   // required (localization key)
+    minutes: 7,                            // optional (defaults to 0)
 
     // Optional condition gate for showing the choice:
     when: { notPlayerFlags: ["injured"] },
 
-    // Actions:
-    setPlaceKey: "street",                 // switch place within the location
-    // setPlaceId: "somePlaceId",          // alternative form
+    // Optional extra interpolation vars for the label:
+    vars: { destName: "Market Square" },
 
-    // moveToLocationId: "downtown",       // move to a different location
-    // moveToHome: true,                    // shortcut to home location/place
+    // Actions (pick what you need):
+    moveToLocationId: "market_district",   // move to a different location
+    // setPlaceId: "shop_01",              // enter a place in this location
+    // setPlaceKey: "player_home",         // legacy / virtual place key
+    // exitToOutside: true,               // leave any place and return to outside
+    // setPlaceId: null,                  // (alias) also exits to outside
+    // setPlaceKey: null,                 // (alias) also exits to outside
 
     // Flags:
-    setFlag: "waitingForPackage",          // or setFlags: ["a","b"]
-    // clearFlag: "waitingForPackage",     // or clearFlags: ["a","b"]
+    // setFlag: "waitingForPackage",      // or setFlags: ["a","b"]
+    // clearFlag: "waitingForPackage",    // or clearFlags: ["a","b"]
 
     // Scene control:
-    nextSceneId: "street.default",         // hard jump (even if it wouldn't match)
-    // queueSceneId: "ambulance.arrives",  // enqueue (priority optional)
+    // nextSceneId: "special.cutscene",   // hard jump (even if it wouldn't match)
+    // queueSceneId: "ambulance.arrives", // enqueue (priority optional)
     // queuePriority: 999,
+
+    // Minutes suffix rendering:
+    // hideMinutes: true                  // or showMinutes: false or minutesHidden: true
   }
 ]</code></pre>
 
@@ -460,8 +476,21 @@ export const SCENES = [
                             <td>How much time passes when clicking.</td>
                             <td>
                                 If <code>minutes &gt; 0</code> the UI also shows “(N minutes)” by default.
-                                To hide it, use <code>hideMinutes: true</code> (or <code>showMinutes: false</code>).
+                                To hide it, use <code>hideMinutes: true</code> (or <code>showMinutes: false</code> or <code>minutesHidden: true</code>).
                             </td>
+                        </tr>
+                        <tr>
+                            <td><code>hideMinutes</code> / <code>showMinutes</code> / <code>minutesHidden</code></td>
+                            <td>Control whether the “(N minutes)” suffix is shown.</td>
+                            <td>
+                                Default is shown when <code>minutes &gt; 0</code>.
+                                Use <code>hideMinutes: true</code> (or <code>showMinutes: false</code> or <code>minutesHidden: true</code>) to hide it.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>vars</code></td>
+                            <td>Extra interpolation variables for the choice label.</td>
+                            <td><code>{ vars: { destName: "Market Square" } }</code> enables <code>{destName}</code> in <code>textKey</code>.</td>
                         </tr>
                         <tr>
                             <td><code>when</code> / <code>if</code> / <code>conditions</code> <span class="pill opt">optional</span></td>
@@ -470,8 +499,13 @@ export const SCENES = [
                         </tr>
                         <tr>
                             <td><code>setPlaceKey</code> / <code>setPlaceId</code></td>
-                            <td>Move within the current location.</td>
-                            <td>Mutually exclusive; use one.</td>
+                            <td>Enter/leave a place within the current location.</td>
+                            <td>Use one. Set to a string to enter, or <code>null</code> to exit to outside.</td>
+                        </tr>
+                        <tr>
+                            <td><code>exitToOutside</code></td>
+                            <td>Exit any place and return to “outside”.</td>
+                            <td>Equivalent to <code>setPlaceKey: null</code>/<code>setPlaceId: null</code>. Useful for readability.</td>
                         </tr>
                         <tr>
                             <td><code>moveToLocationId</code></td>
@@ -502,7 +536,65 @@ export const SCENES = [
                 </table>
             </section>
 
-            <section id="conditions">
+            
+            <section id="world-traversal">
+                <h2>World traversal (auto-generated)</h2>
+
+                <p>
+                    The SceneManager can automatically generate <strong>travel choices</strong> when the player is
+                    <strong>outside</strong> (not inside any place), and automatically add an <strong>Exit</strong> choice
+                    when the player is <strong>inside</strong> a place.
+                </p>
+
+                <h3>Outside</h3>
+                <ul>
+                    <li>
+                        When <code>{ outside: true }</code> matches, the default outdoor scene is
+                        <code>world.outside.default</code>.
+                    </li>
+                    <li>
+                        Regardless of which outdoor scene is currently active, the SceneManager injects:
+                        <ul>
+                            <li><strong>Connected locations</strong>: one choice per neighbor edge (uses edge minutes).</li>
+                            <li>
+                                <strong>Places in this location</strong>: one choice per place (uses
+                                <code>place.props.minutesFromStreet</code> / <code>place.props.minutes</code> /
+                                <code>place.props.travelMinutes</code>, otherwise defaults to <code>2</code>).
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <h3>Inside a place</h3>
+                <ul>
+                    <li>
+                        If no higher-priority scene matches, <code>place.default</code> renders
+                        <code>"You're in {place.name}."</code>
+                    </li>
+                    <li>
+                        The SceneManager injects an <strong>Exit</strong> choice unless you already defined one.
+                        Exiting is represented as clearing place state (outside = no <code>placeId</code> and no <code>placeKey</code>).
+                    </li>
+                </ul>
+
+                <h3>Writer controls</h3>
+                <ul>
+                    <li>
+                        To provide a custom exit, define a choice with <code>exitToOutside: true</code>
+                        (or <code>setPlaceId: null</code> / <code>setPlaceKey: null</code>).
+                    </li>
+                    <li>
+                        To override a specific generated travel choice, define a choice with the same id:
+                        <code>travel.location.&lt;neighborId&gt;</code> or <code>travel.place.&lt;placeId&gt;</code>.
+                    </li>
+                </ul>
+
+                <div class="note">
+                    This system is intended to reduce boilerplate: writers can focus on special scenes, while
+                    navigation stays consistent across the whole world.
+                </div>
+            </section>
+<section id="conditions">
                 <h2>Conditions</h2>
 
                 <p>
@@ -554,12 +646,27 @@ when: [
                         <tr>
                             <td><code>locationTag</code> / <code>locationTags</code></td>
                             <td>Match if the current location has <em>any</em> of these tags.</td>
-                            <td><code>{ locationTags: ["residential", "park"] }</code></td>
+                            <td><code>{ locationTags: [LOCATION_TAGS.parkland, LOCATION_TAGS.urban_core] }</code></td>
                         </tr>
                         <tr>
                             <td><code>placeKey</code> / <code>placeKeys</code></td>
                             <td>Match if the current placeKey is one of these.</td>
                             <td><code>{ placeKey: "player_home" }</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>outside</code></td>
+                            <td>Match only when the player is <em>not</em> inside a place.</td>
+                            <td><code>{ outside: true }</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>inPlace</code> / <code>insidePlace</code></td>
+                            <td>Match only when the player is inside <em>any</em> place (real or virtual).</td>
+                            <td><code>{ inPlace: true }</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>weather</code> / <code>weatherType</code> / <code>weatherKinds</code> …</td>
+                            <td>Match if current world weather is one of these.</td>
+                            <td><code>{ weatherType: WeatherType.RAIN }</code></td>
                         </tr>
                         <tr>
                             <td><code>npcsPresent</code> / <code>npcPresent</code></td>
@@ -608,7 +715,7 @@ when: [
                 </table>
 
                 <h3>Hour gating in practice</h3>
-                <pre><code>import { TIME_OF_DAY } from "../conditions.js";
+                <pre><code>import { TIME_OF_DAY } from "../util/common.js";
 
 // exact hour
 when: { hour: 18 }
@@ -709,7 +816,7 @@ when: {
                 <h3>Available vars (common)</h3>
                 <pre><code>vars = {
   time: {
-    hour, minute, hhmm, tod
+    hour, minute, hhmm
   },
   location: {
     id, name, tags
@@ -727,7 +834,11 @@ when: {
     { id, name },
     ...
   ]
-}</code></pre>
+}
+
+// Choice labels also receive:
+//  - minutes (from the choice)
+//  - anything you put in choice.vars (e.g. destName)</code></pre>
 
                 <h3>Example i18n string</h3>
                 <pre><code>// i18n dictionary:
@@ -760,8 +871,8 @@ text: [
                 <h3>Don’t invent fields (yet)</h3>
                 <div class="warnbox">
                     Only fields implemented in <code>sceneManager.js</code> actually do anything.
-                    Example: <code>minutesHidden</code> is <em>not</em> currently used; use <code>hideMinutes: true</code>
-                    (or <code>showMinutes: false</code>) instead.
+                    Example: <code>minutesHidden</code> is supported as an alias, but prefer <code>hideMinutes: true</code>
+                    (or <code>showMinutes: false</code>) for new content.
                 </div>
 
                 <h3>When nothing matches</h3>
