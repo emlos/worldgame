@@ -181,13 +181,13 @@ function formatMinutesSuffix(localizer, minutes) {
 }
 
 function isOutside(game) {
-    // Outside = not currently inside a concrete place.
-    // Backwards-compat: treat the legacy virtual key "street" as outside.
-    return !game?.currentPlaceId && (!game?.currentPlaceKey || game.currentPlaceKey === "street");
+    // Outside = not currently inside a concrete or virtual place.
+    // Canonical representation: no placeId and no placeKey.
+    return !game?.currentPlaceId && !game?.currentPlaceKey;
 }
 
 function isInsidePlace(game) {
-    // Inside a place = either we have a concrete placeId, or a non-outside virtual placeKey.
+    // Inside a place = either we have a concrete placeId, or an explicit virtual placeKey.
     if (isOutside(game)) return false;
     return Boolean(game?.currentPlaceId || game?.currentPlaceKey);
 }
@@ -236,7 +236,6 @@ export class SceneManager {
         // Suspend updates to avoid double-resolutions and random re-rolls.
         this._suspendUpdates = 0;
         this._pendingUpdate = false;
-
     }
 
     setLocalizer(localizer) {
@@ -275,7 +274,6 @@ export class SceneManager {
         this._queue.sort((a, b) => (a.priority || 0) - (b.priority || 0));
         this.update();
     }
-
 
     /**
      * Start resolving scenes (use for "Start Game" buttons).
@@ -389,7 +387,7 @@ export class SceneManager {
 
             // Choice-level conditions work like scene/text conditions.
             // If a choice doesn't match, it is normally hidden, unless showAnyway is true.
-            const showAnyway = c?.showAnyway === true || c?.showDisabled === true || c?.showIfDisabled === true;
+            const showAnyway = c?.showAnyway === true;
             if (!ok && !showAnyway) continue;
 
             const presented = this._presentChoice(c, vars);
@@ -420,18 +418,18 @@ export class SceneManager {
             choices,
         };
     }
-
     _presentChoice(def, vars) {
         const minutes = Number(def.minutes) || 0;
-        const extraVars = def && typeof def.vars === "object" && !Array.isArray(def.vars) ? def.vars : null;
+        const extraVars =
+            def && typeof def.vars === "object" && !Array.isArray(def.vars) ? def.vars : null;
         const choiceVars = { ...vars, ...(extraVars || {}), minutes };
 
-        // Canonical: `text` is the i18n key for choices.
-        // Legacy `textKey` is still accepted as a fallback.
-        const textKey = typeof def.text === "string" ? def.text : def.textKey;
-        const baseLabel = this.localizer ? this.localizer.t(textKey, choiceVars) : textKey;
-        const hideMinutes = def?.hideMinutes === true || def?.minutesHidden === true || def?.showMinutes === false;
-        const label = baseLabel + (hideMinutes ? "" : formatMinutesSuffix(this.localizer, minutes)); //TODO: show "??? mins" for hiddenminutes true
+        const textKey = typeof def.text === "string" ? def.text : "";
+        const keyForLabel = textKey || String(def.id);
+        const baseLabel = this.localizer ? this.localizer.t(keyForLabel, choiceVars) : keyForLabel;
+
+        const hideMinutes = def?.hideMinutes === true;
+        const label = baseLabel + (hideMinutes ? "" : formatMinutesSuffix(this.localizer, minutes));
 
         return {
             id: String(def.id),
@@ -470,13 +468,13 @@ export class SceneManager {
             out.traversal = true;
             out.exit = true;
         } else if (ac && typeof ac === "object") {
-            if (ac.traversal === true || ac.travel === true) out.traversal = true;
+            if (ac.traversal === true) out.traversal = true;
             if (ac.exit === true) out.exit = true;
         }
 
         // Explicit overrides.
-        if (def.autoTraversal === true || def.autoTravel === true) out.traversal = true;
-        if (def.autoTraversal === false || def.autoTravel === false) out.traversal = false;
+        if (def.autoTraversal === true) out.traversal = true;
+        if (def.autoTraversal === false) out.traversal = false;
 
         if (def.autoExit === true) out.exit = true;
         if (def.autoExit === false) out.exit = false;
@@ -520,7 +518,9 @@ export class SceneManager {
             if (existing.has(id)) continue;
 
             const minutesFromStreet =
-                Number(p?.props?.minutesFromStreet ?? p?.props?.minutes ?? p?.props?.travelMinutes) || 2;
+                Number(
+                    p?.props?.minutesFromStreet ?? p?.props?.minutes ?? p?.props?.travelMinutes
+                ) || 2;
 
             const def = {
                 id,
@@ -545,15 +545,18 @@ export class SceneManager {
                 c.id === "place.exit" ||
                 d.exitToOutside === true ||
                 c.textKey === "choice.place.exit" ||
-                (("setPlaceKey" in d) && (d.setPlaceKey === null || d.setPlaceKey === "street")) ||
-                (("setPlaceId" in d) && d.setPlaceId === null)
+                ("setPlaceId" in d && d.setPlaceId === null)
             );
         });
         if (alreadyHasExit) return;
 
         const place = this.game.currentPlace;
         const minutesFromStreet =
-            Number(place?.props?.minutesFromStreet ?? place?.props?.minutes ?? place?.props?.travelMinutes) || 2;
+            Number(
+                place?.props?.minutesFromStreet ??
+                    place?.props?.minutes ??
+                    place?.props?.travelMinutes
+            ) || 2;
 
         const id = "place.exit";
         if (existing.has(id)) return;
@@ -580,26 +583,11 @@ export class SceneManager {
      *  - BREAK (token from src/data/scenes/util/common.js)
      */
     _resolveSceneText({ def, sceneId, vars }) {
-        const joiner = typeof def.textJoiner === "string" ? def.textJoiner : "\n\n";
+        const joiner = def.textJoiner ? def.textJoiner : "BREAK";
 
-        // Build a list of blocks to evaluate.
-        let blocks = null;
-        if (Array.isArray(def.text)) {
-            blocks = def.text;
-        } else if (typeof def.text === "string") {
-            blocks = [def.text];
-        }
-
-        if (!blocks) blocks = [];
-
-        // Legacy scene-level fields (still supported for older content).
-        if (!blocks.length) {
-            if (typeof def.textKey === "string") {
-                blocks = [def.textKey];
-            } else if (Array.isArray(def.textKeys) && def.textKeys.length) {
-                blocks = [{ keys: def.textKeys, pick: "random", pickId: "legacy.textKeys" }];
-            }
-        }
+        let blocks = [];
+        if (Array.isArray(def.text)) blocks = def.text;
+        else if (typeof def.text === "string") blocks = [def.text];
 
         let pickMap = this._textBlockPicks.get(sceneId) || null;
         if (!pickMap) {
@@ -612,6 +600,7 @@ export class SceneManager {
 
         for (let i = 0; i < blocks.length; i += 1) {
             const block = blocks[i];
+
             // Explicit single line break token.
             if (block && typeof block === "object" && block.__type === "SCENE_BREAK") {
                 out.push({ __break: true });
@@ -624,7 +613,7 @@ export class SceneManager {
                 continue;
             }
 
-            // Block: string => always include
+            // String => always include
             if (typeof block === "string") {
                 if (!block) continue;
                 usedKeys.push(block);
@@ -637,18 +626,17 @@ export class SceneManager {
             const cond = getConditionBlock(block);
             if (cond && !this._matchesConditions(cond)) continue;
 
-            const directKey = block.key || block.textKey || null;
-            const keyList = Array.isArray(block.keys || block.textKeys)
-                ? block.keys || block.textKeys
-                : null;
-
             let keys = [];
-            if (directKey) keys = [directKey];
-            else if (keyList) keys = keyList.filter(Boolean).map(String);
-            else continue;
+            if (typeof block.key === "string" && block.key) {
+                keys = [block.key];
+            } else if (Array.isArray(block.keys)) {
+                keys = block.keys.filter(Boolean).map(String);
+            } else {
+                continue;
+            }
 
-            if ((block.pick || block.mode) === "random" || block.random === true) {
-                const pickId = String(block.pickId || block.id || `text.${i}`);
+            if (block.pick === "random") {
+                const pickId = `text.${i}`;
                 let pick = pickMap.get(pickId) || null;
                 if (!pick) {
                     pick = keys.length ? keys[(this.rnd() * keys.length) | 0] : null;
@@ -669,8 +657,8 @@ export class SceneManager {
 
         for (const part of out) {
             if (part && typeof part === "object" && part.__break === true) {
-                if (text && !text.endsWith("\n")) text += "\n";
-                else if (!text) text = "\n";
+                if (text && !text.endsWith("")) text += "";
+                else if (!text) text = "";
                 prevWasBreak = true;
                 continue;
             }
@@ -680,7 +668,7 @@ export class SceneManager {
 
             if (!text) {
                 text = part;
-            } else if (prevWasBreak || text.endsWith("\n")) {
+            } else if (prevWasBreak || text.endsWith("")) {
                 text += part;
             } else {
                 text += joiner + part;
@@ -699,10 +687,10 @@ export class SceneManager {
     // --------------------------
     // Choice handling
     // --------------------------
-
     choose(choiceId) {
         const scene = this.getPresentation();
         if (!scene) return null;
+
         const id = String(choiceId);
         const choice = scene.choices.find((c) => c.id === id) || null;
         if (!choice) throw new Error(`Unknown choice '${id}' for scene '${scene.id}'`);
@@ -724,48 +712,51 @@ export class SceneManager {
         this._pendingUpdate = false;
         try {
             this.game.runAction({
-            label: c.text || c.textKey || id,
-            minutes: Number(c.minutes) || 0,
-            apply: (game) => {
-                // Place movement (within current location)
-                // Support explicit null as "exit to outside" for backwards compatibility.
-                if ("setPlaceKey" in c) {
-                    if (c.setPlaceKey === null) {
-                        game.setCurrentPlace({ placeId: null, placeKey: null });
-                    } else if (typeof c.setPlaceKey === "string") {
-                        game.setCurrentPlace({ placeId: null, placeKey: c.setPlaceKey });
+                label: c.text || id,
+                minutes: Number(c.minutes) || 0,
+                apply: (game) => {
+                    // Place movement (within current location)
+                    // Canonical: use setPlaceId (string to enter, null to exit), and/or exitToOutside.
+                    if ("setPlaceKey" in c) {
+                        throw new Error(
+                            `Choice '${id}' uses deprecated 'setPlaceKey'. Use setPlaceId, exitToOutside, or moveToHome instead.`
+                        );
                     }
-                }
-                if ("setPlaceId" in c) {
-                    if (c.setPlaceId === null) {
-                        game.setCurrentPlace({ placeId: null, placeKey: null });
-                    } else if (typeof c.setPlaceId === "string") {
-                        game.setCurrentPlace({ placeId: c.setPlaceId, placeKey: null });
+
+                    if ("setPlaceId" in c) {
+                        if (c.setPlaceId === null) {
+                            game.setCurrentPlace({ placeId: null, placeKey: null });
+                        } else if (typeof c.setPlaceId === "string") {
+                            game.setCurrentPlace({ placeId: c.setPlaceId, placeKey: null });
+                        }
                     }
-                }
-                if (c.exitToOutside === true) {
-                    // "Outside" is represented as: no concrete placeId and no placeKey.
-                    game.setCurrentPlace({ placeId: null, placeKey: null });
-                }
 
-                // Location movement
-                if (typeof c.moveToLocationId === "string") {
-                    game.moveTo(c.moveToLocationId);
-                }
-                if (c.moveToHome === true && game.homeLocationId) {
-                    game.moveTo(game.homeLocationId);
-                    game.setCurrentPlace({ placeId: game.homePlaceId, placeKey: null });
-                }
+                    if (c.exitToOutside === true) {
+                        // Outside is represented as: no placeId and no placeKey.
+                        game.setCurrentPlace({ placeId: null, placeKey: null });
+                    }
 
-                // Flags
-                for (const f of normalizeStringSet(c.setFlags || c.setFlag)) game.setFlag(f, true);
-                for (const f of normalizeStringSet(c.clearFlags || c.clearFlag)) game.clearFlag(f);
+                    // Location movement
+                    if (typeof c.moveToLocationId === "string") {
+                        game.moveTo(c.moveToLocationId);
+                    }
 
-                // Optional: enqueue an urgent scene immediately
-                if (c.queueSceneId) {
-                    this.queueScene(c.queueSceneId, c.queuePriority ?? 999);
-                }
-            },
+                    if (c.moveToHome === true && game.homeLocationId) {
+                        game.moveTo(game.homeLocationId);
+                        game.setCurrentPlace({ placeId: game.homePlaceId, placeKey: null });
+                    }
+
+                    // Flags
+                    for (const f of normalizeStringSet(c.setFlags ?? c.setFlag))
+                        game.setFlag(f, true);
+                    for (const f of normalizeStringSet(c.clearFlags ?? c.clearFlag))
+                        game.clearFlag(f);
+
+                    // Optional: enqueue an urgent scene immediately
+                    if (c.queueSceneId) {
+                        this.queueScene(c.queueSceneId, c.queuePriority ?? 999);
+                    }
+                },
             });
         } finally {
             this._suspendUpdates = Math.max(0, this._suspendUpdates - 1);
@@ -784,7 +775,7 @@ export class SceneManager {
 
     _matches(def) {
         // Normalize naming at the scene-def level: you can write `conditions`, `when`, or `if`.
-        const cond = getConditionBlock(def) || def?.conditions || def?.when || def?.if || {};
+        const cond = getConditionBlock(def) || {};
         return this._matchesConditions(cond);
     }
 
@@ -880,39 +871,37 @@ export class SceneManager {
         }
 
         // Weather gate (world time)
-        const weatherKinds = normalizeStringSet(
-            cond.weatherKinds || cond.weatherKind || cond.weatherTypes || cond.weatherType || cond.weather
-        );
+        const weatherKinds = normalizeStringSet(cond.weatherKinds);
         if (weatherKinds.length) {
             const cur = String(this.game.world?.currentWeather ?? "");
             if (!cur || !weatherKinds.includes(cur)) return false;
         }
-        const notWeatherKinds = normalizeStringSet(cond.notWeatherKinds || cond.notWeatherKind || cond.notWeather);
+        const notWeatherKinds = normalizeStringSet(cond.notWeatherKinds);
         if (notWeatherKinds.length) {
             const cur = String(this.game.world?.currentWeather ?? "");
             if (cur && notWeatherKinds.includes(cur)) return false;
         }
 
         // Season gate (world time)
-        const seasons = normalizeStringSet(cond.seasons || cond.season);
+        const seasons = normalizeStringSet(cond.seasons);
         if (seasons.length) {
             const cur = String(this.game.world?.season ?? "");
             if (!cur || !seasons.includes(cur)) return false;
         }
-        const notSeasons = normalizeStringSet(cond.notSeasons || cond.notSeason);
+        const notSeasons = normalizeStringSet(cond.notSeasons);
         if (notSeasons.length) {
             const cur = String(this.game.world?.season ?? "");
             if (cur && notSeasons.includes(cur)) return false;
         }
 
         // Day kind (workday/day off)
-        const dayKinds = normalizeStringSet(cond.dayKinds || cond.dayKind);
+        const dayKinds = normalizeStringSet(cond.dayKinds);
         if (dayKinds.length) {
             const info = this.game.world?.getDayInfo?.(this.game.now);
             const cur = String(info?.kind ?? "");
             if (!cur || !dayKinds.includes(cur)) return false;
         }
-        const notDayKinds = normalizeStringSet(cond.notDayKinds || cond.notDayKind);
+        const notDayKinds = normalizeStringSet(cond.notDayKinds);
         if (notDayKinds.length) {
             const info = this.game.world?.getDayInfo?.(this.game.now);
             const cur = String(info?.kind ?? "");
@@ -920,12 +909,12 @@ export class SceneManager {
         }
 
         // Day of week (DAY_KEYS)
-        const daysOfWeek = normalizeStringSet(cond.daysOfWeek || cond.dayOfWeek);
+        const daysOfWeek = normalizeStringSet(cond.daysOfWeek);
         if (daysOfWeek.length) {
             const dowKey = DAY_KEYS[this.game.now.getUTCDay()] || "";
             if (!dowKey || !daysOfWeek.includes(dowKey)) return false;
         }
-        const notDaysOfWeek = normalizeStringSet(cond.notDaysOfWeek || cond.notDayOfWeek);
+        const notDaysOfWeek = normalizeStringSet(cond.notDaysOfWeek);
         if (notDaysOfWeek.length) {
             const dowKey = DAY_KEYS[this.game.now.getUTCDay()] || "";
             if (dowKey && notDaysOfWeek.includes(dowKey)) return false;
@@ -988,17 +977,21 @@ export class SceneManager {
         }
 
         // Holiday match (from src/data/world/calendar.js; includes random holidays)
-        const holidays = normalizeStringSet(cond.holidays || cond.holiday);
+        const holidays = normalizeStringSet(cond.holidays);
         if (holidays.length) {
             const names = new Set(
-                (this.game.world?.getCurrentHolidayNames?.() || []).map((n) => String(n).toLowerCase())
+                (this.game.world?.getCurrentHolidayNames?.() || []).map((n) =>
+                    String(n).toLowerCase()
+                )
             );
             if (!holidays.some((h) => names.has(String(h).toLowerCase()))) return false;
         }
-        const notHolidays = normalizeStringSet(cond.notHolidays || cond.notHoliday);
+        const notHolidays = normalizeStringSet(cond.notHolidays);
         if (notHolidays.length) {
             const names = new Set(
-                (this.game.world?.getCurrentHolidayNames?.() || []).map((n) => String(n).toLowerCase())
+                (this.game.world?.getCurrentHolidayNames?.() || []).map((n) =>
+                    String(n).toLowerCase()
+                )
             );
             if (notHolidays.some((h) => names.has(String(h).toLowerCase()))) return false;
         }
@@ -1120,10 +1113,7 @@ export class SceneManager {
                 id: place?.id ?? null,
                 key: this.game.currentPlaceKey ?? null,
                 name:
-                    place?.name ??
-                    (this.game.currentPlaceKey === "street"
-                        ? streetName
-                        : this.game.currentPlaceKey),
+                    place?.name ?? (isOutside(this.game) ? streetName : this.game.currentPlaceKey),
             },
             street: {
                 name: streetName,

@@ -3,7 +3,6 @@
  * ------------------------------------------------------------------
  * Demonstrates:
  *  - a "home" place scene (placeKey: player_home)
- *  - a "street" virtual place scene (placeKey: street)
  *  - conditional text blocks inside a single scene
  *  - a random flavour text scene
  *  - a high-priority conditional scene (ambulance) that takes over when injured
@@ -120,7 +119,7 @@ export const SCENES = [
                 hideMinutes:  true, 
                 clearFlag: "injured",
                 // Send the player home as a simple resolution.
-                setPlaceKey: "player_home",
+                moveToHome: true,
                 nextSceneId: "home.default",
             },
         ],
@@ -138,7 +137,7 @@ export const SCENES = [
                 id: "system.fallback.continue",
                 text: "choice.system.fallback.continue",
                 // Try to put the player somewhere sane; resolver will pick the best match.
-                setPlaceKey: "player_home",
+                moveToHome: true,
             },
         ],
     },
