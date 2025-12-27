@@ -38,13 +38,6 @@ export const SCENES = [
 
         choices: [
             {
-                id: "home.goOutside",
-                textKey: "choice.home.goOutside", 
-                minutes: 2,
-                setPlaceKey: "street",
-                nextSceneId: "street.default", //TODO: add random scene choosing from pool
-            },
-            {
                 id: "home.tidyUp",
                 textKey: "choice.home.tidyUp",
                 minutes: 30,
@@ -96,31 +89,6 @@ export const SCENES = [
                 textKey: "choice.home.return",
                 minutes: 0,
                 nextSceneId: "home.default",
-            },
-        ],
-    },
-
-    {
-        id: "street.default",
-        priority: 10,
-        conditions: {
-            placeKey: "street",
-            notPlayerFlags: ["injured"],
-        },
-        textKey: "scene.street.default.text",
-        choices: [
-            {
-                id: "street.goInside",
-                textKey: "choice.home.goInside",
-                minutes: 2,
-                setPlaceKey: "player_home",
-                nextSceneId: "home.default",
-            },
-            {
-                id: "street.getInjured",
-                textKey: "choice.street.getInjured",
-                minutes: 0,
-                setFlag: "injured",
             },
         ],
     },

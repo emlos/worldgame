@@ -144,6 +144,18 @@ function formatMinutesSuffix(localizer, minutes) {
     return ` (${m} ${unit})`;
 }
 
+function isOutside(game) {
+    // Outside = not currently inside a concrete place.
+    // Backwards-compat: treat the legacy virtual key "street" as outside.
+    return !game?.currentPlaceId && (!game?.currentPlaceKey || game.currentPlaceKey === "street");
+}
+
+function isInsidePlace(game) {
+    // Inside a place = either we have a concrete placeId, or a non-outside virtual placeKey.
+    if (isOutside(game)) return false;
+    return Boolean(game?.currentPlaceId || game?.currentPlaceKey);
+}
+
 export class SceneManager {
     constructor({
         game,
@@ -327,7 +339,8 @@ export class SceneManager {
             if (cond && !this._matchesConditions(cond)) continue;
 
             const minutes = Number(c.minutes) || 0;
-            const choiceVars = { ...vars, minutes };
+            const extraVars = c && typeof c.vars === "object" && !Array.isArray(c.vars) ? c.vars : null;
+            const choiceVars = { ...vars, ...(extraVars || {}), minutes };
 
             const baseLabel = this.localizer ? this.localizer.t(c.textKey, choiceVars) : c.textKey;
             const hideMinutes = c?.hideMinutes === true || c?.showMinutes === false;
@@ -343,6 +356,18 @@ export class SceneManager {
             });
         }
 
+        // --- Auto world traversal -------------------------------------------------
+        // When outside (not inside a place), add travel options to connected locations
+        // and places available in the current location.
+        if (isOutside(this.game)) {
+            this._injectTraversalChoices({ choices, vars });
+        }
+
+        // When inside any place (real or virtual), ensure an Exit option exists.
+        if (isInsidePlace(this.game)) {
+            this._injectExitChoice({ choices, vars });
+        }
+
         return {
             id,
             def,
@@ -353,6 +378,108 @@ export class SceneManager {
             vars,
             choices,
         };
+    }
+
+    _presentChoice(def, vars) {
+        const minutes = Number(def.minutes) || 0;
+        const extraVars = def && typeof def.vars === "object" && !Array.isArray(def.vars) ? def.vars : null;
+        const choiceVars = { ...vars, ...(extraVars || {}), minutes };
+
+        const baseLabel = this.localizer ? this.localizer.t(def.textKey, choiceVars) : def.textKey;
+        const hideMinutes = def?.hideMinutes === true || def?.showMinutes === false;
+        const label = baseLabel + (hideMinutes ? "" : formatMinutesSuffix(this.localizer, minutes));
+
+        return {
+            id: String(def.id),
+            textKey: def.textKey,
+            text: label,
+            minutes,
+            _def: def,
+        };
+    }
+
+    _injectTraversalChoices({ choices, vars }) {
+        const loc = this.game.location;
+        if (!loc) return;
+
+        const existing = new Set(choices.map((c) => String(c.id)));
+
+        // 1) Connected locations (graph neighbors)
+        for (const [neighborId, edge] of loc.neighbors || []) {
+            const id = `travel.location.${String(neighborId)}`;
+            if (existing.has(id)) continue;
+            const nb = this.game.world?.getLocation?.(neighborId) || null;
+            if (!nb) continue;
+
+            const def = {
+                id,
+                textKey: "choice.travel.toLocation",
+                minutes: Number(edge?.minutes) || 0,
+                moveToLocationId: String(neighborId),
+                vars: { destName: nb.name },
+            };
+
+            choices.push(this._presentChoice(def, vars));
+            existing.add(id);
+        }
+
+        // 2) Places within current location
+        const places = Array.isArray(loc.places) ? loc.places : [];
+        for (const p of places) {
+            if (!p || !p.id) continue;
+            // Prefer not to list closed places (you can relax this later).
+            if (typeof p.isOpen === "function" && !p.isOpen(this.game.now)) continue;
+
+            const id = `travel.place.${String(p.id)}`;
+            if (existing.has(id)) continue;
+
+            const minutesFromStreet =
+                Number(p?.props?.minutesFromStreet ?? p?.props?.minutes ?? p?.props?.travelMinutes) || 2;
+
+            const def = {
+                id,
+                textKey: "choice.travel.toPlace",
+                minutes: minutesFromStreet,
+                setPlaceId: String(p.id),
+                vars: { destName: p.name },
+            };
+
+            choices.push(this._presentChoice(def, vars));
+            existing.add(id);
+        }
+    }
+
+    _injectExitChoice({ choices, vars }) {
+        const existing = new Set(choices.map((c) => String(c.id)));
+
+        // Avoid duplicates if a scene already defines an exit.
+        const alreadyHasExit = choices.some((c) => {
+            const d = c?._def || {};
+            return (
+                c.id === "place.exit" ||
+                d.exitToOutside === true ||
+                d.setPlaceKey === "street" ||
+                d.setPlaceKey === null ||
+                d.setPlaceId === null ||
+                c.textKey === "choice.place.exit"
+            );
+        });
+        if (alreadyHasExit) return;
+
+        const place = this.game.currentPlace;
+        const minutesFromStreet =
+            Number(place?.props?.minutesFromStreet ?? place?.props?.minutes ?? place?.props?.travelMinutes) || 2;
+
+        const id = "place.exit";
+        if (existing.has(id)) return;
+
+        const def = {
+            id,
+            textKey: "choice.place.exit",
+            minutes: minutesFromStreet,
+            exitToOutside: true,
+        };
+        choices.push(this._presentChoice(def, vars));
     }
 
     /**
@@ -459,6 +586,10 @@ export class SceneManager {
                 }
                 if (typeof c.setPlaceId === "string") {
                     game.setCurrentPlace({ placeId: c.setPlaceId, placeKey: null });
+                }
+                if (c.exitToOutside === true) {
+                    // "Outside" is represented as: no concrete placeId and no placeKey.
+                    game.setCurrentPlace({ placeId: null, placeKey: null });
                 }
 
                 // Location movement
@@ -574,6 +705,27 @@ export class SceneManager {
         if (placeKeys.length) {
             const cur = this.game.currentPlaceKey;
             if (!cur || !placeKeys.includes(String(cur))) return false;
+        }
+
+        // Outside / in-place helpers
+        //   { outside: true } => only when the player is not inside a place
+        //   { inPlace: true } => only when the player is inside any place (real or virtual)
+        if (cond.outside != null) {
+            const want = !!cond.outside;
+            if (want !== isOutside(this.game)) return false;
+        }
+        if (cond.inPlace != null || cond.insidePlace != null) {
+            const want = cond.inPlace != null ? !!cond.inPlace : !!cond.insidePlace;
+            if (want !== isInsidePlace(this.game)) return false;
+        }
+
+        // Weather gate (world time)
+        const weatherKinds = normalizeStringSet(
+            cond.weatherKinds || cond.weatherKind || cond.weatherTypes || cond.weatherType || cond.weather
+        );
+        if (weatherKinds.length) {
+            const cur = String(this.game.world?.currentWeather ?? "");
+            if (!cur || !weatherKinds.includes(cur)) return false;
         }
 
         // NPCs present in current location
