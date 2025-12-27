@@ -281,14 +281,11 @@ export const SCENES = [
     autoChoices: { exit: true },
     // You can write `conditions`, `when`, or `if` at the scene root.
     conditions: {
-      placeKey: "player_home",
+      placeKeys: ["player_home"],
       notPlayerFlags: ["injured"],
     },
 
     // Text can be a string key OR an array of blocks.
-    textKey: "scene.home.default.text",     // legacy (still supported)
-
-    // or (recommended)
     text: [
       "scene.home.default.text",
       { when: { hour: TIME_OF_DAY.evening }, key: "scene.home.default.evening" },
@@ -307,7 +304,7 @@ export const SCENES = [
     choices: [
       {
         id: "home.tidyUp",
-        textKey: "choice.home.tidyUp",
+        text: "choice.home.tidyUp",
         minutes: 10,
         setFlag: "homeIsTidy",
       },
@@ -346,10 +343,11 @@ export const SCENES = [
                             <td>Recommended.</td>
                         </tr>
                         <tr>
-                            <td><code>textKey</code> / <code>textKeys</code> <span class="pill opt">optional</span></td>
-                            <td>Legacy text fields.</td>
+                            <td><code>textKey</code> / <code>textKeys</code> <span class="pill warn">legacy</span></td>
+                            <td>Old scene text fields.</td>
                             <td>
-                                If <code>textKeys</code> is an array, one key is picked at random each time the scene is resolved (typically when entered, and whenever the resolver re-runs).
+                                Don’t use these for new content. Prefer <code>text</code>.
+                                (Some legacy packs may still define them; migration is recommended.)
                             </td>
                         </tr>
                         <tr>
@@ -389,7 +387,7 @@ export const SCENES = [
                     <div>
                         <h3>Block types</h3>
                         <ul>
-                            <li><strong>String</strong>: treated as an i18n key (or literal text if the key doesn’t exist).</li>
+                            <li><strong>String</strong>: treated as an i18n key.</li>
                             <li>
                                 <strong>Conditional block object</strong>:
                                 <code>{ when/if/conditions: {...}, key: "..." }</code> (also <code>textKey</code>)
@@ -397,6 +395,14 @@ export const SCENES = [
                             <li>
                                 <strong>Multi-key block</strong>:
                                 <code>{ keys: ["...","..."], pick: "random" }</code> (also <code>textKeys</code>, or <code>random: true</code>)
+                            </li>
+                            <li>
+                                <strong>Literal block</strong>:
+                                <code>{ raw: "Some unlocalized text" }</code>
+                            </li>
+                            <li>
+                                <strong>Line break token</strong>:
+                                <code>BREAK</code> (import from <code>src/data/scenes/util/common.js</code>)
                             </li>
                         </ul>
                     </div>
@@ -436,7 +442,7 @@ export const SCENES = [
                 <pre><code>choices: [
   {
     id: "travel.toMarket",                 // required (unique within the scene)
-    textKey: "choice.travel.toLocation",   // required (localization key)
+    text: "choice.travel.toLocation",      // required (localization key)
     minutes: 7,                            // optional (defaults to 0)
 
     // Optional condition gate for showing the choice:
@@ -487,7 +493,7 @@ export const SCENES = [
                             <td>Used to dispatch the click.</td>
                         </tr>
                         <tr>
-                            <td><code>textKey</code> <span class="pill req">required</span></td>
+                            <td><code>text</code> <span class="pill req">required</span></td>
                             <td>Localization key for the button label.</td>
                             <td>Receives vars + <code>{minutes}</code> for interpolation.</td>
                         </tr>
@@ -510,7 +516,7 @@ export const SCENES = [
                         <tr>
                             <td><code>vars</code></td>
                             <td>Extra interpolation variables for the choice label.</td>
-                            <td><code>{ vars: { destName: "Market Square" } }</code> enables <code>{destName}</code> in <code>textKey</code>.</td>
+                            <td><code>{ vars: { destName: "Market Square" } }</code> enables <code>{destName}</code> in <code>text</code>.</td>
                         </tr>
                         <tr>
                             <td><code>when</code> / <code>if</code> / <code>conditions</code> <span class="pill opt">optional</span></td>
@@ -652,7 +658,7 @@ export const SCENES = [
                 <pre><code>// Explicit AND / OR / NOT
 when: {
   and: [
-    { placeKey: "street" },
+    { placeKeys: ["street"] },
     { notPlayerFlags: ["injured"] },
   ],
   or: [
@@ -664,7 +670,7 @@ when: {
 
 // Arrays are treated as implicit AND:
 when: [
-  { placeKey: "street" },
+  { placeKeys: ["street"] },
   { hour: { between: [18, 23] } },
 ]</code></pre>
 
@@ -679,19 +685,19 @@ when: [
                     </thead>
                     <tbody>
                         <tr>
-                            <td><code>locationId</code></td>
-                            <td>Match a specific location id.</td>
-                            <td><code>{ locationId: "downtown" }</code></td>
+                            <td><code>locationIds</code> / <code>locationId</code></td>
+                            <td>Match if the current location id is one of these.</td>
+                            <td><code>{ locationIds: ["downtown"] }</code></td>
                         </tr>
                         <tr>
-                            <td><code>locationTag</code> / <code>locationTags</code></td>
+                            <td><code>locationTags</code> / <code>locationTag</code></td>
                             <td>Match if the current location has <em>any</em> of these tags.</td>
                             <td><code>{ locationTags: [LOCATION_TAGS.parkland, LOCATION_TAGS.urban_core] }</code></td>
                         </tr>
                         <tr>
-                            <td><code>placeKey</code> / <code>placeKeys</code></td>
+                            <td><code>placeKeys</code> / <code>placeKey</code></td>
                             <td>Match if the current placeKey is one of these.</td>
-                            <td><code>{ placeKey: "player_home" }</code></td>
+                            <td><code>{ placeKeys: ["player_home"] }</code></td>
                         </tr>
                         <tr>
                             <td><code>outside</code></td>
@@ -704,9 +710,39 @@ when: [
                             <td><code>{ inPlace: true }</code></td>
                         </tr>
                         <tr>
-                            <td><code>weather</code> / <code>weatherType</code> / <code>weatherKinds</code> …</td>
-                            <td>Match if current world weather is one of these.</td>
-                            <td><code>{ weatherType: WeatherType.RAIN }</code></td>
+                            <td><code>weatherKinds</code> / <code>notWeatherKinds</code></td>
+                            <td>Match against current world weather (use <code>WeatherType.*</code>).</td>
+                            <td><code>{ weatherKinds: [WeatherType.RAIN] }</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>seasons</code> / <code>notSeasons</code></td>
+                            <td>Match against current season (use <code>Season.*</code>).</td>
+                            <td><code>{ seasons: [Season.WINTER] }</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>dayKinds</code> / <code>notDayKinds</code></td>
+                            <td>Match against current day kind (use <code>DayKind.*</code>).</td>
+                            <td><code>{ dayKinds: [DayKind.WORKDAY] }</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>daysOfWeek</code> / <code>notDaysOfWeek</code></td>
+                            <td>Match against day-of-week keys (use <code>DAY_KEYS[...]</code>).</td>
+                            <td><code>{ daysOfWeek: [DAY_KEYS[0], DAY_KEYS[6]] }</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>date</code> / <code>notDate</code></td>
+                            <td>Match an exact date (any of day/month/year can be specified).</td>
+                            <td><code>{ date: { month: 12, day: 31 } }</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>dateRange</code> / <code>notDateRange</code></td>
+                            <td>Match an inclusive date range (partial bounds allowed).</td>
+                            <td><code>{ dateRange: { from: { month: 12, day: 20 }, to: { month: 12, day: 31 } } }</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>holidays</code> / <code>notHolidays</code></td>
+                            <td>Match if today includes any holiday name from <code>src/data/world/calendar.js</code>.</td>
+                            <td><code>{ holidays: ["New Year's Day"] }</code></td>
                         </tr>
                         <tr>
                             <td><code>npcsPresent</code> / <code>npcPresent</code></td>
@@ -904,7 +940,7 @@ text: [
   id: "ambulance.arrives",
   priority: 100,
   conditions: { playerFlags: ["injured"] },
-  textKey: "scene.ambulance.arrives.text",
+  text: "scene.ambulance.arrives.text",
   choices: [ ... ]
 }</code></pre>
 

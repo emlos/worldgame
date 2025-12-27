@@ -63,7 +63,7 @@ export const SCENES = [
 
             // Weather flavour (optional)
             {
-                when: { weather: WeatherType.CLEAR },
+                when: { weatherKinds: [WeatherType.CLEAR] },
                 keys: [
                     "scene.world.flavor.none",
                     "scene.world.outside.weather.clear.0",
@@ -72,7 +72,7 @@ export const SCENES = [
                 pick: "random",
             },
             {
-                when: { weather: WeatherType.SUNNY },
+                when: { weatherKinds: [WeatherType.SUNNY] },
                 keys: [
                     "scene.world.flavor.none",
                     "scene.world.outside.weather.sunny.0",
@@ -81,7 +81,7 @@ export const SCENES = [
                 pick: "random",
             },
             {
-                when: { weather: WeatherType.CLOUDY },
+                when: { weatherKinds: [WeatherType.CLOUDY] },
                 keys: [
                     "scene.world.flavor.none",
                     "scene.world.outside.weather.cloudy.0",
@@ -90,7 +90,7 @@ export const SCENES = [
                 pick: "random",
             },
             {
-                when: { weather: WeatherType.RAIN },
+                when: { weatherKinds: [WeatherType.RAIN] },
                 keys: [
                     "scene.world.flavor.none",
                     "scene.world.outside.weather.rain.0",
@@ -99,7 +99,7 @@ export const SCENES = [
                 pick: "random",
             },
             {
-                when: { weather: WeatherType.STORM },
+                when: { weatherKinds: [WeatherType.STORM] },
                 keys: [
                     "scene.world.flavor.none",
                     "scene.world.outside.weather.storm.0",
@@ -108,7 +108,7 @@ export const SCENES = [
                 pick: "random",
             },
             {
-                when: { weather: WeatherType.WINDY },
+                when: { weatherKinds: [WeatherType.WINDY] },
                 keys: [
                     "scene.world.flavor.none",
                     "scene.world.outside.weather.windy.0",
@@ -117,7 +117,7 @@ export const SCENES = [
                 pick: "random",
             },
             {
-                when: { weather: WeatherType.SNOW },
+                when: { weatherKinds: [WeatherType.SNOW] },
                 keys: [
                     "scene.world.flavor.none",
                     "scene.world.outside.weather.snow.0",
@@ -128,7 +128,7 @@ export const SCENES = [
 
             // Location-tag flavour (optional; uses LOCATION_TAGS enum)
             {
-                when: { locationTag: LOCATION_TAGS.urban_core },
+                when: { locationTags: [LOCATION_TAGS.urban_core] },
                 keys: [
                     "scene.world.flavor.none",
                     "scene.world.outside.tag.urban_core.0",
@@ -137,7 +137,7 @@ export const SCENES = [
                 pick: "random",
             },
             {
-                when: { locationTag: LOCATION_TAGS.coastal },
+                when: { locationTags: [LOCATION_TAGS.coastal] },
                 keys: [
                     "scene.world.flavor.none",
                     "scene.world.outside.tag.coastal.0",
@@ -146,7 +146,7 @@ export const SCENES = [
                 pick: "random",
             },
             {
-                when: { locationTag: LOCATION_TAGS.parkland },
+                when: { locationTags: [LOCATION_TAGS.parkland] },
                 keys: [
                     "scene.world.flavor.none",
                     "scene.world.outside.tag.parkland.0",
@@ -155,7 +155,7 @@ export const SCENES = [
                 pick: "random",
             },
             {
-                when: { locationTag: LOCATION_TAGS.wealthy },
+                when: { locationTags: [LOCATION_TAGS.wealthy] },
                 keys: [
                     "scene.world.flavor.none",
                     "scene.world.outside.tag.wealthy.0",
@@ -164,7 +164,7 @@ export const SCENES = [
                 pick: "random",
             },
             {
-                when: { locationTag: LOCATION_TAGS.poor },
+                when: { locationTags: [LOCATION_TAGS.poor] },
                 keys: [
                     "scene.world.flavor.none",
                     "scene.world.outside.tag.poor.0",
@@ -195,7 +195,7 @@ export const SCENES = [
         conditions: {
             inPlace: true,
         },
-        textKey: "scene.place.default.text",
+        text: "scene.place.default.text",
         choices: [],
     },
 ];

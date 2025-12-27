@@ -9,7 +9,7 @@
  *  - a high-priority conditional scene (ambulance) that takes over when injured
  */
 
-import { TIME_OF_DAY } from "../util/common.js";
+import { TIME_OF_DAY, BREAK } from "../util/common.js";
 
 //TODO: some sort of visual editor for scenes might be nice
 export const SCENES = [
@@ -19,7 +19,7 @@ export const SCENES = [
         // "Menu" scene for the player's home: allow auto-injected Exit.
         autoChoices: { exit: true },
         conditions: {
-            placeKey: "player_home",
+            placeKeys: ["player_home"],
             notPlayerFlags: ["injured"],
         },
 
@@ -34,20 +34,20 @@ export const SCENES = [
                 when: { playerFlags: ["waitingForPackage"] },
                 key: "scene.home.default.waitingForPackage",
             },
-            "\n", //TODO add newline handling
-            "Ain't life nice?"
+            BREAK,
+            { raw: "Ain't life nice?" },
         ],
 
         choices: [
             {
                 id: "home.tidyUp",
-                textKey: "choice.home.tidyUp",
+                text: "choice.home.tidyUp",
                 minutes: 30,
                 nextSceneId: "home.tidyUp",
             },
             {
                 id: "home.waitForPackage",
-                textKey: "choice.home.waitForPackage",
+                text: "choice.home.waitForPackage",
                 minutes: 1,
                 // Only show this option if the player isn't already waiting for a package.
                 when: { notPlayerFlags: ["waitingForPackage"] },
@@ -56,7 +56,7 @@ export const SCENES = [
             },
             {
                 id: "home.stopWaitingForPackage",
-                textKey: "choice.home.stopWaitingForPackage",
+                text: "choice.home.stopWaitingForPackage",
                 minutes: 1,
                 // Demo: show the button always, but disable it unless the player is actually waiting.
                 when: { playerFlags: ["waitingForPackage"] },
@@ -67,8 +67,7 @@ export const SCENES = [
             {
                 // Demo of a flag-triggered, high-priority scene.
                 id: "home.getInjured",
-                textKey: "choice.home.getInjured",
-                minutes: 0,
+                text: "choice.home.getInjured",
                 setFlag: "injured",
                 // You can omit nextSceneId here and rely on priority resolution.
             },
@@ -79,22 +78,26 @@ export const SCENES = [
         id: "home.tidyUp",
         priority: 11,
         conditions: {
-            placeKey: "player_home",
+            placeKeys: ["player_home"],
             notPlayerFlags: ["injured"],
         },
         // Pick 1 at random each time the scene is entered
-        textKeys: [ //TODO: unify the text and denote when to pick random text. maybe {when ..., random: true, key: [scene.home.whatever1, scene.home.whatever2..]}
-            "scene.home.tidyUp.flavortext.0",
-            "scene.home.tidyUp.flavortext.1",
-            "scene.home.tidyUp.flavortext.2",
-            "scene.home.tidyUp.flavortext.3",
-            "scene.home.tidyUp.flavortext.4",
+        text: [
+            {
+                keys: [
+                    "scene.home.tidyUp.flavortext.0",
+                    "scene.home.tidyUp.flavortext.1",
+                    "scene.home.tidyUp.flavortext.2",
+                    "scene.home.tidyUp.flavortext.3",
+                    "scene.home.tidyUp.flavortext.4",
+                ],
+                pick: "random",
+            },
         ],
         choices: [
             {
                 id: "home.return",
-                textKey: "choice.home.return",
-                minutes: 0,
+                text: "choice.home.return",
                 nextSceneId: "home.default",
             },
         ],
@@ -108,11 +111,11 @@ export const SCENES = [
         conditions: {
             playerFlags: ["injured"],
         },
-        textKey: "scene.ambulance.arrives.text",
+        text: "scene.ambulance.arrives.text",
         choices: [
             {
                 id: "ambulance.help",
-                textKey: "choice.ambulance.help",
+                text: "choice.ambulance.help",
                 minutes: 30,
                 hideMinutes:  true, 
                 clearFlag: "injured",
@@ -129,12 +132,11 @@ export const SCENES = [
         id: "system.fallback",
         priority: -9999,
         // Intentionally no conditions.
-        textKey: "scene.system.fallback.text",
+        text: "scene.system.fallback.text",
         choices: [
             {
                 id: "system.fallback.continue",
-                textKey: "choice.system.fallback.continue",
-                minutes: 0,
+                text: "choice.system.fallback.continue",
                 // Try to put the player somewhere sane; resolver will pick the best match.
                 setPlaceKey: "player_home",
             },

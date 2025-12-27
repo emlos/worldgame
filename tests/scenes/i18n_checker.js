@@ -64,15 +64,23 @@ function collectSceneI18nKeys(sceneDefs) {
     for (const def of sceneDefs || []) {
         if (!def || typeof def !== "object") continue;
 
-        if (typeof def.textKey === "string" && isKeyCandidate(def.textKey)) used.add(def.textKey);
-
         // Additional common aliases used by some scene packs.
         if (typeof def.titleKey === "string" && isKeyCandidate(def.titleKey)) used.add(def.titleKey);
         if (typeof def.descKey === "string" && isKeyCandidate(def.descKey)) used.add(def.descKey);
 
+        // Canonical scene text
+        if (typeof def.text === "string") {
+            if (isKeyCandidate(def.text)) used.add(def.text);
+            else {
+                const lit = def.text.trim();
+                if (lit) rawLiterals.push({ sceneId: def.id, text: lit });
+            }
+        }
+
+        // Legacy: some older packs used def.textKey/def.textKeys. Kept for compatibility.
+        if (typeof def.textKey === "string" && isKeyCandidate(def.textKey)) used.add(def.textKey);
         if (Array.isArray(def.textKeys)) {
-            for (const k of def.textKeys)
-                if (typeof k === "string" && isKeyCandidate(k)) used.add(k);
+            for (const k of def.textKeys) if (typeof k === "string" && isKeyCandidate(k)) used.add(k);
         }
 
         if (Array.isArray(def.text)) {
@@ -86,6 +94,14 @@ function collectSceneI18nKeys(sceneDefs) {
                         }
                     }
                 } else if (isPlainObject(part)) {
+                    // BREAK token (from src/data/scenes/util/common.js)
+                    if (part.__type === "SCENE_BREAK") continue;
+
+                    // Literal text blocks
+                    if (typeof part.raw === "string" && part.raw.trim()) {
+                        rawLiterals.push({ sceneId: def.id, text: part.raw.trim() });
+                        continue;
+                    }
                     // The scene text block format supports a few shapes.
                     // Examples:
                     //  - { when: {...}, key: "scene.foo" }
@@ -110,8 +126,8 @@ function collectSceneI18nKeys(sceneDefs) {
 
         if (Array.isArray(def.choices)) {
             for (const ch of def.choices) {
-                if (ch && typeof ch.textKey === "string" && isKeyCandidate(ch.textKey))
-                    used.add(ch.textKey);
+                if (ch && typeof ch.text === "string" && isKeyCandidate(ch.text)) used.add(ch.text);
+                if (ch && typeof ch.textKey === "string" && isKeyCandidate(ch.textKey)) used.add(ch.textKey);
 
                 if (ch && Array.isArray(ch.textKeys)) {
                     for (const k of ch.textKeys)

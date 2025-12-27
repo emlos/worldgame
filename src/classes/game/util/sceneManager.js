@@ -13,6 +13,7 @@
  */
 
 import { formatHHMMUTC } from "../../../shared/modules.js";
+import { DAY_KEYS } from "../../../data/data.js";
 const uniq = (arr) => Array.from(new Set(arr));
 
 function asArray(v) {
@@ -134,6 +135,41 @@ function getConditionBlock(obj) {
     return obj.when || obj.if || obj.conditions || obj.condition || null;
 }
 
+function isValidDateSpec(v) {
+    return v && typeof v === "object" && (v.day != null || v.month != null || v.year != null);
+}
+
+function ymdKey({ year, month, day }) {
+    const y = Number(year) || 0;
+    const m = Number(month) || 0;
+    const d = Number(day) || 0;
+    return y * 10000 + m * 100 + d;
+}
+
+function daysInMonthUTC(year, month1to12) {
+    const y = Number(year);
+    const m = Number(month1to12);
+    if (!Number.isFinite(y) || !Number.isFinite(m)) return 31;
+    // Date.UTC month is 0-based; day 0 gives last day of previous month.
+    return new Date(Date.UTC(y, m, 0)).getUTCDate();
+}
+
+function normalizeDateSpecMin(spec, refDate) {
+    const refY = refDate.getUTCFullYear();
+    const y = spec.year != null ? Number(spec.year) : refY;
+    const m = spec.month != null ? Number(spec.month) : 1;
+    const d = spec.day != null ? Number(spec.day) : 1;
+    return { year: y, month: m, day: d };
+}
+
+function normalizeDateSpecMax(spec, refDate) {
+    const refY = refDate.getUTCFullYear();
+    const y = spec.year != null ? Number(spec.year) : refY;
+    const m = spec.month != null ? Number(spec.month) : 12;
+    const d = spec.day != null ? Number(spec.day) : daysInMonthUTC(y, m);
+    return { year: y, month: m, day: d };
+}
+
 function formatMinutesSuffix(localizer, minutes) {
     if (!localizer) return "";
     const m = Number(minutes) || 0;
@@ -191,8 +227,10 @@ export class SceneManager {
         this.activeSceneId = null;
         this._queue = []; // [{ sceneId, priority }]
 
-        // Remember last picked textKey for a scene (for random textKeys arrays)
-        this._chosenTextKey = new Map();
+        // Remember random picks for the currently active scene's text blocks.
+        // This prevents re-rolls when UI calls getPresentation() repeatedly.
+        // Map: sceneId -> Map(pickId -> chosenKey)
+        this._textBlockPicks = new Map();
 
         // During an action, game setters may call update() repeatedly.
         // Suspend updates to avoid double-resolutions and random re-rolls.
@@ -309,16 +347,12 @@ export class SceneManager {
 
         if (!nextId || !this._sceneDefs.has(nextId)) return null;
 
-        // Pick a random textKey if the scene offers multiple (legacy: def.textKeys)
-        const def = this.getSceneDef(nextId);
-        if (def && Array.isArray(def.textKeys) && def.textKeys.length) {
-            const pick = def.textKeys[(this.rnd() * def.textKeys.length) | 0];
-            this._chosenTextKey.set(nextId, pick);
-        } else {
-            this._chosenTextKey.delete(nextId);
+        // When we enter a new scene, reset random text picks for that scene.
+        if (this.activeSceneId !== nextId) {
+            this._textBlockPicks.delete(nextId);
         }
-
         this.activeSceneId = nextId;
+        if (!this._textBlockPicks.has(nextId)) this._textBlockPicks.set(nextId, new Map());
 
         const presentation = this.getPresentation(nextId);
         // If the def was somehow removed mid-flight, do not crash.
@@ -392,13 +426,16 @@ export class SceneManager {
         const extraVars = def && typeof def.vars === "object" && !Array.isArray(def.vars) ? def.vars : null;
         const choiceVars = { ...vars, ...(extraVars || {}), minutes };
 
-        const baseLabel = this.localizer ? this.localizer.t(def.textKey, choiceVars) : def.textKey;
+        // Canonical: `text` is the i18n key for choices.
+        // Legacy `textKey` is still accepted as a fallback.
+        const textKey = typeof def.text === "string" ? def.text : def.textKey;
+        const baseLabel = this.localizer ? this.localizer.t(textKey, choiceVars) : textKey;
         const hideMinutes = def?.hideMinutes === true || def?.minutesHidden === true || def?.showMinutes === false;
         const label = baseLabel + (hideMinutes ? "" : formatMinutesSuffix(this.localizer, minutes)); //TODO: show "??? mins" for hiddenminutes true
 
         return {
             id: String(def.id),
-            textKey: def.textKey,
+            textKey,
             text: label,
             minutes,
             disabled: false,
@@ -462,7 +499,7 @@ export class SceneManager {
 
             const def = {
                 id,
-                textKey: "choice.travel.toLocation",
+                text: "choice.travel.toLocation",
                 minutes: Number(edge?.minutes) || 0,
                 moveToLocationId: String(neighborId),
                 vars: { destName: nb.name },
@@ -487,7 +524,7 @@ export class SceneManager {
 
             const def = {
                 id,
-                textKey: "choice.travel.toPlace",
+                text: "choice.travel.toPlace",
                 minutes: minutesFromStreet,
                 setPlaceId: String(p.id),
                 vars: { destName: p.name },
@@ -523,7 +560,7 @@ export class SceneManager {
 
         const def = {
             id,
-            textKey: "choice.place.exit",
+            text: "choice.place.exit",
             minutes: minutesFromStreet,
             exitToOutside: true,
         };
@@ -534,12 +571,13 @@ export class SceneManager {
      * Resolve scene text from:
      *  - def.text (string key)
      *  - def.text (array of blocks)
-     *  - legacy: def.textKey / def.textKeys
      *
      * Array block formats:
      *  - "scene.some.text" (always)
      *  - { when: { ...conditions }, key: "scene.some.extra" }
      *  - { when: { ... }, keys: ["...", "..."], pick: "random" }
+     *  - { raw: "literal text" }
+     *  - BREAK (token from src/data/scenes/util/common.js)
      */
     _resolveSceneText({ def, sceneId, vars }) {
         const joiner = typeof def.textJoiner === "string" ? def.textJoiner : "\n\n";
@@ -552,17 +590,40 @@ export class SceneManager {
             blocks = [def.text];
         }
 
-        // Legacy fallback: use chosen random textKey or def.textKey
-        const chosenTextKey = this._chosenTextKey.get(sceneId);
-        const legacyPrimary = chosenTextKey || def.textKey || null;
-        if (!blocks) {
-            blocks = legacyPrimary ? [legacyPrimary] : [];
+        if (!blocks) blocks = [];
+
+        // Legacy scene-level fields (still supported for older content).
+        if (!blocks.length) {
+            if (typeof def.textKey === "string") {
+                blocks = [def.textKey];
+            } else if (Array.isArray(def.textKeys) && def.textKeys.length) {
+                blocks = [{ keys: def.textKeys, pick: "random", pickId: "legacy.textKeys" }];
+            }
+        }
+
+        let pickMap = this._textBlockPicks.get(sceneId) || null;
+        if (!pickMap) {
+            pickMap = new Map();
+            this._textBlockPicks.set(sceneId, pickMap);
         }
 
         const out = [];
         const usedKeys = [];
 
-        for (const block of blocks) {
+        for (let i = 0; i < blocks.length; i += 1) {
+            const block = blocks[i];
+            // Explicit single line break token.
+            if (block && typeof block === "object" && block.__type === "SCENE_BREAK") {
+                out.push({ __break: true });
+                continue;
+            }
+
+            // Literal text block.
+            if (block && typeof block === "object" && typeof block.raw === "string") {
+                if (block.raw.length) out.push(String(block.raw));
+                continue;
+            }
+
             // Block: string => always include
             if (typeof block === "string") {
                 if (!block) continue;
@@ -587,7 +648,12 @@ export class SceneManager {
             else continue;
 
             if ((block.pick || block.mode) === "random" || block.random === true) {
-                const pick = keys.length ? keys[(this.rnd() * keys.length) | 0] : null;
+                const pickId = String(block.pickId || block.id || `text.${i}`);
+                let pick = pickMap.get(pickId) || null;
+                if (!pick) {
+                    pick = keys.length ? keys[(this.rnd() * keys.length) | 0] : null;
+                    if (pick) pickMap.set(pickId, pick);
+                }
                 keys = pick ? [pick] : [];
             }
 
@@ -597,13 +663,36 @@ export class SceneManager {
             }
         }
 
-        // Filter empty strings, but keep intentional whitespace in strings.
-        const text = out.filter((s) => typeof s === "string" && s.length > 0).join(joiner);
+        // Join while respecting explicit BREAK tokens.
+        let text = "";
+        let prevWasBreak = false;
+
+        for (const part of out) {
+            if (part && typeof part === "object" && part.__break === true) {
+                if (text && !text.endsWith("\n")) text += "\n";
+                else if (!text) text = "\n";
+                prevWasBreak = true;
+                continue;
+            }
+
+            if (typeof part !== "string") continue;
+            if (!part.length) continue;
+
+            if (!text) {
+                text = part;
+            } else if (prevWasBreak || text.endsWith("\n")) {
+                text += part;
+            } else {
+                text += joiner + part;
+            }
+
+            prevWasBreak = false;
+        }
 
         return {
             text,
             textKeys: usedKeys,
-            primaryTextKey: legacyPrimary || usedKeys[0] || null,
+            primaryTextKey: usedKeys[0] || null,
         };
     }
 
@@ -635,7 +724,7 @@ export class SceneManager {
         this._pendingUpdate = false;
         try {
             this.game.runAction({
-            label: c.textKey || id,
+            label: c.text || c.textKey || id,
             minutes: Number(c.minutes) || 0,
             apply: (game) => {
                 // Place movement (within current location)
@@ -758,9 +847,10 @@ export class SceneManager {
         // Core matchers -------------------------------------------------------
         const cond = c || {};
 
-        // Location id (district node)
-        if (cond.locationId && String(cond.locationId) !== String(this.game.currentLocationId)) {
-            return false;
+        // Location id(s) (district nodes)
+        const locationIds = normalizeStringSet(cond.locationIds || cond.locationId);
+        if (locationIds.length) {
+            if (!locationIds.includes(String(this.game.currentLocationId))) return false;
         }
 
         // Location tags
@@ -770,7 +860,7 @@ export class SceneManager {
             if (!locationTags.some((t) => tags.includes(t))) return false;
         }
 
-        // Place key (sub-location)
+        // Place key(s) (sub-location)
         const placeKeys = normalizeStringSet(cond.placeKeys || cond.placeKey);
         if (placeKeys.length) {
             const cur = this.game.currentPlaceKey;
@@ -796,6 +886,121 @@ export class SceneManager {
         if (weatherKinds.length) {
             const cur = String(this.game.world?.currentWeather ?? "");
             if (!cur || !weatherKinds.includes(cur)) return false;
+        }
+        const notWeatherKinds = normalizeStringSet(cond.notWeatherKinds || cond.notWeatherKind || cond.notWeather);
+        if (notWeatherKinds.length) {
+            const cur = String(this.game.world?.currentWeather ?? "");
+            if (cur && notWeatherKinds.includes(cur)) return false;
+        }
+
+        // Season gate (world time)
+        const seasons = normalizeStringSet(cond.seasons || cond.season);
+        if (seasons.length) {
+            const cur = String(this.game.world?.season ?? "");
+            if (!cur || !seasons.includes(cur)) return false;
+        }
+        const notSeasons = normalizeStringSet(cond.notSeasons || cond.notSeason);
+        if (notSeasons.length) {
+            const cur = String(this.game.world?.season ?? "");
+            if (cur && notSeasons.includes(cur)) return false;
+        }
+
+        // Day kind (workday/day off)
+        const dayKinds = normalizeStringSet(cond.dayKinds || cond.dayKind);
+        if (dayKinds.length) {
+            const info = this.game.world?.getDayInfo?.(this.game.now);
+            const cur = String(info?.kind ?? "");
+            if (!cur || !dayKinds.includes(cur)) return false;
+        }
+        const notDayKinds = normalizeStringSet(cond.notDayKinds || cond.notDayKind);
+        if (notDayKinds.length) {
+            const info = this.game.world?.getDayInfo?.(this.game.now);
+            const cur = String(info?.kind ?? "");
+            if (cur && notDayKinds.includes(cur)) return false;
+        }
+
+        // Day of week (DAY_KEYS)
+        const daysOfWeek = normalizeStringSet(cond.daysOfWeek || cond.dayOfWeek);
+        if (daysOfWeek.length) {
+            const dowKey = DAY_KEYS[this.game.now.getUTCDay()] || "";
+            if (!dowKey || !daysOfWeek.includes(dowKey)) return false;
+        }
+        const notDaysOfWeek = normalizeStringSet(cond.notDaysOfWeek || cond.notDayOfWeek);
+        if (notDaysOfWeek.length) {
+            const dowKey = DAY_KEYS[this.game.now.getUTCDay()] || "";
+            if (dowKey && notDaysOfWeek.includes(dowKey)) return false;
+        }
+
+        // Date match: { date: {day?, month?, year?} }
+        const dateSpec = cond.date;
+        const notDateSpec = cond.notDate;
+        const curY = this.game.now.getUTCFullYear();
+        const curM = this.game.now.getUTCMonth() + 1;
+        const curD = this.game.now.getUTCDate();
+        const matchesDate = (spec) => {
+            if (!isValidDateSpec(spec)) return true;
+            if (spec.year != null && Number(spec.year) !== curY) return false;
+            if (spec.month != null && Number(spec.month) !== curM) return false;
+            if (spec.day != null && Number(spec.day) !== curD) return false;
+            return true;
+        };
+        if (dateSpec) {
+            const list = Array.isArray(dateSpec) ? dateSpec : [dateSpec];
+            if (!list.some((s) => matchesDate(s))) return false;
+        }
+        if (notDateSpec) {
+            const list = Array.isArray(notDateSpec) ? notDateSpec : [notDateSpec];
+            if (list.some((s) => matchesDate(s))) return false;
+        }
+
+        // Date range match (inclusive):
+        //  { dateRange: { from: {..}, to: {..} } }
+        const rangeSpec = cond.dateRange;
+        const notRangeSpec = cond.notDateRange;
+        const currentKey = ymdKey({ year: curY, month: curM, day: curD });
+
+        const matchesRange = (rs) => {
+            if (!rs || typeof rs !== "object") return true;
+
+            const fromSpec = rs.from;
+            const toSpec = rs.to;
+            if (!isValidDateSpec(fromSpec) && !isValidDateSpec(toSpec)) return true;
+
+            const fromKey = isValidDateSpec(fromSpec)
+                ? ymdKey(normalizeDateSpecMin(fromSpec, this.game.now))
+                : null;
+            const toKey = isValidDateSpec(toSpec)
+                ? ymdKey(normalizeDateSpecMax(toSpec, this.game.now))
+                : null;
+
+            if (fromKey != null && currentKey < fromKey) return false;
+            if (toKey != null && currentKey > toKey) return false;
+            return true;
+        };
+
+        if (rangeSpec) {
+            const list = Array.isArray(rangeSpec) ? rangeSpec : [rangeSpec];
+            if (!list.some((rs) => matchesRange(rs))) return false;
+        }
+        if (notRangeSpec) {
+            const list = Array.isArray(notRangeSpec) ? notRangeSpec : [notRangeSpec];
+            if (list.some((rs) => matchesRange(rs))) return false;
+        }
+
+        // Holiday match (from src/data/world/calendar.js; includes random holidays)
+        const holidays = normalizeStringSet(cond.holidays || cond.holiday);
+        if (holidays.length) {
+            const names = new Set(
+                (this.game.world?.getCurrentHolidayNames?.() || []).map((n) => String(n).toLowerCase())
+            );
+            if (!holidays.some((h) => names.has(String(h).toLowerCase()))) return false;
+        }
+        const notHolidays = normalizeStringSet(cond.notHolidays || cond.notHoliday);
+        if (notHolidays.length) {
+            const names = new Set(
+                (this.game.world?.getCurrentHolidayNames?.() || []).map((n) => String(n).toLowerCase())
+            );
+            if (notHolidays.some((h) => names.has(String(h).toLowerCase()))) return false;
         }
 
         // NPCs present in current location
