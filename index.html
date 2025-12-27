@@ -69,6 +69,7 @@
                 <h2>Scene Tests</h2>
                 <ul>
                     <li><a href="./tests/scenes/scene_player.html">scene player (twine-like)</a></li>
+                    <li><a href="./tests/scenes/i18n_checker.html">internationalisation cohesion checker</a></li>
                 </ul>
             </div>
 
@@ -107,10 +108,10 @@
                         .map(
                             (c) => `
         <li>
-          <a href="https://github.com/OWNER/REPO/commit/${c.sha}">
+          <a href="https://github.com/emlos/worldgame/commit/${c.sha}">
             <code>${c.short}</code>
           </a> — ${c.message}
-          <div style="opacity:.7">${c.author} x ${new Date(c.date).toLocaleString()}</div>
+          <div style="opacity:.7">${c.author} - ${new Date(c.date).toLocaleString()}</div>
         </li>
       `
                         )
