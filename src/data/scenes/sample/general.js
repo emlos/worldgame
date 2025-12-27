@@ -107,7 +107,7 @@ export const SCENES = [
                 id: "ambulance.help",
                 textKey: "choice.ambulance.help",
                 minutes: 30,
-                minutesHidden:  true, //TODO, display minute amount as ???
+                hideMinutes:  true, 
                 clearFlag: "injured",
                 // Send the player home as a simple resolution.
                 setPlaceKey: "player_home",

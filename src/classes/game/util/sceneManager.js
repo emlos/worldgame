@@ -193,6 +193,12 @@ export class SceneManager {
 
         // Remember last picked textKey for a scene (for random textKeys arrays)
         this._chosenTextKey = new Map();
+
+        // During an action, game setters may call update() repeatedly.
+        // Suspend updates to avoid double-resolutions and random re-rolls.
+        this._suspendUpdates = 0;
+        this._pendingUpdate = false;
+
     }
 
     setLocalizer(localizer) {
@@ -249,6 +255,11 @@ export class SceneManager {
 
     update({ forceSceneId = null } = {}) {
         if (!this._started) return null;
+
+        if (this._suspendUpdates > 0) {
+            this._pendingUpdate = true;
+            return null;
+        }
 
         let nextId = forceSceneId ? String(forceSceneId) : null;
 
@@ -343,7 +354,7 @@ export class SceneManager {
             const choiceVars = { ...vars, ...(extraVars || {}), minutes };
 
             const baseLabel = this.localizer ? this.localizer.t(c.textKey, choiceVars) : c.textKey;
-            const hideMinutes = c?.hideMinutes === true || c?.showMinutes === false;
+            const hideMinutes = c?.hideMinutes === true || c?.minutesHidden === true || c?.showMinutes === false;
             const label =
                 baseLabel + (hideMinutes ? "" : formatMinutesSuffix(this.localizer, minutes));
 
@@ -386,8 +397,8 @@ export class SceneManager {
         const choiceVars = { ...vars, ...(extraVars || {}), minutes };
 
         const baseLabel = this.localizer ? this.localizer.t(def.textKey, choiceVars) : def.textKey;
-        const hideMinutes = def?.hideMinutes === true || def?.showMinutes === false;
-        const label = baseLabel + (hideMinutes ? "" : formatMinutesSuffix(this.localizer, minutes));
+        const hideMinutes = def?.hideMinutes === true || def?.minutesHidden === true || def?.showMinutes === false;
+        const label = baseLabel + (hideMinutes ? "" : formatMinutesSuffix(this.localizer, minutes)); //TODO: show "??? mins" for hiddenminutes true
 
         return {
             id: String(def.id),
@@ -458,10 +469,9 @@ export class SceneManager {
             return (
                 c.id === "place.exit" ||
                 d.exitToOutside === true ||
-                d.setPlaceKey === "street" ||
-                d.setPlaceKey === null ||
-                d.setPlaceId === null ||
-                c.textKey === "choice.place.exit"
+                c.textKey === "choice.place.exit" ||
+                (("setPlaceKey" in d) && (d.setPlaceKey === null || d.setPlaceKey === "street")) ||
+                (("setPlaceId" in d) && d.setPlaceId === null)
             );
         });
         if (alreadyHasExit) return;
@@ -576,16 +586,28 @@ export class SceneManager {
         // - time is advanced
         // - changes are logged
         // - scene auto-refresh happens consistently
-        this.game.runAction({
+        this._suspendUpdates += 1;
+        this._pendingUpdate = false;
+        try {
+            this.game.runAction({
             label: c.textKey || id,
             minutes: Number(c.minutes) || 0,
             apply: (game) => {
                 // Place movement (within current location)
-                if (typeof c.setPlaceKey === "string") {
-                    game.setCurrentPlace({ placeId: null, placeKey: c.setPlaceKey });
+                // Support explicit null as "exit to outside" for backwards compatibility.
+                if ("setPlaceKey" in c) {
+                    if (c.setPlaceKey === null) {
+                        game.setCurrentPlace({ placeId: null, placeKey: null });
+                    } else if (typeof c.setPlaceKey === "string") {
+                        game.setCurrentPlace({ placeId: null, placeKey: c.setPlaceKey });
+                    }
                 }
-                if (typeof c.setPlaceId === "string") {
-                    game.setCurrentPlace({ placeId: c.setPlaceId, placeKey: null });
+                if ("setPlaceId" in c) {
+                    if (c.setPlaceId === null) {
+                        game.setCurrentPlace({ placeId: null, placeKey: null });
+                    } else if (typeof c.setPlaceId === "string") {
+                        game.setCurrentPlace({ placeId: c.setPlaceId, placeKey: null });
+                    }
                 }
                 if (c.exitToOutside === true) {
                     // "Outside" is represented as: no concrete placeId and no placeKey.
@@ -610,7 +632,10 @@ export class SceneManager {
                     this.queueScene(c.queueSceneId, c.queuePriority ?? 999);
                 }
             },
-        });
+            });
+        } finally {
+            this._suspendUpdates = Math.max(0, this._suspendUpdates - 1);
+        }
 
         // Scene jump: if specified, force it even if it doesn't "match".
         if (typeof c.nextSceneId === "string") {
