@@ -41,7 +41,7 @@
         }
 
         .wrap {
-            max-width: 1200px;
+            max-width: 80vw;
             margin: 28px auto;
             padding: 0 16px;
         }
@@ -82,6 +82,8 @@
             border: 1px solid var(--line);
             border-radius: 14px;
             padding: 16px;
+
+            flex-grow: 1;
         }
 
         h2 {
@@ -136,7 +138,11 @@
             cursor: pointer;
         }
 
-        .btn:hover {
+        .btn.disabled {
+            cursor: default;
+        }
+
+        .btn:not(.disabled):hover {
             background: #21323f;
         }
 
@@ -222,11 +228,17 @@
                 "Liberation Mono", "Courier New", monospace;
             font-size: 12px;
         }
+
+        .box {
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 12px;
+        }
     </style>
 </head>
 
 <body>
-    <div class="wrap">
+    <div class="wrap col">
         <div class="top">
             <div>
                 <h1>Scene writer</h1>
@@ -308,7 +320,9 @@
                         </div>
 
                         <div class="col" id="extraTextKeys"></div>
-                        <div class="row"> <button class="btn" id="addtextLine">+ line</button>
+                        <div class="row"> 
+                            <button class="btn" id="addtextLine">+ line</button>
+                            <button class="btn" id="addRandomizedLine">+ randomized line</button>
                             <button class="btn" id="addTextBreak">+ text break</button>
                         </div>
 

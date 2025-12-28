@@ -164,10 +164,11 @@ function init() {
         });
     }
 
-    const addTextLineBtn = byId("addtextLine");
+    //extra text lines
+    let linesCount = 0;
 
+    const addTextLineBtn = byId("addtextLine");
     {
-        let linesCount = 0;
         addTextLineBtn.addEventListener("click", () => {
             const nr = linesCount + 1;
 
@@ -194,7 +195,12 @@ function init() {
             deleteBtn.dataset.nr = nr;
 
             const summary = el("summary", { text: "Extra line" + nr }, deleteBtn);
-            const col = el("details", { class: "col", id: "extraLine-" + nr }, summary, rowsCol);
+            const col = el(
+                "details",
+                { class: "col box", id: "extraLine-" + nr },
+                summary,
+                rowsCol
+            );
 
             byId("extraTextKeys").appendChild(col);
 
@@ -238,20 +244,19 @@ function init() {
             });
 
             deleteBtn.addEventListener("click", () => {
-                //delete content from scene text
-                //delete content from i18n
-                //delete element
-
                 const currentNr = deleteBtn.dataset.nr;
-                copyScene.text[currentNr] = null; //keep indexes stable
+
+                // Remove from scene text (keep indexes stable for the editor)
+                copyScene.text[currentNr] = null;
                 renderJson(copyScene);
 
-                delete i18n.SCENES["extraTextKey" + currentNr];
-                renderI18n(i18n);
-
-                if (byId("extraTextKeyConflictWarning" + currentNr)) {
-                    delEl("extraTextKeyConflictWarning" + currentNr);
+                // Remove all i18n variants belonging to this randomized line
+                for (const k of Object.keys(i18n.SCENES)) {
+                    if (k.startsWith(`extraTextLine${currentNr}-variant`)) {
+                        delete i18n.SCENES[k];
+                    }
                 }
+                renderI18n(i18n);
 
                 byId("extraLine-" + currentNr).remove();
             });
@@ -259,13 +264,201 @@ function init() {
             linesCount++;
         });
 
+        //todo: conditions button + editor
+
         function checkIdConflict(id) {
             return !!Object.keys(STRINGS_EN).find((s) => s === id);
         }
     }
 
-    const extraTextKeys = byId("extraTextKeys");
+    const addBreakBtn = byId("addTextBreak");
     {
+        addBreakBtn.addEventListener("click", () => {
+            const nr = linesCount + 1;
+
+            copyScene.text.push("__BREAK__");
+            renderJson(copyScene);
+
+            const deleteBtn = el("button", { class: "btn small warn", text: "X" });
+            deleteBtn.style.float = "right";
+            deleteBtn.title = "Delete this break";
+            deleteBtn.dataset.nr = nr;
+
+            const breakLineElement = el(
+                "div",
+                {
+                    text: "[Text Break]",
+                    class: "btn disabled",
+                    id: "extraLine-" + nr,
+                },
+                deleteBtn
+            );
+
+            byId("extraTextKeys").appendChild(breakLineElement);
+
+            deleteBtn.addEventListener("click", () => {
+                //delete content from scene text
+                //delete element
+
+                const currentNr = deleteBtn.dataset.nr;
+                copyScene.text[currentNr] = null; //keep indexes stable
+                renderJson(copyScene);
+
+                byId("extraLine-" + currentNr).remove();
+            });
+
+            linesCount++;
+        });
+    }
+
+    const addRandomizedLineBtn = byId("addRandomizedLine");
+    {
+        addRandomizedLineBtn.addEventListener("click", () => {
+            const nr = linesCount + 1;
+
+            //html
+            const title = el("h2", { text: "Line Variants", class: "meta" });
+
+            const variantsBox = el("div", { class: "col" });
+
+            const addVariantBtn = el("button", { class: "btn small", text: "+ variant" });
+
+            const deleteBtn = el("button", { class: "btn small warn", text: "X" });
+            deleteBtn.style.float = "right";
+            deleteBtn.title = "Delete this variant line";
+            deleteBtn.dataset.nr = nr;
+
+            const summary = el("summary", { text: "Variant line" + nr }, deleteBtn);
+            const col = el(
+                "details",
+                { class: "col box", id: "extraLine-" + nr },
+                summary,
+                title,
+                variantsBox,
+                addVariantBtn
+            );
+            byId("extraTextKeys").appendChild(col);
+
+            //json output logic
+            copyScene.text[nr] = { keys: [], pick: "random" };
+            renderJson(copyScene);
+
+            //key bindings
+            let variantsCount = 0;
+            addVariantBtn.addEventListener("click", () => {
+                const variantNr = variantsCount + 1;
+
+                const vKeyLabel = el("label", { text: "Variant " + variantNr });
+                const vKeyInput = el("input", {
+                    id: `extraTextLine${nr}-variantKey${variantNr}`,
+                    placeholder: "scene.home.default.random." + variantNr,
+                });
+                vKeyInput.dataset.nr = variantNr;
+                const vKeyRow = el("div", { class: "row" }, vKeyLabel, vKeyInput);
+
+                const vTextLabel = el("label", { text: "Extra text content" + variantNr });
+                const vTextInput = el("input", {
+                    id: `extraTextLine${nr}-variantText${variantNr}`,
+                    placeholder: "An extra line of description.",
+                });
+
+                vTextInput.dataset.nr = variantNr;
+
+                const vDeleteBtn = el("button", { class: "btn small warn", text: "X" });
+                vDeleteBtn.style.width = "8%";
+                vDeleteBtn.title = "Delete this variant";
+                vDeleteBtn.dataset.nr = variantNr;
+
+                const vTextRow = el("div", { class: "row" }, vTextLabel, vTextInput);
+                const variantInstanceElem = el(
+                    "div",
+                    { class: "col box", id: `extraTextLine${nr}-variant${variantNr}` },
+                    vKeyRow,
+                    vTextRow,
+                    vDeleteBtn
+                );
+
+                variantsBox.appendChild(variantInstanceElem);
+
+                vTextInput.addEventListener("input", (e) => {
+                    const currentNr = e.target.dataset.nr;
+                    const val = e.target.value;
+
+                    if (!i18n.SCENES[`extraTextLine${nr}-variant${currentNr}`]) {
+                        i18n.SCENES[`extraTextLine${nr}-variant${currentNr}`] = {
+                            key: "",
+                            text: "",
+                        };
+                    }
+
+                    i18n.SCENES[`extraTextLine${nr}-variant${currentNr}`].text = val;
+                    renderI18n(i18n);
+                });
+
+                vKeyInput.addEventListener("input", (e) => {
+                    const currentNr = e.target.dataset.nr;
+                    copyScene.text[nr].keys[currentNr] = e.target.value.trim();
+                    renderJson(copyScene);
+
+                    if (!i18n.SCENES[`extraTextLine${nr}-variant${currentNr}`]) {
+                        i18n.SCENES[`extraTextLine${nr}-variant${currentNr}`] = {
+                            key: "",
+                            text: "",
+                        };
+                    }
+
+                    i18n.SCENES[`extraTextLine${nr}-variant${currentNr}`].key =
+                        copyScene.text[nr].keys[currentNr];
+                    renderI18n(i18n);
+                });
+
+                vDeleteBtn.addEventListener("click", () => {
+                    const currentVNr = vDeleteBtn.dataset.nr;
+                    copyScene.text[nr].keys[currentVNr] = null; //keep indexes stable
+                    renderJson(copyScene);
+
+                    delete i18n.SCENES[`extraTextLine${nr}-variant${currentVNr}`];
+                    renderI18n(i18n);
+
+                    byId(`extraTextLine${nr}-variant${currentVNr}`).remove();
+                });
+
+                variantsCount++;
+            });
+
+            // textInput.addEventListener("input", (e) => {
+            //     const currentNr = e.target.dataset.nr;
+            //     const val = e.target.value;
+
+            //     if (!i18n.SCENES["extraTextKey" + currentNr]) {
+            //         i18n.SCENES["extraTextKey" + currentNr] = { key: "", text: "" };
+            //     }
+
+            //     i18n.SCENES["extraTextKey" + currentNr].text = val;
+            //     renderI18n(i18n);
+            // });
+
+            deleteBtn.addEventListener("click", () => {
+                // //delete content from scene text
+                // //delete content from i18n
+                // //delete element
+
+                const currentNr = deleteBtn.dataset.nr;
+                // copyScene.text[currentNr] = null; //keep indexes stable
+                // renderJson(copyScene);
+
+                // delete i18n.SCENES["extraTextKey" + currentNr];
+                // renderI18n(i18n);
+
+                // if (byId("extraTextKeyConflictWarning" + currentNr)) {
+                //     delEl("extraTextKeyConflictWarning" + currentNr);
+                // }
+
+                byId("extraLine-" + currentNr).remove();
+            });
+
+            linesCount++;
+        });
     }
 }
 
@@ -273,13 +466,36 @@ function renderJson(scene = baseScene) {
     const pre = el("pre");
 
     const realText = scene.text;
-    scene.text = scene.text.filter((t) => t && t.length > 0);
+    scene.text = scene.text
+        .filter((t) => {
+            if (!t) return false;
 
-    pre.textContent = JSON.stringify(scene, null, 4);
+            if (typeof t === "object" && t?.keys?.filter((k) => k)?.length === 0) {
+                return false;
+            }
+
+            return true;
+        })
+        .map((t) => {
+            // Keep editor indexes stable, but strip empty/null keys in the OUTPUT.
+            if (typeof t === "object" && t && Array.isArray(t.keys)) {
+                return { ...t, keys: t.keys.filter((k) => k) };
+            }
+            return t;
+        });
+
+    const rawJSON = cleanIdentifiers(JSON.stringify(scene, null, 4));
+
+    pre.textContent = rawJSON;
     byId("jsonOutput").textContent = "";
     byId("jsonOutput").appendChild(pre);
 
     scene.text = realText; //genuinely fuck this
+
+    //"__...__" -> ..., for identifiers
+    function cleanIdentifiers(value) {
+        return value.replace(/"__([^"]*?)__"/g, (_, inner) => inner);
+    }
 }
 
 function renderI18n(strings = i18n) {
@@ -289,10 +505,12 @@ function renderI18n(strings = i18n) {
     const pre = el("pre");
     const text = ["// SCENES"];
     for (const [k, v] of Object.entries(strings.SCENES)) {
+        if (!v?.key) continue;
         text.push(`"${v.key}": "${v.text.replace(/"/g, '\\"')}",`);
     }
     text.push("\n// CHOICES");
     for (const [k, v] of Object.entries(strings.CHOICES)) {
+        if (!v?.key) continue;
         text.push(`"${v.key}": "${v.text.replace(/"/g, '\\"')}",`);
     }
     pre.textContent = text.join("\n");
