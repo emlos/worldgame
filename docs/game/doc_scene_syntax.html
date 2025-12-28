@@ -1,306 +1,315 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>Scene Syntax & Conditions (Writer Reference)</title>
-        <style>
-            :root {
-                --bg: #0b0f14;
-                --panel: #121a23;
-                --text: #e6edf3;
-                --muted: #9fb0c0;
-                --line: #233041;
-                --code: #0e1520;
-                --accent: #7dd3fc;
-                --warn: #fbbf24;
-                --bad: #fb7185;
-                --good: #86efac;
-            }
 
-            html,
-            body {
-                margin: 0;
-                padding: 0;
-                background: var(--bg);
-                color: var(--text);
-                font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell,
-                    Noto Sans, sans-serif;
-                line-height: 1.55;
-            }
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Scene Syntax & Conditions (Writer Reference)</title>
+    <style>
+        :root {
+            --bg: #0b0f14;
+            --panel: #121a23;
+            --text: #e6edf3;
+            --muted: #9fb0c0;
+            --line: #233041;
+            --code: #0e1520;
+            --accent: #7dd3fc;
+            --warn: #fbbf24;
+            --bad: #fb7185;
+            --good: #86efac;
+        }
 
-            a {
-                color: var(--accent);
-                text-decoration: none;
-            }
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell,
+                Noto Sans, sans-serif;
+            line-height: 1.55;
+        }
 
-            a:hover {
-                text-decoration: underline;
-            }
+        a {
+            color: var(--accent);
+            text-decoration: none;
+        }
 
-            header {
-                padding: 32px 18px 18px;
-                border-bottom: 1px solid var(--line);
-            }
+        a:hover {
+            text-decoration: underline;
+        }
 
-            header h1 {
-                margin: 0 0 8px;
-                font-size: 28px;
-                letter-spacing: 0.2px;
-            }
+        header {
+            padding: 32px 18px 18px;
+            border-bottom: 1px solid var(--line);
+        }
 
-            header p {
-                margin: 0;
-                color: var(--muted);
-                max-width: 980px;
-            }
+        header h1 {
+            margin: 0 0 8px;
+            font-size: 28px;
+            letter-spacing: 0.2px;
+        }
 
-            main {
-                max-width: 980px;
-                margin: 0 auto;
-                padding: 18px;
-            }
+        header p {
+            margin: 0;
+            color: var(--muted);
+            max-width: 980px;
+        }
 
-            section {
-                background: var(--panel);
-                border: 1px solid var(--line);
-                border-radius: 14px;
-                padding: 18px;
-                margin: 14px 0;
-            }
+        main {
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 18px;
+        }
 
-            h2 {
-                margin: 0 0 10px;
-                font-size: 20px;
-            }
+        section {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 18px;
+            margin: 14px 0;
+        }
 
-            h3 {
-                margin: 18px 0 8px;
-                font-size: 16px;
-                color: var(--accent);
-            }
+        h2 {
+            margin: 0 0 10px;
+            font-size: 20px;
+        }
 
-            h4 {
-                margin: 14px 0 8px;
-                font-size: 14px;
-                color: var(--text);
-            }
+        h3 {
+            margin: 18px 0 8px;
+            font-size: 16px;
+            color: var(--accent);
+        }
 
-            .pill {
-                display: inline-block;
-                padding: 2px 10px;
-                border-radius: 999px;
-                border: 1px solid var(--line);
-                background: rgba(255, 255, 255, 0.03);
-                font-size: 12px;
-                color: var(--muted);
-            }
+        h4 {
+            margin: 14px 0 8px;
+            font-size: 14px;
+            color: var(--text);
+        }
 
-            .pill.req {
-                color: var(--good);
-                border-color: rgba(134, 239, 172, 0.35);
-            }
+        .pill {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 999px;
+            border: 1px solid var(--line);
+            background: rgba(255, 255, 255, 0.03);
+            font-size: 12px;
+            color: var(--muted);
+        }
 
-            .pill.opt {
-                color: var(--accent);
-                border-color: rgba(125, 211, 252, 0.35);
-            }
+        .pill.req {
+            color: var(--good);
+            border-color: rgba(134, 239, 172, 0.35);
+        }
 
-            .pill.warn {
-                color: var(--warn);
-                border-color: rgba(251, 191, 36, 0.35);
-            }
+        .pill.opt {
+            color: var(--accent);
+            border-color: rgba(125, 211, 252, 0.35);
+        }
 
-            .pill.bad {
-                color: var(--bad);
-                border-color: rgba(251, 113, 133, 0.35);
-            }
+        .pill.warn {
+            color: var(--warn);
+            border-color: rgba(251, 191, 36, 0.35);
+        }
 
-            .note {
-                border-left: 4px solid rgba(125, 211, 252, 0.6);
-                padding: 10px 12px;
-                background: rgba(125, 211, 252, 0.06);
-                border-radius: 10px;
-                color: var(--muted);
-            }
+        .pill.bad {
+            color: var(--bad);
+            border-color: rgba(251, 113, 133, 0.35);
+        }
 
-            .warnbox {
-                border-left: 4px solid rgba(251, 191, 36, 0.75);
-                padding: 10px 12px;
-                background: rgba(251, 191, 36, 0.07);
-                border-radius: 10px;
-                color: var(--muted);
-            }
+        .note {
+            border-left: 4px solid rgba(125, 211, 252, 0.6);
+            padding: 10px 12px;
+            background: rgba(125, 211, 252, 0.06);
+            border-radius: 10px;
+            color: var(--muted);
+        }
 
-            code,
-            pre {
-                font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono,
-                    monospace;
-            }
+        .warnbox {
+            border-left: 4px solid rgba(251, 191, 36, 0.75);
+            padding: 10px 12px;
+            background: rgba(251, 191, 36, 0.07);
+            border-radius: 10px;
+            color: var(--muted);
+        }
 
-            pre {
-                background: var(--code);
-                border: 1px solid var(--line);
-                border-radius: 14px;
-                padding: 14px;
-                overflow: auto;
-            }
+        code,
+        pre {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono,
+                monospace;
+        }
 
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                margin: 10px 0;
-            }
+        pre {
+            background: var(--code);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 14px;
+            overflow: auto;
+        }
 
-            th,
-            td {
-                border-bottom: 1px solid var(--line);
-                padding: 10px 10px;
-                vertical-align: top;
-            }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
 
-            th {
-                color: var(--muted);
-                font-weight: 600;
-                text-align: left;
-                font-size: 13px;
-            }
+        th,
+        td {
+            border-bottom: 1px solid var(--line);
+            padding: 10px 10px;
+            vertical-align: top;
+        }
 
-            td {
-                font-size: 14px;
-            }
+        th {
+            color: var(--muted);
+            font-weight: 600;
+            text-align: left;
+            font-size: 13px;
+        }
 
-            ul {
-                margin: 8px 0 8px 20px;
-            }
+        td {
+            font-size: 14px;
+        }
 
+        ul {
+            margin: 8px 0 8px 20px;
+        }
+
+        .grid2 {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        @media (min-width: 900px) {
             .grid2 {
-                display: grid;
-                grid-template-columns: 1fr;
-                gap: 12px;
+                grid-template-columns: 1fr 1fr;
             }
+        }
 
-            @media (min-width: 900px) {
-                .grid2 {
-                    grid-template-columns: 1fr 1fr;
-                }
-            }
+        .toc a {
+            display: inline-block;
+            margin: 4px 10px 4px 0;
+        }
 
-            .toc a {
-                display: inline-block;
-                margin: 4px 10px 4px 0;
-            }
+        footer {
+            color: var(--muted);
+            padding: 24px 18px 40px;
+            text-align: center;
+        }
+    </style>
+</head>
 
-            footer {
-                color: var(--muted);
-                padding: 24px 18px 40px;
-                text-align: center;
-            }
-        </style>
-    </head>
-    <body>
-        <header>
-            <h1>Scene Syntax &amp; Conditions</h1>
+<body>
+    <header>
+        <h1>Scene Syntax &amp; Conditions</h1>
+        <p>
+            Writer reference for authoring <strong>scenes</strong> (Twine-like) in this project:
+            structure, text blocks, choices, auto navigation, and the full condition language.
+            This document describes what <code>src/classes/game/util/sceneManager.js</code>
+            currently supports.
+        </p>
+    </header>
+
+    <main>
+        <section class="toc">
+            <h2>Contents</h2>
+            <a href="#where-things-live">Where things live</a>
+            <a href="#scene-definition">Scene definition</a>
+            <a href="#text-blocks">Text blocks</a>
+            <a href="#choices">Choices</a>
+            <a href="#world-traversal">Auto navigation</a>
+            <a href="#conditions">Conditions</a>
+            <a href="#hour-gates">Hour gates</a>
+            <a href="#number-gates">Numeric gates</a>
+            <a href="#vars">Localization vars</a>
+            <a href="#gotchas">Gotchas</a>
+        </section>
+
+        <section id="where-things-live">
+            <h2>Where things live</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>What</th>
+                        <th>Where</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Scene runtime (resolver + renderer)</td>
+                        <td><code>src/classes/game/util/sceneManager.js</code></td>
+                    </tr>
+                    <tr>
+                        <td>Scene packs (data)</td>
+                        <td>
+                            <code>src/data/scenes/*</code> (examples:
+                            <code>src/data/scenes/sample/general.js</code>,
+                            <code>src/data/scenes/system/traversal.js</code>)
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Scene registry</td>
+                        <td><code>src/data/scenes/index.js</code> (exports <code>SCENE_DEFS</code>)</td>
+                    </tr>
+                    <tr>
+                        <td>Localization dictionaries</td>
+                        <td><code>src/data/i18n/en/*.js</code> and <code>src/data/i18n/pl/*.js</code></td>
+                    </tr>
+                    <tr>
+                        <td>Common scene authoring helpers</td>
+                        <td>
+                            <code>src/data/scenes/util/common.js</code> (ex:
+                            <code>TIME_OF_DAY</code>, <code>BREAK</code>)
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="note">
+                <strong>Mental model:</strong> the SceneManager continually selects the “best” scene
+                whose conditions match the current game state (highest <code>priority</code> wins),
+                then renders its text + choices.
+            </div>
+        </section>
+
+        <section id="scene-definition">
+            <h2>Scene definition</h2>
+
             <p>
-                Writer reference for authoring <strong>scenes</strong> (Twine-like) in this project:
-                structure, text blocks, choices, and the full condition language.
+                A scene is a plain object. The only required field is <code>id</code>.
+                Anything not listed in the tables below is ignored by SceneManager.
             </p>
-        </header>
 
-        <main>
-            <section class="toc">
-                <h2>Contents</h2>
-                <a href="#where-things-live">Where things live</a>
-                <a href="#scene-definition">Scene definition</a>
-                <a href="#text-blocks">Text blocks</a>
-                <a href="#choices">Choices</a>
-                <a href="#world-traversal">World traversal</a>
-                <a href="#conditions">Conditions</a>
-                <a href="#number-gates">Numeric gates</a>
-                <a href="#vars">Localization vars</a>
-                <a href="#patterns">Patterns &amp; gotchas</a>
-            </section>
+            <pre><code>// src/data/scenes/yourPack/whatever.js
+import { TIME_OF_DAY, BREAK } from "../util/common.js";
 
-            <section id="where-things-live">
-                <h2>Where things live</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>What</th>
-                            <th>Where</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Scene runtime (resolver + renderer)</td>
-                            <td><code>src/classes/game/util/sceneManager.js</code></td>
-                        </tr>
-                        <tr>
-                            <td>Scene packs (data)</td>
-                            <td><code>src/data/scenes/*</code> (examples: <code>src/data/scenes/sample/general.js</code>, <code>src/data/scenes/system/traversal.js</code>)</td>
-                        </tr>
-                        <tr>
-                            <td>Scene registry</td>
-                            <td><code>src/data/scenes/index.js</code> (exports <code>SCENE_DEFS</code>)</td>
-                        </tr>
-                        <tr>
-                            <td>Localization dictionaries</td>
-                            <td><code>src/data/i18n/en/*.js</code> and <code>src/data/i18n/pl/*.js</code></td>
-                        </tr>
-                        <tr>
-                            <td>Common scene authoring helpers</td>
-                            <td><code>src/data/scenes/util/common.js</code> (ex: <code>TIME_OF_DAY</code>)</td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <div class="note">
-                    <strong>Quick mental model:</strong> the SceneManager continuously picks the “best” scene
-                    whose <em>conditions</em> match the current game state, then shows its text + choices.
-                </div>
-            </section>
-
-            <section id="scene-definition">
-                <h2>Scene definition</h2>
-
-                <p>
-                    A scene is a plain object in the <code>SCENES</code> array.
-                    The only required field is <code>id</code>.
-                </p>
-
-                <pre><code>// src/data/scenes/yourPack/whatever.js
 export const SCENES = [
   {
-    id: "home.default",                     // &lt;-- required, globally unique
-    priority: 10,                            // higher wins if multiple scenes match
+    id: "home.default",              // required, globally unique
+    priority: 10,                     // higher wins if multiple scenes match
 
-
-    // Auto-generated navigation buttons (default is OFF):
-    // - traversal: add connected-locations + places when outside
-    // - exit: add an Exit button when inside a place
-    autoChoices: { exit: true },
-    // You can write `conditions`, `when`, or `if` at the scene root.
-    conditions: {
+    // You can write `when`, `if`, `conditions`, or `condition` at scene root.
+    when: {
       placeKeys: ["player_home"],
       notPlayerFlags: ["injured"],
     },
+
+    // Opt-in auto navigation (default is OFF):
+    // - traversal: inject travel choices when outside
+    // - exit: inject an Exit choice when inside a place
+    autoChoices: { exit: true },
 
     // Text can be a string key OR an array of blocks.
     text: [
       "scene.home.default.text",
       { when: { hour: TIME_OF_DAY.evening }, key: "scene.home.default.evening" },
-
-      // Multiple keys (all included)
-      { when: { playerFlags: ["injured"] }, keys: [
-          "scene.injured.0",
-          "scene.injured.1",
-      ]},
-
-      // Random pick from a list
+      BREAK,
+      { when: { playerFlags: ["injured"] }, keys: ["scene.injured.0", "scene.injured.1"] },
       { keys: ["scene.flavour.0", "scene.flavour.1"], pick: "random" },
+      { raw: "(You can also include raw literal text.)" },
     ],
 
-    // Choices are buttons the player can click.
     choices: [
       {
         id: "home.tidyUp",
@@ -312,486 +321,561 @@ export const SCENES = [
   },
 ];</code></pre>
 
-                <h3>Core fields</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Field</th>
-                            <th>Meaning</th>
-                            <th>Notes</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><code>id</code> <span class="pill req">required</span></td>
-                            <td>Unique scene id.</td>
-                            <td>Used by <code>nextSceneId</code> jumps and debugging.</td>
-                        </tr>
-                        <tr>
-                            <td><code>priority</code> <span class="pill opt">optional</span></td>
-                            <td>Resolver tie-breaker (higher wins).</td>
-                            <td>Defaults to <code>0</code>.</td>
-                        </tr>
-                        <tr>
-                            <td><code>conditions</code> / <code>when</code> / <code>if</code> <span class="pill opt">optional</span></td>
-                            <td>When this scene is allowed to appear.</td>
-                            <td>Same condition language as text blocks &amp; conditional choices.</td>
-                        </tr>
-                        <tr>
-                            <td><code>text</code> <span class="pill opt">optional</span></td>
-                            <td>String key or array of blocks to build the final scene text.</td>
-                            <td>Recommended.</td>
-                        </tr>
-                        <tr>
-                            <td><code>textKey</code> / <code>textKeys</code> <span class="pill warn">legacy</span></td>
-                            <td>Old scene text fields.</td>
-                            <td>
-                                Don’t use these for new content. Prefer <code>text</code>.
-                                (Some legacy packs may still define them; migration is recommended.)
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><code>textJoiner</code> <span class="pill opt">optional</span></td>
-                            <td>String used to join text blocks.</td>
-                            <td>Default is <code>"\n\n"</code>.</td>
-                        </tr>
-                        <tr>
-                            <td><code>choices</code> <span class="pill opt">optional</span></td>
-                            <td>Array of choice objects (buttons).</td>
-                            <td>See <a href="#choices">Choices</a>.</td>
-                        </tr>
-                        <tr>
-                            <td><code>autoChoices</code> / <code>menu</code> <span class="pill opt">optional</span></td>
-                            <td>Opt in to auto-generated navigation choices (travel / exit).</td>
-                            <td>
-                                Default is <code>false</code> (no auto injection). Use one of:
-                                <code>autoChoices: true</code> (both), <code>autoChoices: { traversal: true }</code>,
-                                <code>autoChoices: { exit: true }</code>, or <code>menu: true</code>/<code>isMenu: true</code> (both).
-                                You can also override with <code>autoTraversal</code> / <code>autoExit</code>.
-                            </td>
-                        </tr>
+            <h3>Scene fields (supported)</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Field</th>
+                        <th>Meaning</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>id</code> <span class="pill req">required</span></td>
+                        <td>Unique scene id.</td>
+                        <td>Used for debugging and <code>nextSceneId</code> jumps.</td>
+                    </tr>
+                    <tr>
+                        <td><code>priority</code> <span class="pill opt">optional</span></td>
+                        <td>Resolver tie-breaker (higher wins).</td>
+                        <td>Defaults to <code>0</code>.</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <code>when</code> / <code>if</code> / <code>conditions</code> / <code>condition</code>
+                            <span class="pill opt">optional</span>
+                        </td>
+                        <td>Conditions under which the scene can appear.</td>
+                        <td>Same condition language as text blocks &amp; conditional choices.</td>
+                    </tr>
+                    <tr>
+                        <td><code>text</code> <span class="pill opt">optional</span></td>
+                        <td>String key or array of blocks to build the final scene text.</td>
+                        <td>See <a href="#text-blocks">Text blocks</a>.</td>
+                    </tr>
+                    <tr>
+                        <td><code>textJoiner</code> <span class="pill opt">optional</span></td>
+                        <td>String inserted between adjacent text blocks.</td>
+                        <td>
+                            <span class="pill warn">Implementation note</span>
+                            In the current implementation, blocks are effectively concatenated
+                            directly (no automatic newlines). To insert line breaks, include
+                            <code>\n</code>/<code>\n\n</code> in your localized strings (or in <code>raw</code>).
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>choices</code> <span class="pill opt">optional</span></td>
+                        <td>Array of choice objects (buttons).</td>
+                        <td>See <a href="#choices">Choices</a>.</td>
+                    </tr>
+                    <tr>
+                        <td><code>autoChoices</code> <span class="pill opt">optional</span></td>
+                        <td>Opt in to auto-injected travel/exit buttons.</td>
+                        <td>
+                            Supported forms:
+                            <ul>
+                                <li><code>autoChoices: true</code> (both traversal + exit)</li>
+                                <li><code>autoChoices: { traversal: true }</code></li>
+                                <li><code>autoChoices: { exit: true }</code></li>
+                            </ul>
+                            See <a href="#world-traversal">Auto navigation</a>.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>menu</code> / <code>isMenu</code> <span class="pill opt">optional</span></td>
+                        <td>Convenience: enable both traversal + exit.</td>
+                        <td>Equivalent to <code>autoChoices: true</code>.</td>
+                    </tr>
+                    <tr>
+                        <td><code>autoTraversal</code> <span class="pill opt">optional</span></td>
+                        <td>Explicit override for traversal auto choices.</td>
+                        <td>Sets traversal ON/OFF regardless of <code>autoChoices</code> / <code>menu</code>.</td>
+                    </tr>
+                    <tr>
+                        <td><code>autoExit</code> <span class="pill opt">optional</span></td>
+                        <td>Explicit override for exit auto choice.</td>
+                        <td>Sets exit ON/OFF regardless of <code>autoChoices</code> / <code>menu</code>.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
 
-                    </tbody>
-                </table>
-            </section>
+        <section id="text-blocks">
+            <h2>Text blocks</h2>
 
-            <section id="text-blocks">
-                <h2>Text blocks</h2>
+            <p>
+                <code>text</code> can be a single string, or an array of blocks.
+                SceneManager processes blocks top-to-bottom.
+            </p>
 
-                <p>
-                    <code>text</code> can be a single string, or an array of blocks.
-                    The SceneManager processes blocks top-to-bottom and joins them with <code>textJoiner</code>.
-                </p>
+            <div class="grid2">
+                <div>
+                    <h3>Supported block types</h3>
+                    <ul>
+                        <li><strong>String</strong>: treated as an i18n key (looked up via localizer).</li>
+                        <li>
+                            <strong>Conditional block object</strong>:
+                            <code>{ when/if/conditions/condition: {...}, key: "..." }</code>
+                        </li>
+                        <li>
+                            <strong>Multi-key block</strong>:
+                            <code>{ when/if/...?: {...}, keys: ["...","..."] }</code>
+                        </li>
+                        <li>
+                            <strong>Random pick</strong>:
+                            <code>{ keys: ["...","..."], pick: "random" }</code>
+                            (picks one key; stable while the scene is active)
+                        </li>
+                        <li><strong>Literal block</strong>: <code>{ raw: "Some unlocalized text" }</code></li>
+                        <li>
+                            <strong>BREAK token</strong>:
+                            <code>BREAK</code> imported from <code>src/data/scenes/util/common.js</code>
+                            <div class="note" style="margin-top: 8px;">
+                                <strong>Note:</strong> in the current SceneManager implementation, BREAK does not
+                                insert any characters. Treat it as a structural marker (reserved for future).
+                                If you want visible spacing, add <code>\n</code>/<code>\n\n</code> inside your i18n
+                                strings
+                                (or use <code>raw</code> containing newlines).
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>Example</h3>
+                    <pre><code>import { TIME_OF_DAY, BREAK } from "../util/common.js";
 
-                <div class="grid2">
-                    <div>
-                        <h3>Block types</h3>
-                        <ul>
-                            <li><strong>String</strong>: treated as an i18n key.</li>
-                            <li>
-                                <strong>Conditional block object</strong>:
-                                <code>{ when/if/conditions: {...}, key: "..." }</code> (also <code>textKey</code>)
-                            </li>
-                            <li>
-                                <strong>Multi-key block</strong>:
-                                <code>{ keys: ["...","..."], pick: "random" }</code> (also <code>textKeys</code>, or <code>random: true</code>)
-                            </li>
-                            <li>
-                                <strong>Literal block</strong>:
-                                <code>{ raw: "Some unlocalized text" }</code>
-                            </li>
-                            <li>
-                                <strong>Line break token</strong>:
-                                <code>BREAK</code> (import from <code>src/data/scenes/util/common.js</code>)
-                            </li>
-                        </ul>
-                    </div>
-                    <div>
-                        <h3>Examples</h3>
-                        <pre><code>text: [
+text: [
   "scene.home.default.text",
   { when: { hour: TIME_OF_DAY.morning }, key: "scene.home.default.morning" },
-
-  // Multiple keys (all included)
+  BREAK,
   { when: { playerFlags: ["injured"] }, keys: [
       "scene.injured.0",
       "scene.injured.1",
   ]},
-
-  // Random pick from a list
   { keys: ["scene.flavour.0", "scene.flavour.1"], pick: "random" },
+  { raw: "(Raw text here.)" },
 ]</code></pre>
-                    </div>
                 </div>
+            </div>
 
-                <div class="warnbox">
-                    <strong>Heads up:</strong> anything written as a string is fed through the localizer.
-                    If it isn’t found in the dictionary, the string is returned as-is. That means you
-                    <em>can</em> put raw text directly in a scene, but it won’t be translated.
-                </div>
-            </section>
+            <div class="warnbox">
+                Anything written as a string is fed through the localizer. If the key is missing,
+                the localizer returns the key itself. That means you <em>can</em> put literal text
+                as a string, but it won’t be translated.
+            </div>
+        </section>
 
-            <section id="choices">
-                <h2>Choices</h2>
+        <section id="choices">
+            <h2>Choices</h2>
 
-                <p>
-                    Choices are buttons shown under the scene. A choice can (optionally):
-                    advance time, move the player, set/clear flags, enqueue urgent scenes, and/or jump to a specific scene.
-                </p>
+            <p>
+                Choices are buttons shown under the scene. A choice can:
+                advance time, move the player (location/place), set/clear flags, enqueue an urgent scene,
+                and/or hard-jump to a specific next scene.
+            </p>
 
-                <pre><code>choices: [
+            <pre><code>choices: [
   {
-    id: "travel.toMarket",                 // required (unique within the scene)
-    text: "choice.travel.toLocation",      // required (localization key)
-    minutes: 7,                            // optional (defaults to 0)
+    id: "travel.toMarket",            // required (unique within the scene)
+    text: "choice.travel.toLocation", // recommended (i18n key). If omitted, label falls back to id.
+
+    minutes: 7,                        // optional (defaults to 0)
+    hideMinutes: false,                // optional (default false). When true, hides the "(N minutes)" suffix.
 
     // Optional condition gate for showing the choice:
     when: { notPlayerFlags: ["injured"] },
 
-    // If the conditions do not match, the choice is normally hidden.
-    // Set showAnyway to show it as a disabled (unclickable) button instead:
+    // If conditions fail, the choice is normally hidden.
+    // showAnyway shows it as disabled (unclickable):
     // showAnyway: true,
 
     // Optional extra interpolation vars for the label:
     vars: { destName: "Market Square" },
 
     // Actions (pick what you need):
-    moveToLocationId: "market_district",   // move to a different location
-    // setPlaceId: "shop_01",              // enter a place in this location
-    // setPlaceKey: "player_home",         // legacy / virtual place key
-    // exitToOutside: true,               // leave any place and return to outside
-    // setPlaceId: null,                  // (alias) also exits to outside
-    // setPlaceKey: null,                 // (alias) also exits to outside
+    moveToLocationId: "market_district", // move to a different location
+    // setPlaceId: "shop_01",            // enter a place (place.key becomes currentPlaceKey)
+    // setPlaceId: null,                 // exit to outside
+    // exitToOutside: true,              // explicit exit to outside
+    // moveToHome: true,                 // go home (uses game.homeLocationId/homePlaceId)
 
     // Flags:
-    // setFlag: "waitingForPackage",      // or setFlags: ["a","b"]
-    // clearFlag: "waitingForPackage",    // or clearFlags: ["a","b"]
+    // setFlag: "waitingForPackage",    // or setFlags: ["a","b"]
+    // clearFlag: "waitingForPackage",  // or clearFlags: ["a","b"]
 
     // Scene control:
-    // nextSceneId: "special.cutscene",   // hard jump (even if it wouldn't match)
-    // queueSceneId: "ambulance.arrives", // enqueue (priority optional)
+    // nextSceneId: "special.cutscene", // hard jump (even if it wouldn't match)
+    // queueSceneId: "ambulance.arrives",
     // queuePriority: 999,
-
-    // Minutes suffix rendering:
-    // hideMinutes: true                  // or showMinutes: false or minutesHidden: true
   }
 ]</code></pre>
 
-                <h3>Choice fields</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Field</th>
-                            <th>Meaning</th>
-                            <th>Notes</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><code>id</code> <span class="pill req">required</span></td>
-                            <td>Unique within a scene.</td>
-                            <td>Used to dispatch the click.</td>
-                        </tr>
-                        <tr>
-                            <td><code>text</code> <span class="pill req">required</span></td>
-                            <td>Localization key for the button label.</td>
-                            <td>Receives vars + <code>{minutes}</code> for interpolation.</td>
-                        </tr>
-                        <tr>
-                            <td><code>minutes</code> <span class="pill opt">optional</span></td>
-                            <td>How much time passes when clicking.</td>
-                            <td>
-                                If <code>minutes &gt; 0</code> the UI also shows “(N minutes)” by default.
-                                To hide it, use <code>hideMinutes: true</code> (or <code>showMinutes: false</code> or <code>minutesHidden: true</code>).
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><code>hideMinutes</code> / <code>showMinutes</code> / <code>minutesHidden</code></td>
-                            <td>Control whether the “(N minutes)” suffix is shown.</td>
-                            <td>
-                                Default is shown when <code>minutes &gt; 0</code>.
-                                Use <code>hideMinutes: true</code> (or <code>showMinutes: false</code> or <code>minutesHidden: true</code>) to hide it.
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><code>vars</code></td>
-                            <td>Extra interpolation variables for the choice label.</td>
-                            <td><code>{ vars: { destName: "Market Square" } }</code> enables <code>{destName}</code> in <code>text</code>.</td>
-                        </tr>
-                        <tr>
-                            <td><code>when</code> / <code>if</code> / <code>conditions</code> <span class="pill opt">optional</span></td>
-                            <td>Condition gate to show the choice.</td>
-                            <td>
-                                Uses the same condition language as scenes and text blocks.
-                                If the condition does not match, the choice is hidden by default.
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><code>showAnyway</code> <span class="pill opt">optional</span></td>
-                            <td>Show the choice even when its conditions do not match.</td>
-                            <td>
-                                When <code>showAnyway: true</code> and the choice conditions fail,
-                                the UI renders a disabled button and <code>SceneManager.choose()</code>
-                                refuses to execute it.
-                                Aliases: <code>showDisabled</code>, <code>showIfDisabled</code>.
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><code>setPlaceKey</code> / <code>setPlaceId</code></td>
-                            <td>Enter/leave a place within the current location.</td>
-                            <td>Use one. Set to a string to enter, or <code>null</code> to exit to outside.</td>
-                        </tr>
-                        <tr>
-                            <td><code>exitToOutside</code></td>
-                            <td>Exit any place and return to “outside”.</td>
-                            <td>Equivalent to <code>setPlaceKey: null</code>/<code>setPlaceId: null</code>. Useful for readability.</td>
-                        </tr>
-                        <tr>
-                            <td><code>moveToLocationId</code></td>
-                            <td>Move to another location.</td>
-                            <td>Then scene resolver re-runs automatically.</td>
-                        </tr>
-                        <tr>
-                            <td><code>moveToHome</code></td>
-                            <td>Shortcut to home location/place.</td>
-                            <td>Uses <code>game.homeLocationId</code> and <code>game.homePlaceId</code>.</td>
-                        </tr>
-                        <tr>
-                            <td><code>setFlag(s)</code> / <code>clearFlag(s)</code></td>
-                            <td>Set/clear story flags.</td>
-                            <td>Both accept a string or array.</td>
-                        </tr>
-                        <tr>
-                            <td><code>queueSceneId</code> (+ <code>queuePriority</code>)</td>
-                            <td>Push an urgent scene onto the queue.</td>
-                            <td>Queue is resolved before normal scene matching.</td>
-                        </tr>
-                        <tr>
-                            <td><code>nextSceneId</code></td>
-                            <td>Hard-jump to a specific scene.</td>
-                            <td>Used for deterministic flows; overrides normal matching.</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </section>
+            <h3>Choice fields (supported)</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Field</th>
+                        <th>Meaning</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>id</code> <span class="pill req">required</span></td>
+                        <td>Unique within a scene.</td>
+                        <td>Used to dispatch the click.</td>
+                    </tr>
+                    <tr>
+                        <td><code>text</code> <span class="pill opt">optional</span></td>
+                        <td>Localization key for the button label.</td>
+                        <td>
+                            If omitted, label falls back to <code>id</code>. The localizer receives
+                            scene vars + <code>{minutes}</code> + anything from <code>vars</code>.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>minutes</code> <span class="pill opt">optional</span></td>
+                        <td>How much time passes when clicking.</td>
+                        <td>Defaults to <code>0</code>. Also used for the “(N minutes)” suffix.</td>
+                    </tr>
+                    <tr>
+                        <td><code>hideMinutes</code> <span class="pill opt">optional</span></td>
+                        <td>Hide the “(N minutes)” suffix.</td>
+                        <td>Default is <code>false</code>.</td>
+                    </tr>
+                    <tr>
+                        <td><code>vars</code> <span class="pill opt">optional</span></td>
+                        <td>Extra interpolation variables for the choice label.</td>
+                        <td><code>{ vars: { destName: "Market" } }</code> enables <code>{destName}</code> in
+                            <code>text</code>.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <code>when</code> / <code>if</code> / <code>conditions</code> / <code>condition</code>
+                            <span class="pill opt">optional</span>
+                        </td>
+                        <td>Condition gate to show/enable the choice.</td>
+                        <td>
+                            If the condition fails, the choice is hidden by default.
+                            Combine with <code>showAnyway</code> to show disabled.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>showAnyway</code> <span class="pill opt">optional</span></td>
+                        <td>Show the choice even when its conditions fail.</td>
+                        <td>
+                            When conditions fail and <code>showAnyway: true</code>, SceneManager renders
+                            the choice as <em>disabled</em> and refuses to execute it.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>setPlaceId</code> <span class="pill opt">optional</span></td>
+                        <td>Enter/leave a place within the current location.</td>
+                        <td>
+                            Set to a string Place.id to enter; set to <code>null</code> to exit to outside.
+                            Entering sets <code>game.currentPlaceId</code> and also sets
+                            <code>game.currentPlaceKey</code>
+                            to the Place.key for that id.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>exitToOutside</code> <span class="pill opt">optional</span></td>
+                        <td>Exit any place and return to “outside”.</td>
+                        <td>Equivalent to <code>setPlaceId: null</code>. Outside = no placeId and no placeKey.</td>
+                    </tr>
+                    <tr>
+                        <td><code>moveToLocationId</code> <span class="pill opt">optional</span></td>
+                        <td>Move to another location.</td>
+                        <td>Also clears current place state.</td>
+                    </tr>
+                    <tr>
+                        <td><code>moveToHome</code> <span class="pill opt">optional</span></td>
+                        <td>Shortcut to home location + home place.</td>
+                        <td>Uses <code>game.homeLocationId</code> and <code>game.homePlaceId</code>.</td>
+                    </tr>
+                    <tr>
+                        <td><code>setFlag</code> / <code>setFlags</code> <span class="pill opt">optional</span></td>
+                        <td>Set story flags.</td>
+                        <td>Accepts string or array.</td>
+                    </tr>
+                    <tr>
+                        <td><code>clearFlag</code> / <code>clearFlags</code> <span class="pill opt">optional</span></td>
+                        <td>Clear story flags.</td>
+                        <td>Accepts string or array.</td>
+                    </tr>
+                    <tr>
+                        <td><code>queueSceneId</code> <span class="pill opt">optional</span></td>
+                        <td>Enqueue an urgent scene.</td>
+                        <td>Queue is resolved before normal scene matching.</td>
+                    </tr>
+                    <tr>
+                        <td><code>queuePriority</code> <span class="pill opt">optional</span></td>
+                        <td>Priority for <code>queueSceneId</code>.</td>
+                        <td>Defaults to <code>999</code>.</td>
+                    </tr>
+                    <tr>
+                        <td><code>nextSceneId</code> <span class="pill opt">optional</span></td>
+                        <td>Hard-jump to a specific scene.</td>
+                        <td>
+                            Overrides normal matching (SceneManager forces that scene id). If the id
+                            is unknown, SceneManager routes to its fallback scene.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>setPlaceKey</code> <span class="pill bad">not supported</span></td>
+                        <td>Legacy place movement key.</td>
+                        <td>
+                            If present on a choice, SceneManager throws an error.
+                            Use <code>setPlaceId</code>, <code>exitToOutside</code>, or <code>moveToHome</code>.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
 
-            
-            <section id="world-traversal">
-                <h2>World traversal (auto-generated)</h2>
+        <section id="world-traversal">
+            <h2>Auto navigation (optional)</h2>
 
-                <p>
-                    The SceneManager can automatically generate <strong>travel choices</strong> (when outside) and an
-                    <strong>Exit</strong> choice (when inside). <strong>This is opt-in per scene</strong>:
-                    auto-generated navigation is only injected when the <em>currently active scene</em> enables it via
-                    <code>autoChoices</code> (or <code>menu</code>/<code>isMenu</code>).
-                </p>
+            <p>
+                SceneManager can auto-inject <strong>navigation choices</strong> into the currently
+                active scene, but only when that scene opts in.
+            </p>
 
-                <h3>Outside</h3>
-                <ul>
-                    <li>
-                        When <code>{ outside: true }</code> matches, the default outdoor scene is
-                        <code>world.outside.default</code>.
-                    </li>
-                    <li>
-                        If the active scene enables <code>autoChoices.traversal</code>, the SceneManager injects:
-                        <ul>
-                            <li><strong>Connected locations</strong>: one choice per neighbor edge (uses edge minutes).</li>
-                            <li>
-                                <strong>Places in this location</strong>: one choice per place (uses
-                                <code>place.props.minutesFromStreet</code> / <code>place.props.minutes</code> /
-                                <code>place.props.travelMinutes</code>, otherwise defaults to <code>2</code>).
-                            </li>
-                        </ul>
-                    </li>
-                </ul>
+            <h3>Definitions</h3>
+            <ul>
+                <li><strong>Outside</strong>: <code>game.currentPlaceId == null</code> <em>and</em>
+                    <code>game.currentPlaceKey == null</code>.
+                </li>
+                <li><strong>Inside a place</strong>: either <code>currentPlaceId</code> or <code>currentPlaceKey</code>
+                    is set.</li>
+            </ul>
 
-                <h3>Inside a place</h3>
-                <ul>
-                    <li>
-                        If no higher-priority scene matches, <code>place.default</code> renders
-                        <code>"You're in {place.name}."</code>
-                    </li>
-                    <li>
-                        If the active scene enables <code>autoChoices.exit</code>, the SceneManager injects an <strong>Exit</strong> choice unless you already defined one.
-                        Exiting is represented as clearing place state (outside = no <code>placeId</code> and no <code>placeKey</code>).
-                    </li>
-                </ul>
+            <h3>Traversal choices (when outside)</h3>
+            <p>
+                If the active scene enables <code>autoChoices.traversal</code>, and the player is outside,
+                SceneManager adds choices for:
+            </p>
+            <ul>
+                <li>
+                    <strong>Connected locations</strong>: based on <code>game.location.neighbors</code>
+                    (choice id: <code>travel.location.&lt;neighborId&gt;</code>, text key:
+                    <code>choice.travel.toLocation</code>, minutes from edge).
+                </li>
+                <li>
+                    <strong>Places in the current location</strong>: based on <code>game.location.places</code>
+                    (choice id: <code>travel.place.&lt;placeId&gt;</code>, text key:
+                    <code>choice.travel.toPlace</code>, minutes from
+                    <code>place.props.minutesFromStreet</code> / <code>place.props.minutes</code> /
+                    <code>place.props.travelMinutes</code> or default <code>2</code>).
+                </li>
+            </ul>
+            <p>
+                Injected choices include <code>vars: { destName }</code>.
+                If your scene already defines a choice with the same id, SceneManager does not add a duplicate.
+            </p>
 
-                <h3>Writer controls</h3>
-                <ul>
-                    <li>
-                        <strong>Enable auto navigation on a “lobby/menu” scene</strong> by setting:
-                        <code>autoChoices: true</code> (both), <code>autoChoices: { traversal: true }</code> (outside travel),
-                        or <code>autoChoices: { exit: true }</code> (inside exit).
-                        Shorthand: <code>menu: true</code>/<code>isMenu: true</code> enables both.
-                    </li>
-                    <li>
-                        To provide a custom exit, define a choice with <code>exitToOutside: true</code>
-                        (or <code>setPlaceId: null</code> / <code>setPlaceKey: null</code>).
-                    </li>
-                    <li>
-                        To override a specific generated travel choice, define a choice with the same id:
-                        <code>travel.location.&lt;neighborId&gt;</code> or <code>travel.place.&lt;placeId&gt;</code>.
-                    </li>
-                </ul>
+            <h3>Exit choice (when inside a place)</h3>
+            <p>
+                If the active scene enables <code>autoChoices.exit</code>, and the player is inside a place,
+                SceneManager injects an Exit choice unless you already defined one.
+            </p>
+            <ul>
+                <li>Injected id: <code>place.exit</code></li>
+                <li>Injected text key: <code>choice.place.exit</code></li>
+                <li>
+                    Injected minutes:
+                    <code>place.props.minutesFromStreet</code> / <code>place.props.minutes</code> /
+                    <code>place.props.travelMinutes</code> or default <code>2</code>
+                </li>
+                <li>Injected action: <code>exitToOutside: true</code></li>
+            </ul>
 
-                <div class="note">
-                    This system is intended to reduce boilerplate: writers can focus on special scenes, while
-                    navigation stays consistent across the whole world. For event/cutscene scenes (e.g. ambulance, combat), simply omit <code>autoChoices</code> so no automatic Exit/Travel buttons appear.
-                </div>
-            </section>
-<section id="conditions">
-                <h2>Conditions</h2>
+            <div class="note">
+                Opt-in fields recap:
+                <code>autoChoices</code> (boolean or { traversal/exit }), or <code>menu</code>/<code>isMenu</code>
+                (both), with explicit overrides via <code>autoTraversal</code> / <code>autoExit</code>.
+            </div>
+        </section>
 
-                <p>
-                    Conditions decide whether a scene/text/choice is active.
-                    Everywhere you can write conditions, you can use any of these keys:
-                    <code>when</code>, <code>if</code>, <code>conditions</code>, or <code>condition</code>.
-                </p>
+        <section id="conditions">
+            <h2>Conditions</h2>
 
-                <div class="note">
-                    <strong>Default behavior:</strong> a single condition object is an implicit
-                    <strong>AND</strong> across all of its keys. Use <code>or</code>/<code>any</code> when you need alternatives.
-                </div>
+            <p>
+                Conditions decide whether a scene/text/choice is active.
+                Wherever a condition block is supported, you can use any of:
+                <code>when</code>, <code>if</code>, <code>conditions</code>, or <code>condition</code>.
+            </p>
 
-                <h3>Boolean combinators</h3>
-                <pre><code>// Explicit AND / OR / NOT
+            <div class="note">
+                <strong>Default behavior:</strong> a single condition object is an implicit
+                <strong>AND</strong> across all of its keys.
+            </div>
+
+            <h3>Boolean combinators (all supported keys)</h3>
+            <pre><code>// Explicit AND / OR / NOT
 when: {
-  and: [
-    { placeKeys: ["street"] },
-    { notPlayerFlags: ["injured"] },
-  ],
-  or: [
-    { playerFlags: ["hasUmbrella"] },
-    { playerStats: { endurance: { gte: 6 } } },
-  ],
-  not: { npcsPresent: ["taylor"] },
+  and: [ { ... }, { ... } ],   // alias: all
+  or:  [ { ... }, { ... } ],   // alias: any
+  not: { ... },
 }
 
 // Arrays are treated as implicit AND:
 when: [
-  { placeKeys: ["street"] },
+  { outside: true },
   { hour: { between: [18, 23] } },
 ]</code></pre>
 
-                <h3>Core matchers (scene / text / choice)</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Key</th>
-                            <th>Meaning</th>
-                            <th>Example</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><code>locationIds</code> / <code>locationId</code></td>
-                            <td>Match if the current location id is one of these.</td>
-                            <td><code>{ locationIds: ["downtown"] }</code></td>
-                        </tr>
-                        <tr>
-                            <td><code>locationTags</code> / <code>locationTag</code></td>
-                            <td>Match if the current location has <em>any</em> of these tags.</td>
-                            <td><code>{ locationTags: [LOCATION_TAGS.parkland, LOCATION_TAGS.urban_core] }</code></td>
-                        </tr>
-                        <tr>
-                            <td><code>placeKeys</code> / <code>placeKey</code></td>
-                            <td>Match if the current placeKey is one of these.</td>
-                            <td><code>{ placeKeys: ["player_home"] }</code></td>
-                        </tr>
-                        <tr>
-                            <td><code>outside</code></td>
-                            <td>Match only when the player is <em>not</em> inside a place.</td>
-                            <td><code>{ outside: true }</code></td>
-                        </tr>
-                        <tr>
-                            <td><code>inPlace</code> / <code>insidePlace</code></td>
-                            <td>Match only when the player is inside <em>any</em> place (real or virtual).</td>
-                            <td><code>{ inPlace: true }</code></td>
-                        </tr>
-                        <tr>
-                            <td><code>weatherKinds</code> / <code>notWeatherKinds</code></td>
-                            <td>Match against current world weather (use <code>WeatherType.*</code>).</td>
-                            <td><code>{ weatherKinds: [WeatherType.RAIN] }</code></td>
-                        </tr>
-                        <tr>
-                            <td><code>seasons</code> / <code>notSeasons</code></td>
-                            <td>Match against current season (use <code>Season.*</code>).</td>
-                            <td><code>{ seasons: [Season.WINTER] }</code></td>
-                        </tr>
-                        <tr>
-                            <td><code>dayKinds</code> / <code>notDayKinds</code></td>
-                            <td>Match against current day kind (use <code>DayKind.*</code>).</td>
-                            <td><code>{ dayKinds: [DayKind.WORKDAY] }</code></td>
-                        </tr>
-                        <tr>
-                            <td><code>daysOfWeek</code> / <code>notDaysOfWeek</code></td>
-                            <td>Match against day-of-week keys (use <code>DAY_KEYS[...]</code>).</td>
-                            <td><code>{ daysOfWeek: [DAY_KEYS[0], DAY_KEYS[6]] }</code></td>
-                        </tr>
-                        <tr>
-                            <td><code>date</code> / <code>notDate</code></td>
-                            <td>Match an exact date (any of day/month/year can be specified).</td>
-                            <td><code>{ date: { month: 12, day: 31 } }</code></td>
-                        </tr>
-                        <tr>
-                            <td><code>dateRange</code> / <code>notDateRange</code></td>
-                            <td>Match an inclusive date range (partial bounds allowed).</td>
-                            <td><code>{ dateRange: { from: { month: 12, day: 20 }, to: { month: 12, day: 31 } } }</code></td>
-                        </tr>
-                        <tr>
-                            <td><code>holidays</code> / <code>notHolidays</code></td>
-                            <td>Match if today includes any holiday name from <code>src/data/world/calendar.js</code>.</td>
-                            <td><code>{ holidays: ["New Year's Day"] }</code></td>
-                        </tr>
-                        <tr>
-                            <td><code>npcsPresent</code> / <code>npcPresent</code></td>
-                            <td>Require all listed NPC ids to be in the location.</td>
-                            <td><code>{ npcsPresent: ["taylor"] }</code></td>
-                        </tr>
-                        <tr>
-                            <td><code>hour</code> / <code>hours</code> / <code>hourOfDay</code></td>
-                            <td>Hour gate (UTC, 0–23).</td>
-                            <td>
-                                <code>{ hour: 18 }</code> or <code>{ hour: { between: [22, 5] } }</code>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><code>playerFlags</code> / <code>playerFlag</code></td>
-                            <td>Require all flags to be set.</td>
-                            <td><code>{ playerFlags: ["injured"] }</code></td>
-                        </tr>
-                        <tr>
-                            <td><code>notPlayerFlags</code> / <code>notPlayerFlag</code></td>
-                            <td>Require all flags to be <em>unset</em>.</td>
-                            <td><code>{ notPlayerFlags: ["injured"] }</code></td>
-                        </tr>
-                        <tr>
-                            <td><code>playerStats</code> / <code>stats</code></td>
-                            <td>Gate on numeric player stats.</td>
-                            <td>
-                                <code>{ playerStats: { strength: { gte: 5 } } }</code>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><code>playerStat</code></td>
-                            <td>Single-stat shorthand.</td>
-                            <td>
-                                <code>{ playerStat: { name: "strength", gte: 5 } }</code>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><code>playerSkills</code> / <code>skills</code></td>
-                            <td>Gate on numeric skill values (often 0..1 meters).</td>
-                            <td>
-                                <code>{ playerSkills: { athletics: { gte: 0.6 } } }</code>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+            <h3>Condition keys (matchers)</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Key</th>
+                        <th>Meaning</th>
+                        <th>Example</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>locationIds</code> / <code>locationId</code></td>
+                        <td>Match if current location id is one of these.</td>
+                        <td><code>{ locationIds: ["downtown"] }</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>locationTags</code> / <code>locationTag</code></td>
+                        <td>Match if current location has <em>any</em> of these tags.</td>
+                        <td><code>{ locationTags: ["parkland", "urban_core"] }</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>placeKeys</code> / <code>placeKey</code></td>
+                        <td>Match if <code>game.currentPlaceKey</code> is one of these.</td>
+                        <td><code>{ placeKeys: ["player_home"] }</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>outside</code></td>
+                        <td>Match only when the player is outside.</td>
+                        <td><code>{ outside: true }</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>inPlace</code> / <code>insidePlace</code></td>
+                        <td>Match only when the player is inside any place.</td>
+                        <td><code>{ inPlace: true }</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>weatherKinds</code> / <code>notWeatherKinds</code></td>
+                        <td>Match against world weather kind.</td>
+                        <td><code>{ weatherKinds: ["rain", "storm"] }</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>seasons</code> / <code>notSeasons</code></td>
+                        <td>Match against world season.</td>
+                        <td><code>{ seasons: ["winter"] }</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>dayKinds</code> / <code>notDayKinds</code></td>
+                        <td>Match day kind (from calendar): <code>"workday"</code> or <code>"day off"</code>.</td>
+                        <td><code>{ dayKinds: ["workday"] }</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>daysOfWeek</code> / <code>notDaysOfWeek</code></td>
+                        <td>Match day-of-week keys: <code>sun</code>, <code>mon</code>, <code>tue</code>,
+                            <code>wed</code>, <code>thu</code>, <code>fri</code>, <code>sat</code>.
+                        </td>
+                        <td><code>{ daysOfWeek: ["sat", "sun"] }</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>date</code> / <code>notDate</code></td>
+                        <td>
+                            Match an exact date spec. Each spec may include any of:
+                            <code>{ year?, month?, day? }</code>. Omitted fields are wildcards.
+                            Accepts a single spec or an array of specs.
+                        </td>
+                        <td><code>{ date: { month: 12, day: 31 } }</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>dateRange</code> / <code>notDateRange</code></td>
+                        <td>
+                            Match an inclusive date range:
+                            <code>{ from: {..}, to: {..} }</code>. Bounds may be partial.
+                            Accepts a single range or an array.
+                        </td>
+                        <td><code>{ dateRange: { from: { month: 12, day: 20 }, to: { month: 12, day: 31 } } }</code>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>holidays</code> / <code>notHolidays</code></td>
+                        <td>
+                            Match if today includes any holiday/special name.
+                            Matching is case-insensitive.
+                        </td>
+                        <td><code>{ holidays: ["New Year's Day"] }</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>npcsPresent</code> / <code>npcPresent</code></td>
+                        <td>Require <em>all</em> listed NPC ids to be at the current location.</td>
+                        <td><code>{ npcsPresent: ["taylor"] }</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>hour</code> / <code>hours</code> / <code>hourOfDay</code></td>
+                        <td>Hour gate (UTC, 0–23). Supports several forms (see below).</td>
+                        <td><code>{ hour: { between: [22, 5] } }</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>playerFlags</code> / <code>playerFlag</code></td>
+                        <td>
+                            Require all flags to be set. A flag is considered set if either:
+                            <ul>
+                                <li><code>game.hasFlag(flag)</code> is true, or</li>
+                                <li><code>player.getSkill(flag)</code> exists with <code>type === "flag"</code> and a
+                                    truthy <code>value</code>.</li>
+                            </ul>
+                        </td>
+                        <td><code>{ playerFlags: ["injured"] }</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>notPlayerFlags</code> / <code>notPlayerFlag</code></td>
+                        <td>Require all flags to be unset.</td>
+                        <td><code>{ notPlayerFlags: ["injured"] }</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>playerStats</code> / <code>stats</code></td>
+                        <td>
+                            Gate on player stats by name. The value uses player’s computed stat by default.
+                            Each stat entry is a numeric gate.
+                        </td>
+                        <td><code>{ playerStats: { strength: { gte: 5 } } }</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>playerStat</code></td>
+                        <td>
+                            Single-stat shorthand:
+                            <code>{ name|stat: "...", base?: true, ...gate }</code>.
+                        </td>
+                        <td><code>{ playerStat: { name: "strength", gte: 5 } }</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>playerSkills</code> / <code>skills</code></td>
+                        <td>
+                            Gate on numeric skill values (often 0..1 meters).
+                            Missing skills do not satisfy any gate.
+                        </td>
+                        <td><code>{ playerSkills: { athletics: { gte: 0.6 } } }</code></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
 
-                <h3>Hour gating in practice</h3>
-                <pre><code>import { TIME_OF_DAY } from "../util/common.js";
+        <section id="hour-gates">
+            <h2>Hour gates (UTC)</h2>
+
+            <p>
+                The <code>hour</code> condition supports several forms.
+                Between ranges are <strong>start inclusive</strong> and <strong>end exclusive</strong>.
+                If <code>between: [x, x]</code> the implementation treats it as “all day”.
+            </p>
+
+            <pre><code>import { TIME_OF_DAY } from "../util/common.js";
 
 // exact hour
 when: { hour: 18 }
@@ -805,57 +889,60 @@ when: { hour: { gte: 18, lt: 23 } }
 // between gate (wraps midnight when start &gt; end)
 when: { hour: { between: [22, 5] } }
 
+// explicit eq / ne
+when: { hour: { ne: 3 } }
+
 // convenience buckets
 when: { hour: TIME_OF_DAY.morning }</code></pre>
-            </section>
+        </section>
 
-            <section id="number-gates">
-                <h2>Numeric gates (stats &amp; skills)</h2>
+        <section id="number-gates">
+            <h2>Numeric gates (stats &amp; skills)</h2>
 
-                <p>
-                    Player stat/skill conditions use a shared numeric gate language.
-                    These are accepted anywhere the docs say “numeric gate”.
-                </p>
+            <p>
+                Numeric gates are used by <code>playerStats</code>, <code>playerStat</code>, and
+                <code>playerSkills</code>.
+            </p>
 
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Form</th>
-                            <th>Meaning</th>
-                            <th>Example</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><code>5</code></td>
-                            <td>Exact match.</td>
-                            <td><code>{ playerStats: { strength: 5 } }</code></td>
-                        </tr>
-                        <tr>
-                            <td><code>[3,4,5]</code></td>
-                            <td>Any match.</td>
-                            <td><code>{ playerStats: { strength: [3,4,5] } }</code></td>
-                        </tr>
-                        <tr>
-                            <td><code>{ gte/gt/lte/lt }</code></td>
-                            <td>Comparator(s), AND-ed.</td>
-                            <td><code>{ playerStats: { strength: { gte: 5 } } }</code></td>
-                        </tr>
-                        <tr>
-                            <td><code>{ between: [lo, hi] }</code></td>
-                            <td>Inclusive range.</td>
-                            <td><code>{ playerStats: { luck: { between: [2, 6] } } }</code></td>
-                        </tr>
-                        <tr>
-                            <td><code>{ eq/ne }</code></td>
-                            <td>Explicit equality/inequality.</td>
-                            <td><code>{ playerSkills: { stealth: { ne: 0 } } }</code></td>
-                        </tr>
-                    </tbody>
-                </table>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Form</th>
+                        <th>Meaning</th>
+                        <th>Example</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>5</code></td>
+                        <td>Exact match.</td>
+                        <td><code>{ playerStats: { strength: 5 } }</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>[3,4,5]</code></td>
+                        <td>Any match.</td>
+                        <td><code>{ playerStats: { strength: [3,4,5] } }</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>{ gte/gt/lte/lt }</code></td>
+                        <td>Comparator(s), AND-ed.</td>
+                        <td><code>{ playerStats: { strength: { gte: 5 } } }</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>{ between: [lo, hi] }</code></td>
+                        <td>Inclusive range.</td>
+                        <td><code>{ playerStats: { luck: { between: [2, 6] } } }</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>{ eq/ne }</code></td>
+                        <td>Explicit equality/inequality.</td>
+                        <td><code>{ playerSkills: { stealth: { ne: 0 } } }</code></td>
+                    </tr>
+                </tbody>
+            </table>
 
-                <h3>Base stat vs computed stat</h3>
-                <pre><code>// Default: computed / current value
+            <h3>Base stat vs computed stat</h3>
+            <pre><code>// Default: computed/current value
 when: {
   playerStats: {
     strength: { gte: 6 },
@@ -873,91 +960,94 @@ when: {
 when: {
   playerStat: { name: "strength", base: true, gte: 6 }
 }</code></pre>
+        </section>
 
-                <div class="note">
-                    If your player implementation doesn’t expose base/computed stats, the SceneManager
-                    falls back to <code>player.stats[statName]</code> (or <code>.value</code>/<code>.base</code> if present).
-                </div>
-            </section>
+        <section id="vars">
+            <h2>Localization vars</h2>
 
-            <section id="vars">
-                <h2>Localization vars</h2>
+            <p>
+                When text/choices are translated, the localizer receives a <code>vars</code> object.
+                You can interpolate values in strings using braces:
+                <code>"It is {time.hhmm}"</code>, <code>"You are on {street.name}"</code>, etc.
+            </p>
 
-                <p>
-                    When text/choices are translated, the localizer receives a <code>vars</code> object.
-                    You can interpolate values in strings using braces:
-                    <code>"It is {time.hhmm}"</code>, <code>"You are on {street.name}"</code>, etc.
-                </p>
-
-                <h3>Available vars (common)</h3>
-                <pre><code>vars = {
+            <h3>Available vars (scene text)</h3>
+            <pre><code>vars = {
   time: {
-    hour, minute, hhmm
+    hour,       // 0..23 (UTC)
+    minute,     // 0..59 (UTC)
+    hhmm,       // formatted time, e.g. "18:45"
   },
   location: {
-    id, name, tags
+    id,         // current location id
+    name,
+    tags,       // unique tag list
   },
   place: {
-    id, key, name
+    id,         // current place id (or null)
+    key,        // current place key (or null)
+    name,       // place.name if inside a real place; otherwise a derived street/virtual name
   },
   street: {
-    name
+    name,       // derived from any neighbor edge streetName (fallback "Street")
   },
   player: {
-    stats: { /* numeric */ }
+    stats: { /* precomputed numeric stats */ }
   },
   npcsHere: [
     { id, name },
     ...
-  ]
-}
-
-// Choice labels also receive:
-//  - minutes (from the choice)
-//  - anything you put in choice.vars (e.g. destName)</code></pre>
-
-                <h3>Example i18n string</h3>
-                <pre><code>// i18n dictionary:
-"scene.street.default.text": "You are outside on {street.name}. It's {time.hhmm}."
-
-// will render like:
-You are outside on Maple Street. It's 18:45.</code></pre>
-            </section>
-
-            <section id="patterns">
-                <h2>Patterns &amp; gotchas</h2>
-
-                <h3>Use one scene with conditional blocks (instead of 10 variants)</h3>
-                <pre><code>// Good: one scene, many paragraphs
-text: [
-  "scene.home.default.text",
-  { when: { hour: TIME_OF_DAY.morning }, key: "scene.home.default.morning" },
-  { when: { npcsPresent: ["taylor"] }, key: "scene.home.default.taylorPresent" },
-]</code></pre>
-
-                <h3>Interrupt scenes (high priority)</h3>
-                <pre><code>{
-  id: "ambulance.arrives",
-  priority: 100,
-  conditions: { playerFlags: ["injured"] },
-  text: "scene.ambulance.arrives.text",
-  choices: [ ... ]
+  ],
 }</code></pre>
 
-                <h3>Don’t invent fields (yet)</h3>
-                <div class="warnbox">
-                    Only fields implemented in <code>sceneManager.js</code> actually do anything.
-                    Example: <code>minutesHidden</code> is supported as an alias, but prefer <code>hideMinutes: true</code>
-                    (or <code>showMinutes: false</code>) for new content.
-                </div>
+            <h3>Choice label vars</h3>
+            <p>
+                Choice labels receive all scene vars, plus:
+                <code>minutes</code> (the choice minutes) and anything from <code>choice.vars</code>.
+            </p>
 
-                <h3>When nothing matches</h3>
-                <p>
-                    If no scene matches, the system falls back to “first registered scene” so the game never hard-crashes.
-                    If you see that happening, it usually means you wrote conditions that are too strict.
-                </p>
-            </section>
-        </main>
+            <h3>Example i18n string</h3>
+            <pre><code>// i18n dictionary:
+"scene.street.default.text": "You are outside on {street.name}. It's {time.hhmm}."
 
-    </body>
-</html>
+// might render:
+You are outside on Maple Street. It's 18:45.</code></pre>
+        </section>
+
+        <section id="gotchas">
+            <h2>Gotchas</h2>
+
+            <h3>Condition blocks are shared everywhere</h3>
+            <p>
+                Scene selection, conditional text blocks, and conditional choices all use the same condition engine.
+                If it works in one place, it works in all three.
+            </p>
+
+            <h3><code>showAnyway</code> renders disabled choices (and clicks do nothing)</h3>
+            <p>
+                If a choice fails its conditions and <code>showAnyway: true</code>, the choice is shown but disabled.
+                Clicking it does not execute actions.
+            </p>
+
+            <h3><code>setPlaceKey</code> is not supported on choices</h3>
+            <div class="warnbox">
+                If you put <code>setPlaceKey</code> on a choice object, SceneManager throws.
+                Use <code>setPlaceId</code>, <code>exitToOutside</code>, or <code>moveToHome</code>.
+            </div>
+
+            <h3>Newlines and paragraph spacing</h3>
+            <p>
+                SceneManager does not reliably insert automatic newlines between blocks.
+                If you need spacing, embed <code>\n</code> or <code>\n\n</code> inside your localized strings.
+            </p>
+
+            <h3>When nothing matches</h3>
+            <p>
+                If no scene matches, SceneManager falls back to either a configured fallback scene
+                (constructor <code>fallbackSceneId</code>) or the first registered scene, so the game never
+                hard-crashes.
+                If you see an unexpected fallback, your conditions are probably too strict.
+            </p>
+        </section>
+    </main>
+</body>

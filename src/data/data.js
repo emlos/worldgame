@@ -21,12 +21,15 @@ export * from "./world/place.js";
 export * from "./world/street.js";
 export * from "./world/weather.js";
 
+import * as scenes from "./scenes/index.js"
+
 export * from "./npc/scheduling.js";
 export * from "./npc/npcs.js";
 
 export * from "./i18n/en.js";
 export * from "./i18n/pl.js";
 
+export * from "./scenes/index.js"
 
 if (debug) {
     Object.assign(window, {
@@ -43,5 +46,6 @@ if (debug) {
 
         ...strings_en,
         ...strings_pl,
+        ...scenes
     });
 }
