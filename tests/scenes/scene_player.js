@@ -84,7 +84,7 @@ function init() {
         }
 
         sceneBox.append(el("div", { html: `<div class="meta"><code>${scene.id}</code></div>` }));
-        sceneBox.append(el("p", { text: scene.text }));
+        sceneBox.append(el("p", { html: scene.text }));
 
         const choices = el("div", { class: "choices" });
         for (const c of scene.choices || []) {

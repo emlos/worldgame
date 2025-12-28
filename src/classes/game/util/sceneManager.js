@@ -583,7 +583,10 @@ export class SceneManager {
      *  - BREAK (token from src/data/scenes/util/common.js)
      */
     _resolveSceneText({ def, sceneId, vars }) {
-        const joiner = def.textJoiner ? def.textJoiner : "BREAK";
+        const joiner =
+            typeof def.textJoiner === "string" && def.textJoiner.length
+                ? def.textJoiner
+                : "<br>";
 
         let blocks = [];
         if (Array.isArray(def.text)) blocks = def.text;
@@ -652,14 +655,33 @@ export class SceneManager {
         }
 
         // Join while respecting explicit BREAK tokens.
+        const addSep = (sep) => {
+            if (!text || !sep) return;
+
+            if (sep === "") {
+                if (!text.endsWith("")) text += "";
+                return;
+            }
+            if (sep === "") {
+                if (text.endsWith("")) return;
+                if (text.endsWith("")) {
+                    text += "";
+                } else {
+                    text += "";
+                }
+                return;
+            }
+
+            // Generic separator.
+            if (!text.endsWith(sep)) text += sep;
+        };
+
         let text = "";
-        let prevWasBreak = false;
+        let pendingSep = null; // set by BREAK, applied before the next text chunk
 
         for (const part of out) {
             if (part && typeof part === "object" && part.__break === true) {
-                if (text && !text.endsWith("")) text += "";
-                else if (!text) text = "";
-                prevWasBreak = true;
+                pendingSep = "";
                 continue;
             }
 
@@ -668,13 +690,13 @@ export class SceneManager {
 
             if (!text) {
                 text = part;
-            } else if (prevWasBreak || text.endsWith("")) {
-                text += part;
-            } else {
-                text += joiner + part;
+                pendingSep = null;
+                continue;
             }
 
-            prevWasBreak = false;
+            addSep(pendingSep || joiner);
+            text += part;
+            pendingSep = null;
         }
 
         return {
