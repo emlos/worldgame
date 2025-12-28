@@ -34,12 +34,13 @@ const el = (tag, attrs = {}, ...kids) => {
     return n;
 };
 const delEl = (id) => {
-    const el = byId(id);
-    if (el && el.parentNode) el.parentNode.removeChild(el);
+    const node = byId(id);
+    if (node && node.parentNode) node.parentNode.removeChild(node);
 };
 
 function init() {
-    renderJson();
+    renderJson(copyScene);
+    renderI18n(i18n);
 
     //bind inputs
     const sceneId = byId("sceneId");
@@ -77,52 +78,83 @@ function init() {
         });
     }
 
-    const sceneMinutes = byId("sceneMinutes");
-    {
-        sceneMinutes.value = 0;
-        sceneMinutes.addEventListener("input", (e) => {
-            const val = parseInt(e.target.value);
-            if (val == 0 || isNaN(val) || val < 0) {
-                delete copyScene.minutes;
-            } else {
-                copyScene.minutes = val;
-            }
+    // textJoiner (scene root)
+    const sceneTextJoiner = byId("sceneTextJoiner");
+    if (sceneTextJoiner) {
+        sceneTextJoiner.value = "";
+        sceneTextJoiner.addEventListener("input", (e) => {
+            const v = e.target.value;
+            if (!v) delete copyScene.textJoiner;
+            else copyScene.textJoiner = v;
             renderJson(copyScene);
         });
     }
 
+    // auto choice UI
     const autoExit = byId("autoExit");
     const autoTraversal = byId("autoTraversal");
+
+    const applyAutoChoicesFromCheckboxes = () => {
+        const exitOn = !!autoExit.checked;
+        const traversalOn = !!autoTraversal.checked;
+
+        if (!exitOn && !traversalOn) {
+            delete copyScene.autoChoices;
+            renderJson(copyScene);
+            return;
+        }
+
+        if (!copyScene.autoChoices || typeof copyScene.autoChoices !== "object") {
+            copyScene.autoChoices = {};
+        }
+
+        if (exitOn) copyScene.autoChoices.exit = true;
+        else delete copyScene.autoChoices.exit;
+
+        if (traversalOn) copyScene.autoChoices.traversal = true;
+        else delete copyScene.autoChoices.traversal;
+
+        // clean up empty object
+        if (!copyScene.autoChoices.exit && !copyScene.autoChoices.traversal) {
+            delete copyScene.autoChoices;
+        }
+
+        renderJson(copyScene);
+    };
+
+    // autoChoices.exit/traversal (scene root)
     {
         autoExit.checked = false;
-        autoExit.addEventListener("change", (e) => {
-            const auto = e.target.checked;
-            if (!auto && !copyScene?.autoChoices?.traversal) {
-                delete copyScene.autoChoices;
-            } else if (!auto) {
-                delete copyScene.autoChoices?.exit;
-            } else {
-                if (!copyScene.autoChoices) copyScene.autoChoices = {};
-                copyScene.autoChoices.exit = auto;
-            }
-            renderJson(copyScene);
-        });
-
         autoTraversal.checked = false;
-        autoTraversal.addEventListener("change", (e) => {
-            const travel = e.target.checked;
-            if (!travel && !copyScene?.autoChoices?.exit) {
-                delete copyScene.autoChoices;
-            } else if (!travel) {
-                delete copyScene.autoChoices.traversal;
-            } else {
-                if (!copyScene.autoChoices) copyScene.autoChoices = {};
-                copyScene.autoChoices.traversal = travel;
-            }
+
+        autoExit.addEventListener("change", applyAutoChoicesFromCheckboxes);
+        autoTraversal.addEventListener("change", applyAutoChoicesFromCheckboxes);
+    }
+
+    // explicit overrides (scene root): autoTraversal / autoExit
+    const autoTraversalOverride = byId("autoTraversalOverride");
+    if (autoTraversalOverride) {
+        autoTraversalOverride.value = "";
+        autoTraversalOverride.addEventListener("change", (e) => {
+            const v = e.target.value;
+            if (!v) delete copyScene.autoTraversal;
+            else copyScene.autoTraversal = v === "true";
             renderJson(copyScene);
         });
     }
 
+    const autoExitOverride = byId("autoExitOverride");
+    if (autoExitOverride) {
+        autoExitOverride.value = "";
+        autoExitOverride.addEventListener("change", (e) => {
+            const v = e.target.value;
+            if (!v) delete copyScene.autoExit;
+            else copyScene.autoExit = v === "true";
+            renderJson(copyScene);
+        });
+    }
+
+    // ---- Text ----
     const mainTextKey = byId("mainTextKey");
     {
         mainTextKey.value = "";
@@ -215,7 +247,7 @@ function init() {
                     i18n.SCENES["extraTextKey" + currentNr] = { key: "", text: "" };
                 }
 
-                i18n.SCENES["extraTextKey" + nr].key = copyScene.text[currentNr];
+                i18n.SCENES["extraTextKey" + currentNr].key = copyScene.text[currentNr];
                 renderI18n(i18n);
 
                 if (checkIdConflict(copyScene.text[currentNr])) {
@@ -246,25 +278,22 @@ function init() {
             deleteBtn.addEventListener("click", () => {
                 const currentNr = deleteBtn.dataset.nr;
 
-                // Remove from scene text (keep indexes stable for the editor)
+                // keep indexes stable for the editor, but null them
                 copyScene.text[currentNr] = null;
                 renderJson(copyScene);
 
-                // Remove all i18n variants belonging to this randomized line
-                for (const k of Object.keys(i18n.SCENES)) {
-                    if (k.startsWith(`extraTextLine${currentNr}-variant`)) {
-                        delete i18n.SCENES[k];
-                    }
-                }
+                delete i18n.SCENES["extraTextKey" + currentNr];
                 renderI18n(i18n);
+
+                if (byId("extraTextKeyConflictWarning" + currentNr)) {
+                    delEl("extraTextKeyConflictWarning" + currentNr);
+                }
 
                 byId("extraLine-" + currentNr).remove();
             });
 
             linesCount++;
         });
-
-        //todo: conditions button + editor
 
         function checkIdConflict(id) {
             return !!Object.keys(STRINGS_EN).find((s) => s === id);
@@ -297,9 +326,6 @@ function init() {
             byId("extraTextKeys").appendChild(breakLineElement);
 
             deleteBtn.addEventListener("click", () => {
-                //delete content from scene text
-                //delete element
-
                 const currentNr = deleteBtn.dataset.nr;
                 copyScene.text[currentNr] = null; //keep indexes stable
                 renderJson(copyScene);
@@ -311,6 +337,7 @@ function init() {
         });
     }
 
+    // Random pick line: { keys: [...], pick: "random" } (writer docs)
     const addRandomizedLineBtn = byId("addRandomizedLine");
     {
         addRandomizedLineBtn.addEventListener("click", () => {
@@ -318,9 +345,7 @@ function init() {
 
             //html
             const title = el("h2", { text: "Line Variants", class: "meta" });
-
             const variantsBox = el("div", { class: "col" });
-
             const addVariantBtn = el("button", { class: "btn small", text: "+ variant" });
 
             const deleteBtn = el("button", { class: "btn small warn", text: "X" });
@@ -345,23 +370,23 @@ function init() {
 
             //key bindings
             let variantsCount = 0;
+
             addVariantBtn.addEventListener("click", () => {
                 const variantNr = variantsCount + 1;
 
                 const vKeyLabel = el("label", { text: "Variant " + variantNr });
                 const vKeyInput = el("input", {
                     id: `extraTextLine${nr}-variantKey${variantNr}`,
-                    placeholder: "scene.home.default.random." + variantNr,
+                    placeholder: `scene.home.default.random.${variantNr}`,
                 });
                 vKeyInput.dataset.nr = variantNr;
                 const vKeyRow = el("div", { class: "row" }, vKeyLabel, vKeyInput);
 
-                const vTextLabel = el("label", { text: "Extra text content" + variantNr });
+                const vTextLabel = el("label", { text: "Variant " + variantNr + " content" });
                 const vTextInput = el("input", {
                     id: `extraTextLine${nr}-variantText${variantNr}`,
                     placeholder: "An extra line of description.",
                 });
-
                 vTextInput.dataset.nr = variantNr;
 
                 const vDeleteBtn = el("button", { class: "btn small warn", text: "X" });
@@ -381,35 +406,50 @@ function init() {
                 variantsBox.appendChild(variantInstanceElem);
 
                 vTextInput.addEventListener("input", (e) => {
-                    const currentNr = e.target.dataset.nr;
+                    const currentVNr = e.target.dataset.nr;
                     const val = e.target.value;
 
-                    if (!i18n.SCENES[`extraTextLine${nr}-variant${currentNr}`]) {
-                        i18n.SCENES[`extraTextLine${nr}-variant${currentNr}`] = {
+                    if (!i18n.SCENES[`extraTextLine${nr}-variant${currentVNr}`]) {
+                        i18n.SCENES[`extraTextLine${nr}-variant${currentVNr}`] = {
                             key: "",
                             text: "",
                         };
                     }
 
-                    i18n.SCENES[`extraTextLine${nr}-variant${currentNr}`].text = val;
+                    i18n.SCENES[`extraTextLine${nr}-variant${currentVNr}`].text = val;
                     renderI18n(i18n);
                 });
 
                 vKeyInput.addEventListener("input", (e) => {
-                    const currentNr = e.target.dataset.nr;
-                    copyScene.text[nr].keys[currentNr] = e.target.value.trim();
+                    const currentVNr = e.target.dataset.nr;
+                    copyScene.text[nr].keys[currentVNr] = e.target.value.trim();
                     renderJson(copyScene);
 
-                    if (!i18n.SCENES[`extraTextLine${nr}-variant${currentNr}`]) {
-                        i18n.SCENES[`extraTextLine${nr}-variant${currentNr}`] = {
+                    if (!i18n.SCENES[`extraTextLine${nr}-variant${currentVNr}`]) {
+                        i18n.SCENES[`extraTextLine${nr}-variant${currentVNr}`] = {
                             key: "",
                             text: "",
                         };
                     }
 
-                    i18n.SCENES[`extraTextLine${nr}-variant${currentNr}`].key =
-                        copyScene.text[nr].keys[currentNr];
+                    i18n.SCENES[`extraTextLine${nr}-variant${currentVNr}`].key =
+                        copyScene.text[nr].keys[currentVNr];
+
                     renderI18n(i18n);
+
+                    // optional duplicate check (EN only, like other inputs)
+                    if (checkIdConflict(copyScene.text[nr].keys[currentVNr])) {
+                        const warnId = `extraTextLineKeyConflictWarning${nr}-${currentVNr}`;
+                        if (byId(warnId)) return;
+                        const idConflictPill = el("div", {
+                            id: warnId,
+                            class: "pill warn",
+                            text: `variant key line #${nr} variant #${currentVNr} already exists`,
+                        });
+                        byId("sceneProblems").appendChild(idConflictPill);
+                    } else {
+                        delEl(`extraTextLineKeyConflictWarning${nr}-${currentVNr}`);
+                    }
                 });
 
                 vDeleteBtn.addEventListener("click", () => {
@@ -420,42 +460,41 @@ function init() {
                     delete i18n.SCENES[`extraTextLine${nr}-variant${currentVNr}`];
                     renderI18n(i18n);
 
+                    delEl(`extraTextLineKeyConflictWarning${nr}-${currentVNr}`);
                     byId(`extraTextLine${nr}-variant${currentVNr}`).remove();
                 });
 
                 variantsCount++;
             });
 
-            // textInput.addEventListener("input", (e) => {
-            //     const currentNr = e.target.dataset.nr;
-            //     const val = e.target.value;
-
-            //     if (!i18n.SCENES["extraTextKey" + currentNr]) {
-            //         i18n.SCENES["extraTextKey" + currentNr] = { key: "", text: "" };
-            //     }
-
-            //     i18n.SCENES["extraTextKey" + currentNr].text = val;
-            //     renderI18n(i18n);
-            // });
-
             deleteBtn.addEventListener("click", () => {
-                // //delete content from scene text
-                // //delete content from i18n
-                // //delete element
-
                 const currentNr = deleteBtn.dataset.nr;
-                // copyScene.text[currentNr] = null; //keep indexes stable
-                // renderJson(copyScene);
 
-                // delete i18n.SCENES["extraTextKey" + currentNr];
-                // renderI18n(i18n);
+                // remove from scene text (keep indexes stable)
+                copyScene.text[currentNr] = null;
+                renderJson(copyScene);
 
-                // if (byId("extraTextKeyConflictWarning" + currentNr)) {
-                //     delEl("extraTextKeyConflictWarning" + currentNr);
-                // }
+                // remove all i18n entries for this randomized line
+                for (const k of Object.keys(i18n.SCENES)) {
+                    if (k.startsWith(`extraTextLine${currentNr}-variant`)) {
+                        delete i18n.SCENES[k];
+                    }
+                }
+                renderI18n(i18n);
+
+                // remove any conflict warnings for variants in that line
+                for (const k of Array.from(byId("sceneProblems")?.children ?? [])) {
+                    if (k?.id?.startsWith?.(`extraTextLineKeyConflictWarning${currentNr}-`)) {
+                        k.remove();
+                    }
+                }
 
                 byId("extraLine-" + currentNr).remove();
             });
+
+            function checkIdConflict(id) {
+                return !!Object.keys(STRINGS_EN).find((s) => s === id);
+            }
 
             linesCount++;
         });
@@ -465,32 +504,37 @@ function init() {
 function renderJson(scene = baseScene) {
     const pre = el("pre");
 
-    const realText = scene.text;
-    scene.text = scene.text
-        .filter((t) => {
-            if (!t) return false;
+    // Build a clean output object (avoid mutating the live editor model)
+    const outputScene = JSON.parse(JSON.stringify(scene));
 
-            if (typeof t === "object" && t?.keys?.filter((k) => k)?.length === 0) {
-                return false;
-            }
+    // Clean text blocks for OUTPUT:
+    if (Array.isArray(outputScene.text)) {
+        outputScene.text = outputScene.text
+            .filter((t) => {
+                if (t === null || t === undefined) return false;
+                if (t === "") return false;
 
-            return true;
-        })
-        .map((t) => {
-            // Keep editor indexes stable, but strip empty/null keys in the OUTPUT.
-            if (typeof t === "object" && t && Array.isArray(t.keys)) {
-                return { ...t, keys: t.keys.filter((k) => k) };
-            }
-            return t;
-        });
+                if (typeof t === "object" && t?.keys) {
+                    const realKeys = t.keys.filter((k) => k);
+                    return realKeys.length > 0;
+                }
+                return true;
+            })
+            .map((t) => {
+                if (typeof t === "object" && t?.keys) {
+                    return { ...t, keys: t.keys.filter((k) => k) };
+                }
+                return t;
+            });
 
-    const rawJSON = cleanIdentifiers(JSON.stringify(scene, null, 4));
+        if (outputScene.text.length === 0) delete outputScene.text;
+    }
+
+    const rawJSON = cleanIdentifiers(JSON.stringify(outputScene, null, 4));
 
     pre.textContent = rawJSON;
     byId("jsonOutput").textContent = "";
     byId("jsonOutput").appendChild(pre);
-
-    scene.text = realText; //genuinely fuck this
 
     //"__...__" -> ..., for identifiers
     function cleanIdentifiers(value) {
@@ -506,12 +550,12 @@ function renderI18n(strings = i18n) {
     const text = ["// SCENES"];
     for (const [k, v] of Object.entries(strings.SCENES)) {
         if (!v?.key) continue;
-        text.push(`"${v.key}": "${v.text.replace(/"/g, '\\"')}",`);
+        text.push(`"${v.key}": "${(v.text ?? "").replace(/"/g, '\\"')}",`);
     }
     text.push("\n// CHOICES");
     for (const [k, v] of Object.entries(strings.CHOICES)) {
         if (!v?.key) continue;
-        text.push(`"${v.key}": "${v.text.replace(/"/g, '\\"')}",`);
+        text.push(`"${v.key}": "${(v.text ?? "").replace(/"/g, '\\"')}",`);
     }
     pre.textContent = text.join("\n");
     outputDiv.appendChild(pre);

@@ -267,10 +267,6 @@
                             <input id="scenePriority" type="number" step="1" value="1" />
                         </div>
                         <div>
-                            <label>Minutes</label>
-                            <input id="sceneMinutes" type="number" step="1" value="0" />
-                        </div>
-                        <div>
                             <label>Auto choices (menu/lobby)</label>
                             <div class="inline" style="gap: 12px">
                                 <label style="
@@ -295,6 +291,14 @@
                                 </label>
                             </div>
                         </div>
+                        <div class="row" style="margin-top: 10px">
+                            <div>
+                                <label>Text joiner</label>
+                                <input id="sceneTextJoiner" placeholder="e.g. \n\n" />
+                            </div>
+
+                        </div>
+
                     </div>
                 </div>
                 <!-- Scene text -->
@@ -320,7 +324,7 @@
                         </div>
 
                         <div class="col" id="extraTextKeys"></div>
-                        <div class="row"> 
+                        <div class="row">
                             <button class="btn" id="addtextLine">+ line</button>
                             <button class="btn" id="addRandomizedLine">+ randomized line</button>
                             <button class="btn" id="addTextBreak">+ text break</button>
@@ -333,60 +337,7 @@
 
                 <div>
                     <label>Scene conditions (object literal)</label>
-                    <textarea id="sceneConditions"></textarea>
-                    <br />
-                    <div class="inline">
-                        <button class="btn small" id="insOutside">outside</button>
-                        <button class="btn small" id="insInPlace">inPlace</button>
-                        <button class="btn small" id="insNotFlag">notPlayerFlags</button>
-                        <button class="btn small" id="insFlag">playerFlags</button>
-                    </div>
 
-                    <div class="row">
-                        <div>
-                            <label>Insert weatherType</label>
-                            <div class="inline">
-                                <select id="weatherSel">
-                                    <!-- <option value="">WeatherType…</option>
-                                    <option value="CLEAR">CLEAR</option>
-                                    <option value="CLOUDY">CLOUDY</option>
-                                    <option value="RAIN">RAIN</option>
-                                    <option value="STORM">STORM</option>
-                                    <option value="WINDY">WINDY</option>
-                                    <option value="SNOW">SNOW</option>
-                                    <option value="SUNNY">SUNNY</option> -->
-                                </select>
-                                <button class="btn small" id="insWeather">insert</button>
-                            </div>
-                        </div>
-                        <div>
-                            <label>Insert locationTag</label>
-                            <div class="inline">
-                                <select id="tagSel">
-                                    <!-- <option value="">LOCATION_TAGS…</option>
-                                    <option value="rural">rural</option>
-                                    <option value="suburban">suburban</option>
-                                    <option value="suburban_hub">suburban_hub</option>
-                                    <option value="urban">urban</option>
-                                    <option value="urban_center">urban_center</option>
-                                    <option value="urban_core">urban_core</option>
-                                    <option value="urban_edge">urban_edge</option>
-                                    <option value="parkland">parkland</option>
-                                    <option value="industrial">industrial</option>
-                                    <option value="commercial">commercial</option>
-                                    <option value="residential">residential</option>
-                                    <option value="historic">historic</option>
-                                    <option value="tourism">tourism</option>
-                                    <option value="education">education</option>
-                                    <option value="dense">dense</option>
-                                    <option value="coastal">coastal</option>
-                                    <option value="wealthy">wealthy</option>
-                                    <option value="poor">poor</option> -->
-                                </select>
-                                <button class="btn small" id="insTag">insert</button>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
             <div class="card" id="output">

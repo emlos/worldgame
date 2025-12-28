@@ -12,6 +12,8 @@
  *  - Conditional text blocks within a single scene (avoid variants)
  */
 
+//TODO: remove menu/isMenu/autoExit/autoTraversal
+
 import { formatHHMMUTC } from "../../../shared/modules.js";
 import { DAY_KEYS } from "../../../data/data.js";
 const uniq = (arr) => Array.from(new Set(arr));
