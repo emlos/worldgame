@@ -102,6 +102,8 @@ export const SCENES = [
         ],
     },
 
+    //TODO: test interrupts when player stat falls below n, mybe with flag: interrupt?
+
     // High-priority "interrupt" scene.
     // When injured becomes true, this scene will win the resolver.
     {

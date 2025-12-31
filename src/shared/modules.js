@@ -8,6 +8,7 @@ import * as relationship from "./classes/relationship.js";
 import * as stat from "./classes/stat.js";
 import * as trait from "./classes/trait.js";
 import * as body from "./classes/body.js";
+import * as flags from "./classes/flags.js";
 
 export * from "./classes/clothing.js";
 export * from "./classes/pronouns.js";
@@ -19,6 +20,7 @@ export * from "./util/util.js";
 export * from "./util/random.js";
 export * from "./util/date.js";
 export * from "./classes/body.js";
+export * from "./classes/flags.js";
 
 if (debug) {
     Object.assign(window, {
@@ -32,5 +34,6 @@ if (debug) {
         ...relationship,
         ...body,
         ...date,
+        ...flags,
     });
 }

@@ -234,6 +234,96 @@
             border-radius: 10px;
             padding: 12px;
         }
+    
+        /* ---- Condition Builder modal ---- */
+        .modalHidden { display: none; }
+        .modalRoot {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modalBackdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.55);
+        }
+        .modalPanel {
+            position: relative;
+            width: min(980px, 92vw);
+            max-height: 86vh;
+            overflow: hidden;
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.45);
+            display: flex;
+            flex-direction: column;
+        }
+        .modalHeader, .modalFooter {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--line);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .modalFooter {
+            border-bottom: none;
+            border-top: 1px solid var(--line);
+            justify-content: flex-end;
+        }
+        .modalTitle { font-weight: 700; }
+        .modalBody {
+            padding: 12px 14px;
+            overflow: auto;
+        }
+        .condTree { display: flex; flex-direction: column; gap: 10px; }
+        .condNode {
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 10px;
+            background: rgba(255,255,255,0.02);
+        }
+        .condNodeHeader {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .condNodeHeader .left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .condChildren { margin-top: 10px; padding-left: 14px; border-left: 2px solid rgba(255,255,255,0.06); display: flex; flex-direction: column; gap: 10px; }
+        .chipRow { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 3px 8px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            color: var(--fg);
+            background: rgba(255,255,255,0.02);
+            font-size: 12px;
+        }
+        .chip button {
+            border: none;
+            background: transparent;
+            color: var(--muted);
+            cursor: pointer;
+            padding: 0 2px;
+            font-size: 12px;
+        }
+        .chip button:hover { color: var(--fg); }
+        .hintTiny { color: var(--muted); font-size: 12px; }
+
     </style>
 </head>
 
@@ -335,10 +425,25 @@
                 </div>
                 <hr style="border: none; border-top: 1px solid var(--line); margin: 16px 0" />
 
+                
                 <div>
-                    <label>Scene conditions (object literal)</label>
-
+                    <label>Scene conditions</label>
+                    <div class="box">
+                        <div class="row" style="align-items: center; justify-content: space-between;">
+                            <div class="hint">Build a <code>when</code> block with buttons (not connected to the scene output yet).</div>
+                            <div class="inline" style="gap: 8px; justify-content: flex-end;">
+                                <button class="btn small" id="editSceneConditions">Edit</button>
+                                <button class="btn small" id="copySceneConditions">Copy</button>
+                            </div>
+                        </div>
+                        <div class="item" id="sceneConditionsPreview"></div>
+                        <div class="hintTiny" style="margin-top: 8px;">
+                            Tip: this editor outputs <code>when: { any/all/not }</code> and uses identifier placeholders
+                            so enums become <code>Season.WINTER</code>, <code>WeatherType.CLEAR</code>, etc.
+                        </div>
+                    </div>
                 </div>
+
             </div>
             <div class="card" id="output">
                 <h2>Output</h2>
@@ -369,6 +474,7 @@
         </div>
     </div>
     <script src="./scene_writer.js"></script>
+    <div id="conditionModalMount"></div>
 </body>
 
 </html>
