@@ -253,17 +253,18 @@ class ConditionBuilderModal {
     }
 
     open({ initialTree = null, onSave = null } = {}) {
+        console.log(this.root);
         this.onSave = onSave;
         this.tree = initialTree ? deepClone(initialTree) : defaultGroup("all");
         if (!this.tree.children) this.tree.children = [];
         this.isOpen = true;
-        this.root.classList.remove("modalHidden");
+        this.mountEl.classList.remove("modalHidden");
         this._render();
     }
 
     close() {
         this.isOpen = false;
-        this.root.classList.add("modalHidden");
+        this.mountEl.classList.add("modalHidden");
     }
 
     getWhenObject() {
@@ -699,6 +700,54 @@ function init() {
     renderJson(copyScene);
     renderI18n(i18n);
 
+    // Condition builder modal (shared: scene conditions + per-line conditions)
+    const modalMount = byId("conditionModalMount") ?? document.body;
+    const condModal = new ConditionBuilderModal(modalMount);
+
+    // Per-text-line conditions (extra + randomized lines), keyed by text array index
+    const lineWhenTrees = {};
+    const lineWhenObjects = {};
+
+    const isEmptyWhen = (w) => !w || (typeof w === "object" && Object.keys(w).length === 0);
+
+    const applyWhenToTextLine = (idx, tree, whenObj) => {
+        const block = copyScene.text?.[idx];
+        if (block === null || block === undefined) return;
+
+        const empty = isEmptyWhen(whenObj);
+
+        // Saving an empty tree = clear conditions for that line
+        if (empty) {
+            delete lineWhenTrees[idx];
+            delete lineWhenObjects[idx];
+
+            if (block && typeof block === "object") {
+                delete block.when;
+
+                // If this is a simple { key } block, collapse back to a string
+                const otherKeys = Object.keys(block).filter((k) => k !== "key");
+                if (otherKeys.length === 0 && typeof block.key === "string") {
+                    copyScene.text[idx] = block.key;
+                }
+            }
+
+            renderJson(copyScene);
+            return;
+        }
+
+        lineWhenTrees[idx] = tree;
+        lineWhenObjects[idx] = whenObj;
+
+        if (typeof block === "string") {
+            // transform string key -> conditional block object
+            copyScene.text[idx] = { when: whenObj, key: block };
+        } else if (block && typeof block === "object") {
+            block.when = whenObj;
+        }
+
+        renderJson(copyScene);
+    };
+
     //bind inputs
     const sceneId = byId("sceneId");
     {
@@ -878,12 +927,22 @@ function init() {
             const textRow = el("div", { class: "row" }, textLabel, textInput);
             const rowsCol = el("div", { class: "col" }, keyRow, textRow);
 
+            const condBtn = el("button", { class: "btn small", text: "When" });
+            condBtn.title = "Add/edit conditions for this line";
+            condBtn.dataset.nr = nr;
+
             const deleteBtn = el("button", { class: "btn small warn", text: "X" });
             deleteBtn.style.float = "right";
             deleteBtn.title = "Delete this extra line";
             deleteBtn.dataset.nr = nr;
 
-            const summary = el("summary", { text: "Extra line" + nr }, deleteBtn);
+            const updateCondBtnLabel = () => {
+                const b = copyScene.text[nr];
+                const hasWhen = b && typeof b === "object" && !isEmptyWhen(b.when);
+                condBtn.textContent = hasWhen ? "When ✓" : "When";
+            };
+
+            const summary = el("summary", { text: "Extra line" + nr }, condBtn, deleteBtn);
             const col = el(
                 "details",
                 { class: "col box", id: "extraLine-" + nr },
@@ -894,20 +953,42 @@ function init() {
             byId("extraTextKeys").appendChild(col);
 
             copyScene.text.push("");
+            renderJson(copyScene);
+            updateCondBtnLabel();
+
+            condBtn.addEventListener("click", (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                condModal.open({
+                    initialTree: lineWhenTrees[nr] ?? null,
+                    onSave: (tree, whenObj) => {
+                        applyWhenToTextLine(nr, tree, whenObj);
+                        updateCondBtnLabel();
+                    },
+                });
+            });
 
             keyInput.addEventListener("input", (e) => {
-                const currentNr = e.target.dataset.nr;
-                copyScene.text[currentNr] = e.target.value.trim();
+                const currentNr = Number(e.target.dataset.nr);
+                const v = e.target.value.trim();
+
+                const blk = copyScene.text[currentNr];
+                if (blk && typeof blk === "object") {
+                    blk.key = v;
+                } else {
+                    copyScene.text[currentNr] = v;
+                }
                 renderJson(copyScene);
+                updateCondBtnLabel();
 
                 if (!i18n.SCENES["extraTextKey" + currentNr]) {
                     i18n.SCENES["extraTextKey" + currentNr] = { key: "", text: "" };
                 }
 
-                i18n.SCENES["extraTextKey" + currentNr].key = copyScene.text[currentNr];
+                i18n.SCENES["extraTextKey" + currentNr].key = v;
                 renderI18n(i18n);
 
-                if (checkIdConflict(copyScene.text[currentNr])) {
+                if (checkIdConflict(v)) {
                     if (byId("extraTextKeyConflictWarning" + currentNr)) return;
                     const idConflictPill = el("div", {
                         id: "extraTextKeyConflictWarning" + currentNr,
@@ -932,12 +1013,17 @@ function init() {
                 renderI18n(i18n);
             });
 
-            deleteBtn.addEventListener("click", () => {
+            deleteBtn.addEventListener("click", (e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 const currentNr = deleteBtn.dataset.nr;
 
                 // keep indexes stable for the editor, but null them
                 copyScene.text[currentNr] = null;
                 renderJson(copyScene);
+
+                delete lineWhenTrees[currentNr];
+                delete lineWhenObjects[currentNr];
 
                 delete i18n.SCENES["extraTextKey" + currentNr];
                 renderI18n(i18n);
@@ -1005,12 +1091,22 @@ function init() {
             const variantsBox = el("div", { class: "col" });
             const addVariantBtn = el("button", { class: "btn small", text: "+ variant" });
 
+            const condBtn = el("button", { class: "btn small", text: "When" });
+            condBtn.title = "Add/edit conditions for this randomized line";
+            condBtn.dataset.nr = nr;
+
             const deleteBtn = el("button", { class: "btn small warn", text: "X" });
             deleteBtn.style.float = "right";
             deleteBtn.title = "Delete this variant line";
             deleteBtn.dataset.nr = nr;
 
-            const summary = el("summary", { text: "Variant line" + nr }, deleteBtn);
+            const updateCondBtnLabel = () => {
+                const b = copyScene.text[nr];
+                const hasWhen = b && typeof b === "object" && !isEmptyWhen(b.when);
+                condBtn.textContent = hasWhen ? "When ✓" : "When";
+            };
+
+            const summary = el("summary", { text: "Variant line" + nr }, condBtn, deleteBtn);
             const col = el(
                 "details",
                 { class: "col box", id: "extraLine-" + nr },
@@ -1024,6 +1120,19 @@ function init() {
             //json output logic
             copyScene.text[nr] = { keys: [], pick: "random" };
             renderJson(copyScene);
+            updateCondBtnLabel();
+
+            condBtn.addEventListener("click", (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                condModal.open({
+                    initialTree: lineWhenTrees[nr] ?? null,
+                    onSave: (tree, whenObj) => {
+                        applyWhenToTextLine(nr, tree, whenObj);
+                        updateCondBtnLabel();
+                    },
+                });
+            });
 
             //key bindings
             let variantsCount = 0;
@@ -1124,12 +1233,17 @@ function init() {
                 variantsCount++;
             });
 
-            deleteBtn.addEventListener("click", () => {
+            deleteBtn.addEventListener("click", (e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 const currentNr = deleteBtn.dataset.nr;
 
                 // remove from scene text (keep indexes stable)
                 copyScene.text[currentNr] = null;
                 renderJson(copyScene);
+
+                delete lineWhenTrees[currentNr];
+                delete lineWhenObjects[currentNr];
 
                 // remove all i18n entries for this randomized line
                 for (const k of Object.keys(i18n.SCENES)) {
@@ -1163,9 +1277,6 @@ function init() {
     const copySceneConditions = byId("copySceneConditions");
 
     if (sceneConditionsPreview && editSceneConditions && copySceneConditions) {
-        const modalMount = byId("conditionModalMount") ?? document.body;
-        const condModal = new ConditionBuilderModal(modalMount);
-
         let sceneWhenTree = null;
         let sceneWhenObject = null;
 
@@ -1213,15 +1324,29 @@ function renderJson(scene = baseScene) {
                 if (t === null || t === undefined) return false;
                 if (t === "") return false;
 
-                if (typeof t === "object" && t?.keys) {
-                    const realKeys = t.keys.filter((k) => k);
-                    return realKeys.length > 0;
+                if (typeof t === "object" && t) {
+                    // { keys: [...] }
+                    if (t?.keys) {
+                        const realKeys = (t.keys ?? []).filter((k) => k);
+                        return realKeys.length > 0;
+                    }
+                    // { key: "..." }
+                    if (typeof t?.key === "string") {
+                        return t.key.trim().length > 0;
+                    }
                 }
+
                 return true;
             })
             .map((t) => {
-                if (typeof t === "object" && t?.keys) {
-                    return { ...t, keys: t.keys.filter((k) => k) };
+                if (typeof t === "object" && t) {
+                    // drop empty when blocks
+                    if (t.when && typeof t.when === "object" && Object.keys(t.when).length === 0) {
+                        delete t.when;
+                    }
+                    if (t?.keys) {
+                        return { ...t, keys: (t.keys ?? []).filter((k) => k) };
+                    }
                 }
                 return t;
             });
