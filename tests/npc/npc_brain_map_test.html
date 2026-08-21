@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NPC Brain Map Test</title>
+
+  <!--
+    Drop this file into: tests/npc/npc_brain_map_test.html
+    It expects the project layout from worldgame-3 + the NPCBrain MVP patch.
+  -->
+  <script>
+    const debug = false;
+  </script>
+
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0d10;
+      --panel: #11161b;
+      --panel2: #0d1216;
+      --line: #26323b;
+      --fg: #e6ecf1;
+      --muted: #91a4b1;
+      --blue: #4b84ff;
+      --blue2: #2d6cdf;
+      --green: #55c98a;
+      --amber: #f2b84b;
+      --red: #ef6b73;
+      --violet: #a88bff;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font: 14px/1.45 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body { padding: 16px; }
+
+    button, input { font: inherit; }
+
+    button {
+      min-height: 38px;
+      padding: 7px 11px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #1b242c;
+      color: var(--fg);
+      cursor: pointer;
+    }
+
+    button:hover { background: #24313b; }
+    button:disabled { cursor: default; opacity: .55; }
+
+    input[type="number"] {
+      width: 150px;
+      min-height: 38px;
+      padding: 6px 8px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel2);
+      color: var(--fg);
+    }
+
+    input[type="range"] { width: 100%; }
+
+    .wrap {
+      width: min(1500px, 100%);
+      margin: 0 auto;
+    }
+
+    .topbar,
+    .grid,
+    .brain-grid,
+    .controls,
+    .speed-row,
+    .legend {
+      display: flex;
+      gap: 10px;
+    }
+
+    .topbar {
+      align-items: flex-end;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    h1 { margin: 0; font-size: 20px; }
+    h2 { margin: 0 0 10px; font-size: 15px; color: var(--muted); }
+    h3 { margin: 14px 0 8px; font-size: 14px; }
+    p { margin: 6px 0; }
+    small, .muted { color: var(--muted); }
+
+    .controls { align-items: flex-end; flex-wrap: wrap; }
+    .control { display: flex; flex-direction: column; gap: 4px; }
+
+    .grid {
+      align-items: flex-start;
+    }
+
+    .main-col { flex: 1 1 70%; min-width: 0; }
+    .side-col { flex: 1 1 30%; min-width: 330px; }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+
+    .clock {
+      font-variant-numeric: tabular-nums;
+      font-size: 20px;
+      font-weight: 650;
+    }
+
+    .speed-row {
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    .speed-row label { white-space: nowrap; min-width: 150px; }
+
+    .map-shell {
+      position: relative;
+      overflow: hidden;
+      min-height: 500px;
+      background: #090c0f;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+    }
+
+    #mapSvg {
+      display: block;
+      width: 100%;
+      height: auto;
+      min-height: 500px;
+      touch-action: none;
+      user-select: none;
+    }
+
+    .street {
+      stroke: #45515b;
+      stroke-width: 1.15;
+      stroke-linecap: round;
+      opacity: .72;
+    }
+
+    .route {
+      fill: none;
+      stroke: var(--amber);
+      stroke-width: 3.4;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-dasharray: 6 4;
+      pointer-events: none;
+    }
+
+    .node {
+      fill: #2b3944;
+      stroke: #61717d;
+      stroke-width: 1.1;
+      cursor: pointer;
+    }
+
+    .node:hover { fill: #405361; }
+    .node.selected { stroke: white; stroke-width: 2.1; }
+
+    .taylor-marker {
+      fill: var(--blue);
+      stroke: white;
+      stroke-width: 2.6;
+      pointer-events: none;
+    }
+
+    .target-marker {
+      fill: none;
+      stroke: var(--amber);
+      stroke-width: 2.4;
+      stroke-dasharray: 4 3;
+      pointer-events: none;
+    }
+
+    .home-marker {
+      fill: none;
+      stroke: var(--green);
+      stroke-width: 2;
+      opacity: .85;
+      pointer-events: none;
+    }
+
+    .map-label {
+      fill: #cfd8df;
+      font-size: 8px;
+      pointer-events: none;
+      paint-order: stroke;
+      stroke: #090c0f;
+      stroke-width: 2px;
+      stroke-linejoin: round;
+    }
+
+    .taylor-label {
+      fill: white;
+      font-size: 9px;
+      font-weight: 700;
+      pointer-events: none;
+      paint-order: stroke;
+      stroke: #090c0f;
+      stroke-width: 3px;
+    }
+
+    .legend {
+      flex-wrap: wrap;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .legend span { display: inline-flex; align-items: center; gap: 5px; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+    .dot.taylor { background: var(--blue); border: 1px solid white; }
+    .dot.target { border: 2px dashed var(--amber); }
+    .dot.home { border: 2px solid var(--green); }
+
+    .brain-grid {
+      flex-wrap: wrap;
+    }
+
+    .brain-block {
+      flex: 1 1 220px;
+      min-width: 0;
+      background: var(--panel2);
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      padding: 10px;
+    }
+
+    .big-value {
+      font-size: 16px;
+      font-weight: 650;
+      overflow-wrap: anywhere;
+    }
+
+    code {
+      background: #0a0e12;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      padding: 1px 5px;
+      overflow-wrap: anywhere;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 7px 6px;
+      border-top: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th { color: var(--muted); font-weight: 600; }
+    tr:first-child th, tr:first-child td { border-top: 0; }
+
+    .history-wrap {
+      max-height: 430px;
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    .history-wrap table { min-width: 620px; }
+    .history-wrap thead th {
+      position: sticky;
+      top: 0;
+      background: #141b21;
+      z-index: 1;
+    }
+
+    .status-line {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .pill {
+      display: inline-block;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 2px 8px;
+      background: var(--panel2);
+      color: var(--muted);
+    }
+
+    .pill.travel { color: var(--amber); }
+    .pill.stay { color: var(--green); }
+    .pill.idle { color: var(--muted); }
+
+    .error {
+      border-color: #6f2b31;
+      background: #241114;
+      color: #ffb6bd;
+    }
+
+    @media (max-width: 980px) {
+      .grid { flex-direction: column; }
+      .side-col, .main-col { width: 100%; min-width: 0; }
+      .map-shell, #mapSvg { min-height: 380px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div>
+        <h1>NPC Brain – live map test</h1>
+        <small>50×50 generated world · Taylor only · real NPCBrain behavior</small>
+      </div>
+      <div class="controls">
+        <div class="control">
+          <label for="seedInput">Seed</label>
+          <input id="seedInput" type="number" step="1" />
+        </div>
+        <button id="randomSeedBtn" type="button">random seed</button>
+        <button id="regenerateBtn" type="button">regenerate</button>
+      </div>
+    </div>
+
+    <div id="errorBox" class="card error" hidden></div>
+
+    <div class="card">
+      <div class="status-line">
+        <span id="clock" class="clock">—</span>
+        <span id="dayInfo" class="pill">—</span>
+        <span id="weatherInfo" class="pill">—</span>
+        <span id="mapInfo" class="pill">—</span>
+      </div>
+
+      <div class="speed-row">
+        <button id="playPauseBtn" type="button">pause</button>
+        <button id="stepMinuteBtn" type="button">+1 min</button>
+        <button id="stepHourBtn" type="button">+1 hour</button>
+        <label for="speedSlider">Time speed: <strong id="speedLabel">15 min/s</strong></label>
+        <input id="speedSlider" type="range" min="0" max="6" step="1" value="2" />
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="main-col">
+        <div class="card">
+          <h2>World map</h2>
+          <div class="map-shell">
+            <svg id="mapSvg" viewBox="0 0 800 800" role="img" aria-label="Generated world map showing Taylor's position and current route"></svg>
+          </div>
+          <div class="legend">
+            <span><i class="dot taylor"></i>Taylor</span>
+            <span><i class="dot target"></i>current goal target</span>
+            <span><i class="dot home"></i>Taylor's home</span>
+            <span>amber dashed line = current travel route</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="status-line" style="justify-content:space-between">
+            <h2 style="margin:0">Goal / action history</h2>
+            <button id="clearHistoryBtn" type="button">clear history</button>
+          </div>
+          <p class="muted">A row is recorded whenever Taylor's goal or action changes. Map movement along a travel route does not create a new history row.</p>
+          <div class="history-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Goal</th>
+                  <th>Action</th>
+                  <th>Where</th>
+                  <th>Target / end</th>
+                </tr>
+              </thead>
+              <tbody id="historyBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="side-col">
+        <div class="card">
+          <h2>Taylor now</h2>
+          <div class="brain-grid">
+            <div class="brain-block">
+              <div class="muted">Location</div>
+              <div id="currentLocation" class="big-value">—</div>
+              <div id="currentPlace" class="muted">—</div>
+            </div>
+            <div class="brain-block">
+              <div class="muted">Goal</div>
+              <div id="currentGoal" class="big-value">—</div>
+              <div id="goalTarget" class="muted">—</div>
+            </div>
+            <div class="brain-block">
+              <div class="muted">Action</div>
+              <div id="currentAction" class="big-value">—</div>
+              <div id="actionDetail" class="muted">—</div>
+            </div>
+            <div class="brain-block">
+              <div class="muted">Next expected transition</div>
+              <div id="nextAction" class="big-value">—</div>
+              <div id="nextDecision" class="muted">—</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Selected location</h2>
+          <div id="selectedLocation"><span class="muted">Click a map node.</span></div>
+        </div>
+
+        <div class="card">
+          <h2>Brain raw state</h2>
+          <table>
+            <tbody>
+              <tr><th>nextDecisionAt</th><td id="rawNext">—</td></tr>
+              <tr><th>lastUpdatedAt</th><td id="rawUpdated">—</td></tr>
+              <tr><th>home</th><td id="rawHome">—</td></tr>
+              <tr><th>route leg</th><td id="rawRoute">—</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { Game, World } from "../../src/classes/classes.js";
+    import { NPC_REGISTRY } from "../../src/data/data.js";
+    import { makeRNG } from "../../src/shared/modules.js";
+
+    const $ = (id) => document.getElementById(id);
+    const SVG_NS = "http://www.w3.org/2000/svg";
+
+    // Fixed Monday morning so Taylor's school behavior is immediately visible.
+    const START_DATE = new Date("2026-08-17T07:00:00.000Z");
+    const MAP_WIDTH = 50;
+    const MAP_HEIGHT = 50;
+    const SPEEDS = [0, 1, 5, 15, 60, 240, 720]; // game minutes per real second
+
+    let game = null;
+    let taylor = null;
+    let running = true;
+    let minuteAccumulator = 0;
+    let previousFrameTime = performance.now();
+    let lastHistorySignature = null;
+    let selectedLocationId = null;
+
+    const mapState = {
+      positions: new Map(),
+      nodeEls: new Map(),
+      routeEl: null,
+      taylorEl: null,
+      taylorLabelEl: null,
+      targetEl: null,
+      homeEl: null,
+    };
+
+    function randomSeed() {
+      if (globalThis.crypto?.getRandomValues) {
+        const a = new Uint32Array(1);
+        crypto.getRandomValues(a);
+        return a[0] >>> 0;
+      }
+      return (Date.now() >>> 0);
+    }
+
+    function asDate(value) {
+      if (!value) return null;
+      if (value instanceof Date) return value;
+      const d = new Date(value);
+      return Number.isFinite(d.getTime()) ? d : null;
+    }
+
+    function fmtDate(date) {
+      const d = asDate(date);
+      if (!d) return "—";
+      return new Intl.DateTimeFormat("en-GB", {
+        weekday: "short",
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+        timeZone: "UTC",
+      }).format(d) + " UTC";
+    }
+
+    function fmtTime(date) {
+      const d = asDate(date);
+      if (!d) return "—";
+      return String(d.getUTCHours()).padStart(2, "0") + ":" +
+        String(d.getUTCMinutes()).padStart(2, "0");
+    }
+
+    function esc(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function placeAt(locationId, placeId) {
+      if (!game || placeId == null) return null;
+      const loc = game.world.getLocation(String(locationId));
+      return (loc?.places || []).find((p) => String(p.id) === String(placeId)) || null;
+    }
+
+    function locationName(id) {
+      if (!game || id == null) return "—";
+      return game.world.getLocation(String(id))?.name || `Location ${id}`;
+    }
+
+    function placeName(locationId, placeId) {
+      if (placeId == null) return null;
+      return placeAt(locationId, placeId)?.name || String(placeId);
+    }
+
+    function targetLabel(goal) {
+      if (!goal) return "—";
+      const loc = locationName(goal.targetLocationId);
+      const place = placeName(goal.targetLocationId, goal.targetPlaceId);
+      return place ? `${place} · ${loc}` : loc;
+    }
+
+    function createTestGame(seed) {
+      // Game currently does not accept World width/height. Build an empty Game
+      // to reuse its real NPC home-placement logic, then replace the generated
+      // world with the 50x50 test world before creating Taylor.
+      const g = new Game({
+        seed,
+        startDate: START_DATE,
+        npcTemplates: [],
+        scenes: [],
+        autoStartScenes: false,
+      });
+
+      g.seed = seed >>> 0;
+      g.rnd = makeRNG(g.seed);
+      g.world = new World({
+        rnd: g.rnd,
+        startDate: START_DATE,
+        density: 0,
+        w: MAP_WIDTH,
+        h: MAP_HEIGHT,
+      });
+
+      g.npcs = new Map();
+      g.log = [];
+      g.currentScene = null;
+      g.sceneManager = null; // this test is about NPC AI only
+
+      const template = NPC_REGISTRY.find((def) => def.key === "taylor");
+      if (!template) throw new Error("Taylor template not found in NPC_REGISTRY");
+
+      g._createNPCs([template]);
+      g._initializeNPCBrains();
+
+      const npc = [...g.npcs.values()].find((n) => n.meta?.registryKey === "taylor")
+        || [...g.npcs.values()][0];
+      if (!npc?.brain) throw new Error("Taylor was created without an NPCBrain");
+
+      return { game: g, taylor: npc };
+    }
+
+    function mapProjection() {
+      const ids = [...game.world.locations.keys()];
+      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+      for (const id of ids) {
+        const loc = game.world.getLocation(id);
+        const x = Number(loc?.x) || 0;
+        const y = Number(loc?.y) || 0;
+        minX = Math.min(minX, x); maxX = Math.max(maxX, x);
+        minY = Math.min(minY, y); maxY = Math.max(maxY, y);
+      }
+      if (minX === maxX) { minX -= 1; maxX += 1; }
+      if (minY === maxY) { minY -= 1; maxY += 1; }
+
+      const size = 800;
+      const margin = 32;
+      const inner = size - margin * 2;
+      const sx = inner / (maxX - minX);
+      const sy = inner / (maxY - minY);
+      const scale = Math.min(sx, sy);
+      const usedW = (maxX - minX) * scale;
+      const usedH = (maxY - minY) * scale;
+      const ox = margin + (inner - usedW) / 2;
+      const oy = margin + (inner - usedH) / 2;
+
+      return (loc) => ({
+        x: ox + ((Number(loc?.x) || 0) - minX) * scale,
+        y: oy + ((Number(loc?.y) || 0) - minY) * scale,
+      });
+    }
+
+    function svgEl(tag, attrs = {}) {
+      const el = document.createElementNS(SVG_NS, tag);
+      for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, String(v));
+      return el;
+    }
+
+    function renderStaticMap() {
+      const svg = $("mapSvg");
+      svg.innerHTML = "";
+      mapState.positions.clear();
+      mapState.nodeEls.clear();
+
+      const project = mapProjection();
+      for (const [id, loc] of game.world.locations) {
+        mapState.positions.set(String(id), project(loc));
+      }
+
+      const edgeGroup = svgEl("g");
+      const seen = new Set();
+      for (const [aId, loc] of game.world.locations) {
+        for (const [bId] of loc.neighbors) {
+          const key = [String(aId), String(bId)].sort().join("|");
+          if (seen.has(key)) continue;
+          seen.add(key);
+          const a = mapState.positions.get(String(aId));
+          const b = mapState.positions.get(String(bId));
+          if (!a || !b) continue;
+
+          const edge = game.world.getTravelEdge(aId, bId);
+          const line = svgEl("line", {
+            x1: a.x, y1: a.y, x2: b.x, y2: b.y,
+            class: "street",
+          });
+          const title = svgEl("title");
+          title.textContent = `${edge?.streetName || "street"} · ${edge?.minutes ?? "?"} min`;
+          line.appendChild(title);
+          edgeGroup.appendChild(line);
+        }
+      }
+      svg.appendChild(edgeGroup);
+
+      mapState.routeEl = svgEl("polyline", { class: "route", points: "" });
+      svg.appendChild(mapState.routeEl);
+
+      const nodeGroup = svgEl("g");
+      for (const [id, loc] of game.world.locations) {
+        const p = mapState.positions.get(String(id));
+        const circle = svgEl("circle", { cx: p.x, cy: p.y, r: 5.2, class: "node" });
+        circle.dataset.locationId = String(id);
+        const title = svgEl("title");
+        title.textContent = `${loc.name}\n${(loc.places || []).map((pl) => pl.name).join(", ") || "no places"}`;
+        circle.appendChild(title);
+        circle.addEventListener("click", () => selectLocation(String(id)));
+        nodeGroup.appendChild(circle);
+        mapState.nodeEls.set(String(id), circle);
+
+        const label = svgEl("text", { x: p.x + 7, y: p.y - 7, class: "map-label" });
+        label.textContent = loc.name;
+        nodeGroup.appendChild(label);
+      }
+      svg.appendChild(nodeGroup);
+
+      mapState.homeEl = svgEl("circle", { r: 10.5, class: "home-marker" });
+      svg.appendChild(mapState.homeEl);
+
+      mapState.targetEl = svgEl("circle", { r: 13, class: "target-marker" });
+      svg.appendChild(mapState.targetEl);
+
+      mapState.taylorEl = svgEl("circle", { r: 8.3, class: "taylor-marker" });
+      svg.appendChild(mapState.taylorEl);
+
+      mapState.taylorLabelEl = svgEl("text", { class: "taylor-label" });
+      mapState.taylorLabelEl.textContent = "Taylor";
+      svg.appendChild(mapState.taylorLabelEl);
+
+      const locations = game.world.locations.size;
+      const places = [...game.world.locations.values()].reduce((n, loc) => n + (loc.places?.length || 0), 0);
+      $("mapInfo").textContent = `${MAP_WIDTH}×${MAP_HEIGHT} · ${locations} locations · ${places} places`;
+    }
+
+    function updateDynamicMap() {
+      if (!taylor) return;
+      const current = mapState.positions.get(String(taylor.locationId));
+      if (current) {
+        mapState.taylorEl.setAttribute("cx", current.x);
+        mapState.taylorEl.setAttribute("cy", current.y);
+        mapState.taylorEl.removeAttribute("display");
+        mapState.taylorLabelEl.setAttribute("x", current.x + 10);
+        mapState.taylorLabelEl.setAttribute("y", current.y + 3);
+        mapState.taylorLabelEl.removeAttribute("display");
+      } else {
+        mapState.taylorEl.setAttribute("display", "none");
+        mapState.taylorLabelEl.setAttribute("display", "none");
+      }
+
+      const home = mapState.positions.get(String(taylor.homeLocationId));
+      if (home) {
+        mapState.homeEl.setAttribute("cx", home.x);
+        mapState.homeEl.setAttribute("cy", home.y);
+        mapState.homeEl.removeAttribute("display");
+      } else mapState.homeEl.setAttribute("display", "none");
+
+      const goal = taylor.brain?.currentGoal;
+      const target = goal ? mapState.positions.get(String(goal.targetLocationId)) : null;
+      if (target) {
+        mapState.targetEl.setAttribute("cx", target.x);
+        mapState.targetEl.setAttribute("cy", target.y);
+        mapState.targetEl.removeAttribute("display");
+      } else mapState.targetEl.setAttribute("display", "none");
+
+      const route = taylor.brain?.currentAction?.route?.locations || [];
+      const points = route
+        .map((id) => mapState.positions.get(String(id)))
+        .filter(Boolean)
+        .map((p) => `${p.x},${p.y}`)
+        .join(" ");
+      mapState.routeEl.setAttribute("points", points);
+      mapState.routeEl.style.display = points ? "" : "none";
+    }
+
+    function selectLocation(id) {
+      selectedLocationId = String(id);
+      for (const [nodeId, el] of mapState.nodeEls) {
+        el.classList.toggle("selected", nodeId === selectedLocationId);
+      }
+
+      const loc = game.world.getLocation(selectedLocationId);
+      if (!loc) return;
+      const places = (loc.places || []).map((p) => {
+        const open = typeof p.isOpen === "function" ? p.isOpen(game.now) : null;
+        const state = open === null ? "" : open ? "open" : "closed";
+        return `<li><strong>${esc(p.name)}</strong> <code>${esc(p.key)}</code>${state ? ` · ${state}` : ""}</li>`;
+      }).join("");
+
+      $("selectedLocation").innerHTML = `
+        <div class="big-value">${esc(loc.name)}</div>
+        <p class="muted">id <code>${esc(loc.id)}</code> · ${esc((loc.tags || []).join(", ") || "no tags")}</p>
+        <h3>Places at current simulation time</h3>
+        ${places ? `<ul>${places}</ul>` : `<p class="muted">No places.</p>`}
+      `;
+    }
+
+    function actionSignature() {
+      const b = taylor?.brain;
+      const g = b?.currentGoal;
+      const a = b?.currentAction;
+      return JSON.stringify({
+        goal: g ? [g.ruleId, g.startedAt, g.targetLocationId, g.targetPlaceId] : null,
+        action: a ? [a.type, a.startedAt, a.arrivalAt, a.until, a.targetLocationId, a.targetPlaceId] : null,
+      });
+    }
+
+    function actionDescription(action) {
+      if (!action) return "—";
+      if (action.type === "travel") return "travel";
+      if (action.type === "stay") return "stay";
+      if (action.type === "idle") return "idle";
+      return String(action.type || "—");
+    }
+
+    function actionEndLabel(action) {
+      if (!action) return "—";
+      if (action.type === "travel") {
+        const dest = placeName(action.targetLocationId, action.targetPlaceId) || locationName(action.targetLocationId);
+        return `${dest} @ ${fmtTime(action.arrivalAt)}`;
+      }
+      if (action.type === "stay") return `until ${fmtTime(action.until)}`;
+      return taylor?.brain?.nextDecisionAt ? `wake ${fmtTime(taylor.brain.nextDecisionAt)}` : "—";
+    }
+
+    function recordHistory(force = false) {
+      if (!taylor) return;
+      const signature = actionSignature();
+      if (!force && signature === lastHistorySignature) return;
+      lastHistorySignature = signature;
+
+      const goal = taylor.brain?.currentGoal;
+      const action = taylor.brain?.currentAction;
+      const loc = locationName(taylor.locationId);
+      const place = placeName(taylor.locationId, taylor.currentPlaceId);
+
+      const tr = document.createElement("tr");
+      const cells = [
+        fmtDate(game.now),
+        goal ? `${goal.ruleId} (${goal.type})` : "—",
+        actionDescription(action),
+        place ? `${place} · ${loc}` : loc,
+        actionEndLabel(action),
+      ];
+      for (const value of cells) {
+        const td = document.createElement("td");
+        td.textContent = value;
+        tr.appendChild(td);
+      }
+
+      const body = $("historyBody");
+      body.prepend(tr);
+      while (body.children.length > 100) body.lastElementChild.remove();
+    }
+
+    function updateStatus() {
+      if (!game || !taylor) return;
+      const b = taylor.brain;
+      const goal = b.currentGoal;
+      const action = b.currentAction;
+      const loc = game.world.getLocation(String(taylor.locationId));
+      const place = placeAt(taylor.locationId, taylor.currentPlaceId);
+
+      $("clock").textContent = fmtDate(game.now);
+      const day = game.world.getDayInfo(game.now);
+      $("dayInfo").textContent = day?.kind || "day";
+      $("weatherInfo").textContent = `${game.world.currentWeather} · ${Number(game.world.temperature).toFixed(1)}°C`;
+
+      $("currentLocation").textContent = loc?.name || String(taylor.locationId ?? "—");
+      $("currentPlace").textContent = place ? place.name : action?.type === "travel" ? "between places / travelling" : "no place";
+
+      $("currentGoal").textContent = goal ? goal.ruleId : "none";
+      $("goalTarget").textContent = goal ? `${goal.type} → ${targetLabel(goal)}` : "—";
+
+      $("currentAction").textContent = action ? action.type : "none";
+      $("currentAction").className = `big-value ${action?.type || ""}`;
+      if (action?.type === "travel") {
+        $("actionDetail").textContent = `to ${placeName(action.targetLocationId, action.targetPlaceId) || locationName(action.targetLocationId)} · ETA ${fmtTime(action.arrivalAt)}`;
+      } else if (action?.type === "stay") {
+        $("actionDetail").textContent = `until ${fmtTime(action.until)}`;
+      } else {
+        $("actionDetail").textContent = action?.startedAt ? `since ${fmtTime(action.startedAt)}` : "—";
+      }
+
+      if (action?.type === "travel") {
+        $("nextAction").textContent = "arrive at destination";
+        $("nextDecision").textContent = fmtDate(action.arrivalAt);
+      } else if (action?.type === "stay") {
+        $("nextAction").textContent = goal?.type === "obligation" ? "finish obligation / reconsider" : "reconsider activity";
+        $("nextDecision").textContent = fmtDate(action.until);
+      } else {
+        $("nextAction").textContent = "brain decision";
+        $("nextDecision").textContent = fmtDate(b.nextDecisionAt);
+      }
+
+      $("rawNext").textContent = fmtDate(b.nextDecisionAt);
+      $("rawUpdated").textContent = fmtDate(b.lastUpdatedAt);
+      $("rawHome").textContent = `${placeName(taylor.homeLocationId, taylor.homePlaceId) || taylor.homePlaceId} · ${locationName(taylor.homeLocationId)}`;
+
+      const route = action?.route;
+      if (route?.locations?.length) {
+        const idx = Number(route.currentLegIndex) || 0;
+        $("rawRoute").textContent = `${idx + 1}/${route.locations.length} · ${route.locations.map(locationName).join(" → ")}`;
+      } else {
+        $("rawRoute").textContent = "—";
+      }
+
+      updateDynamicMap();
+      if (selectedLocationId != null) selectLocation(selectedLocationId);
+    }
+
+    function advanceOneMinute() {
+      game.world.advance(1);
+      taylor.brain.updateTo(game.now, game);
+      recordHistory(false);
+    }
+
+    function advanceMinutes(minutes) {
+      const count = Math.max(0, Math.min(24 * 60 * 14, Math.floor(Number(minutes) || 0)));
+      for (let i = 0; i < count; i++) advanceOneMinute();
+      updateStatus();
+    }
+
+    function speedValue() {
+      const index = Math.max(0, Math.min(SPEEDS.length - 1, Number($("speedSlider").value) || 0));
+      return SPEEDS[index];
+    }
+
+    function updateSpeedUI() {
+      const speed = speedValue();
+      $("speedLabel").textContent = speed === 0 ? "paused" : `${speed} game min/s`;
+      if (speed === 0) running = false;
+      $("playPauseBtn").textContent = running ? "pause" : "play";
+    }
+
+    function regenerate() {
+      try {
+        $("errorBox").hidden = true;
+        const raw = Number($("seedInput").value);
+        const seed = Number.isFinite(raw) ? (raw >>> 0) : randomSeed();
+        $("seedInput").value = String(seed);
+
+        const built = createTestGame(seed);
+        game = built.game;
+        taylor = built.taylor;
+        minuteAccumulator = 0;
+        lastHistorySignature = null;
+        selectedLocationId = null;
+        $("historyBody").innerHTML = "";
+        $("selectedLocation").innerHTML = '<span class="muted">Click a map node.</span>';
+
+        renderStaticMap();
+        recordHistory(true);
+        updateStatus();
+      } catch (err) {
+        console.error(err);
+        $("errorBox").textContent = err?.stack || String(err);
+        $("errorBox").hidden = false;
+        running = false;
+        updateSpeedUI();
+      }
+    }
+
+    function frame(now) {
+      const dtSeconds = Math.min(0.25, Math.max(0, (now - previousFrameTime) / 1000));
+      previousFrameTime = now;
+
+      if (running && game) {
+        const speed = speedValue();
+        minuteAccumulator += speed * dtSeconds;
+        const wholeMinutes = Math.floor(minuteAccumulator);
+        if (wholeMinutes > 0) {
+          minuteAccumulator -= wholeMinutes;
+          advanceMinutes(wholeMinutes);
+        }
+      }
+
+      requestAnimationFrame(frame);
+    }
+
+    $("seedInput").value = String(randomSeed());
+
+    $("randomSeedBtn").addEventListener("click", () => {
+      $("seedInput").value = String(randomSeed());
+    });
+
+    $("regenerateBtn").addEventListener("click", regenerate);
+
+    $("playPauseBtn").addEventListener("click", () => {
+      running = !running;
+      if (running && speedValue() === 0) $("speedSlider").value = "2";
+      updateSpeedUI();
+    });
+
+    $("stepMinuteBtn").addEventListener("click", () => {
+      running = false;
+      updateSpeedUI();
+      advanceMinutes(1);
+    });
+
+    $("stepHourBtn").addEventListener("click", () => {
+      running = false;
+      updateSpeedUI();
+      advanceMinutes(60);
+    });
+
+    $("speedSlider").addEventListener("input", () => {
+      const speed = speedValue();
+      running = speed > 0;
+      updateSpeedUI();
+    });
+
+    $("clearHistoryBtn").addEventListener("click", () => {
+      $("historyBody").innerHTML = "";
+      lastHistorySignature = null;
+      recordHistory(true);
+    });
+
+    regenerate();
+    updateSpeedUI();
+    requestAnimationFrame(frame);
+  </script>
+</body>
+</html>
