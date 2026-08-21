@@ -1,18 +1,12 @@
-import { makeFlagSkill, makeMeterSkill } from "./modules.js";
-import {
-    Relationship,
-    Stat,
-    Gender,
-    PronounSets,
-    adjustHexLightness,
-    Clothing,
-    Trait,
-    clamp,
-    deepFreeze,
-    Body,
-    DamageType,
-    HUMAN_BODY_TEMPLATE,
-} from "../../shared/modules.js";
+import { makeFlagSkill, makeMeterSkill } from "./util/skill.js";
+import { Relationship } from "../../shared/classes/relationship.js";
+import { Stat } from "../../shared/classes/stat.js";
+import { Gender, PronounSets } from "../../shared/classes/pronouns.js";
+import { adjustHexLightness } from "../../shared/util/color.js";
+import { Clothing } from "../../shared/classes/clothing.js";
+import { Trait } from "../../shared/classes/trait.js";
+import { clamp, deepFreeze } from "../../shared/util/util.js";
+import { Body, DamageType, HUMAN_BODY_TEMPLATE } from "../../shared/classes/body.js";
 
 /*
   Text Adventure Core – Player model (vanilla JS, no build step)

@@ -1,12 +1,13 @@
 
-import { ymd } from "../../../shared/modules.js";
+import { ymd } from "../../../shared/util/date.js";
 
 import {
     DayKind,
     HOLIDAY_REGISTRY,
     RANDOM_HOLIDAYS,
-    HolidayCategory, MS_PER_DAY
-} from "../../../data/data.js";
+    HolidayCategory,
+} from "../../../data/world/calendar.js";
+import { MS_PER_DAY } from "../../../data/world/time.js";
 
 /**
  * Calendar: builds & holds holiday/special info for a given year.

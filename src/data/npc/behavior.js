@@ -15,3 +15,11 @@ export const NPC_ACTION_TYPE = {
     travel: "travel",
     stay: "stay",
 };
+
+//TODO: behavior preferences:
+// weather
+// time
+// day of week
+// recent activities
+// events
+// distance/travel time

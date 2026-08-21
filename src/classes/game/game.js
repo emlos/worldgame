@@ -1,8 +1,12 @@
 // worldgame/src/game/game.js
-import { World, Player, NPC } from "../classes.js";
-import { makeRNG } from "../../shared/modules.js";
-import { PLACE_TAGS, NPC_REGISTRY } from "../../data/data.js";
-import { Localizer, SceneManager } from "./module.js";
+import { World } from "../world/world.js";
+import { Player } from "../player/player.js";
+import { NPC } from "../npc/npc.js";
+import { makeRNG } from "../../shared/util/random.js";
+import { PLACE_TAGS } from "../../data/world/place.js";
+import { NPC_REGISTRY } from "../../data/npc/npcs.js";
+import { Localizer } from "./util/localisation.js";
+import { SceneManager } from "./util/sceneManager.js";
 import { SCENE_DEFS } from "../../data/scenes/index.js";
 
 // High-level orchestrator for world + player + NPCs.

@@ -7,7 +7,8 @@
 //  - Non-gorey, but expressive enough for boxing/fights/accidents.
 // -----------------------------------------------------------------------------
 
-import { clamp, deepFreeze, WearSlot } from "../../shared/modules.js";
+import { clamp, deepFreeze } from "../util/util.js";
+import { WearSlot } from "./clothing.js";
 
 // If you want to hard-link to WearSlot, you can import it and reuse its values.
 // import { WearSlot } from "./whatever.js";

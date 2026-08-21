@@ -1,4 +1,5 @@
-import { DAY_KEYS, LOCATION_TAGS } from "../data.js";
+import { DAY_KEYS } from "./time.js";
+import { LOCATION_TAGS } from "./location.js";
 
 function pick(arr, rnd) {
     return arr[(rnd() * arr.length) | 0];
@@ -160,7 +161,7 @@ export const PLACE_REGISTRY = [
         nameFn: ({ rnd }) =>
             `${pick(
                 ["King", "Queen", "Liberty", "Harbor", "Market", "Union", "Elm"],
-                rnd
+                rnd,
             )} Boulevard`,
         minCount: 1,
     },
@@ -181,7 +182,7 @@ export const PLACE_REGISTRY = [
         nameFn: ({ rnd }) =>
             `${pick(["Central", "Market", "Harbor", "Union"], rnd)} Parking ${pick(
                 ["Garage", "Lot"],
-                rnd
+                rnd,
             )}`,
         minCount: 1,
     },
@@ -371,8 +372,8 @@ export const PLACE_REGISTRY = [
             has(tags, LOCATION_TAGS.wealthy)
                 ? "Avant-Garde Art Gallery"
                 : has(tags, LOCATION_TAGS.historic) || has(tags, LOCATION_TAGS.tourism)
-                ? `${pick(["Old Town", "City", "Olt Millhouse"], rnd)} Gallery`
-                : `${pick(["Modern", "Riverside", "Public"], rnd)} Gallery`,
+                  ? `${pick(["Old Town", "City", "Olt Millhouse"], rnd)} Gallery`
+                  : `${pick(["Modern", "Riverside", "Public"], rnd)} Gallery`,
         minCount: 1,
     },
     {
@@ -600,7 +601,7 @@ export const PLACE_REGISTRY = [
                 has(tags, LOCATION_TAGS.education)
                     ? ["Campus", "Quad", "Student"]
                     : ["Central", "Riverside", "Market"],
-                rnd
+                rnd,
             )} Cafe`,
         minCount: 1,
     },
@@ -1006,7 +1007,7 @@ export const PLACE_REGISTRY = [
         nameFn: ({ rnd }) =>
             `${pick(
                 ["Fire Station 1", "Fire Marshall Station", "Volunteer Fire Department"],
-                rnd
+                rnd,
             )}`,
         minCount: 1,
     },
@@ -1284,7 +1285,7 @@ export const PLACE_REGISTRY = [
                     ? pick(["Satis-Factory", "Roxanne's", "Harem", "The Red Lantern"], rnd)
                     : `${pick(
                           ["Black Rose", "Bella's", "Love", "Paradise", "Angel's"],
-                          rnd
+                          rnd,
                       )} ${pick(
                           [
                               "Gentleman's Club",
@@ -1293,7 +1294,7 @@ export const PLACE_REGISTRY = [
                               "Pleasure House",
                               "Sensual Retreat",
                           ],
-                          rnd
+                          rnd,
                       )}`
             }`,
         minCount: 1,
@@ -1316,7 +1317,7 @@ export const PLACE_REGISTRY = [
         nameFn: ({ rnd }) =>
             `${pick(
                 ["Class Act Club", "Essence", "Sleazy Susie's", "The Man Cave", "Liberte Club"],
-                rnd
+                rnd,
             )}`,
         minCount: 1,
     },
@@ -1458,7 +1459,8 @@ export const PLACE_REGISTRY = [
             LOCATION_TAGS.parkland,
             LOCATION_TAGS.urban_edge,
             LOCATION_TAGS.transport, // Bus/Train stations
-            LOCATION_TAGS.industrial, LOCATION_TAGS.poor
+            LOCATION_TAGS.industrial,
+            LOCATION_TAGS.poor,
         ],
         weight: 2,
         props: {
@@ -1706,7 +1708,6 @@ export const DEFAULT_OPENING_HOURS_BY_CATEGORY = {
     }),
     crime: hoursAllDay(),
     nsfw: hoursWeekdays({
-        //TODO: make sure the midnight wrapareound works
         from: "23:00",
         to: "06:00",
         saturday: { from: "22:00", to: "07:00" },

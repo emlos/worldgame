@@ -1,4 +1,4 @@
-import { LOCATION_TAGS } from "../data.js";
+import { LOCATION_TAGS } from "./location.js";
 
 export const STREET_REGISTRY = [
     // --- Core / Downtown ---

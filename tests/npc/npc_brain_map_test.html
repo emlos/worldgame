@@ -440,9 +440,10 @@
   </div>
 
   <script type="module">
-    import { Game, World } from "../../src/classes/classes.js";
-    import { NPC_REGISTRY } from "../../src/data/data.js";
-    import { makeRNG } from "../../src/shared/modules.js";
+    import { Game } from "../../src/classes/game/game.js";
+    import { World } from "../../src/classes/world/world.js";
+    import { NPC_REGISTRY } from "../../src/data/npc/npcs.js";
+    import { makeRNG } from "../../src/shared/util/random.js";
 
     const $ = (id) => document.getElementById(id);
     const SVG_NS = "http://www.w3.org/2000/svg";

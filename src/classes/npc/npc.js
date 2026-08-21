@@ -1,14 +1,10 @@
-import {
-    Relationship,
-    Stat,
-    Gender,
-    PronounSets,
-    Clothing,
-    Trait,
-    clamp,
-    Body,
-    HUMAN_BODY_TEMPLATE,
-} from "../../shared/modules.js";
+import { Relationship } from "../../shared/classes/relationship.js";
+import { Stat } from "../../shared/classes/stat.js";
+import { Gender, PronounSets } from "../../shared/classes/pronouns.js";
+import { Clothing } from "../../shared/classes/clothing.js";
+import { Trait } from "../../shared/classes/trait.js";
+import { clamp } from "../../shared/util/util.js";
+import { Body, HUMAN_BODY_TEMPLATE } from "../../shared/classes/body.js";
 import { NPCBrain } from "./npcBrain.js";
 
 function cloneSerializable(value) {

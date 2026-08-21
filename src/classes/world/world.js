@@ -1,4 +1,8 @@
-import { Moon, WorldTime, Calendar, Weather, WorldMap } from "./module.js";
+import { Moon } from "./util/moon.js";
+import { WorldTime } from "./util/time.js";
+import { Calendar } from "./util/calendar.js";
+import { Weather } from "./util/weather.js";
+import { WorldMap } from "./util/worldmap.js";
 // --------------------------
 // World
 // --------------------------

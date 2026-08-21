@@ -1,11 +1,11 @@
-import { makeRNG, approxNormal01, clamp01 } from "../../../shared/modules.js";
-import { WeatherType, Season } from "../../../data/data.js";
+import { makeRNG, approxNormal01 } from "../../../shared/util/random.js";
+import { clamp01 } from "../../../shared/util/util.js";
+import { WeatherType, Season } from "../../../data/world/weather.js";
 
 // weather.js
 // Exports ONLY the Weather class (default). No other functions/constants live here.
 // Notes:
 // - This class refers to weather kinds by string keys: "clear", "sunny", "cloudy", "rain", "storm", "windy", "snow".
-// - If you also have a global const Weather = { CLEAR: "clear", ... }, you can safely keep it elsewhere.
 // - Season constants aren’t imported; month->season is handled internally via static method.
 
 export class Weather {

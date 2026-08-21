@@ -1,5 +1,6 @@
 
-import { MS_PER_DAY, MoonPhase } from "../../../data/data.js";
+import { MS_PER_DAY } from "../../../data/world/time.js";
+import { MoonPhase } from "../../../data/world/moon.js";
 export class Moon {
     constructor({ startDate = new Date() } = {}) {
         this._date = new Date(startDate);

@@ -1,6 +1,11 @@
-import { clamp01, weightedPick, randInt } from "../../../shared/modules.js";
-import { Location, Place, Street } from "../module.js";
-import { LOCATION_REGISTRY, PLACE_REGISTRY, STREET_REGISTRY } from "../../../data/data.js";
+import { clamp01 } from "../../../shared/util/util.js";
+import { weightedPick, randInt } from "../../../shared/util/random.js";
+import { Location } from "./location.js";
+import { Place } from "./place.js";
+import { Street } from "./street.js";
+import { LOCATION_REGISTRY } from "../../../data/world/location.js";
+import { PLACE_REGISTRY } from "../../../data/world/place.js";
+import { STREET_REGISTRY } from "../../../data/world/street.js";
 
 const capacityPerLocation = 10;
 

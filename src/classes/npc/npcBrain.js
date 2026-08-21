@@ -1,5 +1,7 @@
-import { parseTimeToMinutes, randInt, weightedPick } from "../../shared/modules.js";
+import { parseTimeToMinutes } from "../../shared/util/date.js";
+import { randInt, weightedPick } from "../../shared/util/random.js";
 import { GOAL_TYPE, TARGET_TYPE, NPC_ACTION_TYPE } from "../../data/npc/behavior.js";
+import { DAY_KEYS } from "../../data/world/time.js";
 
 const MS_PER_MINUTE = 60 * 1000;
 const MS_PER_DAY = 24 * 60 * MS_PER_MINUTE;
@@ -472,6 +474,13 @@ export class NPCBrain {
             if (dayKinds?.length) {
                 const kind = game?.world?.getDayInfo(anchor)?.kind;
                 if (!dayKinds.includes(kind)) continue;
+            }
+
+            const daysOfWeek = Array.isArray(rule?.when?.daysOfWeek) ? rule.when.daysOfWeek : null;
+            if (daysOfWeek?.length) {
+                const dayIndex = anchor.getUTCDay();
+                const dayKey = DAY_KEYS[dayIndex];
+                if (!daysOfWeek.includes(dayKey) && !daysOfWeek.includes(dayIndex)) continue;
             }
 
             const start = addMinutes(anchor, from);

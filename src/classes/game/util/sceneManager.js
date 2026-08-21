@@ -14,8 +14,8 @@
 
 //TODO: remove menu/isMenu/autoExit/autoTraversal
 
-import { formatHHMMUTC } from "../../../shared/modules.js";
-import { DAY_KEYS } from "../../../data/data.js";
+import { formatHHMMUTC } from "../../../shared/util/date.js";
+import { DAY_KEYS } from "../../../data/world/time.js";
 const uniq = (arr) => Array.from(new Set(arr));
 
 function asArray(v) {

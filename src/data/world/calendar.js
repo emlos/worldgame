@@ -1,4 +1,4 @@
-import { clamp } from "../../shared/modules.js";
+import { clamp } from "../../shared/util/util.js";
 
 export const DayKind = { WORKDAY: "workday", DAY_OFF: "day off" };
 

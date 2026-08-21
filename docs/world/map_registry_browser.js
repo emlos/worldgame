@@ -1,7 +1,7 @@
 function init() {
     if (!LOCATION_REGISTRY || !PLACE_REGISTRY || !STREET_REGISTRY) {
         console.error(
-            "Missing registries on window. Did you set debug=true and import src/data/data.js?"
+            "Missing registries on window. Did you set debug=true and import src/debug.js?"
         );
         return;
     }

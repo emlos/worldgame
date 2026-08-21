@@ -1,0 +1,1470 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>All NPC Brains Map Test</title>
+
+  <!--
+    Drop this file into: tests/npc/all_npc_brains_map_test.html
+    It runs the real NPCBrain logic from the project against one generated 50x50 world.
+  -->
+  <script>
+    const debug = false;
+  </script>
+
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0d10;
+      --panel: #11161b;
+      --panel2: #0d1216;
+      --line: #26323b;
+      --fg: #e6ecf1;
+      --muted: #91a4b1;
+      --amber: #f2b84b;
+      --green: #55c98a;
+      --red: #ef6b73;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font: 14px/1.45 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      padding: 16px;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      min-height: 38px;
+      padding: 7px 11px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #1b242c;
+      color: var(--fg);
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #24313b;
+    }
+
+    button:disabled {
+      cursor: default;
+      opacity: .55;
+    }
+
+    input[type="number"] {
+      width: 150px;
+      min-height: 38px;
+      padding: 6px 8px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel2);
+      color: var(--fg);
+    }
+
+    input[type="range"] {
+      width: 100%;
+    }
+
+    .wrap {
+      width: min(1700px, 100%);
+      margin: 0 auto;
+    }
+
+    .topbar,
+    .grid,
+    .controls,
+    .speed-row,
+    .legend,
+    .status-line {
+      display: flex;
+      gap: 10px;
+    }
+
+    .topbar {
+      align-items: flex-end;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 15px;
+      color: var(--muted);
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 14px;
+    }
+
+    p {
+      margin: 6px 0;
+    }
+
+    small,
+    .muted {
+      color: var(--muted);
+    }
+
+    .controls {
+      align-items: flex-end;
+      flex-wrap: wrap;
+    }
+
+    .control {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .grid {
+      align-items: flex-start;
+    }
+
+    .main-col {
+      flex: 1 1 68%;
+      min-width: 0;
+    }
+
+    .side-col {
+      flex: 1 1 32%;
+      min-width: 390px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+
+    .clock {
+      font-variant-numeric: tabular-nums;
+      font-size: 20px;
+      font-weight: 650;
+    }
+
+    .status-line {
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .pill {
+      display: inline-block;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 2px 8px;
+      background: var(--panel2);
+      color: var(--muted);
+    }
+
+    .speed-row {
+      align-items: center;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    .speed-row label {
+      white-space: nowrap;
+      min-width: 165px;
+    }
+
+    .speed-row input[type="range"] {
+      flex: 1 1 260px;
+    }
+
+    .map-shell {
+      position: relative;
+      overflow: hidden;
+      min-height: 620px;
+      background: #090c0f;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+    }
+
+    #mapSvg {
+      display: block;
+      width: 100%;
+      height: auto;
+      min-height: 620px;
+      touch-action: none;
+      user-select: none;
+    }
+
+    .street {
+      stroke: #45515b;
+      stroke-width: 1.05;
+      stroke-linecap: round;
+      opacity: .62;
+    }
+
+    .node {
+      fill: #2b3944;
+      stroke: #61717d;
+      stroke-width: 1;
+      cursor: pointer;
+    }
+
+    .node:hover {
+      fill: #405361;
+    }
+
+    .node.selected {
+      stroke: white;
+      stroke-width: 2.2;
+    }
+
+    .map-label {
+      fill: #9eacb6;
+      font-size: 7px;
+      pointer-events: none;
+      paint-order: stroke;
+      stroke: #090c0f;
+      stroke-width: 2px;
+      stroke-linejoin: round;
+    }
+
+    .npc-route {
+      fill: none;
+      stroke-width: 2.25;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-dasharray: 5 4;
+      opacity: .8;
+      pointer-events: none;
+    }
+
+    .npc-route.selected {
+      stroke-width: 4;
+      opacity: 1;
+    }
+
+    .npc-target {
+      fill: none;
+      stroke-width: 2.3;
+      stroke-dasharray: 4 3;
+      pointer-events: none;
+    }
+
+    .npc-home {
+      fill: none;
+      stroke-width: 1.6;
+      opacity: .45;
+      pointer-events: none;
+    }
+
+    .npc-marker {
+      stroke: white;
+      stroke-width: 2;
+      cursor: pointer;
+    }
+
+    .npc-marker.selected {
+      stroke-width: 3.5;
+    }
+
+    .npc-label {
+      fill: white;
+      font-size: 8px;
+      font-weight: 700;
+      pointer-events: none;
+      paint-order: stroke;
+      stroke: #090c0f;
+      stroke-width: 3px;
+      stroke-linejoin: round;
+    }
+
+    .legend {
+      flex-wrap: wrap;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .legend-dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      border: 1px solid white;
+      flex: 0 0 auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 7px 6px;
+      border-top: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: var(--muted);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    tr:first-child th,
+    tr:first-child td {
+      border-top: 0;
+    }
+
+    .npc-table-wrap,
+    .history-wrap {
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    .npc-table-wrap table {
+      min-width: 920px;
+    }
+
+    .history-wrap {
+      max-height: 430px;
+    }
+
+    .history-wrap table {
+      min-width: 900px;
+    }
+
+    .npc-table-wrap thead th,
+    .history-wrap thead th {
+      position: sticky;
+      top: 0;
+      background: #141b21;
+      z-index: 1;
+    }
+
+    .npc-row {
+      cursor: pointer;
+    }
+
+    .npc-row:hover {
+      background: #151e25;
+    }
+
+    .npc-row.selected {
+      background: #1b2630;
+    }
+
+    .npc-name {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-weight: 650;
+      white-space: nowrap;
+    }
+
+    .npc-swatch {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      border: 1px solid white;
+      flex: 0 0 auto;
+    }
+
+    .action {
+      display: inline-block;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 1px 7px;
+      background: var(--panel2);
+    }
+
+    .action.travel {
+      color: var(--amber);
+    }
+
+    .action.stay {
+      color: var(--green);
+    }
+
+    .action.idle {
+      color: var(--muted);
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: minmax(110px, auto) 1fr;
+      gap: 6px 10px;
+    }
+
+    .detail-grid .k {
+      color: var(--muted);
+    }
+
+    .detail-grid .v {
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+
+    code {
+      background: #0a0e12;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      padding: 1px 5px;
+      overflow-wrap: anywhere;
+    }
+
+    .error {
+      border-color: #6f2b31;
+      background: #241114;
+      color: #ffb6bd;
+      white-space: pre-wrap;
+    }
+
+    ul {
+      padding-left: 20px;
+    }
+
+    @media (max-width: 1100px) {
+      .grid {
+        flex-direction: column;
+      }
+
+      .side-col,
+      .main-col {
+        width: 100%;
+        min-width: 0;
+      }
+
+      .map-shell,
+      #mapSvg {
+        min-height: 480px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 8px;
+      }
+
+      .map-shell,
+      #mapSvg {
+        min-height: 360px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div>
+        <h1>All NPC brains – live map test</h1>
+        <small>50×50 generated world · all active NPCs · real NPCBrain behavior</small>
+      </div>
+
+      <div class="controls">
+        <div class="control">
+          <label for="seedInput">Seed</label>
+          <input id="seedInput" type="number" step="1" />
+        </div>
+        <button id="randomSeedBtn" type="button">random seed</button>
+        <button id="regenerateBtn" type="button">regenerate</button>
+      </div>
+    </div>
+
+    <div id="errorBox" class="card error" hidden></div>
+
+    <div class="card">
+      <div class="status-line">
+        <span id="clock" class="clock">—</span>
+        <span id="dayInfo" class="pill">—</span>
+        <span id="weatherInfo" class="pill">—</span>
+        <span id="mapInfo" class="pill">—</span>
+        <span id="npcCount" class="pill">—</span>
+      </div>
+
+      <div class="speed-row">
+        <button id="playPauseBtn" type="button">pause</button>
+        <button id="stepMinuteBtn" type="button">+1 min</button>
+        <button id="stepHourBtn" type="button">+1 hour</button>
+        <label for="speedSlider">Time speed: <strong id="speedLabel">15 min/s</strong></label>
+        <input id="speedSlider" type="range" min="0" max="6" step="1" value="2" />
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="main-col">
+        <div class="card">
+          <h2>World map</h2>
+          <div class="map-shell">
+            <svg id="mapSvg" viewBox="0 0 900 900" role="img"
+              aria-label="Generated world map showing all NPC positions, routes, homes, and current targets"></svg>
+          </div>
+          <div id="npcLegend" class="legend"></div>
+          <p class="muted">
+            Solid circle = NPC · dashed ring = current target · faint square = home · dashed line = current route.
+            Click an NPC marker or table row to highlight it.
+          </p>
+        </div>
+
+        <div class="card">
+          <h2>All NPCs now</h2>
+          <div class="npc-table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>NPC</th>
+                  <th>Where</th>
+                  <th>Goal</th>
+                  <th>Action</th>
+                  <th>Target</th>
+                  <th>Next decision / end</th>
+                </tr>
+              </thead>
+              <tbody id="npcBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="status-line" style="justify-content:space-between">
+            <h2 style="margin:0">Combined goal / action history</h2>
+            <button id="clearHistoryBtn" type="button">clear history</button>
+          </div>
+          <p class="muted">
+            A row is recorded whenever any NPC changes goal or action. Movement between route nodes does not create
+            extra rows.
+          </p>
+          <div class="history-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>NPC</th>
+                  <th>Goal</th>
+                  <th>Action</th>
+                  <th>Where</th>
+                  <th>Target / end</th>
+                </tr>
+              </thead>
+              <tbody id="historyBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="side-col">
+        <div class="card">
+          <h2>Selected NPC</h2>
+          <div id="selectedNpc" class="muted">Click an NPC marker or row.</div>
+        </div>
+
+        <div class="card">
+          <h2>Selected map location</h2>
+          <div id="selectedLocation" class="muted">Click a map node.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { Game } from "../../src/classes/game/game.js";
+    import { World } from "../../src/classes/world/world.js";
+    import { NPC_REGISTRY } from "../../src/data/npc/npcs.js";
+    import { makeRNG } from "../../src/shared/util/random.js";
+
+    const $ = (id) => document.getElementById(id);
+    const SVG_NS = "http://www.w3.org/2000/svg";
+
+    // Monday morning so several workday routines become visible quickly.
+    const START_DATE = new Date("2026-08-17T07:00:00.000Z");
+    const MAP_WIDTH = 50;
+    const MAP_HEIGHT = 50;
+    const SPEEDS = [0, 1, 5, 15, 60, 240, 720];
+
+    const NPC_COLORS = [
+      "#4b84ff",
+      "#ef6b73",
+      "#55c98a",
+      "#f2b84b",
+      "#a88bff",
+      "#55c7d9",
+      "#e88ed0",
+      "#c7d36f",
+    ];
+
+    let game = null;
+    let npcs = [];
+    let running = true;
+    let minuteAccumulator = 0;
+    let previousFrameTime = performance.now();
+    let selectedLocationId = null;
+    let selectedNpcId = null;
+    let lastHistorySignatures = new Map();
+    let historyEntries = [];
+
+    const npcColors = new Map();
+    const mapState = {
+      positions: new Map(),
+      nodeEls: new Map(),
+      visuals: new Map(),
+    };
+
+    function randomSeed() {
+      if (globalThis.crypto?.getRandomValues) {
+        const a = new Uint32Array(1);
+        crypto.getRandomValues(a);
+        return a[0] >>> 0;
+      }
+      return Date.now() >>> 0;
+    }
+
+    function asDate(value) {
+      if (!value) return null;
+      if (value instanceof Date) return value;
+      const d = new Date(value);
+      return Number.isFinite(d.getTime()) ? d : null;
+    }
+
+    function fmtDate(value) {
+      const d = asDate(value);
+      if (!d) return "—";
+      return new Intl.DateTimeFormat("en-GB", {
+        weekday: "short",
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+        timeZone: "UTC",
+      }).format(d) + " UTC";
+    }
+
+    function fmtTime(value) {
+      const d = asDate(value);
+      if (!d) return "—";
+      return String(d.getUTCHours()).padStart(2, "0") + ":" +
+        String(d.getUTCMinutes()).padStart(2, "0");
+    }
+
+    function esc(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function shortName(npc) {
+      return npc?.meta?.shortName || npc?.name || npc?.id || "NPC";
+    }
+
+    function registryKey(npc) {
+      return npc?.meta?.registryKey || npc?.id || npc?.name || "npc";
+    }
+
+    function colorFor(npc) {
+      return npcColors.get(String(npc.id)) || "#ffffff";
+    }
+
+    function locationName(id) {
+      if (!game || id == null) return "—";
+      return game.world.getLocation(String(id))?.name || `Location ${id}`;
+    }
+
+    function placeAt(locationId, placeId) {
+      if (!game || placeId == null) return null;
+      const loc = game.world.getLocation(String(locationId));
+      return (loc?.places || []).find((p) => String(p.id) === String(placeId)) || null;
+    }
+
+    function placeName(locationId, placeId) {
+      if (placeId == null) return null;
+      return placeAt(locationId, placeId)?.name || String(placeId);
+    }
+
+    function currentWhere(npc) {
+      const loc = locationName(npc.locationId);
+      const place = placeName(npc.locationId, npc.currentPlaceId);
+      if (place) return `${place} · ${loc}`;
+      if (npc.brain?.currentAction?.type === "travel") return `${loc} · travelling`;
+      return loc;
+    }
+
+    function goalTargetLabel(goal) {
+      if (!goal) return "—";
+      const loc = locationName(goal.targetLocationId);
+      const place = placeName(goal.targetLocationId, goal.targetPlaceId);
+      return place ? `${place} · ${loc}` : loc;
+    }
+
+    function actionEndLabel(npc) {
+      const action = npc.brain?.currentAction;
+      if (!action) return "—";
+
+      if (action.type === "travel") {
+        const dest = placeName(action.targetLocationId, action.targetPlaceId) ||
+          locationName(action.targetLocationId);
+        return `${dest} @ ${fmtTime(action.arrivalAt)}`;
+      }
+
+      if (action.type === "stay") {
+        return `until ${fmtTime(action.until)}`;
+      }
+
+      return npc.brain?.nextDecisionAt ? `wake ${fmtTime(npc.brain.nextDecisionAt)}` : "—";
+    }
+
+    function createTestGame(seed) {
+      // Game does not currently expose map width/height, so use its real NPC
+      // creation/home-placement code against a replacement 50x50 World.
+      const g = new Game({
+        seed,
+        startDate: START_DATE,
+        npcTemplates: [],
+        scenes: [],
+        autoStartScenes: false,
+      });
+
+      g.seed = seed >>> 0;
+      g.rnd = makeRNG(g.seed);
+      g.world = new World({
+        rnd: g.rnd,
+        startDate: START_DATE,
+        density: 0,
+        w: MAP_WIDTH,
+        h: MAP_HEIGHT,
+      });
+
+      g.npcs = new Map();
+      g.log = [];
+      g.currentScene = null;
+      g.sceneManager = null;
+
+      g._createNPCs(NPC_REGISTRY);
+      g._initializeNPCBrains();
+
+      const all = [...g.npcs.values()];
+      if (!all.length) throw new Error("NPC_REGISTRY produced no NPCs");
+      const noBrain = all.filter((npc) => !npc.brain);
+      if (noBrain.length) {
+        throw new Error(
+          `Active NPCs without behavior/NPCBrain: ${noBrain.map((npc) => registryKey(npc)).join(", ")}`
+        );
+      }
+
+      return { game: g, npcs: all };
+    }
+
+    function svgEl(tag, attrs = {}) {
+      const el = document.createElementNS(SVG_NS, tag);
+      for (const [key, value] of Object.entries(attrs)) {
+        el.setAttribute(key, String(value));
+      }
+      return el;
+    }
+
+    function mapProjection() {
+      const ids = [...game.world.locations.keys()];
+      let minX = Infinity;
+      let minY = Infinity;
+      let maxX = -Infinity;
+      let maxY = -Infinity;
+
+      for (const id of ids) {
+        const loc = game.world.getLocation(id);
+        const x = Number(loc?.x) || 0;
+        const y = Number(loc?.y) || 0;
+        minX = Math.min(minX, x);
+        maxX = Math.max(maxX, x);
+        minY = Math.min(minY, y);
+        maxY = Math.max(maxY, y);
+      }
+
+      if (minX === maxX) { minX -= 1; maxX += 1; }
+      if (minY === maxY) { minY -= 1; maxY += 1; }
+
+      const size = 900;
+      const margin = 38;
+      const inner = size - margin * 2;
+      const scale = Math.min(inner / (maxX - minX), inner / (maxY - minY));
+      const usedW = (maxX - minX) * scale;
+      const usedH = (maxY - minY) * scale;
+      const ox = margin + (inner - usedW) / 2;
+      const oy = margin + (inner - usedH) / 2;
+
+      return (loc) => ({
+        x: ox + ((Number(loc?.x) || 0) - minX) * scale,
+        y: oy + ((Number(loc?.y) || 0) - minY) * scale,
+      });
+    }
+
+    function renderStaticMap() {
+      const svg = $("mapSvg");
+      svg.innerHTML = "";
+      mapState.positions.clear();
+      mapState.nodeEls.clear();
+      mapState.visuals.clear();
+
+      const project = mapProjection();
+      for (const [id, loc] of game.world.locations) {
+        mapState.positions.set(String(id), project(loc));
+      }
+
+      const edgeGroup = svgEl("g");
+      const seen = new Set();
+
+      for (const [aId, loc] of game.world.locations) {
+        for (const [bId] of loc.neighbors) {
+          const edgeKey = [String(aId), String(bId)].sort().join("::");
+          if (seen.has(edgeKey)) continue;
+          seen.add(edgeKey);
+
+          const a = mapState.positions.get(String(aId));
+          const b = mapState.positions.get(String(bId));
+          if (!a || !b) continue;
+
+          edgeGroup.appendChild(svgEl("line", {
+            x1: a.x,
+            y1: a.y,
+            x2: b.x,
+            y2: b.y,
+            class: "street",
+          }));
+        }
+      }
+      svg.appendChild(edgeGroup);
+
+      const routeGroup = svgEl("g");
+      for (const npc of npcs) {
+        const color = colorFor(npc);
+        const routeEl = svgEl("polyline", {
+          class: "npc-route",
+          stroke: color,
+        });
+        routeGroup.appendChild(routeEl);
+
+        const homeEl = svgEl("rect", {
+          class: "npc-home",
+          stroke: color,
+          width: 13,
+          height: 13,
+          rx: 2,
+        });
+        routeGroup.appendChild(homeEl);
+
+        const targetEl = svgEl("circle", {
+          class: "npc-target",
+          stroke: color,
+          r: 11,
+        });
+        routeGroup.appendChild(targetEl);
+
+        mapState.visuals.set(String(npc.id), { routeEl, homeEl, targetEl });
+      }
+      svg.appendChild(routeGroup);
+
+      const nodeGroup = svgEl("g");
+      const labelGroup = svgEl("g");
+
+      for (const [id, loc] of game.world.locations) {
+        const p = mapState.positions.get(String(id));
+        if (!p) continue;
+
+        const node = svgEl("circle", {
+          cx: p.x,
+          cy: p.y,
+          r: 4.7,
+          class: "node",
+          "data-location-id": String(id),
+        });
+
+        const title = svgEl("title");
+        title.textContent = `${loc.name} (${id})`;
+        node.appendChild(title);
+        node.addEventListener("click", () => selectLocation(id));
+        nodeGroup.appendChild(node);
+        mapState.nodeEls.set(String(id), node);
+
+        const label = svgEl("text", {
+          x: p.x + 6,
+          y: p.y - 5,
+          class: "map-label",
+        });
+        label.textContent = loc.name;
+        labelGroup.appendChild(label);
+      }
+
+      svg.appendChild(nodeGroup);
+      svg.appendChild(labelGroup);
+
+      const markerGroup = svgEl("g");
+      for (const npc of npcs) {
+        const color = colorFor(npc);
+        const markerEl = svgEl("circle", {
+          r: 7.5,
+          class: "npc-marker",
+          fill: color,
+          tabindex: "0",
+          role: "button",
+          "aria-label": `Select ${shortName(npc)}`,
+        });
+
+        const title = svgEl("title");
+        title.textContent = shortName(npc);
+        markerEl.appendChild(title);
+
+        const select = () => selectNpc(npc.id);
+        markerEl.addEventListener("click", select);
+        markerEl.addEventListener("keydown", (event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            select();
+          }
+        });
+
+        const labelEl = svgEl("text", {
+          class: "npc-label",
+        });
+        labelEl.textContent = shortName(npc);
+
+        markerGroup.appendChild(markerEl);
+        markerGroup.appendChild(labelEl);
+
+        Object.assign(mapState.visuals.get(String(npc.id)), { markerEl, labelEl });
+      }
+
+      svg.appendChild(markerGroup);
+      $("mapInfo").textContent =
+        `${game.world.locations.size} locations · ${seen.size} streets · ${MAP_WIDTH}×${MAP_HEIGHT}`;
+    }
+
+    function markerOffsets() {
+      const byLocation = new Map();
+
+      for (const npc of npcs) {
+        const key = String(npc.locationId);
+        if (!byLocation.has(key)) byLocation.set(key, []);
+        byLocation.get(key).push(npc);
+      }
+
+      const result = new Map();
+      for (const group of byLocation.values()) {
+        group.sort((a, b) => String(a.id).localeCompare(String(b.id)));
+        if (group.length === 1) {
+          result.set(String(group[0].id), { x: 0, y: 0 });
+          continue;
+        }
+
+        const radius = Math.min(13, 6 + group.length);
+        group.forEach((npc, index) => {
+          const angle = -Math.PI / 2 + (index / group.length) * Math.PI * 2;
+          result.set(String(npc.id), {
+            x: Math.cos(angle) * radius,
+            y: Math.sin(angle) * radius,
+          });
+        });
+      }
+
+      return result;
+    }
+
+    function updateDynamicMap() {
+      const offsets = markerOffsets();
+
+      for (const npc of npcs) {
+        const visual = mapState.visuals.get(String(npc.id));
+        if (!visual) continue;
+
+        const current = mapState.positions.get(String(npc.locationId));
+        const offset = offsets.get(String(npc.id)) || { x: 0, y: 0 };
+
+        if (current) {
+          const x = current.x + offset.x;
+          const y = current.y + offset.y;
+          visual.markerEl.setAttribute("cx", x);
+          visual.markerEl.setAttribute("cy", y);
+          visual.labelEl.setAttribute("x", x + 9);
+          visual.labelEl.setAttribute("y", y - 8);
+          visual.markerEl.removeAttribute("display");
+          visual.labelEl.removeAttribute("display");
+        } else {
+          visual.markerEl.setAttribute("display", "none");
+          visual.labelEl.setAttribute("display", "none");
+        }
+
+        const home = mapState.positions.get(String(npc.homeLocationId));
+        if (home) {
+          visual.homeEl.setAttribute("x", home.x - 6.5);
+          visual.homeEl.setAttribute("y", home.y - 6.5);
+          visual.homeEl.removeAttribute("display");
+        } else {
+          visual.homeEl.setAttribute("display", "none");
+        }
+
+        const goal = npc.brain?.currentGoal;
+        const target = goal
+          ? mapState.positions.get(String(goal.targetLocationId))
+          : null;
+
+        if (target) {
+          visual.targetEl.setAttribute("cx", target.x);
+          visual.targetEl.setAttribute("cy", target.y);
+          visual.targetEl.removeAttribute("display");
+        } else {
+          visual.targetEl.setAttribute("display", "none");
+        }
+
+        const route = npc.brain?.currentAction?.route?.locations || [];
+        const points = route
+          .map((id) => mapState.positions.get(String(id)))
+          .filter(Boolean)
+          .map((p) => `${p.x},${p.y}`)
+          .join(" ");
+
+        visual.routeEl.setAttribute("points", points);
+        visual.routeEl.style.display = points ? "" : "none";
+
+        const selected = String(npc.id) === String(selectedNpcId);
+        visual.markerEl.classList.toggle("selected", selected);
+        visual.routeEl.classList.toggle("selected", selected);
+      }
+    }
+
+    function renderLegend() {
+      const legend = $("npcLegend");
+      legend.innerHTML = "";
+
+      for (const npc of npcs) {
+        const item = document.createElement("span");
+        item.className = "legend-item";
+
+        const dot = document.createElement("i");
+        dot.className = "legend-dot";
+        dot.style.background = colorFor(npc);
+
+        const text = document.createElement("span");
+        text.textContent = shortName(npc);
+
+        item.append(dot, text);
+        legend.appendChild(item);
+      }
+    }
+
+    function selectLocation(id) {
+      selectedLocationId = String(id);
+
+      for (const [nodeId, el] of mapState.nodeEls) {
+        el.classList.toggle("selected", nodeId === selectedLocationId);
+      }
+
+      const loc = game.world.getLocation(selectedLocationId);
+      if (!loc) return;
+
+      const present = npcs.filter((npc) => String(npc.locationId) === selectedLocationId);
+      const peopleHtml = present.length
+        ? `<p><strong>NPCs here:</strong> ${present.map((npc) => esc(shortName(npc))).join(", ")}</p>`
+        : `<p class="muted">No NPCs currently in this location.</p>`;
+
+      const placesHtml = (loc.places || []).map((place) => {
+        const open = typeof place.isOpen === "function" ? place.isOpen(game.now) : null;
+        const state = open === null ? "" : open ? "open" : "closed";
+        return `<li><strong>${esc(place.name)}</strong> <code>${esc(place.key)}</code>${state ? ` · ${state}` : ""}</li>`;
+      }).join("");
+
+      $("selectedLocation").innerHTML = `
+        <div><strong>${esc(loc.name)}</strong></div>
+        <p class="muted">id <code>${esc(loc.id)}</code> · ${esc((loc.tags || []).join(", ") || "no tags")}</p>
+        ${peopleHtml}
+        <h3>Places at current simulation time</h3>
+        ${placesHtml ? `<ul>${placesHtml}</ul>` : `<p class="muted">No places.</p>`}
+      `;
+    }
+
+    function selectNpc(id) {
+      selectedNpcId = String(id);
+      updateNpcTable();
+      updateSelectedNpc();
+      updateDynamicMap();
+    }
+
+    function updateSelectedNpc() {
+      const npc = npcs.find((candidate) => String(candidate.id) === String(selectedNpcId));
+      if (!npc) {
+        $("selectedNpc").className = "muted";
+        $("selectedNpc").textContent = "Click an NPC marker or row.";
+        return;
+      }
+
+      const brain = npc.brain;
+      const goal = brain?.currentGoal;
+      const action = brain?.currentAction;
+      const route = action?.route?.locations || [];
+      const routeIndex = Number(action?.route?.currentLegIndex) || 0;
+      const routeText = route.length
+        ? `${routeIndex + 1}/${route.length} · ${route.map(locationName).join(" → ")}`
+        : "—";
+
+      $("selectedNpc").className = "";
+      $("selectedNpc").innerHTML = `
+        <div class="npc-name">
+          <i class="npc-swatch" style="background:${esc(colorFor(npc))}"></i>
+          ${esc(shortName(npc))}
+        </div>
+        <p class="muted"><code>${esc(registryKey(npc))}</code></p>
+        <div class="detail-grid">
+          <div class="k">where</div><div class="v">${esc(currentWhere(npc))}</div>
+          <div class="k">home</div><div class="v">${esc(placeName(npc.homeLocationId, npc.homePlaceId) || locationName(npc.homeLocationId))}</div>
+          <div class="k">goal</div><div class="v">${esc(goal ? `${goal.ruleId} (${goal.type})` : "none")}</div>
+          <div class="k">target</div><div class="v">${esc(goalTargetLabel(goal))}</div>
+          <div class="k">action</div><div class="v">${esc(action?.type || "none")}</div>
+          <div class="k">action end</div><div class="v">${esc(actionEndLabel(npc))}</div>
+          <div class="k">nextDecisionAt</div><div class="v">${esc(fmtDate(brain?.nextDecisionAt))}</div>
+          <div class="k">route</div><div class="v">${esc(routeText)}</div>
+        </div>
+      `;
+    }
+
+    function actionSignature(npc) {
+      const brain = npc.brain;
+      const goal = brain?.currentGoal;
+      const action = brain?.currentAction;
+
+      return JSON.stringify({
+        goal: goal
+          ? [goal.ruleId, goal.startedAt, goal.targetLocationId, goal.targetPlaceId]
+          : null,
+        action: action
+          ? [
+            action.type,
+            action.startedAt,
+            action.arrivalAt,
+            action.until,
+            action.targetLocationId,
+            action.targetPlaceId,
+          ]
+          : null,
+      });
+    }
+
+    function recordHistoryForNpc(npc, force = false) {
+      const id = String(npc.id);
+      const signature = actionSignature(npc);
+      if (!force && lastHistorySignatures.get(id) === signature) return false;
+      lastHistorySignatures.set(id, signature);
+
+      const goal = npc.brain?.currentGoal;
+      const action = npc.brain?.currentAction;
+
+      historyEntries.unshift({
+        time: new Date(game.now.getTime()),
+        npcId: id,
+        npcName: shortName(npc),
+        color: colorFor(npc),
+        goal: goal ? `${goal.ruleId} (${goal.type})` : "—",
+        action: action?.type || "—",
+        where: currentWhere(npc),
+        end: actionEndLabel(npc),
+      });
+
+      if (historyEntries.length > 300) historyEntries.length = 300;
+      return true;
+    }
+
+    function recordHistory(force = false) {
+      let changed = false;
+      for (const npc of npcs) {
+        changed = recordHistoryForNpc(npc, force) || changed;
+      }
+      if (changed) renderHistory();
+      return changed;
+    }
+
+    function renderHistory() {
+      const body = $("historyBody");
+      body.innerHTML = "";
+
+      for (const entry of historyEntries) {
+        const tr = document.createElement("tr");
+
+        const values = [
+          fmtDate(entry.time),
+          entry.npcName,
+          entry.goal,
+          entry.action,
+          entry.where,
+          entry.end,
+        ];
+
+        values.forEach((value, index) => {
+          const td = document.createElement("td");
+          if (index === 1) {
+            const span = document.createElement("span");
+            span.className = "npc-name";
+
+            const dot = document.createElement("i");
+            dot.className = "npc-swatch";
+            dot.style.background = entry.color;
+
+            const text = document.createElement("span");
+            text.textContent = value;
+
+            span.append(dot, text);
+            td.appendChild(span);
+          } else if (index === 3) {
+            const span = document.createElement("span");
+            span.className = `action ${value}`;
+            span.textContent = value;
+            td.appendChild(span);
+          } else {
+            td.textContent = value;
+          }
+          tr.appendChild(td);
+        });
+
+        body.appendChild(tr);
+      }
+    }
+
+    function updateNpcTable() {
+      const body = $("npcBody");
+      body.innerHTML = "";
+
+      for (const npc of npcs) {
+        const brain = npc.brain;
+        const goal = brain?.currentGoal;
+        const action = brain?.currentAction;
+
+        const tr = document.createElement("tr");
+        tr.className = "npc-row";
+        if (String(npc.id) === String(selectedNpcId)) tr.classList.add("selected");
+        tr.tabIndex = 0;
+
+        const nameTd = document.createElement("td");
+        const nameSpan = document.createElement("span");
+        nameSpan.className = "npc-name";
+
+        const dot = document.createElement("i");
+        dot.className = "npc-swatch";
+        dot.style.background = colorFor(npc);
+
+        const nameText = document.createElement("span");
+        nameText.textContent = shortName(npc);
+
+        nameSpan.append(dot, nameText);
+        nameTd.appendChild(nameSpan);
+
+        const whereTd = document.createElement("td");
+        whereTd.textContent = currentWhere(npc);
+
+        const goalTd = document.createElement("td");
+        goalTd.textContent = goal ? `${goal.ruleId} (${goal.type})` : "—";
+
+        const actionTd = document.createElement("td");
+        const actionSpan = document.createElement("span");
+        actionSpan.className = `action ${action?.type || "idle"}`;
+        actionSpan.textContent = action?.type || "—";
+        actionTd.appendChild(actionSpan);
+
+        const targetTd = document.createElement("td");
+        targetTd.textContent = goalTargetLabel(goal);
+
+        const nextTd = document.createElement("td");
+        nextTd.textContent = actionEndLabel(npc);
+
+        tr.append(nameTd, whereTd, goalTd, actionTd, targetTd, nextTd);
+
+        const select = () => selectNpc(npc.id);
+        tr.addEventListener("click", select);
+        tr.addEventListener("keydown", (event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            select();
+          }
+        });
+
+        body.appendChild(tr);
+      }
+    }
+
+    function updateStatus() {
+      if (!game) return;
+
+      $("clock").textContent = fmtDate(game.now);
+      const day = game.world.getDayInfo(game.now);
+      $("dayInfo").textContent = day?.kind || "day";
+      $("weatherInfo").textContent =
+        `${game.world.currentWeather} · ${Number(game.world.temperature).toFixed(1)}°C`;
+      $("npcCount").textContent = `${npcs.length} NPCs`;
+
+      updateNpcTable();
+      updateSelectedNpc();
+      updateDynamicMap();
+
+      if (selectedLocationId != null) selectLocation(selectedLocationId);
+    }
+
+    function advanceOneMinute() {
+      game.advanceMinutes(1);
+      recordHistory(false);
+    }
+
+    function advanceMinutes(minutes) {
+      const count = Math.max(
+        0,
+        Math.min(24 * 60 * 14, Math.floor(Number(minutes) || 0))
+      );
+
+      for (let i = 0; i < count; i++) advanceOneMinute();
+      updateStatus();
+    }
+
+    function speedValue() {
+      const index = Math.max(
+        0,
+        Math.min(SPEEDS.length - 1, Number($("speedSlider").value) || 0)
+      );
+      return SPEEDS[index];
+    }
+
+    function updateSpeedUI() {
+      const speed = speedValue();
+      $("speedLabel").textContent = speed === 0 ? "paused" : `${speed} game min/s`;
+      if (speed === 0) running = false;
+      $("playPauseBtn").textContent = running ? "pause" : "play";
+    }
+
+    function regenerate() {
+      try {
+        $("errorBox").hidden = true;
+
+        const raw = Number($("seedInput").value);
+        const seed = Number.isFinite(raw) ? raw >>> 0 : randomSeed();
+        $("seedInput").value = String(seed);
+
+        const built = createTestGame(seed);
+        game = built.game;
+        npcs = built.npcs;
+
+        npcColors.clear();
+        npcs.forEach((npc, index) => {
+          npcColors.set(String(npc.id), NPC_COLORS[index % NPC_COLORS.length]);
+        });
+
+        minuteAccumulator = 0;
+        lastHistorySignatures = new Map();
+        historyEntries = [];
+        selectedLocationId = null;
+        selectedNpcId = npcs[0] ? String(npcs[0].id) : null;
+
+        $("selectedLocation").className = "muted";
+        $("selectedLocation").textContent = "Click a map node.";
+
+        renderStaticMap();
+        renderLegend();
+        recordHistory(true);
+        updateStatus();
+      } catch (err) {
+        console.error(err);
+        $("errorBox").textContent = err?.stack || String(err);
+        $("errorBox").hidden = false;
+        running = false;
+        updateSpeedUI();
+      }
+    }
+
+    function frame(now) {
+      const dtSeconds = Math.min(
+        0.25,
+        Math.max(0, (now - previousFrameTime) / 1000)
+      );
+      previousFrameTime = now;
+
+      if (running && game) {
+        const speed = speedValue();
+        minuteAccumulator += speed * dtSeconds;
+        const wholeMinutes = Math.floor(minuteAccumulator);
+
+        if (wholeMinutes > 0) {
+          minuteAccumulator -= wholeMinutes;
+          advanceMinutes(wholeMinutes);
+        }
+      }
+
+      requestAnimationFrame(frame);
+    }
+
+    $("seedInput").value = String(randomSeed());
+
+    $("randomSeedBtn").addEventListener("click", () => {
+      $("seedInput").value = String(randomSeed());
+    });
+
+    $("regenerateBtn").addEventListener("click", regenerate);
+
+    $("playPauseBtn").addEventListener("click", () => {
+      running = !running;
+      if (running && speedValue() === 0) $("speedSlider").value = "2";
+      updateSpeedUI();
+    });
+
+    $("stepMinuteBtn").addEventListener("click", () => {
+      running = false;
+      updateSpeedUI();
+      advanceMinutes(1);
+    });
+
+    $("stepHourBtn").addEventListener("click", () => {
+      running = false;
+      updateSpeedUI();
+      advanceMinutes(60);
+    });
+
+    $("speedSlider").addEventListener("input", () => {
+      running = speedValue() > 0;
+      updateSpeedUI();
+    });
+
+    $("clearHistoryBtn").addEventListener("click", () => {
+      historyEntries = [];
+      lastHistorySignatures = new Map();
+      recordHistory(true);
+    });
+
+    regenerate();
+    updateSpeedUI();
+    requestAnimationFrame(frame);
+  </script>
+</body>
+
+</html>

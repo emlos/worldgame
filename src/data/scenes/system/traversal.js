@@ -9,7 +9,8 @@
  */
 
 import { TIME_OF_DAY } from "../util/common.js";
-import { WeatherType, LOCATION_TAGS } from "../../data.js";
+import { WeatherType } from "../../world/weather.js";
+import { LOCATION_TAGS } from "../../world/location.js";
 
 export const SCENES = [
     {

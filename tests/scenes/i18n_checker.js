@@ -922,7 +922,7 @@ async function init(forceReload = false) {
         $("#tab-overview").innerHTML = `
             <div class="card">
                 <h2>No STRINGS_* dictionaries found</h2>
-                <div class="small muted">This tool expects <code>src/data/data.js</code> to export STRINGS_* onto <code>window</code> when <code>debug=true</code>.</div>
+                <div class="small muted">This tool expects <code>src/debug.js</code> to expose STRINGS_* on <code>window</code> when <code>debug=true</code>.</div>
             </div>
         `;
         return;

@@ -1,11 +1,11 @@
+import { DAY_KEYS } from "../../../data/world/time.js";
 import {
-    DAY_KEYS,
     emptySchedule,
     DEFAULT_OPENING_HOURS_BY_CATEGORY,
     DEFAULT_OPENING_HOURS_BY_KEY,
     DEFAULT_OPENING_HOURS,
-} from "../../../data/data.js";
-import { parseTimeToMinutes } from "../../../shared/modules.js";
+} from "../../../data/world/place.js";
+import { parseTimeToMinutes } from "../../../shared/util/date.js";
 
 const parseTimeOrNull = (str) => parseTimeToMinutes(str, { nullOnEmpty: true });
 
