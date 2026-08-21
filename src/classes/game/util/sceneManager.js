@@ -1117,15 +1117,6 @@ export class SceneManager {
             if (notHolidays.some((h) => names.has(String(h).toLowerCase()))) return false;
         }
 
-        // NPCs present in current location
-        const requiredNPCs = normalizeStringSet(cond.npcsPresent || cond.npcPresent);
-        if (requiredNPCs.length) {
-            const here = new Set(this.game.getNPCsAtLocation().map((n) => String(n.id)));
-            for (const id of requiredNPCs) {
-                if (!here.has(id)) return false;
-            }
-        }
-
         // Hour gate (world time)
         const hourGate = cond.hour ?? cond.hours ?? cond.hourOfDay;
         if (hourGate != null) {
@@ -1205,11 +1196,6 @@ export class SceneManager {
         const anyEdge = loc?.neighbors?.size ? loc.neighbors.values().next().value : null;
         const streetName = anyEdge?.streetName || "Street";
 
-        const npcsHere = this.game.getNPCsAtLocation().map((n) => ({
-            id: String(n.id),
-            name: n.name,
-        }));
-
         // Precompute player stats (useful both for UI text and for i18n interpolation).
         const playerStats = {};
         const p = this.game.player;
@@ -1242,7 +1228,6 @@ export class SceneManager {
             player: {
                 stats: playerStats,
             },
-            npcsHere,
         };
     }
 }

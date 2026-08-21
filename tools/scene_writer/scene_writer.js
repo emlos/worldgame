@@ -91,13 +91,6 @@ const CONDITION_DEFS = [
         hint: "All listed flags must be set.",
     },
     {
-        key: "npcsPresent",
-        label: "NPCs present",
-        kind: "npcRegistryList",
-        hint: "All listed NPC ids must be present.",
-    },
-
-    {
         key: "locationIds",
         label: "Location ids",
         kind: "locationRegistryList",

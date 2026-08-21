@@ -580,8 +580,8 @@
                             <td><code>key</code></td>
                             <td><span class="pill req">required</span></td>
                             <td>
-                                Unique place type key (string). The generator and schedulers use
-                                this key heavily.
+                                Unique place type key (string). The generator uses this key
+                                heavily.
                                 <span class="pill bad">Don’t use <code>id</code> instead</span> —
                                 map generation reads <code>key</code>.
                             </td>
@@ -718,14 +718,6 @@
                     </li>
                 </ul>
 
-                <h3>Bus travel in NPC movement</h3>
-                <p>
-                    NPC bus travel looks for the nearest place whose <code>place.key</code> is
-                    either <code>"bus_stop"</code> or <code>"bus_station"</code>. If you add a new
-                    bus-station-like place, ensure it uses one of those keys <em>or</em> update the
-                    lookup logic.
-                </p>
-
                 <h3>Bus stop props that matter</h3>
                 <ul>
                     <li>
@@ -781,20 +773,18 @@
                             <td><code>openingHours</code></td>
                             <td>schedule object</td>
                             <td>
-                                Weekly schedule used by <code>Place.isOpen(atTime)</code> and by NPC
-                                scheduling when rules have <code>respectOpeningHours</code>. If
-                                omitted, opening hours are inferred (by key first, then by category,
-                                otherwise 24/7).
+                                Weekly schedule used by <code>Place.isOpen(atTime)</code>. If omitted,
+                                opening hours are inferred (by key first, then by category, otherwise
+                                24/7).
                             </td>
                         </tr>
                         <tr>
                             <td><code>ages</code></td>
                             <td><code>{min?: number, max?: number}</code></td>
                             <td>
-                                Age gate used by the NPC scheduler when
-                                <code>respectAgeRestriction</code> is true/absent on a rule. If the
-                                NPC’s age is below <code>min</code> or above <code>max</code>, the
-                                place is excluded unless the rule opts out.
+                                Age metadata available to gameplay systems. If an actor’s age is
+                                below <code>min</code> or above <code>max</code>, the place may be
+                                excluded by the relevant gameplay rule.
                             </td>
                         </tr>
                         <tr>

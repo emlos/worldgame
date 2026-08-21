@@ -28,7 +28,6 @@ export const SCENES = [
             "scene.home.default.text",
             { when: { hour: TIME_OF_DAY.morning }, key: "scene.home.default.morning" },
             { when: { hour: TIME_OF_DAY.evening }, key: "scene.home.default.evening" },
-            { when: { npcsPresent: ["taylor"] }, key: "scene.home.default.taylorPresent" },
             {
                 when: { playerFlags: ["waitingForPackage"] },
                 key: "scene.home.default.waitingForPackage",

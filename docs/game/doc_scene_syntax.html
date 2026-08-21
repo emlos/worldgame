@@ -797,11 +797,6 @@ when: [
                         <td><code>{ holidays: ["New Year's Day"] }</code></td>
                     </tr>
                     <tr>
-                        <td><code>npcsPresent</code> / <code>npcPresent</code></td>
-                        <td>Require <em>all</em> listed NPC ids to be at the current location.</td>
-                        <td><code>{ npcsPresent: ["taylor"] }</code></td>
-                    </tr>
-                    <tr>
                         <td><code>hour</code> / <code>hours</code> / <code>hourOfDay</code></td>
                         <td>Hour gate (UTC, 0–23). Supports several forms (see below).</td>
                         <td><code>{ hour: { between: [22, 5] } }</code></td>
@@ -978,11 +973,7 @@ when: {
   },
   player: {
     stats: { /* precomputed numeric stats */ }
-  },
-  npcsHere: [
-    { id, name },
-    ...
-  ],
+    }
 }</code></pre>
 
             <h3>Choice label vars</h3>

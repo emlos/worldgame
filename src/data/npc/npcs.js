@@ -10,7 +10,7 @@ import {
 } from "../data.js";
 
 // Basic templates the game can turn into NPC instances
-// Each NPC gets a scheduleTemplate that the ScheduleManager uses to generate daily schedules
+// NPC templates retain future-facing behavior and world-placement data.
 export const NPC_REGISTRY = [
     {
         example: true, // not a real NPC, just an example
