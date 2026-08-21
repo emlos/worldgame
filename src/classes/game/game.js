@@ -251,31 +251,128 @@ export class Game {
     // --------------------------
     toJSON() {
         return {
+            saveVersion: 2,
             seed: this.seed,
+            rngState: typeof this.rnd?.getState === "function" ? this.rnd.getState() : null,
             time: this.now.toISOString(),
-            player: this.player, // Player is already a pure data class
-            npcs: this.npcsArray, // NPCs as plain objects
+            world: this.world.toJSON(),
+            player: this.player.toJSON(),
+            npcs: this.npcsArray.map((npc) => npc.toJSON()),
+            homeLocationId: this.homeLocationId,
+            homePlaceId: this.homePlaceId,
             currentLocationId: this.currentLocationId,
             currentPlaceId: this.currentPlaceId,
             currentPlaceKey: this.currentPlaceKey,
             flags: [...this.flags],
-            log: this.log,
+            log: this.log.map((entry) => ({ ...entry })),
+            sceneManager: this.sceneManager?.toJSON?.() ?? null,
+            scheduleManager: this.scheduleManager?.toJSON?.() ?? null,
         };
     }
 
-    static fromJSON(data) {
+    static fromJSON(
+        data,
+        {
+            strings = null,
+            scenes = SCENE_DEFS,
+            npcTemplates = NPC_REGISTRY,
+            traitResolver = null,
+        } = {}
+    ) {
+        if (!data || typeof data !== "object") {
+            throw new Error("Game.fromJSON expects a parsed save object");
+        }
+
+        const savedStartDate =
+            data?.world?.time?.date ?? data?.time ?? new Date().toISOString();
+
+        // Construct only the runtime shell. Most constructor-generated state is
+        // replaced below, and scenes remain stopped until hydration is complete.
         const game = new Game({
             seed: data.seed,
-            startDate: new Date(data.time),
-            playerOptions: data.player,
-            npcTemplates: data.npcs,
+            startDate: new Date(savedStartDate),
+            playerOptions: {},
+            npcTemplates: [],
+            strings,
+            scenes,
+            defaultSceneId: data?.sceneManager?.defaultSceneId ?? null,
+            fallbackSceneId: data?.sceneManager?.fallbackSceneId ?? null,
+            autoStartScenes: false,
         });
-        game.currentLocationId = data.currentLocationId;
+
+        if (data.world) {
+            game.world = World.fromJSON(data.world, { rnd: game.rnd });
+        }
+
+        game.player = Player.fromJSON(data.player || {}, { traitResolver });
+
+        const templates = Array.isArray(npcTemplates) ? npcTemplates : [];
+        const findTemplate = (savedNpc) => {
+            const registryKey = savedNpc?.meta?.registryKey;
+            if (registryKey != null) {
+                const byRegistryKey = templates.find(
+                    (def) => String(def?.key ?? def?.id ?? "") === String(registryKey)
+                );
+                if (byRegistryKey) return byRegistryKey;
+            }
+
+            return (
+                templates.find((def) => def?.id != null && String(def.id) === String(savedNpc?.id)) ||
+                templates.find((def) => def?.key != null && String(def.key) === String(savedNpc?.id)) ||
+                templates.find((def) => def?.name != null && String(def.name) === String(savedNpc?.name)) ||
+                null
+            );
+        };
+
+        game.npcs = new Map();
+        for (const npcData of Array.isArray(data.npcs) ? data.npcs : []) {
+            const template = findTemplate(npcData);
+            const npc = NPC.fromJSON(npcData, { template, traitResolver });
+            const id = String(npc.id || npc.name);
+            npc.id = id;
+            game.npcs.set(id, npc);
+        }
+
+        game.scheduleManager = new NPCScheduler({
+            world: game.world,
+            rnd: game.rnd,
+        });
+        if (data.scheduleManager) {
+            game.scheduleManager.restoreJSON(data.scheduleManager);
+        }
+
+        const hasOwn = (key) => Object.prototype.hasOwnProperty.call(data, key);
+        const home = game._findFirstPlaceByKey("player_home");
+        game.homeLocationId = hasOwn("homeLocationId")
+            ? data.homeLocationId
+            : home?.locationId ?? null;
+        game.homePlaceId = hasOwn("homePlaceId") ? data.homePlaceId : home?.id ?? null;
+
+        game.currentLocationId = hasOwn("currentLocationId")
+            ? data.currentLocationId
+            : game.homeLocationId ?? game._pickDefaultLocationId();
         game.currentPlaceId = data.currentPlaceId ?? null;
-        game.currentPlaceKey = data.currentPlaceKey ?? null;
+        game.currentPlaceKey = hasOwn("currentPlaceKey")
+            ? data.currentPlaceKey
+            : game._getPlaceKeyById(game.currentLocationId, game.currentPlaceId);
         game.flags = new Set(Array.isArray(data.flags) ? data.flags.map(String) : []);
-        game.log = Array.isArray(data.log) ? data.log.slice() : [];
-        game.sceneManager?.update();
+        game.log = Array.isArray(data.log) ? data.log.map((entry) => ({ ...entry })) : [];
+
+        if (data.sceneManager) {
+            game.sceneManager.restoreJSON(data.sceneManager);
+        } else {
+            // Legacy saves did not store scene state. Resolve only after all
+            // other state has been restored.
+            game.sceneManager.start();
+        }
+
+        // Loading itself may have needed random values for backward-compatible
+        // fallbacks. Reset last so the next gameplay roll is exactly the roll
+        // that would have happened had the game never been unloaded.
+        if (data.rngState != null && typeof game.rnd?.setState === "function") {
+            game.rnd.setState(data.rngState);
+        }
+
         return game;
     }
 
@@ -320,6 +417,12 @@ export class Game {
             // Ensure id is always a string
             id = String(id || npc.name);
             npc.id = id;
+
+            // Keep a stable link to static registry behavior so save files can
+            // restore functions (schedule/home naming rules) without serializing code.
+            if (def && def.key != null && !npc.meta?.registryKey) {
+                npc.meta = { ...(npc.meta || {}), registryKey: String(def.key) };
+            }
 
             // Attach home + starting location
             // (legacy) preferLocationsWith -> homePreference.withPlaceCategory

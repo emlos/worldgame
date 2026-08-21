@@ -262,6 +262,103 @@ export class SceneManager {
         }
     }
 
+    toJSON() {
+        const current = this.game?.currentScene || null;
+        const presentation = current
+            ? {
+                  id: current.id,
+                  textKey: current.textKey ?? null,
+                  textKeys: Array.isArray(current.textKeys) ? current.textKeys.slice() : [],
+                  text: current.text ?? "",
+                  vars: current.vars && typeof current.vars === "object" ? current.vars : {},
+                  choices: (current.choices || []).map(({ _def, ...choice }) => ({ ...choice })),
+              }
+            : null;
+
+        return {
+            started: this._started,
+            defaultSceneId: this.defaultSceneId,
+            fallbackSceneId: this.fallbackSceneId,
+            hasShownDefaultScene: this._hasShownDefaultScene,
+            activeSceneId: this.activeSceneId,
+            presentation,
+            queue: this._queue.map((item) => ({
+                sceneId: item.sceneId,
+                priority: item.priority,
+            })),
+            textBlockPicks: [...this._textBlockPicks.entries()].map(([sceneId, picks]) => [
+                sceneId,
+                [...picks.entries()],
+            ]),
+        };
+    }
+
+    restoreJSON(data) {
+        if (!data || typeof data !== "object") return this;
+
+        this._started = !!data.started;
+        this.defaultSceneId = data.defaultSceneId != null ? String(data.defaultSceneId) : null;
+        this.fallbackSceneId = data.fallbackSceneId != null ? String(data.fallbackSceneId) : null;
+        this._hasShownDefaultScene = !!data.hasShownDefaultScene;
+
+        const active = data.activeSceneId != null ? String(data.activeSceneId) : null;
+        this.activeSceneId = active && this._sceneDefs.has(active) ? active : null;
+
+        this._queue = (Array.isArray(data.queue) ? data.queue : [])
+            .map((item) => ({
+                sceneId: String(item?.sceneId ?? ""),
+                priority: Number(item?.priority) || 0,
+            }))
+            .filter((item) => item.sceneId && this._sceneDefs.has(item.sceneId));
+        this._queue.sort((a, b) => (a.priority || 0) - (b.priority || 0));
+
+        this._textBlockPicks = new Map();
+        for (const [sceneId, entries] of data.textBlockPicks || []) {
+            const id = String(sceneId);
+            if (!this._sceneDefs.has(id)) continue;
+            this._textBlockPicks.set(
+                id,
+                new Map(Array.isArray(entries) ? entries.map(([k, v]) => [String(k), String(v)]) : [])
+            );
+        }
+
+        this._suspendUpdates = 0;
+        this._pendingUpdate = false;
+
+        // Restore the already-rendered presentation snapshot without resolving
+        // conditions or consuming RNG. Choice definitions remain in `_sceneDefs`;
+        // choose() regenerates a live presentation when the player clicks.
+        const savedPresentation = data.presentation;
+        if (
+            savedPresentation &&
+            this.activeSceneId &&
+            String(savedPresentation.id) === this.activeSceneId
+        ) {
+            this.game.currentScene = {
+                id: this.activeSceneId,
+                textKey: savedPresentation.textKey ?? null,
+                textKeys: Array.isArray(savedPresentation.textKeys)
+                    ? savedPresentation.textKeys.slice()
+                    : [],
+                text: savedPresentation.text ?? "",
+                vars:
+                    savedPresentation.vars && typeof savedPresentation.vars === "object"
+                        ? savedPresentation.vars
+                        : {},
+                choices: Array.isArray(savedPresentation.choices)
+                    ? savedPresentation.choices.map((choice) => ({ ...choice }))
+                    : [],
+            };
+        } else {
+            // Compatibility with early v2/pre-versioned saves that only stored
+            // the active scene id.
+            this.game.currentScene = this.activeSceneId
+                ? this.getPresentation(this.activeSceneId)
+                : null;
+        }
+        return this;
+    }
+
     getSceneDef(id) {
         return this._sceneDefs.get(String(id)) || null;
     }

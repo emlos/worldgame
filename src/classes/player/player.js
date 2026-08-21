@@ -6,6 +6,7 @@ import {
     PronounSets,
     adjustHexLightness,
     Clothing,
+    Trait,
     clamp,
     deepFreeze,
     Body,
@@ -231,6 +232,89 @@ export class Player {
         if (score <= -0.33) label = Gender.M;
         else if (score >= 0.33) label = Gender.F;
         return { score, label };
+    }
+
+    // --- Save / load -------------------------------------------------------
+    toJSON() {
+        return {
+            stats: Object.fromEntries(
+                Object.entries(this.stats).map(([name, stat]) => [name, stat.toJSON()])
+            ),
+            appearance: {
+                head: this.appearance.head,
+                body: this.visualbody,
+                face: this.appearance.face,
+                hair: this.appearance.hair,
+            },
+            skinTone: this._skinTone,
+            eyeColor: this.eyeColor,
+            hairColor: this.hairColor,
+            gender: this.gender,
+            pronouns: { ...this.pronouns },
+            traits: [...this.traits.values()].map((trait) => trait.toJSON()),
+            relationships: [...this.relationships.entries()].map(([npcId, rel]) => [
+                npcId,
+                rel.toJSON(),
+            ]),
+            skills: [...this.skills.entries()].map(([name, skill]) => [name, { ...skill }]),
+            clothing: [...this.clothing.entries()].map(([slot, item]) => [slot, item.toJSON()]),
+            body: this.body?.toJSON?.() ?? null,
+        };
+    }
+
+    static fromJSON(data, { traitResolver = null } = {}) {
+        if (data instanceof Player) return data;
+
+        const appearance = data?.appearance || {};
+        const player = new Player({
+            stats: {},
+            appearance: {
+                head: appearance.head ?? "head/1.png",
+                body: appearance.body ?? "body/1.png",
+                face: appearance.face ?? "head/1.png",
+                hair: appearance.hair ?? "hair/1.png",
+            },
+            skinTone: data?.skinTone ?? "#f2d3b3",
+            eyeColor: data?.eyeColor ?? "#5b7fa6",
+            hairColor: data?.hairColor ?? "#5a3b1f",
+            gender: data?.gender ?? Gender.NB,
+            pronouns: data?.pronouns ?? PronounSets.THEY_THEM,
+            bodyTemplate: [],
+        });
+
+        player.stats = {};
+        for (const [name, statData] of Object.entries(data?.stats || {})) {
+            player.stats[name] = Stat.fromJSON(statData);
+        }
+
+        player.traits = new Map();
+        for (const traitData of data?.traits || []) {
+            const trait = Trait.fromJSON(traitData, { resolver: traitResolver });
+            if (trait?.id != null) player.traits.set(trait.id, trait);
+        }
+
+        player.relationships = new Map();
+        for (const [npcId, relData] of data?.relationships || []) {
+            player.relationships.set(String(npcId), Relationship.fromJSON(relData));
+        }
+
+        player.skills = new Map();
+        for (const [name, skill] of data?.skills || []) {
+            if (!skill || (skill.type !== "flag" && skill.type !== "meter")) continue;
+            player.skills.set(String(name), {
+                type: skill.type,
+                value: skill.type === "flag" ? !!skill.value : clamp(Number(skill.value) || 0, 0, 1),
+            });
+        }
+
+        player.clothing = new Map();
+        for (const [slot, itemData] of data?.clothing || []) {
+            const item = Clothing.fromJSON(itemData);
+            player.clothing.set(String(slot ?? item.slot), item);
+        }
+
+        player.body = data?.body ? Body.fromJSON(data.body) : new Body(HUMAN_BODY_TEMPLATE);
+        return player;
     }
 
     // --- Body / injury convenience methods ----------------------

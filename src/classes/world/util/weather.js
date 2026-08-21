@@ -66,6 +66,23 @@ export class Weather {
     return Math.round((base + noise) * 10) / 10;
   }
 
+  toJSON() {
+    return {
+      date: this._date.toISOString(),
+      state: this._state,
+      runHours: this._runHours,
+    };
+  }
+
+  static fromJSON(data, { rnd = Math.random } = {}) {
+    const weather = Object.create(Weather.prototype);
+    weather._rnd = rnd || Math.random;
+    weather._date = new Date(data?.date ?? Date.now());
+    weather._state = data?.state ?? null;
+    weather._runHours = Math.max(0, Number(data?.runHours) || 0);
+    return weather;
+  }
+
   /** Expose a static helper so World can compute season without duplicating logic. */
   static monthToSeason(month) {
     if (month === 12 || month <= 2) return Season.WINTER;

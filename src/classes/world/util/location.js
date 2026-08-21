@@ -23,5 +23,32 @@ export class Location {
   connect(other, edge) {
     this.neighbors.set(other.id, edge);
   }
+
+  toJSON() {
+    return {
+      id: this.id,
+      name: this.name,
+      places: this.places,
+      x: this.x,
+      y: this.y,
+      districtKey: this.districtKey,
+      tags: this.tags.slice(),
+      meta: this.meta,
+    };
+  }
+
+  static fromJSON(data, { places = null } = {}) {
+    if (data instanceof Location) return data;
+    return new Location({
+      id: data?.id,
+      name: data?.name,
+      places: places ?? (Array.isArray(data?.places) ? data.places : []),
+      x: Number(data?.x) || 0,
+      y: Number(data?.y) || 0,
+      districtKey: data?.districtKey ?? null,
+      tags: Array.isArray(data?.tags) ? data.tags : [],
+      meta: data?.meta && typeof data.meta === "object" ? { ...data.meta } : {},
+    });
+  }
 }
 

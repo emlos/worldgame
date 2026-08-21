@@ -134,6 +134,31 @@ export class World {
         return this.moon.getInfo(this.time.date);
     }
 
+    toJSON() {
+        return {
+            time: this.time.toJSON(),
+            calendar: this.calendar.toJSON(),
+            weather: this.weather.toJSON(),
+            temperatureC: this.temperatureC,
+            moon: this.moon.toJSON(),
+            map: this.map.toJSON(),
+        };
+    }
+
+    static fromJSON(data, { rnd } = {}) {
+        const world = Object.create(World.prototype);
+        world.rnd = rnd;
+        world.time = WorldTime.fromJSON(data?.time, { rnd });
+        world.calendar = Calendar.fromJSON(data?.calendar, { rnd });
+        world.weather = Weather.fromJSON(data?.weather, { rnd });
+        world.temperatureC = Number.isFinite(Number(data?.temperatureC))
+            ? Number(data.temperatureC)
+            : world.weather.computeTemperature(world.time.date);
+        world.moon = Moon.fromJSON(data?.moon ?? { date: world.time.date.toISOString() });
+        world.map = WorldMap.fromJSON(data?.map, { rnd });
+        return world;
+    }
+
     // worldmap getters
     get locations() {
         return this.map.locations;

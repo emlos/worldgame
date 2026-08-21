@@ -39,6 +39,14 @@ export class Moon {
     getPhase(date = this._date) {
         return this.getInfo(date).phase;
     }
+
+    toJSON() {
+        return { date: this._date.toISOString() };
+    }
+
+    static fromJSON(data) {
+        return new Moon({ startDate: data?.date ?? data });
+    }
 }
 
 function posMod(x, m) {

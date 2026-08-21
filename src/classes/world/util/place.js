@@ -137,6 +137,32 @@ export class Place {
         };
     }
 
+    toJSON() {
+        return {
+            id: this.id,
+            key: this.key,
+            name: this.name,
+            locationId: this.locationId,
+            props: this.props,
+        };
+    }
+
+    static fromJSON(data) {
+        if (data instanceof Place) return data;
+
+        // Bypass constructor inference: the serialized props already contain
+        // the exact opening-hours/runtime state that was present at save time.
+        const place = Object.create(Place.prototype);
+        place.id = data?.id;
+        place.key = data?.key;
+        place.name = data?.name;
+        place.locationId = data?.locationId;
+        place.props = data?.props && typeof data.props === "object"
+            ? JSON.parse(JSON.stringify(data.props))
+            : {};
+        return place;
+    }
+
     /**
      * Check if the place is open at the given local time.
      *

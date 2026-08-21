@@ -32,4 +32,12 @@ export class WorldTime {
 
     return afterDayIndex - beforeDayIndex;
   }
+
+  toJSON() {
+    return { date: this.date.toISOString() };
+  }
+
+  static fromJSON(data, { rnd = null } = {}) {
+    return new WorldTime({ startDate: data?.date ?? data, rnd });
+  }
 }

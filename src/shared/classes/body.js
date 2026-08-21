@@ -338,6 +338,41 @@ export class BodyPartState {
   get integrityRatio() {
     return this.health / this.maxHealth;
   }
+
+  toJSON() {
+    return {
+      id: this.id,
+      displayName: this.displayName,
+      region: this.region,
+      maxHealth: this.maxHealth,
+      health: this.health,
+      canBreak: this.canBreak,
+      painMultiplier: this.painMultiplier,
+      pain: this.pain,
+      conditions: [...this.conditions],
+    };
+  }
+
+  static fromJSON(data) {
+    if (data instanceof BodyPartState) return data;
+
+    const part = new BodyPartState({
+      id: data?.id,
+      displayName: data?.displayName,
+      region: data?.region,
+      maxHealth: Number(data?.maxHealth) || 0,
+      canBreak: !!data?.canBreak,
+      painMultiplier: Number.isFinite(Number(data?.painMultiplier))
+        ? Number(data.painMultiplier)
+        : 1,
+    });
+    part.health = clamp(Number(data?.health), 0, part.maxHealth);
+    part.pain = clamp(Number(data?.pain) || 0, 0, 100);
+    part.conditions = new Set(
+      Array.isArray(data?.conditions) ? data.conditions.map(String) : []
+    );
+    return part;
+  }
 }
 
 /**
@@ -352,6 +387,23 @@ export class Body {
       const part = new BodyPartState(def);
       this.parts.set(part.id, part);
     }
+  }
+
+  toJSON() {
+    return {
+      parts: [...this.parts.values()].map((part) => part.toJSON()),
+    };
+  }
+
+  static fromJSON(data) {
+    if (data instanceof Body) return data;
+
+    const body = new Body([]);
+    for (const partData of data?.parts || []) {
+      const part = BodyPartState.fromJSON(partData);
+      if (part?.id != null) body.parts.set(part.id, part);
+    }
+    return body;
   }
 
   // --- Access helpers --------------------------------------------------------

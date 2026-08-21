@@ -20,4 +20,26 @@ export class Stat {
     const prodMul = this._mult.reduce((a, b) => a * b, 1);
     return (this._base + sumAdd) * prodMul;
   }
+
+  toJSON() {
+    return {
+      base: this._base,
+      add: this._add.slice(),
+      mult: this._mult.slice(),
+    };
+  }
+
+  static fromJSON(data) {
+    if (data instanceof Stat) return data;
+    if (typeof data === "number") return new Stat(data);
+
+    const stat = new Stat(Number(data?.base ?? data?._base) || 0);
+    const add = data?.add ?? data?._add;
+    const mult = data?.mult ?? data?._mult;
+    stat._add = Array.isArray(add) ? add.map((v) => Number(v) || 0) : [];
+    stat._mult = Array.isArray(mult)
+      ? mult.map((v) => (Number.isFinite(Number(v)) ? Number(v) : 1))
+      : [];
+    return stat;
+  }
 }

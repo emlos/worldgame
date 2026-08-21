@@ -160,6 +160,38 @@ export class Calendar {
 
         return Number.isFinite(best) ? best : undefined;
     }
+
+    toJSON() {
+        return {
+            year: this.year,
+            randomHolidayAssignments: [...this.randomHolidayAssignments.entries()].map(
+                ([name, value]) => [name, { ...value }]
+            ),
+        };
+    }
+
+    static fromJSON(data, { rnd = Math.random } = {}) {
+        const calendar = Object.create(Calendar.prototype);
+        calendar.rnd = rnd || Math.random;
+        calendar.map = new Map();
+        calendar.randomHolidayAssignments = new Map();
+
+        for (const [name, value] of data?.randomHolidayAssignments || []) {
+            calendar.randomHolidayAssignments.set(String(name), {
+                month: Number(value?.month),
+                day: Number(value?.day),
+            });
+        }
+
+        // Backward compatibility for old saves that did not persist these.
+        if (!calendar.randomHolidayAssignments.size) {
+            calendar._initRandomHolidays();
+        }
+
+        calendar.year = Number(data?.year) || new Date().getUTCFullYear();
+        calendar._buildYear();
+        return calendar;
+    }
 }
 
 /** Gregorian leap year check */

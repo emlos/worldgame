@@ -1,10 +1,21 @@
 export const makeRNG = (seed = Date.now()) => {
   let s = (seed >>> 0) || 1;
-  return () => {
+  const rnd = () => {
     // Numerical Recipes LCG
     s = (1664525 * s + 1013904223) >>> 0;
     return s / 0xffffffff;
   };
+
+  // Keep the function-call API, but expose state so a save file can resume
+  // the exact same random stream instead of merely restarting from the seed.
+  rnd.getState = () => s >>> 0;
+  rnd.setState = (state) => {
+    const n = Number(state);
+    s = Number.isFinite(n) ? n >>> 0 : 1;
+    return s;
+  };
+
+  return rnd;
 };
 
 export const pick = (arr, rnd) => arr[Math.floor(rnd() * arr.length) % arr.length]; //pick one of array

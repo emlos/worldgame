@@ -143,6 +143,71 @@ export class NPCScheduler {
         this.cache = new Map();
     }
 
+    toJSON() {
+        const serializeSlot = (slot) => {
+            const { from, to, target, location, place, ...rest } = slot || {};
+            return {
+                ...rest,
+                from: from instanceof Date ? from.toISOString() : new Date(from).toISOString(),
+                to: to instanceof Date ? to.toISOString() : new Date(to).toISOString(),
+                locationId: rest.locationId ?? location?.id ?? target?.id ?? null,
+                placeId: rest.placeId ?? place?.id ?? null,
+            };
+        };
+
+        return {
+            cache: [...this.cache.entries()].map(([npcId, weeks]) => [
+                npcId,
+                [...weeks.entries()].map(([weekKey, entry]) => [
+                    weekKey,
+                    {
+                        startDate: entry.startDate?.toISOString?.() ?? null,
+                        endDate: entry.endDate?.toISOString?.() ?? null,
+                        slots: (entry.slots || []).map(serializeSlot),
+                        carrySlots: (entry.carrySlots || []).map(serializeSlot),
+                    },
+                ]),
+            ]),
+        };
+    }
+
+    restoreJSON(data) {
+        const resolveSlot = (slotData) => {
+            const locationId = slotData?.locationId != null ? String(slotData.locationId) : null;
+            const placeId = slotData?.placeId != null ? String(slotData.placeId) : null;
+            const location = locationId ? this.world?.locations?.get(locationId) || null : null;
+            const place = placeId
+                ? (location?.places || []).find((p) => String(p.id) === placeId) || null
+                : null;
+
+            return {
+                ...slotData,
+                from: new Date(slotData.from),
+                to: new Date(slotData.to),
+                target: location,
+                location,
+                locationId,
+                place,
+                placeId,
+            };
+        };
+
+        this.cache = new Map();
+        for (const [npcId, weeksData] of data?.cache || []) {
+            const weeks = new Map();
+            for (const [weekKey, entry] of weeksData || []) {
+                weeks.set(String(weekKey), {
+                    startDate: new Date(entry.startDate),
+                    endDate: new Date(entry.endDate),
+                    slots: (entry.slots || []).map(resolveSlot),
+                    carrySlots: (entry.carrySlots || []).map(resolveSlot),
+                });
+            }
+            this.cache.set(String(npcId), weeks);
+        }
+        return this;
+    }
+
     /**
      * Return weekly schedule for an NPC.
      * @param {NPC} npc

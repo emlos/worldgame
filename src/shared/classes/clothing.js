@@ -35,4 +35,21 @@ export class Clothing {
     this.color = color;
     this.genderBias = clamp(genderBias, -1, 1);
   }
+
+  toJSON() {
+    return {
+      id: this.id,
+      slot: this.slot,
+      image: this.image,
+      durability: this.durability,
+      wetness: this.wetness,
+      color: this.color,
+      genderBias: this.genderBias,
+    };
+  }
+
+  static fromJSON(data) {
+    if (data instanceof Clothing) return data;
+    return new Clothing(data || {});
+  }
 }

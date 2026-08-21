@@ -655,6 +655,52 @@ export class WorldMap {
         this._populatePlaces();
     }
 
+    toJSON() {
+        return {
+            density: this.density,
+            locations: [...this.locations.values()].map((loc) => loc.toJSON()),
+            edges: this.edges.map((edge) => edge.toJSON()),
+        };
+    }
+
+    static fromJSON(data, { rnd } = {}) {
+        const map = Object.create(WorldMap.prototype);
+        map.rnd = rnd;
+        map.locations = new Map();
+        map.edges = [];
+        map.density = Number(data?.density) || 0;
+
+        for (const locData of data?.locations || []) {
+            const places = (locData?.places || []).map((placeData) => Place.fromJSON(placeData));
+            const loc = Location.fromJSON(locData, { places });
+            map.locations.set(String(loc.id), loc);
+        }
+
+        // Edges are stored once per undirected connection. Rebuild both
+        // directional neighbor entries so normal pathfinding APIs keep working.
+        for (const edgeData of data?.edges || []) {
+            const edge = Street.fromJSON(edgeData);
+            edge.a = String(edge.a);
+            edge.b = String(edge.b);
+
+            const a = map.locations.get(edge.a);
+            const b = map.locations.get(edge.b);
+            if (!a || !b) continue;
+
+            const reverse = new Street({
+                a: edge.b,
+                b: edge.a,
+                minutes: edge.minutes,
+                streetName: edge.streetName,
+            });
+            a.connect(b, edge);
+            b.connect(a, reverse);
+            map.edges.push(edge);
+        }
+
+        return map;
+    }
+
     // --------------------------
     // Location generation
     // --------------------------
