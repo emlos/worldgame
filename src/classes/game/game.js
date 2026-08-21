@@ -1,7 +1,7 @@
 // worldgame/src/game/game.js
 import { World, Player, NPC } from "../classes.js";
 import { makeRNG } from "../../shared/modules.js";
-import { PLACE_TAGS } from "../../data/data.js";
+import { PLACE_TAGS, NPC_REGISTRY } from "../../data/data.js";
 import { NPCScheduler, Localizer, SceneManager } from "./module.js";
 import { SCENE_DEFS } from "../../data/scenes/index.js";
 

@@ -1,5 +1,5 @@
-import { clamp01, weightedPick } from "../../../shared/modules.js";
-import { Location, Place } from "../module.js";
+import { clamp01, weightedPick, randInt } from "../../../shared/modules.js";
+import { Location, Place, Street } from "../module.js";
 import { LOCATION_REGISTRY, PLACE_REGISTRY, STREET_REGISTRY } from "../../../data/data.js";
 
 const capacityPerLocation = 10;

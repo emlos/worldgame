@@ -1,3 +1,5 @@
+import { clamp } from "./util.js";
+
 // Color helpers --------------------------------------------------------------
 
 /** Convert #rrggbb -> {r,g,b} */
