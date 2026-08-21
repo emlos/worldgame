@@ -115,7 +115,7 @@ function inferOpeningHours(key, categories) {
     if (category && DEFAULT_OPENING_HOURS_BY_CATEGORY[category]) {
         return DEFAULT_OPENING_HOURS_BY_CATEGORY[category];
     }
-    return DEFAULT_OPENING_HOURS
+    return DEFAULT_OPENING_HOURS;
 }
 
 // ---- Place class ---------------------------------------------------
@@ -157,9 +157,10 @@ export class Place {
         place.key = data?.key;
         place.name = data?.name;
         place.locationId = data?.locationId;
-        place.props = data?.props && typeof data.props === "object"
-            ? JSON.parse(JSON.stringify(data.props))
-            : {};
+        place.props =
+            data?.props && typeof data.props === "object"
+                ? JSON.parse(JSON.stringify(data.props))
+                : {};
         return place;
     }
 
@@ -179,5 +180,46 @@ export class Place {
         if (!info) return true;
         const { dayIndex, minutes } = info;
         return isOpenForSchedule(schedule, dayIndex, minutes);
+    }
+
+    /** Return the end of the opening-hours slot containing atTime, or null. */
+    getClosingTime(atTime = new Date()) {
+        const schedule = this.props && this.props.openingHours;
+        if (!schedule || !(atTime instanceof Date)) return null;
+
+        const info = getDayIndexAndMinutes(atTime);
+        if (!info) return null;
+        const { dayIndex, minutes } = info;
+        const dayStart = Date.UTC(
+            atTime.getUTCFullYear(),
+            atTime.getUTCMonth(),
+            atTime.getUTCDate(),
+        );
+
+        const todayKey = DAY_KEYS[dayIndex];
+        for (const slot of normalizeSlots(schedule[todayKey])) {
+            const start = parseTimeOrNull(slot.from);
+            const end = parseTimeOrNull(slot.to);
+            if (start == null || end == null) continue;
+
+            if (end > start && minutes >= start && minutes < end) {
+                return new Date(dayStart + end * 60 * 1000);
+            }
+            if (end < start && minutes >= start) {
+                return new Date(dayStart + (24 * 60 + end) * 60 * 1000);
+            }
+        }
+
+        const previousKey = DAY_KEYS[(dayIndex + 6) % 7];
+        for (const slot of normalizeSlots(schedule[previousKey])) {
+            const start = parseTimeOrNull(slot.from);
+            const end = parseTimeOrNull(slot.to);
+            if (start == null || end == null) continue;
+            if (end < start && minutes < end) {
+                return new Date(dayStart + end * 60 * 1000);
+            }
+        }
+
+        return null;
     }
 }

@@ -6,12 +6,11 @@ import * as place from "./world/place.js";
 import * as street from "./world/street.js";
 import * as weather from "./world/weather.js";
 
-import * as scheduling from "./npc/scheduling.js";
+import * as behavior from "./npc/behavior.js";
 import * as npc from "./npc/npcs.js";
 
 import * as strings_en from "./i18n/en.js";
 import * as strings_pl from "./i18n/pl.js";
-
 
 export * from "./world/time.js";
 export * from "./world/calendar.js";
@@ -21,15 +20,15 @@ export * from "./world/place.js";
 export * from "./world/street.js";
 export * from "./world/weather.js";
 
-import * as scenes from "./scenes/index.js"
+import * as scenes from "./scenes/index.js";
 
-export * from "./npc/scheduling.js";
+export * from "./npc/behavior.js";
 export * from "./npc/npcs.js";
 
 export * from "./i18n/en.js";
 export * from "./i18n/pl.js";
 
-export * from "./scenes/index.js"
+export * from "./scenes/index.js";
 
 if (debug) {
     Object.assign(window, {
@@ -42,10 +41,10 @@ if (debug) {
         ...weather,
 
         ...npc,
-        ...scheduling,
+        ...behavior,
 
         ...strings_en,
         ...strings_pl,
-        ...scenes
+        ...scenes,
     });
 }

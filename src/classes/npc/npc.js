@@ -9,9 +9,15 @@ import {
     Body,
     HUMAN_BODY_TEMPLATE,
 } from "../../shared/modules.js";
+import { NPCBrain } from "./npcBrain.js";
 
 function cloneSerializable(value) {
-    if (value == null || typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
+    if (
+        value == null ||
+        typeof value === "string" ||
+        typeof value === "number" ||
+        typeof value === "boolean"
+    ) {
         return value;
     }
     if (value instanceof Date) return value.toISOString();
@@ -44,6 +50,7 @@ export class NPC {
      * @param {string|null} opts.homeLocationId - where their home is
      * @param {string|null} opts.homePlaceId    - Place.id of their home
      * @param {object|null} opts.homePreference - preferences used to generate/assign their home
+     * @param {object|null} opts.behavior - static goal rules interpreted by NPCBrain
      * @param {object} opts.meta - arbitrary metadata (tags, registry key, etc)
      */
     constructor({
@@ -58,7 +65,7 @@ export class NPC {
         homeLocationId = null,
         homePlaceId = null,
         homePreference = null,
-        scheduleTemplate = null,
+        behavior = null,
         meta = {},
     } = {}) {
         this.id = id || String(name || "");
@@ -88,12 +95,14 @@ export class NPC {
 
         // World placement ------------------------------------------
         this.locationId = locationId; // "where are they now?"
+        this.currentPlaceId = null;
         this.homeLocationId = homeLocationId; // which Location contains their home
         this.homePlaceId = homePlaceId; // Place.id of their home inside that location
         this.homePreference = homePreference; // home assignment rules/template (may contain functions)
 
-        // reference to the template rules
-        this.scheduleTemplate = scheduleTemplate;
+        // Static behavior rules live in the NPC registry; the brain stores only runtime state.
+        this.behavior = behavior;
+        this.brain = behavior ? new NPCBrain(this, behavior) : null;
 
         // Misc metadata (tags, registry key, etc.)
         this.meta = { ...meta };
@@ -102,6 +111,7 @@ export class NPC {
     // --- Location helpers --------------------------------------
     setLocation(locationId) {
         this.locationId = locationId;
+        this.currentPlaceId = null;
     }
 
     // If you ever track both location + which Place inside it:
@@ -209,7 +219,7 @@ export class NPC {
             name: this.name,
             age: this.age,
             stats: Object.fromEntries(
-                Object.entries(this.stats).map(([name, stat]) => [name, stat.toJSON()])
+                Object.entries(this.stats).map(([name, stat]) => [name, stat.toJSON()]),
             ),
             flags: { ...this.flags },
             gender: this.gender,
@@ -226,7 +236,7 @@ export class NPC {
             homeLocationId: this.homeLocationId,
             homePlaceId: this.homePlaceId,
             homePreference: cloneSerializable(this.homePreference),
-            scheduleTemplate: cloneSerializable(this.scheduleTemplate),
+            brain: this.brain?.toJSON?.() ?? null,
             meta: cloneSerializable(this.meta) || {},
         };
     }
@@ -241,13 +251,6 @@ export class NPC {
             ...(template?.homePreference || {}),
             ...(data?.homePreference || {}),
         };
-        const scheduleTemplate = data?.scheduleTemplate
-            ? {
-                  ...(template?.scheduleTemplate || {}),
-                  ...data.scheduleTemplate,
-              }
-            : template?.scheduleTemplate || null;
-
         const npc = new NPC({
             id: data?.id ?? template?.id ?? template?.key ?? null,
             name: data?.name ?? template?.name ?? "",
@@ -260,7 +263,7 @@ export class NPC {
             homeLocationId: data?.homeLocationId ?? null,
             homePlaceId: data?.homePlaceId ?? null,
             homePreference: Object.keys(homePreference).length ? homePreference : null,
-            scheduleTemplate,
+            behavior: template?.behavior || null,
             meta: { ...(template?.meta || {}), ...(data?.meta || {}) },
         });
 
@@ -292,6 +295,7 @@ export class NPC {
             ? Body.fromJSON(data.body)
             : new Body(template?.bodyTemplate || HUMAN_BODY_TEMPLATE);
         npc.currentPlaceId = data?.currentPlaceId ?? null;
+        if (npc.brain && data?.brain) npc.brain.restoreJSON(data.brain);
         return npc;
     }
 }
