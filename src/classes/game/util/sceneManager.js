@@ -183,15 +183,16 @@ function formatMinutesSuffix(localizer, minutes) {
 }
 
 function isOutside(game) {
-    // Outside = not currently inside a concrete or virtual place.
-    // Canonical representation: no placeId and no placeKey.
-    return !game?.currentPlaceId && !game?.currentPlaceKey;
+    return !isInsidePlace(game);
 }
 
 function isInsidePlace(game) {
-    // Inside a place = either we have a concrete placeId, or an explicit virtual placeKey.
-    if (isOutside(game)) return false;
-    return Boolean(game?.currentPlaceId || game?.currentPlaceKey);
+    // A concrete id only counts when it resolves inside the current location.
+    // This also makes old/corrupt saves with dangling place ids fail closed.
+    if (game?.currentPlaceId) return Boolean(game.currentPlace);
+
+    // Virtual places (for example "street") intentionally have no place id.
+    return Boolean(game?.currentPlaceKey);
 }
 
 export class SceneManager {
@@ -318,7 +319,9 @@ export class SceneManager {
             if (!this._sceneDefs.has(id)) continue;
             this._textBlockPicks.set(
                 id,
-                new Map(Array.isArray(entries) ? entries.map(([k, v]) => [String(k), String(v)]) : [])
+                new Map(
+                    Array.isArray(entries) ? entries.map(([k, v]) => [String(k), String(v)]) : [],
+                ),
             );
         }
 
@@ -618,7 +621,7 @@ export class SceneManager {
 
             const minutesFromStreet =
                 Number(
-                    p?.props?.minutesFromStreet ?? p?.props?.minutes ?? p?.props?.travelMinutes
+                    p?.props?.minutesFromStreet ?? p?.props?.minutes ?? p?.props?.travelMinutes,
                 ) || 2;
 
             const def = {
@@ -654,7 +657,7 @@ export class SceneManager {
             Number(
                 place?.props?.minutesFromStreet ??
                     place?.props?.minutes ??
-                    place?.props?.travelMinutes
+                    place?.props?.travelMinutes,
             ) || 2;
 
         const id = "place.exit";
@@ -683,9 +686,7 @@ export class SceneManager {
      */
     _resolveSceneText({ def, sceneId, vars }) {
         const joiner =
-            typeof def.textJoiner === "string" && def.textJoiner.length
-                ? def.textJoiner
-                : "<br>";
+            typeof def.textJoiner === "string" && def.textJoiner.length ? def.textJoiner : "<br>";
 
         let blocks = [];
         if (Array.isArray(def.text)) blocks = def.text;
@@ -840,7 +841,7 @@ export class SceneManager {
                     // Canonical: use setPlaceId (string to enter, null to exit), and/or exitToOutside.
                     if ("setPlaceKey" in c) {
                         throw new Error(
-                            `Choice '${id}' uses deprecated 'setPlaceKey'. Use setPlaceId, exitToOutside, or moveToHome instead.`
+                            `Choice '${id}' uses deprecated 'setPlaceKey'. Use setPlaceId, exitToOutside, or moveToHome instead.`,
                         );
                     }
 
@@ -1102,8 +1103,8 @@ export class SceneManager {
         if (holidays.length) {
             const names = new Set(
                 (this.game.world?.getCurrentHolidayNames?.() || []).map((n) =>
-                    String(n).toLowerCase()
-                )
+                    String(n).toLowerCase(),
+                ),
             );
             if (!holidays.some((h) => names.has(String(h).toLowerCase()))) return false;
         }
@@ -1111,8 +1112,8 @@ export class SceneManager {
         if (notHolidays.length) {
             const names = new Set(
                 (this.game.world?.getCurrentHolidayNames?.() || []).map((n) =>
-                    String(n).toLowerCase()
-                )
+                    String(n).toLowerCase(),
+                ),
             );
             if (notHolidays.some((h) => names.has(String(h).toLowerCase()))) return false;
         }

@@ -54,13 +54,44 @@ export class Game {
         this.homeLocationId = home?.locationId ?? null;
         this.homePlaceId = home?.id ?? null;
 
-        // Where is the player right now?
-        this.currentLocationId =
-            playerOptions.startLocationId || this.homeLocationId || this._pickDefaultLocationId();
+        // Where is the player right now? Resolve location + place together so
+        // we can never start "inside" a place belonging to another location.
+        const hasStartLocation = playerOptions.startLocationId != null;
+        const hasStartPlace = Object.prototype.hasOwnProperty.call(playerOptions, "startPlaceId");
 
-        // Optional: which *place* inside the location (or a virtual key like "street")
-        this.currentPlaceId = playerOptions.startPlaceId ?? this.homePlaceId ?? null;
-        this.currentPlaceKey = this._getPlaceKeyById(this.currentLocationId, this.currentPlaceId);
+        if (
+            hasStartLocation &&
+            playerOptions.startLocationId != null &&
+            !this.world.locations.has(playerOptions.startLocationId)
+        ) {
+            throw new Error(`Unknown starting location: ${playerOptions.startLocationId}`);
+        }
+
+        this.currentLocationId = hasStartLocation
+            ? playerOptions.startLocationId
+            : (this.homeLocationId ?? this._pickDefaultLocationId());
+
+        if (hasStartPlace) {
+            // Explicit null means "start outside" and must not fall back home.
+            this.currentPlaceId = playerOptions.startPlaceId;
+        } else if (this.currentLocationId === this.homeLocationId) {
+            this.currentPlaceId = this.homePlaceId;
+        } else {
+            this.currentPlaceId = null;
+        }
+
+        if (this.currentPlaceId != null) {
+            const place = this._getPlaceById(this.currentLocationId, this.currentPlaceId);
+            if (!place) {
+                throw new Error(
+                    `Unknown starting place '${this.currentPlaceId}' in location '${this.currentLocationId}'`,
+                );
+            }
+            this.currentPlaceId = place.id;
+            this.currentPlaceKey = place.key ?? null;
+        } else {
+            this.currentPlaceKey = null;
+        }
 
         // For later: currently active “event/scene”
         this.currentScene = null;
@@ -145,11 +176,12 @@ export class Game {
         if (locationId === this.currentLocationId) return;
 
         this.currentLocationId = locationId;
-        for (const cb of this._listeners.location) cb(this, locationId);
-
         // When moving, you're typically not inside any specific place
         this.currentPlaceId = null;
         this.currentPlaceKey = null;
+
+        // Subscribers should observe a fully consistent position.
+        for (const cb of this._listeners.location) cb(this, locationId);
 
         this.sceneManager?.update();
     }
@@ -159,9 +191,28 @@ export class Game {
      * Use a Place.id, or pass null and set currentPlaceKey to something virtual like "street".
      */
     setCurrentPlace({ placeId = null, placeKey = null } = {}) {
-        this.currentPlaceId = placeId;
-        this.currentPlaceKey =
-            placeKey ?? this._getPlaceKeyById(this.currentLocationId, this.currentPlaceId);
+        if (placeId == null) {
+            this.currentPlaceId = null;
+            this.currentPlaceKey = placeKey == null ? null : String(placeKey);
+            this.sceneManager?.update();
+            return;
+        }
+
+        const place = this._getPlaceById(this.currentLocationId, placeId);
+        if (!place) {
+            throw new Error(`Unknown place '${placeId}' in location '${this.currentLocationId}'`);
+        }
+
+        if (placeKey != null && String(placeKey) !== String(place.key ?? "")) {
+            throw new Error(
+                `Place key '${placeKey}' does not match place '${placeId}' (${place.key ?? "no key"})`,
+            );
+        }
+
+        // Concrete places always use their canonical registry key. Virtual
+        // place keys are represented only by { placeId: null, placeKey: ... }.
+        this.currentPlaceId = place.id;
+        this.currentPlaceKey = place.key ?? null;
         this.sceneManager?.update();
     }
 
@@ -342,7 +393,7 @@ export class Game {
             ? data.currentLocationId
             : (game.homeLocationId ?? game._pickDefaultLocationId());
         game.currentPlaceId = data.currentPlaceId ?? null;
-        game.currentPlaceKey = hasOwn("currentPlaceKey")
+            game.currentPlaceKey = hasOwn("currentPlaceKey")
             ? data.currentPlaceKey
             : game._getPlaceKeyById(game.currentLocationId, game.currentPlaceId);
         game.flags = new Set(Array.isArray(data.flags) ? data.flags.map(String) : []);
@@ -389,10 +440,14 @@ export class Game {
     }
 
     _getPlaceKeyById(locationId, placeId) {
-        if (!placeId) return null;
-        const loc = this.world.getLocation(locationId);
-        const place = (loc?.places || []).find((p) => p.id === placeId) || null;
+        const place = this._getPlaceById(locationId, placeId);
         return place?.key ?? null;
+    }
+
+    _getPlaceById(locationId, placeId) {
+        if (placeId == null) return null;
+        const loc = this.world.getLocation(locationId);
+        return (loc?.places || []).find((p) => p.id === placeId) || null;
     }
 
     // --------------------------
