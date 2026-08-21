@@ -1,3 +1,4 @@
+import { makeRNG } from "../../../shared/util/random.js";
 /**
  * SceneManager
  * ------------------------------------------------------------------
@@ -200,7 +201,7 @@ export class SceneManager {
         game,
         scenes = [],
         localizer = null,
-        rnd = Math.random,
+        rnd = null,
         // If false, SceneManager will not resolve any scene until start() is called.
         autoStart = true,
         // The very first scene shown when the game starts (first update).
@@ -213,7 +214,7 @@ export class SceneManager {
     } = {}) {
         if (!game) throw new Error("SceneManager requires { game }");
         this.game = game;
-        this.rnd = rnd || Math.random;
+        this.rnd = rnd ?? makeRNG();
         this.localizer = localizer;
 
         this._started = Boolean(autoStart);

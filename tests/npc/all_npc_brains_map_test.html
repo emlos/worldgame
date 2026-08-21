@@ -756,10 +756,8 @@
         autoStartScenes: false,
       });
 
-      g.seed = seed >>> 0;
-      g.rnd = makeRNG(g.seed);
       g.world = new World({
-        rnd: g.rnd,
+        seed: deriveSeed(g.seed, "world"),
         startDate: START_DATE,
         density: 0,
         w: MAP_WIDTH,

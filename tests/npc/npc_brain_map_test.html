@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -30,18 +31,26 @@
       --violet: #a88bff;
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
 
-    html, body {
+    html,
+    body {
       margin: 0;
       background: var(--bg);
       color: var(--fg);
       font: 14px/1.45 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
-    body { padding: 16px; }
+    body {
+      padding: 16px;
+    }
 
-    button, input { font: inherit; }
+    button,
+    input {
+      font: inherit;
+    }
 
     button {
       min-height: 38px;
@@ -53,8 +62,14 @@
       cursor: pointer;
     }
 
-    button:hover { background: #24313b; }
-    button:disabled { cursor: default; opacity: .55; }
+    button:hover {
+      background: #24313b;
+    }
+
+    button:disabled {
+      cursor: default;
+      opacity: .55;
+    }
 
     input[type="number"] {
       width: 150px;
@@ -66,7 +81,9 @@
       color: var(--fg);
     }
 
-    input[type="range"] { width: 100%; }
+    input[type="range"] {
+      width: 100%;
+    }
 
     .wrap {
       width: min(1500px, 100%);
@@ -90,21 +107,55 @@
       margin-bottom: 12px;
     }
 
-    h1 { margin: 0; font-size: 20px; }
-    h2 { margin: 0 0 10px; font-size: 15px; color: var(--muted); }
-    h3 { margin: 14px 0 8px; font-size: 14px; }
-    p { margin: 6px 0; }
-    small, .muted { color: var(--muted); }
+    h1 {
+      margin: 0;
+      font-size: 20px;
+    }
 
-    .controls { align-items: flex-end; flex-wrap: wrap; }
-    .control { display: flex; flex-direction: column; gap: 4px; }
+    h2 {
+      margin: 0 0 10px;
+      font-size: 15px;
+      color: var(--muted);
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 14px;
+    }
+
+    p {
+      margin: 6px 0;
+    }
+
+    small,
+    .muted {
+      color: var(--muted);
+    }
+
+    .controls {
+      align-items: flex-end;
+      flex-wrap: wrap;
+    }
+
+    .control {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
 
     .grid {
       align-items: flex-start;
     }
 
-    .main-col { flex: 1 1 70%; min-width: 0; }
-    .side-col { flex: 1 1 30%; min-width: 330px; }
+    .main-col {
+      flex: 1 1 70%;
+      min-width: 0;
+    }
+
+    .side-col {
+      flex: 1 1 30%;
+      min-width: 330px;
+    }
 
     .card {
       background: var(--panel);
@@ -125,7 +176,10 @@
       margin-top: 10px;
     }
 
-    .speed-row label { white-space: nowrap; min-width: 150px; }
+    .speed-row label {
+      white-space: nowrap;
+      min-width: 150px;
+    }
 
     .map-shell {
       position: relative;
@@ -169,8 +223,14 @@
       cursor: pointer;
     }
 
-    .node:hover { fill: #405361; }
-    .node.selected { stroke: white; stroke-width: 2.1; }
+    .node:hover {
+      fill: #405361;
+    }
+
+    .node.selected {
+      stroke: white;
+      stroke-width: 2.1;
+    }
 
     .taylor-marker {
       fill: var(--blue);
@@ -222,11 +282,31 @@
       font-size: 12px;
     }
 
-    .legend span { display: inline-flex; align-items: center; gap: 5px; }
-    .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
-    .dot.taylor { background: var(--blue); border: 1px solid white; }
-    .dot.target { border: 2px dashed var(--amber); }
-    .dot.home { border: 2px solid var(--green); }
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .dot.taylor {
+      background: var(--blue);
+      border: 1px solid white;
+    }
+
+    .dot.target {
+      border: 2px dashed var(--amber);
+    }
+
+    .dot.home {
+      border: 2px solid var(--green);
+    }
 
     .brain-grid {
       flex-wrap: wrap;
@@ -260,15 +340,23 @@
       border-collapse: collapse;
     }
 
-    th, td {
+    th,
+    td {
       padding: 7px 6px;
       border-top: 1px solid var(--line);
       text-align: left;
       vertical-align: top;
     }
 
-    th { color: var(--muted); font-weight: 600; }
-    tr:first-child th, tr:first-child td { border-top: 0; }
+    th {
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    tr:first-child th,
+    tr:first-child td {
+      border-top: 0;
+    }
 
     .history-wrap {
       max-height: 430px;
@@ -277,7 +365,10 @@
       border-radius: 8px;
     }
 
-    .history-wrap table { min-width: 620px; }
+    .history-wrap table {
+      min-width: 620px;
+    }
+
     .history-wrap thead th {
       position: sticky;
       top: 0;
@@ -301,9 +392,17 @@
       color: var(--muted);
     }
 
-    .pill.travel { color: var(--amber); }
-    .pill.stay { color: var(--green); }
-    .pill.idle { color: var(--muted); }
+    .pill.travel {
+      color: var(--amber);
+    }
+
+    .pill.stay {
+      color: var(--green);
+    }
+
+    .pill.idle {
+      color: var(--muted);
+    }
 
     .error {
       border-color: #6f2b31;
@@ -312,12 +411,24 @@
     }
 
     @media (max-width: 980px) {
-      .grid { flex-direction: column; }
-      .side-col, .main-col { width: 100%; min-width: 0; }
-      .map-shell, #mapSvg { min-height: 380px; }
+      .grid {
+        flex-direction: column;
+      }
+
+      .side-col,
+      .main-col {
+        width: 100%;
+        min-width: 0;
+      }
+
+      .map-shell,
+      #mapSvg {
+        min-height: 380px;
+      }
     }
   </style>
 </head>
+
 <body>
   <div class="wrap">
     <div class="topbar">
@@ -359,7 +470,8 @@
         <div class="card">
           <h2>World map</h2>
           <div class="map-shell">
-            <svg id="mapSvg" viewBox="0 0 800 800" role="img" aria-label="Generated world map showing Taylor's position and current route"></svg>
+            <svg id="mapSvg" viewBox="0 0 800 800" role="img"
+              aria-label="Generated world map showing Taylor's position and current route"></svg>
           </div>
           <div class="legend">
             <span><i class="dot taylor"></i>Taylor</span>
@@ -374,7 +486,8 @@
             <h2 style="margin:0">Goal / action history</h2>
             <button id="clearHistoryBtn" type="button">clear history</button>
           </div>
-          <p class="muted">A row is recorded whenever Taylor's goal or action changes. Map movement along a travel route does not create a new history row.</p>
+          <p class="muted">A row is recorded whenever Taylor's goal or action changes. Map movement along a travel route
+            does not create a new history row.</p>
           <div class="history-wrap">
             <table>
               <thead>
@@ -428,10 +541,22 @@
           <h2>Brain raw state</h2>
           <table>
             <tbody>
-              <tr><th>nextDecisionAt</th><td id="rawNext">—</td></tr>
-              <tr><th>lastUpdatedAt</th><td id="rawUpdated">—</td></tr>
-              <tr><th>home</th><td id="rawHome">—</td></tr>
-              <tr><th>route leg</th><td id="rawRoute">—</td></tr>
+              <tr>
+                <th>nextDecisionAt</th>
+                <td id="rawNext">—</td>
+              </tr>
+              <tr>
+                <th>lastUpdatedAt</th>
+                <td id="rawUpdated">—</td>
+              </tr>
+              <tr>
+                <th>home</th>
+                <td id="rawHome">—</td>
+              </tr>
+              <tr>
+                <th>route leg</th>
+                <td id="rawRoute">—</td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -554,10 +679,8 @@
         autoStartScenes: false,
       });
 
-      g.seed = seed >>> 0;
-      g.rnd = makeRNG(g.seed);
       g.world = new World({
-        rnd: g.rnd,
+        seed: deriveSeed(g.seed, "world"),
         startDate: START_DATE,
         density: 0,
         w: MAP_WIDTH,
@@ -980,4 +1103,5 @@
     requestAnimationFrame(frame);
   </script>
 </body>
+
 </html>

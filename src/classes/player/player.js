@@ -51,12 +51,11 @@ export class Player {
         hairColor = "#5a3b1f",
         gender = Gender.NB,
         pronouns = PronounSets.THEY_THEM,
-        bodyTemplate = HUMAN_BODY_TEMPLATE, 
+        bodyTemplate = HUMAN_BODY_TEMPLATE,
     } = {}) {
         // Stats ----------------------------------------------------
         this.stats = {};
-        for (const [k, v] of Object.entries(stats))
-            this.stats[k] = new Stat(Number(v) || 0);
+        for (const [k, v] of Object.entries(stats)) this.stats[k] = new Stat(Number(v) || 0);
 
         // Appearance -----------------------------------------------
         this._bodyImmutable = deepFreeze({ body: appearance.body }); // body fixed after creation
@@ -155,15 +154,10 @@ export class Player {
 
     // --- Relationships ---
     setRelationship({ npcId, met = true, score = 0 }) {
-        this.relationships.set(
-            String(npcId),
-            new Relationship({ npcId, met, score })
-        );
+        this.relationships.set(String(npcId), new Relationship({ npcId, met, score }));
     }
     getRelationship(npcId) {
-        return (
-            this.relationships.get(String(npcId)) || new Relationship({ npcId })
-        );
+        return this.relationships.get(String(npcId)) || new Relationship({ npcId });
     }
     bumpRelationship(npcId, delta) {
         const r = this.getRelationship(npcId);
@@ -192,8 +186,7 @@ export class Player {
 
     // --- Clothing ---
     equip(item) {
-        if (!(item instanceof Clothing))
-            throw new Error("equip expects Clothing");
+        if (!(item instanceof Clothing)) throw new Error("equip expects Clothing");
         this.clothing.set(item.slot, item);
     }
     unequip(slot) {
@@ -232,7 +225,7 @@ export class Player {
     toJSON() {
         return {
             stats: Object.fromEntries(
-                Object.entries(this.stats).map(([name, stat]) => [name, stat.toJSON()])
+                Object.entries(this.stats).map(([name, stat]) => [name, stat.toJSON()]),
             ),
             appearance: {
                 head: this.appearance.head,
@@ -297,7 +290,8 @@ export class Player {
             if (!skill || (skill.type !== "flag" && skill.type !== "meter")) continue;
             player.skills.set(String(name), {
                 type: skill.type,
-                value: skill.type === "flag" ? !!skill.value : clamp(Number(skill.value) || 0, 0, 1),
+                value:
+                    skill.type === "flag" ? !!skill.value : clamp(Number(skill.value) || 0, 0, 1),
             });
         }
 
@@ -332,14 +326,9 @@ export class Player {
 
     /**
      * Apply damage to a body part with chance of causing injury.
-     * Usage: player.applyDamageToPart({ partId: BodyPartId.HEAD, amount: 20 , rnd: Math.random() })
+     * Usage: player.applyDamageToPart({ partId: BodyPartId.HEAD, amount: 20 , rnd: game.rnd })
      */
-    applyDamageToPartRandom({
-        partId,
-        amount,
-        damageType = DamageType.BLUNT,
-        rnd,
-    }) {
+    applyDamageToPartRandom({ partId, amount, damageType = DamageType.BLUNT, rnd }) {
         if (!this.body) return null;
         return this.body.applyDamageRandomized({
             partId,

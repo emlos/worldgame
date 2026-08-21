@@ -1,5 +1,5 @@
-
 import { ymd } from "../../../shared/util/date.js";
+import { makeRNG } from "../../../shared/util/random.js";
 
 import {
     DayKind,
@@ -13,8 +13,8 @@ import { MS_PER_DAY } from "../../../data/world/time.js";
  * Calendar: builds & holds holiday/special info for a given year.
  */
 export class Calendar {
-    constructor({ year, rnd }) {
-        this.rnd = rnd || Math.random;
+    constructor({ year, rnd = null }) {
+        this.rnd = rnd ?? makeRNG();
         this.map = new Map();
         this.randomHolidayAssignments = new Map();
 
@@ -52,12 +52,7 @@ export class Calendar {
         this.map.clear();
 
         const add = (m, d, holidayDef) => {
-            const {
-                name,
-                category,
-                special = false,
-                dayOff = false,
-            } = holidayDef;
+            const { name, category, special = false, dayOff = false } = holidayDef;
             const key = ymd(year, m, d);
 
             if (!this.map.has(key)) {
@@ -128,17 +123,15 @@ export class Calendar {
             return undefined;
         }
 
-        const fromMidnight = new Date(Date.UTC(
-            fromYear,
-            fromDate.getUTCMonth(),
-            fromDate.getUTCDate()
-        ));
+        const fromMidnight = new Date(
+            Date.UTC(fromYear, fromDate.getUTCMonth(), fromDate.getUTCDate()),
+        );
 
         let best = Infinity;
 
         for (const [key, info] of this.map.entries()) {
             const allNames = [...info.holidays, ...info.specials].map((h) =>
-                typeof h === "string" ? h : h.name
+                typeof h === "string" ? h : h.name,
             );
 
             const matches = allNames.some((n) => n.toLowerCase() === target);
@@ -152,9 +145,7 @@ export class Calendar {
             if (y !== fromYear) continue;
 
             const targetDate = new Date(Date.UTC(y, m, d));
-            const diffDays = Math.round(
-                (targetDate - fromMidnight) / MS_PER_DAY
-            );
+            const diffDays = Math.round((targetDate - fromMidnight) / MS_PER_DAY);
 
             if (diffDays >= 0 && diffDays < best) best = diffDays;
         }
@@ -166,55 +157,36 @@ export class Calendar {
         return {
             year: this.year,
             randomHolidayAssignments: [...this.randomHolidayAssignments.entries()].map(
-                ([name, value]) => [name, { ...value }]
+                ([name, value]) => [name, { ...value }],
             ),
         };
     }
 
-    static fromJSON(data, { rnd = Math.random } = {}) {
+    static fromJSON(data, { rnd = null } = {}) {
         const calendar = Object.create(Calendar.prototype);
-        calendar.rnd = rnd || Math.random;
+        calendar.rnd = rnd ?? makeRNG();
         calendar.map = new Map();
         calendar.randomHolidayAssignments = new Map();
 
-        for (const [name, value] of data?.randomHolidayAssignments || []) {
+        for (const [name, value] of data.randomHolidayAssignments) {
             calendar.randomHolidayAssignments.set(String(name), {
-                month: Number(value?.month),
-                day: Number(value?.day),
+                month: Number(value.month),
+                day: Number(value.day),
             });
         }
 
-        // Backward compatibility for old saves that did not persist these.
-        if (!calendar.randomHolidayAssignments.size) {
-            calendar._initRandomHolidays();
-        }
-
-        calendar.year = Number(data?.year) || new Date().getUTCFullYear();
+        calendar.year = Number(data.year);
         calendar._buildYear();
         return calendar;
     }
 }
 
 /** Gregorian leap year check */
-const isLeap = (year) =>
-    year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+const isLeap = (year) => year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
 
 /** Random YYYY-MM-DD string helper for a given year & RNG. */
 function randomYmd(year, rnd) {
-    const monthDays = [
-        31,
-        isLeap(year) ? 29 : 28,
-        31,
-        30,
-        31,
-        30,
-        31,
-        31,
-        30,
-        31,
-        30,
-        31,
-    ];
+    const monthDays = [31, isLeap(year) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
     const month = Math.floor(rnd() * 12) + 1; // 1–12
     const day = Math.floor(rnd() * monthDays[month - 1]) + 1; // 1–days in month

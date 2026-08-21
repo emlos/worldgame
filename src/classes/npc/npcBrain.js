@@ -1,5 +1,5 @@
 import { parseTimeToMinutes } from "../../shared/util/date.js";
-import { randInt, weightedPick } from "../../shared/util/random.js";
+import { makeRNG, randInt, weightedPick } from "../../shared/util/random.js";
 import { GOAL_TYPE, TARGET_TYPE, NPC_ACTION_TYPE } from "../../data/npc/behavior.js";
 import { DAY_KEYS } from "../../data/world/time.js";
 
@@ -63,11 +63,16 @@ export class NPCBrain {
     constructor(npc, behavior = null) {
         this.npc = npc;
         this.behavior = behavior || { goals: [] };
+        this._fallbackRng = makeRNG();
 
         this.currentGoal = null;
         this.currentAction = null;
         this.nextDecisionAt = null;
         this.lastUpdatedAt = null;
+    }
+
+    _rng(game) {
+        return game?.getRNG?.(`npc:${this.npc?.id ?? "unknown"}`) ?? this._fallbackRng;
     }
 
     get rules() {
@@ -161,11 +166,7 @@ export class NPCBrain {
 
         const topPriority = Math.max(...candidates.map((candidate) => candidate.priority));
         const top = candidates.filter((candidate) => candidate.priority === topPriority);
-        const selected = weightedPick(
-            top,
-            game?.rnd || Math.random,
-            (candidate) => candidate.weight,
-        );
+        const selected = weightedPick(top, this._rng(game), (candidate) => candidate.weight);
 
         if (!selected) {
             this.currentGoal = null;
@@ -187,7 +188,7 @@ export class NPCBrain {
             const fallback = top.filter((candidate) => candidate !== selected);
             const alternate = weightedPick(
                 fallback,
-                game?.rnd || Math.random,
+                this._rng(game),
                 (candidate) => candidate.weight,
             );
             if (alternate) {
@@ -293,7 +294,7 @@ export class NPCBrain {
             const stay = rule.stayMinutes || {};
             const min = Math.max(1, Number(stay.min) || 20);
             const max = Math.max(min, Number(stay.max) || min);
-            const duration = randInt(min, max, game?.rnd || Math.random);
+            const duration = randInt(min, max, this._rng(game));
             until = minDate(addMinutes(at, duration), intervalEnd) || addMinutes(at, duration);
 
             if (rule.requireOpen && goal.targetPlaceId != null) {
@@ -580,7 +581,7 @@ export class NPCBrain {
             }, null);
         }
 
-        return weightedPick(candidates, game?.rnd || Math.random, (candidate) => candidate.weight);
+        return weightedPick(candidates, this._rng(game), (candidate) => candidate.weight);
     }
 
     _collectPlaceCandidates(rule, at, game) {

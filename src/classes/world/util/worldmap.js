@@ -1,5 +1,5 @@
 import { clamp01 } from "../../../shared/util/util.js";
-import { weightedPick, randInt } from "../../../shared/util/random.js";
+import { weightedPick, randInt, makeRNG } from "../../../shared/util/random.js";
 import { Location } from "./location.js";
 import { Place } from "./place.js";
 import { Street } from "./street.js";
@@ -47,29 +47,40 @@ function pickDistrictDefs(count, rnd) {
 }
 
 /** Name like "Suburb A", "Suburb B", but leave singletons as-is. */
-function defaultDistrictName(def, index) {
+function defaultDistrictName(def, _index, { totalForKey = 1, occurrence = 0 } = {}) {
     const base = def.label || def.key;
-    const needsSuffix = LOCATION_REGISTRY.map((loc) => loc.key).includes(def.key);
-    if (!needsSuffix) return base;
-    const suffix = String.fromCharCode("A".charCodeAt(0) + (index % 26));
+    if (totalForKey <= 1) return base;
+    const suffix = String.fromCharCode("A".charCodeAt(0) + (occurrence % 26));
     return `${base} ${suffix}`;
 }
 
 /** Create tagged locations from registry choices. */
 function createLocations({ count, rnd, nameFn = defaultDistrictName }) {
-    const chosen = pickDistrictDefs(count, rnd, LOCATION_REGISTRY);
-    return chosen.map(
-        (def, i) =>
-            new Location({
-                id: i,
-                name: nameFn(def, i),
-                x: 0,
-                y: 0,
-                districtKey: def.key,
-                tags: def.tags || [],
-                meta: { label: def.label },
-            })
-    );
+    const chosen = pickDistrictDefs(count, rnd);
+    const totals = new Map();
+    const seen = new Map();
+
+    for (const def of chosen) {
+        totals.set(def.key, (totals.get(def.key) || 0) + 1);
+    }
+
+    return chosen.map((def, i) => {
+        const occurrence = seen.get(def.key) || 0;
+        seen.set(def.key, occurrence + 1);
+
+        return new Location({
+            id: i,
+            name: nameFn(def, i, {
+                totalForKey: totals.get(def.key) || 1,
+                occurrence,
+            }),
+            x: 0,
+            y: 0,
+            districtKey: def.key,
+            tags: def.tags || [],
+            meta: { label: def.label },
+        });
+    });
 }
 
 /** BFS distance if no distance() is supplied. */
@@ -448,7 +459,7 @@ function generatePlaces({
 
     // --- Stage 1a: singletons / rare items first (NOT bus_stop) -----
     const singletonDefs = PLACE_REGISTRY.filter(
-        (d) => d.key !== "bus_stop" && (d.maxCount === 1 || (d.minCount && d.minCount > 0))
+        (d) => d.key !== "bus_stop" && (d.maxCount === 1 || (d.minCount && d.minCount > 0)),
     );
 
     // Rarest (fewest candidate locations) first
@@ -521,7 +532,7 @@ function generatePlaces({
                             sameKeyPlaced,
                             def.minDistance || 0,
                             neighborsFn,
-                            distFn
+                            distFn,
                         )
                     )
                         return false;
@@ -647,8 +658,8 @@ export class WorldMap {
      * @param {number} mapWidth - span of map in local coordinates
      * @param {number} mapHeight - height of map in local coordinates
      */
-    constructor({ rnd, density = 0, mapWidth = 100, mapHeight = 50 } = {}) {
-        this.rnd = rnd;
+    constructor({ rnd = null, density = 0, mapWidth = 100, mapHeight = 50 } = {}) {
+        this.rnd = rnd ?? makeRNG();
         this.locations = new Map(); // id -> Location
         this.edges = []; // array<Street>
         this.density = density;
@@ -670,7 +681,7 @@ export class WorldMap {
 
     static fromJSON(data, { rnd } = {}) {
         const map = Object.create(WorldMap.prototype);
-        map.rnd = rnd;
+        map.rnd = rnd ?? makeRNG();
         map.locations = new Map();
         map.edges = [];
         map.density = Number(data?.density) || 0;
@@ -1003,9 +1014,6 @@ export class WorldMap {
                 // there are no unassigned neighbors left to merge with
             }
 
-            const startLoc = this.locations.get(from);
-            const def = pickStreetDefForRun(startLoc, usedStreetKeys, rnd);
-
             let streetName = null;
 
             // Special case: single-edge "run" that we couldn't extend.
@@ -1017,7 +1025,7 @@ export class WorldMap {
                 for (const nodeId of nodes) {
                     const incident = nodeEdges.get(nodeId) || [];
                     const candidate = incident.find(
-                        (e) => e !== lone && e.streetName // already named
+                        (e) => e !== lone && e.streetName, // already named
                     );
                     if (candidate) {
                         streetName = candidate.streetName; // ✅ merge into existing street
@@ -1392,7 +1400,7 @@ export class WorldMap {
 
         const totalMinutes = edges.reduce(
             (sum, e) => sum + (e && typeof e.minutes === "number" ? e.minutes : 1),
-            0
+            0,
         );
 
         return { locations, edges, minutes: totalMinutes };

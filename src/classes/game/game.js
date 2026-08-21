@@ -2,7 +2,7 @@
 import { World } from "../world/world.js";
 import { Player } from "../player/player.js";
 import { NPC } from "../npc/npc.js";
-import { makeRNG } from "../../shared/util/random.js";
+import { RandomStreams, deriveSeed, normalizeSeed, rollSeed } from "../../shared/util/random.js";
 import { PLACE_TAGS } from "../../data/world/place.js";
 import { NPC_REGISTRY } from "../../data/npc/npcs.js";
 import { Localizer } from "./util/localisation.js";
@@ -12,7 +12,7 @@ import { SCENE_DEFS } from "../../data/scenes/index.js";
 // High-level orchestrator for world + player + NPCs.
 export class Game {
     constructor({
-        seed = Date.now(),
+        seed = rollSeed(),
         startDate = new Date(),
         playerOptions = {},
         npcTemplates = NPC_REGISTRY,
@@ -25,13 +25,16 @@ export class Game {
         // If false, scenes will not resolve until game.startGame() is called.
         autoStartScenes = true,
     } = {}) {
-        // --- core random seed ---
-        this.seed = seed >>> 0;
-        this.rnd = makeRNG(this.seed);
+        // --- deterministic random streams ---
+        // `rnd` remains the general gameplay stream for callers that need one,
+        // while engine subsystems use independent named streams.
+        this.seed = normalizeSeed(seed);
+        this.random = new RandomStreams(this.seed);
+        this.rnd = this.getRNG("gameplay");
 
         // --- world ---
         this.world = new World({
-            rnd: this.rnd,
+            seed: deriveSeed(this.seed, "world"),
             startDate,
         });
 
@@ -111,7 +114,7 @@ export class Game {
             game: this,
             scenes,
             localizer: this.localizer,
-            rnd: this.rnd,
+            rnd: this.getRNG("scenes"),
             defaultSceneId,
             fallbackSceneId,
             autoStart: autoStartScenes,
@@ -139,6 +142,11 @@ export class Game {
 
     get npcsArray() {
         return [...this.npcs.values()];
+    }
+
+    /** Return a stable named RNG stream derived from this game's master seed. */
+    getRNG(name = "gameplay") {
+        return this.random.stream(name);
     }
 
     // --------------------------
@@ -296,9 +304,9 @@ export class Game {
     // --------------------------
     toJSON() {
         return {
-            saveVersion: 3,
+            saveVersion: 4,
             seed: this.seed,
-            rngState: typeof this.rnd?.getState === "function" ? this.rnd.getState() : null,
+            random: this.random.toJSON(),
             time: this.now.toISOString(),
             world: this.world.toJSON(),
             player: this.player.toJSON(),
@@ -327,7 +335,11 @@ export class Game {
             throw new Error("Game.fromJSON expects a parsed save object");
         }
 
-        const savedStartDate = data?.world?.time?.date ?? data?.time ?? new Date().toISOString();
+        if (data.saveVersion !== 4) {
+            throw new Error(`Unsupported save version: ${data.saveVersion}`);
+        }
+
+        const savedStartDate = data.world.time.date;
 
         // Construct only the runtime shell. Most constructor-generated state is
         // replaced below, and scenes remain stopped until hydration is complete.
@@ -343,9 +355,10 @@ export class Game {
             autoStartScenes: false,
         });
 
-        if (data.world) {
-            game.world = World.fromJSON(data.world, { rnd: game.rnd });
-        }
+        game.random = RandomStreams.fromJSON(data.random);
+        game.rnd = game.getRNG("gameplay");
+        game.world = World.fromJSON(data.world);
+        game.sceneManager.rnd = game.getRNG("scenes");
 
         game.player = Player.fromJSON(data.player || {}, { traitResolver });
 
@@ -393,26 +406,13 @@ export class Game {
             ? data.currentLocationId
             : (game.homeLocationId ?? game._pickDefaultLocationId());
         game.currentPlaceId = data.currentPlaceId ?? null;
-            game.currentPlaceKey = hasOwn("currentPlaceKey")
+        game.currentPlaceKey = hasOwn("currentPlaceKey")
             ? data.currentPlaceKey
             : game._getPlaceKeyById(game.currentLocationId, game.currentPlaceId);
         game.flags = new Set(Array.isArray(data.flags) ? data.flags.map(String) : []);
         game.log = Array.isArray(data.log) ? data.log.map((entry) => ({ ...entry })) : [];
 
-        if (data.sceneManager) {
-            game.sceneManager.restoreJSON(data.sceneManager);
-        } else {
-            // Legacy saves did not store scene state. Resolve only after all
-            // other state has been restored.
-            game.sceneManager.start();
-        }
-
-        // Loading itself may have needed random values for backward-compatible
-        // fallbacks. Restore the gameplay stream before initializing any legacy
-        // NPC brain that was not present in an older save.
-        if (data.rngState != null && typeof game.rnd?.setState === "function") {
-            game.rnd.setState(data.rngState);
-        }
+        game.sceneManager.restoreJSON(data.sceneManager);
         game._initializeNPCBrains();
 
         return game;
@@ -499,6 +499,7 @@ export class Game {
      * nameFn(chosenLocation) is used to name the created home Place.
      */
     _assignHomeForNPC(id, npc) {
+        const rnd = this.getRNG("npc-homes");
         const pref = npc?.homePreference;
         if (!pref) {
             throw new Error(`NPC '${id}' has no homePreference`);
@@ -521,11 +522,11 @@ export class Game {
             );
         }
 
-        const pick = strategies[(this.rnd() * strategies.length) | 0];
+        const pick = strategies[(rnd() * strategies.length) | 0];
         const allLocations = [...this.world.locations.values()];
         if (!allLocations.length) throw new Error("World has no locations");
 
-        const pickRandom = (arr) => arr[(this.rnd() * arr.length) | 0];
+        const pickRandom = (arr) => arr[(rnd() * arr.length) | 0];
 
         const placeHasAnyCategory = (place, wantedSet) => {
             const cat = place?.props?.category;

@@ -17,6 +17,9 @@ jobs:
         with:
           fetch-depth: 0 # important: get full history for git log
 
+      - name: Test deterministic RNG
+        run: node tests/random/random_determinism_test.mjs
+
       - name: Generate commits.json
         run: |
           git log --date=iso8601-strict \
