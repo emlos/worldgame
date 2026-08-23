@@ -1,54 +1,78 @@
+const MS_PER_MINUTE = 60 * 1000;
+const MS_PER_DAY = 24 * 60 * MS_PER_MINUTE;
+
+function timestampFrom(value, label = "world date") {
+  const timestamp =
+    value instanceof Date ? value.getTime() : new Date(value).getTime();
+
+  if (!Number.isFinite(timestamp)) {
+    throw new TypeError(`Invalid ${label}: ${String(value)}`);
+  }
+
+  return timestamp;
+}
+
+/**
+ * Authoritative world clock.
+ *
+ * The instant is stored as a number so no caller can mutate it through a shared
+ * Date object. Date-valued accessors always return a fresh snapshot.
+ */
 export class WorldTime {
-    constructor({ startDate = new Date() } = {}) {
-        // Treat the Date as an absolute timestamp (ms since epoch). All *calendar* math
-        // in the game should use UTC getters to stay independent of the user's timezone/DST.
-        const startMs =
-            typeof startDate === "number"
-                ? startDate
-                : startDate instanceof Date
-                  ? startDate.getTime()
-                  : new Date(startDate).getTime();
+  #timestamp;
 
-        this.date = new Date(startMs);
+  constructor({ startDate = new Date() } = {}) {
+    this.#timestamp = timestampFrom(startDate, "world start date");
+  }
+
+  /** Milliseconds since the Unix epoch. Safe to pass around as an immutable value. */
+  get timestamp() {
+    return this.#timestamp;
+  }
+
+  /** A defensive Date snapshot of the current instant. */
+  get date() {
+    return this.toDate();
+  }
+
+  /** A defensive Date snapshot of the current instant. */
+  toDate() {
+    return new Date(this.#timestamp);
+  }
+
+  /**
+   * Advance world time by N minutes.
+   * Returns the number of UTC-midnight crossings (negative when rewinding).
+   */
+  advanceMinutes(minutes) {
+    const amount = Number(minutes);
+    if (!Number.isFinite(amount)) {
+      throw new TypeError(`Invalid minute amount: ${String(minutes)}`);
     }
 
-    /**
-     * Advance world time by N minutes.
-     * Returns the number of UTC-midnight crossings (can be >1 if mins is large).
-     */
-    advanceMinutes(mins) {
-        const MS_PER_DAY = 24 * 60 * 60 * 1000;
+    const target = this.#timestamp + amount * MS_PER_MINUTE;
+    timestampFrom(target, "resulting world date");
 
-        const beforeDayIndex = Math.floor(
-            Date.UTC(this.date.getUTCFullYear(), this.date.getUTCMonth(), this.date.getUTCDate()) /
-                MS_PER_DAY,
-        );
+    const beforeDay = Math.floor(this.#timestamp / MS_PER_DAY);
+    const afterDay = Math.floor(target / MS_PER_DAY);
+    this.#timestamp = target;
+    return afterDay - beforeDay;
+  }
 
-        this.date = new Date(this.date.getTime() + mins * 60 * 1000);
+  /** Set the absolute world timestamp without simulating intervening gameplay. */
+  setDate(value) {
+    this.#timestamp = timestampFrom(value);
+    return this.toDate();
+  }
 
-        const afterDayIndex = Math.floor(
-            Date.UTC(this.date.getUTCFullYear(), this.date.getUTCMonth(), this.date.getUTCDate()) /
-                MS_PER_DAY,
-        );
+  toJSON() {
+    return { date: new Date(this.#timestamp).toISOString() };
+  }
 
-        return afterDayIndex - beforeDayIndex;
+  static fromJSON(data) {
+    if (!data || !Object.prototype.hasOwnProperty.call(data, "date")) {
+      throw new TypeError("WorldTime.fromJSON requires a saved date");
     }
-
-    /** Set the absolute world timestamp without implying that intervening time was simulated. */
-    setDate(value) {
-        const date = value instanceof Date ? new Date(value.getTime()) : new Date(value);
-        if (!Number.isFinite(date.getTime())) {
-            throw new Error(`Invalid world date: ${value}`);
-        }
-        this.date = date;
-        return new Date(this.date.getTime());
-    }
-
-    toJSON() {
-        return { date: this.date.toISOString() };
-    }
-
-    static fromJSON(data) {
-        return new WorldTime({ startDate: data.date });
-    }
+    return new WorldTime({ startDate: data.date });
+  }
 }

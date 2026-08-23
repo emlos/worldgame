@@ -130,7 +130,7 @@ export class Game {
     // Basic getters
     // --------------------------
     get now() {
-        return this.world.time.date;
+        return this.world.time.toDate();
     }
 
     get location() {
