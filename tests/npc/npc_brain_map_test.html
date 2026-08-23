@@ -688,14 +688,13 @@
       g.npcs = new Map();
       g.log = [];
 
-      const template = NPC_REGISTRY.find((def) => def.key === "taylor");
+      const template = NPC_REGISTRY.find((def) => def.id === "taylor");
       if (!template) throw new Error("Taylor template not found in NPC_REGISTRY");
 
       g._createNPCs([template]);
       g._initializeNPCBrains();
 
-      const npc = [...g.npcs.values()].find((n) => n.meta?.registryKey === "taylor")
-        || [...g.npcs.values()][0];
+      const npc = g.npcs.get("taylor") || [...g.npcs.values()][0];
       if (!npc?.brain) throw new Error("Taylor was created without an NPCBrain");
 
       return { game: g, taylor: npc };

@@ -689,8 +689,8 @@
       return npc?.meta?.shortName || npc?.name || npc?.id || "NPC";
     }
 
-    function registryKey(npc) {
-      return npc?.meta?.registryKey || npc?.id || npc?.name || "npc";
+    function npcId(npc) {
+      return npc?.id || npc?.name || "npc";
     }
 
     function colorFor(npc) {
@@ -773,7 +773,7 @@
       const noBrain = all.filter((npc) => !npc.brain);
       if (noBrain.length) {
         throw new Error(
-          `Active NPCs without behavior/NPCBrain: ${noBrain.map((npc) => registryKey(npc)).join(", ")}`
+          `Active NPCs without behavior/NPCBrain: ${noBrain.map((npc) => npcId(npc)).join(", ")}`
         );
       }
 
@@ -1135,7 +1135,7 @@
           <i class="npc-swatch" style="background:${esc(colorFor(npc))}"></i>
           ${esc(shortName(npc))}
         </div>
-        <p class="muted"><code>${esc(registryKey(npc))}</code></p>
+        <p class="muted"><code>${esc(npcId(npc))}</code></p>
         <div class="detail-grid">
           <div class="k">where</div><div class="v">${esc(currentWhere(npc))}</div>
           <div class="k">home</div><div class="v">${esc(placeName(npc.homeLocationId, npc.homePlaceId) || locationName(npc.homeLocationId))}</div>

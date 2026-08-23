@@ -23,6 +23,9 @@ jobs:
       - name: Test self-contained NPC saves
         run: node tests/npc/npc_save_continuity_test.mjs
 
+      - name: Test NPC registry construction
+        run: node tests/npc/npc_registry_construction_test.mjs
+
       - name: Test deterministic weather timeline
         run: node tests/weather/weather_timeline_test.mjs
 

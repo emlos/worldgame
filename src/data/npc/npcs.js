@@ -10,14 +10,15 @@ import { GOAL_TYPE, TARGET_TYPE } from "./behavior.js";
 export const NPC_REGISTRY = [
     // student type
     {
-        example: true, // not a real NPC, just an example
-        key: "taylor",
+        id: "taylor",
         name: "Taylor Morgan",
-        shortName: "Taylor",
-        nicknames: ["Tay"],
-
-        description:
-            "Taylor is a high school student who enjoys exploring the city after school hours.",
+        meta: {
+            shortName: "Taylor",
+            nicknames: ["Tay"],
+            description:
+                "Taylor is a high school student who enjoys exploring the city after school hours.",
+            tags: ["human", "romance"],
+        },
 
         age: 18,
         gender: Gender.F,
@@ -39,8 +40,6 @@ export const NPC_REGISTRY = [
             withPlaceCategory: [PLACE_TAGS.housing],
             withLocationCategory: [LOCATION_TAGS.poor, LOCATION_TAGS.urban_center],
         },
-        tags: ["human", "romance"],
-
         bodyTemplate: HUMAN_BODY_TEMPLATE,
         behavior: {
             goals: [
@@ -157,12 +156,15 @@ export const NPC_REGISTRY = [
 
     //thief type
     {
-        key: "shade",
+        id: "shade",
         name: 'Mara "Shade" Kovač',
-        shortName: "Shade",
-        nicknames: ["Shade", "Hey You"],
-        description:
-            "Shade is a cunning thief who prowls the city at night, targeting unsuspecting victims for quick robberies.",
+        meta: {
+            shortName: "Shade",
+            nicknames: ["Shade", "Hey You"],
+            description:
+                "Shade is a cunning thief who prowls the city at night, targeting unsuspecting victims for quick robberies.",
+            tags: ["human", "criminal", "romance"],
+        },
         age: 26,
         gender: Gender.F,
         pronouns: PronounSets.SHE_HER,
@@ -172,7 +174,6 @@ export const NPC_REGISTRY = [
             intelligence: 3,
             charisma: 2,
         },
-        tags: ["human", "criminal", "romance"],
         bodyTemplate: HUMAN_BODY_TEMPLATE,
 
         homePreference: {
@@ -324,10 +325,13 @@ export const NPC_REGISTRY = [
 
     //cop type
     {
-        key: "officer_vega",
+        id: "officer_vega",
         name: "Officer Leon Vega",
-        shortName: "Vega",
-        nicknames: ["Officer Vega", "Leo"],
+        meta: {
+            shortName: "Vega",
+            nicknames: ["Officer Vega", "Leo"],
+            tags: ["human", "cop"],
+        },
 
         age: 32,
         gender: Gender.M,
@@ -340,7 +344,6 @@ export const NPC_REGISTRY = [
             charisma: 3,
         },
 
-        tags: ["human", "cop"],
         homePreference: {
             nameFn: (chosenLocation) => "Officer Vega's Apartment",
 
@@ -565,13 +568,15 @@ export const NPC_REGISTRY = [
 
     //nurse type
     {
-        key: "clara",
+        id: "clara",
         name: "Clara Novak",
-        shortName: "Clara",
-        nicknames: ["Nurse Clara"],
-
-        description:
-            "Clara is the school nurse - but also your local cinema attendant. The economy is *rough* out there.",
+        meta: {
+            shortName: "Clara",
+            nicknames: ["Nurse Clara"],
+            description:
+                "Clara is the school nurse - but also your local cinema attendant. The economy is *rough* out there.",
+            tags: ["human", "staff"],
+        },
 
         age: 34,
         gender: Gender.F,
@@ -601,8 +606,6 @@ export const NPC_REGISTRY = [
                 LOCATION_TAGS.urban_center,
             ],
         },
-        tags: ["human", "staff"],
-
         bodyTemplate: HUMAN_BODY_TEMPLATE,
         behavior: {
             goals: [
@@ -739,12 +742,14 @@ export const NPC_REGISTRY = [
 
     //tourist type
     {
-        key: "mike",
+        id: "mike",
         name: "Mike Thompson",
-        shortName: "Mike",
-        nicknames: ["Mike", "MT"],
-
-        description: "Tourist Mike is here for the sights. And the people. Both count.",
+        meta: {
+            shortName: "Mike",
+            nicknames: ["Mike", "MT"],
+            description: "Tourist Mike is here for the sights. And the people. Both count.",
+            tags: ["human", "tourist"],
+        },
 
         age: 27,
         gender: Gender.M,
@@ -761,8 +766,6 @@ export const NPC_REGISTRY = [
 
             withKey: ["motel", "hotel"],
         },
-
-        tags: ["human", "tourist"],
 
         bodyTemplate: HUMAN_BODY_TEMPLATE,
         behavior: {
@@ -843,13 +846,15 @@ export const NPC_REGISTRY = [
 
     //businessman type
     {
-        key: "vincent",
+        id: "vincent",
         name: "Vincent Hale",
-        shortName: "Vincent",
-        nicknames: ["Vince", "Mr. Hale", "Vic"],
-
-        description:
-            "Vincent has a grip on the city's corporate world, and a taste for the finer things in life. He's often seen at exclusive clubs and high-end restaurants.",
+        meta: {
+            shortName: "Vincent",
+            nicknames: ["Vince", "Mr. Hale", "Vic"],
+            description:
+                "Vincent has a grip on the city's corporate world, and a taste for the finer things in life. He's often seen at exclusive clubs and high-end restaurants.",
+            tags: ["human", "romance", "corporate"],
+        },
 
         age: 54,
         gender: Gender.M,
@@ -862,7 +867,6 @@ export const NPC_REGISTRY = [
             charisma: 2,
         },
 
-        tags: ["human", "romance", "corporate"],
         homePreference: {
             nameFn: (chosenLocation) => "Vincent's Penthouse",
 
@@ -1050,35 +1054,5 @@ export const NPC_REGISTRY = [
             ],
         },
     },
-    //TODO: gossip type, deliquent type, doctor type, homeless guy type, mayor type, teacher type, mafia type, urban explorer type, dicorced parent type, religious type, stoner type, jaded stripper type
+    //TODO: gossip type, deliquent type, doctor type, homeless guy type, mayor type, teacher type, mafia type, urban explorer type, dicorced parent type, religious type, stoner type, jaded stripper type, band type
 ];
-
-/**
- * Helper that converts a registry entry into NPC constructor options.
- * (Not strictly required, but keeps the shape explicit.)
- */
-export function npcFromRegistryKey(key) {
-    const def = NPC_REGISTRY.find((d) => d.key === key);
-    if (!def) return null;
-
-    return {
-        id: def.key,
-        name: def.name,
-
-        age: def.age,
-        gender: def.gender,
-        preferLocationsWith: def.preferLocationsWith || [],
-        tags: def.tags,
-        pronouns: def.pronouns,
-        stats: def.stats,
-        bodyTemplate: def.bodyTemplate,
-        behavior: def.behavior || null,
-        homePreference: def.homePreference,
-        meta: {
-            tags: def.tags || [],
-            shortName: def.shortName || def.name,
-            registryKey: def.key,
-            description: def.description,
-        },
-    };
-}

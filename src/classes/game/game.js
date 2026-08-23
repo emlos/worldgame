@@ -14,7 +14,7 @@ export class Game {
         seed = rollSeed(),
         startDate = new Date(),
         playerOptions = {},
-        npcTemplates = NPC_REGISTRY,
+        npcTemplates = NPC_REGISTRY.filter((definition) => !definition.meta?.example),
     } = {}) {
         // --- deterministic random streams ---
         // `rnd` remains the general gameplay stream for callers that need one,
@@ -466,12 +466,6 @@ export class Game {
             // Ensure id is always a string
             id = String(id || npc.name);
             npc.id = id;
-
-            // Keep a stable link to static registry behavior so save files can
-            // restore behavior/home naming functions without serializing code.
-            if (def && def.key != null && !npc.meta?.registryKey) {
-                npc.meta = { ...(npc.meta || {}), registryKey: String(def.key) };
-            }
 
             // Attach home + starting location
             // (legacy) preferLocationsWith -> homePreference.withPlaceCategory
