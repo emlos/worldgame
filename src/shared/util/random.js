@@ -66,7 +66,7 @@ export const makeRNG = (seed = rollSeed()) => {
 /**
  * A deterministic collection of independent named RNG streams.
  * Every stream is derived from the same master seed without consuming another
- * stream. Calling stream("weather") can therefore never shift stream("scenes").
+ * stream. Calling stream("weather") can therefore never shift stream("calendar").
  */
 export class RandomStreams {
     constructor(seed = rollSeed()) {

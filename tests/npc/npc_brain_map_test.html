@@ -675,8 +675,6 @@
         seed,
         startDate: START_DATE,
         npcTemplates: [],
-        scenes: [],
-        autoStartScenes: false,
       });
 
       g.world = new World({
@@ -689,8 +687,6 @@
 
       g.npcs = new Map();
       g.log = [];
-      g.currentScene = null;
-      g.sceneManager = null; // this test is about NPC AI only
 
       const template = NPC_REGISTRY.find((def) => def.key === "taylor");
       if (!template) throw new Error("Taylor template not found in NPC_REGISTRY");

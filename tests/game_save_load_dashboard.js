@@ -1,7 +1,6 @@
 import { Game } from "../src/classes/game/game.js";
-import { STRINGS_EN } from "../src/data/i18n/en.js";
 
-const STORAGE_KEY = "worldgame:save-load-dashboard:v5";
+const STORAGE_KEY = "worldgame:save-load-dashboard:v6";
 const MINUTE_MS = 60 * 1000;
 const $ = (id) => document.getElementById(id);
 
@@ -72,7 +71,7 @@ function createGame() {
         const seed = Number.isFinite(rawSeed) ? rawSeed >>> 0 : 12345;
         const startDate = parseUtcInput($("startInput").value);
         $("seedInput").value = String(seed);
-        game = new Game({ seed, startDate, strings: STRINGS_EN });
+        game = new Game({ seed, startDate });
         render();
         setStatus(`Created game seed ${seed} at ${formatDate(game.now)}.`, "pass");
     } catch (error) {
@@ -113,7 +112,7 @@ function saveCurrentGame() {
 function hydrate(text) {
     if (!text.trim()) throw new Error("The save editor is empty.");
     const data = JSON.parse(text);
-    return Game.fromJSON(data, { strings: STRINGS_EN });
+    return Game.fromJSON(data);
 }
 
 function loadEditorSnapshot() {
@@ -205,7 +204,6 @@ function render() {
     $("holidayCard").textContent = holidays.join(", ") || "no holiday";
     $("locationCard").textContent = location?.name || game.currentLocationId || "—";
     $("placeCard").textContent = game.currentPlace?.name || game.currentPlaceKey || "outside";
-    $("sceneCard").textContent = game.currentScene?.id || "none";
     $("flagsCard").textContent = `${game.flags.size} flag${game.flags.size === 1 ? "" : "s"}`;
     $("npcCard").textContent = String(game.npcsArray.length);
     $("activeBrainsCard").textContent = `${activeBrains} active brain${activeBrains === 1 ? "" : "s"}`;
@@ -231,8 +229,6 @@ function render() {
         random: save.random,
         flags: save.flags,
         log: save.log,
-        sceneManager: save.sceneManager,
-        currentScene: game.currentScene,
     });
     $("fullGameJson").textContent = json(save);
     renderNpcTable();
@@ -261,7 +257,7 @@ function initialise() {
         const stored = localStorage.getItem(STORAGE_KEY);
         if (stored) {
             $("saveEditor").value = stored;
-            $("slotStatus").textContent = `Found a stored v5 slot (${formatBytes(new Blob([stored]).size)}).`;
+            $("slotStatus").textContent = `Found a stored v6 slot (${formatBytes(new Blob([stored]).size)}).`;
         }
     } catch (error) {
         $("slotStatus").textContent = `Browser storage unavailable: ${error?.message || String(error)}`;

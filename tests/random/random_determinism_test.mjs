@@ -69,14 +69,14 @@ check("NPC streams are isolated", gameC.getRNG(`npc:${npcB}`)() === gameD.getRNG
 // Save/load must resume every stream, not restart from the master seed.
 const game = new Game({ seed: SEED, startDate: START });
 game.rnd();
-game.getRNG("scenes")();
+game.getRNG("encounters")();
 game.getRNG(`npc:${game.npcsArray[0].id}`)();
 game.advanceMinutes(190);
 
 const save = JSON.parse(JSON.stringify(game));
 const expected = {
     gameplay: game.rnd(),
-    scenes: game.getRNG("scenes")(),
+    encounters: game.getRNG("encounters")(),
     npc: game.getRNG(`npc:${game.npcsArray[0].id}`)(),
     worldRuntime: game.world.rnd(),
     worldMap: game.world.random.stream("map")(),
@@ -85,7 +85,7 @@ const expected = {
 const loaded = Game.fromJSON(save);
 const actual = {
     gameplay: loaded.rnd(),
-    scenes: loaded.getRNG("scenes")(),
+    encounters: loaded.getRNG("encounters")(),
     npc: loaded.getRNG(`npc:${loaded.npcsArray[0].id}`)(),
     worldRuntime: loaded.world.rnd(),
     worldMap: loaded.world.random.stream("map")(),

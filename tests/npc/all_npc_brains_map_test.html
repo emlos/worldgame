@@ -752,8 +752,6 @@
         seed,
         startDate: START_DATE,
         npcTemplates: [],
-        scenes: [],
-        autoStartScenes: false,
       });
 
       g.world = new World({
@@ -766,8 +764,6 @@
 
       g.npcs = new Map();
       g.log = [];
-      g.currentScene = null;
-      g.sceneManager = null;
 
       g._createNPCs(NPC_REGISTRY);
       g._initializeNPCBrains();

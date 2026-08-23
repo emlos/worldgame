@@ -65,8 +65,6 @@ const game = new Game({
     seed: 123,
     startDate: START,
     npcTemplates: [],
-    scenes: [],
-    autoStartScenes: false,
 });
 const gameBeforeLeak = JSON.stringify(game);
 game.now.setUTCFullYear(2040);

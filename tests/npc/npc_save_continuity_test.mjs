@@ -63,8 +63,6 @@ const game = new Game({
     seed: 77,
     startDate: START,
     npcTemplates: [customTemplate],
-    scenes: [],
-    autoStartScenes: false,
 });
 const originalNpc = game.npcsArray[0];
 
@@ -76,11 +74,11 @@ check(
 );
 
 const save = JSON.parse(JSON.stringify(game));
-check("game writes the self-contained save schema", save.saveVersion === 5);
+check("game writes the self-contained save schema", save.saveVersion === 6);
 check("NPC behavior is present in the save", equal(save.npcs[0].behavior, originalNpc.behavior));
 
 // No npcTemplates argument is supplied: hydration must rely only on save data.
-const loaded = Game.fromJSON(save, { scenes: [] });
+const loaded = Game.fromJSON(save);
 const loadedNpc = loaded.npcsArray[0];
 check("custom NPC reloads without its source template", loadedNpc.name === "Custom Guard");
 check("custom NPC brain survives save/load", loadedNpc.brain?.rules.length === 2);
@@ -99,7 +97,7 @@ game.advanceMinutes(12 * 60 + 17);
 loaded.advanceMinutes(12 * 60 + 17);
 check("custom NPC continues identically after loading", equal(loaded, game));
 
-const secondLoad = Game.fromJSON(JSON.parse(JSON.stringify(loaded)), { scenes: [] });
+const secondLoad = Game.fromJSON(JSON.parse(JSON.stringify(loaded)));
 loaded.advanceMinutes(24 * 60 + 31);
 secondLoad.advanceMinutes(24 * 60 + 31);
 check("repeated save/load preserves custom NPC continuation", equal(secondLoad, loaded));

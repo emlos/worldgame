@@ -29,8 +29,6 @@ import * as moonClass from "./classes/world/util/moon.js";
 import * as locationClass from "./classes/world/util/location.js";
 import * as placeClass from "./classes/world/util/place.js";
 import * as streetClass from "./classes/world/util/street.js";
-import * as localisation from "./classes/game/util/localisation.js";
-import * as sceneManager from "./classes/game/util/sceneManager.js";
 import * as game from "./classes/game/game.js";
 
 import * as timeData from "./data/world/time.js";
@@ -42,9 +40,6 @@ import * as streetData from "./data/world/street.js";
 import * as weatherData from "./data/world/weather.js";
 import * as behaviorData from "./data/npc/behavior.js";
 import * as npcData from "./data/npc/npcs.js";
-import * as stringsEn from "./data/i18n/en.js";
-import * as stringsPl from "./data/i18n/pl.js";
-import * as scenes from "./data/scenes/index.js";
 
 // `debug` is intentionally supplied by the embedding HTML page.
 // @ts-ignore
@@ -74,8 +69,6 @@ if (typeof debug !== "undefined" && debug) {
         ...locationClass,
         ...placeClass,
         ...streetClass,
-        ...localisation,
-        ...sceneManager,
         ...game,
         ...timeData,
         ...calendarData,
@@ -86,8 +79,5 @@ if (typeof debug !== "undefined" && debug) {
         ...weatherData,
         ...behaviorData,
         ...npcData,
-        ...stringsEn,
-        ...stringsPl,
-        ...scenes,
     });
 }

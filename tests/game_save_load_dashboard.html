@@ -130,7 +130,7 @@
             <div class="card"><div class="card-label">Weather</div><div id="weatherCard" class="card-value">—</div><div id="temperatureCard" class="card-detail">—</div></div>
             <div class="card"><div class="card-label">Calendar</div><div id="calendarCard" class="card-value">—</div><div id="holidayCard" class="card-detail">—</div></div>
             <div class="card"><div class="card-label">Player location</div><div id="locationCard" class="card-value">—</div><div id="placeCard" class="card-detail">—</div></div>
-            <div class="card"><div class="card-label">Active scene</div><div id="sceneCard" class="card-value">—</div><div id="flagsCard" class="card-detail">—</div></div>
+            <div class="card"><div class="card-label">Story flags</div><div id="flagsCard" class="card-value">—</div><div class="card-detail">Persisted state</div></div>
             <div class="card"><div class="card-label">NPCs</div><div id="npcCard" class="card-value">—</div><div id="activeBrainsCard" class="card-detail">—</div></div>
             <div class="card"><div class="card-label">World map</div><div id="mapCard" class="card-value">—</div><div id="placeCountCard" class="card-detail">—</div></div>
             <div class="card"><div class="card-label">Save schema</div><div id="schemaCard" class="card-value">—</div><div id="saveSizeCard" class="card-detail">—</div></div>
@@ -183,7 +183,7 @@
 
                 <section class="panel">
                     <h2>Complete serialized Game</h2>
-                    <p class="muted">This is every persisted field used by <code>Game.fromJSON()</code>, including player, world map, weather history, calendar, NPC behavior and brains, scenes, logs, flags, and RNG streams.</p>
+                    <p class="muted">This is every persisted field used by <code>Game.fromJSON()</code>, including player, world map, weather history, calendar, NPC behavior and brains, logs, flags, and RNG streams.</p>
                     <pre id="fullGameJson">—</pre>
                 </section>
             </div>
@@ -197,7 +197,7 @@
                         <pre id="playerJson">—</pre>
                     </details>
                     <details>
-                        <summary>Scene, flags, log, and RNG</summary>
+                        <summary>Flags, log, and RNG</summary>
                         <pre id="runtimeJson">—</pre>
                     </details>
                 </section>

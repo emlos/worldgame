@@ -5,9 +5,6 @@ import { NPC } from "../npc/npc.js";
 import { RandomStreams, deriveSeed, normalizeSeed, rollSeed } from "../../shared/util/random.js";
 import { PLACE_TAGS } from "../../data/world/place.js";
 import { NPC_REGISTRY } from "../../data/npc/npcs.js";
-import { Localizer } from "./util/localisation.js";
-import { SceneManager } from "./util/sceneManager.js";
-import { SCENE_DEFS } from "../../data/scenes/index.js";
 
 const MS_PER_MINUTE = 60 * 1000;
 
@@ -18,14 +15,6 @@ export class Game {
         startDate = new Date(),
         playerOptions = {},
         npcTemplates = NPC_REGISTRY,
-        strings = null,
-        scenes = SCENE_DEFS,
-        // SceneManager: first scene shown on start (first update)
-        defaultSceneId = null,
-        // SceneManager: shown when next scene can't be resolved
-        fallbackSceneId = null,
-        // If false, scenes will not resolve until game.startGame() is called.
-        autoStartScenes = true,
     } = {}) {
         // --- deterministic random streams ---
         // `rnd` remains the general gameplay stream for callers that need one,
@@ -45,9 +34,6 @@ export class Game {
 
         // --- story flags (separate from skills) ---
         this.flags = new Set();
-
-        // --- localisation ---
-        this.localizer = new Localizer(strings);
 
         // --- npcs ---
         this.npcs = new Map();
@@ -98,9 +84,6 @@ export class Game {
             this.currentPlaceKey = null;
         }
 
-        // For later: currently active “event/scene”
-        this.currentScene = null;
-
         // Simple log of actions for debugging / history
         this.log = [];
 
@@ -109,21 +92,7 @@ export class Game {
             time: new Set(), // (game, minutes) => void
             timeJump: new Set(), // (game, { from, to, minutes, mode, source }) => void
             location: new Set(), // (game, newLocationId) => void
-            scene: new Set(), // (game, sceneOrNull) => void
         };
-
-        // --- scenes ---
-        this.sceneManager = new SceneManager({
-            game: this,
-            scenes,
-            localizer: this.localizer,
-            rnd: this.getRNG("scenes"),
-            defaultSceneId,
-            fallbackSceneId,
-            autoStart: autoStartScenes,
-        });
-
-        if (autoStartScenes) this.startGame();
     }
 
     // --------------------------
@@ -226,8 +195,6 @@ export class Game {
             for (const cb of this._listeners.timeJump) cb(this, change);
         }
 
-        // Scenes resolve once from the fully committed destination state.
-        this.sceneManager?.update();
         return change;
     }
 
@@ -248,7 +215,6 @@ export class Game {
         this.world.setDate(snapshot.date);
         this.random.restoreJSON(snapshot.random);
         this.rnd = this.getRNG("gameplay");
-        if (this.sceneManager) this.sceneManager.rnd = this.getRNG("scenes");
 
         for (const state of snapshot.npcs) {
             state.npc.setLocationAndPlace(state.locationId, state.currentPlaceId);
@@ -273,7 +239,6 @@ export class Game {
         // Subscribers should observe a fully consistent position.
         for (const cb of this._listeners.location) cb(this, locationId);
 
-        this.sceneManager?.update();
     }
 
     /**
@@ -284,7 +249,6 @@ export class Game {
         if (placeId == null) {
             this.currentPlaceId = null;
             this.currentPlaceKey = placeKey == null ? null : String(placeKey);
-            this.sceneManager?.update();
             return;
         }
 
@@ -303,7 +267,6 @@ export class Game {
         // place keys are represented only by { placeId: null, placeKey: ... }.
         this.currentPlaceId = place.id;
         this.currentPlaceKey = place.key ?? null;
-        this.sceneManager?.update();
     }
 
     // --- Story flags ---
@@ -311,17 +274,15 @@ export class Game {
         const key = String(flag);
         if (value) this.flags.add(key);
         else this.flags.delete(key);
-        this.sceneManager?.update();
     }
     clearFlag(flag) {
         this.flags.delete(String(flag));
-        this.sceneManager?.update();
     }
     hasFlag(flag) {
         return this.flags.has(String(flag));
     }
 
-    // --- Convenience queries used by scenes ---
+    // --- Convenience queries ---
     getNPCsAtLocation(locationId = this.currentLocationId) {
         const id = String(locationId);
         return this.npcsArray.filter((n) => String(n.locationId) === id);
@@ -347,33 +308,12 @@ export class Game {
     }
 
     // --------------------------
-    // Scenes (events will use this later)
-    // --------------------------
-    startScene(scene) {
-        this.currentScene = scene;
-        for (const cb of this._listeners.scene) cb(this, scene);
-    }
-
-    endScene() {
-        this.currentScene = null;
-        for (const cb of this._listeners.scene) cb(this, null);
-    }
-
-    /**
-     * Start resolving scenes. Useful for a UI "Start Game" button.
-     */
-    startGame({ forceSceneId = null } = {}) {
-        return this.sceneManager?.start({ forceSceneId });
-    }
-
-    // --------------------------
     // Simple event/listener API
     // --------------------------
     /**
      * game.on("time", cb) -> unsubscribe function
      * game.on("timeJump", cb)
      * game.on("location", cb)
-     * game.on("scene", cb)
      */
     on(eventName, fn) {
         const set = this._listeners[eventName];
@@ -387,7 +327,7 @@ export class Game {
     // --------------------------
     toJSON() {
         return {
-            saveVersion: 5,
+            saveVersion: 6,
             seed: this.seed,
             random: this.random.toJSON(),
             time: this.now.toISOString(),
@@ -401,46 +341,32 @@ export class Game {
             currentPlaceKey: this.currentPlaceKey,
             flags: [...this.flags],
             log: this.log.map((entry) => ({ ...entry })),
-            sceneManager: this.sceneManager?.toJSON?.() ?? null,
         };
     }
 
-    static fromJSON(
-        data,
-        {
-            strings = null,
-            scenes = SCENE_DEFS,
-            traitResolver = null,
-        } = {},
-    ) {
+    static fromJSON(data, { traitResolver = null } = {}) {
         if (!data || typeof data !== "object") {
             throw new Error("Game.fromJSON expects a parsed save object");
         }
 
-        if (data.saveVersion !== 5) {
+        if (data.saveVersion !== 6) {
             throw new Error(`Unsupported save version: ${data.saveVersion}`);
         }
 
         const savedStartDate = data.world.time.date;
 
         // Construct only the runtime shell. Most constructor-generated state is
-        // replaced below, and scenes remain stopped until hydration is complete.
+        // replaced below during hydration.
         const game = new Game({
             seed: data.seed,
             startDate: new Date(savedStartDate),
             playerOptions: {},
             npcTemplates: [],
-            strings,
-            scenes,
-            defaultSceneId: data?.sceneManager?.defaultSceneId ?? null,
-            fallbackSceneId: data?.sceneManager?.fallbackSceneId ?? null,
-            autoStartScenes: false,
         });
 
         game.random = RandomStreams.fromJSON(data.random);
         game.rnd = game.getRNG("gameplay");
         game.world = World.fromJSON(data.world);
-        game.sceneManager.rnd = game.getRNG("scenes");
 
         game.player = Player.fromJSON(data.player || {}, { traitResolver });
 
@@ -469,7 +395,6 @@ export class Game {
         game.flags = new Set(Array.isArray(data.flags) ? data.flags.map(String) : []);
         game.log = Array.isArray(data.log) ? data.log.map((entry) => ({ ...entry })) : [];
 
-        game.sceneManager.restoreJSON(data.sceneManager);
         game._initializeNPCBrains();
 
         // `time` is the canonical, easy-to-edit game-save clock. If it differs
