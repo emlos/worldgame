@@ -14,6 +14,13 @@ export class Stat {
   addFlat(v) { this._add.push(Number(v) || 0); return this; }
   addMult(factor) { this._mult.push(Number(factor) || 1); return this; }
   clearModifiers() { this._add = []; this._mult = []; }
+  /** Return a detached copy, preserving base and every stored modifier. */
+  clone() {
+    const stat = new Stat(this._base);
+    stat._add = this._add.slice();
+    stat._mult = this._mult.slice();
+    return stat;
+  }
   /** Computed value with current modifiers. */
   get value() {
     const sumAdd = this._add.reduce((a, b) => a + b, 0);

@@ -123,21 +123,18 @@ export class Player {
         this.stats[name].base = v;
     }
     /**
-     * Compute stat with trait modifiers applied. You can extend with item buffs, etc.
+     * Compute stat with trait modifiers applied without mutating stored state.
      */
     getStatValue(name) {
-        const s = this.stats[name] || new Stat(0);
-        // clear temporary before apply
-        s.clearModifiers();
-        // apply trait modifiers
+        const evaluated = (this.stats[name] || new Stat(0)).clone();
         for (const trait of this.traits.values()) {
             if (!trait.has(this)) continue;
             const mods = trait.statMods?.[name];
-            if (mods?.add) mods.add.forEach((v) => s.addFlat(v));
-            if (mods?.mult) mods.mult.forEach((m) => s.addMult(m));
+            if (mods?.add) mods.add.forEach((v) => evaluated.addFlat(v));
+            if (mods?.mult) mods.mult.forEach((m) => evaluated.addMult(m));
         }
         // clothing / other systems could hook here later
-        return s.value;
+        return evaluated.value;
     }
 
     // --- Traits ---

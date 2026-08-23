@@ -13,6 +13,7 @@ export const NPC_REGISTRY = [
         id: "taylor",
         name: "Taylor Morgan",
         meta: {
+           // example: true, test flag, remove before release
             shortName: "Taylor",
             nicknames: ["Tay"],
             description:

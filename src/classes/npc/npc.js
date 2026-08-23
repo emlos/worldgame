@@ -182,15 +182,14 @@ export class NPC {
         return this.stats[name]?.base ?? 0;
     }
     getStatValue(name) {
-        const base = this.getStatBase(name);
-        const temp = new Stat(base);
+        const evaluated = (this.stats[name] || new Stat(0)).clone();
         for (const trait of this.traits.values()) {
             if (!trait.has(this)) continue;
             const mods = trait.statMods?.[name];
-            if (mods?.add) mods.add.forEach((v) => temp.addFlat(v));
-            if (mods?.mult) mods.mult.forEach((m) => temp.addMult(m));
+            if (mods?.add) mods.add.forEach((v) => evaluated.addFlat(v));
+            if (mods?.mult) mods.mult.forEach((m) => evaluated.addMult(m));
         }
-        return temp.value;
+        return evaluated.value;
     }
 
     //sets a flag to a value (default true)
