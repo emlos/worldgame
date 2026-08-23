@@ -9,6 +9,8 @@ import { Localizer } from "./util/localisation.js";
 import { SceneManager } from "./util/sceneManager.js";
 import { SCENE_DEFS } from "../../data/scenes/index.js";
 
+const MS_PER_MINUTE = 60 * 1000;
+
 // High-level orchestrator for world + player + NPCs.
 export class Game {
     constructor({
@@ -105,6 +107,7 @@ export class Game {
         // simple event system for UI / other systems to subscribe
         this._listeners = {
             time: new Set(), // (game, minutes) => void
+            timeJump: new Set(), // (game, { from, to, minutes, mode, source }) => void
             location: new Set(), // (game, newLocationId) => void
             scene: new Set(), // (game, sceneOrNull) => void
         };
@@ -153,25 +156,104 @@ export class Game {
     // Time & actions
     // --------------------------
     /**
-     * Advance world time by N minutes.
-     * Later this is where you'll hook NPC AI, queued events, etc.
+     * Advance world time by N minutes and exactly simulate intervening NPC decisions.
      */
     advanceMinutes(mins) {
         if (!Number.isFinite(mins) || mins <= 0) return;
 
-        this.world.advance(mins);
+        const target = new Date(this.now.getTime() + mins * MS_PER_MINUTE);
+        return this._changeTimeTo(target, { mode: "simulate", source: "advance" });
+    }
 
-        // NPC brains resolve only meaningful decision points between their last
-        // update and the new world time; no minute-by-minute schedule is generated.
-        for (const npc of this.npcs.values()) {
-            npc.brain?.updateTo(this.now, this);
+    /**
+     * Move to an absolute timestamp. The default resync mode discards skipped NPC
+     * micro-history and reconstructs a coherent destination state. Use
+     * { mode: "simulate" } when every intervening decision must be processed.
+     */
+    jumpToDate(value, { mode = "resync" } = {}) {
+        const target = value instanceof Date ? new Date(value.getTime()) : new Date(value);
+        if (!Number.isFinite(target.getTime())) {
+            throw new Error(`Invalid jump date: ${value}`);
+        }
+        if (mode !== "resync" && mode !== "simulate") {
+            throw new Error(`Unknown time jump mode: ${mode}`);
         }
 
-        // Notify listeners (UI, debug, etc.)
-        for (const cb of this._listeners.time) cb(this, mins);
+        return this._changeTimeTo(target, { mode, source: "jump" });
+    }
 
-        // Scenes can be time-dependent
+    _changeTimeTo(target, { mode, source }) {
+        const from = new Date(this.now.getTime());
+        const to = new Date(target.getTime());
+        const minutes = (to.getTime() - from.getTime()) / MS_PER_MINUTE;
+
+        if (mode === "simulate" && minutes < 0) {
+            throw new RangeError("Simulated time changes cannot run backwards; use resync mode");
+        }
+        if (mode === "simulate" && minutes === 0) {
+            return { from, to, minutes, mode, source };
+        }
+
+        const snapshot = this._captureTimeRuntimeState();
+        try {
+            if (mode === "simulate") {
+                this.world.advance(minutes);
+
+                // Brains resolve meaningful decision boundaries, not every minute.
+                for (const npc of this.npcs.values()) {
+                    npc.brain?.updateTo(this.now, this);
+                }
+            } else {
+                this.world.setDate(to);
+
+                for (const npc of this.npcs.values()) {
+                    npc.brain?.resyncAt(this.now, this);
+                }
+            }
+        } catch (error) {
+            this._restoreTimeRuntimeState(snapshot);
+            throw error;
+        }
+
+        const change = { from, to: new Date(this.now.getTime()), minutes, mode, source };
+
+        if (mode === "simulate") {
+            // Normal time listeners are reserved for genuinely simulated elapsed time.
+            for (const cb of this._listeners.time) cb(this, minutes, change);
+        } else {
+            // A resync is observational: skipped wages, encounters, deliveries, etc.
+            // must not be inferred from the size of this delta.
+            for (const cb of this._listeners.timeJump) cb(this, change);
+        }
+
+        // Scenes resolve once from the fully committed destination state.
         this.sceneManager?.update();
+        return change;
+    }
+
+    _captureTimeRuntimeState() {
+        return {
+            date: new Date(this.now.getTime()),
+            random: this.random.toJSON(),
+            npcs: this.npcsArray.map((npc) => ({
+                npc,
+                locationId: npc.locationId,
+                currentPlaceId: npc.currentPlaceId,
+                brain: npc.brain?.toJSON?.() ?? null,
+            })),
+        };
+    }
+
+    _restoreTimeRuntimeState(snapshot) {
+        this.world.setDate(snapshot.date);
+        this.random.restoreJSON(snapshot.random);
+        this.rnd = this.getRNG("gameplay");
+        if (this.sceneManager) this.sceneManager.rnd = this.getRNG("scenes");
+
+        for (const state of snapshot.npcs) {
+            state.npc.setLocationAndPlace(state.locationId, state.currentPlaceId);
+            if (state.npc.brain && state.brain) state.npc.brain.restoreJSON(state.brain);
+        }
     }
 
     /**
@@ -289,6 +371,7 @@ export class Game {
     // --------------------------
     /**
      * game.on("time", cb) -> unsubscribe function
+     * game.on("timeJump", cb)
      * game.on("location", cb)
      * game.on("scene", cb)
      */
@@ -414,6 +497,21 @@ export class Game {
 
         game.sceneManager.restoreJSON(data.sceneManager);
         game._initializeNPCBrains();
+
+        // `time` is the canonical, easy-to-edit game-save clock. If it differs
+        // from the nested world clock (or any saved brain clock is stale), treat
+        // loading as an explicit resync rather than replaying the missing history.
+        const savedGameTime = new Date(data.time ?? game.now);
+        if (!Number.isFinite(savedGameTime.getTime())) {
+            throw new Error(`Invalid saved game time: ${data.time}`);
+        }
+        const hasStaleBrain = game.npcsArray.some(
+            (npc) =>
+                npc.brain && npc.brain.lastUpdatedAt?.getTime() !== savedGameTime.getTime(),
+        );
+        if (game.now.getTime() !== savedGameTime.getTime() || hasStaleBrain) {
+            game.jumpToDate(savedGameTime);
+        }
 
         return game;
     }

@@ -34,6 +34,16 @@ export class WorldTime {
         return afterDayIndex - beforeDayIndex;
     }
 
+    /** Set the absolute world timestamp without implying that intervening time was simulated. */
+    setDate(value) {
+        const date = value instanceof Date ? new Date(value.getTime()) : new Date(value);
+        if (!Number.isFinite(date.getTime())) {
+            throw new Error(`Invalid world date: ${value}`);
+        }
+        this.date = date;
+        return new Date(this.date.getTime());
+    }
+
     toJSON() {
         return { date: this.date.toISOString() };
     }

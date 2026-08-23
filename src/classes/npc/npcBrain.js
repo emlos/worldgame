@@ -1,11 +1,12 @@
 import { parseTimeToMinutes } from "../../shared/util/date.js";
-import { makeRNG, randInt, weightedPick } from "../../shared/util/random.js";
+import { deriveSeed, makeRNG, randInt, weightedPick } from "../../shared/util/random.js";
 import { GOAL_TYPE, TARGET_TYPE, NPC_ACTION_TYPE } from "../../data/npc/behavior.js";
 import { DAY_KEYS } from "../../data/world/time.js";
 
 const MS_PER_MINUTE = 60 * 1000;
 const MS_PER_DAY = 24 * 60 * MS_PER_MINUTE;
 const EPSILON_MS = 1;
+const MAX_DECISIONS_PER_UPDATE = 100_000;
 
 function asDate(value) {
     if (value instanceof Date) return new Date(value.getTime());
@@ -64,6 +65,7 @@ export class NPCBrain {
         this.npc = npc;
         this.behavior = behavior || { goals: [] };
         this._fallbackRng = makeRNG();
+        this._rngOverride = null;
 
         this.currentGoal = null;
         this.currentAction = null;
@@ -72,7 +74,11 @@ export class NPCBrain {
     }
 
     _rng(game) {
-        return game?.getRNG?.(`npc:${this.npc?.id ?? "unknown"}`) ?? this._fallbackRng;
+        return (
+            this._rngOverride ??
+            game?.getRNG?.(`npc:${this.npc?.id ?? "unknown"}`) ??
+            this._fallbackRng
+        );
     }
 
     get rules() {
@@ -86,6 +92,100 @@ export class NPCBrain {
 
         this.lastUpdatedAt = now;
         this._decideAt(now, game);
+    }
+
+    /**
+     * Reconstruct a coherent NPC snapshot at an absolute date without replaying
+     * every skipped decision. Random choices are keyed to the destination and do
+     * not consume the NPC's normal sequential RNG stream.
+     */
+    resyncAt(at, game) {
+        const targetDate = asDate(at);
+        if (!targetDate) throw new Error(`Invalid NPC resync date: ${at}`);
+
+        // Historical micro-state is intentionally discarded. Home is the stable
+        // anchor used to calculate the schedule and any pre-obligation travel.
+        if (this.npc.homeLocationId != null) {
+            this.npc.setLocationAndPlace(this.npc.homeLocationId, this.npc.homePlaceId ?? null);
+        }
+        this.currentGoal = null;
+        this.currentAction = null;
+        this.nextDecisionAt = null;
+        this.lastUpdatedAt = targetDate;
+
+        const candidates = this._getDecisionCandidates(targetDate, game);
+        const bestPriority = candidates.length
+            ? Math.max(...candidates.map((candidate) => candidate.priority))
+            : -Infinity;
+        let remaining = candidates.filter((candidate) => candidate.priority === bestPriority);
+        const signature = remaining
+            .map(
+                (candidate) =>
+                    `${candidate.rule.id}@${candidate.interval.start.toISOString()}-${candidate.interval.end.toISOString()}`,
+            )
+            .sort()
+            .join("|");
+        const jumpSeed = deriveSeed(
+            game?.seed ?? 0,
+            `npc-resync:${this.npc?.id ?? "unknown"}:${signature || targetDate.toISOString()}`,
+        );
+
+        this._rngOverride = makeRNG(jumpSeed);
+        try {
+            let selected = null;
+            let resolvedTarget = null;
+
+            while (remaining.length && !resolvedTarget) {
+                selected = weightedPick(remaining, this._rng(game), (candidate) => candidate.weight);
+                if (!selected) break;
+                resolvedTarget =
+                    selected.target ||
+                    this._resolveTarget(selected.rule, targetDate, game, {
+                        deterministic: selected.rule.type === GOAL_TYPE.obligation,
+                    });
+                if (!resolvedTarget) {
+                    remaining = remaining.filter((candidate) => candidate !== selected);
+                    selected = null;
+                }
+            }
+
+            if (!selected || !resolvedTarget) {
+                this.currentAction = {
+                    type: NPC_ACTION_TYPE.idle,
+                    startedAt: targetDate.toISOString(),
+                };
+            } else if (selected.interval.start > targetDate) {
+                // The NPC is already en route to an upcoming obligation. Rebuild
+                // that travel from its calculated departure and advance it only
+                // to the destination timestamp.
+                const travelMinutes = Math.max(0, Number(resolvedTarget.travelMinutes) || 0);
+                const departureAt = addMinutes(selected.interval.start, -travelMinutes);
+                this._startGoal({ ...selected, target: resolvedTarget }, departureAt, game);
+                this._advanceActionTo(targetDate);
+            } else {
+                // An active schedule window means the NPC is already at its
+                // destination; skipped travel is not replayed.
+                this.npc.setLocationAndPlace(
+                    resolvedTarget.locationId,
+                    resolvedTarget.placeId ?? null,
+                );
+                this._startGoal({ ...selected, target: resolvedTarget }, targetDate, game);
+            }
+
+            if (!this.currentAction) {
+                this.currentGoal = null;
+                this.currentAction = {
+                    type: NPC_ACTION_TYPE.idle,
+                    startedAt: targetDate.toISOString(),
+                };
+            }
+            this._scheduleNextWake(targetDate, game);
+        } finally {
+            this._rngOverride = null;
+        }
+
+        this.lastUpdatedAt = targetDate;
+        return this.toJSON();
     }
 
     updateTo(at, game) {
@@ -103,21 +203,26 @@ export class NPCBrain {
             return;
         }
 
-        let guard = 0;
-        while (
-            this.nextDecisionAt &&
-            this.nextDecisionAt.getTime() <= target.getTime() &&
-            guard++ < 1000
-        ) {
+        let decisions = 0;
+        while (this.nextDecisionAt && this.nextDecisionAt.getTime() <= target.getTime()) {
+            if (decisions >= MAX_DECISIONS_PER_UPDATE) {
+                throw new Error(
+                    `NPCBrain decision loop exceeded ${MAX_DECISIONS_PER_UPDATE} decisions for '${this.npc?.id}'`,
+                );
+            }
+
             const decisionAt = new Date(this.nextDecisionAt.getTime());
             this._advanceActionTo(decisionAt);
             this.lastUpdatedAt = decisionAt;
             this._completeActionIfDue(decisionAt);
             this._decideAt(decisionAt, game);
-        }
+            decisions++;
 
-        if (guard >= 1000) {
-            throw new Error(`NPCBrain decision loop exceeded safety limit for '${this.npc?.id}'`);
+            if (this.nextDecisionAt && this.nextDecisionAt.getTime() <= decisionAt.getTime()) {
+                throw new Error(
+                    `NPCBrain failed to schedule a future decision for '${this.npc?.id}' at ${decisionAt.toISOString()}`,
+                );
+            }
         }
 
         this._advanceActionTo(target);

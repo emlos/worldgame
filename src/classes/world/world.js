@@ -60,12 +60,24 @@ export class World {
 
         const targetDate = new Date(this.time.date.getTime() + amount * 60 * 1000);
 
+        return this.setDate(targetDate);
+    }
+
+    /**
+     * Synchronize clock-dependent world state to an absolute timestamp.
+     * This does not simulate gameplay events between the old and new dates.
+     */
+    setDate(value) {
+        const targetDate = value instanceof Date ? new Date(value.getTime()) : new Date(value);
+        if (!Number.isFinite(targetDate.getTime())) {
+            throw new Error(`Invalid world date: ${value}`);
+        }
+
         // Resolve weather before mutating world time so an invalid rewind leaves
         // the whole world unchanged.
         this.weather.advanceTo(targetDate);
 
-        // Move world time
-        this.time.advanceMinutes(amount);
+        this.time.setDate(targetDate);
 
         // If year changed, rebuild calendar
         const newYear = this.time.date.getUTCFullYear();
@@ -73,11 +85,12 @@ export class World {
             this.calendar.setYear(newYear);
         }
 
-        // Step moon
-        this.moon.step(amount, this.time.date);
+        this.moon.setDate(this.time.date);
 
         // Recompute temperature at the new time with the latest weather
         this.temperatureC = this.weather.computeTemperature(this.time.date, this.weather.kind);
+
+        return new Date(this.time.date.getTime());
     }
 
     // --- Environment snapshot for a given time ---
@@ -172,6 +185,8 @@ export class World {
         world.calendar = Calendar.fromJSON(data.calendar, {
             rnd: world.random.stream("calendar"),
         });
+        const savedYear = world.time.date.getUTCFullYear();
+        if (world.calendar.year !== savedYear) world.calendar.setYear(savedYear);
         world.weather = Weather.fromJSON(data.weather, {
             seed: world.random.seed,
         });
@@ -183,6 +198,7 @@ export class World {
             world.weather.kind,
         );
         world.moon = Moon.fromJSON(data.moon);
+        world.moon.setDate(world.time.date);
         world.map = WorldMap.fromJSON(data.map, { rnd: world.random.stream("map") });
         return world;
     }
