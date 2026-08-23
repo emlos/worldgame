@@ -36,14 +36,14 @@ check(
 
 // Temperature reads are pure.
 const weather = new Weather({ seed: SEED, startDate: START });
-const weatherState = weather._rnd.getState();
+const weatherState = JSON.stringify(weather);
 const firstTemperature = weather.computeTemperature(START);
 const repeatedTemperatures = Array.from({ length: 25 }, () => weather.computeTemperature(START));
 check(
     "temperature is stable for one timestamp",
     repeatedTemperatures.every((value) => value === firstTemperature),
 );
-check("temperature reads do not consume weather RNG", weather._rnd.getState() === weatherState);
+check("temperature reads do not mutate weather", JSON.stringify(weather) === weatherState);
 
 // Extra environment reads on one copy must not change later simulation.
 const gameA = new Game({ seed: SEED, startDate: START });
@@ -79,7 +79,6 @@ const expected = {
     scenes: game.getRNG("scenes")(),
     npc: game.getRNG(`npc:${game.npcsArray[0].id}`)(),
     worldRuntime: game.world.rnd(),
-    worldWeather: game.world.random.stream("weather")(),
     worldMap: game.world.random.stream("map")(),
 };
 
@@ -89,7 +88,6 @@ const actual = {
     scenes: loaded.getRNG("scenes")(),
     npc: loaded.getRNG(`npc:${loaded.npcsArray[0].id}`)(),
     worldRuntime: loaded.world.rnd(),
-    worldWeather: loaded.world.random.stream("weather")(),
     worldMap: loaded.world.random.stream("map")(),
 };
 check("save/load resumes all RNG streams", equal(expected, actual));

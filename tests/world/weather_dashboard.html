@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Weather Timeline Dashboard</title>
+    <style>
+        :root {
+            color-scheme: dark;
+            --bg: #071019;
+            --panel: #0d1a26;
+            --panel-2: #112332;
+            --line: #243b4c;
+            --text: #e8f1f6;
+            --muted: #91a7b5;
+            --cyan: #51d8e5;
+            --blue: #5f8cff;
+            --green: #65d69a;
+            --amber: #f5bf62;
+            --red: #ff7c83;
+        }
+
+        * { box-sizing: border-box; }
+        html, body { margin: 0; min-height: 100%; background: var(--bg); color: var(--text); }
+        body { font: 14px/1.45 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; padding: 18px; }
+        button, input { font: inherit; }
+        button {
+            min-height: 38px;
+            border: 1px solid var(--line);
+            border-radius: 9px;
+            padding: 7px 12px;
+            color: var(--text);
+            background: #182c3b;
+            cursor: pointer;
+        }
+        button:hover { background: #213b4e; }
+        button:disabled { opacity: .45; cursor: default; }
+        button.primary { background: #22567d; border-color: #347baa; }
+        button.primary:hover { background: #2a6a99; }
+        input {
+            min-height: 38px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 6px 9px;
+            background: #08141e;
+            color: var(--text);
+        }
+        input[type="range"] { width: min(440px, 100%); padding: 0; }
+        code { color: #b8e8ee; }
+        a { color: #82d9e5; }
+
+        .wrap { width: min(1440px, 100%); margin: 0 auto; }
+        .topbar { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; flex-wrap: wrap; margin-bottom: 14px; }
+        h1 { font-size: clamp(22px, 3vw, 34px); line-height: 1.1; margin: 4px 0; }
+        h2 { font-size: 16px; margin: 0 0 12px; }
+        p { margin: 4px 0; }
+        .muted { color: var(--muted); }
+        .eyebrow { color: var(--cyan); text-transform: uppercase; letter-spacing: .12em; font-size: 11px; font-weight: 700; }
+        .panel { background: linear-gradient(155deg, var(--panel), #0a1721); border: 1px solid var(--line); border-radius: 14px; padding: 14px; box-shadow: 0 14px 35px rgba(0,0,0,.2); }
+        .controls { display: flex; align-items: flex-end; flex-wrap: wrap; gap: 10px; }
+        .field { display: flex; flex-direction: column; gap: 4px; }
+        .field label { color: var(--muted); font-size: 12px; }
+        .dashboard { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(310px, .55fr); gap: 14px; margin-top: 14px; }
+        .main, .side { min-width: 0; }
+        .cards { display: grid; grid-template-columns: repeat(6, minmax(125px, 1fr)); gap: 10px; margin-bottom: 14px; }
+        .card { min-height: 104px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 12px; padding: 12px; }
+        .card-label { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
+        .card-value { margin-top: 7px; font-size: 20px; font-weight: 720; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+        .card-detail { margin-top: 3px; color: var(--muted); font-size: 12px; }
+        .weather-value { display: flex; align-items: center; gap: 7px; text-transform: capitalize; }
+        .weather-icon { font-size: 25px; }
+        .advance-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 11px 0; }
+        .speed-row { display: grid; grid-template-columns: auto minmax(180px, 1fr) auto; align-items: center; gap: 12px; }
+        #speedLabel { min-width: 130px; color: var(--cyan); font-weight: 650; }
+        #temperatureChart { display: block; width: 100%; height: auto; min-height: 230px; background: #08131c; border: 1px solid var(--line); border-radius: 10px; }
+        .chart-legend { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; color: var(--muted); font-size: 12px; }
+        .query-result { min-height: 124px; margin-top: 12px; padding: 12px; border-radius: 10px; background: #08141e; border: 1px solid var(--line); }
+        .query-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 9px; }
+        .query-grid div { background: #102332; border-radius: 8px; padding: 8px; }
+        .pass { color: var(--green); }
+        .fail { color: var(--red); }
+        .error { color: var(--red); white-space: pre-wrap; }
+        .table-shell { overflow: auto; max-height: 460px; border: 1px solid var(--line); border-radius: 10px; }
+        table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+        th, td { padding: 8px 9px; border-bottom: 1px solid #1d3342; text-align: left; white-space: nowrap; }
+        th { position: sticky; top: 0; z-index: 1; background: #132635; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
+        tr:last-child td { border-bottom: 0; }
+        .section-gap { margin-top: 14px; }
+        .status-line { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+        .status-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--green); box-shadow: 0 0 12px rgba(101,214,154,.6); }
+
+        @media (max-width: 1100px) {
+            .cards { grid-template-columns: repeat(3, 1fr); }
+            .dashboard { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 620px) {
+            body { padding: 10px; }
+            .cards { grid-template-columns: repeat(2, 1fr); }
+            .speed-row { grid-template-columns: 1fr; }
+            .query-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+    <script type="module" src="./weather_dashboard.js"></script>
+</head>
+<body>
+    <main class="wrap">
+        <div class="topbar">
+            <div>
+                <div class="eyebrow">Deterministic timeline test</div>
+                <h1>Weather dashboard</h1>
+                <p class="muted">Advance committed world time, inspect arbitrary dates, and verify that queries do not alter the simulation.</p>
+                <p><a href="../../index.html">← back to tests</a></p>
+            </div>
+            <div class="status-line"><span class="status-dot"></span><span id="engineStatus">initialising…</span></div>
+        </div>
+
+        <section class="panel">
+            <div class="controls">
+                <div class="field">
+                    <label for="seedInput">World seed</label>
+                    <input id="seedInput" type="number" min="0" max="4294967295" step="1" value="123" />
+                </div>
+                <div class="field">
+                    <label for="startInput">Timeline origin (UTC)</label>
+                    <input id="startInput" type="datetime-local" value="2026-01-15T07:00" />
+                </div>
+                <button id="randomSeedBtn">random seed</button>
+                <button id="resetBtn" class="primary">reset timeline</button>
+            </div>
+
+            <div class="advance-row" aria-label="Advance time controls">
+                <button id="rewindHourBtn" data-minutes="-60">−1 hour</button>
+                <button data-minutes="1">+1 minute</button>
+                <button data-minutes="5">+5 minutes</button>
+                <button data-minutes="60">+1 hour</button>
+                <button data-minutes="360">+6 hours</button>
+                <button data-minutes="1440">+1 day</button>
+                <button data-minutes="10080">+7 days</button>
+                <button data-minutes="43200">+30 days</button>
+            </div>
+
+            <div class="speed-row">
+                <button id="playPauseBtn" class="primary">play</button>
+                <input id="speedSlider" type="range" min="0" max="6" step="1" value="2" aria-label="Simulation speed" />
+                <span id="speedLabel">5 game min/s</span>
+            </div>
+        </section>
+
+        <div class="dashboard">
+            <div class="main">
+                <section class="cards" aria-label="Current weather summary">
+                    <div class="card"><div class="card-label">Committed time</div><div class="card-value" id="currentTime">—</div><div class="card-detail">UTC</div></div>
+                    <div class="card"><div class="card-label">Weather</div><div class="card-value weather-value"><span class="weather-icon" id="weatherIcon">—</span><span id="weatherKind">—</span></div><div class="card-detail" id="weatherRun">—</div></div>
+                    <div class="card"><div class="card-label">Temperature</div><div class="card-value" id="temperature">—</div><div class="card-detail">deterministic + smoothed noise</div></div>
+                    <div class="card"><div class="card-label">Season</div><div class="card-value" id="season">—</div><div class="card-detail" id="monthLabel">—</div></div>
+                    <div class="card"><div class="card-label">Next boundary</div><div class="card-value" id="nextBoundary">—</div><div class="card-detail">strictly after current instant</div></div>
+                    <div class="card"><div class="card-label">Timeline age</div><div class="card-value" id="timelineAge">—</div><div class="card-detail" id="originLabel">—</div></div>
+                </section>
+
+                <section class="panel">
+                    <h2>72-hour deterministic outlook</h2>
+                    <svg id="temperatureChart" viewBox="0 0 960 250" role="img" aria-label="Temperature forecast for the next 72 hours"></svg>
+                    <div class="chart-legend"><span>Line: temperature</span><span>Top strip: hourly weather state</span><span>Queries do not advance the world</span></div>
+                </section>
+
+                <section class="panel section-gap">
+                    <h2>Six-hour samples</h2>
+                    <div class="table-shell">
+                        <table>
+                            <thead><tr><th>UTC time</th><th>Weather</th><th>Temperature</th><th>Season</th></tr></thead>
+                            <tbody id="forecastBody"></tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+
+            <aside class="side">
+                <section class="panel">
+                    <h2>Inspect any timeline date</h2>
+                    <div class="field">
+                        <label for="queryInput">Query date (UTC, at or after origin)</label>
+                        <input id="queryInput" type="datetime-local" />
+                    </div>
+                    <div class="advance-row">
+                        <button id="queryBtn" class="primary">inspect date</button>
+                        <button id="queryCurrentBtn">use current</button>
+                        <button id="queryJulyBtn">jump query to July</button>
+                    </div>
+                    <div class="query-result" id="queryResult"><span class="muted">Choose a date to inspect.</span></div>
+                </section>
+
+                <section class="panel section-gap">
+                    <h2>Save/load probe</h2>
+                    <p class="muted">Round-trip the current World save, then compare both timelines 90 days ahead without advancing either.</p>
+                    <div class="advance-row"><button id="saveLoadBtn">run continuity check</button></div>
+                    <div id="saveLoadResult" class="muted">Not run yet.</div>
+                </section>
+
+                <section class="panel section-gap">
+                    <h2>Committed history</h2>
+                    <div class="table-shell">
+                        <table>
+                            <thead><tr><th>UTC time</th><th>Weather</th><th>Temp.</th></tr></thead>
+                            <tbody id="historyBody"></tbody>
+                        </table>
+                    </div>
+                </section>
+            </aside>
+        </div>
+    </main>
+</body>
+</html>

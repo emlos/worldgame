@@ -20,6 +20,9 @@ jobs:
       - name: Test deterministic RNG
         run: node tests/random/random_determinism_test.mjs
 
+      - name: Test deterministic weather timeline
+        run: node tests/weather/weather_timeline_test.mjs
+
       - name: Generate commits.json
         run: |
           git log --date=iso8601-strict \

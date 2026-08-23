@@ -197,23 +197,14 @@ function init() {
     }
 
     function backward(mins) {
-        const ms = mins * 60 * 1000;
-        world.time.date = new Date(world.time.date.getTime() - ms);
-        world.season = (function monthToSeason(month) {
-            if (month === 12 || month <= 2) return Season.WINTER;
-            if (month <= 5) return Season.SPRING;
-            if (month <= 8) return Season.SUMMER;
-            return Season.AUTUMN;
-        })(world.time.date.getUTCMonth() + 1);
-
-        world.temperatureC = world.weather.computeTemperature();
-
-        // keep moon in lockstep when going backward
-        world.moon.setDate(world.time.date);
-
-        //world.advance(0)
-
-        renderAll(`rewound -${mins} minutes`);
+        try {
+            // Rewind through World so time, weather, season, temperature, and moon
+            // are restored from the same deterministic timeline.
+            world.advance(-mins);
+            renderAll(`rewound -${mins} minutes`);
+        } catch (error) {
+            renderStatus(error instanceof Error ? error.message : String(error));
+        }
     }
 
     function jumpTo(dateStr, timeStr) {

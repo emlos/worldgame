@@ -17,8 +17,8 @@ export class World {
         h = 50,
     } = {}) {
         this.random = new RandomStreams(seed);
-        // General world-runtime stream. Map generation/calendar/weather each use
-        // separate streams below.
+        // General world-runtime stream. Stateful procedural systems use separate
+        // streams; weather uses keyed hourly rolls so queries cannot consume RNG.
         this.rnd = this.random.stream("runtime");
 
         // Time itself is deterministic and does not need an RNG.
@@ -31,9 +31,8 @@ export class World {
         this.weather = new Weather({
             startDate: this.time.date,
             seed: this.random.seed,
-            rnd: this.random.stream("weather"),
         });
-        this.temperatureC = this.weather.computeTemperature(this.time.date);
+        this.temperatureC = this.weather.computeTemperature(this.time.date, this.weather.kind);
 
         this.moon = new Moon({ startDate: this.time.date });
 
@@ -56,11 +55,17 @@ export class World {
     }
 
     advance(minutes) {
-        // Apply all weather transitions for the elapsed time
-        this.weather.step(minutes, this.time.date);
+        const amount = Number(minutes);
+        if (!Number.isFinite(amount) || amount === 0) return;
+
+        const targetDate = new Date(this.time.date.getTime() + amount * 60 * 1000);
+
+        // Resolve weather before mutating world time so an invalid rewind leaves
+        // the whole world unchanged.
+        this.weather.advanceTo(targetDate);
 
         // Move world time
-        this.time.advanceMinutes(minutes);
+        this.time.advanceMinutes(amount);
 
         // If year changed, rebuild calendar
         const newYear = this.time.date.getUTCFullYear();
@@ -69,21 +74,22 @@ export class World {
         }
 
         // Step moon
-        this.moon.step(minutes, this.time.date);
+        this.moon.step(amount, this.time.date);
 
         // Recompute temperature at the new time with the latest weather
-        this.temperatureC = this.weather.computeTemperature(this.time.date);
+        this.temperatureC = this.weather.computeTemperature(this.time.date, this.weather.kind);
     }
 
     // --- Environment snapshot for a given time ---
     getEnvironmentAt(date = this.time.date) {
-        const d = date || this.time.date;
+        const d = date instanceof Date ? new Date(date.getTime()) : new Date(date || this.time.date);
+        if (!Number.isFinite(d.getTime())) throw new Error(`Invalid environment date: ${date}`);
 
-        const temperature = this.weather.computeTemperature(d);
-        const weather = this.weather.kind; // current weather state
+        const weatherState = this.weather.stateAt(d);
+        const weather = weatherState.kind;
+        const temperature = this.weather.computeTemperature(d, weather);
         const density = this.density;
-
-        const season = this.season;
+        const season = Weather.monthToSeason(d.getUTCMonth() + 1);
 
         return { weather, temperature, density, season };
     }
@@ -168,9 +174,14 @@ export class World {
         });
         world.weather = Weather.fromJSON(data.weather, {
             seed: world.random.seed,
-            rnd: world.random.stream("weather"),
         });
-        world.temperatureC = Number(data.temperatureC);
+        if (world.weather.date.getTime() !== world.time.date.getTime()) {
+            world.weather.advanceTo(world.time.date);
+        }
+        world.temperatureC = world.weather.computeTemperature(
+            world.time.date,
+            world.weather.kind,
+        );
         world.moon = Moon.fromJSON(data.moon);
         world.map = WorldMap.fromJSON(data.map, { rnd: world.random.stream("map") });
         return world;
