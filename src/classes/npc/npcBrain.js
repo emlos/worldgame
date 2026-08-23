@@ -1,10 +1,8 @@
 import { parseTimeToMinutes } from "../../shared/util/date.js";
 import { deriveSeed, makeRNG, randInt, weightedPick } from "../../shared/util/random.js";
 import { GOAL_TYPE, TARGET_TYPE, NPC_ACTION_TYPE } from "../../data/npc/behavior.js";
-import { DAY_KEYS } from "../../data/world/time.js";
+import { DAY_KEYS, MS_PER_MINUTE, MS_PER_DAY } from "../../data/world/time.js";
 
-const MS_PER_MINUTE = 60 * 1000;
-const MS_PER_DAY = 24 * 60 * MS_PER_MINUTE;
 const EPSILON_MS = 1;
 const MAX_DECISIONS_PER_UPDATE = 100_000;
 

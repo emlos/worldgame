@@ -1,5 +1,4 @@
-const MS_PER_MINUTE = 60 * 1000;
-const MS_PER_DAY = 24 * 60 * MS_PER_MINUTE;
+import {MS_PER_DAY, MS_PER_MINUTE} from "../../../data/world/time.js";
 
 function timestampFrom(value, label = "world date") {
   const timestamp =

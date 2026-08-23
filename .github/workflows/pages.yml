@@ -26,6 +26,9 @@ jobs:
       - name: Test world clock integrity
         run: node tests/world/time_integrity_test.mjs
 
+      - name: Test multi-year calendar queries
+        run: node tests/world/calendar_query_test.mjs
+
       - name: Generate commits.json
         run: |
           git log --date=iso8601-strict \

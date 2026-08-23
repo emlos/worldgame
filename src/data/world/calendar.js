@@ -2,6 +2,8 @@ import { clamp } from "../../shared/util/util.js";
 
 export const DayKind = { WORKDAY: "workday", DAY_OFF: "day off" };
 
+export const MONTH_DAYS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
 export const HolidayCategory = {
   RELIGIOUS: "religious",
   CIVIC: "civic",
@@ -150,7 +152,8 @@ export const HOLIDAY_REGISTRY = [
     category: HolidayCategory.COMMUNITY,
     dayOff: false,
     special: true,
-    resolveDates: (year) => Array.from({ length: 30 }, (_, i) => ({ month: 6, day: i + 1 })),
+    resolveDates: (year) =>
+      Array.from({ length: 30 }, (_, i) => ({ month: 6, day: i + 1 })),
   },
 ];
 
@@ -162,8 +165,18 @@ export const RANDOM_HOLIDAYS = [
     special: true,
     dayOff: false,
   },
-  { name: "Dog Day", category: HolidayCategory.COMMUNITY, special: true, dayOff: false },
-  { name: "Cat Day", category: HolidayCategory.COMMUNITY, special: true, dayOff: false },
+  {
+    name: "Dog Day",
+    category: HolidayCategory.COMMUNITY,
+    special: true,
+    dayOff: false,
+  },
+  {
+    name: "Cat Day",
+    category: HolidayCategory.COMMUNITY,
+    special: true,
+    dayOff: false,
+  },
   {
     name: "Day of a Thousand Kites",
     category: HolidayCategory.COMMUNITY,
@@ -206,7 +219,12 @@ export const RANDOM_HOLIDAYS = [
     special: true,
     dayOff: false,
   },
-  { name: "Mender's Fair", category: HolidayCategory.COMMUNITY, special: true, dayOff: false },
+  {
+    name: "Mender's Fair",
+    category: HolidayCategory.COMMUNITY,
+    special: true,
+    dayOff: false,
+  },
   {
     name: "Festival of Unsold Things",
     category: HolidayCategory.COMMUNITY,
