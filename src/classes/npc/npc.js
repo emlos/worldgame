@@ -29,6 +29,46 @@ function cloneSerializable(value) {
     }
     return out;
 }
+
+/**
+ * Clone an NPC behavior definition while enforcing the save-file contract.
+ * Behavior is engine data, not executable template code: functions, special
+ * objects, non-finite numbers, and cycles are rejected instead of disappearing
+ * silently during JSON serialization.
+ */
+function cloneBehaviorData(value, path = "behavior", ancestors = new WeakSet()) {
+    if (value === null || typeof value === "string" || typeof value === "boolean") return value;
+    if (typeof value === "number") {
+        if (!Number.isFinite(value)) throw new TypeError(`${path} must contain finite numbers`);
+        return value;
+    }
+    if (typeof value !== "object") {
+        throw new TypeError(`${path} contains unsupported ${typeof value} data`);
+    }
+    if (ancestors.has(value)) throw new TypeError(`${path} contains a circular reference`);
+
+    ancestors.add(value);
+    try {
+        if (Array.isArray(value)) {
+            return value.map((child, index) =>
+                cloneBehaviorData(child, `${path}[${index}]`, ancestors),
+            );
+        }
+
+        const prototype = Object.getPrototypeOf(value);
+        if (prototype !== Object.prototype && prototype !== null) {
+            throw new TypeError(`${path} must contain only plain objects and arrays`);
+        }
+
+        const clone = {};
+        for (const [key, child] of Object.entries(value)) {
+            clone[key] = cloneBehaviorData(child, `${path}.${key}`, ancestors);
+        }
+        return clone;
+    } finally {
+        ancestors.delete(value);
+    }
+}
 // --------------------------
 // NPC
 // --------------------------
@@ -96,9 +136,10 @@ export class NPC {
         this.homePlaceId = homePlaceId; // Place.id of their home inside that location
         this.homePreference = homePreference; // home assignment rules/template (may contain functions)
 
-        // Static behavior rules live in the NPC registry; the brain stores only runtime state.
-        this.behavior = behavior;
-        this.brain = behavior ? new NPCBrain(this, behavior) : null;
+        // Behavior is immutable save data. Clone it so registry/template edits
+        // cannot rewrite a running NPC from the outside.
+        this.behavior = behavior == null ? null : cloneBehaviorData(behavior);
+        this.brain = this.behavior ? new NPCBrain(this, this.behavior) : null;
 
         // Misc metadata (tags, registry key, etc.)
         this.meta = { ...meta };
@@ -232,35 +273,35 @@ export class NPC {
             homeLocationId: this.homeLocationId,
             homePlaceId: this.homePlaceId,
             homePreference: cloneSerializable(this.homePreference),
+            behavior: this.behavior == null ? null : cloneBehaviorData(this.behavior),
             brain: this.brain?.toJSON?.() ?? null,
             meta: cloneSerializable(this.meta) || {},
         };
     }
 
-    static fromJSON(data, { template = null, traitResolver = null } = {}) {
+    static fromJSON(data, { traitResolver = null } = {}) {
         if (data instanceof NPC) return data;
+        if (!data || typeof data !== "object") {
+            throw new TypeError("NPC.fromJSON expects an NPC save object");
+        }
+        if (!Object.prototype.hasOwnProperty.call(data, "behavior")) {
+            throw new TypeError("NPC save is missing its behavior definition");
+        }
 
-        // Static registry/template objects may contain functions (for example a
-        // home nameFn). Saved JSON intentionally cannot contain executable code,
-        // so merge saved mutable data over the matching static template.
-        const homePreference = {
-            ...(template?.homePreference || {}),
-            ...(data?.homePreference || {}),
-        };
         const npc = new NPC({
-            id: data?.id ?? template?.id ?? template?.key ?? null,
-            name: data?.name ?? template?.name ?? "",
-            age: data?.age ?? template?.age,
+            id: data.id ?? null,
+            name: data.name ?? "",
+            age: data.age,
             stats: {},
-            gender: data?.gender ?? template?.gender ?? Gender.NB,
-            pronouns: data?.pronouns ?? template?.pronouns ?? PronounSets.THEY_THEM,
+            gender: data.gender ?? Gender.NB,
+            pronouns: data.pronouns ?? PronounSets.THEY_THEM,
             bodyTemplate: [],
-            locationId: data?.locationId ?? null,
-            homeLocationId: data?.homeLocationId ?? null,
-            homePlaceId: data?.homePlaceId ?? null,
-            homePreference: Object.keys(homePreference).length ? homePreference : null,
-            behavior: template?.behavior || null,
-            meta: { ...(template?.meta || {}), ...(data?.meta || {}) },
+            locationId: data.locationId ?? null,
+            homeLocationId: data.homeLocationId ?? null,
+            homePlaceId: data.homePlaceId ?? null,
+            homePreference: cloneSerializable(data.homePreference) ?? null,
+            behavior: data.behavior,
+            meta: cloneSerializable(data.meta) || {},
         });
 
         npc.stats = {};

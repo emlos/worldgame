@@ -387,7 +387,7 @@ export class Game {
     // --------------------------
     toJSON() {
         return {
-            saveVersion: 4,
+            saveVersion: 5,
             seed: this.seed,
             random: this.random.toJSON(),
             time: this.now.toISOString(),
@@ -410,7 +410,6 @@ export class Game {
         {
             strings = null,
             scenes = SCENE_DEFS,
-            npcTemplates = NPC_REGISTRY,
             traitResolver = null,
         } = {},
     ) {
@@ -418,7 +417,7 @@ export class Game {
             throw new Error("Game.fromJSON expects a parsed save object");
         }
 
-        if (data.saveVersion !== 4) {
+        if (data.saveVersion !== 5) {
             throw new Error(`Unsupported save version: ${data.saveVersion}`);
         }
 
@@ -445,34 +444,9 @@ export class Game {
 
         game.player = Player.fromJSON(data.player || {}, { traitResolver });
 
-        const templates = Array.isArray(npcTemplates) ? npcTemplates : [];
-        const findTemplate = (savedNpc) => {
-            const registryKey = savedNpc?.meta?.registryKey;
-            if (registryKey != null) {
-                const byRegistryKey = templates.find(
-                    (def) => String(def?.key ?? def?.id ?? "") === String(registryKey),
-                );
-                if (byRegistryKey) return byRegistryKey;
-            }
-
-            return (
-                templates.find(
-                    (def) => def?.id != null && String(def.id) === String(savedNpc?.id),
-                ) ||
-                templates.find(
-                    (def) => def?.key != null && String(def.key) === String(savedNpc?.id),
-                ) ||
-                templates.find(
-                    (def) => def?.name != null && String(def.name) === String(savedNpc?.name),
-                ) ||
-                null
-            );
-        };
-
         game.npcs = new Map();
         for (const npcData of Array.isArray(data.npcs) ? data.npcs : []) {
-            const template = findTemplate(npcData);
-            const npc = NPC.fromJSON(npcData, { template, traitResolver });
+            const npc = NPC.fromJSON(npcData, { traitResolver });
             const id = String(npc.id || npc.name);
             npc.id = id;
             game.npcs.set(id, npc);

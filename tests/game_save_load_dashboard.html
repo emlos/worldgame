@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Game Save / Load Dashboard</title>
+    <style>
+        :root {
+            color-scheme: dark;
+            --bg: #071019;
+            --panel: #0d1a26;
+            --panel-2: #112332;
+            --line: #263e4f;
+            --text: #e8f1f6;
+            --muted: #91a7b5;
+            --cyan: #58d4df;
+            --green: #68d89b;
+            --amber: #f5bf62;
+            --red: #ff7c83;
+        }
+
+        * { box-sizing: border-box; }
+        html, body { margin: 0; min-height: 100%; background: var(--bg); color: var(--text); }
+        body { padding: 18px; font: 14px/1.45 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+        button, input, textarea { font: inherit; }
+        button {
+            min-height: 38px;
+            padding: 7px 12px;
+            border: 1px solid var(--line);
+            border-radius: 9px;
+            background: #182c3b;
+            color: var(--text);
+            cursor: pointer;
+        }
+        button:hover { background: #213b4e; }
+        button.primary { background: #225f7d; border-color: #347fa4; }
+        button.danger { color: #ffd1d4; border-color: #75434a; }
+        input, textarea {
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: #08141e;
+            color: var(--text);
+        }
+        input { min-height: 38px; padding: 6px 9px; }
+        input[type="range"] { width: 100%; padding: 0; }
+        textarea { width: 100%; min-height: 260px; padding: 10px; resize: vertical; font: 12px/1.4 ui-monospace, SFMono-Regular, Consolas, monospace; }
+        a { color: #82d9e5; }
+        code { color: #b8e8ee; }
+        h1 { margin: 3px 0; font-size: clamp(24px, 4vw, 36px); line-height: 1.1; }
+        h2 { margin: 0 0 12px; font-size: 17px; }
+        p { margin: 4px 0; }
+
+        .wrap { width: min(1500px, 100%); margin: 0 auto; }
+        .topbar { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; flex-wrap: wrap; margin-bottom: 14px; }
+        .eyebrow { color: var(--cyan); text-transform: uppercase; letter-spacing: .12em; font-size: 11px; font-weight: 750; }
+        .muted { color: var(--muted); }
+        .panel { background: linear-gradient(155deg, var(--panel), #0a1721); border: 1px solid var(--line); border-radius: 14px; padding: 14px; min-width: 0; }
+        .status { max-width: 600px; padding: 9px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
+        .status.pass { color: var(--green); }
+        .status.error { color: var(--red); }
+        .toolbar { display: flex; flex-wrap: wrap; gap: 9px; align-items: flex-end; }
+        .field { display: flex; flex-direction: column; gap: 4px; }
+        .field label { color: var(--muted); font-size: 12px; }
+        .cards { display: grid; grid-template-columns: repeat(8, minmax(130px, 1fr)); gap: 10px; margin: 14px 0; }
+        .card { min-height: 100px; padding: 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel-2); }
+        .card-label { color: var(--muted); font-size: 11px; letter-spacing: .07em; text-transform: uppercase; }
+        .card-value { margin-top: 7px; font-size: 18px; font-weight: 720; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+        .card-detail { margin-top: 3px; color: var(--muted); font-size: 12px; }
+        .control-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(360px, .9fr); gap: 14px; }
+        .slider-row { display: grid; grid-template-columns: minmax(180px, 1fr) auto; gap: 12px; align-items: center; }
+        .delta-label { min-width: 135px; color: var(--cyan); font-weight: 700; text-align: right; }
+        .quick-row, .button-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 11px; }
+        .slot-meta { margin-top: 9px; min-height: 21px; }
+        .data-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(330px, .75fr); gap: 14px; margin-top: 14px; align-items: start; }
+        .stack { display: grid; gap: 14px; min-width: 0; }
+        .table-shell { max-height: 420px; overflow: auto; border: 1px solid var(--line); border-radius: 10px; }
+        table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+        th, td { padding: 8px 9px; text-align: left; border-bottom: 1px solid #1d3342; white-space: nowrap; }
+        th { position: sticky; top: 0; z-index: 1; background: #132635; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; font-size: 11px; }
+        tr:last-child td { border-bottom: 0; }
+        .kv { display: grid; grid-template-columns: minmax(120px, .4fr) minmax(0, 1fr); gap: 7px 12px; }
+        .kv dt { color: var(--muted); }
+        .kv dd { margin: 0; overflow-wrap: anywhere; }
+        details { border-top: 1px solid var(--line); padding-top: 10px; margin-top: 10px; }
+        summary { color: var(--cyan); cursor: pointer; font-weight: 650; }
+        pre { max-height: 740px; margin: 10px 0 0; padding: 12px; overflow: auto; border: 1px solid var(--line); border-radius: 10px; background: #07121b; color: #d5e7ef; font: 11px/1.42 ui-monospace, SFMono-Regular, Consolas, monospace; }
+
+        @media (max-width: 1200px) {
+            .cards { grid-template-columns: repeat(4, 1fr); }
+            .data-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 780px) {
+            body { padding: 10px; }
+            .cards { grid-template-columns: repeat(2, 1fr); }
+            .control-grid { grid-template-columns: 1fr; }
+            .slider-row { grid-template-columns: 1fr; }
+            .delta-label { text-align: left; }
+        }
+    </style>
+    <script type="module" src="./game_save_load_dashboard.js"></script>
+</head>
+<body>
+    <main class="wrap">
+        <header class="topbar">
+            <div>
+                <div class="eyebrow">Game save schema v5</div>
+                <h1>Save / load dashboard</h1>
+                <p class="muted">Inspect the complete game snapshot, change time, save it, mutate the game, and load it back.</p>
+                <p><a href="../index.html">← back to tests</a></p>
+            </div>
+            <div id="status" class="status" role="status" aria-live="polite">Initialising…</div>
+        </header>
+
+        <section class="panel">
+            <div class="toolbar">
+                <div class="field">
+                    <label for="seedInput">Game seed</label>
+                    <input id="seedInput" type="number" min="0" max="4294967295" step="1" value="12345" />
+                </div>
+                <div class="field">
+                    <label for="startInput">Start time (UTC)</label>
+                    <input id="startInput" type="datetime-local" value="2026-08-17T07:00" />
+                </div>
+                <button id="newGameBtn" class="primary">Create new game</button>
+            </div>
+        </section>
+
+        <section class="cards" aria-label="Game summary">
+            <div class="card"><div class="card-label">Game time</div><div id="timeCard" class="card-value">—</div><div class="card-detail">UTC</div></div>
+            <div class="card"><div class="card-label">Weather</div><div id="weatherCard" class="card-value">—</div><div id="temperatureCard" class="card-detail">—</div></div>
+            <div class="card"><div class="card-label">Calendar</div><div id="calendarCard" class="card-value">—</div><div id="holidayCard" class="card-detail">—</div></div>
+            <div class="card"><div class="card-label">Player location</div><div id="locationCard" class="card-value">—</div><div id="placeCard" class="card-detail">—</div></div>
+            <div class="card"><div class="card-label">Active scene</div><div id="sceneCard" class="card-value">—</div><div id="flagsCard" class="card-detail">—</div></div>
+            <div class="card"><div class="card-label">NPCs</div><div id="npcCard" class="card-value">—</div><div id="activeBrainsCard" class="card-detail">—</div></div>
+            <div class="card"><div class="card-label">World map</div><div id="mapCard" class="card-value">—</div><div id="placeCountCard" class="card-detail">—</div></div>
+            <div class="card"><div class="card-label">Save schema</div><div id="schemaCard" class="card-value">—</div><div id="saveSizeCard" class="card-detail">—</div></div>
+        </section>
+
+        <div class="control-grid">
+            <section class="panel">
+                <h2>Change game time</h2>
+                <div class="slider-row">
+                    <input id="timeDelta" type="range" min="-1440" max="1440" step="15" value="60" aria-label="Time change in minutes" />
+                    <output id="timeDeltaLabel" class="delta-label" for="timeDelta">+1 hour</output>
+                </div>
+                <div class="button-row">
+                    <button id="applyTimeBtn" class="primary">Apply +1 hour</button>
+                    <span class="muted">Positive changes simulate NPCs; negative changes resynchronise them.</span>
+                </div>
+                <div class="quick-row" aria-label="Quick time changes">
+                    <button data-minutes="-60">−1 hour</button>
+                    <button data-minutes="1">+1 minute</button>
+                    <button data-minutes="60">+1 hour</button>
+                    <button data-minutes="360">+6 hours</button>
+                    <button data-minutes="1440">+1 day</button>
+                </div>
+            </section>
+
+            <section class="panel">
+                <h2>Save slot</h2>
+                <p class="muted">Save writes the real complete Game JSON to the editor and browser storage. Load hydrates only from that JSON.</p>
+                <div class="button-row">
+                    <button id="saveBtn" class="primary">Save current game</button>
+                    <button id="loadBtn">Load editor snapshot</button>
+                    <button id="roundTripBtn">Verify round trip</button>
+                    <button id="clearSaveBtn" class="danger">Clear slot</button>
+                </div>
+                <div id="slotStatus" class="slot-meta muted">No snapshot saved in this session.</div>
+            </section>
+        </div>
+
+        <div class="data-grid">
+            <div class="stack">
+                <section class="panel">
+                    <h2>All NPC runtime states</h2>
+                    <div class="table-shell">
+                        <table>
+                            <thead><tr><th>NPC</th><th>Location / place</th><th>Goal</th><th>Action</th><th>Next decision</th></tr></thead>
+                            <tbody id="npcBody"></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="panel">
+                    <h2>Complete serialized Game</h2>
+                    <p class="muted">This is every persisted field used by <code>Game.fromJSON()</code>, including player, world map, weather history, calendar, NPC behavior and brains, scenes, logs, flags, and RNG streams.</p>
+                    <pre id="fullGameJson">—</pre>
+                </section>
+            </div>
+
+            <aside class="stack">
+                <section class="panel">
+                    <h2>Runtime overview</h2>
+                    <dl id="runtimeOverview" class="kv"></dl>
+                    <details open>
+                        <summary>Player state</summary>
+                        <pre id="playerJson">—</pre>
+                    </details>
+                    <details>
+                        <summary>Scene, flags, log, and RNG</summary>
+                        <pre id="runtimeJson">—</pre>
+                    </details>
+                </section>
+
+                <section class="panel">
+                    <h2>Editable save JSON</h2>
+                    <textarea id="saveEditor" spellcheck="false" aria-label="Editable saved game JSON" placeholder="Press “Save current game” to populate this slot."></textarea>
+                </section>
+            </aside>
+        </div>
+    </main>
+</body>
+</html>
