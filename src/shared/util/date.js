@@ -20,36 +20,28 @@ export const utcMidnight = (date) =>
 const MINUTES_PER_DAY = 24 * 60;
 
 /**
- * Parse "HH:MM" (24h) into minutes since midnight.
- * - Allows "24:00" (returns 1440).
- * - Defaults to UTC-style "numeric parsing" (invalid numbers become 0) unless you pass a `defaultValue`.
- *
- * Options:
- * - defaultValue: returned when input is empty/invalid (default: null)
- * - nullOnEmpty: if true, empty input returns null (overrides defaultValue)
- * - clamp: clamp hour/minute into [0..24]/[0..59] (default: true)
+ * Parse a strict "HH:MM" (24h) value into minutes since midnight.
+ * "24:00" is allowed and returns 1440; no other 24-hour value is valid.
+ * Empty input can use a caller-provided default, but malformed non-empty input
+ * always throws so authored schedules cannot silently move to another time.
  */
 export const parseTimeToMinutes = (
-  str,
-  { defaultValue = null, nullOnEmpty = false, clamp = true } = {}
+  value,
+  { defaultValue = null, nullOnEmpty = false } = {}
 ) => {
-  if (str == null || str === "") return nullOnEmpty ? null : defaultValue;
+  if (value == null || value === "") return nullOnEmpty ? null : defaultValue;
 
-  const [hStr, mStr] = String(str).split(":");
-  let h = parseInt(hStr, 10);
-  let m = parseInt(mStr ?? "0", 10);
-
-  // If a part is missing/invalid, treat it as 0 (matches existing game behavior).
-  if (!Number.isFinite(h)) h = 0;
-  if (!Number.isFinite(m)) m = 0;
-
-  if (h === 24 && m === 0) return MINUTES_PER_DAY;
-
-  if (clamp) {
-    h = Math.max(0, Math.min(24, h));
-    m = Math.max(0, Math.min(59, m));
+  const text = String(value);
+  const match = /^(\d{2}):(\d{2})$/.exec(text);
+  if (!match) {
+    throw new TypeError(`Invalid time ${JSON.stringify(value)}; expected HH:MM`);
   }
 
-  const out = h * 60 + m;
-  return Number.isFinite(out) ? out : defaultValue;
+  const hour = Number(match[1]);
+  const minute = Number(match[2]);
+  if (hour > 24 || minute > 59 || (hour === 24 && minute !== 0)) {
+    throw new RangeError(`Invalid time ${JSON.stringify(value)}; expected 00:00 through 24:00`);
+  }
+
+  return hour === 24 ? MINUTES_PER_DAY : hour * 60 + minute;
 };

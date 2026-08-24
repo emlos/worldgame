@@ -9,6 +9,7 @@
 
 import { clamp, deepFreeze } from "../util/util.js";
 import { WearSlot } from "./clothing.js";
+import { finiteNumber } from "../util/util.js";
 
 // If you want to hard-link to WearSlot, you can import it and reuse its values.
 // import { WearSlot } from "./whatever.js";
@@ -443,6 +444,7 @@ export class Body {
      * - damageType: DamageType.* (for future expansion)
      */
     applyDamage({ partId, amount, damageType = DamageType.BLUNT }) {
+        amount = finiteNumber(amount, "Damage");
         const part = this.getPart(partId);
         if (!part || amount <= 0) return null;
 
@@ -466,11 +468,12 @@ export class Body {
      * - rnd: function that returns a float in [0, 1), normally a seeded game RNG such as game.rnd.
      */
     applyDamageRandomized({ partId, amount, damageType = DamageType.BLUNT, rnd }) {
-        const part = this.getPart(partId);
-        if (!part || amount <= 0) return null;
+        amount = finiteNumber(amount, "Randomized damage");
         if (typeof rnd !== "function") {
             throw new Error("applyDamageRandomized expects an rnd() function");
         }
+        const part = this.getPart(partId);
+        if (!part || amount <= 0) return null;
 
         part.health = clamp(part.health - amount, 0, part.maxHealth);
 
@@ -487,6 +490,7 @@ export class Body {
      * Heal a part by a certain amount (not removing all conditions by default).
      */
     healPart(partId, amount) {
+        amount = finiteNumber(amount, "Healing");
         const part = this.getPart(partId);
         if (!part || amount <= 0) return null;
 

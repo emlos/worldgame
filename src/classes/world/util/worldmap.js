@@ -6,6 +6,7 @@ import { Street } from "./street.js";
 import { LOCATION_REGISTRY } from "../../../data/world/location.js";
 import { PLACE_REGISTRY } from "../../../data/world/place.js";
 import { STREET_REGISTRY } from "../../../data/world/street.js";
+import { finitePositive, finiteNonNegative, finiteNumber } from "../../../shared/util/util.js";
 
 const capacityPerLocation = 10;
 const MS_PER_MINUTE = 60 * 1000;
@@ -647,7 +648,10 @@ function computeAutoLocationCount(density) {
 
     const targetAvg = capacityPerLocation / 3; // tune if you like
 
-    const locCount = Math.ceil(totalMinPlaces / targetAvg) * (1 + density);
+    const locCount = Math.ceil(Math.ceil(totalMinPlaces / targetAvg) * (1 + density));
+    if (!Number.isSafeInteger(locCount)) {
+        throw new RangeError("World map density produces an unsafe location count");
+    }
 
     return Math.max(locCount, 1);
 }
@@ -665,6 +669,10 @@ export class WorldMap {
      * @param {number} mapHeight - height of map in local coordinates
      */
     constructor({ rnd = null, density = 0, mapWidth = 100, mapHeight = 50 } = {}) {
+        density = finiteNonNegative(density, "World map density");
+        mapWidth = finitePositive(mapWidth, "World map width");
+        mapHeight = finitePositive(mapHeight, "World map height");
+
         this.rnd = rnd ?? makeRNG();
         this.locations = new Map(); // id -> Location
         this.edges = []; // array<Street>
@@ -690,7 +698,7 @@ export class WorldMap {
         map.rnd = rnd ?? makeRNG();
         map.locations = new Map();
         map.edges = [];
-        map.density = Number(data?.density) || 0;
+        map.density = finiteNonNegative(data?.density ?? 0, "World map density");
 
         for (const locData of data?.locations || []) {
             const places = (locData?.places || []).map((placeData) => Place.fromJSON(placeData));

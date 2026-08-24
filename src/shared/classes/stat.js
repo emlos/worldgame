@@ -3,16 +3,19 @@
  *
  * final = (base + sum(add)) * product(mult)
  */
+
+import { finiteNumber } from "../util/util.js";
+
 export class Stat {
   constructor(base = 0) {
-    this._base = base;
+    this._base = finiteNumber(base, "Stat base");
     this._add = [];   // array<number>
     this._mult = [];  // array<number> (e.g., 1.1 for +10%)
   }
   get base() { return this._base; }
-  set base(v) { this._base = Number(v) || 0; }
-  addFlat(v) { this._add.push(Number(v) || 0); return this; }
-  addMult(factor) { this._mult.push(Number(factor) || 1); return this; }
+  set base(v) { this._base = finiteNumber(v, "Stat base"); }
+  addFlat(v) { this._add.push(finiteNumber(v, "Stat additive modifier")); return this; }
+  addMult(factor) { this._mult.push(finiteNumber(factor, "Stat multiplier")); return this; }
   clearModifiers() { this._add = []; this._mult = []; }
   /** Return a detached copy, preserving base and every stored modifier. */
   clone() {
@@ -40,12 +43,14 @@ export class Stat {
     if (data instanceof Stat) return data;
     if (typeof data === "number") return new Stat(data);
 
-    const stat = new Stat(Number(data?.base) || 0);
+    const stat = new Stat(data?.base ?? 0);
     const add = data?.add;
     const mult = data?.mult;
-    stat._add = Array.isArray(add) ? add.map((v) => Number(v) || 0) : [];
+    stat._add = Array.isArray(add)
+      ? add.map((v) => finiteNumber(v, "Stat additive modifier"))
+      : [];
     stat._mult = Array.isArray(mult)
-      ? mult.map((v) => (Number.isFinite(Number(v)) ? Number(v) : 1))
+      ? mult.map((v) => finiteNumber(v, "Stat multiplier"))
       : [];
     return stat;
   }

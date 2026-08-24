@@ -1706,7 +1706,7 @@ export const DEFAULT_OPENING_HOURS_BY_CATEGORY = {
     history: hoursWeekdays({
         from: "10:00",
         to: "17:00",
-        saturday: { from: "9:00", to: "16:00" },
+        saturday: { from: "09:00", to: "16:00" },
     }),
     crime: hoursAllDay(),
     nsfw: hoursWeekdays({
