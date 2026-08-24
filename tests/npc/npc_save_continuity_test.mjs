@@ -115,6 +115,32 @@ throws("non-finite behavior values are rejected", () =>
     }),
 );
 
+const weightedNpc = new NPC({
+    id: "weighted-npc",
+    name: "Weighted NPC",
+    homeLocationId: "home",
+    behavior: {
+        goals: [
+            { id: "disabled", type: GOAL_TYPE.home, weight: 0, when: { from: "00:00", to: "08:00" } },
+            { id: "enabled", type: GOAL_TYPE.home, weight: 1, when: { from: "00:00", to: "08:00" } },
+        ],
+    },
+});
+const weightedCandidates = weightedNpc.brain._getDecisionCandidates(START, null);
+check("zero NPC goal weights remain disabled", weightedCandidates[0].weight === 0);
+
+const invalidWeightNpc = new NPC({
+    id: "invalid-weight-npc",
+    name: "Invalid Weight NPC",
+    homeLocationId: "home",
+    behavior: {
+        goals: [{ id: "bad", type: GOAL_TYPE.home, weight: -1, when: { from: "00:00", to: "08:00" } }],
+    },
+});
+throws("negative NPC goal weights are rejected", () =>
+    invalidWeightNpc.brain._getDecisionCandidates(START, null),
+);
+
 const missingBehavior = JSON.parse(JSON.stringify(game.npcsArray[0]));
 delete missingBehavior.behavior;
 throws("NPC saves missing behavior are rejected", () => NPC.fromJSON(missingBehavior));

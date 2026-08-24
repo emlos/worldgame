@@ -42,6 +42,16 @@ function categoriesOf(place) {
     return category == null ? [] : [category];
 }
 
+function ruleWeight(rule) {
+    if (rule?.weight == null) return 1;
+
+    const weight = Number(rule.weight);
+    if (!Number.isFinite(weight) || weight < 0) {
+        throw new TypeError(`Invalid NPC goal weight: ${rule.weight}`);
+    }
+    return weight;
+}
+
 function descriptorMatchesPlace(descriptor, place) {
     if (!descriptor || !place) return false;
 
@@ -499,7 +509,7 @@ export class NPCBrain {
                     rule,
                     interval: activeInterval,
                     priority: Number(rule.priority) || 0,
-                    weight: Math.max(0, Number(rule.weight) || 1),
+                    weight: ruleWeight(rule),
                 });
             }
         }
@@ -524,7 +534,7 @@ export class NPCBrain {
                     interval: upcoming,
                     target,
                     priority: Number(rule.priority) || 0,
-                    weight: Math.max(0, Number(rule.weight) || 1),
+                    weight: ruleWeight(rule),
                 });
             }
         }
