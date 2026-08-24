@@ -169,6 +169,8 @@ export class Game {
             return { from, to, minutes, mode, source };
         }
 
+        const eventName = mode === "simulate" ? "time" : "timeJump";
+        const listenerCheckpoint = this._captureListenerCheckpoint(eventName);
         const snapshot = this._captureTimeRuntimeState();
         try {
             if (mode === "simulate") {
@@ -194,11 +196,11 @@ export class Game {
 
         if (mode === "simulate") {
             // Normal time listeners are reserved for genuinely simulated elapsed time.
-            for (const cb of this._listeners.time) cb(this, minutes, change);
+            this._dispatchListeners("time", [this, minutes, change], listenerCheckpoint);
         } else {
             // A resync is observational: skipped wages, encounters, deliveries, etc.
             // must not be inferred from the size of this delta.
-            for (const cb of this._listeners.timeJump) cb(this, change);
+            this._dispatchListeners("timeJump", [this, change], listenerCheckpoint);
         }
 
         return change;
@@ -237,13 +239,14 @@ export class Game {
         }
         if (locationId === this.currentLocationId) return;
 
+        const listenerCheckpoint = this._captureListenerCheckpoint("location");
         this.currentLocationId = locationId;
         // When moving, you're typically not inside any specific place
         this.currentPlaceId = null;
         this.currentPlaceKey = null;
 
         // Subscribers should observe a fully consistent position.
-        for (const cb of this._listeners.location) cb(this, locationId);
+        this._dispatchListeners("location", [this, locationId], listenerCheckpoint);
     }
 
     /**
@@ -397,6 +400,22 @@ export class Game {
             listeners[eventName] = state.set;
         }
         this._listeners = listeners;
+    }
+
+    _captureListenerCheckpoint(eventName) {
+        return this._listeners[eventName].size ? this._captureActionCheckpoint() : null;
+    }
+
+    _dispatchListeners(eventName, args, checkpoint) {
+        try {
+            for (const callback of this._listeners[eventName]) callback(...args);
+        } catch (error) {
+            // Event callbacks observe the proposed committed state. If any one
+            // fails, undo both the mutation and all game/listener changes made
+            // by callbacks that already ran.
+            if (checkpoint) this._restoreActionCheckpoint(checkpoint);
+            throw error;
+        }
     }
 
     // --------------------------
