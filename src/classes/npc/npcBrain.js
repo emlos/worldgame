@@ -98,8 +98,10 @@ export class NPCBrain {
         if (!now) return;
         if (this.lastUpdatedAt) return;
 
-        this.lastUpdatedAt = now;
-        this._decideAt(now, game);
+        // A supplied game start is an absolute world snapshot, not the moment
+        // every NPC wakes up at home. Reconstruct the schedule state that should
+        // already exist at that timestamp.
+        return this.resyncAt(now, game);
     }
 
     /**

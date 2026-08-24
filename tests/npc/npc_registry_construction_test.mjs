@@ -59,6 +59,17 @@ check(
     }),
 );
 
+const taylor = defaultGame.npcs.get("taylor");
+const taylorPlace = defaultGame.world
+    .getLocation(taylor?.locationId)
+    ?.places.find((place) => place.id === taylor?.currentPlaceId);
+check(
+    "an NPC initialized during an obligation is already at its destination",
+    taylor?.brain?.currentGoal?.ruleId === "school" &&
+        taylor?.brain?.currentAction?.type === "stay" &&
+        taylorPlace?.key === "high_school",
+);
+
 const exampleDefinition = NPC_REGISTRY.find((definition) => definition.meta?.example);
 if (exampleDefinition) {
     const explicitExampleGame = new Game({

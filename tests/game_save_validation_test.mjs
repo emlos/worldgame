@@ -280,8 +280,29 @@ rejects(
 rejects(
     "NPC travel routes cannot reference missing locations",
     (save) => {
-        const npc = save.npcs.find((candidate) => candidate.brain.currentAction?.type === "travel");
-        npc.brain.currentAction.route.locations[1] = "missing-location";
+        const npc = save.npcs.find((candidate) => candidate.brain.currentGoal);
+        const targetLocationId = npc.brain.currentGoal.targetLocationId;
+        const edge = save.world.map.edges.find(
+            (candidate) => candidate.a === targetLocationId || candidate.b === targetLocationId,
+        );
+        const fromLocationId = edge.a === targetLocationId ? edge.b : edge.a;
+        const startedAt = save.time;
+
+        npc.locationId = fromLocationId;
+        npc.currentPlaceId = null;
+        npc.brain.currentAction = {
+            type: "travel",
+            startedAt,
+            arrivalAt: new Date(Date.parse(startedAt) + edge.minutes * 60_000).toISOString(),
+            fromLocationId,
+            targetLocationId,
+            targetPlaceId: npc.brain.currentGoal.targetPlaceId,
+            route: {
+                locations: [fromLocationId, "missing-location"],
+                legMinutes: [edge.minutes],
+                currentLegIndex: 0,
+            },
+        };
     },
     ".brain.currentAction.route.locations[1]",
 );
