@@ -244,7 +244,6 @@ export class Game {
 
         // Subscribers should observe a fully consistent position.
         for (const cb of this._listeners.location) cb(this, locationId);
-
     }
 
     /**
@@ -307,18 +306,70 @@ export class Game {
             }
         }
 
-        if (typeof label === "string" && label) {
-            this.log.push({ t: this.now.toISOString(), label });
+        const startedAt = this.now.toISOString();
+        const checkpoint = this._captureActionCheckpoint();
+
+        try {
+            if (typeof apply === "function") {
+                // Let the action mutate game / player / NPCs / world. The
+                // detached checkpoint below restores all persisted state if
+                // this callback or the following simulation fails.
+                apply(this);
+            }
+
+            if (amount > 0) {
+                this.advanceMinutes(amount);
+            }
+
+            // A log entry describes a committed action, so add it only after
+            // both its gameplay effect and time cost have succeeded.
+            if (typeof label === "string" && label) {
+                this.log.push({ t: startedAt, label });
+            }
+        } catch (error) {
+            this._restoreActionCheckpoint(checkpoint);
+            throw error;
+        }
+    }
+
+    _captureActionCheckpoint() {
+        const save = JSON.parse(JSON.stringify(this));
+        validateGameSave(save);
+        const listeners = Object.fromEntries(
+            Object.entries(this._listeners).map(([eventName, set]) => [
+                eventName,
+                { set, callbacks: [...set] },
+            ]),
+        );
+
+        return {
+            save,
+            ownKeys: new Set(Object.keys(this)),
+            listeners,
+        };
+    }
+
+    _restoreActionCheckpoint(checkpoint) {
+        const restored = Game.fromJSON(checkpoint.save);
+
+        // Remove runtime properties added by the failed callback, then adopt
+        // every current/future constructor field except the listener registry.
+        for (const key of Object.keys(this)) {
+            if (!checkpoint.ownKeys.has(key)) delete this[key];
+        }
+        for (const [key, value] of Object.entries(restored)) {
+            if (key !== "_listeners") this[key] = value;
         }
 
-        if (typeof apply === "function") {
-            // let the action mutate game / player / npcs / world
-            apply(this);
+        // Keep the original Set objects so unsubscribe functions returned by
+        // `on()` remain valid, while undoing listener changes made by the failed action.
+        const listeners = {};
+        for (const [eventName, state] of Object.entries(checkpoint.listeners)) {
+            state.set.clear();
+            for (const callback of state.callbacks) state.set.add(callback);
+            listeners[eventName] = state.set;
         }
-
-        if (amount > 0) {
-            this.advanceMinutes(amount);
-        }
+        this._listeners = listeners;
     }
 
     // --------------------------
