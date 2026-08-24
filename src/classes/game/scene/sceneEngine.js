@@ -3,6 +3,7 @@ import {
   LOCATION_DESCRIPTIONS,
   PLACE_DESCRIPTIONS,
 } from "../../../data/scene/descriptions.js";
+import { SCENE_ACTION_TYPE } from "../../../data/scene/actions.js";
 import { buildLocalMapView } from "./mapView.js";
 import { buildSceneStatus, getNPCsAtPlayerPosition } from "./sceneContext.js";
 
@@ -17,7 +18,7 @@ function personChoice(npc) {
     icon: "👋",
     label: `Say hello to ${npc.meta?.shortName || npc.name}`,
     durationMinutes: 5,
-    action: { type: "greet", npcId: npc.id },
+    action: { type: SCENE_ACTION_TYPE.greet, npcId: npc.id },
   };
 }
 
@@ -35,7 +36,7 @@ function buildLocationScene(game) {
     icon: place.props?.icon || "▣",
     label: place.name,
     durationMinutes: 2,
-    action: { type: "enter", placeId: place.id },
+    action: { type: SCENE_ACTION_TYPE.enter, placeId: place.id },
   }));
 
   const travel = connections.map(([targetLocationId, edge]) => {
@@ -45,7 +46,7 @@ function buildLocationScene(game) {
       icon: "→",
       label: `Follow ${edge.streetName || "the road"} to ${destination.name}`,
       durationMinutes: edge.minutes,
-      action: { type: "travel", targetLocationId },
+      action: { type: SCENE_ACTION_TYPE.travel, targetLocationId },
     };
   });
 
@@ -80,7 +81,7 @@ function buildLocationScene(game) {
             icon: "⌛",
             label: "Loiter for a while",
             durationMinutes: 15,
-            action: { type: "loiter" },
+            action: { type: SCENE_ACTION_TYPE.loiter },
           },
         ],
       },
@@ -118,7 +119,7 @@ function buildPlaceScene(game) {
             icon: "🚪",
             label: "Leave",
             durationMinutes: 1,
-            action: { type: "leave" },
+            action: { type: SCENE_ACTION_TYPE.leave },
           },
         ],
       },

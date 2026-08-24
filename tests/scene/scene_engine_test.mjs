@@ -1,5 +1,8 @@
 import { Game } from "../../src/classes/game/game.js";
-import { performChoice } from "../../src/classes/game/scene/choiceEngine.js";
+import {
+  CHOICE_ERROR_CODE,
+  performChoice,
+} from "../../src/classes/game/scene/choiceEngine.js";
 import {
   buildSceneStatus,
   getNPCsAtPlayerPosition,
@@ -101,7 +104,10 @@ let choiceScene = buildScene(choiceGame);
 const unknownBefore = JSON.stringify(choiceGame);
 let unknownError = null;
 try {
-  performChoice(choiceGame, choiceScene, "missing-choice");
+  performChoice(choiceGame, {
+    sceneId: choiceScene.id,
+    choiceId: "missing-choice",
+  });
 } catch (error) {
   unknownError = error;
 }
@@ -111,7 +117,7 @@ check(
 );
 check(
   "unknown choices are rejected",
-  unknownError?.message === "Unknown choice: missing-choice",
+  unknownError?.code === CHOICE_ERROR_CODE.unavailableChoice,
 );
 check(
   "unknown choices leave game state unchanged",
@@ -120,7 +126,10 @@ check(
 
 const loiterChoice = choiceOfType(choiceScene, "loiter");
 const loiterStart = choiceGame.now.getTime();
-const loiterResult = performChoice(choiceGame, choiceScene, loiterChoice.id);
+const loiterResult = performChoice(choiceGame, {
+  sceneId: choiceScene.id,
+  choiceId: loiterChoice.id,
+});
 check(
   "loiter choice still advances its configured time",
   choiceGame.now.getTime() ===
@@ -134,7 +143,10 @@ check(
 choiceScene = buildScene(choiceGame);
 const enterChoice = choiceOfType(choiceScene, "enter");
 const enterStart = choiceGame.now.getTime();
-const enterResult = performChoice(choiceGame, choiceScene, enterChoice.id);
+const enterResult = performChoice(choiceGame, {
+  sceneId: choiceScene.id,
+  choiceId: enterChoice.id,
+});
 check(
   "enter choice sets the selected place",
   choiceGame.currentPlaceId === enterChoice.action.placeId,
@@ -152,7 +164,10 @@ check(
 choiceScene = buildScene(choiceGame);
 const leaveChoice = choiceOfType(choiceScene, "leave");
 const leaveStart = choiceGame.now.getTime();
-const leaveResult = performChoice(choiceGame, choiceScene, leaveChoice.id);
+const leaveResult = performChoice(choiceGame, {
+  sceneId: choiceScene.id,
+  choiceId: leaveChoice.id,
+});
 check(
   "leave choice returns the player outdoors",
   choiceGame.currentPlaceId === null,
@@ -170,7 +185,10 @@ check(
 choiceScene = buildScene(choiceGame);
 const travelChoice = choiceOfType(choiceScene, "travel");
 const travelStart = choiceGame.now.getTime();
-const travelResult = performChoice(choiceGame, choiceScene, travelChoice.id);
+const travelResult = performChoice(choiceGame, {
+  sceneId: choiceScene.id,
+  choiceId: travelChoice.id,
+});
 check(
   "travel choice moves to its selected neighboring location",
   String(choiceGame.currentLocationId) ===

@@ -48,10 +48,11 @@ function formatStatus(status) {
   return `${dateText} · ${status.weather} · ${Math.round(status.temperatureC)}°C`;
 }
 
-function makeChoiceButton(choice, number) {
+function makeChoiceButton(sceneId, choice, number) {
   const button = document.createElement("button");
   button.type = "button";
   button.className = "choice";
+  button.dataset.sceneId = sceneId;
   button.dataset.choiceId = choice.id;
 
   const icon = document.createElement("span");
@@ -67,7 +68,7 @@ function makeChoiceButton(choice, number) {
   duration.textContent = `(${formatDuration(choice.durationMinutes || 0)})`;
 
   button.append(icon, text, duration);
-  button.addEventListener("click", () => choose(choice.id));
+  button.addEventListener("click", () => choose(sceneId, choice.id));
   choiceButtonsById.set(choice.id, button);
   return button;
 }
@@ -152,7 +153,7 @@ function render() {
     const list = document.createElement("div");
     list.className = "choices";
     for (const choice of section.choices) {
-      const button = makeChoiceButton(choice, choiceNumber++);
+      const button = makeChoiceButton(currentScene.id, choice, choiceNumber++);
       choiceButtons.push(button);
       list.append(button);
     }
@@ -164,9 +165,12 @@ function render() {
   if (currentScene.map) renderLocalMap(currentScene.map);
 }
 
-function choose(choiceId) {
+function choose(sceneId, choiceId) {
   try {
-    noticeElement.textContent = performChoice(game, currentScene, choiceId);
+    noticeElement.textContent = performChoice(game, {
+      sceneId,
+      choiceId,
+    });
     noticeElement.className = "notice";
   } catch (error) {
     noticeElement.textContent = error.message;
