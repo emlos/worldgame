@@ -1143,10 +1143,7 @@ export class WorldMap {
         return out;
     }
 
-    /**
-     * Return all locations where ANY place has the given category in props.category.
-     * (Supports both string and array category props for backward compatibility.)
-     */
+    /** Return all locations where ANY place has the given category in props.category. */
     findLocationsWithCategory(placeCategory) {
         if (!placeCategory) return [];
         const out = [];
@@ -1154,9 +1151,7 @@ export class WorldMap {
         const hasCategory = (place) => {
             if (!place || !place.props) return false;
             const cat = place.props.category;
-            if (!cat) return false;
-            if (Array.isArray(cat)) return cat.includes(placeCategory);
-            return cat === placeCategory;
+            return Array.isArray(cat) && cat.includes(placeCategory);
         };
 
         for (const loc of this.locations.values()) {

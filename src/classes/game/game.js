@@ -468,10 +468,6 @@ export class Game {
             npc.id = id;
 
             // Attach home + starting location
-            // (legacy) preferLocationsWith -> homePreference.withPlaceCategory
-            if (!npc.homePreference && def && Array.isArray(def.preferLocationsWith)) {
-                npc.homePreference = { withPlaceCategory: def.preferLocationsWith };
-            }
             this._assignHomeForNPC(id, npc);
 
             this.npcs.set(id, npc);

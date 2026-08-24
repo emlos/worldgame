@@ -39,7 +39,7 @@ function restoreSnapshot(data, label) {
   if (!data || typeof data !== "object") throw new Error(`Missing ${label}`);
   return {
     date: asValidDate(data.date, `${label} date`),
-    kind: String(data.kind ?? data.state ?? WeatherType.CLEAR),
+    kind: String(data.kind ?? WeatherType.CLEAR),
     runHours: Math.max(0, Math.floor(Number(data.runHours) || 0)),
   };
 }
@@ -166,7 +166,7 @@ export class Weather {
       seed: this._seed,
       origin,
       current,
-      // Flat fields keep older debug tooling readable.
+      // Keep the current snapshot fields convenient for save inspection.
       date: current.date,
       state: current.kind,
       runHours: current.runHours,
@@ -183,26 +183,16 @@ export class Weather {
     weather._temperatureSeed = deriveSeed(weather._seed, "temperature");
     weather._checkpoints = new Map();
 
-    if (
-      Number(data.version) >= WEATHER_SAVE_VERSION &&
-      data.origin &&
-      data.current
-    ) {
-      const algorithmVersion =
-        Number(data.algorithmVersion) || WEATHER_ALGORITHM_VERSION;
-      if (algorithmVersion !== WEATHER_ALGORITHM_VERSION) {
-        throw new Error(
-          `Unsupported weather algorithm version: ${algorithmVersion}`,
-        );
-      }
-      weather._origin = restoreSnapshot(data.origin, "weather origin");
-      weather._current = restoreSnapshot(data.current, "current weather");
-    } else {
-      // Legacy saves did not retain a replayable origin. Anchor their new
-      // deterministic timeline at the saved current state.
-      weather._current = restoreSnapshot(data, "legacy weather");
-      weather._origin = cloneSnapshot(weather._current);
+    if (Number(data.version) !== WEATHER_SAVE_VERSION || !data.origin || !data.current) {
+      throw new Error("Weather save is missing the current replayable schema");
     }
+    if (Number(data.algorithmVersion) !== WEATHER_ALGORITHM_VERSION) {
+      throw new Error(
+        `Unsupported weather algorithm version: ${data.algorithmVersion}`,
+      );
+    }
+    weather._origin = restoreSnapshot(data.origin, "weather origin");
+    weather._current = restoreSnapshot(data.current, "current weather");
 
     if (weather._current.date < weather._origin.date) {
       throw new Error("Current weather date precedes weather origin");

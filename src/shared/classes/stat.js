@@ -40,9 +40,9 @@ export class Stat {
     if (data instanceof Stat) return data;
     if (typeof data === "number") return new Stat(data);
 
-    const stat = new Stat(Number(data?.base ?? data?._base) || 0);
-    const add = data?.add ?? data?._add;
-    const mult = data?.mult ?? data?._mult;
+    const stat = new Stat(Number(data?.base) || 0);
+    const add = data?.add;
+    const mult = data?.mult;
     stat._add = Array.isArray(add) ? add.map((v) => Number(v) || 0) : [];
     stat._mult = Array.isArray(mult)
       ? mult.map((v) => (Number.isFinite(Number(v)) ? Number(v) : 1))
