@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="A small playable Worldgame interface slice."
+    />
+    <title>Worldgame</title>
+    <link rel="stylesheet" href="./src/ui/browser/styles.css" />
+  </head>
+  <body>
+    <main class="game-shell">
+      <header class="topbar">
+        <div id="status"></div>
+        <button id="restart" class="restart" type="button">Restart</button>
+      </header>
+
+      <div id="notice" class="notice" aria-live="polite"></div>
+      <article id="scene"></article>
+    </main>
+
+    <script type="module" src="./src/ui/browser/app.js"></script>
+  </body>
+</html>

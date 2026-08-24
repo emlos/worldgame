@@ -1,114 +1,126 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Game tests</title>
-        <script>
-            const debug = false;
-        </script>
-        <script type="module" src="./src/debug.js"></script>
-    </head>
-    <style>
-        .columns {
-            display: flex;
-            flex-direction: row;
-            gap: 2rem;
-        }
-    </style>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Game tests</title>
+    <script>
+      const debug = false;
+    </script>
+    <script type="module" src="./src/debug.js"></script>
+  </head>
+  <style>
+    .columns {
+      display: flex;
+      flex-direction: row;
+      gap: 2rem;
+    }
+  </style>
 
-    <body>
-        <div class="columns">
-            <div class="column">
-                <h1>Game tests</h1>
-                <h2>Game State Tests</h2>
-                <ul>
-                    <li>
-                        <a href="./tests/game_save_load_dashboard.html"
-                            >complete save/load game dashboard</a
-                        >
-                    </li>
-                </ul>
-                <h2>Player Tests</h2>
-                <ul>
-                    <li>
-                        <a href="./tests/player/player_data_full.html"
-                            >complete player data display</a
-                        >
-                    </li>
-                </ul>
-                <h2>NPC Tests</h2>
-                <ul>
-                    <li>
-                        <a href="./tests/npc/npc_random_data_full.html"
-                            >complete random npc data display</a
-                        >
-                    </li>
-                    <li>
-                        <a href="./tests/npc/npc_brain_map_test.html"
-                            >npc brain map test</a
-                        >
-                    </li>
-                      <li>
-                        <a href="./tests/npc/all_npc_brains_map_test.html"
-                            >all npc brains map test</a
-                        >
-                    </li>
-                </ul>
-                <h2>World Tests</h2>
-                <ul>
-                    <li>
-                        <a href="./tests/world/world_random_data_full.html"
-                            >complete world random data display</a
-                        >
-                    </li>
-                    <li><a href="./tests/world/world_map_full.html">in depth map testing</a></li>
-                    <li><a href="./tests/world/weather_dashboard.html">weather timeline dashboard</a></li>
-                </ul>
+  <body>
+    <div class="columns">
+      <div class="column">
+        <h1>Game tests</h1>
+        <h2>Playable slice</h2>
+        <ul>
+          <li><a href="./play.html">Open the text interface</a></li>
+        </ul>
+        <h2>Game State Tests</h2>
+        <ul>
+          <li>
+            <a href="./tests/game_save_load_dashboard.html"
+              >complete save/load game dashboard</a
+            >
+          </li>
+        </ul>
+        <h2>Player Tests</h2>
+        <ul>
+          <li>
+            <a href="./tests/player/player_data_full.html"
+              >complete player data display</a
+            >
+          </li>
+        </ul>
+        <h2>NPC Tests</h2>
+        <ul>
+          <li>
+            <a href="./tests/npc/npc_random_data_full.html"
+              >complete random npc data display</a
+            >
+          </li>
+          <li>
+            <a href="./tests/npc/npc_brain_map_test.html">npc brain map test</a>
+          </li>
+          <li>
+            <a href="./tests/npc/all_npc_brains_map_test.html"
+              >all npc brains map test</a
+            >
+          </li>
+        </ul>
+        <h2>World Tests</h2>
+        <ul>
+          <li>
+            <a href="./tests/world/world_random_data_full.html"
+              >complete world random data display</a
+            >
+          </li>
+          <li>
+            <a href="./tests/world/world_map_full.html">in depth map testing</a>
+          </li>
+          <li>
+            <a href="./tests/world/weather_dashboard.html"
+              >weather timeline dashboard</a
+            >
+          </li>
+        </ul>
+      </div>
 
-            </div>
-
-            <div class="column">
-                <h1>Game docs</h1>
-                <h2>Npcs</h2>
-                <h2>Worldmap</h2>
-                <ul>
-                    <li>
-                        <a href="./docs/world/map_registry_browser.html">map registry viewver</a>
-                    </li>
-                    <li>
-                        <a href="./docs/world/doc_map_generation.html">map generation and rules</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-        <section id="changelog">
-            <h2>Recent changes</h2>
-            <ul id="commits"></ul>
-        </section>
-        <script>
-            (async function () {
-                try {
-                    const res = await fetch("./commits.json", { cache: "no-store" });
-                    const commits = await res.json();
-                    const list = document.getElementById("commits");
-                    list.innerHTML = commits
-                        .slice(0, 50)
-                        .map(
-                            (c) => `
+      <div class="column">
+        <h1>Game docs</h1>
+        <h2>Npcs</h2>
+        <h2>Worldmap</h2>
+        <ul>
+          <li>
+            <a href="./docs/world/map_registry_browser.html"
+              >map registry viewver</a
+            >
+          </li>
+          <li>
+            <a href="./docs/world/doc_map_generation.html"
+              >map generation and rules</a
+            >
+          </li>
+        </ul>
+      </div>
+    </div>
+    <section id="changelog">
+      <h2>Recent changes</h2>
+      <ul id="commits"></ul>
+    </section>
+    <script>
+      (async function () {
+        try {
+          const res = await fetch("./commits.json", { cache: "no-store" });
+          const commits = await res.json();
+          const list = document.getElementById("commits");
+          list.innerHTML = commits
+            .slice(0, 50)
+            .map(
+              (c) => `
         <li>
           <a href="https://github.com/emlos/worldgame/commit/${c.sha}">
             <code>${c.short}</code>
           </a> — ${c.message}
           <div style="opacity:.7">${c.author} - ${new Date(c.date).toLocaleString()}</div>
         </li>
-      `
-                        )
-                        .join("");
-                } catch (e) {
-                    document.getElementById("commits").textContent = "No changelog found.";
-                }
-            })();
-        </script>
-    </body>
+      `,
+            )
+            .join("");
+        } catch (e) {
+          document.getElementById("commits").textContent =
+            "No changelog found.";
+        }
+      })();
+    </script>
+  </body>
 </html>
