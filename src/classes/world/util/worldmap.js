@@ -8,8 +8,14 @@ import { PLACE_REGISTRY } from "../../../data/world/place.js";
 import { STREET_REGISTRY } from "../../../data/world/street.js";
 
 const capacityPerLocation = 10;
+const MS_PER_MINUTE = 60 * 1000;
 
 const dist = (A, B) => Math.hypot(A.x - B.x, A.y - B.y);
+
+function addTravelTime(atTime, minutes) {
+    if (!(atTime instanceof Date) || !Number.isFinite(atTime.getTime())) return atTime;
+    return new Date(atTime.getTime() + minutes * MS_PER_MINUTE);
+}
 
 /**
  * Choose district definitions for a number of locations.
@@ -1212,11 +1218,13 @@ export class WorldMap {
             for (const place of places) {
                 if (!matchFn(place)) continue;
 
+                const d = this.getTravelMinutes(originLocationId, loc.id);
+                if (!Number.isFinite(d)) continue;
+
                 if (respectOpening && typeof place.isOpen === "function") {
-                    if (!place.isOpen(atTime)) continue;
+                    if (!place.isOpen(addTravelTime(atTime, d))) continue;
                 }
 
-                const d = this.getTravelMinutes(originLocationId, loc.id);
                 if (d < bestDist) {
                     bestDist = d;
                     best = {
@@ -1238,12 +1246,12 @@ export class WorldMap {
             for (const place of places) {
                 if (!matchFn(place)) continue;
 
-                if (respectOpening && typeof place.isOpen === "function") {
-                    if (!place.isOpen(atTime)) continue;
-                }
-
                 const minutes = this.getTravelMinutes(originLocationId, loc.id);
-                if (!Number.isFinite(minutes) || minutes === Infinity) continue;
+                if (!Number.isFinite(minutes)) continue;
+
+                if (respectOpening && typeof place.isOpen === "function") {
+                    if (!place.isOpen(addTravelTime(atTime, minutes))) continue;
+                }
 
                 const baseWeight = 1 / (1 + 0.2 * minutes);
                 candidates.push({
