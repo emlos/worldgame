@@ -261,7 +261,7 @@ export class NPCBrain {
         }
 
         if (this.currentGoal && !this.currentAction) {
-            if (currentStillValid) {
+            if (currentStillValid && this.currentGoal.priority >= bestPriority) {
                 this._continueGoal(this.currentGoal, currentRule, at, game);
                 this._scheduleNextWake(at, game);
                 return;
