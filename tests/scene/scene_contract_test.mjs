@@ -1,9 +1,11 @@
+import { Game } from "../../src/classes/game/game.js";
 import { createChoice } from "../../src/classes/game/scene/choiceContract.js";
 import {
   SceneContractError,
   createScene,
   validateScene,
 } from "../../src/classes/game/scene/sceneContract.js";
+import { buildScene } from "../../src/classes/game/scene/sceneEngine.js";
 
 const failures = [];
 
@@ -164,6 +166,27 @@ try {
 check(
   "scene-level failures use SceneContractError",
   namedError instanceof SceneContractError,
+);
+
+const game = new Game({
+  seed: 117,
+  startDate: new Date("2026-08-24T08:00:00.000Z"),
+  playerOptions: { startPlaceId: null },
+  npcTemplates: [],
+});
+const generatedLocationScene = buildScene(game);
+check(
+  "generated location scenes satisfy the complete Scene contract",
+  validateScene(generatedLocationScene) === generatedLocationScene,
+);
+const enabledPlaceChoice = generatedLocationScene.sections
+  .flatMap((section) => section.choices)
+  .find((choice) => choice.action.type === "enter" && choice.enabled);
+game.setCurrentPlace({ placeId: enabledPlaceChoice.action.placeId });
+const generatedPlaceScene = buildScene(game);
+check(
+  "generated place scenes satisfy the complete Scene contract",
+  validateScene(generatedPlaceScene) === generatedPlaceScene,
 );
 
 if (failures.length) {
