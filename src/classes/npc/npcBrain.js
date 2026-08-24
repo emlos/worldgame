@@ -148,11 +148,7 @@ export class NPCBrain {
             while (remaining.length && !resolvedTarget) {
                 selected = weightedPick(remaining, this._rng(game), (candidate) => candidate.weight);
                 if (!selected) break;
-                resolvedTarget =
-                    selected.target ||
-                    this._resolveTarget(selected.rule, targetDate, game, {
-                        deterministic: selected.rule.type === GOAL_TYPE.obligation,
-                    });
+                resolvedTarget = this._resolveCandidateTarget(selected, targetDate, game);
                 if (!resolvedTarget) {
                     remaining = remaining.filter((candidate) => candidate !== selected);
                     selected = null;
@@ -279,45 +275,72 @@ export class NPCBrain {
             return;
         }
 
-        const topPriority = Math.max(...candidates.map((candidate) => candidate.priority));
-        const top = candidates.filter((candidate) => candidate.priority === topPriority);
-        const selected = weightedPick(top, this._rng(game), (candidate) => candidate.weight);
+        let remaining = candidates.slice();
+        let selected = null;
+        let target = null;
 
-        if (!selected) {
-            this.currentGoal = null;
-            this.currentAction = {
-                type: NPC_ACTION_TYPE.idle,
-                startedAt: at.toISOString(),
-            };
-            this._scheduleNextWake(at, game);
-            return;
-        }
-
-        const target = this._resolveTarget(selected.rule, at, game, {
-            deterministic: selected.rule.type === GOAL_TYPE.obligation,
-        });
-
-        if (!target) {
-            // A place may have closed between candidate discovery and resolution.
-            // Remove this rule for this decision and fall back to another eligible rule.
-            const fallback = top.filter((candidate) => candidate !== selected);
-            const alternate = weightedPick(
-                fallback,
-                this._rng(game),
-                (candidate) => candidate.weight,
-            );
-            if (alternate) {
-                this._startGoal(alternate, at, game);
-            } else {
-                this.currentGoal = null;
-                this.currentAction = { type: NPC_ACTION_TYPE.idle, startedAt: at.toISOString() };
+        // Resolve candidates in priority order. A discretionary destination can
+        // be rejected when taking the trip (plus its minimum stay) would make a
+        // higher-priority obligation unreachable on time.
+        while (remaining.length && !target) {
+            const topPriority = Math.max(...remaining.map((candidate) => candidate.priority));
+            const top = remaining.filter((candidate) => candidate.priority === topPriority);
+            selected = weightedPick(top, this._rng(game), (candidate) => candidate.weight);
+            if (!selected) break;
+            target = this._resolveCandidateTarget(selected, at, game);
+            if (!target) {
+                remaining = remaining.filter((candidate) => candidate !== selected);
+                selected = null;
             }
-            this._scheduleNextWake(at, game);
-            return;
         }
 
-        this._startGoal({ ...selected, target }, at, game);
+        if (selected && target) {
+            this._startGoal({ ...selected, target }, at, game);
+        } else {
+            this.currentGoal = null;
+            this.currentAction = { type: NPC_ACTION_TYPE.idle, startedAt: at.toISOString() };
+        }
         this._scheduleNextWake(at, game);
+    }
+
+    _resolveCandidateTarget(candidate, at, game) {
+        if (candidate.target) return candidate.target;
+        return this._resolveTarget(candidate.rule, at, game, {
+            deterministic: candidate.rule.type === GOAL_TYPE.obligation,
+            targetFilter: (target) =>
+                this._targetFitsBeforeNextObligation(candidate, target, at, game),
+        });
+    }
+
+    _targetFitsBeforeNextObligation(candidate, target, at, game) {
+        if (candidate.rule.type === GOAL_TYPE.obligation) return true;
+
+        const travelToTarget = Number(target.travelMinutes);
+        if (!Number.isFinite(travelToTarget)) return false;
+
+        const arrivalAt = addMinutes(at, travelToTarget);
+        let readyToLeaveAt = arrivalAt;
+        if (candidate.rule.type === GOAL_TYPE.visit) {
+            const stay = candidate.rule.stayMinutes || {};
+            const minimumStay = Math.max(1, Number(stay.min) || 20);
+            readyToLeaveAt = addMinutes(arrivalAt, minimumStay);
+
+            const intervalEnd = candidate.interval?.end;
+            if (intervalEnd instanceof Date && readyToLeaveAt > intervalEnd) {
+                readyToLeaveAt = intervalEnd;
+            }
+        }
+
+        const commitment = this._findNextHigherPriorityObligation(
+            at,
+            candidate.priority,
+            target.locationId,
+            game,
+        );
+        if (!commitment) return true;
+
+        const projectedArrival = addMinutes(readyToLeaveAt, commitment.travelMinutes);
+        return projectedArrival <= commitment.interval.start;
     }
 
     _startGoal(candidate, at, game) {
@@ -659,25 +682,74 @@ export class NPCBrain {
         return best;
     }
 
+    _findNextHigherPriorityObligation(at, currentPriority, originLocationId, game) {
+        let best = null;
+
+        for (const rule of this.rules.filter((candidate) => candidate.type === GOAL_TYPE.obligation)) {
+            const priority = Number(rule.priority) || 0;
+            // Obligations win ties against discretionary goals.
+            if (priority < currentPriority) continue;
+
+            for (const interval of this._ruleIntervals(rule, at, game, 0, 3)) {
+                if (interval.start <= at) continue;
+                const target = this._resolveTarget(rule, at, game, {
+                    deterministic: true,
+                    originLocationId,
+                });
+                if (!target || !Number.isFinite(target.travelMinutes)) continue;
+
+                const commitment = {
+                    rule,
+                    interval,
+                    target,
+                    priority,
+                    travelMinutes: target.travelMinutes,
+                };
+                if (
+                    !best ||
+                    interval.start < best.interval.start ||
+                    (interval.start.getTime() === best.interval.start.getTime() &&
+                        priority > best.priority)
+                ) {
+                    best = commitment;
+                }
+            }
+        }
+
+        return best;
+    }
+
     _hasValidTarget(rule, at, game) {
         if (rule.type === GOAL_TYPE.home) return Boolean(this.npc.homeLocationId);
         return this._collectPlaceCandidates(rule, at, game).length > 0;
     }
 
-    _resolveTarget(rule, at, game, { deterministic = false } = {}) {
+    _resolveTarget(
+        rule,
+        at,
+        game,
+        {
+            deterministic = false,
+            originLocationId = this.npc.locationId,
+            targetFilter = null,
+        } = {},
+    ) {
         if (rule.type === GOAL_TYPE.home) {
             if (this.npc.homeLocationId == null) return null;
-            return {
+            const target = {
                 locationId: String(this.npc.homeLocationId),
                 placeId: this.npc.homePlaceId ?? null,
                 travelMinutes: game?.world?.map?.getTravelMinutes(
-                    this.npc.locationId,
+                    originLocationId,
                     this.npc.homeLocationId,
                 ),
             };
+            return !targetFilter || targetFilter(target) ? target : null;
         }
 
-        const candidates = this._collectPlaceCandidates(rule, at, game);
+        const candidates = this._collectPlaceCandidates(rule, at, game, { originLocationId }).filter(
+            (candidate) => !targetFilter || targetFilter(candidate),
+        );
         if (!candidates.length) return null;
 
         const targetDescriptors = [rule.target, ...(rule.targets || [])].filter(Boolean);
@@ -699,7 +771,12 @@ export class NPCBrain {
         return weightedPick(candidates, this._rng(game), (candidate) => candidate.weight);
     }
 
-    _collectPlaceCandidates(rule, at, game) {
+    _collectPlaceCandidates(
+        rule,
+        at,
+        game,
+        { originLocationId = this.npc.locationId } = {},
+    ) {
         const descriptors = [rule.target, ...(rule.targets || [])].filter(Boolean);
         const disallowed = Array.isArray(rule.disallowedTargets) ? rule.disallowedTargets : [];
         const candidates = new Map();
@@ -715,7 +792,7 @@ export class NPCBrain {
                     continue;
                 }
 
-                const travelMinutes = worldMap.getTravelMinutes(this.npc.locationId, location.id);
+                const travelMinutes = worldMap.getTravelMinutes(originLocationId, location.id);
                 if (!Number.isFinite(travelMinutes)) continue;
 
                 const arrivalAt = addMinutes(at, travelMinutes);
@@ -730,7 +807,10 @@ export class NPCBrain {
                 }
 
                 let weight = 1 / (1 + 0.2 * travelMinutes);
-                if (String(this.npc.currentPlaceId ?? "") === String(place.id)) {
+                if (
+                    String(originLocationId) === String(this.npc.locationId) &&
+                    String(this.npc.currentPlaceId ?? "") === String(place.id)
+                ) {
                     weight *= 0.25;
                 }
 
