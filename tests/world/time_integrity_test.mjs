@@ -70,6 +70,23 @@ const gameBeforeLeak = JSON.stringify(game);
 game.now.setUTCFullYear(2040);
 check("mutating game.now cannot change game time", JSON.stringify(game) === gameBeforeLeak);
 
+const gameStart = game.now.getTime();
+game.advanceMinutes("60");
+check("Game.advanceMinutes accepts numeric strings", game.now.getTime() === gameStart + 60 * 60 * 1000);
+
+const beforeInvalidAction = JSON.stringify(game);
+throws("Game.advanceMinutes rejects invalid durations", () => game.advanceMinutes("not-a-number"));
+throws("runAction rejects invalid durations", () =>
+    game.runAction({
+        label: "invalid",
+        minutes: "not-a-number",
+        apply: () => {
+            throw new Error("action should not be applied");
+        },
+    }),
+);
+check("invalid runAction leaves game unchanged", JSON.stringify(game) === beforeInvalidAction);
+
 const target = new Date("2027-07-20T15:30:00Z");
 const returnedDate = world.setDate(target);
 target.setUTCFullYear(2040);

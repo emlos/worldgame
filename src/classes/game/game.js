@@ -128,9 +128,12 @@ export class Game {
      * Advance world time by N minutes and exactly simulate intervening NPC decisions.
      */
     advanceMinutes(mins) {
-        if (!Number.isFinite(mins) || mins <= 0) return;
+        const amount = Number(mins);
+        if (!Number.isFinite(amount) || amount <= 0) {
+            throw new TypeError(`Game.advanceMinutes requires positive minutes: ${String(mins)}`);
+        }
 
-        const target = new Date(this.now.getTime() + mins * MS_PER_MINUTE);
+        const target = new Date(this.now.getTime() + amount * MS_PER_MINUTE);
         return this._changeTimeTo(target, { mode: "simulate", source: "advance" });
     }
 
@@ -293,6 +296,14 @@ export class Game {
      * This is a good fit for your “choices” later.
      */
     runAction({ label, minutes = 0, apply }) {
+        let amount = 0;
+        if (minutes !== 0) {
+            amount = Number(minutes);
+            if (!Number.isFinite(amount) || amount <= 0) {
+                throw new TypeError(`runAction requires positive minutes: ${String(minutes)}`);
+            }
+        }
+
         if (typeof label === "string" && label) {
             this.log.push({ t: this.now.toISOString(), label });
         }
@@ -302,8 +313,8 @@ export class Game {
             apply(this);
         }
 
-        if (minutes > 0) {
-            this.advanceMinutes(minutes);
+        if (amount > 0) {
+            this.advanceMinutes(amount);
         }
     }
 
