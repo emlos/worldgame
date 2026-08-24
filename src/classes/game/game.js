@@ -341,16 +341,43 @@ export class Game {
                 { set, callbacks: [...set] },
             ]),
         );
+        const traitPredicates = {
+            player: new Map(
+                [...this.player.traits.entries()].map(([id, trait]) => [id, trait.has]),
+            ),
+            npcs: new Map(
+                [...this.npcs.entries()].map(([npcId, npc]) => [
+                    npcId,
+                    new Map([...npc.traits.entries()].map(([id, trait]) => [id, trait.has])),
+                ]),
+            ),
+        };
 
         return {
             save,
             ownKeys: new Set(Object.keys(this)),
             listeners,
+            traitPredicates,
         };
     }
 
     _restoreActionCheckpoint(checkpoint) {
         const restored = Game.fromJSON(checkpoint.save);
+
+        // Trait predicates are executable runtime behavior and therefore cannot
+        // survive the JSON checkpoint. Restore each predicate to the matching
+        // character after hydrating its data-only trait state.
+        const restoreTraitPredicates = (traits, predicates) => {
+            for (const [id, predicate] of predicates || []) {
+                const trait = traits.get(id);
+                if (trait && typeof predicate === "function") trait.has = predicate;
+            }
+        };
+        restoreTraitPredicates(restored.player.traits, checkpoint.traitPredicates?.player);
+        for (const [npcId, predicates] of checkpoint.traitPredicates?.npcs || []) {
+            const npc = restored.npcs.get(npcId);
+            if (npc) restoreTraitPredicates(npc.traits, predicates);
+        }
 
         // Remove runtime properties added by the failed callback, then adopt
         // every current/future constructor field except the listener registry.
