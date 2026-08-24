@@ -6,6 +6,7 @@ import {
 import { SCENE_ACTION_TYPE } from "../../../data/scene/actions.js";
 import { buildLocalMapView } from "./mapView.js";
 import { buildSceneStatus, getNPCsAtPlayerPosition } from "./sceneContext.js";
+import { createChoice, validateSceneChoices } from "./choiceContract.js";
 
 function stablePick(lines, game, key) {
   const index = Math.floor(keyedRandom01(game.seed, key) * lines.length);
@@ -13,13 +14,21 @@ function stablePick(lines, game, key) {
 }
 
 function personChoice(npc) {
-  return {
+  return createChoice({
     id: `greet:${npc.id}`,
     icon: "👋",
     label: `Say hello to ${npc.meta?.shortName || npc.name}`,
     durationMinutes: 5,
+    effectsPreview: [
+      {
+        type: "relationship",
+        amount: 0.02,
+        targetId: npc.id,
+        label: "+Relationship",
+      },
+    ],
     action: { type: SCENE_ACTION_TYPE.greet, npcId: npc.id },
-  };
+  });
 }
 
 function buildLocationScene(game) {
@@ -31,23 +40,25 @@ function buildLocationScene(game) {
   const nearbyStreet = streetNames[0];
   const people = getNPCsAtPlayerPosition(game);
 
-  const places = location.places.map((place) => ({
-    id: `enter:${place.id}`,
-    icon: place.props?.icon || "▣",
-    label: place.name,
-    durationMinutes: 2,
-    action: { type: SCENE_ACTION_TYPE.enter, placeId: place.id },
-  }));
+  const places = location.places.map((place) =>
+    createChoice({
+      id: `enter:${place.id}`,
+      icon: place.props?.icon || "▣",
+      label: place.name,
+      durationMinutes: 2,
+      action: { type: SCENE_ACTION_TYPE.enter, placeId: place.id },
+    }),
+  );
 
   const travel = connections.map(([targetLocationId, edge]) => {
     const destination = game.world.getLocation(targetLocationId);
-    return {
+    return createChoice({
       id: `travel:${targetLocationId}`,
       icon: "→",
       label: `Follow ${edge.streetName || "the road"} to ${destination.name}`,
       durationMinutes: edge.minutes,
       action: { type: SCENE_ACTION_TYPE.travel, targetLocationId },
-    };
+    });
   });
 
   return {
@@ -76,13 +87,13 @@ function buildLocationScene(game) {
         id: "local",
         heading: "Other",
         choices: [
-          {
+          createChoice({
             id: "loiter:15",
             icon: "⌛",
             label: "Loiter for a while",
             durationMinutes: 15,
             action: { type: SCENE_ACTION_TYPE.loiter },
-          },
+          }),
         ],
       },
     ].filter((section) => section.choices.length),
@@ -114,13 +125,13 @@ function buildPlaceScene(game) {
         id: "navigation",
         heading: "Navigation",
         choices: [
-          {
+          createChoice({
             id: "leave",
             icon: "🚪",
             label: "Leave",
             durationMinutes: 1,
             action: { type: SCENE_ACTION_TYPE.leave },
-          },
+          }),
         ],
       },
     ].filter((section) => section.choices.length),
@@ -128,5 +139,8 @@ function buildPlaceScene(game) {
 }
 
 export function buildScene(game) {
-  return game.currentPlace ? buildPlaceScene(game) : buildLocationScene(game);
+  const scene = game.currentPlace
+    ? buildPlaceScene(game)
+    : buildLocationScene(game);
+  return validateSceneChoices(scene);
 }

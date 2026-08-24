@@ -28,9 +28,28 @@ function createGame() {
 }
 
 function formatDuration(minutes) {
-  const hours = Math.floor(minutes / 60);
-  const remainder = String(minutes % 60).padStart(2, "0");
-  return `${hours}:${remainder}`;
+  const totalSeconds = Math.round(minutes * 60);
+  const hours = Math.floor(totalSeconds / 3600);
+  const remainderMinutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  const time = `${hours}:${String(remainderMinutes).padStart(2, "0")}`;
+  return seconds ? `${time}:${String(seconds).padStart(2, "0")}` : time;
+}
+
+function formatDescriptor(descriptor, kind) {
+  if (descriptor.label) return descriptor.label;
+  if (descriptor.amount === undefined) return descriptor.type;
+
+  if (kind === "cost") return `${descriptor.amount} ${descriptor.type}`;
+  const sign = descriptor.amount > 0 ? "+" : "";
+  return `${sign}${descriptor.amount} ${descriptor.type}`;
+}
+
+function makeChoiceDetail(className, text) {
+  const detail = document.createElement("span");
+  detail.className = className;
+  detail.textContent = text;
+  return detail;
 }
 
 function formatStatus(status) {
@@ -67,7 +86,31 @@ function makeChoiceButton(sceneId, choice, number) {
   duration.className = "choice-duration";
   duration.textContent = `(${formatDuration(choice.durationMinutes || 0)})`;
 
-  button.append(icon, text, duration);
+  const details = document.createElement("span");
+  details.className = "choice-details";
+  details.append(duration);
+
+  for (const cost of choice.costs) {
+    details.append(
+      makeChoiceDetail("choice-cost", formatDescriptor(cost, "cost")),
+    );
+  }
+  for (const effect of choice.effectsPreview) {
+    details.append(
+      makeChoiceDetail("choice-effect", formatDescriptor(effect, "effect")),
+    );
+  }
+  if (choice.warning) {
+    details.append(makeChoiceDetail("choice-warning", `⚠ ${choice.warning}`));
+  }
+  if (!choice.enabled && choice.disabledReason) {
+    details.append(
+      makeChoiceDetail("choice-disabled-reason", choice.disabledReason),
+    );
+  }
+
+  button.disabled = !choice.enabled;
+  button.append(icon, text, details);
   button.addEventListener("click", () => choose(sceneId, choice.id));
   choiceButtonsById.set(choice.id, button);
   return button;

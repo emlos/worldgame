@@ -115,9 +115,40 @@ p {
 }
 
 .choice-duration {
-  padding-left: 0.35rem;
   color: #699bd8;
   white-space: nowrap;
+}
+
+.choice-details {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.15rem 0.5rem;
+  padding-left: 0.35rem;
+}
+
+.choice-cost {
+  color: #e7b66a;
+}
+
+.choice-effect {
+  color: #73cf76;
+}
+
+.choice-warning {
+  color: #f2c14e;
+}
+
+.choice-disabled-reason {
+  color: #929292;
+}
+
+.choice:disabled {
+  color: #777;
+  cursor: not-allowed;
+}
+
+.choice:disabled:hover .choice-label {
+  text-decoration: none;
 }
 
 .map-section {
@@ -178,7 +209,9 @@ p {
   fill: #657487;
   stroke: #111820;
   stroke-width: 3;
-  transition: fill 120ms ease, stroke 120ms ease;
+  transition:
+    fill 120ms ease,
+    stroke 120ms ease;
 }
 
 .map-node text {

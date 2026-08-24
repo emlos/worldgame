@@ -6,6 +6,7 @@ export const CHOICE_ERROR_CODE = Object.freeze({
   invalidRequest: "invalid-request",
   staleScene: "stale-scene",
   unavailableChoice: "unavailable-choice",
+  disabledChoice: "disabled-choice",
   invalidAction: "invalid-action",
   unsupportedAction: "unsupported-action",
 });
@@ -182,6 +183,13 @@ export function performChoice(game, request) {
     fail(
       CHOICE_ERROR_CODE.unavailableChoice,
       `Choice '${choiceId}' is not available in the current scene`,
+    );
+  }
+
+  if (!choice.enabled) {
+    fail(
+      CHOICE_ERROR_CODE.disabledChoice,
+      choice.disabledReason || `Choice '${choiceId}' is currently disabled`,
     );
   }
 
