@@ -28,7 +28,9 @@ function equal(left, right) {
 function choiceOfType(scene, actionType) {
   return scene.sections
     .flatMap((section) => section.choices)
-    .find((choice) => choice.action.type === actionType);
+    .find(
+      (choice) => choice.action.type === actionType && choice.enabled,
+    );
 }
 
 const sceneGame = new Game({

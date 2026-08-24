@@ -91,17 +91,13 @@ function performTravel(game, choice, minutes) {
 }
 
 function performEnter(game, choice, minutes) {
-  requireOutdoors(game, "Entering a place");
-
-  const place = game.location?.places.find(
-    (candidate) => String(candidate.id) === String(choice.action.placeId),
-  );
-  if (!place) {
-    fail(
-      CHOICE_ERROR_CODE.invalidAction,
-      `Place '${choice.action.placeId}' is not available at this location`,
-    );
+  const access = game.getPlaceAccess(choice.action.placeId, {
+    at: new Date(game.now.getTime() + minutes * 60_000),
+  });
+  if (!access.allowed) {
+    fail(CHOICE_ERROR_CODE.invalidAction, access.reason);
   }
+  const place = access.place;
 
   game.runAction({
     label: `Enter ${place.name}`,

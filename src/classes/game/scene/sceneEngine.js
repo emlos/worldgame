@@ -8,6 +8,8 @@ import { buildLocalMapView } from "./mapView.js";
 import { buildSceneStatus } from "./sceneContext.js";
 import { createChoice, validateSceneChoices } from "./choiceContract.js";
 
+const ENTER_PLACE_MINUTES = 2;
+
 function stablePick(lines, game, key) {
   const index = Math.floor(keyedRandom01(game.seed, key) * lines.length);
   return lines[index];
@@ -40,15 +42,20 @@ function buildLocationScene(game) {
   const nearbyStreet = streetNames[0];
   const people = game.getNPCsAtCurrentPosition();
 
-  const places = location.places.map((place) =>
-    createChoice({
+  const places = location.places.map((place) => {
+    const access = game.getPlaceAccess(place, {
+      at: new Date(game.now.getTime() + ENTER_PLACE_MINUTES * 60_000),
+    });
+    return createChoice({
       id: `enter:${place.id}`,
       icon: place.props?.icon || "▣",
       label: place.name,
-      durationMinutes: 2,
+      durationMinutes: ENTER_PLACE_MINUTES,
+      enabled: access.allowed,
+      disabledReason: access.reason,
       action: { type: SCENE_ACTION_TYPE.enter, placeId: place.id },
-    }),
-  );
+    });
+  });
 
   const travel = connections.map(([targetLocationId, edge]) => {
     const destination = game.world.getLocation(targetLocationId);

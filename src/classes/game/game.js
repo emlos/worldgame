@@ -307,6 +307,45 @@ export class Game {
         );
     }
 
+    /** Resolve whether the player may enter a place at a specific time. */
+    getPlaceAccess(placeOrId, { at = this.now } = {}) {
+        if (!(at instanceof Date) || !Number.isFinite(at.getTime())) {
+            throw new TypeError("Game.getPlaceAccess requires a valid Date");
+        }
+
+        if (this.currentPlaceId != null) {
+            return {
+                allowed: false,
+                code: "already-inside",
+                reason: `You must leave ${this.currentPlace?.name || "this place"} first.`,
+                place: null,
+            };
+        }
+
+        const placeId =
+            placeOrId && typeof placeOrId === "object" ? placeOrId.id : placeOrId;
+        const place = this._getPlaceById(this.currentLocationId, placeId);
+        if (!place) {
+            return {
+                allowed: false,
+                code: "not-here",
+                reason: "That place is not available from here.",
+                place: null,
+            };
+        }
+
+        if (typeof place.isOpen === "function" && !place.isOpen(at)) {
+            return {
+                allowed: false,
+                code: "closed",
+                reason: `${place.name} is closed.`,
+                place,
+            };
+        }
+
+        return { allowed: true, code: "allowed", reason: null, place };
+    }
+
     /**
      * Wrapper for player actions: do stuff, spend time, log it.
      * This is a good fit for your “choices” later.
