@@ -1,3 +1,6 @@
+//TODO: rework streets between nodes to prevent from long chans of stingle streets happening [see screenshot]
+//TODO: basicaly reword the node distribution - more scattered circle like
+
 import { clamp01 } from "../../../shared/util/util.js";
 import { weightedPick, randInt, makeRNG } from "../../../shared/util/random.js";
 import { Location } from "./location.js";

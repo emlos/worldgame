@@ -1,8 +1,6 @@
 import { Game } from "../../classes/game/game.js";
-import {
-  buildScene,
-  performChoice,
-} from "../../classes/game/scene/sceneEngine.js";
+import { buildScene } from "../../classes/game/scene/sceneEngine.js";
+import { performChoice } from "../../classes/game/scene/choiceEngine.js";
 import { buildFullMapView } from "../../classes/game/scene/mapView.js";
 import { renderMap as renderGraphMap } from "./renderMap.js";
 
@@ -76,7 +74,9 @@ function makeChoiceButton(choice, number) {
 
 function locationSummary(node) {
   const places = node.places.length
-    ? node.places.map((place) => `${place.icon || "•"} ${place.name}`).join(" · ")
+    ? node.places
+        .map((place) => `${place.icon || "•"} ${place.name}`)
+        .join(" · ")
     : "No marked places";
   return `${node.name} — ${places}`;
 }
