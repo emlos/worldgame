@@ -117,28 +117,3 @@ export function createChoice(input) {
 
   return validateChoice(choice);
 }
-
-export function validateSceneChoices(scene) {
-  requireRecord(scene, "scene");
-  if (!Array.isArray(scene.sections)) fail("scene.sections must be an array");
-
-  const choiceIds = new Set();
-  scene.sections.forEach((section, sectionIndex) => {
-    const sectionPath = `scene.sections[${sectionIndex}]`;
-    requireRecord(section, sectionPath);
-    if (!Array.isArray(section.choices)) {
-      fail(`${sectionPath}.choices must be an array`);
-    }
-
-    section.choices.forEach((choice, choiceIndex) => {
-      const choicePath = `${sectionPath}.choices[${choiceIndex}]`;
-      validateChoice(choice, choicePath);
-      if (choiceIds.has(choice.id)) {
-        fail(`Duplicate choice id '${choice.id}' in scene`);
-      }
-      choiceIds.add(choice.id);
-    });
-  });
-
-  return scene;
-}

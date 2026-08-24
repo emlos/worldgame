@@ -6,7 +6,8 @@ import {
 import { SCENE_ACTION_TYPE } from "../../../data/scene/actions.js";
 import { buildLocalMapView } from "./mapView.js";
 import { buildSceneStatus } from "./sceneContext.js";
-import { createChoice, validateSceneChoices } from "./choiceContract.js";
+import { createChoice } from "./choiceContract.js";
+import { createScene } from "./sceneContract.js";
 
 const ENTER_PLACE_MINUTES = 2;
 
@@ -149,5 +150,5 @@ export function buildScene(game) {
   const scene = game.currentPlace
     ? buildPlaceScene(game)
     : buildLocationScene(game);
-  return validateSceneChoices(scene);
+  return createScene(scene);
 }
