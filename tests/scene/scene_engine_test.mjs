@@ -3,10 +3,7 @@ import {
   CHOICE_ERROR_CODE,
   performChoice,
 } from "../../src/classes/game/scene/choiceEngine.js";
-import {
-  buildSceneStatus,
-  getNPCsAtPlayerPosition,
-} from "../../src/classes/game/scene/sceneContext.js";
+import { buildSceneStatus } from "../../src/classes/game/scene/sceneContext.js";
 import { buildScene } from "../../src/classes/game/scene/sceneEngine.js";
 import {
   LOCATION_DESCRIPTIONS,
@@ -75,7 +72,7 @@ vega.setLocationAndPlace(sceneGame.currentLocationId, localPlace.id);
 check(
   "outdoor position query includes only outdoor NPCs in the current location",
   equal(
-    getNPCsAtPlayerPosition(sceneGame).map((npc) => npc.id),
+    sceneGame.getNPCsAtCurrentPosition().map((npc) => npc.id),
     [taylor.id],
   ),
 );
@@ -83,7 +80,7 @@ sceneGame.setCurrentPlace({ placeId: localPlace.id });
 check(
   "indoor position query includes only NPCs in the exact place",
   equal(
-    getNPCsAtPlayerPosition(sceneGame).map((npc) => npc.id),
+    sceneGame.getNPCsAtCurrentPosition().map((npc) => npc.id),
     [vega.id],
   ),
 );

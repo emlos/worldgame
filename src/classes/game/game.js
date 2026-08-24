@@ -296,6 +296,17 @@ export class Game {
         return this.npcsArray.filter((n) => String(n.locationId) === id);
     }
 
+    /** Return NPCs sharing the player's exact outdoor or indoor position. */
+    getNPCsAtCurrentPosition() {
+        const locationId = String(this.currentLocationId);
+        const placeId = this.currentPlaceId == null ? null : String(this.currentPlaceId);
+        return this.npcsArray.filter(
+            (npc) =>
+                String(npc.locationId) === locationId &&
+                (npc.currentPlaceId == null ? null : String(npc.currentPlaceId)) === placeId,
+        );
+    }
+
     /**
      * Wrapper for player actions: do stuff, spend time, log it.
      * This is a good fit for your “choices” later.

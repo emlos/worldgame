@@ -5,7 +5,7 @@ import {
 } from "../../../data/scene/descriptions.js";
 import { SCENE_ACTION_TYPE } from "../../../data/scene/actions.js";
 import { buildLocalMapView } from "./mapView.js";
-import { buildSceneStatus, getNPCsAtPlayerPosition } from "./sceneContext.js";
+import { buildSceneStatus } from "./sceneContext.js";
 import { createChoice, validateSceneChoices } from "./choiceContract.js";
 
 function stablePick(lines, game, key) {
@@ -38,7 +38,7 @@ function buildLocationScene(game) {
     ...new Set(connections.map(([, edge]) => edge.streetName).filter(Boolean)),
   ];
   const nearbyStreet = streetNames[0];
-  const people = getNPCsAtPlayerPosition(game);
+  const people = game.getNPCsAtCurrentPosition();
 
   const places = location.places.map((place) =>
     createChoice({
@@ -103,7 +103,7 @@ function buildLocationScene(game) {
 function buildPlaceScene(game) {
   const place = game.currentPlace;
   const location = game.location;
-  const people = getNPCsAtPlayerPosition(game);
+  const people = game.getNPCsAtCurrentPosition();
 
   return {
     id: `place:${place.id}:${game.now.toISOString()}`,

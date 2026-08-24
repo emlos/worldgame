@@ -1,6 +1,5 @@
 import { SCENE_ACTION_TYPE } from "../../../data/scene/actions.js";
 import { buildScene } from "./sceneEngine.js";
-import { getNPCsAtPlayerPosition } from "./sceneContext.js";
 
 export const CHOICE_ERROR_CODE = Object.freeze({
   invalidRequest: "invalid-request",
@@ -141,7 +140,7 @@ function performLoiter(game, _choice, minutes) {
 
 function performGreet(game, choice, minutes) {
   const npc = game.npcs.get(String(choice.action.npcId));
-  const present = npc && getNPCsAtPlayerPosition(game).includes(npc);
+  const present = npc && game.getNPCsAtCurrentPosition().includes(npc);
   if (!present) {
     fail(
       CHOICE_ERROR_CODE.invalidAction,
