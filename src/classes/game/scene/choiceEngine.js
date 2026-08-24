@@ -1,4 +1,5 @@
 import { SCENE_ACTION_TYPE } from "../../../data/scene/actions.js";
+import { SCENE_TEXT } from "../../../content/scene/genericText.js";
 import { buildScene } from "./sceneEngine.js";
 
 export const CHOICE_ERROR_CODE = Object.freeze({
@@ -81,13 +82,13 @@ function performTravel(game, choice, minutes) {
   }
 
   game.runAction({
-    label: `Travel to ${destination.name}`,
+    label: SCENE_TEXT.travelLog(destination.name),
     minutes,
     apply(currentGame) {
       currentGame.moveTo(targetLocationId);
     },
   });
-  return `You arrive in ${destination.name}.`;
+  return SCENE_TEXT.travelResult(destination.name);
 }
 
 function performEnter(game, choice, minutes) {
@@ -95,18 +96,21 @@ function performEnter(game, choice, minutes) {
     at: new Date(game.now.getTime() + minutes * 60_000),
   });
   if (!access.allowed) {
-    fail(CHOICE_ERROR_CODE.invalidAction, access.reason);
+    fail(
+      CHOICE_ERROR_CODE.invalidAction,
+      SCENE_TEXT.placeAccess(access, game.currentPlace?.name),
+    );
   }
   const place = access.place;
 
   game.runAction({
-    label: `Enter ${place.name}`,
+    label: SCENE_TEXT.enterLog(place.name),
     minutes,
     apply(currentGame) {
       currentGame.setCurrentPlace({ placeId: place.id });
     },
   });
-  return `You enter ${place.name}.`;
+  return SCENE_TEXT.enterResult(place.name);
 }
 
 function performLeave(game, _choice, minutes) {
@@ -119,19 +123,19 @@ function performLeave(game, _choice, minutes) {
   }
 
   game.runAction({
-    label: `Leave ${place.name}`,
+    label: SCENE_TEXT.leaveLog(place.name),
     minutes,
     apply(currentGame) {
       currentGame.setCurrentPlace();
     },
   });
-  return `You step outside ${place.name}.`;
+  return SCENE_TEXT.leaveResult(place.name);
 }
 
 function performLoiter(game, _choice, minutes) {
   requireOutdoors(game, "Loitering");
-  game.runAction({ label: "Loiter", minutes });
-  return "You spend a little while watching the area around you.";
+  game.runAction({ label: SCENE_TEXT.loiterLog, minutes });
+  return SCENE_TEXT.loiterResult;
 }
 
 function performGreet(game, choice, minutes) {
@@ -145,13 +149,13 @@ function performGreet(game, choice, minutes) {
   }
 
   game.runAction({
-    label: `Greet ${npc.name}`,
+    label: SCENE_TEXT.greetLog(npc.name),
     minutes,
     apply(currentGame) {
       currentGame.player.bumpRelationship(npc.id, 0.02);
     },
   });
-  return `You say hello to ${npc.meta?.shortName || npc.name}.`;
+  return SCENE_TEXT.greetResult(npc.meta?.shortName || npc.name);
 }
 
 const ACTION_HANDLERS = Object.freeze({

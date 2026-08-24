@@ -8,7 +8,8 @@ import { buildScene } from "../../src/classes/game/scene/sceneEngine.js";
 import {
   LOCATION_DESCRIPTIONS,
   PLACE_DESCRIPTIONS,
-} from "../../src/data/scene/descriptions.js";
+  SCENE_TEXT,
+} from "../../src/content/scene/genericText.js";
 
 const START = new Date("2026-08-24T08:00:00.000Z");
 const failures = [];
@@ -51,7 +52,7 @@ check(
   equal(firstScene, repeatedScene),
 );
 check(
-  "location prose comes from the scene description data module",
+  "location prose comes from the scene content module",
   LOCATION_DESCRIPTIONS.includes(firstScene.paragraphs[1]),
 );
 check(
@@ -89,7 +90,7 @@ check(
 const placeScene = buildScene(sceneGame);
 check("entering a place produces a place scene", placeScene.kind === "place");
 check(
-  "place prose comes from the scene description data module",
+  "place prose comes from the scene content module",
   PLACE_DESCRIPTIONS.includes(placeScene.paragraphs[1]),
 );
 
@@ -136,7 +137,7 @@ check(
 );
 check(
   "loiter choice still returns its result prose",
-  loiterResult === "You spend a little while watching the area around you.",
+  loiterResult === SCENE_TEXT.loiterResult,
 );
 
 choiceScene = buildScene(choiceGame);

@@ -317,7 +317,6 @@ export class Game {
             return {
                 allowed: false,
                 code: "already-inside",
-                reason: `You must leave ${this.currentPlace?.name || "this place"} first.`,
                 place: null,
             };
         }
@@ -329,7 +328,6 @@ export class Game {
             return {
                 allowed: false,
                 code: "not-here",
-                reason: "That place is not available from here.",
                 place: null,
             };
         }
@@ -338,12 +336,11 @@ export class Game {
             return {
                 allowed: false,
                 code: "closed",
-                reason: `${place.name} is closed.`,
                 place,
             };
         }
 
-        return { allowed: true, code: "allowed", reason: null, place };
+        return { allowed: true, code: "allowed", place };
     }
 
     /**

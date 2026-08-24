@@ -2,7 +2,8 @@ import { keyedRandom01 } from "../../../shared/util/random.js";
 import {
   LOCATION_DESCRIPTIONS,
   PLACE_DESCRIPTIONS,
-} from "../../../data/scene/descriptions.js";
+  SCENE_TEXT,
+} from "../../../content/scene/genericText.js";
 import { SCENE_ACTION_TYPE } from "../../../data/scene/actions.js";
 import { buildLocalMapView } from "./mapView.js";
 import { buildSceneStatus } from "./sceneContext.js";
@@ -17,17 +18,18 @@ function stablePick(lines, game, key) {
 }
 
 function personChoice(npc) {
+  const npcName = npc.meta?.shortName || npc.name;
   return createChoice({
     id: `greet:${npc.id}`,
     icon: "👋",
-    label: `Say hello to ${npc.meta?.shortName || npc.name}`,
+    label: SCENE_TEXT.greetChoice(npcName),
     durationMinutes: 5,
     effectsPreview: [
       {
         type: "relationship",
         amount: 0.02,
         targetId: npc.id,
-        label: "+Relationship",
+        label: SCENE_TEXT.relationshipPreview,
       },
     ],
     action: { type: SCENE_ACTION_TYPE.greet, npcId: npc.id },
@@ -53,7 +55,7 @@ function buildLocationScene(game) {
       label: place.name,
       durationMinutes: ENTER_PLACE_MINUTES,
       enabled: access.allowed,
-      disabledReason: access.reason,
+      disabledReason: SCENE_TEXT.placeAccess(access, game.currentPlace?.name),
       action: { type: SCENE_ACTION_TYPE.enter, placeId: place.id },
     });
   });
@@ -63,7 +65,7 @@ function buildLocationScene(game) {
     return createChoice({
       id: `travel:${targetLocationId}`,
       icon: "→",
-      label: `Follow ${edge.streetName || "the road"} to ${destination.name}`,
+      label: SCENE_TEXT.travelChoice(edge.streetName, destination.name),
       durationMinutes: edge.minutes,
       action: { type: SCENE_ACTION_TYPE.travel, targetLocationId },
     });
@@ -72,33 +74,37 @@ function buildLocationScene(game) {
   return {
     id: `location:${location.id}:${game.now.toISOString()}`,
     kind: "location",
-    heading: nearbyStreet
-      ? `${nearbyStreet} · ${location.name}`
-      : location.name,
+    heading: SCENE_TEXT.locationHeading(nearbyStreet, location.name),
     status: buildSceneStatus(game),
     map: buildLocalMapView(game),
     paragraphs: [
-      nearbyStreet
-        ? `You are near ${nearbyStreet} in ${location.name}.`
-        : `You are in ${location.name}.`,
+      SCENE_TEXT.locationIntroduction(nearbyStreet, location.name),
       stablePick(LOCATION_DESCRIPTIONS, game, `location:${location.id}`),
     ],
     sections: [
-      { id: "places", heading: "Places of interest", choices: places },
+      {
+        id: "places",
+        heading: SCENE_TEXT.sectionHeading.places,
+        choices: places,
+      },
       {
         id: "people",
-        heading: "People here",
+        heading: SCENE_TEXT.sectionHeading.people,
         choices: people.map(personChoice),
       },
-      { id: "travel", heading: "Travel", choices: travel },
+      {
+        id: "travel",
+        heading: SCENE_TEXT.sectionHeading.travel,
+        choices: travel,
+      },
       {
         id: "local",
-        heading: "Other",
+        heading: SCENE_TEXT.sectionHeading.local,
         choices: [
           createChoice({
             id: "loiter:15",
             icon: "⌛",
-            label: "Loiter for a while",
+            label: SCENE_TEXT.loiterChoice,
             durationMinutes: 15,
             action: { type: SCENE_ACTION_TYPE.loiter },
           }),
@@ -120,23 +126,23 @@ function buildPlaceScene(game) {
     status: buildSceneStatus(game),
     map: null,
     paragraphs: [
-      `You are inside ${place.name} in ${location.name}.`,
+      SCENE_TEXT.placeIntroduction(place.name, location.name),
       stablePick(PLACE_DESCRIPTIONS, game, `place:${place.id}`),
     ],
     sections: [
       {
         id: "people",
-        heading: "People here",
+        heading: SCENE_TEXT.sectionHeading.people,
         choices: people.map(personChoice),
       },
       {
         id: "navigation",
-        heading: "Navigation",
+        heading: SCENE_TEXT.sectionHeading.navigation,
         choices: [
           createChoice({
             id: "leave",
             icon: "🚪",
-            label: "Leave",
+            label: SCENE_TEXT.leaveChoice,
             durationMinutes: 1,
             action: { type: SCENE_ACTION_TYPE.leave },
           }),
