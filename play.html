@@ -14,12 +14,29 @@
     <main class="game-shell">
       <header class="topbar">
         <div id="status"></div>
-        <button id="restart" class="restart" type="button">Restart</button>
+        <div class="topbar-actions">
+          <button id="open-map" class="utility-button" type="button">Full map</button>
+          <button id="restart" class="utility-button" type="button">Restart</button>
+        </div>
       </header>
 
       <div id="notice" class="notice" aria-live="polite"></div>
       <article id="scene"></article>
     </main>
+
+    <dialog id="full-map-dialog" class="map-dialog">
+      <div class="map-dialog-content">
+        <header class="map-dialog-header">
+          <div>
+            <h2>World map</h2>
+            <p>Select a location to see its places.</p>
+          </div>
+          <button id="close-map" class="utility-button" type="button">Close</button>
+        </header>
+        <div id="full-map" class="map-frame map-frame--world"></div>
+        <p id="full-map-details" class="map-details" aria-live="polite"></p>
+      </div>
+    </dialog>
 
     <script type="module" src="./src/ui/browser/app.js"></script>
   </body>

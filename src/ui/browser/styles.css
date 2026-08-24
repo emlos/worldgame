@@ -33,12 +33,22 @@ body {
   font-size: 0.9rem;
 }
 
-.restart {
+.topbar-actions {
+  display: flex;
+  gap: 16px;
+}
+
+.utility-button {
   border: 0;
   padding: 0;
   background: transparent;
   color: #5ca3ff;
   cursor: pointer;
+}
+
+.utility-button:hover,
+.utility-button:focus-visible {
+  text-decoration: underline;
 }
 
 .notice {
@@ -110,6 +120,146 @@ p {
   white-space: nowrap;
 }
 
+.map-section {
+  margin-top: 34px;
+}
+
+.map-frame {
+  overflow: hidden;
+  border: 1px solid #29313d;
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at center, rgba(35, 50, 70, 0.24), transparent 68%),
+    #0d1015;
+}
+
+.map-frame--local {
+  width: min(100%, 760px);
+}
+
+.map-frame--world {
+  width: 100%;
+  min-height: 360px;
+}
+
+.graph-map {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.graph-map--world {
+  max-height: 68vh;
+}
+
+.map-edge {
+  stroke: #3b4655;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.map-edge--direct {
+  stroke: #497fbf;
+  stroke-width: 3;
+}
+
+.map-edge--boundary {
+  opacity: 0.35;
+  stroke-dasharray: 5 5;
+}
+
+.map-node {
+  color: #9ba8b7;
+  cursor: pointer;
+  outline: none;
+}
+
+.map-node circle {
+  fill: #657487;
+  stroke: #111820;
+  stroke-width: 3;
+  transition: fill 120ms ease, stroke 120ms ease;
+}
+
+.map-node text {
+  fill: #cbd3dd;
+  font-size: 12px;
+  paint-order: stroke;
+  stroke: #0d1015;
+  stroke-width: 4px;
+  stroke-linejoin: round;
+}
+
+.map-node:hover circle,
+.map-node:focus-visible circle {
+  fill: #8faccd;
+  stroke: #5ca3ff;
+}
+
+.map-node--reachable circle {
+  fill: #397fcf;
+}
+
+.map-node--current circle {
+  fill: #f2c14e;
+  stroke: #fff0b3;
+}
+
+.map-node--current text {
+  fill: #fff3c5;
+  font-weight: 700;
+}
+
+.map-node--boundary {
+  cursor: default;
+  opacity: 0.45;
+}
+
+.map-details {
+  min-height: 1.5rem;
+  margin: 10px 2px 0;
+  color: #9fa9b5;
+  font-size: 0.88rem;
+}
+
+.map-dialog {
+  width: min(1180px, calc(100vw - 32px));
+  max-width: none;
+  max-height: calc(100vh - 32px);
+  border: 1px solid #344154;
+  border-radius: 10px;
+  padding: 0;
+  background: #11151b;
+  color: #ececec;
+}
+
+.map-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.76);
+}
+
+.map-dialog-content {
+  padding: 20px;
+}
+
+.map-dialog-header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 16px;
+}
+
+.map-dialog-header h2,
+.map-dialog-header p {
+  margin: 0;
+}
+
+.map-dialog-header p {
+  margin-top: 5px;
+  color: #9fa9b5;
+  font-size: 0.9rem;
+}
+
 @media (max-width: 560px) {
   .game-shell {
     width: min(100% - 24px, 900px);
@@ -119,5 +269,18 @@ p {
   .choice {
     width: 100%;
     grid-template-columns: 1.8rem 1fr auto;
+  }
+
+  .map-node text {
+    font-size: 14px;
+  }
+
+  .map-dialog {
+    width: calc(100vw - 16px);
+    max-height: calc(100vh - 16px);
+  }
+
+  .map-dialog-content {
+    padding: 12px;
   }
 }

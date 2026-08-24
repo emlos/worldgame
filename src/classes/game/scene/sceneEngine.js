@@ -1,5 +1,8 @@
 import { keyedRandom01 } from "../../../shared/util/random.js";
+import { buildLocalMapView } from "./mapView.js";
 
+
+//TODO: move to own data file - loaction files, event files, npc files for clarity?
 const LOCATION_DESCRIPTIONS = [
   "People pass through at an unhurried pace, each occupied with their own destination.",
   "The surrounding streets carry the low, constant noise of the town.",
@@ -21,6 +24,7 @@ function stablePick(lines, game, key) {
   return lines[index];
 }
 
+//TODO: should be a game method? smth like game.getNpcsAt(locationId, optional placeId) -> list of npc id's?
 function peopleAtPlayerPosition(game) {
   return game.npcsArray.filter(
     (npc) =>
@@ -82,6 +86,7 @@ function buildLocationScene(game) {
       ? `${nearbyStreet} · ${location.name}`
       : location.name,
     status: buildStatus(game),
+    map: buildLocalMapView(game),
     paragraphs: [
       nearbyStreet
         ? `You are near ${nearbyStreet} in ${location.name}.`
@@ -123,6 +128,7 @@ function buildPlaceScene(game) {
     kind: "place",
     heading: place.name,
     status: buildStatus(game),
+    map: null,
     paragraphs: [
       `You are inside ${place.name} in ${location.name}.`,
       stablePick(PLACE_DESCRIPTIONS, game, `place:${place.id}`),

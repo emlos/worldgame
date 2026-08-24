@@ -3,15 +3,23 @@ import {
   buildScene,
   performChoice,
 } from "../../classes/game/scene/sceneEngine.js";
+import { buildFullMapView } from "../../classes/game/scene/mapView.js";
+import { renderMap as renderGraphMap } from "./renderMap.js";
 
 const statusElement = document.querySelector("#status");
 const noticeElement = document.querySelector("#notice");
 const sceneElement = document.querySelector("#scene");
 const restartButton = document.querySelector("#restart");
+const openMapButton = document.querySelector("#open-map");
+const closeMapButton = document.querySelector("#close-map");
+const fullMapDialog = document.querySelector("#full-map-dialog");
+const fullMapElement = document.querySelector("#full-map");
+const fullMapDetails = document.querySelector("#full-map-details");
 
 let game = createGame();
 let currentScene = null;
 let choiceButtons = [];
+let choiceButtonsById = new Map();
 
 function createGame() {
   return new Game({
@@ -62,12 +70,65 @@ function makeChoiceButton(choice, number) {
 
   button.append(icon, text, duration);
   button.addEventListener("click", () => choose(choice.id));
+  choiceButtonsById.set(choice.id, button);
   return button;
+}
+
+function locationSummary(node) {
+  const places = node.places.length
+    ? node.places.map((place) => `${place.icon || "•"} ${place.name}`).join(" · ")
+    : "No marked places";
+  return `${node.name} — ${places}`;
+}
+
+function renderLocalMap(mapView) {
+  const section = document.createElement("section");
+  section.className = "map-section";
+
+  const heading = document.createElement("h2");
+  heading.textContent = "Nearby map";
+  section.append(heading);
+
+  const frame = document.createElement("div");
+  frame.className = "map-frame map-frame--local";
+  const details = document.createElement("p");
+  details.className = "map-details";
+  const currentNode = mapView.nodes.find((node) => node.current);
+  details.textContent = currentNode
+    ? `You are in ${currentNode.name}. Select an adjacent location to focus its travel choice.`
+    : "Select a location for details.";
+
+  renderGraphMap(frame, mapView, {
+    onSelectNode(node) {
+      details.textContent = locationSummary(node);
+      const travelButton = choiceButtonsById.get(`travel:${node.id}`);
+      if (!travelButton) return;
+      travelButton.focus();
+      travelButton.scrollIntoView({ behavior: "smooth", block: "center" });
+    },
+  });
+
+  section.append(frame, details);
+  sceneElement.append(section);
+}
+
+function renderFullMap() {
+  const mapView = buildFullMapView(game);
+  const currentNode = mapView.nodes.find((node) => node.current);
+  fullMapDetails.textContent = currentNode
+    ? `You are in ${currentNode.name}.`
+    : "Select a location for details.";
+  renderGraphMap(fullMapElement, mapView, {
+    onSelectNode(node) {
+      fullMapDetails.textContent = locationSummary(node);
+    },
+  });
 }
 
 function render() {
   currentScene = buildScene(game);
   choiceButtons = [];
+  choiceButtonsById = new Map();
   statusElement.textContent = formatStatus(currentScene.status);
   sceneElement.replaceChildren();
 
@@ -99,6 +160,8 @@ function render() {
     sectionElement.append(list);
     sceneElement.append(sectionElement);
   }
+
+  if (currentScene.map) renderLocalMap(currentScene.map);
 }
 
 function choose(choiceId) {
@@ -124,6 +187,16 @@ restartButton.addEventListener("click", () => {
   game = createGame();
   noticeElement.textContent = "";
   render();
+});
+
+openMapButton.addEventListener("click", () => {
+  renderFullMap();
+  fullMapDialog.showModal();
+});
+
+closeMapButton.addEventListener("click", () => fullMapDialog.close());
+fullMapDialog.addEventListener("click", (event) => {
+  if (event.target === fullMapDialog) fullMapDialog.close();
 });
 
 render();
