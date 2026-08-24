@@ -212,7 +212,20 @@ function validateTraits(data, path) {
         if (seen.has(id)) fail(`${traitPath}.id`, `duplicates trait '${id}'`);
         seen.add(id);
         string(required(trait, "description", traitPath), `${traitPath}.description`);
-        record(required(trait, "statMods", traitPath), `${traitPath}.statMods`);
+        const statModsPath = `${traitPath}.statMods`;
+        const statMods = record(required(trait, "statMods", traitPath), statModsPath);
+        for (const [statName, modifierData] of Object.entries(statMods)) {
+            string(statName, `${statModsPath} key`, { nonEmpty: true });
+            const modifierPath = `${statModsPath}.${statName}`;
+            const modifiers = record(modifierData, modifierPath);
+
+            for (const kind of ["add", "mult"]) {
+                if (!Object.prototype.hasOwnProperty.call(modifiers, kind)) continue;
+                array(modifiers[kind], `${modifierPath}.${kind}`).forEach((value, modifierIndex) =>
+                    finiteNumber(value, `${modifierPath}.${kind}[${modifierIndex}]`),
+                );
+            }
+        }
     });
 }
 

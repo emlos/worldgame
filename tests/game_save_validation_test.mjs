@@ -37,6 +37,39 @@ check(
     JSON.stringify(Game.fromJSON(validSave)) === JSON.stringify(validSave),
 );
 
+const validTraitSave = makeSave();
+validTraitSave.player.traits.push({
+    id: "valid-modifiers",
+    description: "",
+    statMods: { strength: { add: [2], mult: [1.5] } },
+});
+check(
+    "well-formed trait modifiers validate",
+    validateGameSave(validTraitSave) === validTraitSave,
+);
+rejects(
+    "trait additive modifiers must be arrays",
+    (save) => {
+        save.player.traits.push({
+            id: "bad-add",
+            description: "",
+            statMods: { strength: { add: "not-an-array" } },
+        });
+    },
+    "save.player.traits[0].statMods.strength.add",
+);
+rejects(
+    "NPC trait multipliers must contain finite numbers",
+    (save) => {
+        save.npcs[0].traits.push({
+            id: "bad-mult",
+            description: "",
+            statMods: { strength: { mult: [1, "not-a-number"] } },
+        });
+    },
+    "save.npcs[0].traits[0].statMods.strength.mult[1]",
+);
+
 rejects("missing required world state is rejected", (save) => delete save.world, "save.world");
 rejects(
     "non-finite values are rejected before hydration",
