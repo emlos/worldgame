@@ -1,0 +1,62 @@
+@# Compiler example; runtime story integration will use this later.
+
+:: robin.study.peek [event robin study]
+@heading "Robin's room"
+@choices "What do you do?"
+
+Tired of studying, you're unable to resist stealing a glance at Robin.
+{{npc.robin.dependent|cap}} gaze is fixed on the textbook, lost in thought.
+
+@if story.robin.hurt >= 1
+Robin notices you looking and frowns.
+@elseif npc.robin.relationship >= 0.5
+Robin catches your eye and smiles.
+@else
+Robin remains focused on the textbook.
+@endif
+
+@choice study "Study" -> robin.study.back
+  @icon 📚
+  @time 1h
+@endchoice
+
+@choice mess "Mess with Robin" -> robin.study.mess
+  @icon 😈
+  @when npc.robin.present
+  @require player.energy >= 10 "You are too tired."
+  @warning "This may annoy Robin."
+  @preview relationship -0.02 "-Relationship"
+  @effect relationship robin -0.02
+@endchoice
+
+@choice leave "Leave" -> @exit
+  @icon 🚪
+@endchoice
+
+:: robin.study.back [event robin study]
+@heading "Robin's room"
+
+@onenter
+  @effect set story.daily.robinStudyCompany true
+@endonenter
+
+You return your attention to the textbook.
+
+@choice continue "Continue studying" -> robin.study.peek
+  @time 1h
+@endchoice
+
+@choice leave "Leave" -> @exit
+@endchoice
+
+:: robin.study.mess [event robin study]
+@heading "Robin's room"
+
+You reach across the desk and interrupt Robin's careful notes.
+
+@choice apologise "Apologise" -> robin.study.peek
+  @effect relationship robin 0.02
+@endchoice
+
+@choice leave "Leave" -> @exit
+@endchoice
