@@ -286,6 +286,9 @@ export class NPC {
         if (!Object.prototype.hasOwnProperty.call(data, "behavior")) {
             throw new TypeError("NPC save is missing its behavior definition");
         }
+        if (!data.body || typeof data.body !== "object") {
+            throw new TypeError("NPC save is missing its body state");
+        }
 
         const npc = new NPC({
             id: data.id ?? null,
@@ -327,9 +330,7 @@ export class NPC {
             npc.clothing.set(String(slot ?? item.slot), item);
         }
 
-        npc.body = data?.body
-            ? Body.fromJSON(data.body)
-            : new Body(template?.bodyTemplate || HUMAN_BODY_TEMPLATE);
+        npc.body = Body.fromJSON(data.body);
         npc.currentPlaceId = data?.currentPlaceId ?? null;
         if (npc.brain && data?.brain) npc.brain.restoreJSON(data.brain);
         return npc;

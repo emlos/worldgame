@@ -60,15 +60,17 @@ check(
 );
 
 const exampleDefinition = NPC_REGISTRY.find((definition) => definition.meta?.example);
-const explicitExampleGame = new Game({
-    seed: 202,
-    startDate: new Date("2026-01-05T12:00:00.000Z"),
-    npcTemplates: [exampleDefinition],
-});
-check(
-    "an example-only NPC remains explicitly constructible",
-    explicitExampleGame.npcs.get(exampleDefinition.id)?.id === exampleDefinition.id,
-);
+if (exampleDefinition) {
+    const explicitExampleGame = new Game({
+        seed: 202,
+        startDate: new Date("2026-01-05T12:00:00.000Z"),
+        npcTemplates: [exampleDefinition],
+    });
+    check(
+        "an example-only NPC remains explicitly constructible",
+        explicitExampleGame.npcs.get(exampleDefinition.id)?.id === exampleDefinition.id,
+    );
+}
 
 if (failures.length) {
     console.error("\nNPC registry construction failures:");

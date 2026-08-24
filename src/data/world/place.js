@@ -27,6 +27,8 @@ export const PLACE_TAGS = {
     history: "history",
     crime: "crime",
     supernatural: "supernatural",
+    community: "community",
+    nature: "nature",
     nsfw: "***",
     luxury: "luxury",
 };

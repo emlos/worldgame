@@ -5,6 +5,9 @@ import { NPC } from "../npc/npc.js";
 import { RandomStreams, deriveSeed, normalizeSeed, rollSeed } from "../../shared/util/random.js";
 import { PLACE_TAGS } from "../../data/world/place.js";
 import { NPC_REGISTRY } from "../../data/npc/npcs.js";
+import { SaveValidationError, validateGameSave } from "./util/saveValidation.js";
+
+export { SaveValidationError, validateGameSave };
 
 const MS_PER_MINUTE = 60 * 1000;
 
@@ -356,13 +359,7 @@ export class Game {
     }
 
     static fromJSON(data, { traitResolver = null } = {}) {
-        if (!data || typeof data !== "object") {
-            throw new Error("Game.fromJSON expects a parsed save object");
-        }
-
-        if (data.saveVersion !== 6) {
-            throw new Error(`Unsupported save version: ${data.saveVersion}`);
-        }
+        validateGameSave(data);
 
         const savedStartDate = data.world.time.date;
 
@@ -389,39 +386,15 @@ export class Game {
             game.npcs.set(id, npc);
         }
 
-        const hasOwn = (key) => Object.prototype.hasOwnProperty.call(data, key);
-        const home = game._findFirstPlaceByKey("player_home");
-        game.homeLocationId = hasOwn("homeLocationId")
-            ? data.homeLocationId
-            : (home?.locationId ?? null);
-        game.homePlaceId = hasOwn("homePlaceId") ? data.homePlaceId : (home?.id ?? null);
-
-        game.currentLocationId = hasOwn("currentLocationId")
-            ? data.currentLocationId
-            : (game.homeLocationId ?? game._pickDefaultLocationId());
-        game.currentPlaceId = data.currentPlaceId ?? null;
-        game.currentPlaceKey = hasOwn("currentPlaceKey")
-            ? data.currentPlaceKey
-            : game._getPlaceKeyById(game.currentLocationId, game.currentPlaceId);
-        game.flags = new Set(Array.isArray(data.flags) ? data.flags.map(String) : []);
-        game.log = Array.isArray(data.log) ? data.log.map((entry) => ({ ...entry })) : [];
+        game.homeLocationId = data.homeLocationId;
+        game.homePlaceId = data.homePlaceId;
+        game.currentLocationId = data.currentLocationId;
+        game.currentPlaceId = data.currentPlaceId;
+        game.currentPlaceKey = data.currentPlaceKey;
+        game.flags = new Set(data.flags);
+        game.log = data.log.map((entry) => ({ ...entry }));
 
         game._initializeNPCBrains();
-
-        // `time` is the canonical, easy-to-edit game-save clock. If it differs
-        // from the nested world clock (or any saved brain clock is stale), treat
-        // loading as an explicit resync rather than replaying the missing history.
-        const savedGameTime = new Date(data.time ?? game.now);
-        if (!Number.isFinite(savedGameTime.getTime())) {
-            throw new Error(`Invalid saved game time: ${data.time}`);
-        }
-        const hasStaleBrain = game.npcsArray.some(
-            (npc) =>
-                npc.brain && npc.brain.lastUpdatedAt?.getTime() !== savedGameTime.getTime(),
-        );
-        if (game.now.getTime() !== savedGameTime.getTime() || hasStaleBrain) {
-            game.jumpToDate(savedGameTime);
-        }
 
         return game;
     }

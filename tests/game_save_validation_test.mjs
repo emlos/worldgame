@@ -1,0 +1,305 @@
+import { Game, SaveValidationError, validateGameSave } from "../src/classes/game/game.js";
+
+const START = new Date("2026-01-05T00:00:00.000Z");
+const failures = [];
+
+function check(label, condition, detail = "") {
+    if (condition) {
+        console.log(`PASS: ${label}`);
+        return;
+    }
+    failures.push(`${label}${detail ? ` (${detail})` : ""}`);
+}
+
+function makeSave(seed = 44) {
+    return JSON.parse(JSON.stringify(new Game({ seed, startDate: START })));
+}
+
+function rejects(label, mutate, expectedPath) {
+    const save = makeSave();
+    mutate(save);
+    try {
+        Game.fromJSON(save);
+        check(label, false, "load unexpectedly succeeded");
+    } catch (error) {
+        check(
+            label,
+            error instanceof SaveValidationError && error.path.includes(expectedPath),
+            `${error.name}: ${error.message}`,
+        );
+    }
+}
+
+const validSave = makeSave();
+check("current v6 save validates directly", validateGameSave(validSave) === validSave);
+check(
+    "validated v6 save round-trips exactly",
+    JSON.stringify(Game.fromJSON(validSave)) === JSON.stringify(validSave),
+);
+
+rejects("missing required world state is rejected", (save) => delete save.world, "save.world");
+rejects(
+    "non-finite values are rejected before hydration",
+    (save) => {
+        save.player.body.parts[0].health = NaN;
+    },
+    "save.player.body.parts[0].health",
+);
+rejects(
+    "game and world clock disagreement is rejected",
+    (save) => {
+        save.time = new Date(Date.parse(save.time) + 60_000).toISOString();
+    },
+    "save.world.time.date",
+);
+rejects(
+    "game RNG seed disagreement is rejected",
+    (save) => {
+        save.random.seed = (save.random.seed + 1) >>> 0;
+    },
+    "save.random.seed",
+);
+rejects(
+    "world RNG seed disagreement is rejected",
+    (save) => {
+        save.world.random.seed = (save.world.random.seed + 1) >>> 0;
+    },
+    "save.world.random.seed",
+);
+rejects(
+    "missing initialized RNG streams are rejected",
+    (save) => {
+        delete save.world.random.states.map;
+    },
+    "save.world.random.states.map",
+);
+rejects(
+    "weather and world clock disagreement is rejected",
+    (save) => {
+        save.world.weather.current.date = new Date(
+            Date.parse(save.world.weather.current.date) + 60_000,
+        ).toISOString();
+    },
+    "save.world.weather.current.date",
+);
+rejects(
+    "moon and world clock disagreement is rejected",
+    (save) => {
+        save.world.moon.date = new Date(Date.parse(save.world.moon.date) + 60_000).toISOString();
+    },
+    "save.world.moon.date",
+);
+rejects(
+    "calendar and world year disagreement is rejected",
+    (save) => {
+        save.world.calendar.year += 1;
+    },
+    "save.world.calendar.year",
+);
+rejects(
+    "temperature inconsistent with weather is rejected",
+    (save) => {
+        save.world.temperatureC += 1;
+    },
+    "save.world.temperatureC",
+);
+
+rejects(
+    "duplicate location IDs are rejected",
+    (save) => {
+        save.world.map.locations[1].id = save.world.map.locations[0].id;
+    },
+    "save.world.map.locations[1].id",
+);
+rejects(
+    "edges with missing endpoints are rejected",
+    (save) => {
+        save.world.map.edges[0].a = "missing-location";
+    },
+    "save.world.map.edges[0].a",
+);
+rejects(
+    "a disconnected world graph is rejected",
+    (save) => {
+        save.world.map.edges = [];
+    },
+    "save.world.map.edges",
+);
+rejects(
+    "duplicate place IDs are rejected globally",
+    (save) => {
+        const places = save.world.map.locations.flatMap((location) => location.places);
+        places[1].id = places[0].id;
+    },
+    ".id",
+);
+rejects(
+    "a place in the wrong containing location is rejected",
+    (save) => {
+        const location = save.world.map.locations.find((candidate) => candidate.places.length);
+        const other = save.world.map.locations.find((candidate) => candidate.id !== location.id);
+        location.places[0].locationId = other.id;
+    },
+    ".locationId",
+);
+rejects(
+    "invalid opening-hour text is rejected",
+    (save) => {
+        const place = save.world.map.locations.flatMap((location) => location.places)[0];
+        place.props.openingHours.mon[0].from = "not-a-time";
+    },
+    ".props.openingHours.mon[0].from",
+);
+rejects(
+    "invalid edge duration is rejected",
+    (save) => {
+        save.world.map.edges[0].minutes = 0;
+    },
+    "save.world.map.edges[0].minutes",
+);
+
+rejects(
+    "missing player location is rejected",
+    (save) => {
+        save.currentLocationId = "missing-location";
+    },
+    "save.currentLocationId",
+);
+rejects(
+    "missing player place is rejected",
+    (save) => {
+        save.currentPlaceId = "missing-place";
+    },
+    "save.currentPlaceId",
+);
+rejects(
+    "mismatched current place key is rejected",
+    (save) => {
+        save.currentPlaceKey = "wrong-key";
+    },
+    "save.currentPlaceKey",
+);
+rejects(
+    "duplicate story flags are rejected",
+    (save) => {
+        save.flags = ["same", "same"];
+    },
+    "save.flags[1]",
+);
+rejects(
+    "future action log entries are rejected",
+    (save) => {
+        save.log.push({
+            t: new Date(Date.parse(save.time) + 60_000).toISOString(),
+            label: "future action",
+        });
+    },
+    "save.log[0].t",
+);
+
+rejects(
+    "duplicate NPC IDs are rejected",
+    (save) => {
+        save.npcs[1].id = save.npcs[0].id;
+    },
+    "save.npcs[1].id",
+);
+rejects(
+    "NPC locations must exist",
+    (save) => {
+        save.npcs[0].locationId = "missing-location";
+    },
+    "save.npcs[0].locationId",
+);
+rejects(
+    "NPC homes must exist in their declared location",
+    (save) => {
+        save.npcs[0].homePlaceId = "missing-home";
+    },
+    "save.npcs[0].homePlaceId",
+);
+rejects(
+    "NPC home ownership must agree",
+    (save) => {
+        const npc = save.npcs[0];
+        const homeLocation = save.world.map.locations.find(
+            (location) => location.id === npc.homeLocationId,
+        );
+        const home = homeLocation.places.find((place) => place.id === npc.homePlaceId);
+        home.props.ownerNpcId = save.npcs[1].id;
+    },
+    "save.npcs[0].homePlaceId",
+);
+rejects(
+    "NPC saves require body state",
+    (save) => {
+        delete save.npcs[0].body;
+    },
+    "save.npcs[0].body",
+);
+rejects(
+    "body health outside its valid range is rejected",
+    (save) => {
+        const part = save.npcs[0].body.parts[0];
+        part.health = part.maxHealth + 1;
+    },
+    "save.npcs[0].body.parts[0].health",
+);
+rejects(
+    "NPC brain clocks must agree with game time",
+    (save) => {
+        save.npcs[0].brain.lastUpdatedAt = new Date(
+            Date.parse(save.npcs[0].brain.lastUpdatedAt) - 60_000,
+        ).toISOString();
+    },
+    "save.npcs[0].brain.lastUpdatedAt",
+);
+rejects(
+    "NPC brain goals must reference saved behavior rules",
+    (save) => {
+        const npc = save.npcs.find((candidate) => candidate.brain.currentGoal);
+        npc.brain.currentGoal.ruleId = "missing-rule";
+    },
+    ".brain.currentGoal.ruleId",
+);
+rejects(
+    "NPC brain goals must target an allowed place",
+    (save) => {
+        const npc = save.npcs.find(
+            (candidate) =>
+                candidate.brain.currentGoal && candidate.brain.currentGoal.type !== "home",
+        );
+        const rule = npc.behavior.goals.find(
+            (candidate) => candidate.id === npc.brain.currentGoal.ruleId,
+        );
+        if (rule.target) rule.target.candidates = ["no-such-place-key"];
+        for (const target of rule.targets || []) target.candidates = ["no-such-place-key"];
+    },
+    ".brain.currentGoal.targetPlaceId",
+);
+rejects(
+    "NPC travel routes cannot reference missing locations",
+    (save) => {
+        const npc = save.npcs.find((candidate) => candidate.brain.currentAction?.type === "travel");
+        npc.brain.currentAction.route.locations[1] = "missing-location";
+    },
+    ".brain.currentAction.route.locations[1]",
+);
+rejects(
+    "player relationships cannot reference missing NPCs",
+    (save) => {
+        save.player.relationships.push([
+            "missing-npc",
+            { npcId: "missing-npc", met: true, score: 0 },
+        ]);
+    },
+    "save.player.relationships[0][0]",
+);
+
+if (failures.length) {
+    console.error("\nGame save validation failures:");
+    failures.forEach((failure) => console.error(`- ${failure}`));
+    process.exitCode = 1;
+} else {
+    console.log("All strict game save validation tests passed.");
+}
