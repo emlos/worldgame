@@ -598,8 +598,8 @@ export class Body {
     _updateConditionsFromHealth(part, damageType) {
         const ratio = part.integrityRatio;
 
-        // Clear old conditions; we reassign from current health.
-        part.conditions.clear();
+        // Damage must not remove an existing injury. Healing is responsible for
+        // downgrading conditions once integrity has recovered far enough.
 
         // Lightly hurt -> bruised
         if (ratio < 1.0 && ratio >= 0.7) {
