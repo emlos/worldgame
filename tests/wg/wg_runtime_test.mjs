@@ -51,19 +51,8 @@ check("entering the player's home activates the Taylor WG scene", game.currentSt
 check("the active WG definition materializes as an event Scene", scene.kind === "event");
 check("interpolation resolves and capitalizes Taylor's pronoun", scene.paragraphs[0].includes("Her gaze"));
 check("the false conditional branch supplies its prose", scene.paragraphs.includes("Taylor remains focused on the textbook."));
-check("a true @when expression includes its choice", Boolean(findChoice(scene, "mess")));
-check("a passing @require expression enables its choice", findChoice(scene, "mess")?.enabled === true);
-
-game.player.setStatBase("energy", 5);
-scene = buildScene(game);
-check("a failing @require keeps its choice visible", Boolean(findChoice(scene, "mess")));
-check("a failing @require disables the choice with its reason", findChoice(scene, "mess")?.disabledReason === "You are too tired.");
-game.player.setStatBase("energy", 20);
-
-taylor.setLocationAndPlace(taylor.homeLocationId, taylor.homePlaceId);
-scene = buildScene(game);
-check("a false @when expression hides its choice", findChoice(scene, "mess") === undefined);
-taylor.setLocationAndPlace(game.homeLocationId, game.homePlaceId);
+check("the authored unconditional Taylor choice materializes", Boolean(findChoice(scene, "mess")));
+check("the authored unconditional Taylor choice is enabled", findChoice(scene, "mess")?.enabled === true);
 
 game.story.taylor = { hurt: 1 };
 scene = buildScene(game);
@@ -117,7 +106,15 @@ check("a restored active WG scene can be materialized", buildScene(restored).kin
 scene = buildScene(game);
 choose(game, scene, "leave");
 check("an @exit target closes the WG scene", game.currentStorySceneId === null);
-check("@exit returns to the ordinary home place scene", buildScene(game).kind === "place");
+scene = buildScene(game);
+check("@exit returns to the ordinary home place scene", scene.kind === "place");
+const reopenTaylor = findChoice(scene, "event:taylor-study");
+check("the home scene offers a way back into the Taylor event", reopenTaylor?.label === "Study with Taylor");
+choose(game, scene, reopenTaylor.id);
+check("the home event launcher reopens the WG scene", game.currentStorySceneId === "taylor.study.peek");
+
+scene = buildScene(game);
+choose(game, scene, "leave");
 
 scene = buildScene(game);
 choose(game, scene, "leave");

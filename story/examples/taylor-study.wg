@@ -28,8 +28,7 @@ Taylor remains focused on the textbook.
   @effect relationship taylor -0.02
 @endchoice
 
-@choice leave "Leave" -> @exit
-  @icon 🚪
+@choice leave "Give up on studying" -> @exit
 @endchoice
 
 :: taylor.study.back [event taylor study]

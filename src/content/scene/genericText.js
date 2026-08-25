@@ -16,6 +16,7 @@ export const PLACE_DESCRIPTIONS = Object.freeze([
 
 export const SCENE_TEXT = Object.freeze({
   sectionHeading: Object.freeze({
+    events: "Things to do",
     places: "Places of interest",
     people: "People here",
     travel: "Travel",

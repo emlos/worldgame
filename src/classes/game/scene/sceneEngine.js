@@ -10,7 +10,7 @@ import { buildSceneStatus } from "./sceneContext.js";
 import { createChoice } from "./choiceContract.js";
 import { createScene } from "./sceneContract.js";
 import { materializeWGScene } from "./wg/sceneMaterializer.js";
-import { getWGScene } from "./wg/storyRuntime.js";
+import { getWGScene, PLAYER_HOME_WG_ENTRY } from "./wg/storyRuntime.js";
 
 const ENTER_PLACE_MINUTES = 2;
 
@@ -120,6 +120,22 @@ function buildPlaceScene(game) {
   const place = game.currentPlace;
   const location = game.location;
   const people = game.getNPCsAtCurrentPosition();
+  const events = [];
+
+  if (String(place.id) === String(game.homePlaceId)) {
+    events.push(
+      createChoice({
+        id: PLAYER_HOME_WG_ENTRY.choiceId,
+        icon: PLAYER_HOME_WG_ENTRY.icon,
+        label: PLAYER_HOME_WG_ENTRY.label,
+        action: {
+          type: SCENE_ACTION_TYPE.wg,
+          target: PLAYER_HOME_WG_ENTRY.sceneId,
+          effects: [],
+        },
+      }),
+    );
+  }
 
   return {
     id: `place:${place.id}:${game.now.toISOString()}`,
@@ -132,6 +148,11 @@ function buildPlaceScene(game) {
       stablePick(PLACE_DESCRIPTIONS, game, `place:${place.id}`),
     ],
     sections: [
+      {
+        id: "events",
+        heading: SCENE_TEXT.sectionHeading.events,
+        choices: events,
+      },
       {
         id: "people",
         heading: SCENE_TEXT.sectionHeading.people,

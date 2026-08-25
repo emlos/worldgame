@@ -4,7 +4,7 @@ import { buildScene } from "./sceneEngine.js";
 import {
   enterWGScene,
   followWGChoice,
-  PLAYER_HOME_WG_SCENE_ID,
+  PLAYER_HOME_WG_ENTRY,
 } from "./wg/storyRuntime.js";
 
 export const CHOICE_ERROR_CODE = Object.freeze({
@@ -114,7 +114,7 @@ function performEnter(game, choice, minutes) {
     apply(currentGame) {
       currentGame.setCurrentPlace({ placeId: place.id });
       if (String(place.id) === String(currentGame.homePlaceId)) {
-        enterWGScene(currentGame, PLAYER_HOME_WG_SCENE_ID);
+        enterWGScene(currentGame, PLAYER_HOME_WG_ENTRY.sceneId);
       }
     },
   });

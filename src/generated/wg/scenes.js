@@ -27,7 +27,7 @@ export const WG_BUNDLE = {
           },
           "source": {
             "file": "story/examples/taylor-study.wg",
-            "line": 39,
+            "line": 38,
             "column": 1
           }
         }
@@ -43,7 +43,7 @@ export const WG_BUNDLE = {
           ],
           "source": {
             "file": "story/examples/taylor-study.wg",
-            "line": 42,
+            "line": 41,
             "column": 1
           }
         },
@@ -61,7 +61,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/examples/taylor-study.wg",
-            "line": 44,
+            "line": 43,
             "column": 1
           }
         },
@@ -79,14 +79,14 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/examples/taylor-study.wg",
-            "line": 48,
+            "line": 47,
             "column": 1
           }
         }
       ],
       "source": {
         "file": "story/examples/taylor-study.wg",
-        "line": 35,
+        "line": 34,
         "column": 1
       }
     },
@@ -112,7 +112,7 @@ export const WG_BUNDLE = {
           ],
           "source": {
             "file": "story/examples/taylor-study.wg",
-            "line": 54,
+            "line": 53,
             "column": 1
           }
         },
@@ -134,14 +134,14 @@ export const WG_BUNDLE = {
               "amount": 0.02,
               "source": {
                 "file": "story/examples/taylor-study.wg",
-                "line": 57,
+                "line": 56,
                 "column": 1
               }
             }
           ],
           "source": {
             "file": "story/examples/taylor-study.wg",
-            "line": 56,
+            "line": 55,
             "column": 1
           }
         },
@@ -159,14 +159,14 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/examples/taylor-study.wg",
-            "line": 60,
+            "line": 59,
             "column": 1
           }
         }
       ],
       "source": {
         "file": "story/examples/taylor-study.wg",
-        "line": 51,
+        "line": 50,
         "column": 1
       }
     },
@@ -376,9 +376,9 @@ export const WG_BUNDLE = {
         {
           "type": "choice",
           "id": "leave",
-          "label": "Leave",
+          "label": "Give up on studying",
           "target": "@exit",
-          "icon": "🚪",
+          "icon": null,
           "durationMinutes": 0,
           "when": null,
           "requirements": [],
