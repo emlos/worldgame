@@ -17,16 +17,137 @@ body {
 }
 
 .app-layout {
-  width: min(900px, calc(100% - 40px));
+  width: min(1150px, calc(100% - 40px));
   margin: 0 auto;
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
+  grid-template-columns: 220px minmax(0, 900px);
+  gap: 30px;
 }
 
 .debug-enabled .app-layout {
-  width: min(1190px, calc(100% - 40px));
-  grid-template-columns: minmax(0, 900px) 260px;
+  width: min(1440px, calc(100% - 40px));
+  grid-template-columns: 220px minmax(0, 900px) 260px;
   gap: 30px;
+}
+
+.player-panel {
+  position: sticky;
+  top: 20px;
+  align-self: start;
+  margin-top: 20px;
+  border-right: 1px solid #343b46;
+  padding: 16px;
+  color: #c7cbd1;
+}
+
+.player-panel h2,
+.player-panel h3 {
+  margin: 0;
+}
+
+.player-panel-header {
+  padding-bottom: 12px;
+  border-bottom: 1px solid #303640;
+}
+
+.player-panel-header h2 {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.player-summary {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 7px 10px;
+  margin: 14px 0 20px;
+  font-size: 0.82rem;
+}
+
+.player-summary dt {
+  color: #858d99;
+}
+
+.player-summary dd {
+  margin: 0;
+  color: #e1e4e8;
+  text-align: right;
+}
+
+#player-temperature[data-temperature="overheating"],
+#player-temperature[data-temperature="hot"],
+#player-temperature[data-temperature="freezing"] {
+  color: #ff7d7d;
+}
+
+#player-temperature[data-temperature="warm"],
+#player-temperature[data-temperature="cold"] {
+  color: #e7b66a;
+}
+
+#player-temperature[data-temperature="comfortable"] {
+  color: #73cf76;
+}
+
+.player-panel h3 {
+  margin-bottom: 12px;
+  color: #aeb4bd;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.player-stats {
+  display: grid;
+  gap: 12px;
+}
+
+.player-stat {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 5px 10px;
+  font-size: 0.78rem;
+}
+
+.player-stat-label {
+  color: #c7cbd1;
+}
+
+.player-stat-value {
+  color: #858d99;
+  font-variant-numeric: tabular-nums;
+}
+
+.player-stat-meter {
+  grid-column: 1 / -1;
+  overflow: hidden;
+  height: 7px;
+  background: #292f38;
+}
+
+.player-stat-meter-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #5ca3ff;
+  transition: width 160ms ease;
+}
+
+.player-stat[data-stat="health"] .player-stat-meter-fill,
+.player-stat[data-stat="hygiene"] .player-stat-meter-fill {
+  background: #73cf76;
+}
+
+.player-stat[data-stat="energy"] .player-stat-meter-fill {
+  background: #f2c14e;
+}
+
+.player-stat[data-stat="stress"] .player-stat-meter-fill,
+.player-stat[data-stat="fear"] .player-stat-meter-fill {
+  background: #e78c6a;
+}
+
+.player-stat[data-stat="trauma"] .player-stat-meter-fill {
+  background: #b487e8;
 }
 
 .game-shell {
@@ -404,17 +525,38 @@ p {
   text-align: right;
 }
 
-@media (max-width: 1000px) {
+@media (max-width: 1250px) {
   .debug-enabled .app-layout {
-    width: min(900px, calc(100% - 40px));
+    width: min(1150px, calc(100% - 40px));
+    grid-template-columns: 220px minmax(0, 1fr);
+  }
+
+  .debug-enabled .debug-panel {
+    position: static;
+    grid-column: 1 / -1;
+    margin-top: 0;
+  }
+}
+
+@media (max-width: 780px) {
+  .app-layout,
+  .debug-enabled .app-layout {
+    width: min(100% - 24px, 900px);
     grid-template-columns: minmax(0, 1fr);
     gap: 0;
   }
 
-  .debug-panel {
+  .player-panel {
     position: static;
-    grid-row: 1;
-    margin-bottom: 0;
+    margin-top: 12px;
+  }
+
+  .player-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .debug-enabled .debug-panel {
+    grid-column: auto;
   }
 }
 
@@ -426,6 +568,10 @@ p {
 
   .game-shell {
     padding-top: 16px;
+  }
+
+  .player-stats {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .choice {

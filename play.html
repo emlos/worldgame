@@ -15,6 +15,22 @@
   </head>
   <body>
     <div class="app-layout">
+      <aside id="player-panel" class="player-panel" aria-labelledby="player-panel-heading">
+        <header class="player-panel-header">
+          <h2 id="player-panel-heading">Player</h2>
+        </header>
+        <dl class="player-summary">
+          <dt>Money</dt>
+          <dd id="player-money"></dd>
+          <dt>Temperature</dt>
+          <dd id="player-temperature"></dd>
+        </dl>
+        <section aria-labelledby="player-stats-heading">
+          <h3 id="player-stats-heading">Stats</h3>
+          <div id="player-stats" class="player-stats"></div>
+        </section>
+      </aside>
+
       <main class="game-shell">
         <header class="topbar">
           <div id="status"></div>

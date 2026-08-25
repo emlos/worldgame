@@ -169,6 +169,17 @@ function parseEffect(text, file, line) {
     };
   }
 
+  const money = argument.match(/^money\s+([+-]?\d+(?:\.\d+)?)$/);
+  if (money) {
+    const amount = Number(money[1]);
+    if (!Number.isFinite(amount)) failWG("@effect money requires a finite amount", location);
+    return {
+      op: "money",
+      amount,
+      source: nodeSource(file, line),
+    };
+  }
+
   failWG("Unknown or malformed @effect", location);
 }
 

@@ -64,6 +64,10 @@ test("WG TextMate grammar contains valid regular expressions and core syntax", a
   }
   assert.match("@when npc.taylor.present", firstPattern("condition-directives", "begin"));
   assert.match("@effect relationship taylor 0.02", firstPattern("effect-directives", "begin"));
+  const effectKeyword = new RegExp(
+    grammar.repository["effect-directives"].patterns[0].patterns[0].match,
+  );
+  assert.match("money", effectKeyword);
   assert.match("@endchoice", firstPattern("block-directives"));
   assert.match("{{npc.taylor.subject|cap}}", firstPattern("interpolation", "begin"));
 });

@@ -3,6 +3,7 @@ import { GOAL_TYPE, NPC_ACTION_TYPE, TARGET_TYPE } from "../../../data/npc/behav
 import { RANDOM_HOLIDAYS, MONTH_DAYS, DayKind } from "../../../data/world/calendar.js";
 import { DAY_KEYS } from "../../../data/world/time.js";
 import { WeatherType } from "../../../data/world/weather.js";
+import { PLAYER_TEMPERATURE_VALUES } from "../../../data/player/stats.js";
 import { Weather } from "../../world/util/weather.js";
 
 const UINT32_MAX = 0xffffffff;
@@ -14,6 +15,7 @@ const TARGET_TYPES = new Set(Object.values(TARGET_TYPE));
 const WEATHER_TYPES = new Set(Object.values(WeatherType));
 const DAY_KINDS = new Set(Object.values(DayKind));
 const DAY_KEYS_SET = new Set(DAY_KEYS);
+const PLAYER_TEMPERATURES = new Set(PLAYER_TEMPERATURE_VALUES);
 
 export class SaveValidationError extends Error {
     constructor(path, message) {
@@ -318,6 +320,15 @@ function validatePlayer(data, path, npcIds) {
     string(required(player, "eyeColor", path), `${path}.eyeColor`, { nonEmpty: true });
     string(required(player, "hairColor", path), `${path}.hairColor`, { nonEmpty: true });
     string(required(player, "gender", path), `${path}.gender`, { nonEmpty: true });
+    finiteNumber(required(player, "money", path), `${path}.money`);
+    const temperature = string(
+        required(player, "temperature", path),
+        `${path}.temperature`,
+        { nonEmpty: true },
+    );
+    if (!PLAYER_TEMPERATURES.has(temperature)) {
+        fail(`${path}.temperature`, `has unknown comfort value '${temperature}'`);
+    }
     validateRelationships(required(player, "relationships", path), `${path}.relationships`, npcIds);
 
     const seenSkills = new Set();
@@ -1053,9 +1064,9 @@ export function validateGameSave(data) {
     const save = record(data, "save");
     same(
         integer(required(save, "saveVersion", "save"), "save.saveVersion"),
-        7,
+        8,
         "save.saveVersion",
-        "version 7",
+        "version 8",
     );
 
     const seed = uint32(required(save, "seed", "save"), "save.seed");

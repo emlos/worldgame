@@ -5,8 +5,14 @@ import { Gender, PronounSets } from "../../shared/classes/pronouns.js";
 import { adjustHexLightness } from "../../shared/util/color.js";
 import { Clothing } from "../../shared/classes/clothing.js";
 import { Trait } from "../../shared/classes/trait.js";
-import { clamp, deepFreeze } from "../../shared/util/util.js";
+import { clamp, deepFreeze, finiteNumber } from "../../shared/util/util.js";
 import { Body, DamageType, HUMAN_BODY_TEMPLATE } from "../../shared/classes/body.js";
+import {
+    INITIAL_PLAYER_MONEY,
+    INITIAL_PLAYER_TEMPERATURE,
+    PLAYER_TEMPERATURE_VALUES,
+    initialPlayerStats,
+} from "../../data/player/stats.js";
 
 /*
   Text Adventure Core – Player model (vanilla JS, no build step)
@@ -25,7 +31,6 @@ import { Body, DamageType, HUMAN_BODY_TEMPLATE } from "../../shared/classes/body
 // --------------------------
 // Player
 // --------------------------
-
 export class Player {
     /**
      * @param {object} opts
@@ -39,7 +44,9 @@ export class Player {
      * @param {Array<object>} [opts.bodyTemplate] Optional override for body template
      */
     constructor({
-        stats = {},
+        stats = null,
+        money = INITIAL_PLAYER_MONEY,
+        temperature = INITIAL_PLAYER_TEMPERATURE,
         appearance = {
             head: "head/1.png",
             body: "body/1.png",
@@ -55,7 +62,16 @@ export class Player {
     } = {}) {
         // Stats ----------------------------------------------------
         this.stats = {};
-        for (const [k, v] of Object.entries(stats)) this.stats[k] = new Stat(Number(v) || 0);
+        for (const [k, v] of Object.entries(stats ?? initialPlayerStats())) {
+            this.stats[k] = new Stat(v);
+        }
+
+        // Player meters --------------------------------------------
+        this.money = finiteNumber(money, "Player money");
+        if (!PLAYER_TEMPERATURE_VALUES.includes(temperature)) {
+            throw new RangeError(`Unknown player temperature comfort '${temperature}'`);
+        }
+        this.temperature = temperature;
 
         // Appearance -----------------------------------------------
         this._bodyImmutable = deepFreeze({ body: appearance.body }); // body fixed after creation
@@ -135,6 +151,12 @@ export class Player {
         }
         // clothing / other systems could hook here later
         return evaluated.value;
+    }
+
+    adjustMoney(amount) {
+        const next = this.money + finiteNumber(amount, "Player money adjustment");
+        this.money = finiteNumber(next, "Player money");
+        return this.money;
     }
 
     // --- Traits ---
@@ -241,6 +263,8 @@ export class Player {
                 rel.toJSON(),
             ]),
             skills: [...this.skills.entries()].map(([name, skill]) => [name, { ...skill }]),
+            money: this.money,
+            temperature: this.temperature,
             clothing: [...this.clothing.entries()].map(([slot, item]) => [slot, item.toJSON()]),
             body: this.body?.toJSON?.() ?? null,
         };
@@ -263,6 +287,8 @@ export class Player {
             hairColor: data?.hairColor ?? "#5a3b1f",
             gender: data?.gender ?? Gender.NB,
             pronouns: data?.pronouns ?? PronounSets.THEY_THEM,
+            money: data?.money ?? INITIAL_PLAYER_MONEY,
+            temperature: data?.temperature ?? INITIAL_PLAYER_TEMPERATURE,
             bodyTemplate: [],
         });
 

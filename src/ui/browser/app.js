@@ -3,11 +3,15 @@ import { teleportNPCToPlayer } from "../../classes/game/debugCommands.js";
 import { buildScene } from "../../classes/game/scene/sceneEngine.js";
 import { performChoice } from "../../classes/game/scene/choiceEngine.js";
 import { buildFullMapView } from "../../classes/game/scene/mapView.js";
+import { STATS } from "../../data/player/stats.js";
 import { renderMap as renderGraphMap } from "./renderMap.js";
 
 const statusElement = document.querySelector("#status");
 const noticeElement = document.querySelector("#notice");
 const sceneElement = document.querySelector("#scene");
+const playerMoneyElement = document.querySelector("#player-money");
+const playerTemperatureElement = document.querySelector("#player-temperature");
+const playerStatsElement = document.querySelector("#player-stats");
 const restartButton = document.querySelector("#restart");
 const openMapButton = document.querySelector("#open-map");
 const closeMapButton = document.querySelector("#close-map");
@@ -37,7 +41,58 @@ function createGame() {
   });
 }
 
-//TODO: render player stats in a panel to the elft of the scene area
+const moneyFormatter = new Intl.NumberFormat("en-GB", {
+  style: "currency",
+  currency: "GBP",
+  maximumFractionDigits: 2,
+});
+
+function formatPlayerTemperature(value) {
+  return String(value)
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
+function formatStatValue(value) {
+  return Number.isInteger(value) ? String(value) : value.toFixed(1);
+}
+
+function renderPlayerPanel() {
+  playerMoneyElement.textContent = moneyFormatter.format(game.player.money);
+  playerTemperatureElement.textContent = formatPlayerTemperature(game.player.temperature);
+  playerTemperatureElement.dataset.temperature = game.player.temperature;
+  playerStatsElement.replaceChildren();
+
+  for (const [name, definition] of Object.entries(STATS)) {
+    const value = game.player.getStatValue(name);
+    const fraction = (value - definition.min) / (definition.max - definition.min);
+    const percentage = Math.max(0, Math.min(1, fraction)) * 100;
+
+    const row = document.createElement("div");
+    row.className = "player-stat";
+    row.dataset.stat = name;
+
+    const label = document.createElement("span");
+    label.className = "player-stat-label";
+    label.textContent = definition.label;
+
+    const meter = document.createElement("div");
+    meter.className = "player-stat-meter";
+    meter.setAttribute("role", "progressbar");
+    meter.setAttribute("aria-label", definition.label);
+    meter.setAttribute("aria-valuemin", String(definition.min));
+    meter.setAttribute("aria-valuemax", String(definition.max));
+    meter.setAttribute("aria-valuenow", String(value));
+
+    const fill = document.createElement("span");
+    fill.className = "player-stat-meter-fill";
+    fill.style.width = `${percentage}%`;
+    meter.append(fill);
+    row.append(label, meter);
+    playerStatsElement.append(row);
+  }
+}
 
 function formatDuration(minutes) {
   const totalSeconds = Math.round(minutes * 60);
@@ -88,7 +143,7 @@ function makeChoiceButton(sceneId, choice, number) {
 
   const icon = document.createElement("span");
   icon.className = "choice-icon";
-  icon.textContent = choice.icon || "•";
+  icon.textContent = choice.icon || "";
 
   const text = document.createElement("span");
   text.className = "choice-label";
@@ -131,7 +186,7 @@ function makeChoiceButton(sceneId, choice, number) {
 function locationSummary(node) {
   const places = node.places.length
     ? node.places
-        .map((place) => `${place.icon || "•"} ${place.name}`)
+        .map((place) => `${place.icon || ""} ${place.name}`)
         .join(" · ")
     : "No marked places";
   return `${node.name} — ${places}`;
@@ -208,6 +263,7 @@ function render() {
   choiceButtons = [];
   choiceButtonsById = new Map();
   statusElement.textContent = formatStatus(currentScene.status);
+  renderPlayerPanel();
   sceneElement.replaceChildren();
 
   const heading = document.createElement("h1");

@@ -74,6 +74,15 @@ function applyWGEffect(game, effect) {
     return;
   }
 
+  if (effect.op === "money") {
+    if (!Number.isFinite(effect.amount)) fail("WG money effect needs a finite amount");
+    if (!Number.isFinite(game.player.money + effect.amount)) {
+      fail("WG money effect produced a non-finite balance");
+    }
+    game.player.adjustMoney(effect.amount);
+    return;
+  }
+
   fail(`Unknown WG effect '${String(effect.op)}'`);
 }
 

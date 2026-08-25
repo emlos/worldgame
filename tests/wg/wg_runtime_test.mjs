@@ -1,6 +1,10 @@
 import { Game } from "../../src/classes/game/game.js";
 import { performChoice } from "../../src/classes/game/scene/choiceEngine.js";
 import { buildScene } from "../../src/classes/game/scene/sceneEngine.js";
+import {
+  applyWGEffects,
+  WGRuntimeError,
+} from "../../src/classes/game/scene/wg/storyRuntime.js";
 import { NPC_REGISTRY } from "../../src/data/npc/npcs.js";
 
 const START = new Date("2026-08-24T08:00:00.000Z");
@@ -32,6 +36,23 @@ const game = new Game({
   npcTemplates: [{ ...taylorTemplate, behavior: null }],
 });
 game.player.setStatBase("energy", 20);
+const startingMoney = game.player.money;
+applyWGEffects(game, [
+  { op: "money", amount: 25 },
+  { op: "money", amount: -5 },
+]);
+check(
+  "WG money effects add signed amounts to authoritative player state",
+  game.player.money === startingMoney + 20,
+);
+let invalidMoneyEffectError = null;
+try {
+  applyWGEffects(game, [{ op: "money", amount: Number.POSITIVE_INFINITY }]);
+} catch (error) {
+  invalidMoneyEffectError = error;
+}
+check("corrupted non-finite money effects are rejected", invalidMoneyEffectError instanceof WGRuntimeError);
+check("a rejected money effect does not change player state", game.player.money === startingMoney + 20);
 game.story.homeEvents = {
   forgottenMugPlayed: true,
   openWindowPlayed: true,

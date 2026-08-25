@@ -15,6 +15,8 @@ function playerContext(player) {
     ...evaluatedStats(player),
     ...pronounValues(player),
     gender: player.gender,
+    money: player.money,
+    temperature: player.temperature,
   };
 }
 

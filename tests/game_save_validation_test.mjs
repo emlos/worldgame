@@ -31,10 +31,25 @@ function rejects(label, mutate, expectedPath) {
 }
 
 const validSave = makeSave();
-check("current v7 save validates directly", validateGameSave(validSave) === validSave);
+check("current v8 save validates directly", validateGameSave(validSave) === validSave);
 check(
-    "validated v7 save round-trips exactly",
+    "validated v8 save round-trips exactly",
     JSON.stringify(Game.fromJSON(validSave)) === JSON.stringify(validSave),
+);
+
+rejects(
+    "unknown player temperature comfort is rejected",
+    (save) => {
+        save.player.temperature = "lukewarm-ish";
+    },
+    "save.player.temperature",
+);
+rejects(
+    "non-finite player money is rejected",
+    (save) => {
+        save.player.money = Number.NaN;
+    },
+    "save.player.money",
 );
 
 const validTraitSave = makeSave();

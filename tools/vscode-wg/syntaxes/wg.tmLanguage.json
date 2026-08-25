@@ -90,7 +90,7 @@
           "beginCaptures": { "2": { "name": "keyword.control.effect.wg" } },
           "end": "$",
           "patterns": [
-            { "name": "storage.type.effect.wg", "match": "\\b(?:set|add|flag|relationship)\\b" },
+            { "name": "storage.type.effect.wg", "match": "\\b(?:set|add|flag|relationship|money)\\b" },
             { "include": "#expression" }
           ]
         }

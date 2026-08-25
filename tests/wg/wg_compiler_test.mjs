@@ -114,6 +114,7 @@ Taylor waits.
   @preview relationship 0.02 "+Relationship"
   @effect add story.visit.count 1
   @effect relationship taylor 0.02
+  @effect money -5
 @endchoice
 
 \\@if this line is prose
@@ -205,10 +206,12 @@ check(
 );
 check(
   "choice visibility, requirements, previews, and effects compile",
-  compiledChoice.when.type === "path" &&
+    compiledChoice.when.type === "path" &&
     compiledChoice.requirements.length === 1 &&
     compiledChoice.previews.length === 1 &&
-    compiledChoice.effects.length === 2,
+    compiledChoice.effects.length === 3 &&
+    compiledChoice.effects[2].op === "money" &&
+    compiledChoice.effects[2].amount === -5,
 );
 check(
   "escaped directive markers remain prose",
@@ -424,6 +427,20 @@ rejects(
     },
   ],
   "may only target story.*",
+);
+rejects(
+  "money effects require a numeric amount",
+  [
+    {
+      file: "money-effect.wg",
+      source: `:: intro
+@heading "Intro"
+@onenter
+@effect money plenty
+@endonenter`,
+    },
+  ],
+  "Unknown or malformed @effect",
 );
 rejects(
   "unknown directives are rejected",

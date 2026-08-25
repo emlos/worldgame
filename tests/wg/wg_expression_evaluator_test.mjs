@@ -68,6 +68,8 @@ game.player.setRelationship({ npcId: taylor.id, score: 0.6 });
 const gameContext = createWGRuntimeContext(game);
 check("the adapter exposes plain story data", gameContext.story.taylor.hurt === 1);
 check("the adapter exposes evaluated player stats", gameContext.player.energy === 20);
+check("the adapter exposes player money", gameContext.player.money === 0);
+check("the adapter exposes player temperature comfort", gameContext.player.temperature === "comfortable");
 check("the adapter exposes NPC pronouns", gameContext.npc.taylor.dependent === "her");
 check("the adapter exposes player-to-NPC relationship score", gameContext.npc.taylor.relationship === 0.6);
 check("the adapter exposes exact-position NPC presence", gameContext.npc.taylor.present === true);

@@ -108,7 +108,8 @@ Expressions compile to data ASTs. WG never emits or evaluates authored
 JavaScript.
 
 Runtime paths currently expose `story.*`, evaluated `player` stats and
-pronouns, `npc.<id>` identity/pronouns/relationship/presence/availability,
+pronouns, money through `player.money`, temperature comfort through
+`player.temperature`, `npc.<id>` identity/pronouns/relationship/presence/availability,
 active game flags through `flags.<id>`, and the world clock through `time.hour`,
 `time.minute`, and `time.minutesSinceMidnight`. Clock fields use the same UTC
 world time shown by the game interface. A missing path evaluates to
@@ -158,10 +159,14 @@ transition into a passage, never while rebuilding a scene.
 @effect add story.some.counter 1
 @effect flag met-taylor true
 @effect relationship taylor 0.02
+@effect money 25
+@effect money -5
 ```
 
 `set` and `add` currently target only `story.*`. Other game mutations will be
-added through explicit effect types as their systems stabilize.
+added through explicit effect types as their systems stabilize. `money` adds
+the signed amount to `player.money`; positive values earn money and negative
+values spend it.
 
 ## Comments and escaping
 
