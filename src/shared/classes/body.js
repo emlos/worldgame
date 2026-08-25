@@ -93,6 +93,8 @@ export const DamageType = Object.freeze({
  * Template describing one part of the body.
  * This is immutable and used to initialize per-instance state.
  */
+
+//TODO: add dog body template
 export const HUMAN_BODY_TEMPLATE = deepFreeze([
     // Head / face ------------------------------------------------
     {
@@ -383,6 +385,7 @@ export class BodyPartState {
  * Body: collection of BodyPartState with helpers to apply damage, heal,
  * and query overall pain / injury.
  */
+//TODO: expand damage system? how to make it more realistic?
 export class Body {
     constructor(template = HUMAN_BODY_TEMPLATE) {
         this.parts = new Map(); // id -> BodyPartState

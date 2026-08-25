@@ -1,5 +1,7 @@
 const SVG_NS = "http://www.w3.org/2000/svg";
 
+//TODO: make the visual street lengths match the actual travel times (or at least be proportional to them)
+
 function svgElement(name, attributes = {}) {
   const element = document.createElementNS(SVG_NS, name);
   for (const [key, value] of Object.entries(attributes)) {

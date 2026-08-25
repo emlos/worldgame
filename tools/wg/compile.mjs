@@ -8,7 +8,7 @@ import { compileStorySources } from "./compiler/storyCompiler.js";
 const SCRIPT_DIRECTORY = path.dirname(fileURLToPath(import.meta.url));
 const PROJECT_ROOT = path.resolve(SCRIPT_DIRECTORY, "../..");
 const STORY_ROOT = path.join(PROJECT_ROOT, "story");
-const OUTPUT_FILE = path.join(PROJECT_ROOT, "src/generated/wg/scenes.js");
+const OUTPUT_FILE = path.join(PROJECT_ROOT, "src/generated/wg/scenes.js"); //TODO: minify the js file to reduce the size of the generated scenes.js file, since it can get quite large with many scenes
 
 function compareNames(left, right) {
   return left.name < right.name ? -1 : left.name > right.name ? 1 : 0;

@@ -6,27 +6,35 @@ import { DAY_KEYS, MS_PER_MINUTE, MS_PER_DAY } from "../../data/world/time.js";
 const EPSILON_MS = 1;
 const MAX_DECISIONS_PER_UPDATE = 100_000;
 
+//TODO: allow npc's to decline interaction when they are busy with a goal (e.g. traveling, staying at a place, etc..) AND will be late to their next obligation
+//TODO: make npc's leave for their next obligation so that they arrive 5-30m before the obligation starts, so that they can loiter around the location for a bit before their obligation starts
+
+//TODO: move to shared/util/date.js
 function asDate(value) {
     if (value instanceof Date) return new Date(value.getTime());
     const date = new Date(value);
     return Number.isFinite(date.getTime()) ? date : null;
 }
 
+//TODO: move to shared/util/util.js
 function cloneData(value) {
     if (value == null || typeof value !== "object") return value;
     return JSON.parse(JSON.stringify(value));
 }
 
+//TODO: move to shared/util/date.js
 function utcDayStart(date, dayOffset = 0) {
     return new Date(
         Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate() + dayOffset),
     );
 }
 
+//TODO: move to shared/util/date.js
 function addMinutes(date, minutes) {
     return new Date(date.getTime() + minutes * MS_PER_MINUTE);
 }
 
+//TODO: move to shared/util/date.js
 function minDate(...dates) {
     let best = null;
     for (const date of dates) {
@@ -42,7 +50,8 @@ function categoriesOf(place) {
     return category == null ? [] : [category];
 }
 
-function ruleWeight(rule) {
+//TODO: move to shared/util/random.js (with error being the error message to throw if the weight is invalid)
+function ruleWeight(rule, error) {
     if (rule?.weight == null) return 1;
 
     const weight = Number(rule.weight);

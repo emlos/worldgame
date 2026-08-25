@@ -667,7 +667,7 @@ export class WorldMap {
     /**
      * @param {Object} opts
      * @param {Function} opts.rnd   - RNG function
-     * @param {number} opts.density - >= 0 (0 = minimum, 1 = ~2x, 2 = ~3x, ...)
+     * @param {number} opts.density - >= 0 (0 = minimum, 1 = ~2x, 2 = ~3x, ...) //TODO: remove density a sa paremter. every map should include ONE copy of every place on registry except the bus stops
      * @param {number} mapWidth - span of map in local coordinates
      * @param {number} mapHeight - height of map in local coordinates
      */

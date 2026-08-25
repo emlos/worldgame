@@ -27,6 +27,8 @@ function createGame() {
   });
 }
 
+//TODO: render player stats in a panel to the elft of the scene area
+
 function formatDuration(minutes) {
   const totalSeconds = Math.round(minutes * 60);
   const hours = Math.floor(totalSeconds / 3600);

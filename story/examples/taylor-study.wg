@@ -56,5 +56,5 @@ You reach across the desk and interrupt Taylor's careful notes.
   @effect relationship taylor 0.02
 @endchoice
 
-@choice leave "Leave" -> @exit
+@choice leave "Roll your eyes" -> taylor.study.peek
 @endchoice

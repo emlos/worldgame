@@ -1,5 +1,5 @@
 import { clamp } from "../../../shared/util/util.js";
-
+//TODO: remove skills for now
 // --------------------------
 // Skills
 // --------------------------
