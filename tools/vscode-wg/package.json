@@ -1,0 +1,28 @@
+{
+  "name": "worldgame-wg-language",
+  "displayName": "Worldgame WG Language",
+  "description": "Private VS Code language support for Worldgame .wg story files.",
+  "version": "0.1.0",
+  "publisher": "worldgame-local",
+  "private": true,
+  "license": "UNLICENSED",
+  "engines": { "vscode": ">=1.85.0" },
+  "categories": ["Programming Languages"],
+  "contributes": {
+    "languages": [
+      {
+        "id": "wg",
+        "aliases": ["Worldgame WG", "WG"],
+        "extensions": [".wg"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "wg",
+        "scopeName": "source.wg",
+        "path": "./syntaxes/wg.tmLanguage.json"
+      }
+    ]
+  }
+}

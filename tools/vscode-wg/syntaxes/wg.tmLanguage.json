@@ -1,0 +1,163 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Worldgame WG",
+  "scopeName": "source.wg",
+  "patterns": [
+    { "include": "#comments" },
+    { "include": "#escaped-markers" },
+    { "include": "#scene-header" },
+    { "include": "#entry-header" },
+    { "include": "#choice-header" },
+    { "include": "#condition-directives" },
+    { "include": "#effect-directives" },
+    { "include": "#property-directives" },
+    { "include": "#block-directives" },
+    { "include": "#interpolation" },
+    { "include": "#unknown-directives" }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        { "name": "comment.line.number-sign.wg", "match": "^\\s*@#.*$" }
+      ]
+    },
+    "escaped-markers": {
+      "patterns": [
+        {
+          "match": "^(\\s*)(\\\\)(?=@|::)",
+          "captures": { "2": { "name": "constant.character.escape.wg" } }
+        }
+      ]
+    },
+    "scene-header": {
+      "patterns": [
+        {
+          "name": "meta.scene.header.wg",
+          "match": "^(\\s*)(::)(\\s+)([a-z0-9_][a-z0-9_.-]*)(?:\\s+(\\[)([^\\]]*)(\\]))?\\s*$",
+          "captures": {
+            "2": { "name": "keyword.control.section.wg" },
+            "4": { "name": "entity.name.section.wg" },
+            "5": { "name": "punctuation.definition.annotation.begin.wg" },
+            "6": { "name": "storage.modifier.scene-tag.wg" },
+            "7": { "name": "punctuation.definition.annotation.end.wg" }
+          }
+        }
+      ]
+    },
+    "entry-header": {
+      "patterns": [
+        {
+          "name": "meta.entry.header.wg",
+          "match": "^(\\s*)(@entry)\\s+([a-z0-9_][a-z0-9_.-]*)\\s*$",
+          "captures": {
+            "2": { "name": "keyword.control.block.begin.wg" },
+            "3": { "name": "entity.name.type.entry.wg" }
+          }
+        }
+      ]
+    },
+    "choice-header": {
+      "patterns": [
+        {
+          "name": "meta.choice.header.wg",
+          "match": "^(\\s*)(@choice)\\s+([a-z0-9_][a-z0-9_.-]*)\\s+(\"(?:\\\\.|[^\"\\\\])*\")\\s+(->)\\s+(@exit|[a-z0-9_][a-z0-9_.-]*)\\s*$",
+          "captures": {
+            "2": { "name": "keyword.control.block.begin.wg" },
+            "3": { "name": "entity.name.function.choice.wg" },
+            "4": { "name": "string.quoted.double.wg" },
+            "5": { "name": "keyword.operator.arrow.wg" },
+            "6": { "name": "entity.name.section.reference.wg" }
+          }
+        }
+      ]
+    },
+    "condition-directives": {
+      "patterns": [
+        {
+          "name": "meta.expression.directive.wg",
+          "begin": "^(\\s*)(@(if|elseif|when|require))\\b",
+          "beginCaptures": { "2": { "name": "keyword.control.conditional.wg" } },
+          "end": "$",
+          "patterns": [{ "include": "#expression" }]
+        }
+      ]
+    },
+    "effect-directives": {
+      "patterns": [
+        {
+          "name": "meta.effect.directive.wg",
+          "begin": "^(\\s*)(@effect)\\b",
+          "beginCaptures": { "2": { "name": "keyword.control.effect.wg" } },
+          "end": "$",
+          "patterns": [
+            { "name": "storage.type.effect.wg", "match": "\\b(?:set|add|flag|relationship)\\b" },
+            { "include": "#expression" }
+          ]
+        }
+      ]
+    },
+    "property-directives": {
+      "patterns": [
+        {
+          "name": "meta.property.directive.wg",
+          "begin": "^(\\s*)(@(kind|heading|choices|scene|place-key|place-tag|location-tag|offer|label|icon|auto|priority|chance|weight|time|warning|preview))\\b",
+          "beginCaptures": { "2": { "name": "keyword.other.directive.wg" } },
+          "end": "$",
+          "patterns": [{ "include": "#expression" }]
+        }
+      ]
+    },
+    "block-directives": {
+      "patterns": [
+        {
+          "name": "keyword.control.block.wg",
+          "match": "^\\s*(@(?:else|endif|endentry|endchoice|onenter|endonenter))\\s*$"
+        }
+      ]
+    },
+    "interpolation": {
+      "patterns": [
+        {
+          "name": "meta.interpolation.wg",
+          "begin": "\\{\\{",
+          "beginCaptures": { "0": { "name": "punctuation.section.interpolation.begin.wg" } },
+          "end": "\\}\\}",
+          "endCaptures": { "0": { "name": "punctuation.section.interpolation.end.wg" } },
+          "patterns": [
+            {
+              "match": "(\\|)(cap)\\b",
+              "captures": {
+                "1": { "name": "punctuation.separator.modifier.wg" },
+                "2": { "name": "support.function.modifier.wg" }
+              }
+            },
+            { "include": "#expression" }
+          ]
+        }
+      ]
+    },
+    "unknown-directives": {
+      "patterns": [
+        {
+          "name": "invalid.illegal.unknown-directive.wg",
+          "match": "^\\s*(@[a-z][a-z-]*)\\b"
+        }
+      ]
+    },
+    "expression": {
+      "patterns": [
+        { "name": "string.quoted.double.wg", "match": "\"(?:\\\\.|[^\"\\\\])*\"" },
+        { "name": "constant.numeric.duration.wg", "match": "\\b(?:[0-9]+(?:\\.[0-9]+)?[hms])+\\b" },
+        { "name": "constant.numeric.percentage.wg", "match": "\\b[0-9]+(?:\\.[0-9]+)?%(?![A-Za-z0-9_])" },
+        { "name": "constant.numeric.wg", "match": "\\b[0-9]+(?:\\.[0-9]+)?\\b" },
+        { "name": "constant.language.wg", "match": "\\b(?:true|false|null)\\b|@exit\\b" },
+        { "name": "variable.other.object.wg", "match": "\\b(?:story|player|npc|flags)(?:\\.[A-Za-z_][A-Za-z0-9_-]*)+\\b" },
+        { "name": "keyword.operator.logical.wg", "match": "\\b(?:and|or|not|in)\\b" },
+        { "name": "keyword.operator.comparison.wg", "match": "==|!=|<=|>=|<|>" },
+        { "name": "keyword.operator.arithmetic.wg", "match": "[+*/%-]" },
+        { "name": "punctuation.definition.list.wg", "match": "[\\[\\],()]" },
+        { "name": "variable.other.identifier.wg", "match": "\\b[A-Za-z_][A-Za-z0-9_.-]*\\b" }
+      ]
+    }
+  }
+}
