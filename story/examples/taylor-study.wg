@@ -1,0 +1,61 @@
+@# Small end-to-end runtime example for the WG compiler and materializer.
+
+:: taylor.study.peek [event taylor study]
+@heading "Taylor's room"
+@choices "What do you do?"
+
+Tired of studying, you're unable to resist stealing a glance at Taylor.
+{{npc.taylor.dependent|cap}} gaze is fixed on the textbook, lost in thought.
+
+@if story.taylor.hurt >= 1
+Taylor notices you looking and frowns.
+@elseif npc.taylor.relationship >= 0.5
+Taylor catches your eye and smiles.
+@else
+Taylor remains focused on the textbook.
+@endif
+
+@choice study "Study" -> taylor.study.back
+  @icon 📚
+  @time 1h
+@endchoice
+
+@choice mess "Mess with Taylor" -> taylor.study.mess
+  @icon 😈
+  @#require player.energy >= 10 "You are too tired."
+  @warning "This may annoy Taylor."
+  @preview relationship -0.02 "-Relationship"
+  @effect relationship taylor -0.02
+@endchoice
+
+@choice leave "Leave" -> @exit
+  @icon 🚪
+@endchoice
+
+:: taylor.study.back [event taylor study]
+@heading "Taylor's room"
+
+@onenter
+  @effect set story.daily.taylorStudyCompany true
+@endonenter
+
+You return your attention to the textbook.
+
+@choice continue "Continue studying" -> taylor.study.peek
+  @time 1h
+@endchoice
+
+@choice leave "Leave" -> @exit
+@endchoice
+
+:: taylor.study.mess [event taylor study]
+@heading "Taylor's room"
+
+You reach across the desk and interrupt Taylor's careful notes.
+
+@choice apologise "Apologise" -> taylor.study.peek
+  @effect relationship taylor 0.02
+@endchoice
+
+@choice leave "Leave" -> @exit
+@endchoice

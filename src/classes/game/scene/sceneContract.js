@@ -1,6 +1,6 @@
 import { validateChoice } from "./choiceContract.js";
 
-const SCENE_KINDS = new Set(["location", "place"]);
+const SCENE_KINDS = new Set(["location", "place", "event"]);
 
 export class SceneContractError extends TypeError {
   constructor(message) {

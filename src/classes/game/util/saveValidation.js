@@ -1042,9 +1042,9 @@ export function validateGameSave(data) {
     const save = record(data, "save");
     same(
         integer(required(save, "saveVersion", "save"), "save.saveVersion"),
-        6,
+        7,
         "save.saveVersion",
-        "version 6",
+        "version 7",
     );
 
     const seed = uint32(required(save, "seed", "save"), "save.seed");
@@ -1147,6 +1147,14 @@ export function validateGameSave(data) {
     }
 
     uniqueStrings(required(save, "flags", "save"), "save.flags");
+    record(required(save, "story", "save"), "save.story");
+    optionalNullableString(
+        required(save, "currentStorySceneId", "save"),
+        "save.currentStorySceneId",
+    );
+    integer(required(save, "storySceneRevision", "save"), "save.storySceneRevision", {
+        min: 0,
+    });
     array(required(save, "log", "save"), "save.log").forEach((entryData, index) => {
         const entryPath = `save.log[${index}]`;
         const entry = record(entryData, entryPath);

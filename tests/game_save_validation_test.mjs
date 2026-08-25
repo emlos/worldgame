@@ -31,9 +31,9 @@ function rejects(label, mutate, expectedPath) {
 }
 
 const validSave = makeSave();
-check("current v6 save validates directly", validateGameSave(validSave) === validSave);
+check("current v7 save validates directly", validateGameSave(validSave) === validSave);
 check(
-    "validated v6 save round-trips exactly",
+    "validated v7 save round-trips exactly",
     JSON.stringify(Game.fromJSON(validSave)) === JSON.stringify(validSave),
 );
 
@@ -218,6 +218,20 @@ rejects(
         save.flags = ["same", "same"];
     },
     "save.flags[1]",
+);
+rejects(
+    "story state must be an object",
+    (save) => {
+        save.story = [];
+    },
+    "save.story",
+);
+rejects(
+    "story scene revisions cannot be negative",
+    (save) => {
+        save.storySceneRevision = -1;
+    },
+    "save.storySceneRevision",
 );
 rejects(
     "future action log entries are rejected",

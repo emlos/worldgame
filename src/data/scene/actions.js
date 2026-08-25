@@ -4,4 +4,5 @@ export const SCENE_ACTION_TYPE = Object.freeze({
   leave: "leave",
   loiter: "loiter",
   greet: "greet",
+  wg: "wg",
 });

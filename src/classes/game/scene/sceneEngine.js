@@ -9,6 +9,8 @@ import { buildLocalMapView } from "./mapView.js";
 import { buildSceneStatus } from "./sceneContext.js";
 import { createChoice } from "./choiceContract.js";
 import { createScene } from "./sceneContract.js";
+import { materializeWGScene } from "./wg/sceneMaterializer.js";
+import { getWGScene } from "./wg/storyRuntime.js";
 
 const ENTER_PLACE_MINUTES = 2;
 
@@ -153,6 +155,14 @@ function buildPlaceScene(game) {
 }
 
 export function buildScene(game) {
+  if (game.currentStorySceneId) {
+    const definition = getWGScene(game.currentStorySceneId);
+    if (!definition) {
+      throw new Error(`Unknown active WG scene: ${game.currentStorySceneId}`);
+    }
+    return materializeWGScene(game, definition);
+  }
+
   const scene = game.currentPlace
     ? buildPlaceScene(game)
     : buildLocationScene(game);

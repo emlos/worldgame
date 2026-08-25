@@ -3,14 +3,14 @@
 export const WG_BUNDLE = {
   "formatVersion": 1,
   "scenes": {
-    "robin.study.back": {
-      "id": "robin.study.back",
+    "taylor.study.back": {
+      "id": "taylor.study.back",
       "kind": "event",
-      "heading": "Robin's room",
+      "heading": "Taylor's room",
       "choiceHeading": "Choices",
       "tags": [
         "event",
-        "robin",
+        "taylor",
         "study"
       ],
       "onEnter": [
@@ -19,15 +19,15 @@ export const WG_BUNDLE = {
           "path": [
             "story",
             "daily",
-            "robinStudyCompany"
+            "taylorStudyCompany"
           ],
           "value": {
             "type": "literal",
             "value": true
           },
           "source": {
-            "file": "story/examples/robin-study.wg",
-            "line": 40,
+            "file": "story/examples/taylor-study.wg",
+            "line": 39,
             "column": 1
           }
         }
@@ -42,8 +42,8 @@ export const WG_BUNDLE = {
             }
           ],
           "source": {
-            "file": "story/examples/robin-study.wg",
-            "line": 43,
+            "file": "story/examples/taylor-study.wg",
+            "line": 42,
             "column": 1
           }
         },
@@ -51,7 +51,7 @@ export const WG_BUNDLE = {
           "type": "choice",
           "id": "continue",
           "label": "Continue studying",
-          "target": "robin.study.peek",
+          "target": "taylor.study.peek",
           "icon": null,
           "durationMinutes": 60,
           "when": null,
@@ -60,8 +60,8 @@ export const WG_BUNDLE = {
           "previews": [],
           "effects": [],
           "source": {
-            "file": "story/examples/robin-study.wg",
-            "line": 45,
+            "file": "story/examples/taylor-study.wg",
+            "line": 44,
             "column": 1
           }
         },
@@ -78,26 +78,26 @@ export const WG_BUNDLE = {
           "previews": [],
           "effects": [],
           "source": {
-            "file": "story/examples/robin-study.wg",
-            "line": 49,
+            "file": "story/examples/taylor-study.wg",
+            "line": 48,
             "column": 1
           }
         }
       ],
       "source": {
-        "file": "story/examples/robin-study.wg",
-        "line": 36,
+        "file": "story/examples/taylor-study.wg",
+        "line": 35,
         "column": 1
       }
     },
-    "robin.study.mess": {
-      "id": "robin.study.mess",
+    "taylor.study.mess": {
+      "id": "taylor.study.mess",
       "kind": "event",
-      "heading": "Robin's room",
+      "heading": "Taylor's room",
       "choiceHeading": "Choices",
       "tags": [
         "event",
-        "robin",
+        "taylor",
         "study"
       ],
       "onEnter": [],
@@ -107,12 +107,12 @@ export const WG_BUNDLE = {
           "parts": [
             {
               "type": "text",
-              "value": "You reach across the desk and interrupt Robin's careful notes."
+              "value": "You reach across the desk and interrupt Taylor's careful notes."
             }
           ],
           "source": {
-            "file": "story/examples/robin-study.wg",
-            "line": 55,
+            "file": "story/examples/taylor-study.wg",
+            "line": 54,
             "column": 1
           }
         },
@@ -120,7 +120,7 @@ export const WG_BUNDLE = {
           "type": "choice",
           "id": "apologise",
           "label": "Apologise",
-          "target": "robin.study.peek",
+          "target": "taylor.study.peek",
           "icon": null,
           "durationMinutes": 0,
           "when": null,
@@ -130,18 +130,18 @@ export const WG_BUNDLE = {
           "effects": [
             {
               "op": "relationship",
-              "npcId": "robin",
+              "npcId": "taylor",
               "amount": 0.02,
               "source": {
-                "file": "story/examples/robin-study.wg",
-                "line": 58,
+                "file": "story/examples/taylor-study.wg",
+                "line": 57,
                 "column": 1
               }
             }
           ],
           "source": {
-            "file": "story/examples/robin-study.wg",
-            "line": 57,
+            "file": "story/examples/taylor-study.wg",
+            "line": 56,
             "column": 1
           }
         },
@@ -158,26 +158,26 @@ export const WG_BUNDLE = {
           "previews": [],
           "effects": [],
           "source": {
-            "file": "story/examples/robin-study.wg",
-            "line": 61,
+            "file": "story/examples/taylor-study.wg",
+            "line": 60,
             "column": 1
           }
         }
       ],
       "source": {
-        "file": "story/examples/robin-study.wg",
-        "line": 52,
+        "file": "story/examples/taylor-study.wg",
+        "line": 51,
         "column": 1
       }
     },
-    "robin.study.peek": {
-      "id": "robin.study.peek",
+    "taylor.study.peek": {
+      "id": "taylor.study.peek",
       "kind": "event",
-      "heading": "Robin's room",
+      "heading": "Taylor's room",
       "choiceHeading": "What do you do?",
       "tags": [
         "event",
-        "robin",
+        "taylor",
         "study"
       ],
       "onEnter": [],
@@ -187,13 +187,13 @@ export const WG_BUNDLE = {
           "parts": [
             {
               "type": "text",
-              "value": "Tired of studying, you're unable to resist stealing a glance at Robin. "
+              "value": "Tired of studying, you're unable to resist stealing a glance at Taylor. "
             },
             {
               "type": "interpolation",
               "path": [
                 "npc",
-                "robin",
+                "taylor",
                 "dependent"
               ],
               "filters": [
@@ -206,7 +206,7 @@ export const WG_BUNDLE = {
             }
           ],
           "source": {
-            "file": "story/examples/robin-study.wg",
+            "file": "story/examples/taylor-study.wg",
             "line": 7,
             "column": 1
           }
@@ -222,7 +222,7 @@ export const WG_BUNDLE = {
                   "type": "path",
                   "value": [
                     "story",
-                    "robin",
+                    "taylor",
                     "hurt"
                   ]
                 },
@@ -237,18 +237,18 @@ export const WG_BUNDLE = {
                   "parts": [
                     {
                       "type": "text",
-                      "value": "Robin notices you looking and frowns."
+                      "value": "Taylor notices you looking and frowns."
                     }
                   ],
                   "source": {
-                    "file": "story/examples/robin-study.wg",
+                    "file": "story/examples/taylor-study.wg",
                     "line": 11,
                     "column": 1
                   }
                 }
               ],
               "source": {
-                "file": "story/examples/robin-study.wg",
+                "file": "story/examples/taylor-study.wg",
                 "line": 10,
                 "column": 1
               }
@@ -261,7 +261,7 @@ export const WG_BUNDLE = {
                   "type": "path",
                   "value": [
                     "npc",
-                    "robin",
+                    "taylor",
                     "relationship"
                   ]
                 },
@@ -276,18 +276,18 @@ export const WG_BUNDLE = {
                   "parts": [
                     {
                       "type": "text",
-                      "value": "Robin catches your eye and smiles."
+                      "value": "Taylor catches your eye and smiles."
                     }
                   ],
                   "source": {
-                    "file": "story/examples/robin-study.wg",
+                    "file": "story/examples/taylor-study.wg",
                     "line": 13,
                     "column": 1
                   }
                 }
               ],
               "source": {
-                "file": "story/examples/robin-study.wg",
+                "file": "story/examples/taylor-study.wg",
                 "line": 12,
                 "column": 1
               }
@@ -299,18 +299,18 @@ export const WG_BUNDLE = {
               "parts": [
                 {
                   "type": "text",
-                  "value": "Robin remains focused on the textbook."
+                  "value": "Taylor remains focused on the textbook."
                 }
               ],
               "source": {
-                "file": "story/examples/robin-study.wg",
+                "file": "story/examples/taylor-study.wg",
                 "line": 15,
                 "column": 1
               }
             }
           ],
           "source": {
-            "file": "story/examples/robin-study.wg",
+            "file": "story/examples/taylor-study.wg",
             "line": 10,
             "column": 1
           }
@@ -319,7 +319,7 @@ export const WG_BUNDLE = {
           "type": "choice",
           "id": "study",
           "label": "Study",
-          "target": "robin.study.back",
+          "target": "taylor.study.back",
           "icon": "📚",
           "durationMinutes": 60,
           "when": null,
@@ -328,7 +328,7 @@ export const WG_BUNDLE = {
           "previews": [],
           "effects": [],
           "source": {
-            "file": "story/examples/robin-study.wg",
+            "file": "story/examples/taylor-study.wg",
             "line": 18,
             "column": 1
           }
@@ -336,52 +336,21 @@ export const WG_BUNDLE = {
         {
           "type": "choice",
           "id": "mess",
-          "label": "Mess with Robin",
-          "target": "robin.study.mess",
+          "label": "Mess with Taylor",
+          "target": "taylor.study.mess",
           "icon": "😈",
           "durationMinutes": 0,
-          "when": {
-            "type": "path",
-            "value": [
-              "npc",
-              "robin",
-              "present"
-            ]
-          },
-          "requirements": [
-            {
-              "test": {
-                "type": "binary",
-                "operator": ">=",
-                "left": {
-                  "type": "path",
-                  "value": [
-                    "player",
-                    "energy"
-                  ]
-                },
-                "right": {
-                  "type": "literal",
-                  "value": 10
-                }
-              },
-              "reason": "You are too tired.",
-              "source": {
-                "file": "story/examples/robin-study.wg",
-                "line": 26,
-                "column": 1
-              }
-            }
-          ],
-          "warning": "This may annoy Robin.",
+          "when": null,
+          "requirements": [],
+          "warning": "This may annoy Taylor.",
           "previews": [
             {
               "type": "relationship",
               "amount": -0.02,
               "label": "-Relationship",
               "source": {
-                "file": "story/examples/robin-study.wg",
-                "line": 28,
+                "file": "story/examples/taylor-study.wg",
+                "line": 27,
                 "column": 1
               }
             }
@@ -389,17 +358,17 @@ export const WG_BUNDLE = {
           "effects": [
             {
               "op": "relationship",
-              "npcId": "robin",
+              "npcId": "taylor",
               "amount": -0.02,
               "source": {
-                "file": "story/examples/robin-study.wg",
-                "line": 29,
+                "file": "story/examples/taylor-study.wg",
+                "line": 28,
                 "column": 1
               }
             }
           ],
           "source": {
-            "file": "story/examples/robin-study.wg",
+            "file": "story/examples/taylor-study.wg",
             "line": 23,
             "column": 1
           }
@@ -417,14 +386,14 @@ export const WG_BUNDLE = {
           "previews": [],
           "effects": [],
           "source": {
-            "file": "story/examples/robin-study.wg",
-            "line": 32,
+            "file": "story/examples/taylor-study.wg",
+            "line": 31,
             "column": 1
           }
         }
       ],
       "source": {
-        "file": "story/examples/robin-study.wg",
+        "file": "story/examples/taylor-study.wg",
         "line": 3,
         "column": 1
       }

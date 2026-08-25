@@ -5,20 +5,19 @@ WG is Worldgame's text-first authored-story format. Source files live under
 ES module at `src/generated/wg/scenes.js`.
 
 The generated module is committed but never edited by hand. It is story IR,
-not a finished runtime Scene. A future materializer will evaluate the IR
-against a `Game` and pass the result through the existing Scene and Choice
-contracts.
+not a finished runtime Scene. The runtime materializer evaluates the IR against
+a `Game` and passes the result through the existing Scene and Choice contracts.
 
 ## Scenes
 
 Each file is UTF-8 and may contain multiple scenes:
 
 ```wg
-:: robin.study.peek [event robin study]
-@heading "Robin's room"
+:: taylor.study.peek [event taylor study]
+@heading "Taylor's room"
 @choices "What do you do?"
 
-Robin looks up from the textbook.
+Taylor looks up from the textbook.
 ```
 
 - `:: scene.id` starts a scene and the next header ends it.
@@ -37,7 +36,7 @@ inside a paragraph are joined with a space. WG does not interpret HTML.
 
 ```wg
 Hello, {{player.name}}.
-{{npc.robin.subject|cap}} closes {{npc.robin.dependent}} book.
+{{npc.taylor.subject|cap}} closes {{npc.taylor.dependent}} book.
 ```
 
 Interpolations contain a dotted path and optionally `|cap`. A line beginning
@@ -47,12 +46,12 @@ comment.
 ## Conditions
 
 ```wg
-@if story.robin.hurt >= 1
-Robin frowns.
-@elseif npc.robin.relationship >= 0.5
-Robin smiles.
+@if story.taylor.hurt >= 1
+Taylor frowns.
+@elseif npc.taylor.relationship >= 0.5
+Taylor smiles.
 @else
-Robin returns to the textbook.
+Taylor returns to the textbook.
 @endif
 ```
 
@@ -67,17 +66,22 @@ Conditions may be nested and may contain prose or choices. Expressions support:
 Expressions compile to data ASTs. WG never emits or evaluates authored
 JavaScript.
 
+Runtime paths currently expose `story.*`, evaluated `player` stats and
+pronouns, `npc.<id>` identity/pronouns/relationship/presence, and active game
+flags through `flags.<id>`. A missing path evaluates to `undefined`, which is
+false in conditions; interpolating a missing path is a runtime error.
+
 ## Choices
 
 ```wg
-@choice mess "Mess with Robin" -> robin.study.mess
+@choice mess "Mess with Taylor" -> taylor.study.mess
   @icon 😈
   @time 5m
-  @when npc.robin.present
+  @when npc.taylor.present
   @require player.energy >= 10 "You are too tired."
-  @warning "This may annoy Robin."
+  @warning "This may annoy Taylor."
   @preview relationship -0.02 "-Relationship"
-  @effect relationship robin -0.02
+  @effect relationship taylor -0.02
 @endchoice
 ```
 
@@ -95,7 +99,7 @@ JavaScript.
 
 ```wg
 @onenter
-  @effect set story.daily.robinStudyCompany true
+  @effect set story.daily.taylorStudyCompany true
 @endonenter
 ```
 
@@ -108,8 +112,8 @@ transition into a passage, never while rebuilding a scene.
 ```wg
 @effect set story.some.path true
 @effect add story.some.counter 1
-@effect flag met-robin true
-@effect relationship robin 0.02
+@effect flag met-taylor true
+@effect relationship taylor 0.02
 ```
 
 `set` and `add` currently target only `story.*`. Other game mutations will be

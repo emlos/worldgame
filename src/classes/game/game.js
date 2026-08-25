@@ -37,6 +37,9 @@ export class Game {
 
         // --- story flags (separate from skills) ---
         this.flags = new Set();
+        this.story = {};
+        this.currentStorySceneId = null;
+        this.storySceneRevision = 0;
 
         // --- npcs ---
         this.npcs = new Map();
@@ -244,6 +247,7 @@ export class Game {
         // When moving, you're typically not inside any specific place
         this.currentPlaceId = null;
         this.currentPlaceKey = null;
+        this._clearStoryScene();
 
         // Subscribers should observe a fully consistent position.
         this._dispatchListeners("location", [this, locationId], listenerCheckpoint);
@@ -257,6 +261,7 @@ export class Game {
         if (placeId == null) {
             this.currentPlaceId = null;
             this.currentPlaceKey = placeKey == null ? null : String(placeKey);
+            this._clearStoryScene();
             return;
         }
 
@@ -275,6 +280,13 @@ export class Game {
         // place keys are represented only by { placeId: null, placeKey: ... }.
         this.currentPlaceId = place.id;
         this.currentPlaceKey = place.key ?? null;
+        this._clearStoryScene();
+    }
+
+    _clearStoryScene() {
+        if (this.currentStorySceneId === null) return;
+        this.currentStorySceneId = null;
+        this.storySceneRevision += 1;
     }
 
     // --- Story flags ---
@@ -485,7 +497,7 @@ export class Game {
     // --------------------------
     toJSON() {
         return {
-            saveVersion: 6,
+            saveVersion: 7,
             seed: this.seed,
             random: this.random.toJSON(),
             time: this.now.toISOString(),
@@ -498,6 +510,9 @@ export class Game {
             currentPlaceId: this.currentPlaceId,
             currentPlaceKey: this.currentPlaceKey,
             flags: [...this.flags],
+            story: JSON.parse(JSON.stringify(this.story)),
+            currentStorySceneId: this.currentStorySceneId,
+            storySceneRevision: this.storySceneRevision,
             log: this.log.map((entry) => ({ ...entry })),
         };
     }
@@ -536,6 +551,9 @@ export class Game {
         game.currentPlaceId = data.currentPlaceId;
         game.currentPlaceKey = data.currentPlaceKey;
         game.flags = new Set(data.flags);
+        game.story = JSON.parse(JSON.stringify(data.story));
+        game.currentStorySceneId = data.currentStorySceneId;
+        game.storySceneRevision = data.storySceneRevision;
         game.log = data.log.map((entry) => ({ ...entry }));
 
         game._initializeNPCBrains();

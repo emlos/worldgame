@@ -58,7 +58,7 @@ check(
 );
 check(
   "unary expressions compile without authored JavaScript",
-  parseExpression("not story.robin.hurt").type === "unary",
+  parseExpression("not story.taylor.hurt").type === "unary",
 );
 
 check("seconds compile to fractional minutes", parseDuration("30s") === 0.5);
@@ -72,7 +72,7 @@ const SAMPLE_SOURCE = `@# leading comment
 
 @onenter
   @effect set story.visit.started true
-  @effect flag met-robin true
+  @effect flag met-taylor true
 @endonenter
 
 Hello, {{player.name}}.
@@ -80,21 +80,21 @@ This continues the same paragraph.
 
 @if story.visit.count >= 2
 Welcome back.
-@elseif npc.robin.relationship >= 0.5
-Robin smiles.
+@elseif npc.taylor.relationship >= 0.5
+Taylor smiles.
 @else
-Robin waits.
+Taylor waits.
 @endif
 
 @choice continue "Continue" -> next
   @icon "→"
   @time 1h30m
-  @when npc.robin.present
+  @when npc.taylor.present
   @require player.energy >= 10 "You are too tired."
   @warning "This may take a while."
   @preview relationship 0.02 "+Relationship"
   @effect add story.visit.count 1
-  @effect relationship robin 0.02
+  @effect relationship taylor 0.02
 @endchoice
 
 \\@if this line is prose
@@ -345,7 +345,7 @@ check(
 check(
   "the committed example generated all linked passages",
   Object.keys(WG_BUNDLE.scenes).join(",") ===
-    "robin.study.back,robin.study.mess,robin.study.peek",
+    "taylor.study.back,taylor.study.mess,taylor.study.peek",
 );
 
 let generatedCheckError = null;

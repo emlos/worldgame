@@ -1,6 +1,11 @@
 import { SCENE_ACTION_TYPE } from "../../../data/scene/actions.js";
 import { SCENE_TEXT } from "../../../content/scene/genericText.js";
 import { buildScene } from "./sceneEngine.js";
+import {
+  enterWGScene,
+  followWGChoice,
+  PLAYER_HOME_WG_SCENE_ID,
+} from "./wg/storyRuntime.js";
 
 export const CHOICE_ERROR_CODE = Object.freeze({
   invalidRequest: "invalid-request",
@@ -108,6 +113,9 @@ function performEnter(game, choice, minutes) {
     minutes,
     apply(currentGame) {
       currentGame.setCurrentPlace({ placeId: place.id });
+      if (String(place.id) === String(currentGame.homePlaceId)) {
+        enterWGScene(currentGame, PLAYER_HOME_WG_SCENE_ID);
+      }
     },
   });
   return SCENE_TEXT.enterResult(place.name);
@@ -158,12 +166,24 @@ function performGreet(game, choice, minutes) {
   return SCENE_TEXT.greetResult(npc.meta?.shortName || npc.name);
 }
 
+function performWG(game, choice, minutes) {
+  game.runAction({
+    label: choice.label,
+    minutes,
+    apply(currentGame) {
+      followWGChoice(currentGame, choice);
+    },
+  });
+  return "Continue.";
+}
+
 const ACTION_HANDLERS = Object.freeze({
   [SCENE_ACTION_TYPE.travel]: performTravel,
   [SCENE_ACTION_TYPE.enter]: performEnter,
   [SCENE_ACTION_TYPE.leave]: performLeave,
   [SCENE_ACTION_TYPE.loiter]: performLoiter,
   [SCENE_ACTION_TYPE.greet]: performGreet,
+  [SCENE_ACTION_TYPE.wg]: performWG,
 });
 
 export function performChoice(game, request) {
