@@ -8,6 +8,47 @@ The generated module is committed but never edited by hand. It is story IR,
 not a finished runtime Scene. The runtime materializer evaluates the IR against
 a `Game` and passes the result through the existing Scene and Choice contracts.
 
+## Story entries
+
+Top-level entry blocks connect passages to world positions, menus, and arrival
+triggers:
+
+```wg
+@entry home.taylor-study
+  @scene taylor.study.peek
+  @place-key player_home
+  @offer place
+  @label "Study with Taylor"
+  @icon 📚
+  @auto enter-place
+  @when npc.taylor.present
+  @priority 10
+  @chance 100%
+  @weight 1
+@endentry
+```
+
+- `@scene` is required and must reference a compiled scene.
+- An entry needs at least one `@offer` or `@auto` directive.
+- `@offer place` adds a choice to the current place's “Things to do” section.
+- `@offer npc <id>` adds a choice beside that NPC's interactions and implicitly
+  requires the NPC to be at the player's exact position.
+- `@auto enter-place` and `@auto enter-location` participate in automatic
+  post-arrival selection. Both may be declared on one entry.
+- Repeated `@place-key`, `@place-tag`, and `@location-tag` selectors are ORed
+  within their own kind and ANDed across kinds. Place tags match place
+  categories or explicit tags.
+- Repeated `@when` expressions must all pass. Offers are pure queries and do
+  not roll chance or consume randomness.
+- Offered entries require `@label`; `@icon` is optional.
+- `@priority` defaults to `0`, `@chance` to `100%`, and `@weight` to `1`.
+
+Automatic resolution checks priority groups from highest to lowest. Each entry
+in a group passes its independent chance gate, then one survivor is selected
+by relative weight. A lower priority is considered only when no entry in a
+higher group passes. Random rolls happen only after a real arrival, never while
+rendering or authoritatively rebuilding a scene.
+
 ## Scenes
 
 Each file is UTF-8 and may contain multiple scenes:

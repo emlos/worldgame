@@ -1,5 +1,5 @@
 import { failWG } from "./diagnostic.js";
-import { parseWGSource } from "./sourceParser.js";
+import { parseWGDocument } from "./sourceParser.js";
 
 function compareText(left, right) {
   return left < right ? -1 : left > right ? 1 : 0;
@@ -31,9 +31,11 @@ export function compileStorySources(sources) {
     compareText(String(left.file), String(right.file)),
   );
   const sceneMap = new Map();
+  const entryMap = new Map();
 
   for (const source of orderedSources) {
-    for (const scene of parseWGSource(source)) {
+    const document = parseWGDocument(source);
+    for (const scene of document.scenes) {
       const previous = sceneMap.get(scene.id);
       if (previous) {
         failWG(
@@ -42,6 +44,16 @@ export function compileStorySources(sources) {
         );
       }
       sceneMap.set(scene.id, scene);
+    }
+    for (const entry of document.entries) {
+      const previous = entryMap.get(entry.id);
+      if (previous) {
+        failWG(
+          `Duplicate entry id '${entry.id}' (first declared at ${previous.source.file}:${previous.source.line})`,
+          atSource(entry.source),
+        );
+      }
+      entryMap.set(entry.id, entry);
     }
   }
 
@@ -72,10 +84,22 @@ export function compileStorySources(sources) {
     });
   }
 
+  for (const entry of entryMap.values()) {
+    if (!sceneMap.has(entry.sceneId)) {
+      failWG(
+        `Unknown entry scene '${entry.sceneId}' from entry '${entry.id}'`,
+        atSource(entry.source),
+      );
+    }
+  }
+
   const scenes = Object.fromEntries(
     [...sceneMap.entries()].sort(([left], [right]) => compareText(left, right)),
   );
-  return { formatVersion: 1, scenes };
+  const entries = Object.fromEntries(
+    [...entryMap.entries()].sort(([left], [right]) => compareText(left, right)),
+  );
+  return { formatVersion: 2, scenes, entries };
 }
 
 export { walkNodes };

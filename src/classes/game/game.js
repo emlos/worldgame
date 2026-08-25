@@ -359,7 +359,7 @@ export class Game {
      * Wrapper for player actions: do stuff, spend time, log it.
      * This is a good fit for your “choices” later.
      */
-    runAction({ label, minutes = 0, apply }) {
+    runAction({ label, minutes = 0, apply, after }) {
         let amount = 0;
         if (minutes !== 0) {
             amount = Number(minutes);
@@ -383,8 +383,15 @@ export class Game {
                 this.advanceMinutes(amount);
             }
 
+            // Arrival/event resolution belongs after time simulation so it
+            // observes the destination clock and final NPC positions. It is
+            // still inside this action's checkpoint and rolls back with it.
+            if (typeof after === "function") {
+                after(this);
+            }
+
             // A log entry describes a committed action, so add it only after
-            // both its gameplay effect and time cost have succeeded.
+            // its effects, time cost, and post-time resolution have succeeded.
             if (typeof label === "string" && label) {
                 this.log.push({ t: startedAt, label });
             }

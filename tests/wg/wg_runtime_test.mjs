@@ -108,7 +108,7 @@ choose(game, scene, "leave");
 check("an @exit target closes the WG scene", game.currentStorySceneId === null);
 scene = buildScene(game);
 check("@exit returns to the ordinary home place scene", scene.kind === "place");
-const reopenTaylor = findChoice(scene, "event:taylor-study");
+const reopenTaylor = findChoice(scene, "entry:home.taylor-study");
 check("the home scene offers a way back into the Taylor event", reopenTaylor?.label === "Study with Taylor");
 choose(game, scene, reopenTaylor.id);
 check("the home event launcher reopens the WG scene", game.currentStorySceneId === "taylor.study.peek");

@@ -38,6 +38,38 @@ check(
 check("successful action writes one log entry", successful.log.length === 1);
 check("successful action log records its start time", successful.log[0]?.t === successfulStart);
 
+const postTime = new Game({ seed: 111, startDate: START, npcTemplates: [] });
+let postTimeObserved = null;
+postTime.runAction({
+    minutes: 15,
+    after(game) {
+        postTimeObserved = game.now.toISOString();
+        game.setFlag("post-time-effect");
+    },
+});
+check("post-time callbacks observe the advanced clock", postTimeObserved === "2026-01-05T12:15:00.000Z");
+check("post-time callbacks may commit gameplay effects", postTime.hasFlag("post-time-effect"));
+
+const postTimeFailure = new Game({ seed: 112, startDate: START, npcTemplates: [] });
+const postTimeFailureBefore = JSON.stringify(postTimeFailure);
+const postTimeError = new Error("post-time callback failed");
+catchesExpected(
+    "a post-time callback error is rethrown",
+    () =>
+        postTimeFailure.runAction({
+            minutes: 15,
+            after(game) {
+                game.setFlag("post-time-partial-effect");
+                throw postTimeError;
+            },
+        }),
+    postTimeError,
+);
+check(
+    "post-time callback failures roll back time and effects",
+    JSON.stringify(postTimeFailure) === postTimeFailureBefore,
+);
+
 const callbackFailure = new Game({ seed: 202, startDate: START, npcTemplates: [] });
 const callbackBefore = JSON.stringify(callbackFailure);
 const callbackError = new Error("apply failed");

@@ -5,6 +5,7 @@ import { emitStoryModule } from "../../tools/wg/compiler/emitter.js";
 import { parseExpression } from "../../tools/wg/compiler/expressionParser.js";
 import {
   parseDuration,
+  parseWGDocument,
   parseWGSource,
 } from "../../tools/wg/compiler/sourceParser.js";
 import { compileStorySources } from "../../tools/wg/compiler/storyCompiler.js";
@@ -66,6 +67,23 @@ check("compound durations compile to minutes", parseDuration("1h30m") === 90);
 
 const SAMPLE_SOURCE = `@# leading comment
 
+@entry sample.introduction
+  @scene intro
+  @place-key player_home
+  @place-tag housing
+  @location-tag residential
+  @offer npc taylor
+  @label "Spend time with Taylor"
+  @icon "📚"
+  @auto enter-place
+  @auto enter-location
+  @when true
+  @when npc.taylor.present
+  @priority 25
+  @chance 40%
+  @weight 3
+@endentry
+
 :: intro [event example]
 @heading "Introduction"
 @choices "What next?"
@@ -114,7 +132,30 @@ const sampleScenes = parseWGSource({
   file: "story\\sample.wg",
   source: SAMPLE_SOURCE,
 });
+const sampleDocument = parseWGDocument({
+  file: "story\\sample.wg",
+  source: SAMPLE_SOURCE,
+});
 check("one WG file may contain multiple scenes", sampleScenes.length === 2);
+check("one WG file may contain entry declarations", sampleDocument.entries.length === 1);
+const sampleEntry = sampleDocument.entries[0];
+check(
+  "entry selectors and exposure directives compile",
+  sampleEntry.sceneId === "intro" &&
+    sampleEntry.placeKeys.join(",") === "player_home" &&
+    sampleEntry.placeTags.join(",") === "housing" &&
+    sampleEntry.locationTags.join(",") === "residential" &&
+    sampleEntry.offer.type === "npc" &&
+    sampleEntry.offer.npcId === "taylor" &&
+    sampleEntry.automaticTriggers.join(",") === "enter-place,enter-location",
+);
+check(
+  "entry conditions and random-selection metadata compile",
+  sampleEntry.conditions.length === 2 &&
+    sampleEntry.priority === 25 &&
+    sampleEntry.chance === 0.4 &&
+    sampleEntry.weight === 3,
+);
 check(
   "source paths are normalized for deterministic output",
   sampleScenes[0].source.file === "story/sample.wg",
@@ -183,8 +224,9 @@ const sampleBundle = compileStorySources([
 ]);
 check(
   "linked bundles use a versioned scene map",
-  sampleBundle.formatVersion === 1 &&
-    Object.keys(sampleBundle.scenes).join(",") === "intro,next",
+  sampleBundle.formatVersion === 2 &&
+    Object.keys(sampleBundle.scenes).join(",") === "intro,next" &&
+    Object.keys(sampleBundle.entries).join(",") === "sample.introduction",
 );
 
 const sourceA = `:: alpha\n@heading "Alpha"\n@choice leave "Leave" -> @exit\n@endchoice`;
@@ -227,6 +269,70 @@ rejects(
     { file: "two.wg", source: sourceA },
   ],
   "Duplicate scene id 'alpha'",
+);
+rejects(
+  "duplicate entry ids are rejected across files",
+  [
+    {
+      file: "one.wg",
+      source: `@entry same\n@scene alpha\n@auto enter-location\n@endentry\n${sourceA}`,
+    },
+    {
+      file: "two.wg",
+      source: `@entry same\n@scene zeta\n@auto enter-location\n@endentry\n${sourceZ}`,
+    },
+  ],
+  "Duplicate entry id 'same'",
+);
+rejects(
+  "entry scene targets must exist",
+  [
+    {
+      file: "entry-target.wg",
+      source: `@entry bad\n@scene missing\n@auto enter-location\n@endentry\n${sourceA}`,
+    },
+  ],
+  "Unknown entry scene 'missing'",
+);
+rejects(
+  "entries require an offer or automatic trigger",
+  [
+    {
+      file: "entry-exposure.wg",
+      source: `@entry bad\n@scene alpha\n@endentry\n${sourceA}`,
+    },
+  ],
+  "Entry requires @offer or @auto",
+);
+rejects(
+  "offered entries require labels",
+  [
+    {
+      file: "entry-label.wg",
+      source: `@entry bad\n@scene alpha\n@offer place\n@endentry\n${sourceA}`,
+    },
+  ],
+  "Offered entries require @label",
+);
+rejects(
+  "entry chance stays within its probability range",
+  [
+    {
+      file: "entry-chance.wg",
+      source: `@entry bad\n@scene alpha\n@auto enter-location\n@chance 125%\n@endentry\n${sourceA}`,
+    },
+  ],
+  "@chance must be between 0 and 1 or a percentage",
+);
+rejects(
+  "entry weights must be positive",
+  [
+    {
+      file: "entry-weight.wg",
+      source: `@entry bad\n@scene alpha\n@auto enter-location\n@weight 0\n@endentry\n${sourceA}`,
+    },
+  ],
+  "@weight must be a positive number",
 );
 rejects(
   "duplicate choice ids are rejected across conditional branches",
@@ -346,6 +452,11 @@ check(
   "the committed example generated all linked passages",
   Object.keys(WG_BUNDLE.scenes).join(",") ===
     "taylor.study.back,taylor.study.mess,taylor.study.peek",
+);
+check(
+  "the committed example generated its world entry",
+  Object.keys(WG_BUNDLE.entries).join(",") === "home.taylor-study" &&
+    WG_BUNDLE.entries["home.taylor-study"].sceneId === "taylor.study.peek",
 );
 
 let generatedCheckError = null;

@@ -2,15 +2,6 @@ import { WG_BUNDLE } from "../../../../generated/wg/scenes.js";
 import { evaluateWGExpression, resolveWGPath } from "./expressionEvaluator.js";
 import { createWGRuntimeContext } from "./runtimeContext.js";
 
-// Temporary vertical-slice registration. A later encounter/event registry can
-// provide these entries based on place, time, flags, and character presence.
-export const PLAYER_HOME_WG_ENTRY = Object.freeze({
-  sceneId: "taylor.study.peek",
-  choiceId: "event:taylor-study",
-  label: "Study with Taylor",
-  icon: "📚",
-});
-
 export class WGRuntimeError extends Error {
   constructor(message) {
     super(message);

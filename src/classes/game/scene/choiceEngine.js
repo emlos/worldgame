@@ -1,11 +1,11 @@
 import { SCENE_ACTION_TYPE } from "../../../data/scene/actions.js";
 import { SCENE_TEXT } from "../../../content/scene/genericText.js";
 import { buildScene } from "./sceneEngine.js";
+import { followWGChoice } from "./wg/storyRuntime.js";
 import {
-  enterWGScene,
-  followWGChoice,
-  PLAYER_HOME_WG_ENTRY,
-} from "./wg/storyRuntime.js";
+  resolveWGAutomaticEntry,
+  WG_AUTO_TRIGGER,
+} from "./wg/entryResolver.js";
 
 export const CHOICE_ERROR_CODE = Object.freeze({
   invalidRequest: "invalid-request",
@@ -92,6 +92,9 @@ function performTravel(game, choice, minutes) {
     apply(currentGame) {
       currentGame.moveTo(targetLocationId);
     },
+    after(currentGame) {
+      resolveWGAutomaticEntry(currentGame, WG_AUTO_TRIGGER.enterLocation);
+    },
   });
   return SCENE_TEXT.travelResult(destination.name);
 }
@@ -113,9 +116,9 @@ function performEnter(game, choice, minutes) {
     minutes,
     apply(currentGame) {
       currentGame.setCurrentPlace({ placeId: place.id });
-      if (String(place.id) === String(currentGame.homePlaceId)) {
-        enterWGScene(currentGame, PLAYER_HOME_WG_ENTRY.sceneId);
-      }
+    },
+    after(currentGame) {
+      resolveWGAutomaticEntry(currentGame, WG_AUTO_TRIGGER.enterPlace);
     },
   });
   return SCENE_TEXT.enterResult(place.name);

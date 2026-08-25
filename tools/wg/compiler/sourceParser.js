@@ -42,7 +42,7 @@ function directiveArgument(text, directive, location) {
 }
 
 function directiveName(text) {
-  return text.match(/^@([a-z]+)/)?.[1] ?? null;
+  return text.match(/^@([a-z][a-z-]*)/)?.[1] ?? null;
 }
 
 function isComment(text) {
@@ -510,49 +510,209 @@ function parseSceneChunk(file, chunk) {
   };
 }
 
-export function parseWGSource({ file = "<wg>", source }) {
+function parseEntryBlock(file, lines, startIndex) {
+  const opening = lines[startIndex];
+  const openingText = opening.text.trim();
+  const header = openingText.match(new RegExp(`^@entry\\s+(${ID_PATTERN})\\s*$`));
+  if (!header) failWG("Malformed @entry header", lineLocation(file, opening.line));
+
+  const entry = {
+    id: header[1],
+    sceneId: null,
+    placeKeys: [],
+    placeTags: [],
+    locationTags: [],
+    offer: null,
+    automaticTriggers: [],
+    conditions: [],
+    label: null,
+    icon: null,
+    priority: 0,
+    chance: 1,
+    weight: 1,
+    source: nodeSource(file, opening.line),
+  };
+  const singleFields = new Set();
+  let index = startIndex + 1;
+
+  while (index < lines.length) {
+    const line = lines[index];
+    const text = line.text.trim();
+    const location = lineLocation(file, line.line);
+
+    if (!text || isComment(text)) {
+      index += 1;
+      continue;
+    }
+    if (text === "@endentry") {
+      if (entry.sceneId === null) failWG("Entry requires @scene", location);
+      if (entry.offer === null && entry.automaticTriggers.length === 0) {
+        failWG("Entry requires @offer or @auto", location);
+      }
+      if (entry.offer && entry.label === null) {
+        failWG("Offered entries require @label", location);
+      }
+      return { entry, nextIndex: index + 1 };
+    }
+    if (text.startsWith("::") || text.startsWith("@entry")) {
+      failWG("Unclosed @entry block", lineLocation(file, opening.line));
+    }
+
+    const name = directiveName(text);
+    if (!name) failWG("Entry blocks may contain only entry directives", location);
+
+    if (["scene", "offer", "label", "icon", "priority", "chance", "weight"].includes(name)) {
+      if (singleFields.has(name)) failWG(`Duplicate @${name}`, location);
+      singleFields.add(name);
+    }
+
+    if (name === "scene") {
+      const sceneId = directiveArgument(text, "scene", location);
+      if (!ID_REGEX.test(sceneId)) failWG("Entry scene must be a scene id", location);
+      entry.sceneId = sceneId;
+    } else if (["place-key", "place-tag", "location-tag"].includes(name)) {
+      const value = directiveArgument(text, name, location);
+      const regex = name === "place-key" ? ID_REGEX : TAG_REGEX;
+      if (!regex.test(value)) failWG(`Invalid @${name} value '${value}'`, location);
+      const target = {
+        "place-key": entry.placeKeys,
+        "place-tag": entry.placeTags,
+        "location-tag": entry.locationTags,
+      }[name];
+      if (target.includes(value)) failWG(`Duplicate @${name} '${value}'`, location);
+      target.push(value);
+    } else if (name === "offer") {
+      const argument = directiveArgument(text, "offer", location);
+      if (argument === "place") {
+        entry.offer = { type: "place" };
+      } else {
+        const npcOffer = argument.match(new RegExp(`^npc\\s+(${ID_PATTERN})$`));
+        if (!npcOffer) failWG("@offer must be 'place' or 'npc <id>'", location);
+        entry.offer = { type: "npc", npcId: npcOffer[1] };
+      }
+    } else if (name === "auto") {
+      const trigger = directiveArgument(text, "auto", location);
+      if (!["enter-place", "enter-location"].includes(trigger)) {
+        failWG("@auto must be 'enter-place' or 'enter-location'", location);
+      }
+      if (entry.automaticTriggers.includes(trigger)) {
+        failWG(`Duplicate @auto '${trigger}'`, location);
+      }
+      entry.automaticTriggers.push(trigger);
+    } else if (name === "when") {
+      entry.conditions.push(
+        parseExpression(directiveArgument(text, "when", location), location),
+      );
+    } else if (name === "label") {
+      entry.label = parseQuotedString(
+        directiveArgument(text, "label", location),
+        location,
+        "Entry label",
+      );
+    } else if (name === "icon") {
+      const value = directiveArgument(text, "icon", location);
+      entry.icon = value.startsWith('"')
+        ? parseQuotedString(value, location, "Entry icon")
+        : value;
+    } else if (name === "priority") {
+      const value = directiveArgument(text, "priority", location);
+      if (!/^[+-]?\d+$/.test(value) || !Number.isSafeInteger(Number(value))) {
+        failWG("@priority must be a safe integer", location);
+      }
+      entry.priority = Number(value);
+    } else if (name === "chance") {
+      const value = directiveArgument(text, "chance", location);
+      const percent = value.match(/^(\d+(?:\.\d+)?)%$/);
+      const decimal = value.match(/^(?:0(?:\.\d+)?|1(?:\.0+)?)$/);
+      if (!percent && !decimal) {
+        failWG("@chance must be between 0 and 1 or a percentage", location);
+      }
+      entry.chance = percent ? Number(percent[1]) / 100 : Number(value);
+      if (entry.chance < 0 || entry.chance > 1) {
+        failWG("@chance must be between 0 and 1 or a percentage", location);
+      }
+    } else if (name === "weight") {
+      const value = Number(directiveArgument(text, "weight", location));
+      if (!Number.isFinite(value) || value <= 0) {
+        failWG("@weight must be a positive number", location);
+      }
+      entry.weight = value;
+    } else {
+      failWG(`Unknown entry directive @${name}`, location);
+    }
+
+    index += 1;
+  }
+
+  failWG("Unclosed @entry block", lineLocation(file, opening.line));
+}
+
+export function parseWGDocument({ file = "<wg>", source }) {
   if (typeof source !== "string") {
     failWG("WG source must be text", lineLocation(normalizeFile(file), 1));
   }
   const normalizedFile = normalizeFile(file);
   const rawLines = source.replaceAll("\r\n", "\n").replaceAll("\r", "\n").split("\n");
+  const lines = rawLines.map((text, index) => ({ text, line: index + 1 }));
   const chunks = [];
+  const entries = [];
   let currentChunk = null;
+  let index = 0;
 
-  rawLines.forEach((text, index) => {
-    const lineNumber = index + 1;
-    const trimmed = text.trim();
+  while (index < lines.length) {
+    const line = lines[index];
+    const trimmed = line.text.trim();
+
+    if (trimmed.startsWith("@entry")) {
+      currentChunk = null;
+      const parsed = parseEntryBlock(normalizedFile, lines, index);
+      entries.push(parsed.entry);
+      index = parsed.nextIndex;
+      continue;
+    }
     if (trimmed.startsWith("::")) {
       const header = trimmed.match(
         new RegExp(`^::\\s+(${ID_PATTERN})(?:\\s+\\[([^\\]]*)\\])?\\s*$`),
       );
       if (!header) {
-        failWG("Malformed scene header", lineLocation(normalizedFile, lineNumber));
+        failWG("Malformed scene header", lineLocation(normalizedFile, line.line));
       }
       const tags = header[2]
         ? header[2].trim().split(/\s+/).filter(Boolean)
         : [];
       for (const tag of tags) {
         if (!TAG_REGEX.test(tag)) {
-          failWG(`Invalid scene tag '${tag}'`, lineLocation(normalizedFile, lineNumber));
+          failWG(`Invalid scene tag '${tag}'`, lineLocation(normalizedFile, line.line));
         }
       }
       currentChunk = {
         id: header[1],
         tags: [...new Set(tags)],
-        headerLine: lineNumber,
+        headerLine: line.line,
         lines: [],
       };
       chunks.push(currentChunk);
-      return;
+      index += 1;
+      continue;
     }
 
     if (!currentChunk) {
-      if (!trimmed || isComment(trimmed)) return;
-      failWG("Content appears before the first scene header", lineLocation(normalizedFile, lineNumber));
+      if (!trimmed || isComment(trimmed)) {
+        index += 1;
+        continue;
+      }
+      failWG("Content appears outside a scene or entry", lineLocation(normalizedFile, line.line));
     }
-    currentChunk.lines.push({ text, line: lineNumber });
-  });
+    currentChunk.lines.push(line);
+    index += 1;
+  }
 
-  return chunks.map((chunk) => parseSceneChunk(normalizedFile, chunk));
+  return {
+    scenes: chunks.map((chunk) => parseSceneChunk(normalizedFile, chunk)),
+    entries,
+  };
+}
+
+export function parseWGSource(input) {
+  return parseWGDocument(input).scenes;
 }

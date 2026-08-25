@@ -9,8 +9,12 @@ import { buildLocalMapView } from "./mapView.js";
 import { buildSceneStatus } from "./sceneContext.js";
 import { createChoice } from "./choiceContract.js";
 import { createScene } from "./sceneContract.js";
+import {
+  getWGOfferEntries,
+  WG_OFFER_TYPE,
+} from "./wg/entryResolver.js";
 import { materializeWGScene } from "./wg/sceneMaterializer.js";
-import { getWGScene, PLAYER_HOME_WG_ENTRY } from "./wg/storyRuntime.js";
+import { getWGScene } from "./wg/storyRuntime.js";
 
 const ENTER_PLACE_MINUTES = 2;
 
@@ -36,6 +40,28 @@ function personChoice(npc) {
     ],
     action: { type: SCENE_ACTION_TYPE.greet, npcId: npc.id },
   });
+}
+
+function entryChoice(entry) {
+  return createChoice({
+    id: `entry:${entry.id}`,
+    icon: entry.icon,
+    label: entry.label,
+    action: {
+      type: SCENE_ACTION_TYPE.wg,
+      target: entry.sceneId,
+      effects: [],
+      entryId: entry.id,
+    },
+  });
+}
+
+function personChoices(game, npc) {
+  const offers = getWGOfferEntries(game, {
+    type: WG_OFFER_TYPE.npc,
+    npcId: npc.id,
+  });
+  return [personChoice(npc), ...offers.map(entryChoice)];
 }
 
 function buildLocationScene(game) {
@@ -92,7 +118,7 @@ function buildLocationScene(game) {
       {
         id: "people",
         heading: SCENE_TEXT.sectionHeading.people,
-        choices: people.map(personChoice),
+        choices: people.flatMap((npc) => personChoices(game, npc)),
       },
       {
         id: "travel",
@@ -120,22 +146,9 @@ function buildPlaceScene(game) {
   const place = game.currentPlace;
   const location = game.location;
   const people = game.getNPCsAtCurrentPosition();
-  const events = [];
-
-  if (String(place.id) === String(game.homePlaceId)) {
-    events.push(
-      createChoice({
-        id: PLAYER_HOME_WG_ENTRY.choiceId,
-        icon: PLAYER_HOME_WG_ENTRY.icon,
-        label: PLAYER_HOME_WG_ENTRY.label,
-        action: {
-          type: SCENE_ACTION_TYPE.wg,
-          target: PLAYER_HOME_WG_ENTRY.sceneId,
-          effects: [],
-        },
-      }),
-    );
-  }
+  const events = getWGOfferEntries(game, {
+    type: WG_OFFER_TYPE.place,
+  }).map(entryChoice);
 
   return {
     id: `place:${place.id}:${game.now.toISOString()}`,
@@ -156,7 +169,7 @@ function buildPlaceScene(game) {
       {
         id: "people",
         heading: SCENE_TEXT.sectionHeading.people,
-        choices: people.map(personChoice),
+        choices: people.flatMap((npc) => personChoices(game, npc)),
       },
       {
         id: "navigation",
