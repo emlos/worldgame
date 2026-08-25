@@ -87,6 +87,19 @@ const controlledGame = {
 };
 
 const brain = new NPCBrain(controlledNpc, { goals: [visitRule, obligationRule] });
+const obligationInterval = {
+  start: new Date("2026-08-24T11:00:00.000Z"),
+  end: new Date("2026-08-24T12:00:00.000Z"),
+};
+const obligationTiming = brain._obligationTiming(
+  obligationRule,
+  obligationInterval,
+  controlledGame,
+);
+const latestDepartureAt = new Date(
+  obligationTiming.requiredArrivalAt.getTime() - 10 * 60_000,
+);
+const now = new Date(latestDepartureAt.getTime() - 4 * 60_000);
 brain.restoreJSON({
   currentGoal: {
     ruleId: visitRule.id,
@@ -106,10 +119,9 @@ brain.restoreJSON({
     placeId: "errand-place",
   },
   nextDecisionAt: "2026-08-24T10:55:00.000Z",
-  lastUpdatedAt: "2026-08-24T10:46:00.000Z",
+  lastUpdatedAt: now.toISOString(),
 });
 
-const now = new Date("2026-08-24T10:46:00.000Z");
 const beforeQuery = JSON.stringify(brain.toJSON());
 check(
   "a four-minute conversation may end at the exact latest departure time",
@@ -125,8 +137,12 @@ const conflict = brain.getInteractionObligationConflict(controlledGame, {
 check(
   "a conversation is rejected when it would make the NPC one minute late",
   conflict?.ruleId === obligationRule.id &&
-    conflict.latestDepartureAt === "2026-08-24T10:50:00.000Z" &&
-    conflict.projectedArrivalAt === "2026-08-24T11:01:00.000Z",
+    conflict.latestDepartureAt === latestDepartureAt.toISOString() &&
+    conflict.requiredArrivalAt === obligationTiming.requiredArrivalAt.toISOString() &&
+    conflict.earlyArrivalMinutes === obligationTiming.earlyArrivalMinutes &&
+    conflict.projectedArrivalAt === new Date(
+      obligationTiming.requiredArrivalAt.getTime() + 60_000,
+    ).toISOString(),
 );
 check(
   "interaction forecasting includes leaving, street travel, and entering",

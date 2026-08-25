@@ -92,14 +92,31 @@ const controlledGame = {
 };
 
 const brain = new NPCBrain(npc, { goals: [lowerRule, obligationRule] });
+const obligationInterval = {
+    start: new Date("2026-08-24T11:00:00.000Z"),
+    end: new Date("2026-08-24T12:00:00.000Z"),
+};
+const obligationTiming = brain._obligationTiming(
+    obligationRule,
+    obligationInterval,
+    controlledGame,
+);
+const homeTravelMinutes = 12;
+const departureAt = new Date(
+    obligationTiming.requiredArrivalAt.getTime() - homeTravelMinutes * 60_000,
+);
+const decisionAt = new Date(departureAt.getTime() - 60_000);
 brain.restoreJSON({
     currentGoal: null,
-    currentAction: { type: NPC_ACTION_TYPE.idle, startedAt: "2026-08-24T10:39:00.000Z" },
-    nextDecisionAt: "2026-08-24T10:40:00.000Z",
-    lastUpdatedAt: "2026-08-24T10:39:00.000Z",
+    currentAction: {
+        type: NPC_ACTION_TYPE.idle,
+        startedAt: new Date(decisionAt.getTime() - 60_000).toISOString(),
+    },
+    nextDecisionAt: decisionAt.toISOString(),
+    lastUpdatedAt: new Date(decisionAt.getTime() - 60_000).toISOString(),
 });
 
-brain.updateTo(new Date("2026-08-24T10:40:00.000Z"), controlledGame);
+brain.updateTo(decisionAt, controlledGame);
 
 check(
     "optional trip is rejected when travel, minimum stay, and onward travel miss the deadline",
@@ -111,14 +128,18 @@ check(
 );
 check(
     "planner wakes at the obligation departure time",
-    brain.nextDecisionAt?.toISOString() === "2026-08-24T10:48:00.000Z",
+    brain.nextDecisionAt?.toISOString() === departureAt.toISOString(),
 );
 
-brain.updateTo(new Date("2026-08-24T11:00:00.000Z"), controlledGame);
+brain.updateTo(obligationTiming.requiredArrivalAt, controlledGame);
 
-check("controlled NPC reaches the obligation on time", npc.locationId === "office");
+check("controlled NPC reaches the obligation at its early-arrival time", npc.locationId === "office");
 check("controlled NPC starts the obligation goal", brain.currentGoal?.ruleId === obligationRule.id);
 check("controlled NPC is staying at work", brain.currentAction?.type === NPC_ACTION_TYPE.stay);
+check("controlled NPC is in the early obligation phase", brain.getScheduleStatus().phase === "early");
+
+brain.updateTo(obligationInterval.start, controlledGame);
+check("the early phase becomes active at the obligation start", brain.getScheduleStatus().phase === "active");
 
 function placeKeyFor(game, npcId) {
     const currentNpc = game.npcs.get(npcId);

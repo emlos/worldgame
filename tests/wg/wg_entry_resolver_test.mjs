@@ -275,8 +275,23 @@ const busyNpcOffers = getWGOfferEntries(busyOfferGame, {
   ],
 });
 check(
-  "NPC entry launchers are hidden while the NPC has an obligation",
-  busyNpcOffers.length === 0,
+  "NPC entries may author a busy interaction while the NPC is present",
+  busyNpcOffers.length === 1,
+);
+const availableNpcOffers = getWGOfferEntries(busyOfferGame, {
+  type: WG_OFFER_TYPE.npc,
+  npcId: "taylor",
+  entries: [
+    entry("test.available-npc-offer", {
+      offer: { type: "npc", npcId: "taylor" },
+      label: "Chat with Taylor",
+      conditions: [parseExpression("npc.taylor.available")],
+    }),
+  ],
+});
+check(
+  "an explicit npc.available condition hides ordinary interactions while busy",
+  availableNpcOffers.length === 0,
 );
 
 const travelGame = new Game({

@@ -67,16 +67,20 @@ check(
     loadedFreeGame.now.toISOString() === "2026-08-24T08:06:00.000Z",
 );
 
-freeGame.advanceMinutes(29);
+const temporaryStayInterruptedAt = new Date(freeTaylor.brain.nextDecisionAt);
+freeGame.advanceMinutes(
+  (temporaryStayInterruptedAt.getTime() - freeGame.now.getTime()) / 60_000 - 1,
+);
 check(
-  "temporary relocation remains in force before 30 minutes",
+  "temporary relocation remains in force before the obligation departure",
   freeTaylor.brain.currentAction?.type === NPC_ACTION_TYPE.temporaryStay &&
-    freeGame.getNPCInteractionAccess(freeTaylor).allowed,
+    !freeTaylor.brain.isBusyWithObligation,
 );
 freeGame.advanceMinutes(1);
 check(
-  "Taylor makes a new scheduler decision after 30 minutes",
+  "an early obligation departure interrupts the temporary relocation",
   freeTaylor.brain.currentAction?.type !== NPC_ACTION_TYPE.temporaryStay &&
+    freeTaylor.brain.currentGoal?.type === "obligation" &&
     freeTaylor.brain.nextDecisionAt > freeGame.now,
 );
 

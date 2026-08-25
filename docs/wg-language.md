@@ -30,7 +30,9 @@ triggers:
 - An entry needs at least one `@offer` or `@auto` directive.
 - `@offer place` adds a choice to the current place's “Things to do” section.
 - `@offer npc <id>` adds a choice beside that NPC's interactions and implicitly
-  requires the NPC to be at the player's exact position.
+  requires the NPC to be at the player's exact position. It does not require
+  them to be free; add `@when npc.<id>.available` when an entry should be hidden
+  while the NPC is committed to an obligation.
 - `@hub-text "..."` adds an authored paragraph to the ordinary place hub while
   that offered entry is eligible. It does not appear inside the event passage.
 - `@auto enter-place` and `@auto enter-location` participate in automatic
@@ -110,6 +112,8 @@ JavaScript.
 Runtime paths currently expose `story.*`, evaluated `player` stats and
 pronouns, money through `player.money`, temperature comfort through
 `player.temperature`, `npc.<id>` identity/pronouns/relationship/presence/availability,
+and `npc.<id>.schedule` (`phase`, `obligationId`, `startsAt`,
+`requiredArrivalAt`, `earlyArrivalMinutes`, and `minutesUntilStart`),
 active game flags through `flags.<id>`, and the world clock through `time.hour`,
 `time.minute`, and `time.minutesSinceMidnight`. Clock fields use the same UTC
 world time shown by the game interface. A missing path evaluates to

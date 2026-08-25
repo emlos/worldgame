@@ -32,6 +32,15 @@ function timeContext(date) {
 
 function npcContext(game, npc) {
   const shortName = npc.meta?.shortName || npc.name;
+  const schedule = npc.brain?.getScheduleStatus?.(game.now) ?? {
+    phase: "free",
+    obligationId: null,
+    startsAt: null,
+    requiredArrivalAt: null,
+    earlyArrivalMinutes: null,
+    minutesUntilStart: null,
+  };
+  
   return {
     ...evaluatedStats(npc),
     ...pronounValues(npc),
@@ -43,6 +52,7 @@ function npcContext(game, npc) {
     relationship: game.player.getRelationship(npc.id).score,
     present: game.getNPCsAtCurrentPosition().includes(npc),
     available: game.getNPCInteractionAccess(npc).allowed,
+    schedule,
     flags: { ...(npc.flags || {}) },
   };
 }

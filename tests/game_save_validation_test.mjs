@@ -15,8 +15,8 @@ function makeSave(seed = 44) {
     return JSON.parse(JSON.stringify(new Game({ seed, startDate: START })));
 }
 
-function rejects(label, mutate, expectedPath) {
-    const save = makeSave();
+function rejects(label, mutate, expectedPath, saveFactory = makeSave) {
+    const save = saveFactory();
     mutate(save);
     try {
         Game.fromJSON(save);
@@ -31,9 +31,9 @@ function rejects(label, mutate, expectedPath) {
 }
 
 const validSave = makeSave();
-check("current v8 save validates directly", validateGameSave(validSave) === validSave);
+check("current v9 save validates directly", validateGameSave(validSave) === validSave);
 check(
-    "validated v8 save round-trips exactly",
+    "validated v9 save round-trips exactly",
     JSON.stringify(Game.fromJSON(validSave)) === JSON.stringify(validSave),
 );
 
@@ -323,6 +323,29 @@ rejects(
         npc.brain.currentGoal.ruleId = "missing-rule";
     },
     ".brain.currentGoal.ruleId",
+);
+const makeObligationSave = () =>
+    JSON.parse(JSON.stringify(new Game({
+        seed: 117,
+        startDate: new Date("2026-08-24T08:45:00.000Z"),
+    })));
+rejects(
+    "obligation goals require a valid early-arrival duration",
+    (save) => {
+        const npc = save.npcs.find((candidate) => candidate.brain.currentGoal?.type === "obligation");
+        npc.brain.currentGoal.earlyArrivalMinutes = 31;
+    },
+    ".brain.currentGoal.earlyArrivalMinutes",
+    makeObligationSave,
+);
+rejects(
+    "obligation required-arrival time must match its early duration",
+    (save) => {
+        const npc = save.npcs.find((candidate) => candidate.brain.currentGoal?.type === "obligation");
+        npc.brain.currentGoal.requiredArrivalAt = npc.brain.currentGoal.windowStart;
+    },
+    ".brain.currentGoal.requiredArrivalAt",
+    makeObligationSave,
 );
 rejects(
     "NPC brain goals must target an allowed place",

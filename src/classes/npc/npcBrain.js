@@ -1,13 +1,17 @@
 import { parseTimeToMinutes } from "../../shared/util/date.js";
 import { deriveSeed, makeRNG, randInt, weightedPick } from "../../shared/util/random.js";
-import { GOAL_TYPE, TARGET_TYPE, NPC_ACTION_TYPE } from "../../data/npc/behavior.js";
+import {
+    GOAL_TYPE,
+    TARGET_TYPE,
+    NPC_ACTION_TYPE,
+    NPC_SCHEDULE_PHASE,
+    OBLIGATION_EARLY_ARRIVAL_MINUTES,
+} from "../../data/npc/behavior.js";
 import { DAY_KEYS, MS_PER_MINUTE, MS_PER_DAY } from "../../data/world/time.js";
 import { getPlaceTransitionMinutes } from "../../data/world/travel.js";
 
 const EPSILON_MS = 1;
 const MAX_DECISIONS_PER_UPDATE = 100_000;
-
-//TODO: make npc's leave for their next obligation so that they arrive 5-30m before the obligation starts, so that they can loiter around the location for a bit before their obligation starts
 
 //TODO: move to shared/util/date.js
 function asDate(value) {
@@ -106,6 +110,48 @@ export class NPCBrain {
         return this.currentGoal?.type === GOAL_TYPE.obligation;
     }
 
+    getScheduleStatus(at = this.lastUpdatedAt) {
+        const now = asDate(at);
+        const goal = this.currentGoal;
+        if (!now || goal?.type !== GOAL_TYPE.obligation) {
+            return {
+                phase: NPC_SCHEDULE_PHASE.free,
+                obligationId: null,
+                startsAt: null,
+                requiredArrivalAt: null,
+                earlyArrivalMinutes: null,
+                minutesUntilStart: null,
+            };
+        }
+
+        const startsAt = asDate(goal.windowStart);
+        const requiredArrivalAt = asDate(goal.requiredArrivalAt);
+        let phase = startsAt && now >= startsAt
+            ? NPC_SCHEDULE_PHASE.active
+            : NPC_SCHEDULE_PHASE.early;
+
+        if (this.currentAction?.type === NPC_ACTION_TYPE.travel) {
+            const departureAt = asDate(this.currentAction.startedAt);
+            const leaveEndsAt = departureAt
+                ? addMinutes(departureAt, Number(this.currentAction.leavePlaceMinutes) || 0)
+                : null;
+            phase = leaveEndsAt && now < leaveEndsAt
+                ? NPC_SCHEDULE_PHASE.departing
+                : NPC_SCHEDULE_PHASE.travelling;
+        }
+
+        return {
+            phase,
+            obligationId: String(goal.ruleId),
+            startsAt: startsAt?.toISOString() ?? null,
+            requiredArrivalAt: requiredArrivalAt?.toISOString() ?? null,
+            earlyArrivalMinutes: Number(goal.earlyArrivalMinutes),
+            minutesUntilStart: startsAt
+                ? Math.max(0, (startsAt.getTime() - now.getTime()) / MS_PER_MINUTE)
+                : null,
+        };
+    }
+
     getInteractionObligationConflict(
         game,
         { at = game?.now, durationMinutes = 0 } = {},
@@ -131,17 +177,19 @@ export class NPCBrain {
             interactionEndsAt,
             commitment.travelMinutes,
         );
-        if (projectedArrivalAt <= commitment.interval.start) return null;
+        if (projectedArrivalAt <= commitment.requiredArrivalAt) return null;
 
         return {
             ruleId: String(commitment.rule.id),
             startsAt: commitment.interval.start.toISOString(),
+            requiredArrivalAt: commitment.requiredArrivalAt.toISOString(),
+            earlyArrivalMinutes: commitment.earlyArrivalMinutes,
             targetLocationId: commitment.target.locationId,
             targetPlaceId: commitment.target.placeId ?? null,
             travelMinutes: commitment.travelMinutes,
             interactionEndsAt: interactionEndsAt.toISOString(),
             latestDepartureAt: addMinutes(
-                commitment.interval.start,
+                commitment.requiredArrivalAt,
                 -commitment.travelMinutes,
             ).toISOString(),
             projectedArrivalAt: projectedArrivalAt.toISOString(),
@@ -227,11 +275,8 @@ export class NPCBrain {
         this.lastUpdatedAt = targetDate;
 
         const candidates = this._getDecisionCandidates(targetDate, game);
-        const bestPriority = candidates.length
-            ? Math.max(...candidates.map((candidate) => candidate.priority))
-            : -Infinity;
-        let remaining = candidates.filter((candidate) => candidate.priority === bestPriority);
-        const signature = remaining
+        let remaining = candidates.slice();
+        const signature = this._topCandidateTier(remaining)
             .map(
                 (candidate) =>
                     `${candidate.rule.id}@${candidate.interval.start.toISOString()}-${candidate.interval.end.toISOString()}`,
@@ -249,7 +294,8 @@ export class NPCBrain {
             let resolvedTarget = null;
 
             while (remaining.length && !resolvedTarget) {
-                selected = weightedPick(remaining, this._rng(game), (candidate) => candidate.weight);
+                const top = this._topCandidateTier(remaining);
+                selected = weightedPick(top, this._rng(game), (candidate) => candidate.weight);
                 if (!selected) break;
                 resolvedTarget = this._resolveCandidateTarget(selected, targetDate, game);
                 if (!resolvedTarget) {
@@ -263,22 +309,39 @@ export class NPCBrain {
                     type: NPC_ACTION_TYPE.idle,
                     startedAt: targetDate.toISOString(),
                 };
-            } else if (selected.interval.start > targetDate) {
+            } else if (
+                selected.rule.type === GOAL_TYPE.obligation &&
+                selected.requiredArrivalAt > targetDate
+            ) {
                 // The NPC is already en route to an upcoming obligation. Rebuild
                 // that travel from its calculated departure and advance it only
                 // to the destination timestamp.
                 const travelMinutes = Math.max(0, Number(resolvedTarget.travelMinutes) || 0);
-                const departureAt = addMinutes(selected.interval.start, -travelMinutes);
+                const departureAt = addMinutes(selected.requiredArrivalAt, -travelMinutes);
                 this._startGoal({ ...selected, target: resolvedTarget }, departureAt, game);
                 this._advanceActionTo(targetDate);
             } else {
-                // An active schedule window means the NPC is already at its
-                // destination; skipped travel is not replayed.
+                // During the early-arrival or active window the NPC is already
+                // at the destination; skipped travel is not replayed.
+                const travelMinutes = Math.max(0, Number(resolvedTarget.travelMinutes) || 0);
+                const goalActionAt = selected.rule.type === GOAL_TYPE.obligation
+                    ? selected.requiredArrivalAt
+                    : targetDate;
+                const departureAt = selected.rule.type === GOAL_TYPE.obligation
+                    ? addMinutes(selected.requiredArrivalAt, -travelMinutes)
+                    : targetDate;
                 this.npc.setLocationAndPlace(
                     resolvedTarget.locationId,
                     resolvedTarget.placeId ?? null,
                 );
-                this._startGoal({ ...selected, target: resolvedTarget }, targetDate, game);
+                this._startGoal(
+                    { ...selected, target: resolvedTarget },
+                    goalActionAt,
+                    game,
+                );
+                if (this.currentGoal && selected.rule.type === GOAL_TYPE.obligation) {
+                    this.currentGoal.startedAt = departureAt.toISOString();
+                }
             }
 
             if (!this.currentAction) {
@@ -342,25 +405,39 @@ export class NPCBrain {
         const currentRule = this.currentGoal ? this._findRule(this.currentGoal.ruleId) : null;
         const currentStillValid = this._goalStillValid(this.currentGoal, currentRule, at, game);
         const candidates = this._getDecisionCandidates(at, game);
-        const bestPriority = candidates.length
-            ? Math.max(...candidates.map((candidate) => candidate.priority))
-            : -Infinity;
+        const preferredCandidates = this._topCandidateTier(candidates);
+        const bestPriority = preferredCandidates[0]?.priority ?? -Infinity;
+        const obligationWinsTie =
+            preferredCandidates[0]?.rule.type === GOAL_TYPE.obligation &&
+            this.currentGoal?.type !== GOAL_TYPE.obligation &&
+            this.currentGoal?.priority === bestPriority;
 
-        if (this.currentAction && currentStillValid && this.currentGoal?.priority >= bestPriority) {
+        if (
+            this.currentAction &&
+            currentStillValid &&
+            this.currentGoal?.priority >= bestPriority &&
+            !obligationWinsTie
+        ) {
             this._scheduleNextWake(at, game);
             return;
         }
 
         if (
             this.currentAction &&
-            (!currentStillValid || bestPriority > this.currentGoal?.priority)
+            (!currentStillValid ||
+                bestPriority > this.currentGoal?.priority ||
+                obligationWinsTie)
         ) {
             this.currentGoal = null;
             this.currentAction = null;
         }
 
         if (this.currentGoal && !this.currentAction) {
-            if (currentStillValid && this.currentGoal.priority >= bestPriority) {
+            if (
+                currentStillValid &&
+                this.currentGoal.priority >= bestPriority &&
+                !obligationWinsTie
+            ) {
                 this._continueGoal(this.currentGoal, currentRule, at, game);
                 this._scheduleNextWake(at, game);
                 return;
@@ -386,8 +463,7 @@ export class NPCBrain {
         // be rejected when taking the trip (plus its minimum stay) would make a
         // higher-priority obligation unreachable on time.
         while (remaining.length && !target) {
-            const topPriority = Math.max(...remaining.map((candidate) => candidate.priority));
-            const top = remaining.filter((candidate) => candidate.priority === topPriority);
+            const top = this._topCandidateTier(remaining);
             selected = weightedPick(top, this._rng(game), (candidate) => candidate.weight);
             if (!selected) break;
             target = this._resolveCandidateTarget(selected, at, game);
@@ -444,7 +520,7 @@ export class NPCBrain {
         if (!commitment) return true;
 
         const projectedArrival = addMinutes(readyToLeaveAt, commitment.travelMinutes);
-        return projectedArrival <= commitment.interval.start;
+        return projectedArrival <= commitment.requiredArrivalAt;
     }
 
     _startGoal(candidate, at, game) {
@@ -455,6 +531,9 @@ export class NPCBrain {
             });
         if (!target) return;
 
+        const obligationTiming = candidate.rule.type === GOAL_TYPE.obligation
+            ? this._obligationTiming(candidate.rule, candidate.interval, game)
+            : null;
         this.currentGoal = {
             ruleId: candidate.rule.id,
             type: candidate.rule.type,
@@ -464,6 +543,12 @@ export class NPCBrain {
             windowEnd: candidate.interval.end.toISOString(),
             targetLocationId: target.locationId,
             targetPlaceId: target.placeId,
+            ...(obligationTiming
+                ? {
+                    earlyArrivalMinutes: obligationTiming.earlyArrivalMinutes,
+                    requiredArrivalAt: obligationTiming.requiredArrivalAt.toISOString(),
+                }
+                : {}),
         };
 
         this._continueGoal(this.currentGoal, candidate.rule, at, game);
@@ -487,6 +572,31 @@ export class NPCBrain {
         }
 
         this._startStay(goal, rule, at, game);
+    }
+
+    _topCandidateTier(candidates) {
+        if (!candidates.length) return [];
+
+        const topPriority = Math.max(...candidates.map((candidate) => candidate.priority));
+        const top = candidates.filter((candidate) => candidate.priority === topPriority);
+        const obligations = top.filter(
+            (candidate) => candidate.rule.type === GOAL_TYPE.obligation,
+        );
+        if (!obligations.length) return top;
+
+        const earliestDeparture = Math.min(
+            ...obligations.map((candidate) => candidate.departureAt.getTime()),
+        );
+        const departingFirst = obligations.filter(
+            (candidate) => candidate.departureAt.getTime() === earliestDeparture,
+        );
+        const earliestRequiredArrival = Math.min(
+            ...departingFirst.map((candidate) => candidate.requiredArrivalAt.getTime()),
+        );
+        return departingFirst.filter(
+            (candidate) =>
+                candidate.requiredArrivalAt.getTime() === earliestRequiredArrival,
+        );
     }
 
     _getTravelPlan(
@@ -601,9 +711,9 @@ export class NPCBrain {
             return;
         }
 
-        const windowStart = asDate(goal.windowStart);
-        const requiredDeparture = windowStart
-            ? addMinutes(windowStart, -plan.totalMinutes)
+        const requiredArrivalAt = asDate(goal.requiredArrivalAt);
+        const requiredDeparture = requiredArrivalAt
+            ? addMinutes(requiredArrivalAt, -plan.totalMinutes)
             : at;
         const departureAt = requiredDeparture > at ? requiredDeparture : at;
         this.currentAction = this._makeTravelAction(plan, target, departureAt);
@@ -737,11 +847,28 @@ export class NPCBrain {
             if (activeInterval) {
                 if (rule.type === GOAL_TYPE.visit && !this._hasValidTarget(rule, at, game))
                     continue;
+                const timing = rule.type === GOAL_TYPE.obligation
+                    ? this._obligationTiming(rule, activeInterval, game)
+                    : null;
+                const target = rule.type === GOAL_TYPE.obligation
+                    ? this._resolveTarget(rule, at, game, { deterministic: true })
+                    : null;
+                if (rule.type === GOAL_TYPE.obligation && !target) continue;
                 candidates.push({
                     rule,
                     interval: activeInterval,
                     priority: Number(rule.priority) || 0,
                     weight: ruleWeight(rule),
+                    ...(timing || {}),
+                    ...(target
+                        ? {
+                            target,
+                            departureAt: addMinutes(
+                                timing.requiredArrivalAt,
+                                -target.travelMinutes,
+                            ),
+                        }
+                        : {}),
                 });
             }
         }
@@ -756,7 +883,8 @@ export class NPCBrain {
             const travelMinutes = Number(target.travelMinutes);
             if (!Number.isFinite(travelMinutes)) continue;
 
-            const departureAt = addMinutes(upcoming.start, -travelMinutes);
+            const timing = this._obligationTiming(rule, upcoming, game);
+            const departureAt = addMinutes(timing.requiredArrivalAt, -travelMinutes);
             if (at >= departureAt && at < upcoming.start) {
                 candidates.push({
                     rule,
@@ -764,6 +892,8 @@ export class NPCBrain {
                     target,
                     priority: Number(rule.priority) || 0,
                     weight: ruleWeight(rule),
+                    ...timing,
+                    departureAt,
                 });
             }
         }
@@ -852,6 +982,22 @@ export class NPCBrain {
         );
     }
 
+    _obligationTiming(rule, interval, game) {
+        const seed = deriveSeed(
+            game?.seed ?? 0,
+            `npc-obligation-early:${this.npc?.id ?? "unknown"}:${String(rule.id)}:${interval.start.toISOString()}`,
+        );
+        const earlyArrivalMinutes = randInt(
+            OBLIGATION_EARLY_ARRIVAL_MINUTES.min,
+            OBLIGATION_EARLY_ARRIVAL_MINUTES.max,
+            makeRNG(seed),
+        );
+        return {
+            earlyArrivalMinutes,
+            requiredArrivalAt: addMinutes(interval.start, -earlyArrivalMinutes),
+        };
+    }
+
     _findNextRuleStart(at, game) {
         let best = null;
         for (const rule of this.rules) {
@@ -875,7 +1021,8 @@ export class NPCBrain {
                 const travelMinutes = Number(target.travelMinutes);
                 if (!Number.isFinite(travelMinutes)) continue;
 
-                const departureAt = addMinutes(interval.start, -travelMinutes);
+                const timing = this._obligationTiming(rule, interval, game);
+                const departureAt = addMinutes(timing.requiredArrivalAt, -travelMinutes);
                 if (departureAt.getTime() <= at.getTime() + EPSILON_MS) continue;
                 if (!best || departureAt < best) best = departureAt;
             }
@@ -907,17 +1054,24 @@ export class NPCBrain {
                 });
                 if (!target || !Number.isFinite(target.travelMinutes)) continue;
 
+                const timing = this._obligationTiming(rule, interval, game);
+                const departureAt = addMinutes(timing.requiredArrivalAt, -target.travelMinutes);
                 const commitment = {
                     rule,
                     interval,
                     target,
                     priority,
                     travelMinutes: target.travelMinutes,
+                    departureAt,
+                    ...timing,
                 };
                 if (
                     !best ||
-                    interval.start < best.interval.start ||
-                    (interval.start.getTime() === best.interval.start.getTime() &&
+                    departureAt < best.departureAt ||
+                    (departureAt.getTime() === best.departureAt.getTime() &&
+                        timing.requiredArrivalAt < best.requiredArrivalAt) ||
+                    (departureAt.getTime() === best.departureAt.getTime() &&
+                        timing.requiredArrivalAt.getTime() === best.requiredArrivalAt.getTime() &&
                         priority > best.priority)
                 ) {
                     best = commitment;

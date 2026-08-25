@@ -1,7 +1,12 @@
 import { deriveSeed } from "../../../shared/util/random.js";
-import { GOAL_TYPE, NPC_ACTION_TYPE, TARGET_TYPE } from "../../../data/npc/behavior.js";
+import {
+    GOAL_TYPE,
+    NPC_ACTION_TYPE,
+    TARGET_TYPE,
+    OBLIGATION_EARLY_ARRIVAL_MINUTES,
+} from "../../../data/npc/behavior.js";
 import { RANDOM_HOLIDAYS, MONTH_DAYS, DayKind } from "../../../data/world/calendar.js";
-import { DAY_KEYS } from "../../../data/world/time.js";
+import { DAY_KEYS, MS_PER_MINUTE } from "../../../data/world/time.js";
 import { WeatherType } from "../../../data/world/weather.js";
 import { PLAYER_TEMPERATURE_VALUES } from "../../../data/player/stats.js";
 import {
@@ -789,6 +794,23 @@ function validateBrain(data, path, context) {
         if (windowStart >= windowEnd)
             fail(`${goalPath}.windowEnd`, "must be after the goal window start");
         if (startedAt > context.gameTime) fail(`${goalPath}.startedAt`, "cannot be in the future");
+        if (rule.type === GOAL_TYPE.obligation) {
+            const earlyArrivalMinutes = integer(
+                required(goal, "earlyArrivalMinutes", goalPath),
+                `${goalPath}.earlyArrivalMinutes`,
+                OBLIGATION_EARLY_ARRIVAL_MINUTES,
+            );
+            const requiredArrivalAt = dateMilliseconds(
+                required(goal, "requiredArrivalAt", goalPath),
+                `${goalPath}.requiredArrivalAt`,
+            );
+            same(
+                requiredArrivalAt,
+                windowStart - earlyArrivalMinutes * MS_PER_MINUTE,
+                `${goalPath}.requiredArrivalAt`,
+                "the obligation window start minus its early-arrival time",
+            );
+        }
         const targetLocationId = string(
             required(goal, "targetLocationId", goalPath),
             `${goalPath}.targetLocationId`,
@@ -1107,9 +1129,9 @@ export function validateGameSave(data) {
     const save = record(data, "save");
     same(
         integer(required(save, "saveVersion", "save"), "save.saveVersion"),
-        8,
+        9,
         "save.saveVersion",
-        "version 8",
+        "version 9",
     );
 
     const seed = uint32(required(save, "seed", "save"), "save.seed");

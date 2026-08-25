@@ -13,7 +13,7 @@ const check = (label, condition) => {
 const lowerRule = {
     id: "morning_errand",
     type: GOAL_TYPE.visit,
-    priority: 30,
+    priority: 100,
     when: { from: "10:00", to: "11:00" },
     stayMinutes: { min: 20, max: 20 },
     target: { type: TARGET_TYPE.placeKeys, candidates: ["errand"] },
@@ -89,6 +89,15 @@ const game = {
 };
 
 const brain = new NPCBrain(npc, { goals: [lowerRule, obligationRule] });
+const obligationInterval = {
+    start: new Date("2026-08-24T11:00:00.000Z"),
+    end: new Date("2026-08-24T12:00:00.000Z"),
+};
+const obligationTiming = brain._obligationTiming(obligationRule, obligationInterval, game);
+const obligationDepartureAt = new Date(
+    obligationTiming.requiredArrivalAt.getTime() - 10 * 60_000,
+);
+const lowerTravelStartedAt = new Date(obligationDepartureAt.getTime() - 12 * 60_000);
 brain.restoreJSON({
     currentGoal: {
         ruleId: lowerRule.id,
@@ -102,8 +111,8 @@ brain.restoreJSON({
     },
     currentAction: {
         type: NPC_ACTION_TYPE.travel,
-        startedAt: "2026-08-24T10:38:00.000Z",
-        arrivalAt: "2026-08-24T10:50:00.000Z",
+        startedAt: lowerTravelStartedAt.toISOString(),
+        arrivalAt: obligationDepartureAt.toISOString(),
         fromLocationId: "home",
         fromPlaceId: null,
         targetLocationId: "errand",
@@ -116,43 +125,47 @@ brain.restoreJSON({
             currentLegIndex: 0,
         },
     },
-    nextDecisionAt: "2026-08-24T10:50:00.000Z",
-    lastUpdatedAt: "2026-08-24T10:49:00.000Z",
+    nextDecisionAt: obligationDepartureAt.toISOString(),
+    lastUpdatedAt: new Date(obligationDepartureAt.getTime() - 60_000).toISOString(),
 });
 
-brain.updateTo(new Date("2026-08-24T10:50:00.000Z"), game);
+brain.updateTo(obligationDepartureAt, game);
 
-check("higher-priority obligation replaces the completed lower-priority goal", brain.currentGoal?.ruleId === obligationRule.id);
-check("NPC departs for the obligation at its required departure time", brain.currentAction?.startedAt === "2026-08-24T10:50:00.000Z");
-check("NPC is scheduled to arrive exactly when the obligation starts", brain.currentAction?.arrivalAt === "2026-08-24T11:00:00.000Z");
+check("an obligation wins a priority tie against the completed discretionary goal", brain.currentGoal?.ruleId === obligationRule.id);
+check("NPC departs for the obligation at its required departure time", brain.currentAction?.startedAt === obligationDepartureAt.toISOString());
+check("NPC is scheduled to arrive at its early-arrival time", brain.currentAction?.arrivalAt === obligationTiming.requiredArrivalAt.toISOString());
 check("replacement action is travel", brain.currentAction?.type === NPC_ACTION_TYPE.travel);
+check("departure begins the busy departing phase", brain.getScheduleStatus().phase === "departing");
 check(
     "NPC travel records the same leave and enter costs as player movement",
     brain.currentAction?.leavePlaceMinutes === 1 &&
         brain.currentAction?.enterPlaceMinutes === 2,
 );
 
-brain.updateTo(new Date("2026-08-24T10:50:30.000Z"), game);
+brain.updateTo(new Date(obligationDepartureAt.getTime() + 30_000), game);
 check(
     "NPC remains inside while paying the one-minute leaving cost",
     npc.locationId === "errand" && npc.currentPlaceId === "errand-place",
 );
-brain.updateTo(new Date("2026-08-24T10:51:00.000Z"), game);
+brain.updateTo(new Date(obligationDepartureAt.getTime() + 60_000), game);
 check(
     "NPC is outside after leaving and before street travel completes",
-    npc.locationId === "errand" && npc.currentPlaceId === null,
+    npc.locationId === "errand" &&
+        npc.currentPlaceId === null &&
+        brain.getScheduleStatus().phase === "travelling",
 );
-brain.updateTo(new Date("2026-08-24T10:58:00.000Z"), game);
+brain.updateTo(new Date(obligationDepartureAt.getTime() + 8 * 60_000), game);
 check(
     "NPC spends the final two minutes entering the destination",
     npc.locationId === "office" && npc.currentPlaceId === null,
 );
-brain.updateTo(new Date("2026-08-24T11:00:00.000Z"), game);
+brain.updateTo(obligationTiming.requiredArrivalAt, game);
 check(
     "NPC enters the obligation place only after the full transition cost",
     npc.locationId === "office" &&
         npc.currentPlaceId === "office-place" &&
-        brain.currentAction?.type === NPC_ACTION_TYPE.stay,
+        brain.currentAction?.type === NPC_ACTION_TYPE.stay &&
+        brain.getScheduleStatus().phase === "early",
 );
 
 if (failures.length) {
