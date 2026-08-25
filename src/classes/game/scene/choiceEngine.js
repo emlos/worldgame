@@ -151,12 +151,15 @@ function performLoiter(game, _choice, minutes) {
 
 function performGreet(game, choice, minutes) {
   const npc = game.npcs.get(String(choice.action.npcId));
-  const present = npc && game.getNPCsAtCurrentPosition().includes(npc);
-  if (!present) {
+  const access = game.getNPCInteractionAccess(npc);
+  if (access.code === "not-here" || access.code === "unknown-npc") {
     fail(
       CHOICE_ERROR_CODE.invalidAction,
       `NPC '${choice.action.npcId}' is no longer at the player's position`,
     );
+  }
+  if (!access.allowed) {
+    return SCENE_TEXT.busyGreetResult(npc.meta?.shortName || npc.name);
   }
 
   game.runAction({

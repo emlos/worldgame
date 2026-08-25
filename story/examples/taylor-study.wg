@@ -8,6 +8,7 @@
   @icon 📚
   @auto enter-place
   @when npc.taylor.present
+  @when npc.taylor.available
   @priority 10
   @chance 100%
   @weight 1
@@ -55,9 +56,6 @@ You return your attention to the textbook.
 
 @choice continue "Continue studying" -> taylor.study.peek
   @time 1h
-@endchoice
-
-@choice leave "Leave" -> @exit
 @endchoice
 
 :: taylor.study.mess [event taylor study]

@@ -1,4 +1,5 @@
 import { Game } from "../../classes/game/game.js";
+import { teleportNPCToPlayer } from "../../classes/game/debugCommands.js";
 import { buildScene } from "../../classes/game/scene/sceneEngine.js";
 import { performChoice } from "../../classes/game/scene/choiceEngine.js";
 import { buildFullMapView } from "../../classes/game/scene/mapView.js";
@@ -13,6 +14,15 @@ const closeMapButton = document.querySelector("#close-map");
 const fullMapDialog = document.querySelector("#full-map-dialog");
 const fullMapElement = document.querySelector("#full-map");
 const fullMapDetails = document.querySelector("#full-map-details");
+const debugEnabled = typeof debug !== "undefined" && Boolean(debug);
+const debugPanel = document.querySelector("#debug-panel");
+const debugTeleportTaylorButton = document.querySelector("#debug-teleport-taylor");
+const debugTaylorPosition = document.querySelector("#debug-taylor-position");
+const debugTaylorGoal = document.querySelector("#debug-taylor-goal");
+const debugTaylorAction = document.querySelector("#debug-taylor-action");
+
+document.body.classList.toggle("debug-enabled", debugEnabled);
+debugPanel.hidden = !debugEnabled;
 
 let game = createGame();
 let currentScene = null;
@@ -171,6 +181,28 @@ function renderFullMap() {
   });
 }
 
+function renderDebugPanel() {
+  if (!debugEnabled) return;
+  const taylor = game.npcs.get("taylor");
+  if (!taylor) {
+    debugTaylorPosition.textContent = "Not in this game";
+    debugTaylorGoal.textContent = "—";
+    debugTaylorAction.textContent = "—";
+    debugTeleportTaylorButton.disabled = true;
+    return;
+  }
+
+  const location = game.world.getLocation(taylor.locationId);
+  const place = (location?.places || []).find(
+    (candidate) => String(candidate.id) === String(taylor.currentPlaceId),
+  );
+  debugTaylorPosition.textContent = place
+    ? `${place.name}, ${location?.name || taylor.locationId}`
+    : location?.name || String(taylor.locationId);
+  debugTaylorGoal.textContent = taylor.brain?.currentGoal?.ruleId || "None";
+  debugTaylorAction.textContent = taylor.brain?.currentAction?.type || "None";
+}
+
 function render() {
   currentScene = buildScene(game);
   choiceButtons = [];
@@ -208,6 +240,7 @@ function render() {
   }
 
   if (currentScene.map) renderLocalMap(currentScene.map);
+  renderDebugPanel();
 }
 
 function choose(sceneId, choiceId) {
@@ -246,6 +279,21 @@ openMapButton.addEventListener("click", () => {
 closeMapButton.addEventListener("click", () => fullMapDialog.close());
 fullMapDialog.addEventListener("click", (event) => {
   if (event.target === fullMapDialog) fullMapDialog.close();
+});
+
+debugTeleportTaylorButton.addEventListener("click", () => {
+  try {
+    const result = teleportNPCToPlayer(game, "taylor", { stayMinutes: 30 });
+    const name = result.npc.meta?.shortName || result.npc.name;
+    noticeElement.textContent = result.busyWithObligation
+      ? `${name} was moved here, but is still committed to their obligation.`
+      : `${name} was moved here and will stay for up to 30 minutes.`;
+    noticeElement.className = "notice";
+  } catch (error) {
+    noticeElement.textContent = error.message;
+    noticeElement.className = "notice error";
+  }
+  render();
 });
 
 render();

@@ -71,7 +71,14 @@ check("the adapter exposes evaluated player stats", gameContext.player.energy ==
 check("the adapter exposes NPC pronouns", gameContext.npc.taylor.dependent === "her");
 check("the adapter exposes player-to-NPC relationship score", gameContext.npc.taylor.relationship === 0.6);
 check("the adapter exposes exact-position NPC presence", gameContext.npc.taylor.present === true);
+check("the adapter exposes NPC interaction availability", gameContext.npc.taylor.available === true);
 check("the adapter exposes active story flags", gameContext.flags["met-taylor"] === true);
+check(
+  "the adapter exposes world-clock condition fields",
+  gameContext.time.hour === 8 &&
+    gameContext.time.minute === 0 &&
+    gameContext.time.minutesSinceMidnight === 480,
+);
 
 if (failures.length) {
   console.error("\nWG expression evaluator failures:");

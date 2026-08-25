@@ -104,6 +104,8 @@ check("authored story state survives save/load", restored.story.daily?.taylorStu
 check("a restored active WG scene can be materialized", buildScene(restored).kind === "event");
 
 scene = buildScene(game);
+choose(game, scene, "continue");
+scene = buildScene(game);
 choose(game, scene, "leave");
 check("an @exit target closes the WG scene", game.currentStorySceneId === null);
 scene = buildScene(game);

@@ -840,9 +840,11 @@ function validateBrain(data, path, context) {
         if (goal) fail(actionPath, "an idle action cannot have a current goal");
         return;
     }
-    if (!goal) fail(actionPath, `${type} requires a current goal`);
 
-    if (type === NPC_ACTION_TYPE.stay) {
+    if (
+        type === NPC_ACTION_TYPE.stay ||
+        type === NPC_ACTION_TYPE.temporaryStay
+    ) {
         const until = dateMilliseconds(
             required(action, "until", actionPath),
             `${actionPath}.until`,
@@ -862,6 +864,13 @@ function validateBrain(data, path, context) {
         placeAt(context.mapIndex, locationId, placeId, `${actionPath}.placeId`);
         same(locationId, context.npc.locationId, `${actionPath}.locationId`, "the NPC location");
         same(placeId, context.npc.currentPlaceId, `${actionPath}.placeId`, "the NPC current place");
+
+        if (type === NPC_ACTION_TYPE.temporaryStay) {
+            if (goal) fail(actionPath, "a temporary stay cannot have a current goal");
+            return;
+        }
+
+        if (!goal) fail(actionPath, "stay requires a current goal");
         same(
             locationId,
             goal.targetLocationId,
@@ -871,6 +880,8 @@ function validateBrain(data, path, context) {
         same(placeId, goal.targetPlaceId, `${actionPath}.placeId`, "the current goal target place");
         return;
     }
+
+    if (!goal) fail(actionPath, `${type} requires a current goal`);
 
     const arrivalAt = dateMilliseconds(
         required(action, "arrivalAt", actionPath),

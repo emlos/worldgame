@@ -14,6 +14,7 @@ export const NPC_ACTION_TYPE = {
     idle: "idle",
     travel: "travel",
     stay: "stay",
+    temporaryStay: "temporary-stay",
 };
 
 //TODO: behavior preferences:

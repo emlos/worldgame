@@ -18,6 +18,16 @@ function playerContext(player) {
   };
 }
 
+function timeContext(date) {
+  const hour = date.getUTCHours();
+  const minute = date.getUTCMinutes();
+  return {
+    hour,
+    minute,
+    minutesSinceMidnight: hour * 60 + minute,
+  };
+}
+
 function npcContext(game, npc) {
   const shortName = npc.meta?.shortName || npc.name;
   return {
@@ -30,6 +40,7 @@ function npcContext(game, npc) {
     gender: npc.gender,
     relationship: game.player.getRelationship(npc.id).score,
     present: game.getNPCsAtCurrentPosition().includes(npc),
+    available: game.getNPCInteractionAccess(npc).allowed,
     flags: { ...(npc.flags || {}) },
   };
 }
@@ -46,5 +57,6 @@ export function createWGRuntimeContext(game) {
     player: playerContext(game.player),
     npc: npcs,
     flags,
+    time: timeContext(game.now),
   };
 }

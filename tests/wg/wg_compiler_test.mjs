@@ -450,13 +450,13 @@ check(
 
 check(
   "the committed example generated all linked passages",
-  Object.keys(WG_BUNDLE.scenes).join(",") ===
-    "taylor.study.back,taylor.study.mess,taylor.study.peek",
+  ["taylor.study.back", "taylor.study.mess", "taylor.study.peek"].every(
+    (sceneId) => WG_BUNDLE.scenes[sceneId],
+  ),
 );
 check(
   "the committed example generated its world entry",
-  Object.keys(WG_BUNDLE.entries).join(",") === "home.taylor-study" &&
-    WG_BUNDLE.entries["home.taylor-study"].sceneId === "taylor.study.peek",
+  WG_BUNDLE.entries["home.taylor-study"]?.sceneId === "taylor.study.peek",
 );
 
 let generatedCheckError = null;

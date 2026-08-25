@@ -3,6 +3,213 @@
 export const WG_BUNDLE = {
   "formatVersion": 2,
   "scenes": {
+    "home.random.forgotten-mug": {
+      "id": "home.random.forgotten-mug",
+      "kind": "event",
+      "heading": "An abandoned mug",
+      "choiceHeading": "Choices",
+      "tags": [
+        "event",
+        "home",
+        "random"
+      ],
+      "onEnter": [
+        {
+          "op": "set",
+          "path": [
+            "story",
+            "homeEvents",
+            "forgottenMugPlayed"
+          ],
+          "value": {
+            "type": "literal",
+            "value": true
+          },
+          "source": {
+            "file": "story/random-events.wg",
+            "line": 39,
+            "column": 1
+          }
+        }
+      ],
+      "body": [
+        {
+          "type": "paragraph",
+          "parts": [
+            {
+              "type": "text",
+              "value": "A half-finished mug of tea waits on the kitchen counter. It has gone completely cold, and you cannot remember leaving it there."
+            }
+          ],
+          "source": {
+            "file": "story/random-events.wg",
+            "line": 42,
+            "column": 1
+          }
+        },
+        {
+          "type": "choice",
+          "id": "next",
+          "label": "Next",
+          "target": "@exit",
+          "icon": null,
+          "durationMinutes": 0,
+          "when": null,
+          "requirements": [],
+          "warning": null,
+          "previews": [],
+          "effects": [],
+          "source": {
+            "file": "story/random-events.wg",
+            "line": 44,
+            "column": 1
+          }
+        }
+      ],
+      "source": {
+        "file": "story/random-events.wg",
+        "line": 35,
+        "column": 1
+      }
+    },
+    "home.random.late-breakfast": {
+      "id": "home.random.late-breakfast",
+      "kind": "event",
+      "heading": "The remains of breakfast",
+      "choiceHeading": "Choices",
+      "tags": [
+        "event",
+        "home",
+        "random"
+      ],
+      "onEnter": [
+        {
+          "op": "set",
+          "path": [
+            "story",
+            "homeEvents",
+            "lateBreakfastPlayed"
+          ],
+          "value": {
+            "type": "literal",
+            "value": true
+          },
+          "source": {
+            "file": "story/random-events.wg",
+            "line": 63,
+            "column": 1
+          }
+        }
+      ],
+      "body": [
+        {
+          "type": "paragraph",
+          "parts": [
+            {
+              "type": "text",
+              "value": "The kitchen still smells faintly of toast. A few crumbs remain on the table, catching the late-morning light."
+            }
+          ],
+          "source": {
+            "file": "story/random-events.wg",
+            "line": 66,
+            "column": 1
+          }
+        },
+        {
+          "type": "choice",
+          "id": "next",
+          "label": "Next",
+          "target": "@exit",
+          "icon": null,
+          "durationMinutes": 0,
+          "when": null,
+          "requirements": [],
+          "warning": null,
+          "previews": [],
+          "effects": [],
+          "source": {
+            "file": "story/random-events.wg",
+            "line": 68,
+            "column": 1
+          }
+        }
+      ],
+      "source": {
+        "file": "story/random-events.wg",
+        "line": 59,
+        "column": 1
+      }
+    },
+    "home.random.open-window": {
+      "id": "home.random.open-window",
+      "kind": "event",
+      "heading": "An open window",
+      "choiceHeading": "Choices",
+      "tags": [
+        "event",
+        "home",
+        "random"
+      ],
+      "onEnter": [
+        {
+          "op": "set",
+          "path": [
+            "story",
+            "homeEvents",
+            "openWindowPlayed"
+          ],
+          "value": {
+            "type": "literal",
+            "value": true
+          },
+          "source": {
+            "file": "story/random-events.wg",
+            "line": 51,
+            "column": 1
+          }
+        }
+      ],
+      "body": [
+        {
+          "type": "paragraph",
+          "parts": [
+            {
+              "type": "text",
+              "value": "One of the windows is cracked open. A faint breeze stirs the curtains and carries the distant noise of the street through the room."
+            }
+          ],
+          "source": {
+            "file": "story/random-events.wg",
+            "line": 54,
+            "column": 1
+          }
+        },
+        {
+          "type": "choice",
+          "id": "next",
+          "label": "Next",
+          "target": "@exit",
+          "icon": null,
+          "durationMinutes": 0,
+          "when": null,
+          "requirements": [],
+          "warning": null,
+          "previews": [],
+          "effects": [],
+          "source": {
+            "file": "story/random-events.wg",
+            "line": 56,
+            "column": 1
+          }
+        }
+      ],
+      "source": {
+        "file": "story/random-events.wg",
+        "line": 47,
+        "column": 1
+      }
+    },
     "taylor.study.back": {
       "id": "taylor.study.back",
       "kind": "event",
@@ -27,7 +234,7 @@ export const WG_BUNDLE = {
           },
           "source": {
             "file": "story/examples/taylor-study.wg",
-            "line": 51,
+            "line": 52,
             "column": 1
           }
         }
@@ -43,7 +250,7 @@ export const WG_BUNDLE = {
           ],
           "source": {
             "file": "story/examples/taylor-study.wg",
-            "line": 54,
+            "line": 55,
             "column": 1
           }
         },
@@ -61,32 +268,14 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/examples/taylor-study.wg",
-            "line": 56,
-            "column": 1
-          }
-        },
-        {
-          "type": "choice",
-          "id": "leave",
-          "label": "Leave",
-          "target": "@exit",
-          "icon": null,
-          "durationMinutes": 0,
-          "when": null,
-          "requirements": [],
-          "warning": null,
-          "previews": [],
-          "effects": [],
-          "source": {
-            "file": "story/examples/taylor-study.wg",
-            "line": 60,
+            "line": 57,
             "column": 1
           }
         }
       ],
       "source": {
         "file": "story/examples/taylor-study.wg",
-        "line": 47,
+        "line": 48,
         "column": 1
       }
     },
@@ -112,7 +301,7 @@ export const WG_BUNDLE = {
           ],
           "source": {
             "file": "story/examples/taylor-study.wg",
-            "line": 66,
+            "line": 64,
             "column": 1
           }
         },
@@ -134,14 +323,14 @@ export const WG_BUNDLE = {
               "amount": 0.02,
               "source": {
                 "file": "story/examples/taylor-study.wg",
-                "line": 69,
+                "line": 67,
                 "column": 1
               }
             }
           ],
           "source": {
             "file": "story/examples/taylor-study.wg",
-            "line": 68,
+            "line": 66,
             "column": 1
           }
         },
@@ -159,14 +348,14 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/examples/taylor-study.wg",
-            "line": 72,
+            "line": 70,
             "column": 1
           }
         }
       ],
       "source": {
         "file": "story/examples/taylor-study.wg",
-        "line": 63,
+        "line": 61,
         "column": 1
       }
     },
@@ -207,7 +396,7 @@ export const WG_BUNDLE = {
           ],
           "source": {
             "file": "story/examples/taylor-study.wg",
-            "line": 20,
+            "line": 21,
             "column": 1
           }
         },
@@ -242,14 +431,14 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/examples/taylor-study.wg",
-                    "line": 24,
+                    "line": 25,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/examples/taylor-study.wg",
-                "line": 23,
+                "line": 24,
                 "column": 1
               }
             },
@@ -281,14 +470,14 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/examples/taylor-study.wg",
-                    "line": 26,
+                    "line": 27,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/examples/taylor-study.wg",
-                "line": 25,
+                "line": 26,
                 "column": 1
               }
             }
@@ -304,14 +493,14 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/examples/taylor-study.wg",
-                "line": 28,
+                "line": 29,
                 "column": 1
               }
             }
           ],
           "source": {
             "file": "story/examples/taylor-study.wg",
-            "line": 23,
+            "line": 24,
             "column": 1
           }
         },
@@ -329,7 +518,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/examples/taylor-study.wg",
-            "line": 31,
+            "line": 32,
             "column": 1
           }
         },
@@ -350,7 +539,7 @@ export const WG_BUNDLE = {
               "label": "-Relationship",
               "source": {
                 "file": "story/examples/taylor-study.wg",
-                "line": 40,
+                "line": 41,
                 "column": 1
               }
             }
@@ -362,14 +551,14 @@ export const WG_BUNDLE = {
               "amount": -0.02,
               "source": {
                 "file": "story/examples/taylor-study.wg",
-                "line": 41,
+                "line": 42,
                 "column": 1
               }
             }
           ],
           "source": {
             "file": "story/examples/taylor-study.wg",
-            "line": 36,
+            "line": 37,
             "column": 1
           }
         },
@@ -387,19 +576,160 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/examples/taylor-study.wg",
-            "line": 44,
+            "line": 45,
             "column": 1
           }
         }
       ],
       "source": {
         "file": "story/examples/taylor-study.wg",
-        "line": 16,
+        "line": 17,
         "column": 1
       }
     }
   },
   "entries": {
+    "home.random.forgotten-mug": {
+      "id": "home.random.forgotten-mug",
+      "sceneId": "home.random.forgotten-mug",
+      "placeKeys": [
+        "player_home"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "offer": null,
+      "automaticTriggers": [
+        "enter-place"
+      ],
+      "conditions": [
+        {
+          "type": "unary",
+          "operator": "not",
+          "value": {
+            "type": "path",
+            "value": [
+              "story",
+              "homeEvents",
+              "forgottenMugPlayed"
+            ]
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/random-events.wg",
+        "line": 3,
+        "column": 1
+      }
+    },
+    "home.random.late-breakfast": {
+      "id": "home.random.late-breakfast",
+      "sceneId": "home.random.late-breakfast",
+      "placeKeys": [
+        "player_home"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "offer": null,
+      "automaticTriggers": [
+        "enter-place"
+      ],
+      "conditions": [
+        {
+          "type": "unary",
+          "operator": "not",
+          "value": {
+            "type": "path",
+            "value": [
+              "story",
+              "homeEvents",
+              "lateBreakfastPlayed"
+            ]
+          }
+        },
+        {
+          "type": "binary",
+          "operator": ">=",
+          "left": {
+            "type": "path",
+            "value": [
+              "time",
+              "minutesSinceMidnight"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": 600
+          }
+        },
+        {
+          "type": "binary",
+          "operator": "<=",
+          "left": {
+            "type": "path",
+            "value": [
+              "time",
+              "minutesSinceMidnight"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": 780
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/random-events.wg",
+        "line": 23,
+        "column": 1
+      }
+    },
+    "home.random.open-window": {
+      "id": "home.random.open-window",
+      "sceneId": "home.random.open-window",
+      "placeKeys": [
+        "player_home"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "offer": null,
+      "automaticTriggers": [
+        "enter-place"
+      ],
+      "conditions": [
+        {
+          "type": "unary",
+          "operator": "not",
+          "value": {
+            "type": "path",
+            "value": [
+              "story",
+              "homeEvents",
+              "openWindowPlayed"
+            ]
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/random-events.wg",
+        "line": 13,
+        "column": 1
+      }
+    },
     "home.taylor-study": {
       "id": "home.taylor-study",
       "sceneId": "taylor.study.peek",
@@ -421,6 +751,14 @@ export const WG_BUNDLE = {
             "npc",
             "taylor",
             "present"
+          ]
+        },
+        {
+          "type": "path",
+          "value": [
+            "npc",
+            "taylor",
+            "available"
           ]
         }
       ],

@@ -9,20 +9,49 @@
     />
     <title>Worldgame</title>
     <link rel="stylesheet" href="./src/ui/browser/styles.css" />
+    <script>
+      const debug = true;
+    </script>
   </head>
   <body>
-    <main class="game-shell">
-      <header class="topbar">
-        <div id="status"></div>
-        <div class="topbar-actions">
-          <button id="open-map" class="utility-button" type="button">Full map</button>
-          <button id="restart" class="utility-button" type="button">Restart</button>
-        </div>
-      </header>
+    <div class="app-layout">
+      <main class="game-shell">
+        <header class="topbar">
+          <div id="status"></div>
+          <div class="topbar-actions">
+            <button id="open-map" class="utility-button" type="button">Full map</button>
+            <button id="restart" class="utility-button" type="button">Restart</button>
+          </div>
+        </header>
 
-      <div id="notice" class="notice" aria-live="polite"></div>
-      <article id="scene"></article>
-    </main>
+        <div id="notice" class="notice" aria-live="polite"></div>
+        <article id="scene"></article>
+      </main>
+
+      <aside id="debug-panel" class="debug-panel" hidden>
+        <header class="debug-panel-header">
+          <h2>Debug</h2>
+          <span>development only</span>
+        </header>
+        <section class="debug-section">
+          <h3>Taylor</h3>
+          <button id="debug-teleport-taylor" class="debug-button" type="button">
+            Teleport to player
+          </button>
+          <p class="debug-help">
+            Taylor stays for 30 minutes unless an obligation requires them to leave.
+          </p>
+          <dl class="debug-state">
+            <dt>Position</dt>
+            <dd id="debug-taylor-position"></dd>
+            <dt>Goal</dt>
+            <dd id="debug-taylor-goal"></dd>
+            <dt>Action</dt>
+            <dd id="debug-taylor-action"></dd>
+          </dl>
+        </section>
+      </aside>
+    </div>
 
     <dialog id="full-map-dialog" class="map-dialog">
       <div class="map-dialog-content">

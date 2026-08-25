@@ -16,9 +16,21 @@ body {
   background: #111;
 }
 
-.game-shell {
+.app-layout {
   width: min(900px, calc(100% - 40px));
   margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.debug-enabled .app-layout {
+  width: min(1190px, calc(100% - 40px));
+  grid-template-columns: minmax(0, 900px) 260px;
+  gap: 30px;
+}
+
+.game-shell {
+  min-width: 0;
   padding: 24px 0 64px;
 }
 
@@ -293,9 +305,126 @@ p {
   font-size: 0.9rem;
 }
 
+.debug-panel {
+  position: sticky;
+  top: 20px;
+  align-self: start;
+  margin-top: 20px;
+  border: 1px solid #343b46;
+  border-radius: 8px;
+  padding: 16px;
+  background: #15191f;
+  color: #c7cbd1;
+}
+
+.debug-panel[hidden] {
+  display: none;
+}
+
+.debug-panel-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #303640;
+}
+
+.debug-panel h2,
+.debug-panel h3 {
+  margin: 0;
+}
+
+.debug-panel-header h2 {
+  color: #f2c14e;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.debug-panel-header span {
+  color: #848b96;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+}
+
+.debug-section {
+  margin-top: 16px;
+}
+
+.debug-section h3 {
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+}
+
+.debug-button {
+  width: 100%;
+  border: 1px solid #5c6776;
+  border-radius: 5px;
+  padding: 8px 10px;
+  background: #242b35;
+  color: #ececec;
+  font: inherit;
+  cursor: pointer;
+}
+
+.debug-button:hover,
+.debug-button:focus-visible {
+  border-color: #f2c14e;
+  background: #303947;
+}
+
+.debug-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.debug-help {
+  margin: 9px 0 14px;
+  color: #9299a4;
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.debug-state {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 6px 10px;
+  margin: 0;
+  font-size: 0.78rem;
+}
+
+.debug-state dt {
+  color: #858d99;
+}
+
+.debug-state dd {
+  overflow-wrap: anywhere;
+  margin: 0;
+  color: #d8dbe0;
+  text-align: right;
+}
+
+@media (max-width: 1000px) {
+  .debug-enabled .app-layout {
+    width: min(900px, calc(100% - 40px));
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+
+  .debug-panel {
+    position: static;
+    grid-row: 1;
+    margin-bottom: 0;
+  }
+}
+
 @media (max-width: 560px) {
-  .game-shell {
+  .app-layout,
+  .debug-enabled .app-layout {
     width: min(100% - 24px, 900px);
+  }
+
+  .game-shell {
     padding-top: 16px;
   }
 

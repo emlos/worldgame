@@ -71,9 +71,8 @@ function conditionsPass(entry, context) {
   );
 }
 
-function npcIsPresent(game, npcId) {
-  const npc = game.npcs.get(String(npcId));
-  return Boolean(npc && game.getNPCsAtCurrentPosition().includes(npc));
+function npcIsAvailable(game, npcId) {
+  return game.getNPCInteractionAccess(String(npcId)).allowed;
 }
 
 export function getWGOfferEntries(
@@ -90,7 +89,7 @@ export function getWGOfferEntries(
     if (type === WG_OFFER_TYPE.place && !game.currentPlace) return false;
     if (type === WG_OFFER_TYPE.npc) {
       const offeredNpcId = String(entry.offer.npcId);
-      if (offeredNpcId !== String(npcId) || !npcIsPresent(game, offeredNpcId)) {
+      if (offeredNpcId !== String(npcId) || !npcIsAvailable(game, offeredNpcId)) {
         return false;
       }
     }

@@ -319,6 +319,27 @@ export class Game {
         );
     }
 
+    /** Resolve whether an NPC can stop for an interaction right now. */
+    getNPCInteractionAccess(npcOrId) {
+        const npc =
+            npcOrId && typeof npcOrId === "object"
+                ? npcOrId
+                : this.npcs.get(String(npcOrId));
+        if (!npc || this.npcs.get(String(npc.id)) !== npc) {
+            return { allowed: false, code: "unknown-npc", npc: null };
+        }
+
+        if (!this.getNPCsAtCurrentPosition().includes(npc)) {
+            return { allowed: false, code: "not-here", npc };
+        }
+
+        if (npc.brain?.isBusyWithObligation) {
+            return { allowed: false, code: "busy-obligation", npc };
+        }
+
+        return { allowed: true, code: "allowed", npc };
+    }
+
     /** Resolve whether the player may enter a place at a specific time. */
     getPlaceAccess(placeOrId, { at = this.now } = {}) {
         if (!(at instanceof Date) || !Number.isFinite(at.getTime())) {

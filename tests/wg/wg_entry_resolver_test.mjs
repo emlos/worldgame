@@ -1,4 +1,5 @@
 import { Game } from "../../src/classes/game/game.js";
+import { teleportNPCToPlayer } from "../../src/classes/game/debugCommands.js";
 import {
   CHOICE_ERROR_CODE,
   performChoice,
@@ -257,6 +258,27 @@ check(
 );
 delete WG_BUNDLE.entries["test.npc-offer"];
 
+const busyOfferGame = new Game({
+  seed: 117,
+  startDate: new Date("2026-08-24T08:45:00.000Z"),
+  playerOptions: { startPlaceId: null },
+});
+teleportNPCToPlayer(busyOfferGame, "taylor");
+const busyNpcOffers = getWGOfferEntries(busyOfferGame, {
+  type: WG_OFFER_TYPE.npc,
+  npcId: "taylor",
+  entries: [
+    entry("test.busy-npc-offer", {
+      offer: { type: "npc", npcId: "taylor" },
+      label: "Talk with Taylor",
+    }),
+  ],
+});
+check(
+  "NPC entry launchers are hidden while the NPC has an obligation",
+  busyNpcOffers.length === 0,
+);
+
 const travelGame = new Game({
   seed: 803,
   startDate: START,
@@ -287,6 +309,11 @@ const finalPositionGame = new Game({
 });
 const finalTaylor = finalPositionGame.npcs.get("taylor");
 finalTaylor.setLocationAndPlace(finalPositionGame.homeLocationId, finalPositionGame.homePlaceId);
+finalPositionGame.story.homeEvents = {
+  forgottenMugPlayed: true,
+  openWindowPlayed: true,
+  lateBreakfastPlayed: true,
+};
 const removeTimeListener = finalPositionGame.on("time", () => {
   finalTaylor.setLocationAndPlace(finalTaylor.homeLocationId, finalTaylor.homePlaceId);
 });

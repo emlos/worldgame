@@ -109,4 +109,8 @@ export const SCENE_TEXT = Object.freeze({
   greetResult(npcName) {
     return `You say hello to ${npcName}.`;
   },
+
+  busyGreetResult(npcName) {
+    return `“Sorry, I'm busy,” ${npcName} says, continuing on their errand.`;
+  },
 });

@@ -22,6 +22,7 @@ triggers:
   @icon 📚
   @auto enter-place
   @when npc.taylor.present
+  @when npc.taylor.available
   @priority 10
   @chance 100%
   @weight 1
@@ -108,9 +109,12 @@ Expressions compile to data ASTs. WG never emits or evaluates authored
 JavaScript.
 
 Runtime paths currently expose `story.*`, evaluated `player` stats and
-pronouns, `npc.<id>` identity/pronouns/relationship/presence, and active game
-flags through `flags.<id>`. A missing path evaluates to `undefined`, which is
-false in conditions; interpolating a missing path is a runtime error.
+pronouns, `npc.<id>` identity/pronouns/relationship/presence/availability,
+active game flags through `flags.<id>`, and the world clock through `time.hour`,
+`time.minute`, and `time.minutesSinceMidnight`. Clock fields use the same UTC
+world time shown by the game interface. A missing path evaluates to
+`undefined`, which is false in conditions; interpolating a missing path is a
+runtime error.
 
 ## Choices
 

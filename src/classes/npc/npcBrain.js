@@ -102,6 +102,58 @@ export class NPCBrain {
         return Array.isArray(this.behavior?.goals) ? this.behavior.goals : [];
     }
 
+    get isBusyWithObligation() {
+        return this.currentGoal?.type === GOAL_TYPE.obligation;
+    }
+
+    /**
+     * Move the NPC to a temporary position without discarding obligations.
+     * Discretionary schedules resume after the stay, while an obligation is
+     * replanned from the new position and may require an immediate departure.
+     */
+    relocateTemporarily(
+        game,
+        { locationId, placeId = null, stayMinutes = 30, at = game?.now } = {},
+    ) {
+        const now = asDate(at);
+        const duration = Number(stayMinutes);
+        if (!now) throw new Error(`Invalid NPC relocation date: ${at}`);
+        if (locationId == null) throw new Error("NPC relocation requires a locationId");
+        if (!Number.isFinite(duration) || duration <= 0) {
+            throw new Error("NPC relocation stayMinutes must be a positive number");
+        }
+
+        this.updateTo(now, game);
+        const busyWithObligation = this.isBusyWithObligation;
+        this.npc.setLocationAndPlace(String(locationId), placeId ?? null);
+        this.lastUpdatedAt = now;
+
+        if (busyWithObligation) {
+            this._replanCurrentObligation(now, game);
+        } else {
+            const until = addMinutes(now, duration);
+            this.currentGoal = null;
+            this.currentAction = {
+                type: NPC_ACTION_TYPE.temporaryStay,
+                startedAt: now.toISOString(),
+                until: until.toISOString(),
+                locationId: String(locationId),
+                placeId: placeId ?? null,
+            };
+
+            // A temporary relocation should survive ordinary rule boundaries,
+            // but an obligation departure may still interrupt it.
+            this.nextDecisionAt =
+                minDate(until, this._findNextObligationDeparture(now, game)) || until;
+        }
+
+        return {
+            busyWithObligation,
+            currentAction: this.currentAction?.type ?? null,
+            nextDecisionAt: this.nextDecisionAt?.toISOString?.() ?? null,
+        };
+    }
+
     initialize(game, at = game?.now) {
         const now = asDate(at);
         if (!now) return;
@@ -431,6 +483,82 @@ export class NPCBrain {
         };
     }
 
+    _replanCurrentObligation(at, game) {
+        const goal = this.currentGoal;
+        const rule = goal ? this._findRule(goal.ruleId) : null;
+        if (!goal || rule?.type !== GOAL_TYPE.obligation) {
+            this.currentGoal = null;
+            this.currentAction = null;
+            this._decideAt(at, game);
+            return;
+        }
+
+        const target = {
+            locationId: goal.targetLocationId,
+            placeId: goal.targetPlaceId ?? null,
+        };
+        const atTarget =
+            String(this.npc.locationId) === String(target.locationId) &&
+            String(this.npc.currentPlaceId ?? "") === String(target.placeId ?? "");
+        if (atTarget) {
+            this._startStay(goal, rule, at, game);
+            this._scheduleNextWake(at, game);
+            return;
+        }
+
+        const route = game?.world?.map?.getTravelTotal(
+            this.npc.locationId,
+            target.locationId,
+        );
+        const travelMinutes = Number(route?.minutes);
+        if (!route || !Number.isFinite(travelMinutes)) {
+            this.currentGoal = null;
+            this.currentAction = {
+                type: NPC_ACTION_TYPE.idle,
+                startedAt: at.toISOString(),
+            };
+            this._scheduleNextWake(at, game);
+            return;
+        }
+
+        if (travelMinutes <= 0) {
+            this.npc.setLocationAndPlace(target.locationId, target.placeId);
+            this._startStay(goal, rule, at, game);
+            this._scheduleNextWake(at, game);
+            return;
+        }
+
+        const windowStart = asDate(goal.windowStart);
+        const requiredDeparture = windowStart
+            ? addMinutes(windowStart, -travelMinutes)
+            : at;
+        const departureAt = requiredDeparture > at ? requiredDeparture : at;
+        const arrivalAt = addMinutes(departureAt, travelMinutes);
+        const legMinutes = (route.edges || []).map((edge) =>
+            Number.isFinite(edge?.minutes) ? edge.minutes : 1,
+        );
+
+        this.currentAction = {
+            type: NPC_ACTION_TYPE.travel,
+            startedAt: departureAt.toISOString(),
+            arrivalAt: arrivalAt.toISOString(),
+            fromLocationId: String(this.npc.locationId),
+            targetLocationId: String(target.locationId),
+            targetPlaceId: target.placeId,
+            route: {
+                locations: (route.locations || []).map(String),
+                legMinutes,
+                currentLegIndex: 0,
+            },
+        };
+
+        if (departureAt <= at) this.npc.currentPlaceId = null;
+        this._scheduleNextWake(at, game);
+        if (departureAt > at && departureAt < this.nextDecisionAt) {
+            this.nextDecisionAt = departureAt;
+        }
+    }
+
     _startStay(goal, rule, at, game) {
         if (!goal || !rule) return;
 
@@ -477,6 +605,10 @@ export class NPCBrain {
         const arrival = asDate(action.arrivalAt);
         if (!start || !arrival) return;
 
+        // A future obligation trip can be planned before the NPC actually
+        // leaves. Keep their exact position until the departure timestamp.
+        if (at < start) return;
+
         if (at >= arrival) {
             this.npc.setLocationAndPlace(action.targetLocationId, action.targetPlaceId);
             if (action.route) {
@@ -522,7 +654,10 @@ export class NPCBrain {
             return;
         }
 
-        if (this.currentAction.type === NPC_ACTION_TYPE.stay) {
+        if (
+            this.currentAction.type === NPC_ACTION_TYPE.stay ||
+            this.currentAction.type === NPC_ACTION_TYPE.temporaryStay
+        ) {
             const until = asDate(this.currentAction.until);
             if (until && at >= until) {
                 this.currentAction = null;
@@ -592,7 +727,8 @@ export class NPCBrain {
         const actionEnd =
             this.currentAction?.type === NPC_ACTION_TYPE.travel
                 ? asDate(this.currentAction.arrivalAt)
-                : this.currentAction?.type === NPC_ACTION_TYPE.stay
+                : this.currentAction?.type === NPC_ACTION_TYPE.stay ||
+                    this.currentAction?.type === NPC_ACTION_TYPE.temporaryStay
                   ? asDate(this.currentAction.until)
                   : null;
 
