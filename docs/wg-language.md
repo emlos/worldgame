@@ -20,12 +20,9 @@ triggers:
   @offer place
   @label "Study with Taylor"
   @icon 📚
-  @auto enter-place
+  @hub-text "Taylor is sitting at the table with a textbook and a loose stack of notes."
   @when npc.taylor.present
   @when npc.taylor.available
-  @priority 10
-  @chance 100%
-  @weight 1
 @endentry
 ```
 
@@ -34,6 +31,8 @@ triggers:
 - `@offer place` adds a choice to the current place's “Things to do” section.
 - `@offer npc <id>` adds a choice beside that NPC's interactions and implicitly
   requires the NPC to be at the player's exact position.
+- `@hub-text "..."` adds an authored paragraph to the ordinary place hub while
+  that offered entry is eligible. It does not appear inside the event passage.
 - `@auto enter-place` and `@auto enter-location` participate in automatic
   post-arrival selection. Both may be declared on one entry.
 - Repeated `@place-key`, `@place-tag`, and `@location-tag` selectors are ORed

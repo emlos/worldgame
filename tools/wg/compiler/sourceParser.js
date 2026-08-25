@@ -527,6 +527,7 @@ function parseEntryBlock(file, lines, startIndex) {
     conditions: [],
     label: null,
     icon: null,
+    hubText: null,
     priority: 0,
     chance: 1,
     weight: 1,
@@ -561,7 +562,11 @@ function parseEntryBlock(file, lines, startIndex) {
     const name = directiveName(text);
     if (!name) failWG("Entry blocks may contain only entry directives", location);
 
-    if (["scene", "offer", "label", "icon", "priority", "chance", "weight"].includes(name)) {
+    if (
+      ["scene", "offer", "label", "icon", "hub-text", "priority", "chance", "weight"].includes(
+        name,
+      )
+    ) {
       if (singleFields.has(name)) failWG(`Duplicate @${name}`, location);
       singleFields.add(name);
     }
@@ -614,6 +619,12 @@ function parseEntryBlock(file, lines, startIndex) {
       entry.icon = value.startsWith('"')
         ? parseQuotedString(value, location, "Entry icon")
         : value;
+    } else if (name === "hub-text") {
+      entry.hubText = parseQuotedString(
+        directiveArgument(text, "hub-text", location),
+        location,
+        "Entry hub text",
+      );
     } else if (name === "priority") {
       const value = directiveArgument(text, "priority", location);
       if (!/^[+-]?\d+$/.test(value) || !Number.isSafeInteger(Number(value))) {

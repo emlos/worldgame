@@ -146,9 +146,13 @@ function buildPlaceScene(game) {
   const place = game.currentPlace;
   const location = game.location;
   const people = game.getNPCsAtCurrentPosition();
-  const events = getWGOfferEntries(game, {
+  const eventEntries = getWGOfferEntries(game, {
     type: WG_OFFER_TYPE.place,
-  }).map(entryChoice);
+  });
+  const events = eventEntries.map(entryChoice);
+  const hubText = eventEntries
+    .map((entry) => entry.hubText)
+    .filter((text) => typeof text === "string" && text);
 
   return {
     id: `place:${place.id}:${game.now.toISOString()}`,
@@ -159,6 +163,7 @@ function buildPlaceScene(game) {
     paragraphs: [
       SCENE_TEXT.placeIntroduction(place.name, location.name),
       stablePick(PLACE_DESCRIPTIONS, game, `place:${place.id}`),
+      ...hubText,
     ],
     sections: [
       {

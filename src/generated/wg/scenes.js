@@ -234,7 +234,7 @@ export const WG_BUNDLE = {
           },
           "source": {
             "file": "story/examples/taylor-study.wg",
-            "line": 52,
+            "line": 49,
             "column": 1
           }
         }
@@ -250,7 +250,7 @@ export const WG_BUNDLE = {
           ],
           "source": {
             "file": "story/examples/taylor-study.wg",
-            "line": 55,
+            "line": 52,
             "column": 1
           }
         },
@@ -268,14 +268,14 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/examples/taylor-study.wg",
-            "line": 57,
+            "line": 54,
             "column": 1
           }
         }
       ],
       "source": {
         "file": "story/examples/taylor-study.wg",
-        "line": 48,
+        "line": 45,
         "column": 1
       }
     },
@@ -301,7 +301,7 @@ export const WG_BUNDLE = {
           ],
           "source": {
             "file": "story/examples/taylor-study.wg",
-            "line": 64,
+            "line": 61,
             "column": 1
           }
         },
@@ -323,14 +323,14 @@ export const WG_BUNDLE = {
               "amount": 0.02,
               "source": {
                 "file": "story/examples/taylor-study.wg",
-                "line": 67,
+                "line": 64,
                 "column": 1
               }
             }
           ],
           "source": {
             "file": "story/examples/taylor-study.wg",
-            "line": 66,
+            "line": 63,
             "column": 1
           }
         },
@@ -348,21 +348,21 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/examples/taylor-study.wg",
-            "line": 70,
+            "line": 67,
             "column": 1
           }
         }
       ],
       "source": {
         "file": "story/examples/taylor-study.wg",
-        "line": 61,
+        "line": 58,
         "column": 1
       }
     },
     "taylor.study.peek": {
       "id": "taylor.study.peek",
       "kind": "event",
-      "heading": "Taylor's room",
+      "heading": "Studying with Taylor",
       "choiceHeading": "What do you do?",
       "tags": [
         "event",
@@ -396,7 +396,7 @@ export const WG_BUNDLE = {
           ],
           "source": {
             "file": "story/examples/taylor-study.wg",
-            "line": 21,
+            "line": 18,
             "column": 1
           }
         },
@@ -431,14 +431,14 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/examples/taylor-study.wg",
-                    "line": 25,
+                    "line": 22,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/examples/taylor-study.wg",
-                "line": 24,
+                "line": 21,
                 "column": 1
               }
             },
@@ -470,14 +470,14 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/examples/taylor-study.wg",
-                    "line": 27,
+                    "line": 24,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/examples/taylor-study.wg",
-                "line": 26,
+                "line": 23,
                 "column": 1
               }
             }
@@ -493,14 +493,14 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/examples/taylor-study.wg",
-                "line": 29,
+                "line": 26,
                 "column": 1
               }
             }
           ],
           "source": {
             "file": "story/examples/taylor-study.wg",
-            "line": 24,
+            "line": 21,
             "column": 1
           }
         },
@@ -518,7 +518,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/examples/taylor-study.wg",
-            "line": 32,
+            "line": 29,
             "column": 1
           }
         },
@@ -539,7 +539,7 @@ export const WG_BUNDLE = {
               "label": "-Relationship",
               "source": {
                 "file": "story/examples/taylor-study.wg",
-                "line": 41,
+                "line": 38,
                 "column": 1
               }
             }
@@ -551,14 +551,14 @@ export const WG_BUNDLE = {
               "amount": -0.02,
               "source": {
                 "file": "story/examples/taylor-study.wg",
-                "line": 42,
+                "line": 39,
                 "column": 1
               }
             }
           ],
           "source": {
             "file": "story/examples/taylor-study.wg",
-            "line": 37,
+            "line": 34,
             "column": 1
           }
         },
@@ -576,14 +576,14 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/examples/taylor-study.wg",
-            "line": 45,
+            "line": 42,
             "column": 1
           }
         }
       ],
       "source": {
         "file": "story/examples/taylor-study.wg",
-        "line": 17,
+        "line": 14,
         "column": 1
       }
     }
@@ -617,6 +617,7 @@ export const WG_BUNDLE = {
       ],
       "label": null,
       "icon": null,
+      "hubText": null,
       "priority": 0,
       "chance": 1,
       "weight": 1,
@@ -684,6 +685,7 @@ export const WG_BUNDLE = {
       ],
       "label": null,
       "icon": null,
+      "hubText": null,
       "priority": 0,
       "chance": 1,
       "weight": 1,
@@ -721,6 +723,7 @@ export const WG_BUNDLE = {
       ],
       "label": null,
       "icon": null,
+      "hubText": null,
       "priority": 0,
       "chance": 1,
       "weight": 1,
@@ -741,9 +744,7 @@ export const WG_BUNDLE = {
       "offer": {
         "type": "place"
       },
-      "automaticTriggers": [
-        "enter-place"
-      ],
+      "automaticTriggers": [],
       "conditions": [
         {
           "type": "path",
@@ -764,7 +765,8 @@ export const WG_BUNDLE = {
       ],
       "label": "Study with Taylor",
       "icon": "📚",
-      "priority": 10,
+      "hubText": "Taylor is sitting at the table with a textbook and a loose stack of notes.",
+      "priority": 0,
       "chance": 1,
       "weight": 1,
       "source": {

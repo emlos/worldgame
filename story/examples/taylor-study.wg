@@ -6,16 +6,13 @@
   @offer place
   @label "Study with Taylor"
   @icon 📚
-  @auto enter-place
+  @hub-text "Taylor is sitting at the table with a textbook and a loose stack of notes."
   @when npc.taylor.present
   @when npc.taylor.available
-  @priority 10
-  @chance 100%
-  @weight 1
 @endentry
 
 :: taylor.study.peek [event taylor study]
-@heading "Taylor's room"
+@heading "Studying with Taylor"
 @choices "What do you do?"
 
 Tired of studying, you're unable to resist stealing a glance at Taylor.

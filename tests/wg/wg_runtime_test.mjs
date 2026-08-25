@@ -32,6 +32,11 @@ const game = new Game({
   npcTemplates: [{ ...taylorTemplate, behavior: null }],
 });
 game.player.setStatBase("energy", 20);
+game.story.homeEvents = {
+  forgottenMugPlayed: true,
+  openWindowPlayed: true,
+  lateBreakfastPlayed: true,
+};
 const taylor = game.npcs.get("taylor");
 taylor.setLocationAndPlace(game.homeLocationId, game.homePlaceId);
 
@@ -47,7 +52,23 @@ check("the location scene offers entry to the player's home", Boolean(enterHome)
 choose(game, scene, enterHome.id);
 
 scene = buildScene(game);
-check("entering the player's home activates the Taylor WG scene", game.currentStorySceneId === "taylor.study.peek");
+check("entering the player's home does not activate the Taylor WG scene", game.currentStorySceneId === null);
+check("the ordinary home hub remains active", scene.kind === "place");
+check(
+  "Taylor's eligible entry contributes authored home flavor text",
+  scene.paragraphs.includes(
+    "Taylor is sitting at the table with a textbook and a loose stack of notes.",
+  ),
+);
+const initialTaylorLauncher = findChoice(scene, "entry:home.taylor-study");
+check(
+  "the home hub offers the deliberate Taylor study launcher",
+  initialTaylorLauncher?.label === "Study with Taylor",
+);
+choose(game, scene, initialTaylorLauncher.id);
+
+scene = buildScene(game);
+check("the launcher activates the Taylor WG scene", game.currentStorySceneId === "taylor.study.peek");
 check("the active WG definition materializes as an event Scene", scene.kind === "event");
 check("interpolation resolves and capitalizes Taylor's pronoun", scene.paragraphs[0].includes("Her gaze"));
 check("the false conditional branch supplies its prose", scene.paragraphs.includes("Taylor remains focused on the textbook."));
@@ -129,7 +150,14 @@ const reenterHome = scene.sections
       String(choice.action.placeId) === String(game.homePlaceId),
   );
 choose(game, scene, reenterHome.id);
-check("every later entry to the player's home triggers the scene again", game.currentStorySceneId === "taylor.study.peek");
+check("later home entries also remain on the hub", game.currentStorySceneId === null);
+scene = buildScene(game);
+check(
+  "later home hubs still expose Taylor's presence and launcher",
+  scene.paragraphs.includes(
+    "Taylor is sitting at the table with a textbook and a loose stack of notes.",
+  ) && findChoice(scene, "entry:home.taylor-study")?.label === "Study with Taylor",
+);
 
 if (failures.length) {
   console.error("\nWG runtime failures:");

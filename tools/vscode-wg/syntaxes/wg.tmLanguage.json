@@ -100,7 +100,7 @@
       "patterns": [
         {
           "name": "meta.property.directive.wg",
-          "begin": "^(\\s*)(@(kind|heading|choices|scene|place-key|place-tag|location-tag|offer|label|icon|auto|priority|chance|weight|time|warning|preview))\\b",
+          "begin": "^(\\s*)(@(kind|heading|choices|scene|place-key|place-tag|location-tag|offer|label|icon|hub-text|auto|priority|chance|weight|time|warning|preview))\\b",
           "beginCaptures": { "2": { "name": "keyword.other.directive.wg" } },
           "end": "$",
           "patterns": [{ "include": "#expression" }]

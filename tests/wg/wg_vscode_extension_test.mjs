@@ -57,6 +57,7 @@ test("WG TextMate grammar contains valid regular expressions and core syntax", a
   for (const line of [
     "@place-key player_home",
     "@offer npc taylor",
+    '@hub-text "Taylor waits beside the table."',
     "@auto enter-place",
   ]) {
     assert.match(line, firstPattern("property-directives", "begin"));

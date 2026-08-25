@@ -75,6 +75,7 @@ const SAMPLE_SOURCE = `@# leading comment
   @offer npc taylor
   @label "Spend time with Taylor"
   @icon "📚"
+  @hub-text "Taylor waits beside the table."
   @auto enter-place
   @auto enter-location
   @when true
@@ -147,6 +148,7 @@ check(
     sampleEntry.locationTags.join(",") === "residential" &&
     sampleEntry.offer.type === "npc" &&
     sampleEntry.offer.npcId === "taylor" &&
+    sampleEntry.hubText === "Taylor waits beside the table." &&
     sampleEntry.automaticTriggers.join(",") === "enter-place,enter-location",
 );
 check(
