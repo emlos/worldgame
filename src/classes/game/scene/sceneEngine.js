@@ -4,7 +4,14 @@ import {
   PLACE_DESCRIPTIONS,
   SCENE_TEXT,
 } from "../../../content/scene/genericText.js";
-import { SCENE_ACTION_TYPE } from "../../../data/scene/actions.js";
+import {
+  DEFAULT_NPC_INTERACTION_MINUTES,
+  SCENE_ACTION_TYPE,
+} from "../../../data/scene/actions.js";
+import {
+  PLACE_ENTER_MINUTES,
+  PLACE_LEAVE_MINUTES,
+} from "../../../data/world/travel.js";
 import { buildLocalMapView } from "./mapView.js";
 import { buildSceneStatus } from "./sceneContext.js";
 import { createChoice } from "./choiceContract.js";
@@ -15,8 +22,6 @@ import {
 } from "./wg/entryResolver.js";
 import { materializeWGScene } from "./wg/sceneMaterializer.js";
 import { getWGScene } from "./wg/storyRuntime.js";
-
-const ENTER_PLACE_MINUTES = 2;
 
 function stablePick(lines, game, key) {
   const index = Math.floor(keyedRandom01(game.seed, key) * lines.length);
@@ -29,7 +34,7 @@ function personChoice(npc) {
     id: `greet:${npc.id}`,
     icon: "👋",
     label: SCENE_TEXT.greetChoice(npcName),
-    durationMinutes: 5,
+    durationMinutes: DEFAULT_NPC_INTERACTION_MINUTES,
     effectsPreview: [
       {
         type: "relationship",
@@ -75,13 +80,13 @@ function buildLocationScene(game) {
 
   const places = location.places.map((place) => {
     const access = game.getPlaceAccess(place, {
-      at: new Date(game.now.getTime() + ENTER_PLACE_MINUTES * 60_000),
+      at: new Date(game.now.getTime() + PLACE_ENTER_MINUTES * 60_000),
     });
     return createChoice({
       id: `enter:${place.id}`,
       icon: place.props?.icon || "▣",
       label: place.name,
-      durationMinutes: ENTER_PLACE_MINUTES,
+      durationMinutes: PLACE_ENTER_MINUTES,
       enabled: access.allowed,
       disabledReason: SCENE_TEXT.placeAccess(access, game.currentPlace?.name),
       action: { type: SCENE_ACTION_TYPE.enter, placeId: place.id },
@@ -184,7 +189,7 @@ function buildPlaceScene(game) {
             id: "leave",
             icon: "🚪",
             label: SCENE_TEXT.leaveChoice,
-            durationMinutes: 1,
+            durationMinutes: PLACE_LEAVE_MINUTES,
             action: { type: SCENE_ACTION_TYPE.leave },
           }),
         ],

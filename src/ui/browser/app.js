@@ -149,13 +149,16 @@ function makeChoiceButton(sceneId, choice, number) {
   text.className = "choice-label";
   text.textContent = `(${number}) ${choice.label}`;
 
-  const duration = document.createElement("span");
-  duration.className = "choice-duration";
-  duration.textContent = `(${formatDuration(choice.durationMinutes || 0)})`;
+  let duration;
+  if (choice.durationMinutes > 0) {
+    duration = document.createElement("span");
+    duration.className = "choice-duration";
+    duration.textContent = `(${formatDuration(choice.durationMinutes)})`;
+  }
 
   const details = document.createElement("span");
   details.className = "choice-details";
-  details.append(duration);
+  if (duration) details.append(duration);
 
   for (const cost of choice.costs) {
     details.append(

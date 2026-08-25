@@ -2,11 +2,11 @@ import { parseTimeToMinutes } from "../../shared/util/date.js";
 import { deriveSeed, makeRNG, randInt, weightedPick } from "../../shared/util/random.js";
 import { GOAL_TYPE, TARGET_TYPE, NPC_ACTION_TYPE } from "../../data/npc/behavior.js";
 import { DAY_KEYS, MS_PER_MINUTE, MS_PER_DAY } from "../../data/world/time.js";
+import { getPlaceTransitionMinutes } from "../../data/world/travel.js";
 
 const EPSILON_MS = 1;
 const MAX_DECISIONS_PER_UPDATE = 100_000;
 
-//TODO: allow npc's to decline interaction when they are busy with a goal (e.g. traveling, staying at a place, etc..) AND will be late to their next obligation
 //TODO: make npc's leave for their next obligation so that they arrive 5-30m before the obligation starts, so that they can loiter around the location for a bit before their obligation starts
 
 //TODO: move to shared/util/date.js
@@ -104,6 +104,48 @@ export class NPCBrain {
 
     get isBusyWithObligation() {
         return this.currentGoal?.type === GOAL_TYPE.obligation;
+    }
+
+    getInteractionObligationConflict(
+        game,
+        { at = game?.now, durationMinutes = 0 } = {},
+    ) {
+        const now = asDate(at);
+        const duration = Number(durationMinutes);
+        if (!now) throw new TypeError("NPC interaction access requires a valid date");
+        if (!Number.isFinite(duration) || duration < 0) {
+            throw new TypeError("NPC interaction duration must be a non-negative number");
+        }
+
+        const commitment = this._findNextHigherPriorityObligation(
+            now,
+            -Infinity,
+            this.npc.locationId,
+            this.npc.currentPlaceId,
+            game,
+        );
+        if (!commitment) return null;
+
+        const interactionEndsAt = addMinutes(now, duration);
+        const projectedArrivalAt = addMinutes(
+            interactionEndsAt,
+            commitment.travelMinutes,
+        );
+        if (projectedArrivalAt <= commitment.interval.start) return null;
+
+        return {
+            ruleId: String(commitment.rule.id),
+            startsAt: commitment.interval.start.toISOString(),
+            targetLocationId: commitment.target.locationId,
+            targetPlaceId: commitment.target.placeId ?? null,
+            travelMinutes: commitment.travelMinutes,
+            interactionEndsAt: interactionEndsAt.toISOString(),
+            latestDepartureAt: addMinutes(
+                commitment.interval.start,
+                -commitment.travelMinutes,
+            ).toISOString(),
+            projectedArrivalAt: projectedArrivalAt.toISOString(),
+        };
     }
 
     /**
@@ -396,6 +438,7 @@ export class NPCBrain {
             at,
             candidate.priority,
             target.locationId,
+            target.placeId,
             game,
         );
         if (!commitment) return true;
@@ -446,41 +489,75 @@ export class NPCBrain {
         this._startStay(goal, rule, at, game);
     }
 
-    _startTravel(goal, target, at, game) {
-        const route = game?.world?.map?.getTravelTotal(this.npc.locationId, target.locationId);
-        const minutes = route?.minutes;
+    _getTravelPlan(
+        target,
+        game,
+        {
+            originLocationId = this.npc.locationId,
+            originPlaceId = this.npc.currentPlaceId,
+        } = {},
+    ) {
+        const route = game?.world?.map?.getTravelTotal(originLocationId, target.locationId);
+        const routeMinutes = Number(route?.minutes);
+        if (!route || !Number.isFinite(routeMinutes)) return null;
 
-        if (!route || !Number.isFinite(minutes)) {
+        const transition = getPlaceTransitionMinutes({
+            fromLocationId: originLocationId,
+            fromPlaceId: originPlaceId,
+            targetLocationId: target.locationId,
+            targetPlaceId: target.placeId,
+        });
+        return {
+            route,
+            routeMinutes,
+            leavePlaceMinutes: transition.leaveMinutes,
+            enterPlaceMinutes: transition.enterMinutes,
+            totalMinutes: routeMinutes + transition.totalMinutes,
+            fromLocationId: String(originLocationId),
+            fromPlaceId: originPlaceId ?? null,
+        };
+    }
+
+    _makeTravelAction(plan, target, startedAt) {
+        const legMinutes = (plan.route.edges || []).map((edge) =>
+            Number.isFinite(edge?.minutes) ? edge.minutes : 1,
+        );
+        return {
+            type: NPC_ACTION_TYPE.travel,
+            startedAt: startedAt.toISOString(),
+            arrivalAt: addMinutes(startedAt, plan.totalMinutes).toISOString(),
+            fromLocationId: plan.fromLocationId,
+            fromPlaceId: plan.fromPlaceId,
+            targetLocationId: String(target.locationId),
+            targetPlaceId: target.placeId ?? null,
+            leavePlaceMinutes: plan.leavePlaceMinutes,
+            enterPlaceMinutes: plan.enterPlaceMinutes,
+            route: {
+                locations: (plan.route.locations || []).map(String),
+                legMinutes,
+                currentLegIndex: 0,
+            },
+        };
+    }
+
+    _startTravel(goal, target, at, game) {
+        const plan = this._getTravelPlan(target, game);
+
+        if (!plan) {
             this.currentGoal = null;
             this.currentAction = { type: NPC_ACTION_TYPE.idle, startedAt: at.toISOString() };
             return;
         }
 
-        if (minutes <= 0) {
+        if (plan.totalMinutes <= 0) {
             this.npc.setLocationAndPlace(target.locationId, target.placeId);
             const rule = this._findRule(goal.ruleId);
             this._startStay(goal, rule, at, game);
             return;
         }
 
-        this.npc.currentPlaceId = null;
-        const legMinutes = (route.edges || []).map((edge) =>
-            Number.isFinite(edge?.minutes) ? edge.minutes : 1,
-        );
-
-        this.currentAction = {
-            type: NPC_ACTION_TYPE.travel,
-            startedAt: at.toISOString(),
-            arrivalAt: addMinutes(at, minutes).toISOString(),
-            fromLocationId: String(this.npc.locationId),
-            targetLocationId: String(target.locationId),
-            targetPlaceId: target.placeId ?? null,
-            route: {
-                locations: (route.locations || []).map(String),
-                legMinutes,
-                currentLegIndex: 0,
-            },
-        };
+        this.currentAction = this._makeTravelAction(plan, target, at);
+        this._advanceActionTo(at);
     }
 
     _replanCurrentObligation(at, game) {
@@ -506,12 +583,8 @@ export class NPCBrain {
             return;
         }
 
-        const route = game?.world?.map?.getTravelTotal(
-            this.npc.locationId,
-            target.locationId,
-        );
-        const travelMinutes = Number(route?.minutes);
-        if (!route || !Number.isFinite(travelMinutes)) {
+        const plan = this._getTravelPlan(target, game);
+        if (!plan) {
             this.currentGoal = null;
             this.currentAction = {
                 type: NPC_ACTION_TYPE.idle,
@@ -521,7 +594,7 @@ export class NPCBrain {
             return;
         }
 
-        if (travelMinutes <= 0) {
+        if (plan.totalMinutes <= 0) {
             this.npc.setLocationAndPlace(target.locationId, target.placeId);
             this._startStay(goal, rule, at, game);
             this._scheduleNextWake(at, game);
@@ -530,29 +603,11 @@ export class NPCBrain {
 
         const windowStart = asDate(goal.windowStart);
         const requiredDeparture = windowStart
-            ? addMinutes(windowStart, -travelMinutes)
+            ? addMinutes(windowStart, -plan.totalMinutes)
             : at;
         const departureAt = requiredDeparture > at ? requiredDeparture : at;
-        const arrivalAt = addMinutes(departureAt, travelMinutes);
-        const legMinutes = (route.edges || []).map((edge) =>
-            Number.isFinite(edge?.minutes) ? edge.minutes : 1,
-        );
-
-        this.currentAction = {
-            type: NPC_ACTION_TYPE.travel,
-            startedAt: departureAt.toISOString(),
-            arrivalAt: arrivalAt.toISOString(),
-            fromLocationId: String(this.npc.locationId),
-            targetLocationId: String(target.locationId),
-            targetPlaceId: target.placeId,
-            route: {
-                locations: (route.locations || []).map(String),
-                legMinutes,
-                currentLegIndex: 0,
-            },
-        };
-
-        if (departureAt <= at) this.npc.currentPlaceId = null;
+        this.currentAction = this._makeTravelAction(plan, target, departureAt);
+        this._advanceActionTo(at);
         this._scheduleNextWake(at, game);
         if (departureAt > at && departureAt < this.nextDecisionAt) {
             this.nextDecisionAt = departureAt;
@@ -621,6 +676,14 @@ export class NPCBrain {
         }
 
         const elapsed = Math.max(0, (at.getTime() - start.getTime()) / MS_PER_MINUTE);
+        const leavePlaceMinutes = Math.max(0, Number(action.leavePlaceMinutes) || 0);
+        if (elapsed < leavePlaceMinutes) {
+            this.npc.setLocationAndPlace(action.fromLocationId, action.fromPlaceId ?? null);
+            action.route.currentLegIndex = 0;
+            return;
+        }
+
+        const routeElapsed = elapsed - leavePlaceMinutes;
         const locations = action.route?.locations || [];
         const legMinutes = action.route?.legMinutes || [];
         let cumulative = 0;
@@ -628,7 +691,7 @@ export class NPCBrain {
 
         for (let i = 0; i < legMinutes.length; i++) {
             cumulative += legMinutes[i];
-            if (elapsed >= cumulative) currentIndex = i + 1;
+            if (routeElapsed >= cumulative) currentIndex = i + 1;
             else break;
         }
 
@@ -690,10 +753,7 @@ export class NPCBrain {
             const target = this._resolveTarget(rule, at, game, { deterministic: true });
             if (!target) continue;
 
-            const travelMinutes = game?.world?.map?.getTravelMinutes(
-                this.npc.locationId,
-                target.locationId,
-            );
+            const travelMinutes = Number(target.travelMinutes);
             if (!Number.isFinite(travelMinutes)) continue;
 
             const departureAt = addMinutes(upcoming.start, -travelMinutes);
@@ -812,10 +872,7 @@ export class NPCBrain {
                 const target = this._resolveTarget(rule, at, game, { deterministic: true });
                 if (!target) continue;
 
-                const travelMinutes = game?.world?.map?.getTravelMinutes(
-                    this.npc.locationId,
-                    target.locationId,
-                );
+                const travelMinutes = Number(target.travelMinutes);
                 if (!Number.isFinite(travelMinutes)) continue;
 
                 const departureAt = addMinutes(interval.start, -travelMinutes);
@@ -827,7 +884,13 @@ export class NPCBrain {
         return best;
     }
 
-    _findNextHigherPriorityObligation(at, currentPriority, originLocationId, game) {
+    _findNextHigherPriorityObligation(
+        at,
+        currentPriority,
+        originLocationId,
+        originPlaceId,
+        game,
+    ) {
         let best = null;
 
         for (const rule of this.rules.filter((candidate) => candidate.type === GOAL_TYPE.obligation)) {
@@ -840,6 +903,7 @@ export class NPCBrain {
                 const target = this._resolveTarget(rule, at, game, {
                     deterministic: true,
                     originLocationId,
+                    originPlaceId,
                 });
                 if (!target || !Number.isFinite(target.travelMinutes)) continue;
 
@@ -876,25 +940,37 @@ export class NPCBrain {
         {
             deterministic = false,
             originLocationId = this.npc.locationId,
+            originPlaceId = this.npc.currentPlaceId,
             targetFilter = null,
         } = {},
     ) {
         if (rule.type === GOAL_TYPE.home) {
             if (this.npc.homeLocationId == null) return null;
+            const locationId = String(this.npc.homeLocationId);
+            const placeId = this.npc.homePlaceId ?? null;
+            const routeMinutes = game?.world?.map?.getTravelMinutes(
+                originLocationId,
+                locationId,
+            );
+            if (!Number.isFinite(routeMinutes)) return null;
+            const transition = getPlaceTransitionMinutes({
+                fromLocationId: originLocationId,
+                fromPlaceId: originPlaceId,
+                targetLocationId: locationId,
+                targetPlaceId: placeId,
+            });
             const target = {
-                locationId: String(this.npc.homeLocationId),
-                placeId: this.npc.homePlaceId ?? null,
-                travelMinutes: game?.world?.map?.getTravelMinutes(
-                    originLocationId,
-                    this.npc.homeLocationId,
-                ),
+                locationId,
+                placeId,
+                travelMinutes: routeMinutes + transition.totalMinutes,
             };
             return !targetFilter || targetFilter(target) ? target : null;
         }
 
-        const candidates = this._collectPlaceCandidates(rule, at, game, { originLocationId }).filter(
-            (candidate) => !targetFilter || targetFilter(candidate),
-        );
+        const candidates = this._collectPlaceCandidates(rule, at, game, {
+            originLocationId,
+            originPlaceId,
+        }).filter((candidate) => !targetFilter || targetFilter(candidate));
         if (!candidates.length) return null;
 
         const targetDescriptors = [rule.target, ...(rule.targets || [])].filter(Boolean);
@@ -920,7 +996,10 @@ export class NPCBrain {
         rule,
         at,
         game,
-        { originLocationId = this.npc.locationId } = {},
+        {
+            originLocationId = this.npc.locationId,
+            originPlaceId = this.npc.currentPlaceId,
+        } = {},
     ) {
         const descriptors = [rule.target, ...(rule.targets || [])].filter(Boolean);
         const disallowed = Array.isArray(rule.disallowedTargets) ? rule.disallowedTargets : [];
@@ -937,8 +1016,15 @@ export class NPCBrain {
                     continue;
                 }
 
-                const travelMinutes = worldMap.getTravelMinutes(originLocationId, location.id);
-                if (!Number.isFinite(travelMinutes)) continue;
+                const routeMinutes = worldMap.getTravelMinutes(originLocationId, location.id);
+                if (!Number.isFinite(routeMinutes)) continue;
+                const transition = getPlaceTransitionMinutes({
+                    fromLocationId: originLocationId,
+                    fromPlaceId: originPlaceId,
+                    targetLocationId: location.id,
+                    targetPlaceId: place.id,
+                });
+                const travelMinutes = routeMinutes + transition.totalMinutes;
 
                 const arrivalAt = addMinutes(at, travelMinutes);
                 const activeInterval = this._findContainingInterval(rule, at, game);

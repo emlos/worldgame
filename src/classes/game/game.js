@@ -5,6 +5,7 @@ import { NPC } from "../npc/npc.js";
 import { RandomStreams, deriveSeed, normalizeSeed, rollSeed } from "../../shared/util/random.js";
 import { PLACE_TAGS } from "../../data/world/place.js";
 import { NPC_REGISTRY } from "../../data/npc/npcs.js";
+import { DEFAULT_NPC_INTERACTION_MINUTES } from "../../data/scene/actions.js";
 import { SaveValidationError, validateGameSave } from "./util/saveValidation.js";
 
 export { SaveValidationError, validateGameSave };
@@ -320,7 +321,22 @@ export class Game {
     }
 
     /** Resolve whether an NPC can stop for an interaction right now. */
-    getNPCInteractionAccess(npcOrId) {
+    getNPCInteractionAccess(
+        npcOrId,
+        {
+            at = this.now,
+            durationMinutes = DEFAULT_NPC_INTERACTION_MINUTES,
+        } = {},
+    ) {
+        const date = at instanceof Date ? new Date(at.getTime()) : new Date(at);
+        const duration = Number(durationMinutes);
+        if (!Number.isFinite(date.getTime())) {
+            throw new TypeError("NPC interaction access requires a valid date");
+        }
+        if (!Number.isFinite(duration) || duration < 0) {
+            throw new TypeError("NPC interaction duration must be a non-negative number");
+        }
+
         const npc =
             npcOrId && typeof npcOrId === "object"
                 ? npcOrId
@@ -335,6 +351,19 @@ export class Game {
 
         if (npc.brain?.isBusyWithObligation) {
             return { allowed: false, code: "busy-obligation", npc };
+        }
+
+        const conflict = npc.brain?.getInteractionObligationConflict?.(this, {
+            at: date,
+            durationMinutes: duration,
+        });
+        if (conflict) {
+            return {
+                allowed: false,
+                code: "obligation-deadline",
+                npc,
+                conflict,
+            };
         }
 
         return { allowed: true, code: "allowed", npc };

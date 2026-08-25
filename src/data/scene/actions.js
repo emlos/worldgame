@@ -6,3 +6,5 @@ export const SCENE_ACTION_TYPE = Object.freeze({
   greet: "greet",
   wg: "wg",
 });
+
+export const DEFAULT_NPC_INTERACTION_MINUTES = 5;

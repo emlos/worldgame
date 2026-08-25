@@ -4,6 +4,10 @@ import { RANDOM_HOLIDAYS, MONTH_DAYS, DayKind } from "../../../data/world/calend
 import { DAY_KEYS } from "../../../data/world/time.js";
 import { WeatherType } from "../../../data/world/weather.js";
 import { PLAYER_TEMPERATURE_VALUES } from "../../../data/player/stats.js";
+import {
+    PLACE_ENTER_MINUTES,
+    PLACE_LEAVE_MINUTES,
+} from "../../../data/world/travel.js";
 import { Weather } from "../../world/util/weather.js";
 
 const UINT32_MAX = 0xffffffff;
@@ -845,9 +849,10 @@ function validateBrain(data, path, context) {
         required(action, "startedAt", actionPath),
         `${actionPath}.startedAt`,
     );
-    if (startedAt > context.gameTime) fail(`${actionPath}.startedAt`, "cannot be in the future");
-
     if (type === NPC_ACTION_TYPE.idle) {
+        if (startedAt > context.gameTime) {
+            fail(`${actionPath}.startedAt`, "cannot be in the future");
+        }
         if (goal) fail(actionPath, "an idle action cannot have a current goal");
         return;
     }
@@ -856,6 +861,9 @@ function validateBrain(data, path, context) {
         type === NPC_ACTION_TYPE.stay ||
         type === NPC_ACTION_TYPE.temporaryStay
     ) {
+        if (startedAt > context.gameTime) {
+            fail(`${actionPath}.startedAt`, "cannot be in the future");
+        }
         const until = dateMilliseconds(
             required(action, "until", actionPath),
             `${actionPath}.until`,
@@ -905,6 +913,10 @@ function validateBrain(data, path, context) {
         `${actionPath}.fromLocationId`,
         { nonEmpty: true },
     );
+    const fromPlaceId = optionalNullableString(
+        required(action, "fromPlaceId", actionPath),
+        `${actionPath}.fromPlaceId`,
+    );
     const targetLocationId = string(
         required(action, "targetLocationId", actionPath),
         `${actionPath}.targetLocationId`,
@@ -914,7 +926,7 @@ function validateBrain(data, path, context) {
         required(action, "targetPlaceId", actionPath),
         `${actionPath}.targetPlaceId`,
     );
-    placeAt(context.mapIndex, fromLocationId, null, `${actionPath}.fromLocationId`);
+    placeAt(context.mapIndex, fromLocationId, fromPlaceId, `${actionPath}.fromPlaceId`);
     placeAt(context.mapIndex, targetLocationId, targetPlaceId, `${actionPath}.targetPlaceId`);
     same(
         targetLocationId,
@@ -928,16 +940,36 @@ function validateBrain(data, path, context) {
         `${actionPath}.targetPlaceId`,
         "the current goal target place",
     );
-    if (context.npc.currentPlaceId !== null)
-        fail(`${context.path}.currentPlaceId`, "must be null while traveling");
+    const leavePlaceMinutes = finiteNumber(
+        required(action, "leavePlaceMinutes", actionPath),
+        `${actionPath}.leavePlaceMinutes`,
+        { min: 0 },
+    );
+    const enterPlaceMinutes = finiteNumber(
+        required(action, "enterPlaceMinutes", actionPath),
+        `${actionPath}.enterPlaceMinutes`,
+        { min: 0 },
+    );
+    same(
+        leavePlaceMinutes,
+        fromPlaceId == null ? 0 : PLACE_LEAVE_MINUTES,
+        `${actionPath}.leavePlaceMinutes`,
+        "the shared place-leaving cost",
+    );
+    same(
+        enterPlaceMinutes,
+        targetPlaceId == null ? 0 : PLACE_ENTER_MINUTES,
+        `${actionPath}.enterPlaceMinutes`,
+        "the shared place-entering cost",
+    );
 
     const route = record(required(action, "route", actionPath), `${actionPath}.route`);
     const locations = array(
         required(route, "locations", `${actionPath}.route`),
         `${actionPath}.route.locations`,
     );
-    if (locations.length < 2)
-        fail(`${actionPath}.route.locations`, "must contain at least two locations");
+    if (locations.length < 1)
+        fail(`${actionPath}.route.locations`, "must contain at least one location");
     locations.forEach((locationId, index) => {
         const id = string(locationId, `${actionPath}.route.locations[${index}]`, {
             nonEmpty: true,
@@ -985,9 +1017,9 @@ function validateBrain(data, path, context) {
     });
     same(
         arrivalAt - startedAt,
-        totalMinutes * 60 * 1000,
+        (leavePlaceMinutes + totalMinutes + enterPlaceMinutes) * 60 * 1000,
         `${actionPath}.arrivalAt`,
-        "the route duration",
+        "the route and place-transition duration",
     );
 
     const currentLegIndex = integer(
@@ -1001,6 +1033,17 @@ function validateBrain(data, path, context) {
         `${context.path}.locationId`,
         "the route's current leg",
     );
+    const leaveCompletesAt = startedAt + leavePlaceMinutes * 60 * 1000;
+    if (context.gameTime < leaveCompletesAt) {
+        same(
+            context.npc.currentPlaceId,
+            fromPlaceId,
+            `${context.path}.currentPlaceId`,
+            "the travel origin before leaving completes",
+        );
+    } else if (context.npc.currentPlaceId !== null) {
+        fail(`${context.path}.currentPlaceId`, "must be null after leaving while traveling");
+    }
 }
 
 function validateNPC(data, path, context) {

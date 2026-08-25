@@ -111,7 +111,7 @@ check(
 );
 check(
     "planner wakes at the obligation departure time",
-    brain.nextDecisionAt?.toISOString() === "2026-08-24T10:50:00.000Z",
+    brain.nextDecisionAt?.toISOString() === "2026-08-24T10:48:00.000Z",
 );
 
 brain.updateTo(new Date("2026-08-24T11:00:00.000Z"), controlledGame);

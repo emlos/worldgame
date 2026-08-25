@@ -355,10 +355,15 @@ rejects(
         npc.brain.currentAction = {
             type: "travel",
             startedAt,
-            arrivalAt: new Date(Date.parse(startedAt) + edge.minutes * 60_000).toISOString(),
+            arrivalAt: new Date(
+                Date.parse(startedAt) + (edge.minutes + 2) * 60_000,
+            ).toISOString(),
             fromLocationId,
+            fromPlaceId: null,
             targetLocationId,
             targetPlaceId: npc.brain.currentGoal.targetPlaceId,
+            leavePlaceMinutes: 0,
+            enterPlaceMinutes: 2,
             route: {
                 locations: [fromLocationId, "missing-location"],
                 legMinutes: [edge.minutes],

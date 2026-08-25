@@ -151,7 +151,7 @@ function performLoiter(game, _choice, minutes) {
 
 function performGreet(game, choice, minutes) {
   const npc = game.npcs.get(String(choice.action.npcId));
-  const access = game.getNPCInteractionAccess(npc);
+  const access = game.getNPCInteractionAccess(npc, { durationMinutes: minutes });
   if (access.code === "not-here" || access.code === "unknown-npc") {
     fail(
       CHOICE_ERROR_CODE.invalidAction,
