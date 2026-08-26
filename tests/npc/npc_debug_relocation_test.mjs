@@ -67,26 +67,47 @@ check(
     loadedFreeGame.now.toISOString() === "2026-08-24T08:06:00.000Z",
 );
 
-const temporaryStayInterruptedAt = new Date(freeTaylor.brain.nextDecisionAt);
+const noSchoolStayEndsAt = new Date(freeTaylor.brain.nextDecisionAt);
 freeGame.advanceMinutes(
-  (temporaryStayInterruptedAt.getTime() - freeGame.now.getTime()) / 60_000 - 1,
+  (noSchoolStayEndsAt.getTime() - freeGame.now.getTime()) / 60_000 - 1,
 );
 check(
-  "temporary relocation remains in force before the obligation departure",
+  "temporary relocation remains in force on a no-school morning",
   freeTaylor.brain.currentAction?.type === NPC_ACTION_TYPE.temporaryStay &&
     !freeTaylor.brain.isBusyWithObligation,
 );
 freeGame.advanceMinutes(1);
 check(
-  "an early obligation departure interrupts the temporary relocation",
+  "a no-school temporary relocation expires without creating an obligation",
   freeTaylor.brain.currentAction?.type !== NPC_ACTION_TYPE.temporaryStay &&
-    freeTaylor.brain.currentGoal?.type === "obligation" &&
-    freeTaylor.brain.nextDecisionAt > freeGame.now,
+    !freeTaylor.brain.isBusyWithObligation,
+);
+
+const schoolDepartureGame = new Game({
+  seed: 117,
+  startDate: new Date("2026-09-02T07:30:00.000Z"),
+});
+const schoolDepartureTaylor = schoolDepartureGame.npcs.get("taylor");
+teleportNPCToPlayer(schoolDepartureGame, "taylor");
+const schoolDepartureAt = new Date(schoolDepartureTaylor.brain.nextDecisionAt);
+schoolDepartureGame.advanceMinutes(
+  (schoolDepartureAt.getTime() - schoolDepartureGame.now.getTime()) / 60_000 - 1,
+);
+check(
+  "temporary relocation remains in force before a school departure",
+  schoolDepartureTaylor.brain.currentAction?.type === NPC_ACTION_TYPE.temporaryStay &&
+    !schoolDepartureTaylor.brain.isBusyWithObligation,
+);
+schoolDepartureGame.advanceMinutes(1);
+check(
+  "a school departure interrupts the temporary relocation",
+  schoolDepartureTaylor.brain.currentAction?.type !== NPC_ACTION_TYPE.temporaryStay &&
+    schoolDepartureTaylor.brain.currentGoal?.ruleId === "school",
 );
 
 const busyGame = new Game({
   seed: 117,
-  startDate: new Date("2026-08-24T08:45:00.000Z"),
+  startDate: new Date("2026-09-02T08:45:00.000Z"),
   playerOptions: { startPlaceId: null },
 });
 const busyTaylor = busyGame.npcs.get("taylor");

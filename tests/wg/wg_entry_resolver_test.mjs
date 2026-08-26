@@ -260,7 +260,7 @@ delete WG_BUNDLE.entries["test.npc-offer"];
 
 const busyOfferGame = new Game({
   seed: 117,
-  startDate: new Date("2026-08-24T08:45:00.000Z"),
+  startDate: new Date("2026-09-02T08:45:00.000Z"),
   playerOptions: { startPlaceId: null },
 });
 teleportNPCToPlayer(busyOfferGame, "taylor");

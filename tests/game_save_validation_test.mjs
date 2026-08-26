@@ -424,6 +424,15 @@ rejects(
     "save.npcs[0].body",
 );
 rejects(
+    "NPC school-day conditions must be boolean",
+    (save) => {
+        const taylor = save.npcs.find((npc) => npc.id === "taylor");
+        const school = taylor.behavior.goals.find((goal) => goal.id === "school");
+        school.when.schoolDay = "yes";
+    },
+    ".when.schoolDay",
+);
+rejects(
     "body health outside its valid range is rejected",
     (save) => {
         const part = save.npcs[0].body.parts[0];

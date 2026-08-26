@@ -29,7 +29,7 @@ for (const definition of NPC_REGISTRY) {
 
 const defaultGame = new Game({
     seed: 101,
-    startDate: new Date("2026-01-05T12:00:00.000Z"),
+    startDate: new Date("2026-01-12T12:00:00.000Z"),
 });
 const expectedDefaultIds = NPC_REGISTRY.filter((definition) => !definition.meta?.example).map(
     (definition) => definition.id,
@@ -74,7 +74,7 @@ const exampleDefinition = NPC_REGISTRY.find((definition) => definition.meta?.exa
 if (exampleDefinition) {
     const explicitExampleGame = new Game({
         seed: 202,
-        startDate: new Date("2026-01-05T12:00:00.000Z"),
+        startDate: new Date("2026-01-12T12:00:00.000Z"),
         npcTemplates: [exampleDefinition],
     });
     check(

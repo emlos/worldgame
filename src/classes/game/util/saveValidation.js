@@ -746,6 +746,9 @@ function validateBehavior(data, path) {
         const when = record(required(rule, "when", rulePath), `${rulePath}.when`);
         strictTime(required(when, "from", `${rulePath}.when`), `${rulePath}.when.from`);
         strictTime(required(when, "to", `${rulePath}.when`), `${rulePath}.when.to`);
+        if (Object.prototype.hasOwnProperty.call(when, "schoolDay")) {
+            boolean(when.schoolDay, `${rulePath}.when.schoolDay`);
+        }
         if (Object.prototype.hasOwnProperty.call(when, "dayKinds")) {
             array(when.dayKinds, `${rulePath}.when.dayKinds`).forEach((value, dayIndex) => {
                 if (!DAY_KINDS.has(value))

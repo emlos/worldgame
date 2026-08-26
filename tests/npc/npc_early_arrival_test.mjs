@@ -11,12 +11,12 @@ const check = (label, condition) => {
   }
 };
 
-const START = new Date("2026-08-24T08:00:00.000Z");
+const START = new Date("2026-09-02T07:30:00.000Z");
 const makeGame = () => new Game({ seed: 117, startDate: START });
 const largeStep = makeGame();
 const minuteSteps = makeGame();
-largeStep.advanceMinutes(45);
-for (let minute = 0; minute < 45; minute++) minuteSteps.advanceMinutes(1);
+largeStep.advanceMinutes(40);
+for (let minute = 0; minute < 40; minute++) minuteSteps.advanceMinutes(1);
 
 const taylor = largeStep.npcs.get("taylor");
 const minuteTaylor = minuteSteps.npcs.get("taylor");
@@ -60,7 +60,7 @@ check(
   JSON.stringify(loaded.npcs.get("taylor")) === JSON.stringify(taylor),
 );
 
-largeStep.advanceMinutes(15);
+largeStep.advanceMinutes(5);
 check(
   "the early phase becomes active when school begins",
   taylor.brain.getScheduleStatus(largeStep.now).phase === NPC_SCHEDULE_PHASE.active,

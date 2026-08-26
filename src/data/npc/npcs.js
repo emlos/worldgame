@@ -1,5 +1,6 @@
 import { Gender, PronounSets } from "../../shared/classes/pronouns.js";
 import { HUMAN_BODY_TEMPLATE } from "../../shared/classes/body.js";
+import { SCHOOL_DAY_END, SCHOOL_DAY_START } from "../player/schedule.js";
 import { DayKind } from "../world/calendar.js";
 import { DAY_KEYS } from "../world/time.js";
 import { PLACE_TAGS } from "../world/place.js";
@@ -55,9 +56,9 @@ export const NPC_REGISTRY = [
                     type: GOAL_TYPE.obligation,
                     priority: 100,
                     when: {
-                        dayKinds: [DayKind.WORKDAY],
-                        from: "09:00",
-                        to: "15:00",
+                        schoolDay: true,
+                        from: SCHOOL_DAY_START,
+                        to: SCHOOL_DAY_END,
                     },
                     target: {
                         type: TARGET_TYPE.placeKeys,
@@ -71,8 +72,8 @@ export const NPC_REGISTRY = [
                     priority: 30,
                     weight: 70,
                     when: {
-                        dayKinds: [DayKind.WORKDAY],
-                        from: "15:00",
+                        schoolDay: true,
+                        from: SCHOOL_DAY_END,
                         to: "22:00",
                     },
                     stayMinutes: { min: 20, max: 120 },
@@ -100,18 +101,18 @@ export const NPC_REGISTRY = [
                     priority: 30,
                     weight: 30,
                     when: {
-                        dayKinds: [DayKind.WORKDAY],
-                        from: "15:00",
+                        schoolDay: true,
+                        from: SCHOOL_DAY_END,
                         to: "22:00",
                     },
                 },
                 {
-                    id: "day_off_activity",
+                    id: "no_school_activity",
                     type: GOAL_TYPE.visit,
                     priority: 30,
                     weight: 80,
                     when: {
-                        dayKinds: [DayKind.DAY_OFF],
+                        schoolDay: false,
                         from: "06:00",
                         to: "22:00",
                     },
@@ -141,12 +142,12 @@ export const NPC_REGISTRY = [
                     requireOpen: true,
                 },
                 {
-                    id: "stay_home_day_off",
+                    id: "stay_home_no_school",
                     type: GOAL_TYPE.home,
                     priority: 30,
                     weight: 20,
                     when: {
-                        dayKinds: [DayKind.DAY_OFF],
+                        schoolDay: false,
                         from: "06:00",
                         to: "22:00",
                     },
