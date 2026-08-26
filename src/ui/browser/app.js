@@ -170,6 +170,20 @@ function makeChoiceButton(sceneId, choice, number) {
       makeChoiceDetail("choice-effect", formatDescriptor(effect, "effect")),
     );
   }
+  for (const change of choice.skillChanges) {
+    const className = change.direction === "increase"
+      ? "choice-skill-increase"
+      : "choice-skill-decrease";
+    details.append(makeChoiceDetail(className, change.label));
+  }
+  if (choice.skillCheck) {
+    details.append(
+      makeChoiceDetail(
+        "choice-skill-check",
+        choice.skillCheck.skillLabel + ": " + choice.skillCheck.difficultyLabel,
+      ),
+    );
+  }
   if (choice.warning) {
     details.append(makeChoiceDetail("choice-warning", `⚠ ${choice.warning}`));
   }

@@ -5,11 +5,15 @@ import {
   applyWGEffects,
   exitWGScene,
   followWGChoice,
+  followWGOutcome,
 } from "./wg/storyRuntime.js";
 import {
   resolveWGAutomaticEntry,
   WG_AUTO_TRIGGER,
 } from "./wg/entryResolver.js";
+import { calculateSkillCheckChance } from "../../../data/scene/skillChecks.js";
+import { SKILLS } from "../../../data/player/stats.js";
+import { keyedRandom01 } from "../../../shared/util/random.js";
 
 export const CHOICE_ERROR_CODE = Object.freeze({
   invalidRequest: "invalid-request",
@@ -193,6 +197,82 @@ function performWG(game, choice, minutes) {
   return "Continue.";
 }
 
+function outcomeMinutes(choice, outcome, result) {
+  const minutes = Number(outcome?.durationMinutes ?? 0);
+  if (!Number.isFinite(minutes) || minutes < 0) {
+    fail(
+      CHOICE_ERROR_CODE.invalidAction,
+      "Choice '" + choice.id + "' has an invalid " + result + " duration",
+    );
+  }
+  return minutes;
+}
+
+function performSkillCheck(game, choice, _minutes, scene) {
+  const check = choice.action.check;
+  const definition = SKILLS[check.skillId];
+  if (!definition) {
+    fail(
+      CHOICE_ERROR_CODE.invalidAction,
+      "Unknown player skill '" + String(check.skillId) + "'",
+    );
+  }
+
+  let chance;
+  try {
+    chance = calculateSkillCheckChance(
+      game.player.getSkillValue(check.skillId),
+      check.difficultyId,
+      definition,
+    );
+  } catch (error) {
+    fail(CHOICE_ERROR_CODE.invalidAction, error.message);
+  }
+
+  const roll = keyedRandom01(
+    game.seed,
+    [
+      "skill-check-v1",
+      game.actionRevision,
+      scene.id,
+      choice.id,
+    ].join(":"),
+  );
+  const result = roll < chance ? "success" : "failure";
+  const outcome = choice.action.outcomes?.[result];
+  if (!outcome) {
+    fail(
+      CHOICE_ERROR_CODE.invalidAction,
+      "Choice '" + choice.id + "' has no " + result + " outcome",
+    );
+  }
+  const minutes = outcomeMinutes(choice, outcome, result);
+
+  if (outcome.target === "@leave-place") {
+    return performLeave(
+      game,
+      {
+        ...choice,
+        action: {
+          type: SCENE_ACTION_TYPE.leave,
+          effects: outcome.effects,
+          exitStory: true,
+        },
+      },
+      minutes,
+    );
+  }
+
+  game.runAction({
+    label: choice.label,
+    minutes,
+    apply(currentGame) {
+      followWGOutcome(currentGame, outcome);
+    },
+  });
+  return "Continue.";
+}
+
 const ACTION_HANDLERS = Object.freeze({
   [SCENE_ACTION_TYPE.travel]: performTravel,
   [SCENE_ACTION_TYPE.enter]: performEnter,
@@ -200,6 +280,7 @@ const ACTION_HANDLERS = Object.freeze({
   [SCENE_ACTION_TYPE.loiter]: performLoiter,
   [SCENE_ACTION_TYPE.greet]: performGreet,
   [SCENE_ACTION_TYPE.wg]: performWG,
+  [SCENE_ACTION_TYPE.skillCheck]: performSkillCheck,
 });
 
 export function performChoice(game, request) {
@@ -237,5 +318,5 @@ export function performChoice(game, request) {
     );
   }
 
-  return handler(game, choice, choiceMinutes(choice));
+  return handler(game, choice, choiceMinutes(choice), scene);
 }

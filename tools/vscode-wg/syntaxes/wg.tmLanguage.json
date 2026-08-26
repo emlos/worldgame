@@ -8,6 +8,7 @@
     { "include": "#scene-header" },
     { "include": "#entry-header" },
     { "include": "#choice-header" },
+    { "include": "#outcome-header" },
     { "include": "#condition-directives" },
     { "include": "#effect-directives" },
     { "include": "#property-directives" },
@@ -60,13 +61,26 @@
       "patterns": [
         {
           "name": "meta.choice.header.wg",
-          "match": "^(\\s*)(@choice)\\s+([a-z0-9_][a-z0-9_.-]*)\\s+(\"(?:\\\\.|[^\"\\\\])*\")\\s+(->)\\s+(@exit|@leave-place|[a-z0-9_][a-z0-9_.-]*)\\s*$",
+          "match": "^(\\s*)(@choice)\\s+([a-z0-9_][a-z0-9_.-]*)\\s+(\"(?:\\\\.|[^\"\\\\])*\")(?:\\s+(->)\\s+(@exit|@leave-place|[a-z0-9_][a-z0-9_.-]*))?\\s*$",
           "captures": {
             "2": { "name": "keyword.control.block.begin.wg" },
             "3": { "name": "entity.name.function.choice.wg" },
             "4": { "name": "string.quoted.double.wg" },
             "5": { "name": "keyword.operator.arrow.wg" },
             "6": { "name": "entity.name.section.reference.wg" }
+          }
+        }
+      ]
+    },
+    "outcome-header": {
+      "patterns": [
+        {
+          "name": "meta.choice.outcome.header.wg",
+          "match": "^(\\s*)(@(success|failure))\\s+(->)\\s+(@exit|@leave-place|[a-z0-9_][a-z0-9_.-]*)\\s*$",
+          "captures": {
+            "2": { "name": "keyword.control.block.begin.wg" },
+            "4": { "name": "keyword.operator.arrow.wg" },
+            "5": { "name": "entity.name.section.reference.wg" }
           }
         }
       ]
@@ -90,7 +104,7 @@
           "beginCaptures": { "2": { "name": "keyword.control.effect.wg" } },
           "end": "$",
           "patterns": [
-            { "name": "storage.type.effect.wg", "match": "\\b(?:set|add|flag|relationship|money)\\b" },
+            { "name": "storage.type.effect.wg", "match": "\\b(?:set|add|flag|relationship|money|skill|stat)\\b" },
             { "include": "#expression" }
           ]
         }
@@ -100,7 +114,7 @@
       "patterns": [
         {
           "name": "meta.property.directive.wg",
-          "begin": "^(\\s*)(@(kind|heading|choices|scene|place-key|place-tag|location-tag|hub|offer|label|icon|hub-text|auto|priority|chance|weight|time|warning|preview))\\b",
+          "begin": "^(\\s*)(@(kind|heading|choices|scene|place-key|place-tag|location-tag|hub|offer|label|icon|hub-text|auto|priority|chance|weight|time|warning|preview|check))\\b",
           "beginCaptures": { "2": { "name": "keyword.other.directive.wg" } },
           "end": "$",
           "patterns": [{ "include": "#expression" }]
@@ -111,7 +125,7 @@
       "patterns": [
         {
           "name": "keyword.control.block.wg",
-          "match": "^\\s*(@(?:else|endif|endentry|endchoice|onenter|endonenter))\\s*$"
+          "match": "^\\s*(@(?:else|endif|endentry|endchoice|success|endsuccess|failure|endfailure|onenter|endonenter))\\s*$"
         }
       ]
     },

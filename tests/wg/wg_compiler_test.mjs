@@ -229,7 +229,7 @@ const sampleBundle = compileStorySources([
 ]);
 check(
   "linked bundles use a versioned scene map",
-  sampleBundle.formatVersion === 3 &&
+  sampleBundle.formatVersion === 4 &&
     Object.keys(sampleBundle.scenes).join(",") === "intro,next" &&
     Object.keys(sampleBundle.entries).join(",") === "sample.introduction",
 );
@@ -260,7 +260,54 @@ check(
     hubBundle.entries["place.hub.home"].sceneId === "place.home" &&
     hubBundle.scenes["place.home"].body.some(
       (node) => node.type === "choice" && node.target === "@leave-place",
-    ),
+  ),
+);
+
+const CHECK_SOURCE = [
+  ":: check.start",
+  "@heading \"Check\"",
+  "@choice jar \"Open the jar\"",
+  "  @check strength tricky",
+  "  @success -> check.success",
+  "    @time 1m",
+  "    @effect skill strength 0.1",
+  "    @effect stat energy -2",
+  "  @endsuccess",
+  "  @failure -> check.failure",
+  "    @time 2m",
+  "    @effect flag jar_stuck true",
+  "  @endfailure",
+  "@endchoice",
+  ":: check.success",
+  "@heading \"Opened\"",
+  ":: check.failure",
+  "@heading \"Stuck\"",
+].join("\n");
+const checkedDocument = parseWGDocument({
+  file: "story/check.wg",
+  source: CHECK_SOURCE,
+});
+const checkedChoice = checkedDocument.scenes[0].body.find(
+  (node) => node.type === "choice",
+);
+check(
+  "skill checks compile their skill and difficulty",
+  checkedChoice.target === undefined &&
+    checkedChoice.check.skillId === "strength" &&
+    checkedChoice.check.difficultyId === "tricky",
+);
+check(
+  "skill-check outcomes compile separate targets, times, and effects",
+  checkedChoice.outcomes.success.target === "check.success" &&
+    checkedChoice.outcomes.success.durationMinutes === 1 &&
+    checkedChoice.outcomes.success.effects[0].op === "skill" &&
+    checkedChoice.outcomes.success.effects[1].op === "stat" &&
+    checkedChoice.outcomes.failure.target === "check.failure" &&
+    checkedChoice.outcomes.failure.durationMinutes === 2,
+);
+check(
+  "skill-check outcome targets link across the bundle",
+  Boolean(compileStorySources([{ file: "story/check.wg", source: CHECK_SOURCE }])),
 );
 
 const sourceA = `:: alpha\n@heading "Alpha"\n@choice leave "Leave" -> @exit\n@endchoice`;
@@ -503,6 +550,57 @@ rejects(
     },
   ],
   "Unknown or malformed @effect",
+);
+rejects(
+  "skill checks reject unknown skills",
+  [{ file: "check-skill.wg", source: CHECK_SOURCE.replace("@check strength", "@check unknown") }],
+  "@check references unknown skill 'unknown'",
+);
+rejects(
+  "skill checks reject unknown difficulties",
+  [{ file: "check-difficulty.wg", source: CHECK_SOURCE.replace("strength tricky", "strength absurd") }],
+  "@check references unknown difficulty 'absurd'",
+);
+rejects(
+  "skill checks require both outcomes",
+  [
+    {
+      file: "check-outcomes.wg",
+      source: CHECK_SOURCE.replace(
+        [
+          "  @failure -> check.failure",
+          "    @time 2m",
+          "    @effect flag jar_stuck true",
+          "  @endfailure",
+        ].join("\n"),
+        "",
+      ),
+    },
+  ],
+  "Skill checks require both @success and @failure outcomes",
+);
+rejects(
+  "checked choices reject outcome previews",
+  [
+    {
+      file: "check-preview.wg",
+      source: CHECK_SOURCE.replace(
+        "  @success -> check.success",
+        "  @preview skill 1 \"Hidden\"\n  @success -> check.success",
+      ),
+    },
+  ],
+  "cannot use @preview",
+);
+rejects(
+  "skill-check outcome scene targets must exist",
+  [
+    {
+      file: "check-target.wg",
+      source: CHECK_SOURCE.replace("@success -> check.success", "@success -> missing"),
+    },
+  ],
+  "Unknown target scene 'missing'",
 );
 rejects(
   "unknown directives are rejected",

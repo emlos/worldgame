@@ -64,31 +64,18 @@ export function initialPlayerStats() {
   );
 }
 
-//skills gained or lost that affect outcomes, and can be raised or lowered
-export const SKILLS = {
-    strength: {
-        max:10,
-        min:0,
-    },
-    perception: {
-        max:10,
-        min:0,
-    },
-    endurance: {
-        max:10,
-        min:0,
-    },
-    speech: {
-        max:10,
-        min:0,
-    },
-    resolve: {
-        max:10,
-        min:0,
-    },
-    fitness: {
-        max:10,
-        min:0,
-    }
+// Fractional 0..10 abilities used by authored skill checks.
+export const SKILLS = Object.freeze({
+  strength: Object.freeze({ label: "Strength", min: 0, max: 10, initial: 0 }),
+  perception: Object.freeze({ label: "Perception", min: 0, max: 10, initial: 0 }),
+  endurance: Object.freeze({ label: "Endurance", min: 0, max: 10, initial: 0 }),
+  speech: Object.freeze({ label: "Speech", min: 0, max: 10, initial: 0 }),
+  resolve: Object.freeze({ label: "Resolve", min: 0, max: 10, initial: 0 }),
+  fitness: Object.freeze({ label: "Fitness", min: 0, max: 10, initial: 0 }),
+});
 
-};
+export function initialPlayerSkills() {
+  return Object.fromEntries(
+    Object.entries(SKILLS).map(([name, definition]) => [name, definition.initial]),
+  );
+}

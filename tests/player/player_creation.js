@@ -18,8 +18,8 @@ function init() {
   const p = new Player({ stats: defaultStats(), skinTone: "#d4a373", eyeColor: "#4d6fa9", hairColor: "#3a2a1a", gender: Gender.NB, pronouns: PronounSets.THEY_THEM });
   p.addTrait(TRAITS.CHARISMATIC);
   p.addTrait(TRAITS.GYM_GOER);
-  p.setMeterSkill("logic", 0.35);
-  p.setFlagSkill("lockpicking", false);
+  p.setSkillValue("perception", 0.35);
+  p.setSkillValue("strength", 0);
   p.setRelationship({ npcId: "npc-1", met: true, score: 0.2 });
   p.setRelationship({ npcId: "npc-2", met: false, score: -0.3 });
   p.equip(new Clothing({ id: "sun-hat", slot: WearSlot.HEAD, image: "assets/hat.png", genderBias: +0.25, color: "#e7d29c" }));
@@ -117,10 +117,10 @@ function init() {
 
     // Skills
     {
-      const skillRows = [...p.skills.entries()].map(([name, sk]) => [name, sk.type, sk.type === "meter" ? sk.value.toFixed(2) : String(!!sk.value)]);
+      const skillRows = [...p.skills.entries()].map(([name, value]) => [name, value.toFixed(2)]);
       byId("skills").innerHTML = "";
       byId("skills").append(el("h2", { html: "Skills" }));
-      byId("skills").append(table(skillRows, ["Skill", "Type", "Value"]));
+      byId("skills").append(table(skillRows, ["Skill", "Value"]));
     }
 
     // Relationships
@@ -262,8 +262,8 @@ function init() {
     render();
   });
   byId("btnImproveInt").addEventListener("click", () => {
-    p.improveSkill("logic", 0.1);
-    byId("status").textContent = "logic +0.10";
+    p.adjustSkill("perception", 0.1);
+    byId("status").textContent = "perception +0.10";
     render();
   });
 

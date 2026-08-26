@@ -4,6 +4,8 @@ import { createChoice } from "../choiceContract.js";
 import { createScene } from "../sceneContract.js";
 import { evaluateWGExpression, resolveWGPath } from "./expressionEvaluator.js";
 import { createWGRuntimeContext } from "./runtimeContext.js";
+import { SKILLS } from "../../../../data/player/stats.js";
+import { getSkillCheckDifficulty } from "../../../../data/scene/skillChecks.js";
 
 export class WGMaterializationError extends Error {
   constructor(message) {
@@ -55,6 +57,21 @@ function renderParagraph(node, context) {
     .join("");
 }
 
+function materializeSkillChanges(effects) {
+  const totals = new Map();
+  for (const effect of effects || []) {
+    if (effect?.op !== "skill" || !Number.isFinite(effect.amount)) continue;
+    totals.set(effect.id, (totals.get(effect.id) || 0) + effect.amount);
+  }
+  return [...totals.entries()]
+    .filter(([, amount]) => amount !== 0)
+    .map(([skillId, amount]) => ({
+      skillId,
+      label: (amount > 0 ? "+" : "-") + (SKILLS[skillId]?.label || skillId),
+      direction: amount > 0 ? "increase" : "decrease",
+    }));
+}
+
 function materializeChoice(node, context) {
   if (node.when && !Boolean(evaluateWGExpression(node.when, context))) return null;
 
@@ -66,23 +83,48 @@ function materializeChoice(node, context) {
     }
   }
 
-  const action = node.target === "@leave-place"
-    ? {
-        type: SCENE_ACTION_TYPE.leave,
-        effects: node.effects || [],
-        exitStory: true,
-      }
-    : {
-        type: SCENE_ACTION_TYPE.wg,
-        target: node.target,
-        effects: node.effects || [],
-      };
+  let action;
+  let skillCheck = null;
+  if (node.check) {
+    const skill = SKILLS[node.check.skillId];
+    const difficulty = getSkillCheckDifficulty(node.check.difficultyId);
+    if (!skill || !difficulty) fail("Checked choice has invalid skill metadata", node.source);
+    skillCheck = {
+      skillId: node.check.skillId,
+      skillLabel: skill.label,
+      difficultyId: node.check.difficultyId,
+      difficultyLabel: difficulty.label,
+    };
+    action = {
+      type: SCENE_ACTION_TYPE.skillCheck,
+      check: {
+        skillId: node.check.skillId,
+        difficultyId: node.check.difficultyId,
+      },
+      outcomes: {
+        success: node.outcomes.success,
+        failure: node.outcomes.failure,
+      },
+    };
+  } else {
+    action = node.target === "@leave-place"
+      ? {
+          type: SCENE_ACTION_TYPE.leave,
+          effects: node.effects || [],
+          exitStory: true,
+        }
+      : {
+          type: SCENE_ACTION_TYPE.wg,
+          target: node.target,
+          effects: node.effects || [],
+        };
+  }
 
   return createChoice({
     id: node.id,
     icon: node.icon,
     label: node.label,
-    durationMinutes: node.durationMinutes,
+    durationMinutes: node.check ? 0 : node.durationMinutes,
     enabled: disabledReason === null,
     disabledReason,
     warning: node.warning,
@@ -91,6 +133,8 @@ function materializeChoice(node, context) {
       amount,
       label,
     })),
+    skillChanges: node.check ? [] : materializeSkillChanges(node.effects),
+    skillCheck,
     action,
   });
 }

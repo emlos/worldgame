@@ -1,6 +1,7 @@
 import { WG_BUNDLE } from "../../../../generated/wg/scenes.js";
 import { evaluateWGExpression, resolveWGPath } from "./expressionEvaluator.js";
 import { createWGRuntimeContext } from "./runtimeContext.js";
+import { SKILLS, STATS } from "../../../../data/player/stats.js";
 
 export class WGRuntimeError extends Error {
   constructor(message) {
@@ -83,6 +84,24 @@ function applyWGEffect(game, effect) {
     return;
   }
 
+  if (effect.op === "skill") {
+    if (!SKILLS[effect.id]) {
+      fail("WG skill effect references unknown skill '" + String(effect.id) + "'");
+    }
+    if (!Number.isFinite(effect.amount)) fail("WG skill effect needs a finite amount");
+    game.player.adjustSkill(effect.id, effect.amount);
+    return;
+  }
+
+  if (effect.op === "stat") {
+    if (!STATS[effect.id]) {
+      fail("WG stat effect references unknown stat '" + String(effect.id) + "'");
+    }
+    if (!Number.isFinite(effect.amount)) fail("WG stat effect needs a finite amount");
+    game.player.adjustStatBase(effect.id, effect.amount);
+    return;
+  }
+
   fail(`Unknown WG effect '${String(effect.op)}'`);
 }
 
@@ -106,7 +125,11 @@ export function exitWGScene(game) {
 }
 
 export function followWGChoice(game, choice) {
-  applyWGEffects(game, choice.action.effects || []);
-  if (choice.action.target === "@exit") exitWGScene(game);
-  else enterWGScene(game, choice.action.target);
+  followWGOutcome(game, choice.action);
+}
+
+export function followWGOutcome(game, outcome) {
+  applyWGEffects(game, outcome.effects || []);
+  if (outcome.target === "@exit") exitWGScene(game);
+  else enterWGScene(game, outcome.target);
 }

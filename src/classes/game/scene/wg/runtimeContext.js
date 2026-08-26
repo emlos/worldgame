@@ -10,6 +10,10 @@ function pronounValues(character) {
   return { ...(character.pronouns || {}) };
 }
 
+function skillValues(player) {
+  return Object.fromEntries(player.skills || []);
+}
+
 function playerContext(player) {
   return {
     ...evaluatedStats(player),
@@ -17,6 +21,7 @@ function playerContext(player) {
     gender: player.gender,
     money: player.money,
     temperature: player.temperature,
+    skills: skillValues(player),
   };
 }
 

@@ -259,12 +259,29 @@ p {
   padding-left: 0.35rem;
 }
 
+.choice-details:not(:empty)::before {
+  color: #777;
+  content: "|";
+}
+
 .choice-cost {
   color: #e7b66a;
 }
 
 .choice-effect {
   color: #73cf76;
+}
+
+.choice-skill-increase {
+  color: #73cf76;
+}
+
+.choice-skill-decrease {
+  color: #dc6b6b;
+}
+
+.choice-skill-check {
+  color: #e7a85f;
 }
 
 .choice-warning {

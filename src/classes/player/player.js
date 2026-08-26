@@ -1,4 +1,3 @@
-import { makeFlagSkill, makeMeterSkill } from "./util/skill.js";
 import { Relationship } from "../../shared/classes/relationship.js";
 import { Stat } from "../../shared/classes/stat.js";
 import { Gender, PronounSets } from "../../shared/classes/pronouns.js";
@@ -11,8 +10,26 @@ import {
     INITIAL_PLAYER_MONEY,
     INITIAL_PLAYER_TEMPERATURE,
     PLAYER_TEMPERATURE_VALUES,
+    SKILLS,
     initialPlayerStats,
+    initialPlayerSkills,
+    STATS,
 } from "../../data/player/stats.js";
+
+const SKILL_PRECISION = 1_000_000;
+
+function registeredSkill(name) {
+    const id = String(name);
+    const definition = SKILLS[id];
+    if (!definition) throw new Error(`Unknown player skill '${id}'`);
+    return { id, definition };
+}
+
+function normalizedSkillValue(value, definition, label) {
+    const finite = finiteNumber(value, label);
+    const rounded = Math.round(finite * SKILL_PRECISION) / SKILL_PRECISION;
+    return clamp(rounded, definition.min, definition.max);
+}
 
 /*
   Text Adventure Core – Player model (vanilla JS, no build step)
@@ -31,6 +48,7 @@ import {
 // --------------------------
 // Player
 // --------------------------
+//TODO: most of the constructor parameters are unneccesary - theres only one player and the default values are already set in the class. We can remove them and just use the defaults.
 export class Player {
     /**
      * @param {object} opts
@@ -45,6 +63,7 @@ export class Player {
      */
     constructor({
         stats = null,
+        skills = null,
         money = INITIAL_PLAYER_MONEY,
         temperature = INITIAL_PLAYER_TEMPERATURE,
         appearance = {
@@ -93,7 +112,19 @@ export class Player {
         // Traits, Relationships, Skills ----------------------------
         this.traits = new Map(); // id -> Trait
         this.relationships = new Map(); // npcId -> Relationship
-        this.skills = new Map(); // name -> {type, value}
+        this.skills = new Map(); // registered name -> fractional 0..10 value
+        const suppliedSkills = skills instanceof Map
+            ? Object.fromEntries(skills)
+            : (skills || initialPlayerSkills());
+        for (const [name, definition] of Object.entries(SKILLS)) {
+            const value = Object.prototype.hasOwnProperty.call(suppliedSkills, name)
+                ? suppliedSkills[name]
+                : definition.initial;
+            this.skills.set(
+                name,
+                normalizedSkillValue(value, definition, `Player skill '${name}'`),
+            );
+        }
 
         // Clothing --------------------------------------------------
         this.clothing = new Map(); // slot -> Clothing
@@ -137,6 +168,15 @@ export class Player {
     setStatBase(name, v) {
         if (!this.stats[name]) this.stats[name] = new Stat(0);
         this.stats[name].base = v;
+    }
+    adjustStatBase(name, delta) {
+        const id = String(name);
+        const definition = STATS[id];
+        if (!definition) throw new Error(`Unknown player stat '${id}'`);
+        const amount = finiteNumber(delta, `Player stat '${id}' adjustment`);
+        const next = clamp(this.getStatBase(id) + amount, definition.min, definition.max);
+        this.setStatBase(id, next);
+        return this.getStatBase(id);
     }
     /**
      * Compute stat with trait modifiers applied without mutating stored state.
@@ -187,20 +227,20 @@ export class Player {
     }
 
     // --- Skills ---
-    setFlagSkill(name, value = true) {
-        this.skills.set(name, makeFlagSkill(value));
+    getSkillValue(name) {
+        const { id } = registeredSkill(name);
+        return this.skills.get(id);
     }
-    setMeterSkill(name, value = 0) {
-        this.skills.set(name, makeMeterSkill(value));
+    setSkillValue(name, value) {
+        const { id, definition } = registeredSkill(name);
+        const next = normalizedSkillValue(value, definition, `Player skill '${id}'`);
+        this.skills.set(id, next);
+        return next;
     }
-    getSkill(name) {
-        return this.skills.get(name);
-    }
-    improveSkill(name, delta = 0.05) {
-        const sk = this.skills.get(name);
-        if (!sk) return;
-        if (sk.type === "meter") sk.value = clamp(sk.value + delta, 0, 1);
-        if (sk.type === "flag") sk.value = true; // flags just set true once earned
+    adjustSkill(name, delta) {
+        const { id } = registeredSkill(name);
+        const amount = finiteNumber(delta, `Player skill '${id}' adjustment`);
+        return this.setSkillValue(id, this.getSkillValue(id) + amount);
     }
 
     // --- Clothing ---
@@ -262,7 +302,7 @@ export class Player {
                 npcId,
                 rel.toJSON(),
             ]),
-            skills: [...this.skills.entries()].map(([name, skill]) => [name, { ...skill }]),
+            skills: [...this.skills.entries()],
             money: this.money,
             temperature: this.temperature,
             clothing: [...this.clothing.entries()].map(([slot, item]) => [slot, item.toJSON()]),
@@ -289,6 +329,7 @@ export class Player {
             pronouns: data?.pronouns ?? PronounSets.THEY_THEM,
             money: data?.money ?? INITIAL_PLAYER_MONEY,
             temperature: data?.temperature ?? INITIAL_PLAYER_TEMPERATURE,
+            skills: initialPlayerSkills(),
             bodyTemplate: [],
         });
 
@@ -309,13 +350,8 @@ export class Player {
         }
 
         player.skills = new Map();
-        for (const [name, skill] of data?.skills || []) {
-            if (!skill || (skill.type !== "flag" && skill.type !== "meter")) continue;
-            player.skills.set(String(name), {
-                type: skill.type,
-                value:
-                    skill.type === "flag" ? !!skill.value : clamp(Number(skill.value) || 0, 0, 1),
-            });
+        for (const [name, value] of data?.skills || []) {
+            player.setSkillValue(name, value);
         }
 
         player.clothing = new Map();

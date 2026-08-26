@@ -202,6 +202,9 @@ The currently exposed paths are:
   `player.independent`, and `player.reflexive`: player pronouns.
 - `player.gender`, `player.money`, and `player.temperature`. Temperature is one
   of `overheating`, `hot`, `warm`, `comfortable`, `cool`, `cold`, or `freezing`.
+- `player.skills.strength`, `.perception`, `.endurance`, `.speech`,
+  `.resolve`, and `.fitness`. Skill values retain their fractional progress
+  from `0` through `10`.
 - `npc.<id>.id`, `.name`, `.shortName`, `.age`, `.gender`, `.relationship`,
   `.present`, and `.available`.
 - `npc.<id>` pronouns and every evaluated stat declared for that NPC, such as
@@ -218,8 +221,8 @@ The currently exposed paths are:
 - `place.id`, `place.key`, `place.name`, and `place.tags` while indoors.
   `place` is `null` outdoors.
 
-The player does not currently expose a name, age, skills, traits, inventory,
-body, clothing, or a `player.flags` path to WG. A location does not expose its
+The player does not currently expose a name, age, traits, inventory, body,
+clothing, or a `player.flags` path to WG. A location does not expose its
 district key or type.
 
 NPC relationship scores are between `-1` and `1`. `npc.<id>.present` means the
@@ -282,7 +285,7 @@ and never execute JavaScript.
 @endchoice
 ```
 
-A choice header has the form
+A direct choice header has the form
 `@choice <id> "<label>" -> <target>` and ends with `@endchoice`. Choice IDs
 must be unique throughout their scene, including mutually exclusive
 conditional branches. A choice block may contain only choice directives; put
@@ -314,18 +317,85 @@ Choice directives are:
 - `@effect ...`: repeatable authoritative effect, described below.
 
 Before an action runs, the game rebuilds the current scene and rechecks that
-the choice still exists and is enabled. Choice effects run in their authored
-order, then a normal target scene is entered and its `@onenter` effects run,
-then `@time` advances the world. The resulting scene is rendered against the
-post-time state. If any part of the action fails, its state changes and log
-entry are rolled back.
+the choice still exists and is enabled. Direct-choice effects run in their
+authored order, then a normal target scene is entered and its `@onenter`
+effects run, then `@time` advances the world. The resulting scene is rendered
+against the post-time state. If any part of the action fails, its state changes
+and log entry are rolled back.
 
 A choice with no `@time`, or with a zero duration such as `0m`, does not advance
 the clock or update NPC simulation state.
 
+## Skill changes and checks
+
+A direct skill effect changes a registered fractional `0` through `10` skill:
+
+```wg
+@choice lift-weights "Lift weights" -> place.player-home
+  @time 5m
+  @effect skill strength 0.1
+@endchoice
+```
+
+The runtime clamps the result to the skill's range. A direct positive change
+automatically displays green `+Strength`; a negative change displays red
+`-Strength`. The exact amount is never included in the display metadata.
+
+A checked choice omits the arrow from its choice header and supplies a skill,
+difficulty, and two outcome blocks:
+
+```wg
+@choice open-jar "Open a stubborn jar"
+  @check strength tricky
+
+  @success -> home.jar-opened
+    @time 1m
+    @effect flag jar_opened true
+  @endsuccess
+
+  @failure -> home.jar-stuck
+    @time 2m
+    @effect stat stress 2
+  @endfailure
+@endchoice
+```
+
+The player sees only the choice label and orange `Strength: Tricky`. The UI
+does not display a probability, roll, selected outcome, branch duration, or
+sanitized preview of branch effects. Checked choices cannot use choice-level
+`@time`, `@effect`, or `@preview`; put time and effects inside each outcome.
+Both outcomes are required and may target another scene, `@exit`, or
+`@leave-place`.
+
+Implemented difficulty IDs are:
+
+- `trivial`: exactly 100% success.
+- `easy`
+- `tricky`
+- `difficult`
+- `near-impossible`: displayed as `Impossible?`.
+- `impossible`: exactly 0% success.
+
+For rolled difficulties, the engine floors the skill before calculating the
+chance. Thus `2.05` and `2.99` both check as level `2`. Chance rises smoothly
+with skill using the centralized logistic difficulty curve; the author does
+not specify percentages. Even level `10` has a failure chance on
+`near-impossible`.
+
+Checks are resolved only after the choice is authoritatively rebuilt. Their
+keyed roll uses the game seed, successful-action revision, current scene
+instance, and choice ID. Saving and reloading the same scene therefore keeps
+the same result, while completing another action or re-entering the scene
+changes the roll key. Rendering never rolls or advances that revision.
+
+After a result is selected, that branch's effects and target transition run,
+then its time advances. The complete branch remains part of the normal atomic
+action transaction.
+
 ## Effects
 
-Effects may appear inside choices or inside a scene's `@onenter` block:
+Effects may appear inside direct choices, skill-check outcomes, or a scene's
+`@onenter` block:
 
 ```wg
 @onenter
@@ -351,6 +421,9 @@ Implemented effects are:
 @effect relationship taylor -0.02
 @effect money 25
 @effect money -5
+@effect skill strength 0.1
+@effect skill strength -0.05
+@effect stat energy -5
 ```
 
 - `set` and `add` target only `story.*`. Their values are expressions, and
@@ -361,6 +434,10 @@ Implemented effects are:
   fails at runtime if the NPC does not exist.
 - `money <signed-number>` adjusts `player.money`; positive values earn money
   and negative values spend it.
+- `skill <skill-id> <signed-number>` adjusts and clamps a registered player
+  skill while preserving fractional progress.
+- `stat <stat-id> <signed-number>` adjusts and clamps a registered player's
+  base stat.
 
 Effects run sequentially, so a later effect can read state changed by an
 earlier effect. Warnings, previews, requirements, and time costs do not create
@@ -386,9 +463,10 @@ prose line, `\@` and `\::` emit literal `@` and `::` markers.
 
 The compiler rejects malformed directives, duplicate single-value fields,
 unclosed blocks, duplicate scene, entry, or choice IDs, invalid expressions
-and durations, unknown choice targets, missing entry targets, and direct
-duplicate place hubs. It does not validate runtime paths, NPC IDs, or
-overlapping tag-based hub selectors.
+and durations, unknown choice and outcome targets, unknown skill-check
+difficulties, unknown registered skill/stat effect IDs, missing entry targets,
+and direct duplicate place hubs. It does not validate general runtime paths,
+NPC IDs, or overlapping tag-based hub selectors.
 
 The repository includes a zero-build VS Code extension with WG syntax
 highlighting, comments, indentation, bracket pairing, and folding. Install or

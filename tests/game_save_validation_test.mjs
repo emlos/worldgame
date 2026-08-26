@@ -31,13 +31,13 @@ function rejects(label, mutate, expectedPath, saveFactory = makeSave) {
 }
 
 const validSave = makeSave();
-check("current v12 save validates directly", validateGameSave(validSave) === validSave);
+check("current v13 save validates directly", validateGameSave(validSave) === validSave);
 check(
     "world-map saves no longer contain density",
     !Object.prototype.hasOwnProperty.call(validSave.world.map, "density"),
 );
 check(
-    "validated v12 save round-trips exactly",
+    "validated v13 save round-trips exactly",
     JSON.stringify(Game.fromJSON(validSave)) === JSON.stringify(validSave),
 );
 
@@ -49,11 +49,39 @@ rejects(
     "save.player.temperature",
 );
 rejects(
-    "non-finite player money is rejected",
+  "non-finite player money is rejected",
     (save) => {
         save.player.money = Number.NaN;
     },
     "save.player.money",
+);
+rejects(
+    "unknown player skills are rejected",
+    (save) => {
+        save.player.skills[0][0] = "unknown";
+    },
+    "save.player.skills[0][0]",
+);
+rejects(
+    "out-of-range player skills are rejected",
+    (save) => {
+        save.player.skills[0][1] = 11;
+    },
+    "save.player.skills[0][1]",
+);
+rejects(
+    "saves must retain every registered player skill",
+    (save) => {
+        save.player.skills.pop();
+    },
+    "save.player.skills",
+);
+rejects(
+    "action revisions cannot be negative",
+    (save) => {
+        save.actionRevision = -1;
+    },
+    "save.actionRevision",
 );
 
 const validTraitSave = makeSave();

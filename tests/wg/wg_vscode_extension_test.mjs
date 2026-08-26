@@ -54,12 +54,21 @@ test("WG TextMate grammar contains valid regular expressions and core syntax", a
     '@choice study "Study" -> taylor.study.back',
     firstPattern("choice-header"),
   );
+  assert.match(
+    '@choice jar "Open the jar"',
+    firstPattern("choice-header"),
+  );
+  assert.match(
+    "@success -> jar.opened",
+    firstPattern("outcome-header"),
+  );
   for (const line of [
     "@place-key player_home",
     "@offer npc taylor",
     "@hub place",
     '@hub-text "Taylor waits beside the table."',
     "@auto enter-place",
+    "@check strength tricky",
   ]) {
     assert.match(line, firstPattern("property-directives", "begin"));
   }
@@ -69,7 +78,10 @@ test("WG TextMate grammar contains valid regular expressions and core syntax", a
     grammar.repository["effect-directives"].patterns[0].patterns[0].match,
   );
   assert.match("money", effectKeyword);
+  assert.match("skill", effectKeyword);
+  assert.match("stat", effectKeyword);
   assert.match("@endchoice", firstPattern("block-directives"));
+  assert.match("@endsuccess", firstPattern("block-directives"));
   assert.match(
     '@choice leave "Leave" -> @leave-place',
     firstPattern("choice-header"),

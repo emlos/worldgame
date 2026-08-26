@@ -10,12 +10,12 @@
   "surroundingPairs": [["\"", "\""], ["[", "]"], ["(", ")"], ["{{", "}}"]],
   "folding": {
     "markers": {
-      "start": "^\\s*@(entry|choice|if|onenter)\\b",
-      "end": "^\\s*@(endentry|endchoice|endif|endonenter)\\b"
+      "start": "^\\s*@(entry|choice|if|success|failure|onenter)\\b",
+      "end": "^\\s*@(endentry|endchoice|endif|endsuccess|endfailure|endonenter)\\b"
     }
   },
   "indentationRules": {
-    "increaseIndentPattern": "^\\s*@(entry|choice|if|elseif|else|onenter)\\b.*$",
-    "decreaseIndentPattern": "^\\s*@(endentry|endchoice|endif|endonenter|elseif|else)\\b.*$"
+    "increaseIndentPattern": "^\\s*@(entry|choice|if|elseif|else|success|failure|onenter)\\b.*$",
+    "decreaseIndentPattern": "^\\s*@(endentry|endchoice|endif|endsuccess|endfailure|endonenter|elseif|else)\\b.*$"
   }
 }

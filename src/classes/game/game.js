@@ -42,6 +42,7 @@ export class Game {
         this.story = {};
         this.currentStorySceneId = null;
         this.storySceneRevision = 0;
+        this.actionRevision = 0;
 
         // --- npcs ---
         this.npcs = new Map();
@@ -461,6 +462,10 @@ export class Game {
                 after(this);
             }
 
+            // Successful actions advance the deterministic choice-roll epoch.
+            // Rendering, rejected requests, and rolled-back actions never do.
+            this.actionRevision += 1;
+
             // A log entry describes a committed action, so add it only after
             // its effects, time cost, and post-time resolution have succeeded.
             if (typeof label === "string" && label) {
@@ -575,7 +580,7 @@ export class Game {
     // --------------------------
     toJSON() {
         return {
-            saveVersion: 12,
+            saveVersion: 13,
             seed: this.seed,
             random: this.random.toJSON(),
             time: this.now.toISOString(),
@@ -591,6 +596,7 @@ export class Game {
             story: JSON.parse(JSON.stringify(this.story)),
             currentStorySceneId: this.currentStorySceneId,
             storySceneRevision: this.storySceneRevision,
+            actionRevision: this.actionRevision,
             log: this.log.map((entry) => ({ ...entry })),
         };
     }
@@ -632,6 +638,7 @@ export class Game {
         game.story = JSON.parse(JSON.stringify(data.story));
         game.currentStorySceneId = data.currentStorySceneId;
         game.storySceneRevision = data.storySceneRevision;
+        game.actionRevision = data.actionRevision;
         game.log = data.log.map((entry) => ({ ...entry }));
 
         game._initializeNPCBrains();

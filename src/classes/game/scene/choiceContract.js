@@ -47,6 +47,53 @@ function validateMetadataList(value, path, { isCost = false } = {}) {
   });
 }
 
+function validateSkillChanges(value, path) {
+  if (!Array.isArray(value)) fail(`${path} must be an array`);
+  value.forEach((entry, index) => {
+    const entryPath = `${path}[${index}]`;
+    requireRecord(entry, entryPath);
+    requireText(entry.skillId, `${entryPath}.skillId`);
+    requireText(entry.label, `${entryPath}.label`);
+    if (!['increase', 'decrease'].includes(entry.direction)) {
+      fail(`${entryPath}.direction must be 'increase' or 'decrease'`);
+    }
+    if (Object.prototype.hasOwnProperty.call(entry, "amount")) {
+      fail(`${entryPath}.amount must not expose the skill-change amount`);
+    }
+  });
+}
+
+function validateSkillCheck(value, path) {
+  if (value === null) return;
+  requireRecord(value, path);
+  requireText(value.skillId, `${path}.skillId`);
+  requireText(value.skillLabel, `${path}.skillLabel`);
+  requireText(value.difficultyId, `${path}.difficultyId`);
+  requireText(value.difficultyLabel, `${path}.difficultyLabel`);
+  for (const hidden of ["chance", "roll", "outcome"]) {
+    if (Object.prototype.hasOwnProperty.call(value, hidden)) {
+      fail(`${path}.${hidden} must not expose hidden check data`);
+    }
+  }
+}
+
+function validateSkillCheckAction(action, path) {
+  requireRecord(action.check, `${path}.check`);
+  requireText(action.check.skillId, `${path}.check.skillId`);
+  requireText(action.check.difficultyId, `${path}.check.difficultyId`);
+  requireRecord(action.outcomes, `${path}.outcomes`);
+  for (const result of ["success", "failure"]) {
+    const outcomePath = `${path}.outcomes.${result}`;
+    const outcome = action.outcomes[result];
+    requireRecord(outcome, outcomePath);
+    requireText(outcome.target, `${outcomePath}.target`);
+    if (!Number.isFinite(outcome.durationMinutes) || outcome.durationMinutes < 0) {
+      fail(`${outcomePath}.durationMinutes must be a non-negative finite number`);
+    }
+    if (!Array.isArray(outcome.effects)) fail(`${outcomePath}.effects must be an array`);
+  }
+}
+
 export function validateChoice(choice, path = "choice") {
   requireRecord(choice, path);
   requireText(choice.id, `${path}.id`);
@@ -72,9 +119,20 @@ export function validateChoice(choice, path = "choice") {
   validateOptionalText(choice.warning, `${path}.warning`);
   validateMetadataList(choice.costs, `${path}.costs`, { isCost: true });
   validateMetadataList(choice.effectsPreview, `${path}.effectsPreview`);
+  validateSkillChanges(choice.skillChanges, `${path}.skillChanges`);
+  validateSkillCheck(choice.skillCheck, `${path}.skillCheck`);
 
   requireRecord(choice.action, `${path}.action`);
   requireText(choice.action.type, `${path}.action.type`);
+  if (choice.action.type === "skill-check") {
+    if (choice.skillCheck === null) fail(`${path}.skillCheck is required for skill-check actions`);
+    if (choice.durationMinutes !== 0) {
+      fail(`${path}.durationMinutes must be zero when outcome durations are hidden`);
+    }
+    validateSkillCheckAction(choice.action, `${path}.action`);
+  } else if (choice.skillCheck !== null) {
+    fail(`${path}.skillCheck requires a skill-check action`);
+  }
   return choice;
 }
 
@@ -92,6 +150,8 @@ export function createChoice(input) {
     durationMinutes,
     costs,
     effectsPreview,
+    skillChanges,
+    skillCheck,
     enabled,
     disabledReason,
     warning,
@@ -108,6 +168,8 @@ export function createChoice(input) {
     effectsPreview: copyMetadataList(
       effectsPreview === undefined ? [] : effectsPreview,
     ),
+    skillChanges: copyMetadataList(skillChanges === undefined ? [] : skillChanges),
+    skillCheck: skillCheck === undefined || skillCheck === null ? null : { ...skillCheck },
     enabled: enabled === undefined ? true : enabled,
     disabledReason: disabledReason === undefined ? null : disabledReason,
     warning: warning === undefined ? null : warning,

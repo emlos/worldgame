@@ -1,5 +1,7 @@
 import { failWG, sourceLocation } from "./diagnostic.js";
 import { parseExpression } from "./expressionParser.js";
+import { SKILLS, STATS } from "../../../src/data/player/stats.js";
+import { SKILL_CHECK_DIFFICULTIES } from "../../../src/data/scene/skillChecks.js";
 
 const ID_PATTERN = "[a-z][a-z0-9_.-]*";
 const ID_REGEX = new RegExp(`^${ID_PATTERN}$`);
@@ -180,6 +182,21 @@ function parseEffect(text, file, line) {
     };
   }
 
+  const playerValue = argument.match(
+    new RegExp(`^(skill|stat)\\s+(${ID_PATTERN})\\s+([+-]?\\d+(?:\\.\\d+)?)$`),
+  );
+  if (playerValue) {
+    const [, operation, id, amountText] = playerValue;
+    const registry = operation === "skill" ? SKILLS : STATS;
+    if (!registry[id]) failWG(`@effect ${operation} references unknown ${operation} '${id}'`, location);
+    return {
+      op: operation,
+      id,
+      amount: Number(amountText),
+      source: nodeSource(file, line),
+    };
+  }
+
   failWG("Unknown or malformed @effect", location);
 }
 
@@ -314,11 +331,85 @@ class SceneBodyParser {
     return conditional;
   }
 
+  parseChoiceOutcome(kind) {
+    const opening = this.current();
+    const text = opening.text.trim();
+    const closingDirective = `end${kind}`;
+    const match = text.match(
+      new RegExp(`^@${kind}\\s+->\\s+(@exit|@leave-place|${ID_PATTERN})\\s*$`),
+    );
+    if (!match) failWG(`Malformed @${kind} header`, lineLocation(this.file, opening.line));
+
+    const outcome = {
+      target: match[1],
+      durationMinutes: 0,
+      effects: [],
+      source: nodeSource(this.file, opening.line),
+    };
+    let sawTime = false;
+    this.index += 1;
+
+    while (this.current()) {
+      const line = this.current();
+      const directive = line.text.trim();
+      const location = lineLocation(this.file, line.line);
+      if (!directive || isComment(directive)) {
+        this.index += 1;
+        continue;
+      }
+      if (directive === `@${closingDirective}`) {
+        this.index += 1;
+        return outcome;
+      }
+
+      const name = directiveName(directive);
+      if (name === "time") {
+        if (sawTime) failWG(`Duplicate @time in @${kind}`, location);
+        sawTime = true;
+        outcome.durationMinutes = parseDuration(
+          directiveArgument(directive, "time", location),
+          location,
+        );
+      } else if (name === "effect") {
+        outcome.effects.push(parseEffect(directive, this.file, line.line));
+      } else {
+        failWG(`@${kind} may contain only @time and @effect directives`, location);
+      }
+      this.index += 1;
+    }
+
+    failWG(`Unclosed @${kind} block`, lineLocation(this.file, opening.line));
+  }
+
+  finishChoice(choice, singleFields, location) {
+    if (choice.target !== null) {
+      if (choice.check || choice.outcomes.success || choice.outcomes.failure) {
+        failWG("Direct choices cannot contain skill-check outcomes", location);
+      }
+      delete choice.check;
+      delete choice.outcomes;
+      return choice;
+    }
+
+    if (!choice.check) failWG("A targetless choice requires @check", location);
+    if (!choice.outcomes.success || !choice.outcomes.failure) {
+      failWG("Skill checks require both @success and @failure outcomes", location);
+    }
+    if (singleFields.has("time") || choice.effects.length || choice.previews.length) {
+      failWG("Checked choices keep @time and @effect inside outcome blocks and cannot use @preview", location);
+    }
+    delete choice.target;
+    delete choice.durationMinutes;
+    delete choice.previews;
+    delete choice.effects;
+    return choice;
+  }
+
   parseChoice() {
     const opening = this.current();
     const openingText = opening.text.trim();
     const match = openingText.match(
-      new RegExp(`^@choice\\s+(${ID_PATTERN})\\s+(${QUOTED_PATTERN})\\s+->\\s+(@exit|@leave-place|${ID_PATTERN})\\s*$`),
+      new RegExp(`^@choice\\s+(${ID_PATTERN})\\s+(${QUOTED_PATTERN})(?:\\s+->\\s+(@exit|@leave-place|${ID_PATTERN}))?\\s*$`),
     );
     if (!match) {
       failWG("Malformed @choice header", lineLocation(this.file, opening.line));
@@ -332,7 +423,9 @@ class SceneBodyParser {
         lineLocation(this.file, opening.line),
         "Choice label",
       ),
-      target: match[3],
+      target: match[3] ?? null,
+      check: null,
+      outcomes: { success: null, failure: null },
       icon: null,
       durationMinutes: 0,
       when: null,
@@ -356,7 +449,7 @@ class SceneBodyParser {
       }
       if (text === "@endchoice") {
         this.index += 1;
-        return choice;
+        return this.finishChoice(choice, singleFields, location);
       }
 
       const name = directiveName(text);
@@ -364,7 +457,13 @@ class SceneBodyParser {
         failWG("Choice blocks may contain only choice directives", location);
       }
 
-      if (["icon", "time", "when", "warning"].includes(name)) {
+      if (name === "success" || name === "failure") {
+        if (choice.outcomes[name]) failWG(`Duplicate @${name}`, location);
+        choice.outcomes[name] = this.parseChoiceOutcome(name);
+        continue;
+      }
+
+      if (["icon", "time", "when", "warning", "check"].includes(name)) {
         if (singleFields.has(name)) failWG(`Duplicate @${name}`, location);
         singleFields.add(name);
       }
@@ -384,6 +483,16 @@ class SceneBodyParser {
           directiveArgument(text, "when", location),
           location,
         );
+      } else if (name === "check") {
+        const argument = directiveArgument(text, "check", location);
+        const check = argument.match(new RegExp(`^(${ID_PATTERN})\\s+(${ID_PATTERN})$`));
+        if (!check) failWG("@check needs a skill id and difficulty id", location);
+        const [, skillId, difficultyId] = check;
+        if (!SKILLS[skillId]) failWG(`@check references unknown skill '${skillId}'`, location);
+        if (!SKILL_CHECK_DIFFICULTIES[difficultyId]) {
+          failWG(`@check references unknown difficulty '${difficultyId}'`, location);
+        }
+        choice.check = { skillId, difficultyId, source: nodeSource(this.file, line.line) };
       } else if (name === "require") {
         const argument = directiveArgument(text, "require", location);
         const requirement = argument.match(

@@ -26,11 +26,11 @@ successful.runAction({
     minutes: 30,
     apply(game) {
         game.setFlag("effect-committed");
-        game.player.setMeterSkill("progress", 0.25);
+        game.player.setSkillValue("strength", 0.25);
     },
 });
 check("successful action commits gameplay effects", successful.hasFlag("effect-committed"));
-check("successful action commits player changes", successful.player.getSkill("progress")?.value === 0.25);
+check("successful action commits player changes", successful.player.getSkillValue("strength") === 0.25);
 check(
     "successful action pays its time cost",
     successful.now.getTime() === START.getTime() + 30 * 60 * 1000,
@@ -154,7 +154,7 @@ try {
         minutes: 10,
         apply(game) {
             game.setFlag("partial-simulation-effect");
-            game.player.setFlagSkill("partial-skill", true);
+            game.player.setSkillValue("perception", 1);
             for (const npc of game.npcs.values()) {
                 if (!npc.brain) continue;
                 for (const rule of npc.behavior.goals) rule.weight = -1;

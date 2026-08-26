@@ -75,11 +75,16 @@ export function compileStorySources(sources) {
       }
       choiceIds.set(node.id, node.source);
 
-      if (!["@exit", "@leave-place"].includes(node.target) && !sceneMap.has(node.target)) {
-        failWG(
-          `Unknown target scene '${node.target}' from choice '${node.id}'`,
-          atSource(node.source),
-        );
+      const targets = node.check
+        ? [node.outcomes?.success, node.outcomes?.failure].map((outcome) => outcome?.target)
+        : [node.target];
+      for (const target of targets) {
+        if (!["@exit", "@leave-place"].includes(target) && !sceneMap.has(target)) {
+          failWG(
+            `Unknown target scene '${target}' from choice '${node.id}'`,
+            atSource(node.source),
+          );
+        }
       }
     });
   }
@@ -121,7 +126,7 @@ export function compileStorySources(sources) {
   const entries = Object.fromEntries(
     [...entryMap.entries()].sort(([left], [right]) => compareText(left, right)),
   );
-  return { formatVersion: 3, scenes, entries };
+  return { formatVersion: 4, scenes, entries };
 }
 
 export { walkNodes };

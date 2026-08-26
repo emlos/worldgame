@@ -39,6 +39,9 @@ check(
     minimal.costs.length === 0 &&
     Array.isArray(minimal.effectsPreview) &&
     minimal.effectsPreview.length === 0 &&
+    Array.isArray(minimal.skillChanges) &&
+    minimal.skillChanges.length === 0 &&
+    minimal.skillCheck === null &&
     minimal.enabled === true &&
     minimal.disabledReason === null &&
     minimal.warning === null,
@@ -67,6 +70,61 @@ check(
 check(
   "disabled choices may carry reasons and warnings",
   detailed.disabledReason === "Closed" && detailed.warning === "You may be late.",
+);
+
+const checked = createChoice({
+  id: "open-jar",
+  label: "Open the jar",
+  skillCheck: {
+    skillId: "strength",
+    skillLabel: "Strength",
+    difficultyId: "tricky",
+    difficultyLabel: "Tricky",
+  },
+  action: {
+    type: "skill-check",
+    check: { skillId: "strength", difficultyId: "tricky" },
+    outcomes: {
+      success: { target: "opened", durationMinutes: 1, effects: [] },
+      failure: { target: "stuck", durationMinutes: 2, effects: [] },
+    },
+  },
+});
+check(
+  "skill-check choices preserve only public check labels",
+  checked.skillCheck.skillLabel === "Strength" &&
+    checked.skillCheck.difficultyLabel === "Tricky" &&
+    checked.durationMinutes === 0,
+);
+
+rejects("skill previews cannot expose exact amounts", () =>
+  createChoice({
+    id: "train",
+    label: "Train",
+    skillChanges: [
+      { skillId: "strength", label: "+Strength", direction: "increase", amount: 0.1 },
+    ],
+    action: { type: "train" },
+  }),
+);
+rejects("skill checks require both outcome payloads", () =>
+  createChoice({
+    id: "open",
+    label: "Open",
+    skillCheck: {
+      skillId: "strength",
+      skillLabel: "Strength",
+      difficultyId: "tricky",
+      difficultyLabel: "Tricky",
+    },
+    action: {
+      type: "skill-check",
+      check: { skillId: "strength", difficultyId: "tricky" },
+      outcomes: {
+        success: { target: "opened", durationMinutes: 1, effects: [] },
+      },
+    },
+  }),
 );
 
 rejects("choice objects are required", () => createChoice(null));

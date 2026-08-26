@@ -21,9 +21,46 @@ You are back in the privacy of {{place.name}}.
   @icon 🧹
 @endchoice
 
+@choice lift-weights "Lift weights" -> place.player-home
+  @icon 🏋️
+  @time 5m
+  @effect skill strength 0.1
+@endchoice
+
+@choice open-jar "Open a stubborn jar"
+  @icon 🫙
+  @check strength tricky
+
+  @success -> home.jar-opened
+    @time 1m
+    @effect flag jar_opened true
+  @endsuccess
+
+  @failure -> home.jar-stuck
+    @time 1m
+    @effect flag jar_opened false
+  @endfailure
+@endchoice
+
 @choice leave "Leave" -> @leave-place
   @icon 🚪
   @time 1m
+@endchoice
+
+:: home.jar-opened [event home skill-check]
+@heading "The stubborn jar"
+
+The lid gives way with a sharp pop. You set the opened jar down with quiet satisfaction.
+
+@choice back "Put the jar away" -> place.player-home
+@endchoice
+
+:: home.jar-stuck [event home skill-check]
+@heading "The stubborn jar"
+
+You twist until your palm aches, but the lid refuses to move.
+
+@choice back "Put the jar back" -> place.player-home
 @endchoice
 
 @entry place.hub.town-square

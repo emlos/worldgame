@@ -8,7 +8,7 @@ import {
 import { RANDOM_HOLIDAYS, MONTH_DAYS, DayKind } from "../../../data/world/calendar.js";
 import { DAY_KEYS, MS_PER_MINUTE } from "../../../data/world/time.js";
 import { WeatherType } from "../../../data/world/weather.js";
-import { PLAYER_TEMPERATURE_VALUES } from "../../../data/player/stats.js";
+import { PLAYER_TEMPERATURE_VALUES, SKILLS } from "../../../data/player/stats.js";
 import { npcHomeAccessFlag } from "../../../data/world/access.js";
 import {
     getPlaceInstanceTarget,
@@ -354,14 +354,16 @@ function validatePlayer(data, path, npcIds) {
         const name = string(entry[0], `${entryPath}[0]`, { nonEmpty: true });
         if (seenSkills.has(name)) fail(`${entryPath}[0]`, `duplicates skill '${name}'`);
         seenSkills.add(name);
-        const skill = record(entry[1], `${entryPath}[1]`);
-        const type = string(required(skill, "type", `${entryPath}[1]`), `${entryPath}[1].type`);
-        if (type !== "flag" && type !== "meter")
-            fail(`${entryPath}[1].type`, "must be 'flag' or 'meter'");
-        const value = required(skill, "value", `${entryPath}[1]`);
-        if (type === "flag") boolean(value, `${entryPath}[1].value`);
-        else finiteNumber(value, `${entryPath}[1].value`, { min: 0, max: 1 });
+        const definition = SKILLS[name];
+        if (!definition) fail(`${entryPath}[0]`, `references unknown skill '${name}'`);
+        finiteNumber(entry[1], `${entryPath}[1]`, {
+            min: definition.min,
+            max: definition.max,
+        });
     });
+    for (const name of Object.keys(SKILLS)) {
+        if (!seenSkills.has(name)) fail(`${path}.skills`, `is missing registered skill '${name}'`);
+    }
 }
 
 function strictTime(value, path) {
@@ -1209,9 +1211,9 @@ export function validateGameSave(data) {
     const save = record(data, "save");
     same(
         integer(required(save, "saveVersion", "save"), "save.saveVersion"),
-        12,
+        13,
         "save.saveVersion",
-        "version 12",
+        "version 13",
     );
 
     const seed = uint32(required(save, "seed", "save"), "save.seed");
@@ -1320,6 +1322,9 @@ export function validateGameSave(data) {
         "save.currentStorySceneId",
     );
     integer(required(save, "storySceneRevision", "save"), "save.storySceneRevision", {
+        min: 0,
+    });
+    integer(required(save, "actionRevision", "save"), "save.actionRevision", {
         min: 0,
     });
     array(required(save, "log", "save"), "save.log").forEach((entryData, index) => {

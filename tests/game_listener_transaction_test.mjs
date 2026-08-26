@@ -27,7 +27,7 @@ let observedAdvancedTime = null;
 const removeTimeMutationListener = directTime.on("time", (game) => {
     observedAdvancedTime = game.now.toISOString();
     game.setFlag("time-listener-side-effect");
-    game.player.setMeterSkill("listener-progress", 0.75);
+    game.player.setSkillValue("endurance", 0.75);
     game.timeListenerRuntimeProperty = true;
     game.on("location", () => {});
 });
