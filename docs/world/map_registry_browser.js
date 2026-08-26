@@ -447,10 +447,6 @@ function init() {
                         "label",
                         "props",
                         "allowedTags",
-                        "weight",
-                        "minCount",
-                        "maxCount",
-                        "minDistance",
                         "nameFn",
                     ],
                 }

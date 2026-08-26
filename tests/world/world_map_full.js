@@ -56,13 +56,12 @@ function formatOpeningHours(hours) {
     return "Hours:<br>" + lines.join("<br>");
 }
 
-function init(density, width, height) {
+function init(width, height) {
     // ------- World creation (random but stable per refresh) -------
 
     let gentime = Date.now();
     const world = new World({
         seed: Date.now(),
-        density: density,
         startDate: new Date(), // now
         w: width,
         h: height,
@@ -342,27 +341,12 @@ function init(density, width, height) {
     const placed = Array.from(world.map.locations.values())
         .map((loc) => loc.places)
         .flat()
-        .map((place) => place.key)
-        .filter((value, index, array) => array.indexOf(value) === index);
-    const unCommonArray = (first, second) => {
-        const res = [];
-        for (let i = 0; i < first.length; i++) {
-            if (second.indexOf(first[i]) === -1) {
-                res.push(first[i]);
-            }
-        }
-        for (let j = 0; j < second.length; j++) {
-            if (first.indexOf(second[j]) === -1) {
-                res.push(second[j]);
-            }
-        }
-        return res;
-    };
-
-    const missing = unCommonArray(
-        PLACE_REGISTRY.map((p) => p.key),
-        placed
-    );
+        .map((place) => place.key);
+    const counts = new Map(PLACE_REGISTRY.map((place) => [place.key, 0]));
+    for (const key of placed) {
+        if (counts.has(key)) counts.set(key, counts.get(key) + 1);
+    }
+    const countViolations = [...counts].filter(([, count]) => count !== 1);
 
     byId("mapinfo").append(
         table(
@@ -386,8 +370,12 @@ function init(density, width, height) {
                     ),
                 ],
                 [
-                    "Locations not on map",
-                    missing.length > 0 ? missing.map((m) => `<code>${m}</code>`).join("<br>") : "-",
+                    "Registry place count violations",
+                    countViolations.length > 0
+                        ? countViolations
+                              .map(([key, count]) => `<code>${key}</code>: ${count}`)
+                              .join("<br>")
+                        : "Every registered place appears exactly once",
                 ],
             ],
             ["Property", "Value"]
@@ -435,19 +423,13 @@ function init(density, width, height) {
 const byId = (id) => document.getElementById(id);
 
 function bindControls() {
-    const slider = byId("densitySlider");
-
     const mapWidth = byId("worldWidth");
     const mapHeight = byId("worldHeight");
     const btnGen = byId("btnGenerate");
     const btnReset = byId("adjustProportions");
 
     btnGen.addEventListener("click", () => {
-        init(
-            parseFloat(slider.value / 100),
-            parseInt(mapWidth.value) || 100,
-            parseInt(mapHeight.value) || 50
-        );
+        init(parseInt(mapWidth.value) || 100, parseInt(mapHeight.value) || 50);
     });
 
     btnReset.addEventListener("click", () => {
@@ -455,13 +437,10 @@ function bindControls() {
         mapHeight.value = 50;
     });
 
-    slider.addEventListener("change", () => {
-        byId("density").innerText = slider.value == 0 ? "minimal" : `+ ${slider.value}%`;
-    });
 }
 
 // ---------- Boot ----------
 window.addEventListener("DOMContentLoaded", () => {
-    init(0, 100, 50);
+    init(100, 50);
     bindControls();
 });

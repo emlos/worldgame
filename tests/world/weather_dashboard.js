@@ -79,7 +79,7 @@ function resetTimeline() {
         const startDate = parseUtcInput($("startInput").value);
         $("seedInput").value = String(seed);
 
-        world = new World({ seed, startDate, density: 0 });
+        world = new World({ seed, startDate });
         history = [];
         running = false;
         minuteAccumulator = 0;

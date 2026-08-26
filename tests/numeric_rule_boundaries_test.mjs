@@ -65,23 +65,6 @@ rejects(
     TypeError,
 );
 
-for (const invalid of [NaN, Infinity, -Infinity, -0.01]) {
-    rejects(
-        `world map rejects density ${String(invalid)}`,
-        () => new WorldMap({ density: invalid }),
-        RangeError,
-    );
-}
-rejects(
-    "world map rejects density that overflows its derived location count",
-    () => new WorldMap({ density: Number.MAX_VALUE }),
-    RangeError,
-);
-rejects(
-    "world map hydration rejects non-finite density",
-    () => WorldMap.fromJSON({ density: Infinity, locations: [], edges: [] }),
-    RangeError,
-);
 rejects("world map rejects a non-positive width", () => new WorldMap({ mapWidth: 0 }), RangeError);
 rejects("world map rejects a non-finite height", () => new WorldMap({ mapHeight: NaN }), RangeError);
 

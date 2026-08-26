@@ -56,7 +56,7 @@ const restoredClock = WorldTime.fromJSON(JSON.parse(JSON.stringify(clock)));
 check("clock save/load preserves the exact instant", restoredClock.timestamp === clock.timestamp);
 
 // World and Game expose snapshots too, preventing bypasses around synchronized setDate().
-const world = new World({ seed: 123, startDate: START, density: 0 });
+const world = new World({ seed: 123, startDate: START });
 const worldBeforeLeak = JSON.stringify(world);
 world.time.date.setUTCMonth(6);
 check("mutating world.time.date cannot desynchronize world systems", JSON.stringify(world) === worldBeforeLeak);

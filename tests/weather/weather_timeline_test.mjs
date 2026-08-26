@@ -77,7 +77,7 @@ restored.step(45 * 24 * 60 + 9);
 check("save/load continues the same weather timeline", equal(uninterrupted, restored));
 
 // World environment queries must use the requested date consistently.
-const world = new World({ seed: SEED, startDate: START, density: 0 });
+const world = new World({ seed: SEED, startDate: START });
 const worldBeforeQuery = JSON.stringify(world);
 const july = new Date("2026-07-15T15:00:00Z");
 const julyEnvironment = world.getEnvironmentAt(july);

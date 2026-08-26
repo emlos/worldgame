@@ -1,7 +1,6 @@
 //TODO: rework streets between nodes to prevent from long chans of stingle streets happening [see screenshot]
 //TODO: basicaly reword the node distribution - more scattered circle like
 
-import { clamp01 } from "../../../shared/util/util.js";
 import { weightedPick, randInt, makeRNG } from "../../../shared/util/random.js";
 import { Location } from "./location.js";
 import { Place } from "./place.js";
@@ -9,7 +8,7 @@ import { Street } from "./street.js";
 import { LOCATION_REGISTRY } from "../../../data/world/location.js";
 import { PLACE_REGISTRY } from "../../../data/world/place.js";
 import { STREET_REGISTRY } from "../../../data/world/street.js";
-import { finitePositive, finiteNonNegative, finiteNumber } from "../../../shared/util/util.js";
+import { finitePositive } from "../../../shared/util/util.js";
 
 const capacityPerLocation = 10;
 const MS_PER_MINUTE = 60 * 1000;
@@ -26,19 +25,16 @@ function addTravelTime(atTime, minutes) {
  * Tries to satisfy `min` first and respects `max` caps.
  */
 function pickDistrictDefs(count, rnd) {
-    const out = [];
-    const used = new Map(); // key -> count
-    const inc = (k) => used.set(k, (used.get(k) || 0) + 1);
-
-    // satisfy mins
-    for (const d of LOCATION_REGISTRY) {
-        if (Number.isFinite(d.min) && d.min > 0) {
-            for (let i = 0; i < d.min && out.length < count; i++) {
-                out.push(d);
-                inc(d.key);
-            }
-        }
+    if (count < LOCATION_REGISTRY.length) {
+        throw new RangeError("World map needs at least one of every registered district");
     }
+
+    // Every district definition is represented once. Besides guaranteeing all
+    // place-tag constraints have somewhere legal to resolve, this keeps the
+    // fixed-size world varied without a separate size control.
+    const out = [...LOCATION_REGISTRY];
+    const used = new Map(LOCATION_REGISTRY.map((definition) => [definition.key, 1]));
+    const inc = (k) => used.set(k, (used.get(k) || 0) + 1);
 
     // fill the rest by weight while respecting max
     while (out.length < count) {
@@ -51,6 +47,11 @@ function pickDistrictDefs(count, rnd) {
             : weightedPick(LOCATION_REGISTRY, rnd);
         out.push(pick);
         inc(pick.key);
+    }
+
+    for (let index = out.length - 1; index > 0; index--) {
+        const other = (rnd() * (index + 1)) | 0;
+        [out[index], out[other]] = [out[other], out[index]];
     }
 
     return out;
@@ -93,532 +94,107 @@ function createLocations({ count, rnd, nameFn = defaultDistrictName }) {
     });
 }
 
-/** BFS distance if no distance() is supplied. */
-function bfsDistance(a, b, neighbors) {
-    if (a === b) return 0;
-    const Q = [a];
-    const seen = new Set([a]);
-    let d = 0;
-    while (Q.length) {
-        const size = Q.length;
-        d++;
-        for (let i = 0; i < size; i++) {
-            const cur = Q.shift();
-            for (const nb of neighbors(cur) || []) {
-                if (seen.has(nb)) continue;
-                if (nb === b) return d;
-                seen.add(nb);
-                Q.push(nb);
-            }
-        }
-    }
-    return Infinity;
-}
-
-/** Check if two locations are at least minDistance apart. */
-function isFarEnough(target, placed, minDistance, neighbors, distance) {
-    for (const p of placed) {
-        if (distance(target, p.locationId, neighbors) < minDistance) {
-            return false;
-        }
-    }
-    return true;
-}
-
 /** Build a unique id for a placed instance. */
 function instanceId(key, idx, locationId) {
     return `${key}#${idx}@${String(locationId)}`;
 }
 
-function generatePlaces({
-    locations,
-    getTag,
-    neighbors,
-    distance,
-    rnd,
-    targetCounts,
-    density = 0,
-}) {
-    // Density is treated as a linear *scale*:
-    //   density = 0  -> minimum required world
-    //   density = 1  -> ~2x size/content
-    //   density = 2  -> ~3x size/content
-    // ...and so on (arbitrary non-negative numbers are supported).
-    const scaleFactor = Math.max(0, 1 + density);
-    const fillFactor = clamp01(density); // used only for per-location "how full" heuristics (capacity is finite)
-    const minPlacesPerLocation = 1;
+function generatePlaces({ locations, getTag, rnd }) {
+    const locationUsage = new Map(locations.map((locationId) => [String(locationId), 0]));
+    const seenKeys = new Set();
 
-    // --- Graph + degree -----------------------------------
-    const neighborList = new Map();
-    for (const locId of locations) {
-        const nbs = neighbors(locId);
-        neighborList.set(locId, Array.from(nbs || []));
-    }
-    const neighborsFn = (id) => neighborList.get(id) || [];
-
-    const distFn = (a, b, nb) => (distance ? distance(a, b) : bfsDistance(a, b, nb || neighborsFn));
-
-    const degree = new Map();
-    for (const [id, nbs] of neighborList) {
-        degree.set(id, nbs.length);
-    }
-
-    // --- Track per-location usage & soft targets ----------
-    const locationUsage = new Map();
-    for (const locId of locations) {
-        locationUsage.set(String(locId), 0);
-    }
-
-    const softTarget = new Map();
-    for (const locId of locations) {
-        const d = degree.get(locId) || 0;
-        let minSlots = 1;
-        let maxSlots = capacityPerLocation;
-
-        if (d <= 1) {
-            minSlots = 1;
-            maxSlots = Math.min(2, capacityPerLocation);
-        } else if (d === 2) {
-            minSlots = 2;
-            maxSlots = Math.min(3, capacityPerLocation);
-        } else {
-            minSlots = Math.min(3, capacityPerLocation);
-            maxSlots = capacityPerLocation;
+    const placements = PLACE_REGISTRY.map((def, registryIndex) => {
+        const key = String(def?.key ?? "");
+        if (!key) throw new Error("Every PLACE_REGISTRY definition requires a key");
+        if (seenKeys.has(key)) {
+            throw new Error(`PLACE_REGISTRY contains duplicate key '${key}'`);
         }
+        seenKeys.add(key);
 
-        // For density 0, bias closer to min; as density increases, approach max (can't exceed capacity).
-        const target = Math.round(minSlots * (1 - fillFactor) + maxSlots * fillFactor);
-        softTarget.set(String(locId), target);
-    }
-
-    // --- Index locations by tag ---------------------------
-    const byTag = new Map();
-    for (const locId of locations) {
-        const tags = getTag(locId) || [];
-        const list = Array.isArray(tags) ? tags : [tags];
-        for (const t of list) {
-            if (!byTag.has(t)) byTag.set(t, []);
-            byTag.get(t).push(locId);
-        }
-    }
-
-    function candidateListFor(def) {
-        const set = new Set();
-
-        if (def.allowedTags && def.allowedTags.length) {
-            for (const tag of def.allowedTags) {
-                const arr = byTag.get(tag);
-                if (arr) for (const locId of arr) set.add(locId);
-            }
-        } else {
-            for (const locId of locations) set.add(locId);
-        }
-
-        return Array.from(set);
-    }
-
-    // --- desired counts -----------------------------------
-    const baseTargetCounts = {};
-    if (targetCounts) {
-        for (const k of Object.keys(targetCounts)) baseTargetCounts[k] = targetCounts[k];
-    }
-
-    // Effective maxCount scales linearly with density for maxCount > 1.
-    // maxCount === 1 stays unique.
-    const effectiveMaxByKey = new Map();
-    for (const def of PLACE_REGISTRY) {
-        const baseMax = Number.isFinite(def.maxCount) ? def.maxCount : Infinity;
-
-        let effectiveMax = Infinity;
-        if (baseMax === 1) {
-            effectiveMax = 1;
-        } else if (Number.isFinite(baseMax)) {
-            // only scale upwards; keep original caps when density < 0
-            const upScale = Math.max(1, scaleFactor);
-            effectiveMax = Math.ceil(baseMax * upScale);
-        }
-
-        effectiveMaxByKey.set(def.key, effectiveMax);
-    }
-
-    const stage1Min = new Map(); // strict mins (density-independent)
-    const targetTotalByKey = new Map(); // final targets (density-scaled)
-
-    // Stage 1 mins (at density 0 this is all we do)
-    for (const def of PLACE_REGISTRY) {
-        const key = def.key;
-        const max = effectiveMaxByKey.get(key) ?? Infinity;
-
-        let min = def.minCount ?? 1;
-        const ext = baseTargetCounts[key];
-        if (Number.isFinite(ext)) {
-            min = Math.max(min, ext);
-        }
-        min = Math.min(min, max);
-
-        stage1Min.set(key, min);
-    }
-
-    // Final per-def targets scale linearly with density.
-    // For most defs: ceil(min * (1 + density)).
-    // Bus stops: scale by candidate locations (so transport stays usable) but still minimal at density 0.
-    for (const def of PLACE_REGISTRY) {
-        const key = def.key;
-        const base = stage1Min.get(key) || 0;
-        const max = effectiveMaxByKey.get(key) ?? Infinity;
-
-        let target = base;
-
-        if (density > 0) {
-            if (key === "bus_stop") {
-                const candidates = candidateListFor(def);
-                // 0 -> base; 1 -> up to ~all candidates (bounded by minDistance anyway)
-                target = Math.max(base, Math.round(candidates.length * fillFactor));
-                target = Math.min(target, candidates.length);
-            } else {
-                target = Math.ceil(base * scaleFactor);
-                if (Number.isFinite(max)) target = Math.min(target, max);
-            }
-        }
-
-        targetTotalByKey.set(key, target);
-    }
-
-    const desiredTotalPlaces = Array.from(targetTotalByKey.values()).reduce((s, n) => s + n, 0);
-
-    // --- Placement bookkeeping ----------------------------
-    const results = [];
-    const placedByKey = new Map();
-    const totalByKey = new Map();
-    const namesByKey = new Map();
-
-    function recordPlacement(def, place, locId) {
-        results.push(place);
-
-        const key = def.key;
-        const list = placedByKey.get(key) || [];
-        list.push(place);
-        placedByKey.set(key, list);
-
-        totalByKey.set(key, (totalByKey.get(key) || 0) + 1);
-
-        const locKey = String(locId);
-        locationUsage.set(locKey, (locationUsage.get(locKey) || 0) + 1);
-    }
-
-    function canPlaceAt(def, locId) {
-        const locKey = String(locId);
-        const used = locationUsage.get(locKey) || 0;
-        if (used >= capacityPerLocation) return false;
-
-        const locTagsRaw = getTag(locId) || [];
-        const locTags = Array.isArray(locTagsRaw) ? locTagsRaw : [locTagsRaw];
-
-        if (def.allowedTags && def.allowedTags.length) {
-            if (!def.allowedTags.some((t) => locTags.includes(t))) return false;
-        }
-
-        const effectiveMax = effectiveMaxByKey.get(def.key) ?? Infinity;
-        if (Number.isFinite(effectiveMax)) {
-            const already = totalByKey.get(def.key) || 0;
-            if (already >= effectiveMax) return false;
-        }
-
-        const sameKeyPlaced = placedByKey.get(def.key) || [];
-        if (!isFarEnough(locId, sameKeyPlaced, def.minDistance || 0, neighborsFn, distFn)) {
-            return false;
-        }
-
-        return true;
-    }
-
-    function makePlace(def, locId) {
-        const sameKeyPlaced = placedByKey.get(def.key) || [];
-        const indexForKey = sameKeyPlaced.length;
-
-        const locTagsRaw = getTag(locId) || [];
-        const locTags = Array.isArray(locTagsRaw) ? locTagsRaw : [locTagsRaw];
-
-        const context = {
-            tags: locTags,
-            rnd,
-            index: indexForKey,
-            locationId: locId,
-        };
-
-        const baseName =
-            typeof def.nameFn === "function" ? def.nameFn(context) : def.label || def.key;
-
-        let nameSet = namesByKey.get(def.key);
-        if (!nameSet) {
-            nameSet = new Set();
-            namesByKey.set(def.key, nameSet);
-        }
-
-        let name = baseName;
-        if (nameSet.has(name)) {
-            let suffix = 2;
-            while (suffix <= 99 && nameSet.has(`${baseName} ${suffix}`)) suffix++;
-            if (suffix <= 99) {
-                name = `${baseName} ${suffix}`;
-            } else {
-                return null; // give up on this slot
-            }
-        }
-        nameSet.add(name);
-
-        return new Place({
-            id: instanceId(def.key, indexForKey, locId),
-            key: def.key,
-            name,
-            locationId: locId,
-            props: def.props || {},
+        const allowedTags = Array.isArray(def.allowedTags)
+            ? def.allowedTags.filter((tag) => tag != null)
+            : [];
+        const candidates = locations.filter((locationId) => {
+            if (!allowedTags.length) return true;
+            const tags = getTag(locationId) || [];
+            const locationTags = Array.isArray(tags) ? tags : [tags];
+            return allowedTags.some((tag) => locationTags.includes(tag));
         });
-    }
-
-    // --- weighted location picking: prefer underused -----------------
-    function pickLocationFor(def, candidates, { respectSoftTarget }) {
-        const weights = [];
-        let total = 0;
-
-        for (const locId of candidates) {
-            const locKey = String(locId);
-            const used = locationUsage.get(locKey) || 0;
-            const soft = softTarget.get(locKey) ?? capacityPerLocation;
-            const capLeft = Math.max(0, capacityPerLocation - used);
-
-            if (capLeft <= 0) {
-                weights.push(0);
-                continue;
-            }
-
-            let w = capLeft * capLeft; // strongly prefer emptier spots
-
-            if (respectSoftTarget && used >= soft) {
-                w *= 0.1; // down-weight over-target locations
-            }
-
-            weights.push(w);
-            total += w;
+        if (!candidates.length) {
+            throw new Error(
+                `No generated location can host registered place '${key}'`,
+            );
         }
+        return { def, registryIndex, candidates };
+    });
 
-        if (total <= 0) return null;
-
-        let r = rnd() * total;
-        for (let i = 0; i < candidates.length; i++) {
-            r -= weights[i];
-            if (r <= 0 && weights[i] > 0) return candidates[i];
-        }
-
-        return null;
-    }
-
-    function placeForDef(def, targetTotal, { respectSoftTarget }) {
-        if (targetTotal <= 0) return;
-
-        const candidates = candidateListFor(def);
-        if (!candidates.length) return;
-
-        let attempts = 0;
-        const maxAttempts = candidates.length * 25;
-
-        while ((totalByKey.get(def.key) || 0) < targetTotal && attempts < maxAttempts) {
-            attempts++;
-
-            const locId =
-                pickLocationFor(def, candidates, { respectSoftTarget }) ??
-                candidates[(rnd() * candidates.length) | 0];
-
-            if (!canPlaceAt(def, locId, { respectSoftTarget })) continue;
-
-            const p = makePlace(def, locId);
-            if (!p) continue;
-
-            recordPlacement(def, p, locId);
-        }
-    }
-
-    // --- Bus stops: greedy (minDistance makes random placement flaky) ---
-    function placeBusStopsGreedy(targetTotal) {
-        const BUS_STOP_KEY = "bus_stop";
-        const busDef = PLACE_REGISTRY.find((d) => d.key === BUS_STOP_KEY);
-        if (!busDef) return;
-
-        const candidates = candidateListFor(busDef);
-        if (!candidates.length) return;
-
-        // Shuffle candidates so patterns aren't fixed
-        for (let i = candidates.length - 1; i > 0; i--) {
-            const j = (rnd() * (i + 1)) | 0;
-            [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
-        }
-
-        let attempts = 0;
-        const maxAttempts = candidates.length * 10;
-
-        while ((totalByKey.get(BUS_STOP_KEY) || 0) < targetTotal && attempts < maxAttempts) {
-            attempts++;
-            const locId = candidates[(rnd() * candidates.length) | 0];
-            if (!canPlaceAt(busDef, locId, { respectSoftTarget: false })) continue;
-
-            const p = makePlace(busDef, locId);
-            if (!p) continue;
-            recordPlacement(busDef, p, locId);
-        }
-    }
-
-    // --- Stage 1a: singletons / rare items first (NOT bus_stop) -----
-    const singletonDefs = PLACE_REGISTRY.filter(
-        (d) => d.key !== "bus_stop" && (d.maxCount === 1 || (d.minCount && d.minCount > 0)),
+    // Place definitions with the fewest legal districts first so broad,
+    // flexible definitions cannot consume their capacity.
+    placements.sort(
+        (left, right) =>
+            left.candidates.length - right.candidates.length ||
+            left.registryIndex - right.registryIndex,
     );
 
-    // Rarest (fewest candidate locations) first
-    singletonDefs.sort((a, b) => candidateListFor(a).length - candidateListFor(b).length);
+    const results = [];
+    for (const { def, candidates } of placements) {
+        const available = candidates.filter(
+            (locationId) =>
+                (locationUsage.get(String(locationId)) || 0) < capacityPerLocation,
+        );
+        if (!available.length) {
+            throw new Error(
+                `No location has capacity for registered place '${def.key}'`,
+            );
+        }
 
-    for (const def of singletonDefs) {
-        const target = stage1Min.get(def.key) || 0;
-        placeForDef(def, target, { respectSoftTarget: false });
-    }
-
-    // --- Stage 1b: bus stops (only mins at density 0) ----------------
-    const busDef = PLACE_REGISTRY.find((d) => d.key === "bus_stop");
-    if (busDef) {
-        const target = stage1Min.get(busDef.key) || 0;
-        placeBusStopsGreedy(target);
-    }
-
-    // --- Stage 1c: all remaining minCounts ---------------------------
-    const others = PLACE_REGISTRY.filter((d) => d !== busDef && !singletonDefs.includes(d));
-    others.sort((a, b) => candidateListFor(a).length - candidateListFor(b).length);
-
-    for (const def of others) {
-        const target = stage1Min.get(def.key) || 0;
-        placeForDef(def, target, { respectSoftTarget: false });
-    }
-
-    // --- Stage 2: density-driven scaling targets ---------------------
-    if (density > 0) {
-        for (const def of PLACE_REGISTRY) {
-            const base = stage1Min.get(def.key) || 0;
-            const targetTotal = targetTotalByKey.get(def.key) || base;
-            if (targetTotal <= base) continue;
-
-            if (def.key === "bus_stop") {
-                placeBusStopsGreedy(targetTotal);
-            } else {
-                placeForDef(def, targetTotal, { respectSoftTarget: true });
+        // Prefer emptier districts while retaining seeded variation.
+        const weights = available.map((locationId) => {
+            const used = locationUsage.get(String(locationId)) || 0;
+            const remaining = capacityPerLocation - used;
+            return remaining * remaining;
+        });
+        const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
+        let roll = rnd() * totalWeight;
+        let locationId = available.at(-1);
+        for (let index = 0; index < available.length; index++) {
+            roll -= weights[index];
+            if (roll <= 0) {
+                locationId = available[index];
+                break;
             }
         }
+
+        const tags = getTag(locationId) || [];
+        const locationTags = Array.isArray(tags) ? tags : [tags];
+        const name =
+            typeof def.nameFn === "function"
+                ? def.nameFn({
+                    tags: locationTags,
+                    rnd,
+                    index: 0,
+                    locationId,
+                })
+                : def.label || def.key;
+
+        results.push(
+            new Place({
+                id: instanceId(def.key, 0, locationId),
+                key: def.key,
+                name,
+                locationId,
+                props: def.props || {},
+            }),
+        );
+        const locationKey = String(locationId);
+        locationUsage.set(locationKey, (locationUsage.get(locationKey) || 0) + 1);
     }
 
-    // --- Stage 3: guarantee at least 1 place per location (only >0) --
-    if (minPlacesPerLocation > 0 && capacityPerLocation > 0) {
-        for (const locId of locations) {
-            const locKey = String(locId);
-            let used = locationUsage.get(locKey) || 0;
-
-            if (used >= capacityPerLocation) continue;
-
-            while (used < minPlacesPerLocation && used < capacityPerLocation) {
-                const tags = getTag(locId) || [];
-                const locTags = Array.isArray(tags) ? tags : [tags];
-
-                const candidateDefs = PLACE_REGISTRY.filter((def) => {
-                    if (def.allowedTags && def.allowedTags.length) {
-                        if (!def.allowedTags.some((t) => locTags.includes(t))) return false;
-                    }
-
-                    const effectiveMax = effectiveMaxByKey.get(def.key) ?? Infinity;
-                    if (
-                        Number.isFinite(effectiveMax) &&
-                        (totalByKey.get(def.key) || 0) >= effectiveMax
-                    )
-                        return false;
-
-                    const sameKeyPlaced = placedByKey.get(def.key) || [];
-                    if (
-                        !isFarEnough(
-                            locId,
-                            sameKeyPlaced,
-                            def.minDistance || 0,
-                            neighborsFn,
-                            distFn,
-                        )
-                    )
-                        return false;
-
-                    return true;
-                });
-
-                if (!candidateDefs.length) break;
-
-                let def =
-                    candidateDefs.find((d) => d.key === "bus_stop") ||
-                    candidateDefs[(rnd() * candidateDefs.length) | 0];
-
-                if (!canPlaceAt(def, locId, { respectSoftTarget: false })) {
-                    const alt = candidateDefs.filter((d) => d.key !== def.key);
-                    if (!alt.length) break;
-                    def = alt[(rnd() * alt.length) | 0];
-                    if (!canPlaceAt(def, locId, { respectSoftTarget: false })) break;
-                }
-
-                const p = makePlace(def, locId);
-                if (!p) break;
-
-                recordPlacement(def, p, locId);
-                used = locationUsage.get(locKey) || 0;
-            }
-        }
+    if (results.length !== PLACE_REGISTRY.length) {
+        throw new Error("World generation did not place every registered place exactly once");
     }
-
-    // --- Stage 4: fill to total target if constrained defs couldn't place ----------
-    // This keeps high-density maps from becoming "lots of locations, not enough places".
-    if (density > 0 && results.length < desiredTotalPlaces) {
-        const fillable = PLACE_REGISTRY.filter((def) => def.key !== "bus_stop");
-        const weights = fillable.map((d) => Math.max(0.01, d.weight ?? 1));
-        const weightSum = weights.reduce((s, w) => s + w, 0);
-
-        let attempts = 0;
-        const maxAttempts = Math.max(2000, (desiredTotalPlaces - results.length) * 50);
-
-        while (results.length < desiredTotalPlaces && attempts < maxAttempts) {
-            attempts++;
-
-            // weighted pick
-            let r = rnd() * weightSum;
-            let def = fillable[fillable.length - 1];
-            for (let i = 0; i < fillable.length; i++) {
-                r -= weights[i];
-                if (r <= 0) {
-                    def = fillable[i];
-                    break;
-                }
-            }
-
-            const effectiveMax = effectiveMaxByKey.get(def.key) ?? Infinity;
-            if (Number.isFinite(effectiveMax) && (totalByKey.get(def.key) || 0) >= effectiveMax)
-                continue;
-
-            const candidates = candidateListFor(def);
-            if (!candidates.length) continue;
-
-            const locId =
-                pickLocationFor(def, candidates, { respectSoftTarget: true }) ??
-                candidates[(rnd() * candidates.length) | 0];
-
-            if (!canPlaceAt(def, locId, { respectSoftTarget: true })) continue;
-
-            const p = makePlace(def, locId);
-            if (!p) continue;
-
-            recordPlacement(def, p, locId);
-        }
-    }
-
     return results;
 }
-
 function pickStreetDefForRun(startLocation, usedKeys, rnd) {
     const locTags = startLocation?.tags || [];
     const unused = STREET_REGISTRY.filter((s) => !usedKeys.has(s.key));
@@ -641,22 +217,9 @@ function pickStreetDefForRun(startLocation, usedKeys, rnd) {
     return candidates[candidates.length - 1].def;
 }
 
-function computeAutoLocationCount(density) {
-    // 1) Absolute minimum required by minCount
-    let totalMinPlaces = 0;
-    for (const def of PLACE_REGISTRY) {
-        const min = def.minCount ?? 1;
-        totalMinPlaces += min;
-    }
-
-    const targetAvg = capacityPerLocation / 3; // tune if you like
-
-    const locCount = Math.ceil(Math.ceil(totalMinPlaces / targetAvg) * (1 + density));
-    if (!Number.isSafeInteger(locCount)) {
-        throw new RangeError("World map density produces an unsafe location count");
-    }
-
-    return Math.max(locCount, 1);
+function computeAutoLocationCount() {
+    const capacityCount = Math.ceil(PLACE_REGISTRY.length / capacityPerLocation);
+    return Math.max(LOCATION_REGISTRY.length, capacityCount, 1);
 }
 
 // --------------------------
@@ -667,21 +230,17 @@ export class WorldMap {
     /**
      * @param {Object} opts
      * @param {Function} opts.rnd   - RNG function
-     * @param {number} opts.density - >= 0 (0 = minimum, 1 = ~2x, 2 = ~3x, ...) //TODO: remove density a sa paremter. every map should include ONE copy of every place on registry except the bus stops
      * @param {number} mapWidth - span of map in local coordinates
      * @param {number} mapHeight - height of map in local coordinates
      */
-    constructor({ rnd = null, density = 0, mapWidth = 100, mapHeight = 50 } = {}) {
-        density = finiteNonNegative(density, "World map density");
+    constructor({ rnd = null, mapWidth = 100, mapHeight = 50 } = {}) {
         mapWidth = finitePositive(mapWidth, "World map width");
         mapHeight = finitePositive(mapHeight, "World map height");
 
         this.rnd = rnd ?? makeRNG();
         this.locations = new Map(); // id -> Location
         this.edges = []; // array<Street>
-        this.density = density;
-
-        const count = computeAutoLocationCount(density);
+        const count = computeAutoLocationCount();
 
         this._generateLocations(count, mapWidth, mapHeight);
         this._connectGraph();
@@ -690,7 +249,6 @@ export class WorldMap {
 
     toJSON() {
         return {
-            density: this.density,
             locations: [...this.locations.values()].map((loc) => loc.toJSON()),
             edges: this.edges.map((edge) => edge.toJSON()),
         };
@@ -701,8 +259,6 @@ export class WorldMap {
         map.rnd = rnd ?? makeRNG();
         map.locations = new Map();
         map.edges = [];
-        map.density = finiteNonNegative(data?.density ?? 0, "World map density");
-
         for (const locData of data?.locations || []) {
             const places = (locData?.places || []).map((placeData) => Place.fromJSON(placeData));
             const loc = Location.fromJSON(locData, { places });
@@ -899,14 +455,11 @@ export class WorldMap {
 
     _populatePlaces() {
         const ids = [...this.locations.keys()];
-        const neighbors = (locId) => this.locations.get(locId)?.neighbors.keys() || [];
 
         const placed = generatePlaces({
             locations: ids,
             getTag: (locId) => this.locations.get(locId)?.tags || [],
-            neighbors,
             rnd: this.rnd,
-            density: this.density,
         });
 
         for (const p of placed) {
@@ -940,7 +493,7 @@ export class WorldMap {
         const usedStreetKeys = new Set(); // no reuse of a registry name
         let fallbackIndex = 1; // "Road 1", "Road 2", ... if registry is exhausted
 
-        const MAX_LEN = Math.round(6 * ((1 + this.density) / 2));
+        const MAX_LEN = 3;
         const MIN_LEN = 2;
 
         while (unassigned.size > 0) {
@@ -986,7 +539,7 @@ export class WorldMap {
 
                 // At intersections (deg >= 3) and once we have MIN_LEN, sometimes stop here
                 if (deg >= 3 && len >= MIN_LEN) {
-                    const pContinue = clamp01(0.5 * (1 + this.density)); // tweak: higher means longer continuous streets
+                    const pContinue = 0.5;
                     if (rnd() > pContinue) break;
                 }
 

@@ -28,7 +28,7 @@ function throws(name, fn) {
     check(name, didThrow);
 }
 
-const world = new World({ seed: 123, startDate: START, density: 0 });
+const world = new World({ seed: 123, startDate: START });
 const calendarBeforeQueries = JSON.stringify(world.calendar);
 const randomBeforeQueries = JSON.stringify(world.random);
 

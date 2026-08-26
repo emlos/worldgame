@@ -12,7 +12,6 @@ export class World {
   constructor({
     seed = rollSeed(),
     startDate = new Date(),
-    density = 0.1,
     w = 100,
     h = 50,
   } = {}) {
@@ -42,7 +41,6 @@ export class World {
 
     this.map = new WorldMap({
       rnd: this.random.stream("map"),
-      density,
       mapWidth: w,
       mapHeight: h,
     });
@@ -113,10 +111,9 @@ export class World {
     const weatherState = this.weather.stateAt(d);
     const weather = weatherState.kind;
     const temperature = this.weather.computeTemperature(d, weather);
-    const density = this.density;
     const season = Weather.monthToSeason(d.getUTCMonth() + 1);
 
-    return { weather, temperature, density, season };
+    return { weather, temperature, season };
   }
 
   // --- Queries ---
@@ -227,7 +224,4 @@ export class World {
     return this.map.edges;
   }
 
-  get density() {
-    return this.map.density;
-  }
 }

@@ -6,6 +6,7 @@ import {
 import { buildScene } from "../../src/classes/game/scene/sceneEngine.js";
 
 const START = new Date("2026-08-24T08:00:00.000Z");
+const DAY_OFF_START = new Date("2026-08-29T08:00:00.000Z");
 const failures = [];
 
 function check(label, condition) {
@@ -140,11 +141,14 @@ check(
 
 const greetGame = new Game({
   seed: 121,
-  startDate: START,
+  startDate: DAY_OFF_START,
   playerOptions: { startPlaceId: null },
 });
 const greetNpc = greetGame.npcs.get("taylor");
-greetNpc.setLocationAndPlace(greetGame.currentLocationId, null);
+greetNpc.brain.relocateTemporarily(greetGame, {
+  locationId: greetGame.currentLocationId,
+  stayMinutes: 30,
+});
 const greetScene = buildScene(greetGame);
 const authoritativeGreet = greetScene.sections
   .flatMap((section) => section.choices)

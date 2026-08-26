@@ -9,6 +9,7 @@ import { RANDOM_HOLIDAYS, MONTH_DAYS, DayKind } from "../../../data/world/calend
 import { DAY_KEYS, MS_PER_MINUTE } from "../../../data/world/time.js";
 import { WeatherType } from "../../../data/world/weather.js";
 import { PLAYER_TEMPERATURE_VALUES } from "../../../data/player/stats.js";
+import { PLACE_REGISTRY } from "../../../data/world/place.js";
 import {
     PLACE_ENTER_MINUTES,
     PLACE_LEAVE_MINUTES,
@@ -385,9 +386,11 @@ function validateSchedule(scheduleData, path) {
 
 function validateMap(data, path) {
     const map = record(data, path);
-    finiteNumber(required(map, "density", path), `${path}.density`, { min: 0 });
     const locations = new Map();
     const places = new Map();
+    const registeredPlaceCounts = new Map(
+        PLACE_REGISTRY.map((definition) => [String(definition.key), 0]),
+    );
 
     array(required(map, "locations", path), `${path}.locations`).forEach((locationData, index) => {
         const locationPath = `${path}.locations[${index}]`;
@@ -428,7 +431,17 @@ function validateMap(data, path) {
                     `${placePath}.locationId`,
                     "its containing location",
                 );
-                string(required(place, "key", placePath), `${placePath}.key`, { nonEmpty: true });
+                const placeKey = string(
+                    required(place, "key", placePath),
+                    `${placePath}.key`,
+                    { nonEmpty: true },
+                );
+                if (registeredPlaceCounts.has(placeKey)) {
+                    registeredPlaceCounts.set(
+                        placeKey,
+                        registeredPlaceCounts.get(placeKey) + 1,
+                    );
+                }
                 string(required(place, "name", placePath), `${placePath}.name`, { nonEmpty: true });
                 const props = record(required(place, "props", placePath), `${placePath}.props`);
                 validateSchedule(
@@ -463,6 +476,14 @@ function validateMap(data, path) {
     });
 
     if (locations.size === 0) fail(`${path}.locations`, "must contain at least one location");
+    for (const [placeKey, count] of registeredPlaceCounts) {
+        if (count !== 1) {
+            fail(
+                `${path}.locations`,
+                `must contain exactly one registered place with key '${placeKey}' (found ${count})`,
+            );
+        }
+    }
 
     const adjacency = new Map([...locations.keys()].map((id) => [id, new Map()]));
     const edgePairs = new Set();
@@ -1129,9 +1150,9 @@ export function validateGameSave(data) {
     const save = record(data, "save");
     same(
         integer(required(save, "saveVersion", "save"), "save.saveVersion"),
-        9,
+        10,
         "save.saveVersion",
-        "version 9",
+        "version 10",
     );
 
     const seed = uint32(required(save, "seed", "save"), "save.seed");

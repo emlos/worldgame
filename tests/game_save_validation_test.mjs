@@ -31,9 +31,13 @@ function rejects(label, mutate, expectedPath, saveFactory = makeSave) {
 }
 
 const validSave = makeSave();
-check("current v9 save validates directly", validateGameSave(validSave) === validSave);
+check("current v10 save validates directly", validateGameSave(validSave) === validSave);
 check(
-    "validated v9 save round-trips exactly",
+    "world-map saves no longer contain density",
+    !Object.prototype.hasOwnProperty.call(validSave.world.map, "density"),
+);
+check(
+    "validated v10 save round-trips exactly",
     JSON.stringify(Game.fromJSON(validSave)) === JSON.stringify(validSave),
 );
 
@@ -233,6 +237,26 @@ rejects(
         save.flags = ["same", "same"];
     },
     "save.flags[1]",
+);
+rejects(
+    "saves must retain every registered place",
+    (save) => {
+        const location = save.world.map.locations.find((candidate) =>
+            candidate.places.some((place) => place.key === "player_home"),
+        );
+        location.places = location.places.filter((place) => place.key !== "player_home");
+    },
+    "save.world.map.locations",
+);
+rejects(
+    "saves reject duplicate registered place keys",
+    (save) => {
+        const place = save.world.map.locations
+            .flatMap((location) => location.places)
+            .find((candidate) => candidate.key === "town_square");
+        place.key = "player_home";
+    },
+    "save.world.map.locations",
 );
 rejects(
     "story state must be an object",

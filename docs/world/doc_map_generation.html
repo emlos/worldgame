@@ -232,7 +232,6 @@
 
                 <pre><code>new WorldMap({
   rnd,              // required for deterministic generation
-  density: 0.0,     // 0..1 (affects location count + extra places + street name runs)
   mapWidth: 100,    // layout coordinate span (x)
   mapHeight: 50,    // layout coordinate span (y)
 })</code></pre>
@@ -252,15 +251,6 @@
                             <td>
                                 Random number generator function returning 0..1. Used everywhere
                                 (layout, edges, names, placement).
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><code>density</code></td>
-                            <td><span class="pill opt">optional</span></td>
-                            <td>
-                                0..1. Higher density generally means more locations and more
-                                “extras” for places, and longer continuous street name runs.
-                                Default: 0.
                             </td>
                         </tr>
                         <tr>
@@ -293,7 +283,7 @@
                     </li>
                     <li>
                         <strong>Populate places</strong> into locations using
-                        <code>PLACE_REGISTRY</code>, capacity limits, and density.
+                        <code>PLACE_REGISTRY</code>, allowed district tags, and capacity limits.
                     </li>
                 </ol>
 
@@ -308,8 +298,9 @@
                 <h2>Locations (districts)</h2>
                 <p>
                     District types are defined in <code>src/data/world/location.js</code> as
-                    <code>LOCATION_REGISTRY</code> entries. During generation, the engine picks
-                    district definitions to match required minimums first, then fills the rest using
+                    <code>LOCATION_REGISTRY</code> entries. The fixed-size generator creates one of
+                    every registered district, then shuffles them before layout. If future registry
+                    growth requires additional locations for place capacity, extra districts use
                     weighted random picks while respecting optional max caps.
                 </p>
 
@@ -351,15 +342,6 @@
                             <td>
                                 Relative chance of being chosen when filling non-required slots.
                                 Default: 1.
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><code>min</code></td>
-                            <td><span class="pill opt">optional</span></td>
-                            <td>
-                                Hard minimum count of this district type in the map. Mins are
-                                applied first. If overall location count is too small, mins are
-                                satisfied until the map runs out of slots.
                             </td>
                         </tr>
                         <tr>
@@ -515,8 +497,8 @@
                         edges.
                     </li>
                     <li>
-                        <strong>Density increases run length.</strong> Higher density increases both
-                        the max run length and the chance to continue through intersections.
+                        Street runs use a fixed maximum length of three edges and a 50% chance to
+                        continue through an intersection after reaching two edges.
                     </li>
                     <li>
                         If a run ends up as a single edge and can’t be extended, the algorithm tries
@@ -532,211 +514,93 @@
             <section>
                 <h2>Places: how they’re generated</h2>
 
-                <div class="grid2">
-                    <div>
-                        <h3>Key constraints</h3>
-                        <ul>
-                            <li>
-                                Each location has a hard capacity:
-                                <code>capacityPerLocation = 10</code>.
-                            </li>
-                            <li>
-                                Place types can define <code>maxCount</code> and
-                                <code>minDistance</code> constraints.
-                            </li>
-                            <li>
-                                Place types can be limited to certain district tags via
-                                <code>allowedTags</code>.
-                            </li>
-                        </ul>
-                    </div>
-                    <div>
-                        <h3>Placement stages</h3>
-                        <ol>
-                            <li>
-                                <strong>Stage 0:</strong> greedy bus stops (special case; see below)
-                            </li>
-                            <li><strong>Stage 1:</strong> satisfy minimum counts and singletons</li>
-                            <li>
-                                <strong>Stage 2:</strong> density-driven extras (respects soft
-                                targets)
-                            </li>
-                            <li><strong>Stage 3:</strong> ensure at least 1 place per location</li>
-                        </ol>
-                    </div>
-                </div>
+                <p>
+                    Generation is a single fail-fast assignment pass. Every
+                    <code>PLACE_REGISTRY</code> definition produces exactly one
+                    <code>Place</code>, including <code>bus_stop</code>.
+                </p>
 
-                <h3>PLACE_REGISTRY entry shape</h3>
+                <ol>
+                    <li>Validate that every registry key is present and unique.</li>
+                    <li>
+                        Resolve legal locations from <code>allowedTags</code> and sort definitions
+                        by candidate count, most constrained first.
+                    </li>
+                    <li>
+                        Pick one legal location using the seeded map RNG, preferring locations with
+                        more of their ten slots remaining.
+                    </li>
+                    <li>
+                        Instantiate one place with ID <code>key#0@locationId</code>. Generation
+                        throws if any definition cannot be placed.
+                    </li>
+                </ol>
+
+                <h3>PLACE_REGISTRY fields used by generation</h3>
                 <table>
                     <thead>
                         <tr>
                             <th>Field</th>
                             <th>Required?</th>
-                            <th>Meaning / rules</th>
+                            <th>Meaning</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td><code>key</code></td>
                             <td><span class="pill req">required</span></td>
-                            <td>
-                                Unique place type key (string). The generator uses this key
-                                heavily.
-                                <span class="pill bad">Don’t use <code>id</code> instead</span> —
-                                map generation reads <code>key</code>.
-                            </td>
+                            <td>Unique place-type key and the basis of the generated instance ID.</td>
                         </tr>
                         <tr>
                             <td><code>label</code></td>
                             <td><span class="pill opt">optional</span></td>
-                            <td>Human-readable label used as a fallback for naming.</td>
-                        </tr>
-                        <tr>
-                            <td><code>props</code></td>
-                            <td><span class="pill opt">optional</span></td>
-                            <td>
-                                Arbitrary metadata copied into the instantiated
-                                <code>Place.props</code> (icons, categories, opening hours, age
-                                gates, etc.). Documented below.
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><code>nameFn(context)</code></td>
-                            <td><span class="pill opt">optional</span></td>
-                            <td>
-                                Function returning the base name for an instance. Called during
-                                placement.
-                                <strong>Context shape:</strong>
-                                <pre><code>({ tags, rnd, index, locationId }) =&gt; "Some Name"</code></pre>
-                                where <code>tags</code> are the location’s district tags,
-                                <code>rnd</code> is RNG, and <code>index</code> counts prior
-                                placements of the same key.
-                            </td>
+                            <td>Fallback display name when no <code>nameFn</code> exists.</td>
                         </tr>
                         <tr>
                             <td><code>allowedTags</code></td>
                             <td><span class="pill opt">optional</span></td>
                             <td>
-                                Array of district tags. If provided, the place can only be placed in
-                                locations that contain <em>any</em> of these tags. If omitted, the
-                                place may be placed anywhere (subject to other constraints).
+                                The generated location must contain at least one listed district tag.
+                                With no list, any location is legal.
                             </td>
                         </tr>
                         <tr>
-                            <td><code>minCount</code></td>
+                            <td><code>nameFn(context)</code></td>
                             <td><span class="pill opt">optional</span></td>
-                            <td>
-                                Minimum number of instances the generator will try to place in Stage
-                                1. Default is effectively 0.
-                            </td>
+                            <td>Creates the instance name using seeded generation context.</td>
                         </tr>
                         <tr>
-                            <td><code>maxCount</code></td>
+                            <td><code>props</code></td>
                             <td><span class="pill opt">optional</span></td>
-                            <td>
-                                Maximum number of instances. If omitted, effectively unlimited. (But
-                                you still hit per-location capacity and distance constraints.)
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><code>minDistance</code></td>
-                            <td><span class="pill opt">optional</span></td>
-                            <td>
-                                Minimum distance between two instances of the same key. Important:
-                                when no custom distance function is supplied, this is a
-                                <strong>graph hop count</strong> (BFS steps), not meters.
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><code>weight</code></td>
-                            <td><span class="pill opt">optional</span></td>
-                            <td>
-                                Stored on the definition but not directly used by the current
-                                placement algorithm (placement is driven primarily by min/max
-                                counts, density extras, and constraints).
-                            </td>
+                            <td>Metadata copied to the instance, including categories and icons.</td>
                         </tr>
                     </tbody>
                 </table>
 
                 <div class="warnbox">
-                    Placement is best-effort: if constraints are too strict (e.g., very high
-                    <code>minDistance</code> with few candidate districts), the generator may stop
-                    early and place fewer than requested.
+                    The generator no longer degrades to a partial map. A duplicate key, impossible
+                    <code>allowedTags</code> constraint, or exhausted location capacity throws.
                 </div>
             </section>
 
             <section>
-                <h2>How density affects the world</h2>
+                <h2>Exact place invariant</h2>
                 <ul>
+                    <li>Every registered place key appears exactly once in a generated map.</li>
+                    <li>Bus stops follow the same one-instance rule.</li>
                     <li>
-                        <strong>Location count:</strong> when <code>locationCount</code> is not
-                        explicitly provided, it’s derived from required minimum places. Higher
-                        <code>density</code> increases the computed number of locations.
+                        NPC homes are created later with unregistered keys and do not affect the
+                        registry invariant.
                     </li>
                     <li>
-                        <strong>Extra places:</strong> if a place type has a finite
-                        <code>maxCount</code>, density can add “extra” instances up to that cap in
-                        Stage 2.
-                    </li>
-                    <li>
-                        <strong>Soft per-location targets:</strong> Stage 2 uses a per-location
-                        “soft target” (based on node degree) to discourage overstuffing one location
-                        with all the extras.
-                    </li>
-                    <li>
-                        <strong>Street name runs:</strong> higher density produces longer continuous
-                        street name runs.
+                        Save validation requires exactly one saved instance of every registered key.
                     </li>
                 </ul>
-
                 <div class="note">
-                    The generator still hard-limits places per location to 10 total instances
-                    (including bus stops).
+                    Registered places are limited to ten per location. The current registries create
+                    one of every district as well, providing legal locations for all place tags.
                 </div>
             </section>
-
-            <section>
-                <h2>Why bus stops are special</h2>
-
-                <p>
-                    The key <code>"bus_stop"</code> is handled specially in
-                    <code>worldmap.js</code>: the generator first performs a greedy placement pass
-                    that tries to place bus stops widely across the map, subject only to
-                    <code>minDistance</code> between bus stops.
-                </p>
-
-                <ul>
-                    <li>Bus stops are placed <strong>before</strong> other place types.</li>
-                    <li>
-                        This greedy pass intentionally bypasses the usual “soft target” and capacity
-                        checks used for extras.
-                    </li>
-                    <li>
-                        Bus stops still consume a slot in the location’s capacity, so placing “a bus
-                        stop everywhere” reduces room for other places.
-                    </li>
-                </ul>
-
-                <h3>Bus stop props that matter</h3>
-                <ul>
-                    <li>
-                        <code>props.travelTimeMult</code> — bus ride time multiplier (smaller =
-                        faster bus)
-                    </li>
-                    <li>
-                        <code>props.busFrequencyDay</code> / <code>props.busFrequencyNight</code> —
-                        minutes between buses, used to compute wait time
-                    </li>
-                </ul>
-
-                <div class="warnbox">
-                    If a “bus stop” place lacks those props, bus planning may fail or behave
-                    strangely. Keep those fields present on any bus-stop-like place used by the bus
-                    system.
-                </div>
-            </section>
-
             <section>
                 <h2>Place props</h2>
                 <p>
@@ -870,10 +734,7 @@
                         Give it a unique <code>key</code>, a <code>label</code>, and a set of
                         <code>tags</code> that will matter for placement and naming.
                     </li>
-                    <li>
-                        If you want it to always appear, add <code>min</code>. If you want to cap
-                        it, add <code>max</code>.
-                    </li>
+                    <li>Every registered district currently appears once automatically.</li>
                 </ol>
 
                 <h3>Add new street name variants</h3>
@@ -903,10 +764,7 @@
                         Choose <code>allowedTags</code> carefully to ensure there are enough
                         candidate locations.
                     </li>
-                    <li>
-                        Use <code>minCount</code> / <code>maxCount</code> to control how many
-                        appear. Use <code>minDistance</code> to spread them out.
-                    </li>
+                    <li>No count field is needed: adding the definition adds exactly one instance.</li>
                     <li>
                         Set <code>props.category</code> so NPC target selection and opening-hour
                         defaults work.
@@ -915,20 +773,12 @@
                         If it has special access rules (age, opening hours), set
                         <code>props.ages</code> and/or <code>props.openingHours</code>.
                     </li>
-                    <li>If it’s bus-related, include the bus props described above.</li>
                 </ol>
 
                 <div class="badbox">
                     Avoid impossible combinations:
                     <ul>
-                        <li>
-                            Very small candidate set + very high <code>minCount</code> or
-                            <code>minDistance</code>
-                        </li>
-                        <li>
-                            <code>maxCount</code> lower than <code>minCount</code> (the generator
-                            clamps, but it won’t do what you expect)
-                        </li>
+                        <li><code>allowedTags</code> that match no registered district</li>
                         <li>
                             Leaving <code>props.category</code> empty when you want NPCs to find the
                             place by category
@@ -945,13 +795,12 @@
                 <pre><code>nameFn({
   tags,        // the location's district tags (array)
   rnd,         // RNG function (0..1)
-  index,       // 0-based count of already-placed instances of this place key
+  index,       // always 0 because each registered place is generated once
   locationId,  // the location ID where this instance is being created
 }) =&gt; string</code></pre>
                 <p>
-                    The generator enforces uniqueness per place key: if the name repeats, it
-                    auto-suffixes “ 2”, “ 3”, … up to 99. If it can’t find a unique name, that
-                    placement attempt is abandoned.
+                    Because every registry key has one generated instance, its name does not need
+                    duplicate suffix handling.
                 </p>
 
                 <h3>District naming</h3>
