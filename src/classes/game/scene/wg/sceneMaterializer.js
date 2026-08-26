@@ -66,6 +66,18 @@ function materializeChoice(node, context) {
     }
   }
 
+  const action = node.target === "@leave-place"
+    ? {
+        type: SCENE_ACTION_TYPE.leave,
+        effects: node.effects || [],
+        exitStory: true,
+      }
+    : {
+        type: SCENE_ACTION_TYPE.wg,
+        target: node.target,
+        effects: node.effects || [],
+      };
+
   return createChoice({
     id: node.id,
     icon: node.icon,
@@ -79,11 +91,7 @@ function materializeChoice(node, context) {
       amount,
       label,
     })),
-    action: {
-      type: SCENE_ACTION_TYPE.wg,
-      target: node.target,
-      effects: node.effects || [],
-    },
+    action,
   });
 }
 

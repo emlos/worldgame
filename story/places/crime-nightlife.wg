@@ -1,0 +1,105 @@
+@# Basic authored hubs for hidden and suspicious places.
+
+@entry place.hub.smugglers-den
+  @scene place.smugglers-den
+  @place-key smugglers_den
+  @hub place
+@endentry
+
+:: place.smugglers-den [place hub]
+@kind place
+@heading "Smuggler's Den"
+@choices "Activities"
+
+People lower their voices inside {{place.name}}.
+
+@choice room "Look around carefully" -> place.smugglers-den
+  @icon 👀
+@endchoice
+
+@choice contact "Approach someone who looks informed" -> place.smugglers-den
+  @icon 🕵️
+@endchoice
+
+@choice leave "Leave" -> @leave-place
+  @icon 🚪
+  @time 1m
+@endchoice
+
+@entry place.hub.night-market
+  @scene place.night-market
+  @place-key night_market
+  @hub place
+@endentry
+
+:: place.night-market [place hub]
+@kind place
+@heading "Night Market"
+@choices "Activities"
+
+Unusual goods change hands beneath the lights of {{place.name}}.
+
+@choice stalls "Browse the stalls" -> place.night-market
+  @icon 🌙
+@endchoice
+
+@choice food "Try some street food" -> place.night-market
+  @icon 🍢
+@endchoice
+
+@choice leave "Leave" -> @leave-place
+  @icon 🚪
+  @time 1m
+@endchoice
+
+@entry place.hub.abandoned-parking-lot
+  @scene place.abandoned-parking-lot
+  @place-key abandoned_parking_lot
+  @hub place
+@endentry
+
+:: place.abandoned-parking-lot [place hub]
+@kind place
+@heading "Abandoned Parking Lot"
+@choices "Activities"
+
+Weeds push through the cracked surface of {{place.name}}.
+
+@choice search "Search the area" -> place.abandoned-parking-lot
+  @icon 🔎
+@endchoice
+
+@choice wait "Wait and watch" -> place.abandoned-parking-lot
+  @icon 👀
+@endchoice
+
+@choice leave "Leave" -> @leave-place
+  @icon 🚪
+  @time 1m
+@endchoice
+
+@entry place.hub.alleyway
+  @scene place.alleyway
+  @place-key alleyway
+  @hub place
+@endentry
+
+:: place.alleyway [place hub]
+@kind place
+@heading "Alleyway"
+@choices "Activities"
+
+The narrow confines of {{place.name}} shut out much of the surrounding street.
+
+@choice explore "Explore the alley" -> place.alleyway
+  @icon 🚷
+@endchoice
+
+@choice search "Look for anything unusual" -> place.alleyway
+  @icon 🔎
+@endchoice
+
+@choice leave "Leave" -> @leave-place
+  @icon 🚪
+  @time 1m
+@endchoice

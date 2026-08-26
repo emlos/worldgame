@@ -1,0 +1,209 @@
+@# Basic authored hubs for housing and waterfront places.
+
+@entry place.hub.apartment-complex
+  @scene place.apartment-complex
+  @place-key apartment_complex
+  @hub place
+@endentry
+
+:: place.apartment-complex [place hub]
+@kind place
+@heading "Apartment Complex"
+@choices "Activities"
+
+Mailboxes and apartment directories line the entrance of {{place.name}}.
+
+@choice directory "Check the apartment directory" -> place.apartment-complex
+  @icon 🏢
+@endchoice
+
+@choice courtyard "Look around the shared courtyard" -> place.apartment-complex
+  @icon 🌿
+@endchoice
+
+@choice leave "Leave" -> @leave-place
+  @icon 🚪
+  @time 1m
+@endchoice
+
+@entry place.hub.townhouse
+  @scene place.townhouse
+  @place-key townhouse
+  @hub place
+@endentry
+
+:: place.townhouse [place hub]
+@kind place
+@heading "Townhouse"
+@choices "Activities"
+
+Several closely packed homes make up {{place.name}}.
+
+@choice doors "Look over the front doors" -> place.townhouse
+  @icon 🏘️
+@endchoice
+
+@choice knock "Knock on a door" -> place.townhouse
+  @icon ✊
+@endchoice
+
+@choice leave "Leave" -> @leave-place
+  @icon 🚪
+  @time 1m
+@endchoice
+
+@entry place.hub.shady-building
+  @scene place.shady-building
+  @place-key shady_building
+  @hub place
+@endentry
+
+:: place.shady-building [place hub]
+@kind place
+@heading "Shady Building"
+@choices "Activities"
+
+Dim corners and neglected surfaces make {{place.name}} difficult to read.
+
+@choice investigate "Investigate the building" -> place.shady-building
+  @icon 🔦
+@endchoice
+
+@choice listen "Stop and listen" -> place.shady-building
+  @icon 👂
+@endchoice
+
+@choice leave "Leave" -> @leave-place
+  @icon 🚪
+  @time 1m
+@endchoice
+
+@entry place.hub.motel
+  @scene place.motel
+  @place-key motel
+  @hub place
+@endentry
+
+:: place.motel [place hub]
+@kind place
+@heading "Motel"
+@choices "Activities"
+
+The reception area of {{place.name}} has seen better days.
+
+@choice reception "Speak to reception" -> place.motel
+  @icon 🛎️
+@endchoice
+
+@choice room "Ask about a room" -> place.motel
+  @icon 🛏️
+@endchoice
+
+@choice leave "Leave" -> @leave-place
+  @icon 🚪
+  @time 1m
+@endchoice
+
+@entry place.hub.dorm
+  @scene place.dorm
+  @place-key dorm
+  @hub place
+@endentry
+
+:: place.dorm [place hub]
+@kind place
+@heading "Dormitory"
+@choices "Activities"
+
+Doors, notices, and stray conversations fill {{place.name}}.
+
+@choice common-room "Visit the common room" -> place.dorm
+  @icon 🛋️
+@endchoice
+
+@choice notices "Check the resident notices" -> place.dorm
+  @icon 📌
+@endchoice
+
+@choice leave "Leave" -> @leave-place
+  @icon 🚪
+  @time 1m
+@endchoice
+
+@entry place.hub.pier
+  @scene place.pier
+  @place-key pier
+  @hub place
+@endentry
+
+:: place.pier [place hub]
+@kind place
+@heading "Pier"
+@choices "Activities"
+
+Water moves beneath the boards and structures of {{place.name}}.
+
+@choice walk "Walk along the pier" -> place.pier
+  @icon 🚶
+@endchoice
+
+@choice water "Watch the water" -> place.pier
+  @icon 🌊
+@endchoice
+
+@choice leave "Leave" -> @leave-place
+  @icon 🚪
+  @time 1m
+@endchoice
+
+@entry place.hub.fish-market
+  @scene place.fish-market
+  @place-key fish_market
+  @hub place
+@endentry
+
+:: place.fish-market [place hub]
+@kind place
+@heading "Fish Market"
+@choices "Activities"
+
+Vendors call over displays of the day's catch at {{place.name}}.
+
+@choice stalls "Browse the stalls" -> place.fish-market
+  @icon 🐟
+@endchoice
+
+@choice vendors "Talk to the vendors" -> place.fish-market
+  @icon 🗣️
+@endchoice
+
+@choice leave "Leave" -> @leave-place
+  @icon 🚪
+  @time 1m
+@endchoice
+
+@entry place.hub.harbor
+  @scene place.harbor
+  @place-key harbor
+  @hub place
+@endentry
+
+:: place.harbor [place hub]
+@kind place
+@heading "Harbor"
+@choices "Activities"
+
+Boats, cargo, and dockworkers keep {{place.name}} busy.
+
+@choice docks "Walk along the docks" -> place.harbor
+  @icon ⚓
+@endchoice
+
+@choice ships "Watch the ships" -> place.harbor
+  @icon 🚢
+@endchoice
+
+@choice leave "Leave" -> @leave-place
+  @icon 🚪
+  @time 1m
+@endchoice

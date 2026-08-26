@@ -70,5 +70,26 @@ export function createWGRuntimeContext(game) {
     npc: npcs,
     flags,
     time: timeContext(game.now),
+    location: game.location
+      ? {
+          id: game.location.id,
+          name: game.location.name,
+          type: game.location.type,
+          tags: [...(game.location.tags || [])],
+        }
+      : null,
+    place: game.currentPlace
+      ? {
+          id: game.currentPlace.id,
+          key: game.currentPlace.key,
+          name: game.currentPlace.name,
+          tags: [
+            ...(Array.isArray(game.currentPlace.props?.category)
+              ? game.currentPlace.props.category
+              : [game.currentPlace.props?.category].filter(Boolean)),
+            ...(game.currentPlace.props?.tags || []),
+          ],
+        }
+      : null,
   };
 }

@@ -57,6 +57,7 @@ test("WG TextMate grammar contains valid regular expressions and core syntax", a
   for (const line of [
     "@place-key player_home",
     "@offer npc taylor",
+    "@hub place",
     '@hub-text "Taylor waits beside the table."',
     "@auto enter-place",
   ]) {
@@ -69,5 +70,9 @@ test("WG TextMate grammar contains valid regular expressions and core syntax", a
   );
   assert.match("money", effectKeyword);
   assert.match("@endchoice", firstPattern("block-directives"));
+  assert.match(
+    '@choice leave "Leave" -> @leave-place',
+    firstPattern("choice-header"),
+  );
   assert.match("{{npc.taylor.subject|cap}}", firstPattern("interpolation", "begin"));
 });

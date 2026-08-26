@@ -318,7 +318,7 @@ class SceneBodyParser {
     const opening = this.current();
     const openingText = opening.text.trim();
     const match = openingText.match(
-      new RegExp(`^@choice\\s+(${ID_PATTERN})\\s+(${QUOTED_PATTERN})\\s+->\\s+(@exit|${ID_PATTERN})\\s*$`),
+      new RegExp(`^@choice\\s+(${ID_PATTERN})\\s+(${QUOTED_PATTERN})\\s+->\\s+(@exit|@leave-place|${ID_PATTERN})\\s*$`),
     );
     if (!match) {
       failWG("Malformed @choice header", lineLocation(this.file, opening.line));
@@ -533,6 +533,7 @@ function parseEntryBlock(file, lines, startIndex) {
     placeKeys: [],
     placeTags: [],
     locationTags: [],
+    hub: null,
     offer: null,
     automaticTriggers: [],
     conditions: [],
@@ -558,8 +559,14 @@ function parseEntryBlock(file, lines, startIndex) {
     }
     if (text === "@endentry") {
       if (entry.sceneId === null) failWG("Entry requires @scene", location);
-      if (entry.offer === null && entry.automaticTriggers.length === 0) {
-        failWG("Entry requires @offer or @auto", location);
+      if (entry.hub === null && entry.offer === null && entry.automaticTriggers.length === 0) {
+        failWG("Entry requires @hub, @offer, or @auto", location);
+      }
+      if (entry.hub && (entry.offer || entry.automaticTriggers.length)) {
+        failWG("Hub entries cannot also use @offer or @auto", location);
+      }
+      if (entry.hub?.type === "place" && !entry.placeKeys.length && !entry.placeTags.length) {
+        failWG("Place hub entries require @place-key or @place-tag", location);
       }
       if (entry.offer && entry.label === null) {
         failWG("Offered entries require @label", location);
@@ -574,7 +581,7 @@ function parseEntryBlock(file, lines, startIndex) {
     if (!name) failWG("Entry blocks may contain only entry directives", location);
 
     if (
-      ["scene", "offer", "label", "icon", "hub-text", "priority", "chance", "weight"].includes(
+      ["scene", "hub", "offer", "label", "icon", "hub-text", "priority", "chance", "weight"].includes(
         name,
       )
     ) {
@@ -586,6 +593,10 @@ function parseEntryBlock(file, lines, startIndex) {
       const sceneId = directiveArgument(text, "scene", location);
       if (!ID_REGEX.test(sceneId)) failWG("Entry scene must be a scene id", location);
       entry.sceneId = sceneId;
+    } else if (name === "hub") {
+      const hubType = directiveArgument(text, "hub", location);
+      if (hubType !== "place") failWG("@hub must be 'place'", location);
+      entry.hub = { type: hubType };
     } else if (["place-key", "place-tag", "location-tag"].includes(name)) {
       const value = directiveArgument(text, name, location);
       const regex = name === "place-key" ? ID_REGEX : TAG_REGEX;

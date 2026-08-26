@@ -75,7 +75,7 @@ export function compileStorySources(sources) {
       }
       choiceIds.set(node.id, node.source);
 
-      if (node.target !== "@exit" && !sceneMap.has(node.target)) {
+      if (!["@exit", "@leave-place"].includes(node.target) && !sceneMap.has(node.target)) {
         failWG(
           `Unknown target scene '${node.target}' from choice '${node.id}'`,
           atSource(node.source),
@@ -91,6 +91,28 @@ export function compileStorySources(sources) {
         atSource(entry.source),
       );
     }
+
+    if (entry.hub?.type === "place" && sceneMap.get(entry.sceneId)?.kind !== "place") {
+      failWG(
+        `Place hub entry '${entry.id}' must reference a scene with @kind place`,
+        atSource(entry.source),
+      );
+    }
+  }
+
+  const placeHubKeys = new Map();
+  for (const entry of entryMap.values()) {
+    if (entry.hub?.type !== "place") continue;
+    for (const placeKey of entry.placeKeys) {
+      const previous = placeHubKeys.get(placeKey);
+      if (previous) {
+        failWG(
+          `Duplicate place hub for '${placeKey}' (first declared at ${previous.source.file}:${previous.source.line})`,
+          atSource(entry.source),
+        );
+      }
+      placeHubKeys.set(placeKey, entry);
+    }
   }
 
   const scenes = Object.fromEntries(
@@ -99,7 +121,7 @@ export function compileStorySources(sources) {
   const entries = Object.fromEntries(
     [...entryMap.entries()].sort(([left], [right]) => compareText(left, right)),
   );
-  return { formatVersion: 2, scenes, entries };
+  return { formatVersion: 3, scenes, entries };
 }
 
 export { walkNodes };

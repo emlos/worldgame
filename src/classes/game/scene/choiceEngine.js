@@ -1,7 +1,11 @@
 import { SCENE_ACTION_TYPE } from "../../../data/scene/actions.js";
 import { SCENE_TEXT } from "../../../content/scene/genericText.js";
 import { buildScene } from "./sceneEngine.js";
-import { followWGChoice } from "./wg/storyRuntime.js";
+import {
+  applyWGEffects,
+  exitWGScene,
+  followWGChoice,
+} from "./wg/storyRuntime.js";
 import {
   resolveWGAutomaticEntry,
   WG_AUTO_TRIGGER,
@@ -124,7 +128,7 @@ function performEnter(game, choice, minutes) {
   return SCENE_TEXT.enterResult(place.name);
 }
 
-function performLeave(game, _choice, minutes) {
+function performLeave(game, choice, minutes) {
   const place = game.currentPlace;
   if (!place) {
     fail(
@@ -137,7 +141,13 @@ function performLeave(game, _choice, minutes) {
     label: SCENE_TEXT.leaveLog(place.name),
     minutes,
     apply(currentGame) {
+      if (choice.action.effects) {
+        applyWGEffects(currentGame, choice.action.effects);
+      }
       currentGame.setCurrentPlace();
+      if (choice.action.exitStory && currentGame.currentStorySceneId) {
+        exitWGScene(currentGame);
+      }
     },
   });
   return SCENE_TEXT.leaveResult(place.name);

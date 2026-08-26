@@ -1,0 +1,261 @@
+@# Basic authored hubs for shops, markets, and food venues.
+
+@entry place.hub.market
+  @scene place.market
+  @place-key market
+  @hub place
+@endentry
+
+:: place.market [place hub]
+@kind place
+@heading "Market"
+@choices "Activities"
+
+Stalls and shoppers fill {{place.name}}.
+
+@choice browse "Browse the stalls" -> place.market
+  @icon 🧺
+@endchoice
+
+@choice produce "Look over the fresh produce" -> place.market
+  @icon 🥕
+@endchoice
+
+@choice leave "Leave" -> @leave-place
+  @icon 🚪
+  @time 1m
+@endchoice
+
+@entry place.hub.flea-market
+  @scene place.flea-market
+  @place-key flea_market
+  @hub place
+@endentry
+
+:: place.flea-market [place hub]
+@kind place
+@heading "Flea Market"
+@choices "Activities"
+
+Second-hand goods are piled high throughout {{place.name}}.
+
+@choice browse "Browse the stalls" -> place.flea-market
+  @icon 🔎
+@endchoice
+
+@choice bargain "Look for a bargain" -> place.flea-market
+  @icon 💰
+@endchoice
+
+@choice leave "Leave" -> @leave-place
+  @icon 🚪
+  @time 1m
+@endchoice
+
+@entry place.hub.mall
+  @scene place.mall
+  @place-key mall
+  @hub place
+@endentry
+
+:: place.mall [place hub]
+@kind place
+@heading "Shopping Mall"
+@choices "Activities"
+
+Shopfronts extend in several directions through {{place.name}}.
+
+@choice shops "Browse the shops" -> place.mall
+  @icon 🛍️
+@endchoice
+
+@choice food-court "Visit the food court" -> place.mall
+  @icon 🍴
+@endchoice
+
+@choice leave "Leave" -> @leave-place
+  @icon 🚪
+  @time 1m
+@endchoice
+
+@entry place.hub.corner-store
+  @scene place.corner-store
+  @place-key corner_store
+  @hub place
+@endentry
+
+:: place.corner-store [place hub]
+@kind place
+@heading "Corner Store"
+@choices "Activities"
+
+Everyday necessities line the narrow aisles of {{place.name}}.
+
+@choice groceries "Browse the groceries" -> place.corner-store
+  @icon 🛒
+@endchoice
+
+@choice counter "Talk to the cashier" -> place.corner-store
+  @icon 🗣️
+@endchoice
+
+@choice leave "Leave" -> @leave-place
+  @icon 🚪
+  @time 1m
+@endchoice
+
+@entry place.hub.restaurant
+  @scene place.restaurant
+  @place-key restaurant
+  @hub place
+@endentry
+
+:: place.restaurant [place hub]
+@kind place
+@heading "Restaurant"
+@choices "Activities"
+
+The tables at {{place.name}} are set for the next customers.
+
+@choice menu "Read the menu" -> place.restaurant
+  @icon 📖
+@endchoice
+
+@choice table "Ask for a table" -> place.restaurant
+  @icon 🍽️
+@endchoice
+
+@choice leave "Leave" -> @leave-place
+  @icon 🚪
+  @time 1m
+@endchoice
+
+@entry place.hub.pizzeria
+  @scene place.pizzeria
+  @place-key pizzeria
+  @hub place
+@endentry
+
+:: place.pizzeria [place hub]
+@kind place
+@heading "Pizzeria"
+@choices "Activities"
+
+Warm air and the smell of baking dough drift through {{place.name}}.
+
+@choice menu "Read the menu" -> place.pizzeria
+  @icon 📖
+@endchoice
+
+@choice pizza "Order a pizza" -> place.pizzeria
+  @icon 🍕
+@endchoice
+
+@choice leave "Leave" -> @leave-place
+  @icon 🚪
+  @time 1m
+@endchoice
+
+@entry place.hub.cafe
+  @scene place.cafe
+  @place-key cafe
+  @hub place
+@endentry
+
+:: place.cafe [place hub]
+@kind place
+@heading "Cafe"
+@choices "Activities"
+
+The quiet clatter of cups fills {{place.name}}.
+
+@choice drink "Order a drink" -> place.cafe
+  @icon ☕
+@endchoice
+
+@choice sit "Sit at a table" -> place.cafe
+  @icon 🪑
+@endchoice
+
+@choice leave "Leave" -> @leave-place
+  @icon 🚪
+  @time 1m
+@endchoice
+
+@entry place.hub.bar
+  @scene place.bar
+  @place-key bar
+  @hub place
+@endentry
+
+:: place.bar [place hub]
+@kind place
+@heading "Bar"
+@choices "Activities"
+
+Glasses catch the low light behind the counter at {{place.name}}.
+
+@choice drink "Order a drink" -> place.bar
+  @icon 🍺
+@endchoice
+
+@choice room "See who is around" -> place.bar
+  @icon 👀
+@endchoice
+
+@choice leave "Leave" -> @leave-place
+  @icon 🚪
+  @time 1m
+@endchoice
+
+@entry place.hub.bakery
+  @scene place.bakery
+  @place-key bakery
+  @hub place
+@endentry
+
+:: place.bakery [place hub]
+@kind place
+@heading "Bakery"
+@choices "Activities"
+
+Fresh bread and pastries are displayed across {{place.name}}.
+
+@choice bread "Browse the bread" -> place.bakery
+  @icon 🥖
+@endchoice
+
+@choice pastry "Choose a pastry" -> place.bakery
+  @icon 🥐
+@endchoice
+
+@choice leave "Leave" -> @leave-place
+  @icon 🚪
+  @time 1m
+@endchoice
+
+@entry place.hub.butcher
+  @scene place.butcher
+  @place-key butcher
+  @hub place
+@endentry
+
+:: place.butcher [place hub]
+@kind place
+@heading "Butcher's"
+@choices "Activities"
+
+The chilled display counter dominates {{place.name}}.
+
+@choice counter "Browse the counter" -> place.butcher
+  @icon 🥩
+@endchoice
+
+@choice butcher "Ask the butcher for advice" -> place.butcher
+  @icon 🗣️
+@endchoice
+
+@choice leave "Leave" -> @leave-place
+  @icon 🚪
+  @time 1m
+@endchoice

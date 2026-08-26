@@ -27,7 +27,10 @@ triggers:
 ```
 
 - `@scene` is required and must reference a compiled scene.
-- An entry needs at least one `@offer` or `@auto` directive.
+- An entry needs at least one exposure mechanism: `@hub`, `@offer`, or `@auto`.
+- `@hub place` makes a `@kind place` scene the ordinary menu for matching
+  places. A place hub needs `@place-key` or `@place-tag`, and cannot also be an
+  offer or automatic trigger. At runtime, exactly one hub may match a place.
 - `@offer place` adds a choice to the current place's “Things to do” section.
 - `@offer npc <id>` adds a choice beside that NPC's interactions and implicitly
   requires the NPC to be at the player's exact position. It does not require
@@ -120,6 +123,10 @@ world time shown by the game interface. A missing path evaluates to
 `undefined`, which is false in conditions; interpolating a missing path is a
 runtime error.
 
+Authored place hubs may also use `place.id`, `place.key`, `place.name`, and
+`place.tags`. The containing location is exposed through `location.id`,
+`location.name`, `location.type`, and `location.tags`.
+
 ## Choices
 
 ```wg
@@ -135,7 +142,11 @@ runtime error.
 ```
 
 - Choice IDs are required and unique within their scene.
-- Targets are another scene ID or the reserved target `@exit`.
+- Targets are another scene ID, `@exit`, or `@leave-place`.
+- `@exit` closes the current authored passage and returns to the matching
+  authored place hub when the player is indoors.
+- `@leave-place` uses the authoritative place-exit action. It is intended
+  for place hubs and leaves any active authored passage as well.
 - `@time` accepts combinations of hours, minutes, and seconds such as `30s`,
   `5m`, `1h`, or `1h30m`.
 - `@when` hides the choice when its expression is false.

@@ -1,23 +1,20 @@
 import { keyedRandom01 } from "../../../shared/util/random.js";
 import {
   LOCATION_DESCRIPTIONS,
-  PLACE_DESCRIPTIONS,
   SCENE_TEXT,
 } from "../../../content/scene/genericText.js";
 import {
   DEFAULT_NPC_INTERACTION_MINUTES,
   SCENE_ACTION_TYPE,
 } from "../../../data/scene/actions.js";
-import {
-  PLACE_ENTER_MINUTES,
-  PLACE_LEAVE_MINUTES,
-} from "../../../data/world/travel.js";
+import { PLACE_ENTER_MINUTES } from "../../../data/world/travel.js";
 import { buildLocalMapView } from "./mapView.js";
 import { buildSceneStatus } from "./sceneContext.js";
 import { createChoice } from "./choiceContract.js";
 import { createScene } from "./sceneContract.js";
 import {
   getWGOfferEntries,
+  getWGPlaceHubEntry,
   WG_OFFER_TYPE,
 } from "./wg/entryResolver.js";
 import { materializeWGScene } from "./wg/sceneMaterializer.js";
@@ -149,7 +146,16 @@ function buildLocationScene(game) {
 
 function buildPlaceScene(game) {
   const place = game.currentPlace;
-  const location = game.location;
+  const hubEntry = getWGPlaceHubEntry(game);
+  if (!hubEntry) {
+    throw new Error(`No authored WG hub exists for place key '${String(place.key)}'`);
+  }
+  const definition = getWGScene(hubEntry.sceneId);
+  if (!definition || definition.kind !== "place") {
+    throw new Error(`Invalid authored WG hub '${hubEntry.id}' for '${String(place.key)}'`);
+  }
+
+  const authored = materializeWGScene(game, definition);
   const people = game.getNPCsAtCurrentPosition();
   const eventEntries = getWGOfferEntries(game, {
     type: WG_OFFER_TYPE.place,
@@ -159,18 +165,13 @@ function buildPlaceScene(game) {
     .map((entry) => entry.hubText)
     .filter((text) => typeof text === "string" && text);
 
-  return {
-    id: `place:${place.id}:${game.now.toISOString()}`,
+  return createScene({
+    ...authored,
     kind: "place",
     heading: place.name,
-    status: buildSceneStatus(game),
-    map: null,
-    paragraphs: [
-      SCENE_TEXT.placeIntroduction(place.name, location.name),
-      stablePick(PLACE_DESCRIPTIONS, game, `place:${place.id}`),
-      ...hubText,
-    ],
+    paragraphs: [...authored.paragraphs, ...hubText],
     sections: [
+      ...authored.sections,
       {
         id: "events",
         heading: SCENE_TEXT.sectionHeading.events,
@@ -181,21 +182,8 @@ function buildPlaceScene(game) {
         heading: SCENE_TEXT.sectionHeading.people,
         choices: people.flatMap((npc) => personChoices(game, npc)),
       },
-      {
-        id: "navigation",
-        heading: SCENE_TEXT.sectionHeading.navigation,
-        choices: [
-          createChoice({
-            id: "leave",
-            icon: "🚪",
-            label: SCENE_TEXT.leaveChoice,
-            durationMinutes: PLACE_LEAVE_MINUTES,
-            action: { type: SCENE_ACTION_TYPE.leave },
-          }),
-        ],
-      },
     ].filter((section) => section.choices.length),
-  };
+  });
 }
 
 export function buildScene(game) {

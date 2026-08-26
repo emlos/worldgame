@@ -229,9 +229,38 @@ const sampleBundle = compileStorySources([
 ]);
 check(
   "linked bundles use a versioned scene map",
-  sampleBundle.formatVersion === 2 &&
+  sampleBundle.formatVersion === 3 &&
     Object.keys(sampleBundle.scenes).join(",") === "intro,next" &&
     Object.keys(sampleBundle.entries).join(",") === "sample.introduction",
+);
+
+const HUB_SOURCE = `@entry place.hub.home
+  @scene place.home
+  @place-key player_home
+  @hub place
+@endentry
+
+:: place.home [place hub]
+@kind place
+@heading "Home"
+@choice rest "Rest" -> place.home
+@endchoice
+@choice leave "Leave" -> @leave-place
+@endchoice`;
+const hubDocument = parseWGDocument({
+  file: "story/places/home.wg",
+  source: HUB_SOURCE,
+});
+const hubBundle = compileStorySources([
+  { file: "story/places/home.wg", source: HUB_SOURCE },
+]);
+check(
+  "place hubs and authoritative leave targets compile",
+  hubDocument.entries[0].hub?.type === "place" &&
+    hubBundle.entries["place.hub.home"].sceneId === "place.home" &&
+    hubBundle.scenes["place.home"].body.some(
+      (node) => node.type === "choice" && node.target === "@leave-place",
+    ),
 );
 
 const sourceA = `:: alpha\n@heading "Alpha"\n@choice leave "Leave" -> @exit\n@endchoice`;
@@ -300,14 +329,14 @@ rejects(
   "Unknown entry scene 'missing'",
 );
 rejects(
-  "entries require an offer or automatic trigger",
+  "entries require a hub, offer, or automatic trigger",
   [
     {
       file: "entry-exposure.wg",
       source: `@entry bad\n@scene alpha\n@endentry\n${sourceA}`,
     },
   ],
-  "Entry requires @offer or @auto",
+  "Entry requires @hub, @offer, or @auto",
 );
 rejects(
   "offered entries require labels",
@@ -318,6 +347,39 @@ rejects(
     },
   ],
   "Offered entries require @label",
+);
+rejects(
+  "place hubs require a place selector",
+  [
+    {
+      file: "hub-selector.wg",
+      source: HUB_SOURCE.replace("  @place-key player_home\n", ""),
+    },
+  ],
+  "Place hub entries require @place-key or @place-tag",
+);
+rejects(
+  "place hubs must reference place scenes",
+  [
+    {
+      file: "hub-kind.wg",
+      source: HUB_SOURCE.replace("@kind place\n", ""),
+    },
+  ],
+  "must reference a scene with @kind place",
+);
+rejects(
+  "a place key cannot have two authored hubs",
+  [
+    { file: "hub-one.wg", source: HUB_SOURCE },
+    {
+      file: "hub-two.wg",
+      source: HUB_SOURCE
+        .replace("place.hub.home", "place.hub.home-two")
+        .replaceAll("place.home", "place.home-two"),
+    },
+  ],
+  "Duplicate place hub for 'player_home'",
 );
 rejects(
   "entry chance stays within its probability range",

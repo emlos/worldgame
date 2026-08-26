@@ -76,6 +76,16 @@ check("the adapter exposes exact-position NPC presence", gameContext.npc.taylor.
 check("the adapter exposes NPC interaction availability", gameContext.npc.taylor.available === true);
 check("the adapter exposes active story flags", gameContext.flags["met-taylor"] === true);
 check(
+  "the adapter exposes the current authored place",
+  gameContext.place.key === game.currentPlace.key &&
+    gameContext.place.name === game.currentPlace.name,
+);
+check(
+  "the adapter exposes the containing location",
+  gameContext.location.id === game.location.id &&
+    gameContext.location.tags.join(",") === game.location.tags.join(","),
+);
+check(
   "the adapter exposes world-clock condition fields",
   gameContext.time.hour === 8 &&
     gameContext.time.minute === 0 &&

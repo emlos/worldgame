@@ -7,7 +7,6 @@ import { buildSceneStatus } from "../../src/classes/game/scene/sceneContext.js";
 import { buildScene } from "../../src/classes/game/scene/sceneEngine.js";
 import {
   LOCATION_DESCRIPTIONS,
-  PLACE_DESCRIPTIONS,
   SCENE_TEXT,
 } from "../../src/content/scene/genericText.js";
 
@@ -90,8 +89,10 @@ check(
 const placeScene = buildScene(sceneGame);
 check("entering a place produces a place scene", placeScene.kind === "place");
 check(
-  "place prose comes from the scene content module",
-  PLACE_DESCRIPTIONS.includes(placeScene.paragraphs[1]),
+  "place prose and activities come from the authored WG hub",
+  placeScene.id.includes("place.") &&
+    placeScene.paragraphs.some((paragraph) => paragraph.includes(localPlace.name)) &&
+    placeScene.sections.some((section) => section.heading === "Activities"),
 );
 
 const choiceGame = new Game({

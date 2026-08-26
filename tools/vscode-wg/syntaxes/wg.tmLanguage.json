@@ -60,7 +60,7 @@
       "patterns": [
         {
           "name": "meta.choice.header.wg",
-          "match": "^(\\s*)(@choice)\\s+([a-z0-9_][a-z0-9_.-]*)\\s+(\"(?:\\\\.|[^\"\\\\])*\")\\s+(->)\\s+(@exit|[a-z0-9_][a-z0-9_.-]*)\\s*$",
+          "match": "^(\\s*)(@choice)\\s+([a-z0-9_][a-z0-9_.-]*)\\s+(\"(?:\\\\.|[^\"\\\\])*\")\\s+(->)\\s+(@exit|@leave-place|[a-z0-9_][a-z0-9_.-]*)\\s*$",
           "captures": {
             "2": { "name": "keyword.control.block.begin.wg" },
             "3": { "name": "entity.name.function.choice.wg" },
@@ -100,7 +100,7 @@
       "patterns": [
         {
           "name": "meta.property.directive.wg",
-          "begin": "^(\\s*)(@(kind|heading|choices|scene|place-key|place-tag|location-tag|offer|label|icon|hub-text|auto|priority|chance|weight|time|warning|preview))\\b",
+          "begin": "^(\\s*)(@(kind|heading|choices|scene|place-key|place-tag|location-tag|hub|offer|label|icon|hub-text|auto|priority|chance|weight|time|warning|preview))\\b",
           "beginCaptures": { "2": { "name": "keyword.other.directive.wg" } },
           "end": "$",
           "patterns": [{ "include": "#expression" }]
@@ -150,8 +150,8 @@
         { "name": "constant.numeric.duration.wg", "match": "\\b(?:[0-9]+(?:\\.[0-9]+)?[hms])+\\b" },
         { "name": "constant.numeric.percentage.wg", "match": "\\b[0-9]+(?:\\.[0-9]+)?%(?![A-Za-z0-9_])" },
         { "name": "constant.numeric.wg", "match": "\\b[0-9]+(?:\\.[0-9]+)?\\b" },
-        { "name": "constant.language.wg", "match": "\\b(?:true|false|null)\\b|@exit\\b" },
-        { "name": "variable.other.object.wg", "match": "\\b(?:story|player|npc|flags)(?:\\.[A-Za-z_][A-Za-z0-9_-]*)+\\b" },
+        { "name": "constant.language.wg", "match": "\\b(?:true|false|null)\\b|@(?:exit|leave-place)\\b" },
+        { "name": "variable.other.object.wg", "match": "\\b(?:story|player|npc|flags|place|location)(?:\\.[A-Za-z_][A-Za-z0-9_-]*)+\\b" },
         { "name": "keyword.operator.logical.wg", "match": "\\b(?:and|or|not|in)\\b" },
         { "name": "keyword.operator.comparison.wg", "match": "==|!=|<=|>=|<|>" },
         { "name": "keyword.operator.arithmetic.wg", "match": "[+*/%-]" },

@@ -13,6 +13,10 @@ export const WG_OFFER_TYPE = Object.freeze({
   npc: "npc",
 });
 
+export const WG_HUB_TYPE = Object.freeze({
+  place: "place",
+});
+
 export class WGEntryError extends Error {
   constructor(message) {
     super(message);
@@ -97,6 +101,27 @@ export function getWGOfferEntries(
     }
     return matchesPosition(entry, game) && conditionsPass(entry, context);
   });
+}
+
+export function getWGPlaceHubEntry(game, { entries = undefined } = {}) {
+  if (!game.currentPlace) return null;
+
+  const context = createWGRuntimeContext(game);
+  const matches = entryList(entries).filter(
+    (entry) =>
+      entry.hub?.type === WG_HUB_TYPE.place &&
+      matchesPosition(entry, game) &&
+      conditionsPass(entry, context),
+  );
+
+  if (matches.length > 1) {
+    fail(
+      `Multiple WG place hubs match '${String(game.currentPlace.key)}': ${matches
+        .map((entry) => entry.id)
+        .join(", ")}`,
+    );
+  }
+  return matches[0] ?? null;
 }
 
 export function getEligibleWGAutomaticEntries(

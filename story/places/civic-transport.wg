@@ -1,0 +1,313 @@
+@# Basic authored hubs for home, civic, transport, and everyday service places.
+
+@entry place.hub.player-home
+  @scene place.player-home
+  @place-key player_home
+  @hub place
+@endentry
+
+:: place.player-home [place hub]
+@kind place
+@heading "Home"
+@choices "Activities"
+
+You are back in the privacy of {{place.name}}.
+
+@choice rest "Rest for a while" -> place.player-home
+  @icon 🛋️
+@endchoice
+
+@choice chores "Do some chores" -> place.player-home
+  @icon 🧹
+@endchoice
+
+@choice leave "Leave" -> @leave-place
+  @icon 🚪
+  @time 1m
+@endchoice
+
+@entry place.hub.town-square
+  @scene place.town-square
+  @place-key town_square
+  @hub place
+@endentry
+
+:: place.town-square [place hub]
+@kind place
+@heading "Town Square"
+@choices "Activities"
+
+The open space of {{place.name}} gives you room to stop and watch the town move around you.
+
+@choice fountain "Sit near the fountain" -> place.town-square
+  @icon ⛲
+@endchoice
+
+@choice people "Watch the passersby" -> place.town-square
+  @icon 👀
+@endchoice
+
+@choice leave "Leave" -> @leave-place
+  @icon 🚪
+  @time 1m
+@endchoice
+
+@entry place.hub.civil-office
+  @scene place.civil-office
+  @place-key civil_office
+  @hub place
+@endentry
+
+:: place.civil-office [place hub]
+@kind place
+@heading "Civil Office"
+@choices "Activities"
+
+Counters, forms, and noticeboards fill {{place.name}}.
+
+@choice reception "Ask at reception" -> place.civil-office
+  @icon ℹ️
+@endchoice
+
+@choice forms "Look through the available forms" -> place.civil-office
+  @icon 📄
+@endchoice
+
+@choice leave "Leave" -> @leave-place
+  @icon 🚪
+  @time 1m
+@endchoice
+
+@entry place.hub.jail
+  @scene place.jail
+  @place-key jail
+  @hub place
+@endentry
+
+:: place.jail [place hub]
+@kind place
+@heading "Jail"
+@choices "Activities"
+
+The controlled entrance of {{place.name}} feels deliberately unwelcoming.
+
+@choice desk "Speak to the front desk" -> place.jail
+  @icon 🗣️
+@endchoice
+
+@choice notices "Read the visitor notices" -> place.jail
+  @icon 📋
+@endchoice
+
+@choice leave "Leave" -> @leave-place
+  @icon 🚪
+  @time 1m
+@endchoice
+
+@entry place.hub.court
+  @scene place.court
+  @place-key court
+  @hub place
+@endentry
+
+:: place.court [place hub]
+@kind place
+@heading "Court"
+@choices "Activities"
+
+Muted footsteps and low voices echo through {{place.name}}.
+
+@choice schedule "Check the court schedule" -> place.court
+  @icon 📅
+@endchoice
+
+@choice gallery "Sit in the public gallery" -> place.court
+  @icon ⚖️
+@endchoice
+
+@choice leave "Leave" -> @leave-place
+  @icon 🚪
+  @time 1m
+@endchoice
+
+@entry place.hub.train-station
+  @scene place.train-station
+  @place-key train_station
+  @hub place
+@endentry
+
+:: place.train-station [place hub]
+@kind place
+@heading "Train Station"
+@choices "Activities"
+
+Announcements and rolling luggage keep {{place.name}} in constant motion.
+
+@choice timetable "Check the departures board" -> place.train-station
+  @icon 🕒
+@endchoice
+
+@choice platform "Wait on the platform" -> place.train-station
+  @icon 🚉
+@endchoice
+
+@choice leave "Leave" -> @leave-place
+  @icon 🚪
+  @time 1m
+@endchoice
+
+@entry place.hub.bus-stop
+  @scene place.bus-stop
+  @place-key bus_stop
+  @hub place
+@endentry
+
+:: place.bus-stop [place hub]
+@kind place
+@heading "Bus Stop"
+@choices "Activities"
+
+The route display at {{place.name}} is covered with times and destination names.
+
+@choice timetable "Check the timetable" -> place.bus-stop
+  @icon 🕒
+@endchoice
+
+@choice wait "Wait for a bus" -> place.bus-stop
+  @icon 🚌
+@endchoice
+
+@choice leave "Leave" -> @leave-place
+  @icon 🚪
+  @time 1m
+@endchoice
+
+@entry place.hub.boulevard
+  @scene place.boulevard
+  @place-key boulevard
+  @hub place
+@endentry
+
+:: place.boulevard [place hub]
+@kind place
+@heading "Boulevard"
+@choices "Activities"
+
+Trees and street furniture break up the long view through {{place.name}}.
+
+@choice stroll "Take a stroll" -> place.boulevard
+  @icon 🚶
+@endchoice
+
+@choice bench "Sit on a bench" -> place.boulevard
+  @icon 🪑
+@endchoice
+
+@choice leave "Leave" -> @leave-place
+  @icon 🚪
+  @time 1m
+@endchoice
+
+@entry place.hub.parking-garage
+  @scene place.parking-garage
+  @place-key parking_garage
+  @hub place
+@endentry
+
+:: place.parking-garage [place hub]
+@kind place
+@heading "Parking Garage"
+@choices "Activities"
+
+Engine noise reverberates through the concrete levels of {{place.name}}.
+
+@choice directory "Check the level directory" -> place.parking-garage
+  @icon 🗺️
+@endchoice
+
+@choice search "Look around the parked cars" -> place.parking-garage
+  @icon 🔎
+@endchoice
+
+@choice leave "Leave" -> @leave-place
+  @icon 🚪
+  @time 1m
+@endchoice
+
+@entry place.hub.gas-station
+  @scene place.gas-station
+  @place-key gas_station
+  @hub place
+@endentry
+
+:: place.gas-station [place hub]
+@kind place
+@heading "Gas Station"
+@choices "Activities"
+
+The small shop at {{place.name}} is bright beneath the forecourt lights.
+
+@choice shelves "Browse the convenience shelves" -> place.gas-station
+  @icon 🛒
+@endchoice
+
+@choice counter "Talk to the cashier" -> place.gas-station
+  @icon 🗣️
+@endchoice
+
+@choice leave "Leave" -> @leave-place
+  @icon 🚪
+  @time 1m
+@endchoice
+
+@entry place.hub.bank
+  @scene place.bank
+  @place-key bank
+  @hub place
+@endentry
+
+:: place.bank [place hub]
+@kind place
+@heading "Bank"
+@choices "Activities"
+
+Orderly queues form beneath the quiet lights of {{place.name}}.
+
+@choice account "Check your account" -> place.bank
+  @icon 💳
+@endchoice
+
+@choice adviser "Speak to an adviser" -> place.bank
+  @icon 🗣️
+@endchoice
+
+@choice leave "Leave" -> @leave-place
+  @icon 🚪
+  @time 1m
+@endchoice
+
+@entry place.hub.post-office
+  @scene place.post-office
+  @place-key post_office
+  @hub place
+@endentry
+
+:: place.post-office [place hub]
+@kind place
+@heading "Post Office"
+@choices "Activities"
+
+Shelves of envelopes and packing supplies line {{place.name}}.
+
+@choice post "Post a letter" -> place.post-office
+  @icon ✉️
+@endchoice
+
+@choice parcels "Check for a parcel" -> place.post-office
+  @icon 📦
+@endchoice
+
+@choice leave "Leave" -> @leave-place
+  @icon 🚪
+  @time 1m
+@endchoice
