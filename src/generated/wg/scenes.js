@@ -4130,6 +4130,594 @@ export const WG_BUNDLE = {
         "column": 1
       }
     },
+    "place.home-clara": {
+      "id": "place.home-clara",
+      "kind": "place",
+      "heading": "Clara's home",
+      "choiceHeading": "Activities",
+      "tags": [
+        "place",
+        "hub"
+      ],
+      "onEnter": [],
+      "body": [
+        {
+          "type": "paragraph",
+          "parts": [
+            {
+              "type": "text",
+              "value": "You are inside "
+            },
+            {
+              "type": "interpolation",
+              "path": [
+                "place",
+                "name"
+              ],
+              "filters": []
+            },
+            {
+              "type": "text",
+              "value": "."
+            }
+          ],
+          "source": {
+            "file": "story/places/npc-homes.wg",
+            "line": 93,
+            "column": 1
+          }
+        },
+        {
+          "type": "choice",
+          "id": "tea",
+          "label": "Make some tea",
+          "target": "place.home-clara",
+          "icon": "☕",
+          "durationMinutes": 0,
+          "when": null,
+          "requirements": [],
+          "warning": null,
+          "previews": [],
+          "effects": [],
+          "source": {
+            "file": "story/places/npc-homes.wg",
+            "line": 95,
+            "column": 1
+          }
+        },
+        {
+          "type": "choice",
+          "id": "sit",
+          "label": "Sit down for a while",
+          "target": "place.home-clara",
+          "icon": "🛋️",
+          "durationMinutes": 0,
+          "when": null,
+          "requirements": [],
+          "warning": null,
+          "previews": [],
+          "effects": [],
+          "source": {
+            "file": "story/places/npc-homes.wg",
+            "line": 99,
+            "column": 1
+          }
+        },
+        {
+          "type": "choice",
+          "id": "leave",
+          "label": "Leave",
+          "target": "@leave-place",
+          "icon": "🚪",
+          "durationMinutes": 1,
+          "when": null,
+          "requirements": [],
+          "warning": null,
+          "previews": [],
+          "effects": [],
+          "source": {
+            "file": "story/places/npc-homes.wg",
+            "line": 103,
+            "column": 1
+          }
+        }
+      ],
+      "source": {
+        "file": "story/places/npc-homes.wg",
+        "line": 88,
+        "column": 1
+      }
+    },
+    "place.home-mike": {
+      "id": "place.home-mike",
+      "kind": "place",
+      "heading": "Mike's room",
+      "choiceHeading": "Activities",
+      "tags": [
+        "place",
+        "hub"
+      ],
+      "onEnter": [],
+      "body": [
+        {
+          "type": "paragraph",
+          "parts": [
+            {
+              "type": "text",
+              "value": "You are inside "
+            },
+            {
+              "type": "interpolation",
+              "path": [
+                "place",
+                "name"
+              ],
+              "filters": []
+            },
+            {
+              "type": "text",
+              "value": "."
+            }
+          ],
+          "source": {
+            "file": "story/places/npc-homes.wg",
+            "line": 119,
+            "column": 1
+          }
+        },
+        {
+          "type": "choice",
+          "id": "sit",
+          "label": "Sit down for a while",
+          "target": "place.home-mike",
+          "icon": "🪑",
+          "durationMinutes": 0,
+          "when": null,
+          "requirements": [],
+          "warning": null,
+          "previews": [],
+          "effects": [],
+          "source": {
+            "file": "story/places/npc-homes.wg",
+            "line": 121,
+            "column": 1
+          }
+        },
+        {
+          "type": "choice",
+          "id": "window",
+          "label": "Look out of the window",
+          "target": "place.home-mike",
+          "icon": "🪟",
+          "durationMinutes": 0,
+          "when": null,
+          "requirements": [],
+          "warning": null,
+          "previews": [],
+          "effects": [],
+          "source": {
+            "file": "story/places/npc-homes.wg",
+            "line": 125,
+            "column": 1
+          }
+        },
+        {
+          "type": "choice",
+          "id": "leave",
+          "label": "Leave",
+          "target": "@leave-place",
+          "icon": "🚪",
+          "durationMinutes": 1,
+          "when": null,
+          "requirements": [],
+          "warning": null,
+          "previews": [],
+          "effects": [],
+          "source": {
+            "file": "story/places/npc-homes.wg",
+            "line": 129,
+            "column": 1
+          }
+        }
+      ],
+      "source": {
+        "file": "story/places/npc-homes.wg",
+        "line": 114,
+        "column": 1
+      }
+    },
+    "place.home-officer-vega": {
+      "id": "place.home-officer-vega",
+      "kind": "place",
+      "heading": "Vega's home",
+      "choiceHeading": "Activities",
+      "tags": [
+        "place",
+        "hub"
+      ],
+      "onEnter": [],
+      "body": [
+        {
+          "type": "paragraph",
+          "parts": [
+            {
+              "type": "text",
+              "value": "You are inside "
+            },
+            {
+              "type": "interpolation",
+              "path": [
+                "place",
+                "name"
+              ],
+              "filters": []
+            },
+            {
+              "type": "text",
+              "value": "."
+            }
+          ],
+          "source": {
+            "file": "story/places/npc-homes.wg",
+            "line": 67,
+            "column": 1
+          }
+        },
+        {
+          "type": "choice",
+          "id": "sit",
+          "label": "Take a seat",
+          "target": "place.home-officer-vega",
+          "icon": "🛋️",
+          "durationMinutes": 0,
+          "when": null,
+          "requirements": [],
+          "warning": null,
+          "previews": [],
+          "effects": [],
+          "source": {
+            "file": "story/places/npc-homes.wg",
+            "line": 69,
+            "column": 1
+          }
+        },
+        {
+          "type": "choice",
+          "id": "room",
+          "label": "Look around the room",
+          "target": "place.home-officer-vega",
+          "icon": "👀",
+          "durationMinutes": 0,
+          "when": null,
+          "requirements": [],
+          "warning": null,
+          "previews": [],
+          "effects": [],
+          "source": {
+            "file": "story/places/npc-homes.wg",
+            "line": 73,
+            "column": 1
+          }
+        },
+        {
+          "type": "choice",
+          "id": "leave",
+          "label": "Leave",
+          "target": "@leave-place",
+          "icon": "🚪",
+          "durationMinutes": 1,
+          "when": null,
+          "requirements": [],
+          "warning": null,
+          "previews": [],
+          "effects": [],
+          "source": {
+            "file": "story/places/npc-homes.wg",
+            "line": 77,
+            "column": 1
+          }
+        }
+      ],
+      "source": {
+        "file": "story/places/npc-homes.wg",
+        "line": 62,
+        "column": 1
+      }
+    },
+    "place.home-shade": {
+      "id": "place.home-shade",
+      "kind": "place",
+      "heading": "Shade's home",
+      "choiceHeading": "Activities",
+      "tags": [
+        "place",
+        "hub"
+      ],
+      "onEnter": [],
+      "body": [
+        {
+          "type": "paragraph",
+          "parts": [
+            {
+              "type": "text",
+              "value": "You are inside "
+            },
+            {
+              "type": "interpolation",
+              "path": [
+                "place",
+                "name"
+              ],
+              "filters": []
+            },
+            {
+              "type": "text",
+              "value": "."
+            }
+          ],
+          "source": {
+            "file": "story/places/npc-homes.wg",
+            "line": 41,
+            "column": 1
+          }
+        },
+        {
+          "type": "choice",
+          "id": "wait",
+          "label": "Wait for a while",
+          "target": "place.home-shade",
+          "icon": "🪑",
+          "durationMinutes": 0,
+          "when": null,
+          "requirements": [],
+          "warning": null,
+          "previews": [],
+          "effects": [],
+          "source": {
+            "file": "story/places/npc-homes.wg",
+            "line": 43,
+            "column": 1
+          }
+        },
+        {
+          "type": "choice",
+          "id": "room",
+          "label": "Look around the hideout",
+          "target": "place.home-shade",
+          "icon": "👀",
+          "durationMinutes": 0,
+          "when": null,
+          "requirements": [],
+          "warning": null,
+          "previews": [],
+          "effects": [],
+          "source": {
+            "file": "story/places/npc-homes.wg",
+            "line": 47,
+            "column": 1
+          }
+        },
+        {
+          "type": "choice",
+          "id": "leave",
+          "label": "Leave",
+          "target": "@leave-place",
+          "icon": "🚪",
+          "durationMinutes": 1,
+          "when": null,
+          "requirements": [],
+          "warning": null,
+          "previews": [],
+          "effects": [],
+          "source": {
+            "file": "story/places/npc-homes.wg",
+            "line": 51,
+            "column": 1
+          }
+        }
+      ],
+      "source": {
+        "file": "story/places/npc-homes.wg",
+        "line": 36,
+        "column": 1
+      }
+    },
+    "place.home-taylor": {
+      "id": "place.home-taylor",
+      "kind": "place",
+      "heading": "Taylor's home",
+      "choiceHeading": "Activities",
+      "tags": [
+        "place",
+        "hub"
+      ],
+      "onEnter": [],
+      "body": [
+        {
+          "type": "paragraph",
+          "parts": [
+            {
+              "type": "text",
+              "value": "You are inside "
+            },
+            {
+              "type": "interpolation",
+              "path": [
+                "place",
+                "name"
+              ],
+              "filters": []
+            },
+            {
+              "type": "text",
+              "value": "."
+            }
+          ],
+          "source": {
+            "file": "story/places/npc-homes.wg",
+            "line": 15,
+            "column": 1
+          }
+        },
+        {
+          "type": "choice",
+          "id": "relax",
+          "label": "Relax in the living room",
+          "target": "place.home-taylor",
+          "icon": "🛋️",
+          "durationMinutes": 0,
+          "when": null,
+          "requirements": [],
+          "warning": null,
+          "previews": [],
+          "effects": [],
+          "source": {
+            "file": "story/places/npc-homes.wg",
+            "line": 17,
+            "column": 1
+          }
+        },
+        {
+          "type": "choice",
+          "id": "bookshelf",
+          "label": "Look over Taylor's bookshelf",
+          "target": "place.home-taylor",
+          "icon": "📚",
+          "durationMinutes": 0,
+          "when": null,
+          "requirements": [],
+          "warning": null,
+          "previews": [],
+          "effects": [],
+          "source": {
+            "file": "story/places/npc-homes.wg",
+            "line": 21,
+            "column": 1
+          }
+        },
+        {
+          "type": "choice",
+          "id": "leave",
+          "label": "Leave",
+          "target": "@leave-place",
+          "icon": "🚪",
+          "durationMinutes": 1,
+          "when": null,
+          "requirements": [],
+          "warning": null,
+          "previews": [],
+          "effects": [],
+          "source": {
+            "file": "story/places/npc-homes.wg",
+            "line": 25,
+            "column": 1
+          }
+        }
+      ],
+      "source": {
+        "file": "story/places/npc-homes.wg",
+        "line": 10,
+        "column": 1
+      }
+    },
+    "place.home-vincent": {
+      "id": "place.home-vincent",
+      "kind": "place",
+      "heading": "Vincent's home",
+      "choiceHeading": "Activities",
+      "tags": [
+        "place",
+        "hub"
+      ],
+      "onEnter": [],
+      "body": [
+        {
+          "type": "paragraph",
+          "parts": [
+            {
+              "type": "text",
+              "value": "You are inside "
+            },
+            {
+              "type": "interpolation",
+              "path": [
+                "place",
+                "name"
+              ],
+              "filters": []
+            },
+            {
+              "type": "text",
+              "value": "."
+            }
+          ],
+          "source": {
+            "file": "story/places/npc-homes.wg",
+            "line": 145,
+            "column": 1
+          }
+        },
+        {
+          "type": "choice",
+          "id": "view",
+          "label": "Admire the view",
+          "target": "place.home-vincent",
+          "icon": "🌆",
+          "durationMinutes": 0,
+          "when": null,
+          "requirements": [],
+          "warning": null,
+          "previews": [],
+          "effects": [],
+          "source": {
+            "file": "story/places/npc-homes.wg",
+            "line": 147,
+            "column": 1
+          }
+        },
+        {
+          "type": "choice",
+          "id": "lounge",
+          "label": "Relax in the lounge",
+          "target": "place.home-vincent",
+          "icon": "🛋️",
+          "durationMinutes": 0,
+          "when": null,
+          "requirements": [],
+          "warning": null,
+          "previews": [],
+          "effects": [],
+          "source": {
+            "file": "story/places/npc-homes.wg",
+            "line": 151,
+            "column": 1
+          }
+        },
+        {
+          "type": "choice",
+          "id": "leave",
+          "label": "Leave",
+          "target": "@leave-place",
+          "icon": "🚪",
+          "durationMinutes": 1,
+          "when": null,
+          "requirements": [],
+          "warning": null,
+          "previews": [],
+          "effects": [],
+          "source": {
+            "file": "story/places/npc-homes.wg",
+            "line": 155,
+            "column": 1
+          }
+        }
+      ],
+      "source": {
+        "file": "story/places/npc-homes.wg",
+        "line": 140,
+        "column": 1
+      }
+    },
     "place.hospital": {
       "id": "place.hospital",
       "kind": "place",
@@ -9852,6 +10440,162 @@ export const WG_BUNDLE = {
       "source": {
         "file": "story/places/education-work.wg",
         "line": 55,
+        "column": 1
+      }
+    },
+    "place.hub.home-clara": {
+      "id": "place.hub.home-clara",
+      "sceneId": "place.home-clara",
+      "placeKeys": [
+        "home_clara"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": {
+        "type": "place"
+      },
+      "offer": null,
+      "automaticTriggers": [],
+      "conditions": [],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/places/npc-homes.wg",
+        "line": 82,
+        "column": 1
+      }
+    },
+    "place.hub.home-mike": {
+      "id": "place.hub.home-mike",
+      "sceneId": "place.home-mike",
+      "placeKeys": [
+        "home_mike"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": {
+        "type": "place"
+      },
+      "offer": null,
+      "automaticTriggers": [],
+      "conditions": [],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/places/npc-homes.wg",
+        "line": 108,
+        "column": 1
+      }
+    },
+    "place.hub.home-officer-vega": {
+      "id": "place.hub.home-officer-vega",
+      "sceneId": "place.home-officer-vega",
+      "placeKeys": [
+        "home_officer_vega"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": {
+        "type": "place"
+      },
+      "offer": null,
+      "automaticTriggers": [],
+      "conditions": [],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/places/npc-homes.wg",
+        "line": 56,
+        "column": 1
+      }
+    },
+    "place.hub.home-shade": {
+      "id": "place.hub.home-shade",
+      "sceneId": "place.home-shade",
+      "placeKeys": [
+        "home_shade"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": {
+        "type": "place"
+      },
+      "offer": null,
+      "automaticTriggers": [],
+      "conditions": [],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/places/npc-homes.wg",
+        "line": 30,
+        "column": 1
+      }
+    },
+    "place.hub.home-taylor": {
+      "id": "place.hub.home-taylor",
+      "sceneId": "place.home-taylor",
+      "placeKeys": [
+        "home_taylor"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": {
+        "type": "place"
+      },
+      "offer": null,
+      "automaticTriggers": [],
+      "conditions": [],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/places/npc-homes.wg",
+        "line": 4,
+        "column": 1
+      }
+    },
+    "place.hub.home-vincent": {
+      "id": "place.hub.home-vincent",
+      "sceneId": "place.home-vincent",
+      "placeKeys": [
+        "home_vincent"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": {
+        "type": "place"
+      },
+      "offer": null,
+      "automaticTriggers": [],
+      "conditions": [],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/places/npc-homes.wg",
+        "line": 134,
         "column": 1
       }
     },

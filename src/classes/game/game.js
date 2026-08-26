@@ -6,6 +6,7 @@ import { RandomStreams, deriveSeed, normalizeSeed, rollSeed } from "../../shared
 import { PLACE_TAGS } from "../../data/world/place.js";
 import { NPC_REGISTRY } from "../../data/npc/npcs.js";
 import { DEFAULT_NPC_INTERACTION_MINUTES } from "../../data/scene/actions.js";
+import { npcHomeAccessFlag } from "../../data/world/access.js";
 import { SaveValidationError, validateGameSave } from "./util/saveValidation.js";
 
 export { SaveValidationError, validateGameSave };
@@ -394,6 +395,25 @@ export class Game {
             };
         }
 
+        const requiredFlag = place.props?.accessFlag;
+        if (requiredFlag != null) {
+            if (typeof requiredFlag !== "string" || !requiredFlag) {
+                throw new TypeError(`Place '${place.id}' has an invalid access flag`);
+            }
+            if (!this.hasFlag(requiredFlag)) {
+                const ownerNpcId = place.props?.ownerNpcId;
+                return {
+                    allowed: false,
+                    code: "missing-access-flag",
+                    place,
+                    requiredFlag,
+                    owner: ownerNpcId == null
+                        ? null
+                        : (this.npcs.get(String(ownerNpcId)) ?? null),
+                };
+            }
+        }
+
         if (typeof place.isOpen === "function" && !place.isOpen(at)) {
             return {
                 allowed: false,
@@ -554,7 +574,7 @@ export class Game {
     // --------------------------
     toJSON() {
         return {
-            saveVersion: 11,
+            saveVersion: 12,
             seed: this.seed,
             random: this.random.toJSON(),
             time: this.now.toISOString(),
@@ -810,6 +830,7 @@ export class Game {
                     category: [PLACE_TAGS.housing],
                     ownerNpcId: id,
                     isResidence: true,
+                    accessFlag: npcHomeAccessFlag(id),
                     discovered: false,
                     icon: "🏠",
                 },

@@ -27,3 +27,8 @@ You settle down with your notes.
 Use `@leave-place` for the exit choice. The runtime converts it to the same
 authoritative leave action used elsewhere, including the normal one-minute
 transition back outside.
+
+Generated NPC residences are in `npc-homes.wg`. They remain visible on the
+map, but require the corresponding `home_access_<npc-id>` flag. An invitation
+scene can grant access with `@effect flag home_access_taylor true` and revoke
+it later by setting the same flag to `false`.

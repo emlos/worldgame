@@ -1,0 +1,158 @@
+@# Authored hubs for dynamically placed NPC residences. Access is controlled
+@# by the matching home_access_<npc-id> game flag.
+
+@entry place.hub.home-taylor
+  @scene place.home-taylor
+  @place-key home_taylor
+  @hub place
+@endentry
+
+:: place.home-taylor [place hub]
+@kind place
+@heading "Taylor's home"
+@choices "Activities"
+
+You are inside {{place.name}}.
+
+@choice relax "Relax in the living room" -> place.home-taylor
+  @icon 🛋️
+@endchoice
+
+@choice bookshelf "Look over Taylor's bookshelf" -> place.home-taylor
+  @icon 📚
+@endchoice
+
+@choice leave "Leave" -> @leave-place
+  @icon 🚪
+  @time 1m
+@endchoice
+
+@entry place.hub.home-shade
+  @scene place.home-shade
+  @place-key home_shade
+  @hub place
+@endentry
+
+:: place.home-shade [place hub]
+@kind place
+@heading "Shade's home"
+@choices "Activities"
+
+You are inside {{place.name}}.
+
+@choice wait "Wait for a while" -> place.home-shade
+  @icon 🪑
+@endchoice
+
+@choice room "Look around the hideout" -> place.home-shade
+  @icon 👀
+@endchoice
+
+@choice leave "Leave" -> @leave-place
+  @icon 🚪
+  @time 1m
+@endchoice
+
+@entry place.hub.home-officer-vega
+  @scene place.home-officer-vega
+  @place-key home_officer_vega
+  @hub place
+@endentry
+
+:: place.home-officer-vega [place hub]
+@kind place
+@heading "Vega's home"
+@choices "Activities"
+
+You are inside {{place.name}}.
+
+@choice sit "Take a seat" -> place.home-officer-vega
+  @icon 🛋️
+@endchoice
+
+@choice room "Look around the room" -> place.home-officer-vega
+  @icon 👀
+@endchoice
+
+@choice leave "Leave" -> @leave-place
+  @icon 🚪
+  @time 1m
+@endchoice
+
+@entry place.hub.home-clara
+  @scene place.home-clara
+  @place-key home_clara
+  @hub place
+@endentry
+
+:: place.home-clara [place hub]
+@kind place
+@heading "Clara's home"
+@choices "Activities"
+
+You are inside {{place.name}}.
+
+@choice tea "Make some tea" -> place.home-clara
+  @icon ☕
+@endchoice
+
+@choice sit "Sit down for a while" -> place.home-clara
+  @icon 🛋️
+@endchoice
+
+@choice leave "Leave" -> @leave-place
+  @icon 🚪
+  @time 1m
+@endchoice
+
+@entry place.hub.home-mike
+  @scene place.home-mike
+  @place-key home_mike
+  @hub place
+@endentry
+
+:: place.home-mike [place hub]
+@kind place
+@heading "Mike's room"
+@choices "Activities"
+
+You are inside {{place.name}}.
+
+@choice sit "Sit down for a while" -> place.home-mike
+  @icon 🪑
+@endchoice
+
+@choice window "Look out of the window" -> place.home-mike
+  @icon 🪟
+@endchoice
+
+@choice leave "Leave" -> @leave-place
+  @icon 🚪
+  @time 1m
+@endchoice
+
+@entry place.hub.home-vincent
+  @scene place.home-vincent
+  @place-key home_vincent
+  @hub place
+@endentry
+
+:: place.home-vincent [place hub]
+@kind place
+@heading "Vincent's home"
+@choices "Activities"
+
+You are inside {{place.name}}.
+
+@choice view "Admire the view" -> place.home-vincent
+  @icon 🌆
+@endchoice
+
+@choice lounge "Relax in the lounge" -> place.home-vincent
+  @icon 🛋️
+@endchoice
+
+@choice leave "Leave" -> @leave-place
+  @icon 🚪
+  @time 1m
+@endchoice

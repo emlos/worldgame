@@ -74,7 +74,7 @@ check(
 );
 
 const save = JSON.parse(JSON.stringify(game));
-check("game writes the self-contained save schema", save.saveVersion === 11);
+check("game writes the self-contained save schema", save.saveVersion === 12);
 check("NPC behavior is present in the save", equal(save.npcs[0].behavior, originalNpc.behavior));
 
 // No npcTemplates argument is supplied: hydration must rely only on save data.

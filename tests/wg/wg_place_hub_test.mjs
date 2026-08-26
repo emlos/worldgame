@@ -3,6 +3,7 @@ import { performChoice } from "../../src/classes/game/scene/choiceEngine.js";
 import { buildScene } from "../../src/classes/game/scene/sceneEngine.js";
 import { getWGPlaceHubEntry } from "../../src/classes/game/scene/wg/entryResolver.js";
 import { WG_BUNDLE } from "../../src/generated/wg/scenes.js";
+import { NPC_REGISTRY } from "../../src/data/npc/npcs.js";
 import { PLACE_REGISTRY } from "../../src/data/world/place.js";
 
 const START = new Date("2026-08-24T08:00:00.000Z");
@@ -29,19 +30,23 @@ for (const entry of hubEntries) {
     hubCounts.set(placeKey, (hubCounts.get(placeKey) || 0) + 1);
   }
 }
-const registryKeys = PLACE_REGISTRY.map((definition) => definition.key);
+const expectedPlaceKeys = [
+  ...PLACE_REGISTRY.map((definition) => definition.key),
+  ...NPC_REGISTRY.filter((definition) => !definition.meta?.example).map(
+    (definition) => `home_${definition.id}`,
+  ),
+];
 
 check(
-  "every registered place key has exactly one authored WG hub",
-  registryKeys.every((key) => hubCounts.get(key) === 1) &&
-    [...hubCounts.keys()].every((key) => registryKeys.includes(key)),
+  "every registered place and generated NPC home has exactly one authored WG hub",
+  expectedPlaceKeys.every((key) => hubCounts.get(key) === 1) &&
+    [...hubCounts.keys()].every((key) => expectedPlaceKeys.includes(key)),
 );
 
 const game = new Game({
   seed: 920,
   startDate: START,
   playerOptions: { startPlaceId: null },
-  npcTemplates: [],
 });
 const generatedPlaces = [...game.world.locations.values()].flatMap((location) =>
   location.places.map((place) => ({ location, place })),

@@ -4,6 +4,7 @@ import {
   WGExpressionError,
 } from "../../src/classes/game/scene/wg/expressionEvaluator.js";
 import { createWGRuntimeContext } from "../../src/classes/game/scene/wg/runtimeContext.js";
+import { npcHomeAccessFlag } from "../../src/data/world/access.js";
 import { parseExpression } from "../../tools/wg/compiler/expressionParser.js";
 
 const START = new Date("2026-08-24T08:00:00.000Z");
@@ -61,6 +62,8 @@ const game = new Game({ seed: 710, startDate: START });
 game.player.setStatBase("energy", 20);
 game.story.taylor = { hurt: 1 };
 game.setFlag("met-taylor");
+const taylorHomeAccessFlag = npcHomeAccessFlag("taylor");
+game.setFlag(taylorHomeAccessFlag);
 const taylor = game.npcs.get("taylor");
 taylor.setLocationAndPlace(game.currentLocationId, game.currentPlaceId);
 game.player.setRelationship({ npcId: taylor.id, score: 0.6 });
@@ -75,6 +78,10 @@ check("the adapter exposes player-to-NPC relationship score", gameContext.npc.ta
 check("the adapter exposes exact-position NPC presence", gameContext.npc.taylor.present === true);
 check("the adapter exposes NPC interaction availability", gameContext.npc.taylor.available === true);
 check("the adapter exposes active story flags", gameContext.flags["met-taylor"] === true);
+check(
+  "NPC home access flags are valid WG condition paths",
+  evaluate(`flags.${taylorHomeAccessFlag}`, gameContext) === true,
+);
 check(
   "the adapter exposes the current authored place",
   gameContext.place.key === game.currentPlace.key &&

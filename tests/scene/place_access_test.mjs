@@ -4,6 +4,7 @@ import {
   performChoice,
 } from "../../src/classes/game/scene/choiceEngine.js";
 import { buildScene } from "../../src/classes/game/scene/sceneEngine.js";
+import { npcHomeAccessFlag } from "../../src/data/world/access.js";
 
 const MINUTE = 60_000;
 const failures = [];
@@ -131,6 +132,99 @@ try {
 check(
   "place access rejects an invalid evaluation time",
   invalidDateError instanceof TypeError,
+);
+
+const privateGame = new Game({
+  seed: 119,
+  startDate: new Date("2026-08-29T12:00:00.000Z"),
+  playerOptions: { startPlaceId: null },
+});
+const taylor = privateGame.npcs.get("taylor");
+const taylorHome = privateGame.world
+  .getLocation(taylor.homeLocationId)
+  .places.find((place) => String(place.id) === String(taylor.homePlaceId));
+const taylorAccessFlag = npcHomeAccessFlag(taylor.id);
+privateGame.moveTo(taylor.homeLocationId);
+
+const privateAccess = privateGame.getPlaceAccess(taylorHome);
+check(
+  "NPC homes require their stable per-NPC access flag",
+  privateAccess.allowed === false &&
+    privateAccess.code === "missing-access-flag" &&
+    privateAccess.place === taylorHome &&
+    privateAccess.owner === taylor &&
+    privateAccess.requiredFlag === taylorAccessFlag,
+);
+
+const privateScene = buildScene(privateGame);
+const privateChoice = enterChoice(privateScene, taylorHome.id);
+check(
+  "private residences stay visible with a permission reason",
+  privateChoice?.enabled === false &&
+    privateChoice.disabledReason === "You need Taylor's permission to enter.",
+);
+
+const privateState = JSON.stringify(privateGame);
+const privateError = (() => {
+  try {
+    performChoice(privateGame, {
+      sceneId: privateScene.id,
+      choiceId: privateChoice.id,
+    });
+    return null;
+  } catch (error) {
+    return error;
+  }
+})();
+check(
+  "authoritative execution rejects entry without residence access",
+  privateError?.code === CHOICE_ERROR_CODE.disabledChoice &&
+    JSON.stringify(privateGame) === privateState,
+);
+
+privateGame.setFlag(npcHomeAccessFlag("shade"));
+check(
+  "access to another NPC's home does not unlock Taylor's home",
+  privateGame.getPlaceAccess(taylorHome).code === "missing-access-flag",
+);
+privateGame.setFlag(taylorAccessFlag);
+check(
+  "the matching access flag unlocks the residence",
+  privateGame.getPlaceAccess(taylorHome).allowed === true,
+);
+
+const restoredPrivateGame = Game.fromJSON(JSON.parse(JSON.stringify(privateGame)));
+const restoredTaylor = restoredPrivateGame.npcs.get("taylor");
+const restoredTaylorHome = restoredPrivateGame.world
+  .getLocation(restoredTaylor.homeLocationId)
+  .places.find((place) => String(place.id) === String(restoredTaylor.homePlaceId));
+check(
+  "residence access survives save and load",
+  restoredPrivateGame.hasFlag(taylorAccessFlag) &&
+    restoredPrivateGame.getPlaceAccess(restoredTaylorHome).allowed === true,
+);
+
+const unlockedScene = buildScene(privateGame);
+const unlockedChoice = enterChoice(unlockedScene, taylorHome.id);
+performChoice(privateGame, {
+  sceneId: unlockedScene.id,
+  choiceId: unlockedChoice.id,
+});
+check(
+  "unlocked NPC homes enter their authored place hub",
+  privateGame.currentPlaceId === taylorHome.id &&
+    buildScene(privateGame).kind === "place",
+);
+
+const playerHomeGame = new Game({
+  seed: 120,
+  startDate: new Date("2026-08-29T12:00:00.000Z"),
+  playerOptions: { startPlaceId: null },
+  npcTemplates: [],
+});
+check(
+  "the player's own home remains accessible without a flag",
+  playerHomeGame.getPlaceAccess(playerHomeGame.homePlaceId).allowed === true,
 );
 
 if (failures.length) {

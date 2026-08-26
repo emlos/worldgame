@@ -173,6 +173,7 @@ transition into a passage, never while rebuilding a scene.
 @effect set story.some.path true
 @effect add story.some.counter 1
 @effect flag met-taylor true
+@effect flag home_access_taylor true
 @effect relationship taylor 0.02
 @effect money 25
 @effect money -5
@@ -182,6 +183,12 @@ transition into a passage, never while rebuilding a scene.
 added through explicit effect types as their systems stabilize. `money` adds
 the signed amount to `player.money`; positive values earn money and negative
 values spend it.
+
+NPC residences use the flag `home_access_<npc-id>`. For example,
+`@effect flag home_access_taylor true` grants entry to Taylor's home, while
+setting it to `false` revokes entry. It can be queried with
+`@when flags.home_access_taylor`. The residence remains visible as a disabled
+place choice while access is missing.
 
 ## Comments and escaping
 

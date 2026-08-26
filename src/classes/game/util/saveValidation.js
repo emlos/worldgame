@@ -9,6 +9,7 @@ import { RANDOM_HOLIDAYS, MONTH_DAYS, DayKind } from "../../../data/world/calend
 import { DAY_KEYS, MS_PER_MINUTE } from "../../../data/world/time.js";
 import { WeatherType } from "../../../data/world/weather.js";
 import { PLAYER_TEMPERATURE_VALUES } from "../../../data/player/stats.js";
+import { npcHomeAccessFlag } from "../../../data/world/access.js";
 import {
     getPlaceInstanceTarget,
     PLACE_DISTRIBUTION_KIND,
@@ -471,6 +472,11 @@ function validateMap(data, path) {
                             "has a minimum age greater than its maximum age",
                         );
                     }
+                }
+                if (Object.prototype.hasOwnProperty.call(props, "accessFlag")) {
+                    string(props.accessFlag, `${placePath}.props.accessFlag`, {
+                        nonEmpty: true,
+                    });
                 }
                 localPlaces.set(placeId, place);
                 places.set(placeId, { locationId: id, data: place, path: placePath });
@@ -1175,6 +1181,12 @@ function validateNPC(data, path, context) {
     if (home.props?.isResidence !== true) {
         fail(`${path}.homePlaceId`, "must point to a residence");
     }
+    same(
+        home.props?.accessFlag,
+        npcHomeAccessFlag(npc.id),
+        `${path}.homePlaceId`,
+        "a residence protected by its owner's access flag",
+    );
 
     const behaviorData = required(npc, "behavior", path);
     const brainData = required(npc, "brain", path);
@@ -1197,9 +1209,9 @@ export function validateGameSave(data) {
     const save = record(data, "save");
     same(
         integer(required(save, "saveVersion", "save"), "save.saveVersion"),
-        11,
+        12,
         "save.saveVersion",
-        "version 11",
+        "version 12",
     );
 
     const seed = uint32(required(save, "seed", "save"), "save.seed");

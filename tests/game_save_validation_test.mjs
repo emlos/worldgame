@@ -31,13 +31,13 @@ function rejects(label, mutate, expectedPath, saveFactory = makeSave) {
 }
 
 const validSave = makeSave();
-check("current v11 save validates directly", validateGameSave(validSave) === validSave);
+check("current v12 save validates directly", validateGameSave(validSave) === validSave);
 check(
     "world-map saves no longer contain density",
     !Object.prototype.hasOwnProperty.call(validSave.world.map, "density"),
 );
 check(
-    "validated v11 save round-trips exactly",
+    "validated v12 save round-trips exactly",
     JSON.stringify(Game.fromJSON(validSave)) === JSON.stringify(validSave),
 );
 
@@ -359,6 +359,18 @@ rejects(
         );
         const home = homeLocation.places.find((place) => place.id === npc.homePlaceId);
         home.props.ownerNpcId = save.npcs[1].id;
+    },
+    "save.npcs[0].homePlaceId",
+);
+rejects(
+    "NPC homes require their canonical access flag",
+    (save) => {
+        const npc = save.npcs[0];
+        const homeLocation = save.world.map.locations.find(
+            (location) => location.id === npc.homeLocationId,
+        );
+        const home = homeLocation.places.find((place) => place.id === npc.homePlaceId);
+        home.props.accessFlag = "wrong-home-access";
     },
     "save.npcs[0].homePlaceId",
 );
