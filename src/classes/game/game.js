@@ -170,7 +170,8 @@ export class Game {
         if (mode === "simulate" && minutes < 0) {
             throw new RangeError("Simulated time changes cannot run backwards; use resync mode");
         }
-        if (mode === "simulate" && minutes === 0) {
+        
+        if (minutes === 0) {
             return { from, to, minutes, mode, source };
         }
 

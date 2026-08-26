@@ -87,6 +87,24 @@ throws("runAction rejects invalid durations", () =>
 );
 check("invalid runAction leaves game unchanged", JSON.stringify(game) === beforeInvalidAction);
 
+// A same-time jump must not rebuild NPC schedules or emit a time-jump event.
+// Advance first so the NPCs have meaningful sequential simulation state that
+// differs from a freshly reconstructed snapshot at the same timestamp.
+const noOpJumpGame = new Game({
+    seed: 117,
+    startDate: new Date("2026-08-24T08:00:00.000Z"),
+});
+noOpJumpGame.advanceMinutes(10 * 60);
+const beforeNoOpJump = JSON.stringify(noOpJumpGame);
+let noOpJumpEvents = 0;
+noOpJumpGame.on("timeJump", () => {
+    noOpJumpEvents += 1;
+});
+const noOpJumpResult = noOpJumpGame.jumpToDate(noOpJumpGame.now);
+check("same-time jumps report a zero-minute change", noOpJumpResult.minutes === 0);
+check("same-time jumps preserve the complete game state", JSON.stringify(noOpJumpGame) === beforeNoOpJump);
+check("same-time jumps do not emit time-jump events", noOpJumpEvents === 0);
+
 const target = new Date("2027-07-20T15:30:00Z");
 const returnedDate = world.setDate(target);
 target.setUTCFullYear(2040);
