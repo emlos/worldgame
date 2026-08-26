@@ -6,12 +6,14 @@ import { RandomStreams, deriveSeed, normalizeSeed, rollSeed } from "../../shared
 import { PLACE_TAGS } from "../../data/world/place.js";
 import { NPC_REGISTRY } from "../../data/npc/npcs.js";
 import { DEFAULT_NPC_INTERACTION_MINUTES } from "../../data/scene/actions.js";
+import { PLAYER_ENERGY_DRAIN_PER_MINUTE } from "../../data/player/stats.js";
 import { npcHomeAccessFlag } from "../../data/world/access.js";
 import { SaveValidationError, validateGameSave } from "./util/saveValidation.js";
 
 export { SaveValidationError, validateGameSave };
 
 const MS_PER_MINUTE = 60 * 1000;
+const ENERGY_PRECISION = 1_000_000;
 
 // High-level orchestrator for world + player + NPCs.
 export class Game {
@@ -39,6 +41,7 @@ export class Game {
 
         // --- story flags (separate from skills) ---
         this.flags = new Set();
+        this.dailyFlags = new Set();
         this.story = {};
         this.currentStorySceneId = null;
         this.storySceneRevision = 0;
@@ -194,6 +197,9 @@ export class Game {
                     npc.brain?.resyncAt(this.now, this);
                 }
             }
+
+            this._applyElapsedPlayerChanges(minutes);
+            this._clearDailyFlagsAfterMidnight(from, this.now);
         } catch (error) {
             this._restoreTimeRuntimeState(snapshot);
             throw error;
@@ -213,10 +219,35 @@ export class Game {
         return change;
     }
 
+    _applyElapsedPlayerChanges(minutes) {
+        if (minutes <= 0) return;
+
+        const energy = this.player.adjustStatBase(
+            "energy",
+            -minutes * PLAYER_ENERGY_DRAIN_PER_MINUTE,
+        );
+        // Keep one large advance identical to many minute-sized advances.
+        this.player.setStatBase(
+            "energy",
+            Math.round(energy * ENERGY_PRECISION) / ENERGY_PRECISION,
+        );
+    }
+
+    _clearDailyFlagsAfterMidnight(from, to) {
+        if (!(to > from)) return;
+        const sameUtcDay =
+            from.getUTCFullYear() === to.getUTCFullYear() &&
+            from.getUTCMonth() === to.getUTCMonth() &&
+            from.getUTCDate() === to.getUTCDate();
+        if (!sameUtcDay) this.dailyFlags.clear();
+    }
+
     _captureTimeRuntimeState() {
         return {
             date: new Date(this.now.getTime()),
             random: this.random.toJSON(),
+            playerEnergy: this.player.getStatBase("energy"),
+            dailyFlags: [...this.dailyFlags],
             npcs: this.npcsArray.map((npc) => ({
                 npc,
                 locationId: npc.locationId,
@@ -230,6 +261,9 @@ export class Game {
         this.world.setDate(snapshot.date);
         this.random.restoreJSON(snapshot.random);
         this.rnd = this.getRNG("gameplay");
+        this.player.setStatBase("energy", snapshot.playerEnergy);
+        this.dailyFlags.clear();
+        for (const flag of snapshot.dailyFlags) this.dailyFlags.add(flag);
 
         for (const state of snapshot.npcs) {
             state.npc.setLocationAndPlace(state.locationId, state.currentPlaceId);
@@ -304,6 +338,19 @@ export class Game {
     }
     hasFlag(flag) {
         return this.flags.has(String(flag));
+    }
+
+    // --- Daily flags (cleared after crossing UTC midnight) ---
+    setDailyFlag(flag, value = true) {
+        const key = String(flag);
+        if (value) this.dailyFlags.add(key);
+        else this.dailyFlags.delete(key);
+    }
+    clearDailyFlag(flag) {
+        this.dailyFlags.delete(String(flag));
+    }
+    hasDailyFlag(flag) {
+        return this.dailyFlags.has(String(flag));
     }
 
     // --- Convenience queries ---
@@ -580,7 +627,7 @@ export class Game {
     // --------------------------
     toJSON() {
         return {
-            saveVersion: 13,
+            saveVersion: 14,
             seed: this.seed,
             random: this.random.toJSON(),
             time: this.now.toISOString(),
@@ -593,6 +640,7 @@ export class Game {
             currentPlaceId: this.currentPlaceId,
             currentPlaceKey: this.currentPlaceKey,
             flags: [...this.flags],
+            dailyFlags: [...this.dailyFlags],
             story: JSON.parse(JSON.stringify(this.story)),
             currentStorySceneId: this.currentStorySceneId,
             storySceneRevision: this.storySceneRevision,
@@ -635,6 +683,7 @@ export class Game {
         game.currentPlaceId = data.currentPlaceId;
         game.currentPlaceKey = data.currentPlaceKey;
         game.flags = new Set(data.flags);
+        game.dailyFlags = new Set(data.dailyFlags);
         game.story = JSON.parse(JSON.stringify(data.story));
         game.currentStorySceneId = data.currentStorySceneId;
         game.storySceneRevision = data.storySceneRevision;

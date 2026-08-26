@@ -92,6 +92,7 @@ const SAMPLE_SOURCE = `@# leading comment
 @onenter
   @effect set story.visit.started true
   @effect flag met-taylor true
+  @effect daily-flag introduced_today true
 @endonenter
 
 Hello, {{player.name}}.
@@ -171,9 +172,10 @@ check(
 );
 check(
   "entry effects remain separate from renderable body nodes",
-  sampleScenes[0].onEnter.length === 2 &&
+  sampleScenes[0].onEnter.length === 3 &&
     sampleScenes[0].onEnter[0].op === "set" &&
-    sampleScenes[0].onEnter[1].op === "flag",
+    sampleScenes[0].onEnter[1].op === "flag" &&
+    sampleScenes[0].onEnter[2].op === "daily-flag",
 );
 
 const introduction = sampleScenes[0].body[0];

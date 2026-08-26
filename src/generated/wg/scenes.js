@@ -25,7 +25,7 @@ export const WG_BUNDLE = {
           ],
           "source": {
             "file": "story/places/civic-transport.wg",
-            "line": 53,
+            "line": 55,
             "column": 1
           }
         },
@@ -43,14 +43,14 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/civic-transport.wg",
-            "line": 55,
+            "line": 57,
             "column": 1
           }
         }
       ],
       "source": {
         "file": "story/places/civic-transport.wg",
-        "line": 50,
+        "line": 52,
         "column": 1
       }
     },
@@ -76,7 +76,7 @@ export const WG_BUNDLE = {
           ],
           "source": {
             "file": "story/places/civic-transport.wg",
-            "line": 61,
+            "line": 63,
             "column": 1
           }
         },
@@ -94,14 +94,14 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/civic-transport.wg",
-            "line": 63,
+            "line": 65,
             "column": 1
           }
         }
       ],
       "source": {
         "file": "story/places/civic-transport.wg",
-        "line": 58,
+        "line": 60,
         "column": 1
       }
     },
@@ -1031,7 +1031,7 @@ export const WG_BUNDLE = {
           ],
           "source": {
             "file": "story/places/civic-transport.wg",
-            "line": 311,
+            "line": 313,
             "column": 1
           }
         },
@@ -1049,7 +1049,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/civic-transport.wg",
-            "line": 313,
+            "line": 315,
             "column": 1
           }
         },
@@ -1067,7 +1067,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/civic-transport.wg",
-            "line": 317,
+            "line": 319,
             "column": 1
           }
         },
@@ -1085,14 +1085,14 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/civic-transport.wg",
-            "line": 321,
+            "line": 323,
             "column": 1
           }
         }
       ],
       "source": {
         "file": "story/places/civic-transport.wg",
-        "line": 306,
+        "line": 308,
         "column": 1
       }
     },
@@ -1325,7 +1325,7 @@ export const WG_BUNDLE = {
           ],
           "source": {
             "file": "story/places/civic-transport.wg",
-            "line": 233,
+            "line": 235,
             "column": 1
           }
         },
@@ -1343,7 +1343,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/civic-transport.wg",
-            "line": 235,
+            "line": 237,
             "column": 1
           }
         },
@@ -1361,7 +1361,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/civic-transport.wg",
-            "line": 239,
+            "line": 241,
             "column": 1
           }
         },
@@ -1379,14 +1379,14 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/civic-transport.wg",
-            "line": 243,
+            "line": 245,
             "column": 1
           }
         }
       ],
       "source": {
         "file": "story/places/civic-transport.wg",
-        "line": 228,
+        "line": 230,
         "column": 1
       }
     },
@@ -1521,7 +1521,7 @@ export const WG_BUNDLE = {
           ],
           "source": {
             "file": "story/places/civic-transport.wg",
-            "line": 207,
+            "line": 209,
             "column": 1
           }
         },
@@ -1539,7 +1539,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/civic-transport.wg",
-            "line": 209,
+            "line": 211,
             "column": 1
           }
         },
@@ -1557,7 +1557,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/civic-transport.wg",
-            "line": 213,
+            "line": 215,
             "column": 1
           }
         },
@@ -1575,14 +1575,14 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/civic-transport.wg",
-            "line": 217,
+            "line": 219,
             "column": 1
           }
         }
       ],
       "source": {
         "file": "story/places/civic-transport.wg",
-        "line": 202,
+        "line": 204,
         "column": 1
       }
     },
@@ -2207,7 +2207,7 @@ export const WG_BUNDLE = {
           ],
           "source": {
             "file": "story/places/civic-transport.wg",
-            "line": 103,
+            "line": 105,
             "column": 1
           }
         },
@@ -2225,7 +2225,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/civic-transport.wg",
-            "line": 105,
+            "line": 107,
             "column": 1
           }
         },
@@ -2243,7 +2243,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/civic-transport.wg",
-            "line": 109,
+            "line": 111,
             "column": 1
           }
         },
@@ -2261,14 +2261,14 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/civic-transport.wg",
-            "line": 113,
+            "line": 115,
             "column": 1
           }
         }
       ],
       "source": {
         "file": "story/places/civic-transport.wg",
-        "line": 98,
+        "line": 100,
         "column": 1
       }
     },
@@ -2795,7 +2795,7 @@ export const WG_BUNDLE = {
           ],
           "source": {
             "file": "story/places/civic-transport.wg",
-            "line": 155,
+            "line": 157,
             "column": 1
           }
         },
@@ -2813,7 +2813,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/civic-transport.wg",
-            "line": 157,
+            "line": 159,
             "column": 1
           }
         },
@@ -2831,7 +2831,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/civic-transport.wg",
-            "line": 161,
+            "line": 163,
             "column": 1
           }
         },
@@ -2849,14 +2849,14 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/civic-transport.wg",
-            "line": 165,
+            "line": 167,
             "column": 1
           }
         }
       ],
       "source": {
         "file": "story/places/civic-transport.wg",
-        "line": 150,
+        "line": 152,
         "column": 1
       }
     },
@@ -3775,7 +3775,7 @@ export const WG_BUNDLE = {
           ],
           "source": {
             "file": "story/places/civic-transport.wg",
-            "line": 285,
+            "line": 287,
             "column": 1
           }
         },
@@ -3793,7 +3793,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/civic-transport.wg",
-            "line": 287,
+            "line": 289,
             "column": 1
           }
         },
@@ -3811,7 +3811,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/civic-transport.wg",
-            "line": 291,
+            "line": 293,
             "column": 1
           }
         },
@@ -3829,14 +3829,14 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/civic-transport.wg",
-            "line": 295,
+            "line": 297,
             "column": 1
           }
         }
       ],
       "source": {
         "file": "story/places/civic-transport.wg",
-        "line": 280,
+        "line": 282,
         "column": 1
       }
     },
@@ -4951,7 +4951,7 @@ export const WG_BUNDLE = {
           ],
           "source": {
             "file": "story/places/civic-transport.wg",
-            "line": 129,
+            "line": 131,
             "column": 1
           }
         },
@@ -4969,7 +4969,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/civic-transport.wg",
-            "line": 131,
+            "line": 133,
             "column": 1
           }
         },
@@ -4987,7 +4987,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/civic-transport.wg",
-            "line": 135,
+            "line": 137,
             "column": 1
           }
         },
@@ -5005,14 +5005,14 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/civic-transport.wg",
-            "line": 139,
+            "line": 141,
             "column": 1
           }
         }
       ],
       "source": {
         "file": "story/places/civic-transport.wg",
-        "line": 124,
+        "line": 126,
         "column": 1
       }
     },
@@ -6617,7 +6617,7 @@ export const WG_BUNDLE = {
           ],
           "source": {
             "file": "story/places/civic-transport.wg",
-            "line": 259,
+            "line": 261,
             "column": 1
           }
         },
@@ -6635,7 +6635,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/civic-transport.wg",
-            "line": 261,
+            "line": 263,
             "column": 1
           }
         },
@@ -6653,7 +6653,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/civic-transport.wg",
-            "line": 265,
+            "line": 267,
             "column": 1
           }
         },
@@ -6671,14 +6671,14 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/civic-transport.wg",
-            "line": 269,
+            "line": 271,
             "column": 1
           }
         }
       ],
       "source": {
         "file": "story/places/civic-transport.wg",
-        "line": 254,
+        "line": 256,
         "column": 1
       }
     },
@@ -7056,7 +7056,17 @@ export const WG_BUNDLE = {
           "target": "place.player-home",
           "icon": "🏋️",
           "durationMinutes": 5,
-          "when": null,
+          "when": {
+            "type": "unary",
+            "operator": "not",
+            "value": {
+              "type": "path",
+              "value": [
+                "daily",
+                "home_weightlifting"
+              ]
+            }
+          },
           "requirements": [],
           "warning": null,
           "previews": [],
@@ -7067,7 +7077,17 @@ export const WG_BUNDLE = {
               "amount": 0.1,
               "source": {
                 "file": "story/places/civic-transport.wg",
-                "line": 27,
+                "line": 28,
+                "column": 1
+              }
+            },
+            {
+              "op": "daily-flag",
+              "flag": "home_weightlifting",
+              "value": true,
+              "source": {
+                "file": "story/places/civic-transport.wg",
+                "line": 29,
                 "column": 1
               }
             }
@@ -7087,7 +7107,7 @@ export const WG_BUNDLE = {
             "difficultyId": "tricky",
             "source": {
               "file": "story/places/civic-transport.wg",
-              "line": 32,
+              "line": 34,
               "column": 1
             }
           },
@@ -7102,14 +7122,14 @@ export const WG_BUNDLE = {
                   "value": true,
                   "source": {
                     "file": "story/places/civic-transport.wg",
-                    "line": 36,
+                    "line": 38,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/civic-transport.wg",
-                "line": 34,
+                "line": 36,
                 "column": 1
               }
             },
@@ -7123,14 +7143,14 @@ export const WG_BUNDLE = {
                   "value": false,
                   "source": {
                     "file": "story/places/civic-transport.wg",
-                    "line": 41,
+                    "line": 43,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/civic-transport.wg",
-                "line": 39,
+                "line": 41,
                 "column": 1
               }
             }
@@ -7141,7 +7161,7 @@ export const WG_BUNDLE = {
           "warning": null,
           "source": {
             "file": "story/places/civic-transport.wg",
-            "line": 30,
+            "line": 32,
             "column": 1
           }
         },
@@ -7159,7 +7179,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/civic-transport.wg",
-            "line": 45,
+            "line": 47,
             "column": 1
           }
         }
@@ -7301,7 +7321,7 @@ export const WG_BUNDLE = {
           ],
           "source": {
             "file": "story/places/civic-transport.wg",
-            "line": 337,
+            "line": 339,
             "column": 1
           }
         },
@@ -7319,7 +7339,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/civic-transport.wg",
-            "line": 339,
+            "line": 341,
             "column": 1
           }
         },
@@ -7337,7 +7357,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/civic-transport.wg",
-            "line": 343,
+            "line": 345,
             "column": 1
           }
         },
@@ -7355,14 +7375,14 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/civic-transport.wg",
-            "line": 347,
+            "line": 349,
             "column": 1
           }
         }
       ],
       "source": {
         "file": "story/places/civic-transport.wg",
-        "line": 332,
+        "line": 334,
         "column": 1
       }
     },
@@ -8379,7 +8399,7 @@ export const WG_BUNDLE = {
           ],
           "source": {
             "file": "story/places/civic-transport.wg",
-            "line": 77,
+            "line": 79,
             "column": 1
           }
         },
@@ -8397,7 +8417,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/civic-transport.wg",
-            "line": 79,
+            "line": 81,
             "column": 1
           }
         },
@@ -8415,7 +8435,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/civic-transport.wg",
-            "line": 83,
+            "line": 85,
             "column": 1
           }
         },
@@ -8433,14 +8453,14 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/civic-transport.wg",
-            "line": 87,
+            "line": 89,
             "column": 1
           }
         }
       ],
       "source": {
         "file": "story/places/civic-transport.wg",
-        "line": 72,
+        "line": 74,
         "column": 1
       }
     },
@@ -8575,7 +8595,7 @@ export const WG_BUNDLE = {
           ],
           "source": {
             "file": "story/places/civic-transport.wg",
-            "line": 181,
+            "line": 183,
             "column": 1
           }
         },
@@ -8593,7 +8613,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/civic-transport.wg",
-            "line": 183,
+            "line": 185,
             "column": 1
           }
         },
@@ -8611,7 +8631,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/civic-transport.wg",
-            "line": 187,
+            "line": 189,
             "column": 1
           }
         },
@@ -8629,14 +8649,14 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/civic-transport.wg",
-            "line": 191,
+            "line": 193,
             "column": 1
           }
         }
       ],
       "source": {
         "file": "story/places/civic-transport.wg",
-        "line": 176,
+        "line": 178,
         "column": 1
       }
     },
@@ -9805,7 +9825,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/places/civic-transport.wg",
-        "line": 300,
+        "line": 302,
         "column": 1
       }
     },
@@ -9883,7 +9903,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/places/civic-transport.wg",
-        "line": 222,
+        "line": 224,
         "column": 1
       }
     },
@@ -9935,7 +9955,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/places/civic-transport.wg",
-        "line": 196,
+        "line": 198,
         "column": 1
       }
     },
@@ -10117,7 +10137,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/places/civic-transport.wg",
-        "line": 92,
+        "line": 94,
         "column": 1
       }
     },
@@ -10273,7 +10293,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/places/civic-transport.wg",
-        "line": 144,
+        "line": 146,
         "column": 1
       }
     },
@@ -10533,7 +10553,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/places/civic-transport.wg",
-        "line": 274,
+        "line": 276,
         "column": 1
       }
     },
@@ -10845,7 +10865,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/places/civic-transport.wg",
-        "line": 118,
+        "line": 120,
         "column": 1
       }
     },
@@ -11287,7 +11307,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/places/civic-transport.wg",
-        "line": 248,
+        "line": 250,
         "column": 1
       }
     },
@@ -11443,7 +11463,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/places/civic-transport.wg",
-        "line": 326,
+        "line": 328,
         "column": 1
       }
     },
@@ -11729,7 +11749,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/places/civic-transport.wg",
-        "line": 66,
+        "line": 68,
         "column": 1
       }
     },
@@ -11781,7 +11801,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/places/civic-transport.wg",
-        "line": 170,
+        "line": 172,
         "column": 1
       }
     },

@@ -31,13 +31,13 @@ function rejects(label, mutate, expectedPath, saveFactory = makeSave) {
 }
 
 const validSave = makeSave();
-check("current v13 save validates directly", validateGameSave(validSave) === validSave);
+check("current v14 save validates directly", validateGameSave(validSave) === validSave);
 check(
     "world-map saves no longer contain density",
     !Object.prototype.hasOwnProperty.call(validSave.world.map, "density"),
 );
 check(
-    "validated v13 save round-trips exactly",
+    "validated v14 save round-trips exactly",
     JSON.stringify(Game.fromJSON(validSave)) === JSON.stringify(validSave),
 );
 
@@ -82,6 +82,20 @@ rejects(
         save.actionRevision = -1;
     },
     "save.actionRevision",
+);
+rejects(
+    "daily flags must be present in current saves",
+    (save) => {
+        delete save.dailyFlags;
+    },
+    "save.dailyFlags",
+);
+rejects(
+    "duplicate daily flags are rejected",
+    (save) => {
+        save.dailyFlags = ["home_weightlifting", "home_weightlifting"];
+    },
+    "save.dailyFlags[1]",
 );
 
 const validTraitSave = makeSave();

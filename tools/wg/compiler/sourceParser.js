@@ -149,12 +149,14 @@ function parseEffect(text, file, line) {
     };
   }
 
-  const flag = argument.match(new RegExp(`^flag\\s+(${ID_PATTERN})\\s+(true|false)$`));
+  const flag = argument.match(
+    new RegExp(`^(flag|daily-flag)\\s+(${ID_PATTERN})\\s+(true|false)$`),
+  );
   if (flag) {
     return {
-      op: "flag",
-      flag: flag[1],
-      value: flag[2] === "true",
+      op: flag[1],
+      flag: flag[2],
+      value: flag[3] === "true",
       source: nodeSource(file, line),
     };
   }

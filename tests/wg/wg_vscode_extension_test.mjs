@@ -78,6 +78,7 @@ test("WG TextMate grammar contains valid regular expressions and core syntax", a
     grammar.repository["effect-directives"].patterns[0].patterns[0].match,
   );
   assert.match("money", effectKeyword);
+  assert.match("daily-flag", effectKeyword);
   assert.match("skill", effectKeyword);
   assert.match("stat", effectKeyword);
   assert.match("@endchoice", firstPattern("block-directives"));

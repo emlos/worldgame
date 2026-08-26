@@ -62,6 +62,7 @@ const game = new Game({ seed: 710, startDate: START });
 game.player.setStatBase("energy", 20);
 game.story.taylor = { hurt: 1 };
 game.setFlag("met-taylor");
+game.setDailyFlag("home_weightlifting");
 const taylorHomeAccessFlag = npcHomeAccessFlag("taylor");
 game.setFlag(taylorHomeAccessFlag);
 const taylor = game.npcs.get("taylor");
@@ -78,6 +79,10 @@ check("the adapter exposes player-to-NPC relationship score", gameContext.npc.ta
 check("the adapter exposes exact-position NPC presence", gameContext.npc.taylor.present === true);
 check("the adapter exposes NPC interaction availability", gameContext.npc.taylor.available === true);
 check("the adapter exposes active story flags", gameContext.flags["met-taylor"] === true);
+check(
+  "the adapter exposes active daily flags",
+  gameContext.daily.home_weightlifting === true,
+);
 check(
   "NPC home access flags are valid WG condition paths",
   evaluate(`flags.${taylorHomeAccessFlag}`, gameContext) === true,

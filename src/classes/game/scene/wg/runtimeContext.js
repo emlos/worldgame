@@ -69,11 +69,15 @@ export function createWGRuntimeContext(game) {
   const flags = {};
   for (const flag of game.flags) flags[flag] = true;
 
+  const daily = {};
+  for (const flag of game.dailyFlags) daily[flag] = true;
+
   return {
     story: game.story,
     player: playerContext(game.player),
     npc: npcs,
     flags,
+    daily,
     time: timeContext(game.now),
     location: game.location
       ? {

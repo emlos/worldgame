@@ -1211,9 +1211,9 @@ export function validateGameSave(data) {
     const save = record(data, "save");
     same(
         integer(required(save, "saveVersion", "save"), "save.saveVersion"),
-        13,
+        14,
         "save.saveVersion",
-        "version 13",
+        "version 14",
     );
 
     const seed = uint32(required(save, "seed", "save"), "save.seed");
@@ -1316,6 +1316,7 @@ export function validateGameSave(data) {
     }
 
     uniqueStrings(required(save, "flags", "save"), "save.flags");
+    uniqueStrings(required(save, "dailyFlags", "save"), "save.dailyFlags", { nonEmpty: true });
     record(required(save, "story", "save"), "save.story");
     optionalNullableString(
         required(save, "currentStorySceneId", "save"),

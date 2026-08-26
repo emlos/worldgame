@@ -24,7 +24,9 @@ You are back in the privacy of {{place.name}}.
 @choice lift-weights "Lift weights" -> place.player-home
   @icon 🏋️
   @time 5m
+  @when not daily.home_weightlifting
   @effect skill strength 0.1
+  @effect daily-flag home_weightlifting true
 @endchoice
 
 @choice open-jar "Open a stubborn jar"

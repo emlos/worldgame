@@ -214,6 +214,9 @@ The currently exposed paths are:
   `.requiredArrivalAt`, `.earlyArrivalMinutes`, and `.minutesUntilStart`.
 - `flags.<id>` for active game flags. Inactive flags are absent, so
   `not flags.some_flag` is the normal negative check.
+- `daily.<id>` for active daily flags. Inactive flags are absent. Daily flags
+  are saved normally and are cleared automatically when forward game time
+  crosses UTC midnight.
 - `time.hour`, `time.minute`, and `time.minutesSinceMidnight`, using the UTC
   world clock shown by the game.
 - `location.id`, `location.name`, and `location.tags` for the containing
@@ -417,6 +420,8 @@ Implemented effects are:
 @effect add story.some.counter 1
 @effect flag met-taylor true
 @effect flag home_access_taylor false
+@effect daily-flag home_weightlifting true
+@effect daily-flag home_weightlifting false
 @effect relationship taylor 0.02
 @effect relationship taylor -0.02
 @effect money 25
@@ -430,6 +435,9 @@ Implemented effects are:
   missing intermediate story objects are created automatically. `add` treats a
   missing final value as zero and requires both values to be finite numbers.
 - `flag <id> true|false` enables or removes a game flag.
+- `daily-flag <id> true|false` enables or removes a daily flag. All daily flags
+  are cleared together when forward game time crosses UTC midnight. Use
+  `not daily.<id>` to gate a once-per-day choice.
 - `relationship <npc-id> <signed-number>` changes that NPC relationship and
   fails at runtime if the NPC does not exist.
 - `money <signed-number>` adjusts `player.money`; positive values earn money

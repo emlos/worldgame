@@ -44,6 +44,9 @@ export const STATS = {
   },
 };
 
+// Passive energy lost for each elapsed in-game minute.
+export const PLAYER_ENERGY_DRAIN_PER_MINUTE = 0.1;
+
 export const PlayerTemperature = Object.freeze({
   OVERHEATING: "overheating",
   HOT: "hot",

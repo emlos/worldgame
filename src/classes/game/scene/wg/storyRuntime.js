@@ -66,6 +66,14 @@ function applyWGEffect(game, effect) {
     return;
   }
 
+  if (effect.op === "daily-flag") {
+    if (typeof effect.flag !== "string" || !effect.flag) {
+      fail("WG daily-flag effect needs an id");
+    }
+    game.setDailyFlag(effect.flag, effect.value);
+    return;
+  }
+
   if (effect.op === "relationship") {
     if (!game.npcs.has(String(effect.npcId))) {
       fail(`WG relationship effect references unknown NPC '${String(effect.npcId)}'`);

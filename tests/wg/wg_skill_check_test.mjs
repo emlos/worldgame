@@ -65,12 +65,16 @@ check("checked choices hide branch skill changes", jar?.skillChanges.length === 
 const context = createWGRuntimeContext(game);
 check("WG expressions expose fractional player skills", context.player.skills.strength === 0.1);
 
+const energyBeforeEffects = game.player.getStatBase("energy");
 applyWGEffects(game, [
   { op: "skill", id: "strength", amount: 0.05 },
   { op: "stat", id: "energy", amount: -5 },
 ]);
 check("WG skill effects preserve fractional changes", game.player.getSkillValue("strength") === 0.15);
-check("WG stat effects adjust registered player stats", game.player.getStatBase("energy") === 95);
+check(
+  "WG stat effects adjust registered player stats",
+  game.player.getStatBase("energy") === energyBeforeEffects - 5,
+);
 
 scene = buildScene(game);
 const saved = JSON.parse(JSON.stringify(game));
