@@ -25,7 +25,8 @@ You settle down with your notes.
 ```
 
 Use `@leave-place` for the exit choice. The runtime converts it to the same
-authoritative leave action used elsewhere, including the normal one-minute
+authoritative leave action used elsewhere. The target does not add time by
+itself, so include `@time 1m` when leaving should use the normal one-minute
 transition back outside.
 
 Generated NPC residences are in `npc-homes.wg`. They remain visible on the
