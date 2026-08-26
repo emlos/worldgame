@@ -144,13 +144,19 @@ function buildLocationScene(game) {
   };
 }
 
-function buildPlaceScene(game) {
+function buildPlaceScene(game, activeDefinition = null) {
   const place = game.currentPlace;
   const hubEntry = getWGPlaceHubEntry(game);
   if (!hubEntry) {
     throw new Error(`No authored WG hub exists for place key '${String(place.key)}'`);
   }
-  const definition = getWGScene(hubEntry.sceneId);
+  if (activeDefinition && activeDefinition.id !== hubEntry.sceneId) {
+    throw new Error(
+      `Active WG place hub '${activeDefinition.id}' does not match ` +
+        `current place hub '${hubEntry.sceneId}'`,
+    );
+  }
+  const definition = activeDefinition || getWGScene(hubEntry.sceneId);
   if (!definition || definition.kind !== "place") {
     throw new Error(`Invalid authored WG hub '${hubEntry.id}' for '${String(place.key)}'`);
   }
@@ -191,6 +197,9 @@ export function buildScene(game) {
     const definition = getWGScene(game.currentStorySceneId);
     if (!definition) {
       throw new Error(`Unknown active WG scene: ${game.currentStorySceneId}`);
+    }
+    if (definition.kind === "place") {
+      return buildPlaceScene(game, definition);
     }
     return materializeWGScene(game, definition);
   }

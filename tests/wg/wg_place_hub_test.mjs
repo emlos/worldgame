@@ -73,10 +73,42 @@ check(
   everyGeneratedPlaceMaterializes,
 );
 
+const jail = generatedPlaces.find(({ place }) => place.key === "jail");
+game.currentLocationId = jail.location.id;
+game.setCurrentPlace({ placeId: jail.place.id });
+game.currentStorySceneId = null;
+const taylor = game.npcs.get("taylor");
+taylor.setLocationAndPlace(jail.location.id, jail.place.id);
+taylor.brain.currentGoal = null;
+taylor.brain.currentAction = null;
+let scene = buildScene(game);
+const desk = choices(scene).find((choice) => choice.id === "desk");
+const jailActivityStart = game.now.getTime();
+performChoice(game, { sceneId: scene.id, choiceId: desk.id });
+const reloadedJailScene = buildScene(game);
+check(
+  "active place hubs preserve their live place heading and present NPC choices",
+  game.currentStorySceneId === "place.jail" &&
+    game.now.getTime() === jailActivityStart &&
+    game.getNPCsAtCurrentPosition().includes(taylor) &&
+    reloadedJailScene.heading === jail.place.name &&
+    reloadedJailScene.sections.some((section) => section.id === "people") &&
+    choices(reloadedJailScene).some((choice) => choice.id === "greet:taylor"),
+);
+
+const locationAwayFromJail = [...game.world.locations.keys()].find(
+  (locationId) => locationId !== jail.location.id,
+);
+taylor.setLocationAndPlace(locationAwayFromJail, null);
+check(
+  "active place hubs re-evaluate NPC presence instead of retaining stale choices",
+  !choices(buildScene(game)).some((choice) => choice.id === "greet:taylor"),
+);
+
 game.currentLocationId = game.homeLocationId;
 game.setCurrentPlace({ placeId: game.homePlaceId });
 game.currentStorySceneId = null;
-let scene = buildScene(game);
+scene = buildScene(game);
 const rest = choices(scene).find((choice) => choice.id === "rest");
 const restStart = game.now.getTime();
 performChoice(game, { sceneId: scene.id, choiceId: rest.id });
