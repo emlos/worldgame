@@ -271,11 +271,12 @@
                 <ol>
                     <li>
                         <strong>Create locations</strong> (district types + tags) and lay them out
-                        on a jittered grid.
+                        with organic best-candidate sampling inside a softly irregular ellipse.
                     </li>
                     <li>
-                        <strong>Connect the graph</strong> using a planar Euclidean MST plus a few
-                        extra local edges (no crossings).
+                        <strong>Connect the graph</strong> using a planar Euclidean MST, then add
+                        scored local edges until the world has useful loops and no long linear
+                        corridors.
                     </li>
                     <li>
                         <strong>Name streets</strong> by grouping edges into “runs” and assigning
@@ -358,8 +359,14 @@
                 <h3>How locations are positioned</h3>
                 <ul>
                     <li>
-                        Locations are laid out on a grid (columns ≈ √N), then jittered inside each
-                        cell.
+                        Each location is selected from 32 random candidates. The candidate furthest
+                        from all previously selected locations wins, producing blue-noise-like
+                        spacing without rows or columns.
+                    </li>
+                    <li>
+                        Candidates are sampled inside an ellipse with a small seeded variation in
+                        its boundary, giving each map an organic overall silhouette while retaining
+                        the requested aspect ratio.
                     </li>
                     <li>
                         Coordinates are stored on the location as <code>x</code>/<code>y</code>.
@@ -391,12 +398,18 @@
                         space).
                     </li>
                     <li>
-                        Then, a few extra edges per node are attempted to nearby nodes (k-nearest
-                        neighbors).
+                        Remaining local edges are scored globally. Connections that repair leaves
+                        or break long degree-two corridors are preferred, while long connections
+                        are penalized.
                     </li>
                     <li>
                         Any edge that would cross an existing edge is skipped (unless it shares an
                         endpoint).
+                    </li>
+                    <li>
+                        For the current 23-location registry, generation targets 30 edges (eight
+                        independent cycles), at most degree five, no more than three leaves, and a
+                        maximum four-edge linear corridor.
                     </li>
                 </ul>
 
@@ -417,14 +430,6 @@
                             </td>
                         </tr>
                         <tr>
-                            <td><code>distance</code></td>
-                            <td>
-                                Purely descriptive distance value (meters), derived from Euclidean
-                                layout distance and floored to ≥ 50. It does not currently drive
-                                travel time.
-                            </td>
-                        </tr>
-                        <tr>
                             <td><code>streetName</code></td>
                             <td>Name assigned after the graph is built (see below).</td>
                         </tr>
@@ -442,10 +447,11 @@
             <section>
                 <h2>Street naming</h2>
                 <p>
-                    Street naming does <em>not</em> come from the generated geometry directly.
-                    Instead, edges are grouped into “runs” and each run gets a name. Names are
-                    chosen from <code>STREET_REGISTRY</code> and each registry entry is used at most
-                    once per map.
+                    Edges are grouped into geometry-aware, non-branching runs. At each location a
+                    run follows the continuation with the smallest turn, provided that the result
+                    still reads as the same street. Names are chosen from
+                    <code>STREET_REGISTRY</code> and each registry entry is used at most once per
+                    map.
                 </p>
 
                 <h3>STREET_REGISTRY entry shape</h3>
@@ -489,20 +495,20 @@
                         junctions).
                     </li>
                     <li>
-                        Runs extend by following unassigned incident edges, avoiding immediately
-                        going back if alternatives exist.
+                        Runs may extend from either end and always choose the straightest available
+                        continuation.
                     </li>
                     <li>
-                        At intersections (degree ≥ 3), the run may stop once it has at least 2
-                        edges.
+                        Degree-two bends may curve substantially. At intersections, a continuation
+                        must pass a stricter alignment threshold.
                     </li>
                     <li>
-                        Street runs use a fixed maximum length of three edges and a 50% chance to
-                        continue through an intersection after reaching two edges.
+                        Street runs have a fixed maximum length of four edges.
                     </li>
                     <li>
-                        If a run ends up as a single edge and can’t be extended, the algorithm tries
-                        to “merge” it into a neighboring already-named street.
+                        A single remaining connector may reuse a neighbouring name only when it
+                        extends that street at an endpoint, stays within the length limit, and does
+                        not create a branch.
                     </li>
                     <li>
                         If the registry is exhausted, the engine falls back to
@@ -515,24 +521,30 @@
                 <h2>Places: how they’re generated</h2>
 
                 <p>
-                    Generation is a single fail-fast assignment pass. Every
-                    <code>PLACE_REGISTRY</code> definition produces exactly one
-                    <code>Place</code>, including <code>bus_stop</code>.
+                    Generation is a fail-fast assignment pass. Ordinary
+                    <code>PLACE_REGISTRY</code> definitions produce exactly one
+                    <code>Place</code>. Definitions with a graph-coverage distribution, currently
+                    <code>bus_stop</code>, produce a map-size-derived number of instances.
                 </p>
 
                 <ol>
                     <li>Validate that every registry key is present and unique.</li>
                     <li>
-                        Resolve legal locations from <code>allowedTags</code> and sort definitions
-                        by candidate count, most constrained first.
+                        Resolve legal locations from <code>allowedTags</code> for every definition.
                     </li>
                     <li>
-                        Pick one legal location using the seeded map RNG, preferring locations with
-                        more of their ten slots remaining.
+                        Force-place distributed infrastructure first. The first instance uses a
+                        central legal location; later instances repeatedly choose the legal
+                        location furthest in graph hops from those already selected.
                     </li>
                     <li>
-                        Instantiate one place with ID <code>key#0@locationId</code>. Generation
-                        throws if any definition cannot be placed.
+                        Sort ordinary definitions by candidate count, most constrained first, then
+                        pick one legal location while preferring locations with more of their ten
+                        slots remaining.
+                    </li>
+                    <li>
+                        Instantiate places with IDs such as <code>key#0@locationId</code>. Generation
+                        throws if a target count, capacity, or coverage rule cannot be satisfied.
                     </li>
                 </ol>
 
@@ -574,6 +586,15 @@
                             <td><span class="pill opt">optional</span></td>
                             <td>Metadata copied to the instance, including categories and icons.</td>
                         </tr>
+                        <tr>
+                            <td><code>distribution</code></td>
+                            <td><span class="pill opt">optional</span></td>
+                            <td>
+                                Declares repeated infrastructure. <code>graph-coverage</code> supports
+                                <code>locationsPerInstance.min/max</code> and
+                                <code>maxGraphDistance</code>.
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
 
@@ -584,16 +605,20 @@
             </section>
 
             <section>
-                <h2>Exact place invariant</h2>
+                <h2>Place instance invariant</h2>
                 <ul>
-                    <li>Every registered place key appears exactly once in a generated map.</li>
-                    <li>Bus stops follow the same one-instance rule.</li>
+                    <li>Every ordinary registered place key appears exactly once.</li>
+                    <li>
+                        Bus stops appear once per three to four locations. The current 23-location
+                        world produces seven stops, with every location within two graph hops of one.
+                    </li>
                     <li>
                         NPC homes are created later with unregistered keys and do not affect the
                         registry invariant.
                     </li>
                     <li>
-                        Save validation requires exactly one saved instance of every registered key.
+                        Save validation recomputes each key’s instance target and verifies
+                        graph-coverage rules for distributed infrastructure.
                     </li>
                 </ul>
                 <div class="note">
@@ -764,7 +789,10 @@
                         Choose <code>allowedTags</code> carefully to ensure there are enough
                         candidate locations.
                     </li>
-                    <li>No count field is needed: adding the definition adds exactly one instance.</li>
+                    <li>
+                        By default, adding the definition adds exactly one instance. Use a
+                        <code>distribution</code> only for genuinely repeated infrastructure.
+                    </li>
                     <li>
                         Set <code>props.category</code> so NPC target selection and opening-hour
                         defaults work.

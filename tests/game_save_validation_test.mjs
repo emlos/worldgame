@@ -31,13 +31,13 @@ function rejects(label, mutate, expectedPath, saveFactory = makeSave) {
 }
 
 const validSave = makeSave();
-check("current v10 save validates directly", validateGameSave(validSave) === validSave);
+check("current v11 save validates directly", validateGameSave(validSave) === validSave);
 check(
     "world-map saves no longer contain density",
     !Object.prototype.hasOwnProperty.call(validSave.world.map, "density"),
 );
 check(
-    "validated v10 save round-trips exactly",
+    "validated v11 save round-trips exactly",
     JSON.stringify(Game.fromJSON(validSave)) === JSON.stringify(validSave),
 );
 
@@ -255,6 +255,52 @@ rejects(
             .flatMap((location) => location.places)
             .find((candidate) => candidate.key === "town_square");
         place.key = "player_home";
+    },
+    "save.world.map.locations",
+);
+rejects(
+    "saves must retain the derived bus-stop count",
+    (save) => {
+        const location = save.world.map.locations.find((candidate) =>
+            candidate.places.some((place) => place.key === "bus_stop"),
+        );
+        const index = location.places.findIndex((place) => place.key === "bus_stop");
+        location.places.splice(index, 1);
+    },
+    "save.world.map.locations",
+);
+rejects(
+    "saves reject excess distributed bus stops",
+    (save) => {
+        const location = save.world.map.locations.find((candidate) =>
+            candidate.places.some((place) => place.key === "bus_stop"),
+        );
+        const existing = location.places.find((place) => place.key === "bus_stop");
+        location.places.push({
+            ...existing,
+            id: `bus_stop#extra@${location.id}`,
+            name: "Extra Bus Stop",
+        });
+    },
+    "save.world.map.locations",
+);
+rejects(
+    "saves reject bus stops clustered outside their coverage rule",
+    (save) => {
+        const busStops = [];
+        for (const location of save.world.map.locations) {
+            const retained = [];
+            for (const place of location.places) {
+                if (place.key === "bus_stop") busStops.push(place);
+                else retained.push(place);
+            }
+            location.places = retained;
+        }
+        const destination = save.world.map.locations[0];
+        for (const busStop of busStops) {
+            busStop.locationId = destination.id;
+            destination.places.push(busStop);
+        }
     },
     "save.world.map.locations",
 );

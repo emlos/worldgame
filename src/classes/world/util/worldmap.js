@@ -1,19 +1,197 @@
-//TODO: rework streets between nodes to prevent from long chans of stingle streets happening [see screenshot]
-//TODO: basicaly reword the node distribution - more scattered circle like
-
 import { weightedPick, randInt, makeRNG } from "../../../shared/util/random.js";
 import { Location } from "./location.js";
 import { Place } from "./place.js";
 import { Street } from "./street.js";
 import { LOCATION_REGISTRY } from "../../../data/world/location.js";
-import { PLACE_REGISTRY } from "../../../data/world/place.js";
+import {
+    getPlaceInstanceTarget,
+    PLACE_DISTRIBUTION_KIND,
+    PLACE_REGISTRY,
+} from "../../../data/world/place.js";
 import { STREET_REGISTRY } from "../../../data/world/street.js";
 import { finitePositive } from "../../../shared/util/util.js";
 
 const capacityPerLocation = 10;
 const MS_PER_MINUTE = 60 * 1000;
+const POSITION_CANDIDATES_PER_NODE = 32;
+const TARGET_EDGE_RATIO = 1.3;
+const MAX_EDGE_RATIO = 1.5;
+const MAX_NODE_DEGREE = 5;
+const TARGET_LEAF_COUNT = 3;
+const TARGET_CORRIDOR_LENGTH = 4;
+const EXTRA_EDGE_LENGTH_RATIO = 2.8;
 
 const dist = (A, B) => Math.hypot(A.x - B.x, A.y - B.y);
+
+const undirectedEdgeKey = (a, b) => [String(a), String(b)].sort().join("\u0000");
+
+function generateOrganicPositions(count, width, height, rnd) {
+    if (count <= 0) return [];
+
+    const centerX = width / 2;
+    const centerY = height / 2;
+    const radiusX = width * 0.46;
+    const radiusY = height * 0.46;
+    const phaseA = rnd() * Math.PI * 2;
+    const phaseB = rnd() * Math.PI * 2;
+
+    const sampleCandidate = () => {
+        const angle = rnd() * Math.PI * 2;
+        const radius = Math.sqrt(rnd());
+        const boundaryShape =
+            0.93 +
+            Math.sin(angle * 3 + phaseA) * 0.045 +
+            Math.sin(angle * 5 + phaseB) * 0.025;
+        return {
+            x: centerX + Math.cos(angle) * radius * radiusX * boundaryShape,
+            y: centerY + Math.sin(angle) * radius * radiusY * boundaryShape,
+        };
+    };
+
+    const points = [sampleCandidate()];
+    while (points.length < count) {
+        let best = null;
+        let bestDistance = -Infinity;
+
+        for (let attempt = 0; attempt < POSITION_CANDIDATES_PER_NODE; attempt++) {
+            const candidate = sampleCandidate();
+            const nearestDistance = Math.min(
+                ...points.map((point) => Math.hypot(candidate.x - point.x, candidate.y - point.y)),
+            );
+            if (nearestDistance > bestDistance) {
+                best = candidate;
+                bestDistance = nearestDistance;
+            }
+        }
+
+        points.push(best);
+    }
+
+    return points;
+}
+
+function collectDegreeTwoCorridors(locations) {
+    const nodes = [...locations.values()];
+    const adjacency = new Map(
+        nodes.map((node) => [String(node.id), [...node.neighbors.keys()].map(String)]),
+    );
+    const visitedEdges = new Set();
+    const corridors = [];
+
+    const walk = (startId, nextId) => {
+        const nodeIds = [String(startId), String(nextId)];
+        const edgeKeys = [undirectedEdgeKey(startId, nextId)];
+        visitedEdges.add(edgeKeys[0]);
+
+        let previousId = String(startId);
+        let currentId = String(nextId);
+        while ((adjacency.get(currentId) || []).length === 2) {
+            const followingId = (adjacency.get(currentId) || []).find(
+                (candidateId) => candidateId !== previousId,
+            );
+            if (followingId == null) break;
+
+            const key = undirectedEdgeKey(currentId, followingId);
+            if (visitedEdges.has(key)) break;
+            visitedEdges.add(key);
+            edgeKeys.push(key);
+            nodeIds.push(followingId);
+            previousId = currentId;
+            currentId = followingId;
+        }
+
+        corridors.push({ nodeIds, edgeKeys, length: edgeKeys.length });
+    };
+
+    for (const node of nodes) {
+        const nodeId = String(node.id);
+        const neighbors = adjacency.get(nodeId) || [];
+        if (neighbors.length === 2) continue;
+        for (const neighborId of neighbors) {
+            if (!visitedEdges.has(undirectedEdgeKey(nodeId, neighborId))) {
+                walk(nodeId, neighborId);
+            }
+        }
+    }
+
+    // A connected component made entirely of degree-two nodes is a cycle and
+    // has no natural endpoint, so account for any edges not visited above.
+    for (const node of nodes) {
+        const nodeId = String(node.id);
+        for (const neighborId of adjacency.get(nodeId) || []) {
+            if (!visitedEdges.has(undirectedEdgeKey(nodeId, neighborId))) {
+                walk(nodeId, neighborId);
+            }
+        }
+    }
+
+    return corridors;
+}
+
+function analyzeGraph(locations, edges) {
+    const nodes = [...locations.values()];
+    const degrees = nodes.map((node) => node.neighbors.size);
+    const unseen = new Set(nodes.map((node) => String(node.id)));
+    let componentCount = 0;
+
+    while (unseen.size) {
+        componentCount++;
+        const queue = [unseen.values().next().value];
+        unseen.delete(queue[0]);
+        while (queue.length) {
+            const currentId = queue.shift();
+            const current = locations.get(currentId);
+            for (const neighborId of current?.neighbors.keys() || []) {
+                const id = String(neighborId);
+                if (!unseen.delete(id)) continue;
+                queue.push(id);
+            }
+        }
+    }
+
+    const corridors = collectDegreeTwoCorridors(locations);
+    const streetEdges = new Map();
+    for (const edge of edges) {
+        const streetName = String(edge.streetName || "Street");
+        if (!streetEdges.has(streetName)) streetEdges.set(streetName, []);
+        streetEdges.get(streetName).push(edge);
+    }
+
+    let branchingStreetCount = 0;
+    for (const street of streetEdges.values()) {
+        const streetDegrees = new Map();
+        for (const edge of street) {
+            streetDegrees.set(String(edge.a), (streetDegrees.get(String(edge.a)) || 0) + 1);
+            streetDegrees.set(String(edge.b), (streetDegrees.get(String(edge.b)) || 0) + 1);
+        }
+        if ([...streetDegrees.values()].some((degree) => degree > 2)) {
+            branchingStreetCount++;
+        }
+    }
+
+    const nodeCount = nodes.length;
+    const edgeCount = edges.length;
+    return {
+        nodeCount,
+        edgeCount,
+        componentCount,
+        cycleCount: edgeCount - nodeCount + componentCount,
+        leafCount: degrees.filter((degree) => degree === 1).length,
+        degreeTwoCount: degrees.filter((degree) => degree === 2).length,
+        maxDegree: degrees.length ? Math.max(...degrees) : 0,
+        averageDegree: nodeCount ? (edgeCount * 2) / nodeCount : 0,
+        longestCorridor: corridors.length
+            ? Math.max(...corridors.map((corridor) => corridor.length))
+            : 0,
+        streetCount: streetEdges.size,
+        singleEdgeStreetCount: [...streetEdges.values()].filter((street) => street.length === 1)
+            .length,
+        longestStreetLength: streetEdges.size
+            ? Math.max(...[...streetEdges.values()].map((street) => street.length))
+            : 0,
+        branchingStreetCount,
+    };
+}
 
 function addTravelTime(atTime, minutes) {
     if (!(atTime instanceof Date) || !Number.isFinite(atTime.getTime())) return atTime;
@@ -99,7 +277,7 @@ function instanceId(key, idx, locationId) {
     return `${key}#${idx}@${String(locationId)}`;
 }
 
-function generatePlaces({ locations, getTag, rnd }) {
+function generatePlaces({ locations, getTag, getNeighbors, rnd }) {
     const locationUsage = new Map(locations.map((locationId) => [String(locationId), 0]));
     const seenKeys = new Set();
 
@@ -128,16 +306,141 @@ function generatePlaces({ locations, getTag, rnd }) {
         return { def, registryIndex, candidates };
     });
 
+    const results = [];
+
+    const createPlace = (def, locationId, index) => {
+        const tags = getTag(locationId) || [];
+        const locationTags = Array.isArray(tags) ? tags : [tags];
+        const name =
+            typeof def.nameFn === "function"
+                ? def.nameFn({
+                    tags: locationTags,
+                    rnd,
+                    index,
+                    locationId,
+                })
+                : def.label || def.key;
+        const place = new Place({
+            id: instanceId(def.key, index, locationId),
+            key: def.key,
+            name,
+            locationId,
+            props: def.props || {},
+        });
+        results.push(place);
+        const locationKey = String(locationId);
+        locationUsage.set(locationKey, (locationUsage.get(locationKey) || 0) + 1);
+    };
+
+    const hopDistanceCache = new Map();
+    const getHopDistances = (startLocationId) => {
+        const startId = String(startLocationId);
+        if (hopDistanceCache.has(startId)) return hopDistanceCache.get(startId);
+
+        const distances = new Map([[startId, 0]]);
+        const queue = [startId];
+        while (queue.length) {
+            const currentId = queue.shift();
+            const nextDistance = distances.get(currentId) + 1;
+            for (const neighborId of getNeighbors(currentId) || []) {
+                const id = String(neighborId);
+                if (distances.has(id)) continue;
+                distances.set(id, nextDistance);
+                queue.push(id);
+            }
+        }
+        hopDistanceCache.set(startId, distances);
+        return distances;
+    };
+
+    const graphDistance = (leftId, rightId) =>
+        getHopDistances(leftId).get(String(rightId)) ?? Infinity;
+
+    // Distributed infrastructure reserves its capacity first. Start from the
+    // graph's most central legal location, then repeatedly choose the legal
+    // location furthest from the stops already selected.
+    for (const { def, candidates } of placements.filter(
+        ({ def }) => def.distribution?.kind === PLACE_DISTRIBUTION_KIND.graphCoverage,
+    )) {
+        const target = getPlaceInstanceTarget(def, locations.length);
+        const shuffled = [...candidates];
+        for (let index = shuffled.length - 1; index > 0; index--) {
+            const other = (rnd() * (index + 1)) | 0;
+            [shuffled[index], shuffled[other]] = [shuffled[other], shuffled[index]];
+        }
+
+        let firstLocationId = null;
+        let firstEccentricity = Infinity;
+        let firstTotalDistance = Infinity;
+        for (const locationId of shuffled) {
+            const distances = locations.map((otherId) => graphDistance(locationId, otherId));
+            const eccentricity = Math.max(...distances);
+            const totalDistance = distances.reduce((sum, distance) => sum + distance, 0);
+            if (
+                eccentricity < firstEccentricity ||
+                (eccentricity === firstEccentricity && totalDistance < firstTotalDistance)
+            ) {
+                firstLocationId = locationId;
+                firstEccentricity = eccentricity;
+                firstTotalDistance = totalDistance;
+            }
+        }
+
+        const selected = firstLocationId == null ? [] : [firstLocationId];
+        while (selected.length < target) {
+            let bestLocationId = null;
+            let bestNearestDistance = -Infinity;
+            for (const locationId of shuffled) {
+                if (selected.includes(locationId)) continue;
+                if ((locationUsage.get(String(locationId)) || 0) >= capacityPerLocation) continue;
+                const nearestDistance = Math.min(
+                    ...selected.map((selectedId) => graphDistance(locationId, selectedId)),
+                );
+                if (nearestDistance > bestNearestDistance) {
+                    bestLocationId = locationId;
+                    bestNearestDistance = nearestDistance;
+                }
+            }
+            if (bestLocationId == null) {
+                throw new Error(
+                    `No location has capacity for distributed place '${def.key}'`,
+                );
+            }
+            selected.push(bestLocationId);
+        }
+
+        const maximumCoverageDistance = Number(def.distribution.maxGraphDistance);
+        if (
+            Number.isFinite(maximumCoverageDistance) &&
+            locations.some(
+                (locationId) =>
+                    Math.min(
+                        ...selected.map((selectedId) =>
+                            graphDistance(locationId, selectedId),
+                        ),
+                    ) > maximumCoverageDistance,
+            )
+        ) {
+            throw new Error(
+                `Distributed place '${def.key}' cannot cover the generated graph`,
+            );
+        }
+
+        selected.forEach((locationId, index) => createPlace(def, locationId, index));
+    }
+
     // Place definitions with the fewest legal districts first so broad,
     // flexible definitions cannot consume their capacity.
-    placements.sort(
+    const uniquePlacements = placements.filter(
+        ({ def }) => def.distribution?.kind !== PLACE_DISTRIBUTION_KIND.graphCoverage,
+    );
+    uniquePlacements.sort(
         (left, right) =>
             left.candidates.length - right.candidates.length ||
             left.registryIndex - right.registryIndex,
     );
 
-    const results = [];
-    for (const { def, candidates } of placements) {
+    for (const { def, candidates } of uniquePlacements) {
         const available = candidates.filter(
             (locationId) =>
                 (locationUsage.get(String(locationId)) || 0) < capacityPerLocation,
@@ -164,34 +467,18 @@ function generatePlaces({ locations, getTag, rnd }) {
                 break;
             }
         }
-
-        const tags = getTag(locationId) || [];
-        const locationTags = Array.isArray(tags) ? tags : [tags];
-        const name =
-            typeof def.nameFn === "function"
-                ? def.nameFn({
-                    tags: locationTags,
-                    rnd,
-                    index: 0,
-                    locationId,
-                })
-                : def.label || def.key;
-
-        results.push(
-            new Place({
-                id: instanceId(def.key, 0, locationId),
-                key: def.key,
-                name,
-                locationId,
-                props: def.props || {},
-            }),
-        );
-        const locationKey = String(locationId);
-        locationUsage.set(locationKey, (locationUsage.get(locationKey) || 0) + 1);
+        createPlace(def, locationId, 0);
     }
 
-    if (results.length !== PLACE_REGISTRY.length) {
-        throw new Error("World generation did not place every registered place exactly once");
+    const expectedCount = PLACE_REGISTRY.reduce(
+        (total, definition) =>
+            total + getPlaceInstanceTarget(definition, locations.length),
+        0,
+    );
+    if (results.length !== expectedCount) {
+        throw new Error(
+            `World generation placed ${results.length} places instead of ${expectedCount}`,
+        );
     }
     return results;
 }
@@ -218,8 +505,20 @@ function pickStreetDefForRun(startLocation, usedKeys, rnd) {
 }
 
 function computeAutoLocationCount() {
-    const capacityCount = Math.ceil(PLACE_REGISTRY.length / capacityPerLocation);
-    return Math.max(LOCATION_REGISTRY.length, capacityCount, 1);
+    let count = Math.max(LOCATION_REGISTRY.length, 1);
+    while (true) {
+        const placeCount = PLACE_REGISTRY.reduce(
+            (total, definition) => total + getPlaceInstanceTarget(definition, count),
+            0,
+        );
+        const required = Math.max(
+            LOCATION_REGISTRY.length,
+            Math.ceil(placeCount / capacityPerLocation),
+            1,
+        );
+        if (required <= count) return count;
+        count = required;
+    }
 }
 
 // --------------------------
@@ -298,21 +597,13 @@ export class WorldMap {
         // 1) Create N locations with districts + tags
         const locs = createLocations({ count: n, rnd: this.rnd });
 
-        // 2) Lay them out on a jittered grid for spacing/planarity
-        const cols = Math.ceil(Math.sqrt(n));
-        const rows = Math.ceil(n / cols);
-        const cellW = W / cols,
-            cellH = H / rows;
-
-        let i = 0;
-        for (let r = 0; r < rows; r++) {
-            for (let c = 0; c < cols && i < n; c++, i++) {
-                const jitterX = (this.rnd() - 0.5) * cellW * 0.5;
-                const jitterY = (this.rnd() - 0.5) * cellH * 0.5;
-                locs[i].x = c * cellW + cellW * 0.5 + jitterX;
-                locs[i].y = r * cellH + cellH * 0.5 + jitterY;
-                this.locations.set(locs[i].id, locs[i]);
-            }
+        // 2) Best-candidate sampling gives the fixed-size world organic,
+        // collision-resistant spacing without forcing nodes into rows.
+        const positions = generateOrganicPositions(n, W, H, this.rnd);
+        for (let index = 0; index < locs.length; index++) {
+            locs[index].x = positions[index].x;
+            locs[index].y = positions[index].y;
+            this.locations.set(locs[index].id, locs[index]);
         }
     }
 
@@ -330,7 +621,12 @@ export class WorldMap {
             for (let j = i + 1; j < nodes.length; j++) {
                 const A = nodes[i],
                     B = nodes[j];
-                candidates.push({ a: A.id, b: B.id, d: dist(A, B) });
+                candidates.push({
+                    a: A.id,
+                    b: B.id,
+                    d: dist(A, B),
+                    tieBreaker: this.rnd(),
+                });
             }
         }
         candidates.sort((u, v) => u.d - v.d); // shortest first
@@ -355,44 +651,97 @@ export class WorldMap {
             linkNoCross(A, B, this);
         }
 
-        // --- Add a few local edges (k-NN) without crossings & within a distance cap
-        // Distance cap: median of the MST edges * 1.25 to keep locality
+        // Add local, non-crossing edges until the graph has useful loops and
+        // its leaves/degree-two corridors are under control. Scoring the full
+        // candidate pool avoids the old failure mode where each node's nearest
+        // choices were already consumed by the MST.
         const sortedMst = [...mstEdges].sort((a, b) => a.d - b.d);
         const median = sortedMst.length ? sortedMst[Math.floor(sortedMst.length / 2)].d : Infinity;
-        const maxExtraLen = median * 1.3;
+        const maxExtraLen = median * EXTRA_EDGE_LENGTH_RATIO;
+        const planarLimit = Math.max(nodes.length - 1, nodes.length * 3 - 6);
+        const targetEdgeCount = Math.min(
+            planarLimit,
+            Math.max(nodes.length - 1, Math.round(nodes.length * TARGET_EDGE_RATIO)),
+        );
+        const maxEdgeCount = Math.min(
+            planarLimit,
+            Math.max(targetEdgeCount, Math.round(nodes.length * MAX_EDGE_RATIO)),
+        );
 
-        for (const A of nodes) {
-            const k = Math.round(2 + this.rnd());
-            const byNear = nodes
-                .filter((B) => B.id !== A.id)
-                .map((B) => ({ B, d: dist(A, B) }))
-                .sort((u, v) => u.d - v.d)
-                .slice(0, k);
+        while (this.edges.length < maxEdgeCount) {
+            const metrics = analyzeGraph(this.locations, this.edges);
+            const needsStructuralRepair =
+                metrics.leafCount > TARGET_LEAF_COUNT ||
+                metrics.longestCorridor > TARGET_CORRIDOR_LENGTH;
+            if (this.edges.length >= targetEdgeCount && !needsStructuralRepair) break;
 
-            for (const { B, d } of byNear) {
-                if (d > maxExtraLen) continue;
-                if (A.neighbors.has(B.id)) continue;
-                linkNoCross(A, B, this); // will refuse if crossing
+            const corridorPressure = new Map();
+            for (const corridor of collectDegreeTwoCorridors(this.locations)) {
+                if (corridor.length <= TARGET_CORRIDOR_LENGTH) continue;
+                const pressure = corridor.length - TARGET_CORRIDOR_LENGTH;
+                for (const nodeId of corridor.nodeIds.slice(1, -1)) {
+                    const node = this.locations.get(String(nodeId));
+                    if (node?.neighbors.size !== 2) continue;
+                    corridorPressure.set(
+                        String(nodeId),
+                        Math.max(corridorPressure.get(String(nodeId)) || 0, pressure),
+                    );
+                }
             }
+
+            let best = null;
+            let bestScore = -Infinity;
+            for (const candidate of candidates) {
+                if (candidate.d > maxExtraLen) continue;
+                const A = this.locations.get(String(candidate.a));
+                const B = this.locations.get(String(candidate.b));
+                if (!A || !B || A.neighbors.has(B.id)) continue;
+                if (
+                    A.neighbors.size >= MAX_NODE_DEGREE ||
+                    B.neighbors.size >= MAX_NODE_DEGREE
+                ) {
+                    continue;
+                }
+                if (crossesExisting(A, B, this)) continue;
+
+                const degreeScore =
+                    (A.neighbors.size === 1 ? 7 : A.neighbors.size === 2 ? 2 : 0) +
+                    (B.neighbors.size === 1 ? 7 : B.neighbors.size === 2 ? 2 : 0);
+                const corridorScore =
+                    (corridorPressure.get(String(A.id)) || 0) * 4 +
+                    (corridorPressure.get(String(B.id)) || 0) * 4;
+                const lengthPenalty = median > 0 ? (candidate.d / median) * 1.6 : 0;
+                const score =
+                    degreeScore +
+                    corridorScore -
+                    lengthPenalty +
+                    candidate.tieBreaker * 0.25;
+
+                if (score > bestScore) {
+                    best = candidate;
+                    bestScore = score;
+                }
+            }
+
+            if (!best) break;
+            linkNoCross(
+                this.locations.get(String(best.a)),
+                this.locations.get(String(best.b)),
+                this,
+            );
         }
 
         this._assignStreetNames();
 
         function linkNoCross(a, b, map) {
             // refuse if already linked
-            if (a.id === b.id || a.neighbors.has(b.id)) return;
+            if (a.id === b.id || a.neighbors.has(b.id)) return false;
 
             // crossing check against existing edges
-            const A = a,
-                B = b;
-            for (const e of map.edges) {
-                const C = map.locations.get(e.a);
-                const D = map.locations.get(e.b);
-                if (C.id === A.id || C.id === B.id || D.id === A.id || D.id === B.id) continue; // shared endpoint ok
-                if (segmentsIntersect(A, B, C, D)) return; // would cross -> skip
-            }
+            if (crossesExisting(a, b, map)) return false;
 
-            // create edge (travel minutes still randomized 1..10 at world-gen)
+            // Travel minutes remain a separate gameplay value rather than a
+            // direct conversion of display geometry.
             const minutes = randInt(1, 5, map.rnd);
 
             const edgeAB = new Street({
@@ -411,6 +760,17 @@ export class WorldMap {
             a.connect(b, edgeAB);
             b.connect(a, edgeBA);
             map.edges.push(edgeAB);
+            return true;
+        }
+
+        function crossesExisting(A, B, map) {
+            for (const e of map.edges) {
+                const C = map.locations.get(String(e.a));
+                const D = map.locations.get(String(e.b));
+                if (C.id === A.id || C.id === B.id || D.id === A.id || D.id === B.id) continue;
+                if (segmentsIntersect(A, B, C, D)) return true;
+            }
+            return false;
         }
 
         function _orient(ax, ay, bx, by, cx, cy) {
@@ -459,6 +819,7 @@ export class WorldMap {
         const placed = generatePlaces({
             locations: ids,
             getTag: (locId) => this.locations.get(locId)?.tags || [],
+            getNeighbors: (locId) => this.locations.get(String(locId))?.neighbors.keys() || [],
             rnd: this.rnd,
         });
 
@@ -493,128 +854,170 @@ export class WorldMap {
         const usedStreetKeys = new Set(); // no reuse of a registry name
         let fallbackIndex = 1; // "Road 1", "Road 2", ... if registry is exhausted
 
-        const MAX_LEN = 3;
-        const MIN_LEN = 2;
+        const MAX_LEN = 4;
+
+        const continuation = (previousNodeId, currentNodeId, runNodeIds) => {
+            const previous = this.locations.get(String(previousNodeId));
+            const current = this.locations.get(String(currentNodeId));
+            const incident = nodeEdges.get(String(currentNodeId)) || [];
+            const options = [];
+
+            for (const edge of incident) {
+                if (!unassigned.has(edge)) continue;
+                const otherNodeId = String(
+                    edge.a === String(currentNodeId) ? edge.b : edge.a,
+                );
+                if (runNodeIds.has(otherNodeId)) continue;
+                const other = this.locations.get(otherNodeId);
+                if (!previous || !current || !other) continue;
+
+                const incomingX = current.x - previous.x;
+                const incomingY = current.y - previous.y;
+                const outgoingX = other.x - current.x;
+                const outgoingY = other.y - current.y;
+                const denominator =
+                    Math.hypot(incomingX, incomingY) * Math.hypot(outgoingX, outgoingY);
+                const alignment = denominator
+                    ? (incomingX * outgoingX + incomingY * outgoingY) / denominator
+                    : -1;
+                options.push({ edge, otherNodeId, alignment });
+            }
+
+            options.sort(
+                (left, right) =>
+                    right.alignment - left.alignment ||
+                    undirectedEdgeKey(left.edge.a, left.edge.b).localeCompare(
+                        undirectedEdgeKey(right.edge.a, right.edge.b),
+                    ),
+            );
+            const best = options[0];
+            if (!best) return null;
+
+            // Degree-two bends may curve substantially; at a junction require
+            // the continuation to be recognisably straight.
+            const threshold = (degree.get(String(currentNodeId)) || 0) >= 3 ? 0.35 : -0.25;
+            return best.alignment >= threshold ? best : null;
+        };
 
         while (unassigned.size > 0) {
-            // --- pick starting edge: prefer edges that touch low-degree nodes (<= 2) ---
-            let startEdge = null;
-            const lowDeg = [];
-
-            for (const e of unassigned) {
-                const da = degree.get(e.a) || 0;
-                const db = degree.get(e.b) || 0;
-                if (da <= 2 || db <= 2) lowDeg.push(e);
-            }
-
-            if (lowDeg.length > 0) {
-                startEdge = lowDeg[(rnd() * lowDeg.length) | 0];
-            } else {
-                const arr = Array.from(unassigned);
-                startEdge = arr[(rnd() * arr.length) | 0];
-            }
-
-            // orient so we start from the "less busy" end if possible
-            let from = startEdge.a;
-            let to = startEdge.b;
-            if ((degree.get(startEdge.a) || 0) > (degree.get(startEdge.b) || 0)) {
-                from = startEdge.b;
-                to = startEdge.a;
-            }
-
-            const runEdges = [];
-            runEdges.push(startEdge);
+            // Start at the least-connected available edge so leaf streets and
+            // connectors are resolved before dense intersections.
+            const availableStarts = [...unassigned];
+            const lowestDegreeSum = Math.min(
+                ...availableStarts.map(
+                    (edge) => (degree.get(edge.a) || 0) + (degree.get(edge.b) || 0),
+                ),
+            );
+            const preferredStarts = availableStarts.filter(
+                (edge) =>
+                    (degree.get(edge.a) || 0) + (degree.get(edge.b) || 0) ===
+                    lowestDegreeSum,
+            );
+            const startEdge = preferredStarts[(rnd() * preferredStarts.length) | 0];
+            const runEdges = [startEdge];
             unassigned.delete(startEdge);
 
-            let prevNode = from;
-            let currNode = to;
-            let len = 1;
+            const runNodeIds = new Set([String(startEdge.a), String(startEdge.b)]);
+            const sides = [
+                { previousNodeId: String(startEdge.b), currentNodeId: String(startEdge.a) },
+                { previousNodeId: String(startEdge.a), currentNodeId: String(startEdge.b) },
+            ];
 
-            while (len < MAX_LEN) {
-                const incident = nodeEdges.get(currNode) || [];
-                const available = incident.filter((e) => unassigned.has(e));
-                if (available.length === 0) break;
+            while (runEdges.length < MAX_LEN) {
+                const options = sides
+                    .map((side, sideIndex) => ({
+                        sideIndex,
+                        option: continuation(
+                            side.previousNodeId,
+                            side.currentNodeId,
+                            runNodeIds,
+                        ),
+                    }))
+                    .filter((candidate) => candidate.option);
+                if (!options.length) break;
+                options.sort(
+                    (left, right) =>
+                        right.option.alignment - left.option.alignment ||
+                        left.sideIndex - right.sideIndex,
+                );
 
-                const deg = degree.get(currNode) || 0;
-
-                // At intersections (deg >= 3) and once we have MIN_LEN, sometimes stop here
-                if (deg >= 3 && len >= MIN_LEN) {
-                    const pContinue = 0.5;
-                    if (rnd() > pContinue) break;
-                }
-
-                // Choose next edge – avoid going straight back if other options exist
-                let nextEdge = null;
-                const nonBack = available.filter((e) => {
-                    const other = e.a === currNode ? e.b : e.a;
-                    return other !== prevNode;
-                });
-                if (nonBack.length > 0) {
-                    nextEdge = nonBack[(rnd() * nonBack.length) | 0];
-                } else {
-                    nextEdge = available[(rnd() * available.length) | 0];
-                }
-
-                runEdges.push(nextEdge);
-                unassigned.delete(nextEdge);
-
-                prevNode = currNode;
-                currNode = nextEdge.a === currNode ? nextEdge.b : nextEdge.a;
-                len++;
-            }
-
-            // --- Try to enforce "street is at least 2 edges long" structurally ---
-            if (runEdges.length === 1) {
-                const e = runEdges[0];
-                const endpoints = [e.a, e.b];
-                let extended = false;
-
-                for (const node of endpoints) {
-                    const incident = nodeEdges.get(node) || [];
-                    const avail = incident.filter((ed) => unassigned.has(ed));
-                    if (avail.length) {
-                        const extra = avail[(rnd() * avail.length) | 0];
-                        runEdges.push(extra);
-                        unassigned.delete(extra);
-                        extended = true;
-                        break;
-                    }
-                }
-                // if extended === false here, this edge is truly isolated:
-                // there are no unassigned neighbors left to merge with
+                const selected = options[0];
+                runEdges.push(selected.option.edge);
+                unassigned.delete(selected.option.edge);
+                runNodeIds.add(selected.option.otherNodeId);
+                const side = sides[selected.sideIndex];
+                side.previousNodeId = side.currentNodeId;
+                side.currentNodeId = selected.option.otherNodeId;
             }
 
             let streetName = null;
 
-            // Special case: single-edge "run" that we couldn't extend.
+            // A final connector may join an already named path only when it
+            // extends that path at an endpoint. This removes needless
+            // one-edge names without creating branching streets.
             if (runEdges.length === 1) {
                 const lone = runEdges[0];
-                const nodes = [lone.a, lone.b];
-
-                // Look for any incident edge that already has a streetName
-                for (const nodeId of nodes) {
-                    const incident = nodeEdges.get(nodeId) || [];
-                    const candidate = incident.find(
-                        (e) => e !== lone && e.streetName, // already named
+                const reuseOptions = [];
+                for (const sharedNodeId of [String(lone.a), String(lone.b)]) {
+                    const loneOtherId = String(
+                        String(lone.a) === sharedNodeId ? lone.b : lone.a,
                     );
-                    if (candidate) {
-                        streetName = candidate.streetName; // ✅ merge into existing street
-                        break;
+                    const sharedNode = this.locations.get(sharedNodeId);
+                    const loneOther = this.locations.get(loneOtherId);
+
+                    for (const namedEdge of nodeEdges.get(sharedNodeId) || []) {
+                        if (namedEdge === lone || unassigned.has(namedEdge)) continue;
+                        const namedStreet = this.edges.filter(
+                            (edge) =>
+                                edge !== lone &&
+                                !unassigned.has(edge) &&
+                                edge.streetName === namedEdge.streetName,
+                        );
+                        if (namedStreet.length >= MAX_LEN) continue;
+
+                        const incidentCount = namedStreet.filter(
+                            (edge) =>
+                                String(edge.a) === sharedNodeId ||
+                                String(edge.b) === sharedNodeId,
+                        ).length;
+                        if (incidentCount !== 1) continue;
+
+                        const namedOtherId = String(
+                            String(namedEdge.a) === sharedNodeId
+                                ? namedEdge.b
+                                : namedEdge.a,
+                        );
+                        const namedOther = this.locations.get(namedOtherId);
+                        if (!sharedNode || !loneOther || !namedOther) continue;
+
+                        const incomingX = sharedNode.x - namedOther.x;
+                        const incomingY = sharedNode.y - namedOther.y;
+                        const outgoingX = loneOther.x - sharedNode.x;
+                        const outgoingY = loneOther.y - sharedNode.y;
+                        const denominator =
+                            Math.hypot(incomingX, incomingY) *
+                            Math.hypot(outgoingX, outgoingY);
+                        const alignment = denominator
+                            ? (incomingX * outgoingX + incomingY * outgoingY) /
+                              denominator
+                            : -1;
+                        if (alignment >= -0.25) {
+                            reuseOptions.push({
+                                streetName: namedEdge.streetName,
+                                alignment,
+                            });
+                        }
                     }
                 }
+                reuseOptions.sort((left, right) => right.alignment - left.alignment);
+                streetName = reuseOptions[0]?.streetName ?? null;
             }
 
-            // If we couldn’t reuse an existing name, pick a fresh one from the registry
             if (!streetName) {
-                const startLoc = this.locations.get(from);
+                const startLoc = this.locations.get(String(startEdge.a));
                 const def = pickStreetDefForRun(startLoc, usedStreetKeys, rnd);
-
-                if (def) {
-                    streetName = def.name;
-                    usedStreetKeys.add(def.key); // mark registry key as used
-                } else {
-                    streetName = `Road ${fallbackIndex++}`; // registry exhausted
-                }
+                streetName = def ? def.name : `Road ${fallbackIndex++}`;
+                if (def) usedStreetKeys.add(def.key);
             }
 
             // Assign name to both directions of every edge in the run
@@ -639,6 +1042,10 @@ export class WorldMap {
 
     getLocation(id) {
         return this.locations.get(String(id));
+    }
+
+    getGraphMetrics() {
+        return analyzeGraph(this.locations, this.edges);
     }
 
     getTravelEdge(fromId, toId) {

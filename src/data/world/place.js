@@ -11,6 +11,32 @@ function seqName(base, { index }) {
     return `${base} ${index + 1}`;
 }
 
+export const PLACE_DISTRIBUTION_KIND = Object.freeze({
+    graphCoverage: "graph-coverage",
+});
+
+export function getPlaceInstanceTarget(definition, locationCount) {
+    const count = Math.max(0, Math.trunc(Number(locationCount) || 0));
+    const distribution = definition?.distribution;
+    if (distribution?.kind !== PLACE_DISTRIBUTION_KIND.graphCoverage) return 1;
+
+    const minimum = Math.max(
+        1,
+        Number(distribution.locationsPerInstance?.min) || 1,
+    );
+    const maximum = Math.max(
+        minimum,
+        Number(distribution.locationsPerInstance?.max) || minimum,
+    );
+    const average = (minimum + maximum) / 2;
+    const minimumInstances = Math.max(1, Math.ceil(count / maximum));
+    const maximumInstances = Math.max(minimumInstances, Math.ceil(count / minimum));
+    return Math.max(
+        minimumInstances,
+        Math.min(maximumInstances, Math.round(count / average)),
+    );
+}
+
 export const PLACE_TAGS = {
     civic: "civic",
     safety: "safety",
@@ -108,6 +134,11 @@ export const PLACE_REGISTRY = [
     {
         key: "bus_stop",
         label: "Bus Stop",
+        distribution: {
+            kind: PLACE_DISTRIBUTION_KIND.graphCoverage,
+            locationsPerInstance: { min: 3, max: 4 },
+            maxGraphDistance: 2,
+        },
         allowedTags: [
             ...Object.values(LOCATION_TAGS), //bus stops can be everywhere
         ],

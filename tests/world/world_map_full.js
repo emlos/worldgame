@@ -342,16 +342,34 @@ function init(width, height) {
         .map((loc) => loc.places)
         .flat()
         .map((place) => place.key);
-    const counts = new Map(PLACE_REGISTRY.map((place) => [place.key, 0]));
+    const expectedCounts = new Map(
+        PLACE_REGISTRY.map((place) => [
+            place.key,
+            getPlaceInstanceTarget(place, world.map.locations.size),
+        ])
+    );
+    const counts = new Map([...expectedCounts.keys()].map((key) => [key, 0]));
     for (const key of placed) {
         if (counts.has(key)) counts.set(key, counts.get(key) + 1);
     }
-    const countViolations = [...counts].filter(([, count]) => count !== 1);
+    const countViolations = [...counts].filter(
+        ([key, count]) => count !== expectedCounts.get(key)
+    );
+    const graphMetrics = world.map.getGraphMetrics();
 
     byId("mapinfo").append(
         table(
             [
                 ["Streets amount", streetColors.size],
+                ["Graph edges", graphMetrics.edgeCount],
+                ["Independent cycles", graphMetrics.cycleCount],
+                ["Leaf locations", graphMetrics.leafCount],
+                ["Degree-two locations", graphMetrics.degreeTwoCount],
+                ["Longest simple corridor", graphMetrics.longestCorridor],
+                ["Maximum location degree", graphMetrics.maxDegree],
+                ["Single-edge street names", graphMetrics.singleEdgeStreetCount],
+                ["Longest named street", graphMetrics.longestStreetLength],
+                ["Branching street names", graphMetrics.branchingStreetCount],
                 [
                     "Street names<br><small>hover over the name to highlight street</small>",
                     collectedstreets
@@ -373,9 +391,12 @@ function init(width, height) {
                     "Registry place count violations",
                     countViolations.length > 0
                         ? countViolations
-                              .map(([key, count]) => `<code>${key}</code>: ${count}`)
+                              .map(
+                                  ([key, count]) =>
+                                      `<code>${key}</code>: ${count}/${expectedCounts.get(key)}`
+                              )
                               .join("<br>")
-                        : "Every registered place appears exactly once",
+                        : "Every registered place meets its instance target",
                 ],
             ],
             ["Property", "Value"]

@@ -9,7 +9,11 @@ import { RANDOM_HOLIDAYS, MONTH_DAYS, DayKind } from "../../../data/world/calend
 import { DAY_KEYS, MS_PER_MINUTE } from "../../../data/world/time.js";
 import { WeatherType } from "../../../data/world/weather.js";
 import { PLAYER_TEMPERATURE_VALUES } from "../../../data/player/stats.js";
-import { PLACE_REGISTRY } from "../../../data/world/place.js";
+import {
+    getPlaceInstanceTarget,
+    PLACE_DISTRIBUTION_KIND,
+    PLACE_REGISTRY,
+} from "../../../data/world/place.js";
 import {
     PLACE_ENTER_MINUTES,
     PLACE_LEAVE_MINUTES,
@@ -476,11 +480,14 @@ function validateMap(data, path) {
     });
 
     if (locations.size === 0) fail(`${path}.locations`, "must contain at least one location");
-    for (const [placeKey, count] of registeredPlaceCounts) {
-        if (count !== 1) {
+    for (const definition of PLACE_REGISTRY) {
+        const placeKey = String(definition.key);
+        const count = registeredPlaceCounts.get(placeKey) || 0;
+        const expected = getPlaceInstanceTarget(definition, locations.size);
+        if (count !== expected) {
             fail(
                 `${path}.locations`,
-                `must contain exactly one registered place with key '${placeKey}' (found ${count})`,
+                `must contain ${expected} registered place instance(s) with key '${placeKey}' (found ${count})`,
             );
         }
     }
@@ -522,6 +529,46 @@ function validateMap(data, path) {
     }
     if (reached.size !== locations.size)
         fail(`${path}.edges`, "must connect every location in one graph");
+
+    for (const definition of PLACE_REGISTRY) {
+        if (definition.distribution?.kind !== PLACE_DISTRIBUTION_KIND.graphCoverage) continue;
+        const maximumDistance = Number(definition.distribution.maxGraphDistance);
+        if (!Number.isFinite(maximumDistance)) continue;
+
+        const targetLocations = new Set(
+            [...locations]
+                .filter(([, location]) =>
+                    [...location.places.values()].some(
+                        (place) => String(place.key) === String(definition.key),
+                    ),
+                )
+                .map(([locationId]) => locationId),
+        );
+        for (const locationId of locations.keys()) {
+            const coverageQueue = [[locationId, 0]];
+            const coverageSeen = new Set([locationId]);
+            let covered = false;
+            while (coverageQueue.length) {
+                const [currentId, distance] = coverageQueue.shift();
+                if (targetLocations.has(currentId)) {
+                    covered = distance <= maximumDistance;
+                    break;
+                }
+                if (distance >= maximumDistance) continue;
+                for (const neighborId of adjacency.get(currentId).keys()) {
+                    if (coverageSeen.has(neighborId)) continue;
+                    coverageSeen.add(neighborId);
+                    coverageQueue.push([neighborId, distance + 1]);
+                }
+            }
+            if (!covered) {
+                fail(
+                    `${path}.locations`,
+                    `must place '${definition.key}' within ${maximumDistance} graph hop(s) of every location`,
+                );
+            }
+        }
+    }
 
     return { locations, places, adjacency };
 }
@@ -1150,9 +1197,9 @@ export function validateGameSave(data) {
     const save = record(data, "save");
     same(
         integer(required(save, "saveVersion", "save"), "save.saveVersion"),
-        10,
+        11,
         "save.saveVersion",
-        "version 10",
+        "version 11",
     );
 
     const seed = uint32(required(save, "seed", "save"), "save.seed");
