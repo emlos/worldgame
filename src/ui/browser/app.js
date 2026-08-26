@@ -2,6 +2,7 @@ import { Game } from "../../classes/game/game.js";
 import { teleportNPCToPlayer } from "../../classes/game/debugCommands.js";
 import { buildScene } from "../../classes/game/scene/sceneEngine.js";
 import { performChoice } from "../../classes/game/scene/choiceEngine.js";
+import { buildPlayerDiaryView } from "../../classes/game/scene/diaryView.js";
 import { buildFullMapView } from "../../classes/game/scene/mapView.js";
 import { STATS } from "../../data/player/stats.js";
 import { renderMap as renderGraphMap } from "./renderMap.js";
@@ -13,6 +14,11 @@ const playerMoneyElement = document.querySelector("#player-money");
 const playerTemperatureElement = document.querySelector("#player-temperature");
 const playerStatsElement = document.querySelector("#player-stats");
 const restartButton = document.querySelector("#restart");
+const playerDiaryButton = document.querySelector("#player-diary-btn");
+const closeDiaryButton = document.querySelector("#close-diary");
+const playerDiaryDialog = document.querySelector("#player-diary-dialog");
+const playerDiaryDate = document.querySelector("#player-diary-date");
+const playerDiaryContent = document.querySelector("#player-diary-content");
 const openMapButton = document.querySelector("#open-map");
 const closeMapButton = document.querySelector("#close-map");
 const fullMapDialog = document.querySelector("#full-map-dialog");
@@ -45,6 +51,14 @@ const moneyFormatter = new Intl.NumberFormat("en-GB", {
   style: "currency",
   currency: "GBP",
   maximumFractionDigits: 2,
+});
+
+const diaryDateFormatter = new Intl.DateTimeFormat("en-GB", {
+  weekday: "long",
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+  timeZone: "UTC",
 });
 
 function formatPlayerTemperature(value) {
@@ -253,6 +267,79 @@ function renderFullMap() {
   });
 }
 
+function makeDiaryCell(tagName, text) {
+  const cell = document.createElement(tagName);
+  cell.textContent = text;
+  return cell;
+}
+
+function noSchoolMessage(view) {
+  if (view.noSchoolReason === "school_disabled") {
+    return "There is no school scheduled for you today.";
+  }
+  if (view.noSchoolReason === "timetable_unavailable") {
+    return "There is no school timetable available for today.";
+  }
+  if (view.noSchoolReason === "out_of_term") {
+    return "There is no school for you today. School is currently out of term.";
+  }
+
+  const holiday = view.day.holidays[0];
+  if (holiday) return `There is no school for you today because it is ${holiday}.`;
+  if (view.day.isWeekend) return "There is no school for you today. It is the weekend.";
+  return "There is no school for you today.";
+}
+
+function renderPlayerDiary() {
+  const view = buildPlayerDiaryView(game);
+  playerDiaryDate.textContent = diaryDateFormatter.format(new Date(view.date));
+  playerDiaryContent.replaceChildren();
+
+  if (!view.hasSchool) {
+    const notice = document.createElement("p");
+    notice.className = "diary-empty";
+    notice.textContent = noSchoolMessage(view);
+    playerDiaryContent.append(notice);
+    return;
+  }
+
+  const entry = document.createElement("section");
+  entry.className = "diary-entry";
+
+  const heading = document.createElement("h3");
+  heading.textContent = view.school.name;
+
+  const summary = document.createElement("p");
+  summary.className = "diary-school-summary";
+  summary.textContent =
+    `You have to go to school from ${view.school.start} to ${view.school.end}.`;
+
+  const table = document.createElement("table");
+  table.className = "diary-schedule";
+
+  const caption = document.createElement("caption");
+  caption.textContent = "Today's classes";
+
+  const tableHead = document.createElement("thead");
+  const headingRow = document.createElement("tr");
+  headingRow.append(makeDiaryCell("th", "Time"), makeDiaryCell("th", "Class / activity"));
+  tableHead.append(headingRow);
+
+  const tableBody = document.createElement("tbody");
+  for (const period of view.school.periods) {
+    const row = document.createElement("tr");
+    row.append(
+      makeDiaryCell("td", `${period.start}–${period.end}`),
+      makeDiaryCell("td", period.label),
+    );
+    tableBody.append(row);
+  }
+
+  table.append(caption, tableHead, tableBody);
+  entry.append(heading, summary, table);
+  playerDiaryContent.append(entry);
+}
+
 function renderDebugPanel() {
   if (!debugEnabled) return;
   const taylor = game.npcs.get("taylor");
@@ -342,6 +429,16 @@ restartButton.addEventListener("click", () => {
   game = createGame();
   noticeElement.textContent = "";
   render();
+});
+
+playerDiaryButton.addEventListener("click", () => {
+  renderPlayerDiary();
+  playerDiaryDialog.showModal();
+});
+
+closeDiaryButton.addEventListener("click", () => playerDiaryDialog.close());
+playerDiaryDialog.addEventListener("click", (event) => {
+  if (event.target === playerDiaryDialog) playerDiaryDialog.close();
 });
 
 openMapButton.addEventListener("click", () => {

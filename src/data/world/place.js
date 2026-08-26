@@ -797,7 +797,21 @@ export const PLACE_REGISTRY = [
             LOCATION_TAGS.suburban_hub,
             LOCATION_TAGS.residential,
         ],
-        props: { icon: "🏫", category: [PLACE_TAGS.education] },
+        props: { icon: "🏫", category: [PLACE_TAGS.education],
+            semesters: [
+                { name: "Fall", start: "09-01", end: "12-15" },
+                { name: "Spring", start: "01-10", end: "05-20" },
+            ],
+            schedule: {
+                "english": { start: "08:15", end: "09:00" },
+                "math": { start: "09:15", end: "10:00" },
+                "history": { start: "10:15", end: "11:00" },
+                "lunch": { start: "11:15", end: "12:00" },
+                "science": { start: "12:15", end: "13:00" },
+                "art": { start: "13:15", end: "14:00" },
+                "phys-ed": { start: "14:15", end: "15:00" },
+            }
+         },
         nameFn: ({ rnd }) =>
             `${pick(["St. Genevieve's High School", "Riverside High", "Docktown High"], rnd)}`,
     },
@@ -1487,7 +1501,7 @@ export const DEFAULT_OPENING_HOURS_BY_CATEGORY = {
 export const DEFAULT_OPENING_HOURS = hoursAllDay();
 
 // Per-place overrides
-const SCHOOL_HOURS = hoursWeekdays({ from: "08:00", to: "16:00" });
+const SCHOOL_HOURS = hoursWeekdays({ from: "08:00", to: "17:00" });
 
 export const DEFAULT_OPENING_HOURS_BY_KEY = {
     // 24/7 LOCATIONS
