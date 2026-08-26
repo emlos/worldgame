@@ -575,10 +575,14 @@ export class NPCBrain {
     }
 
     _topCandidateTier(candidates) {
-        if (!candidates.length) return [];
+        // Weight zero explicitly disables a rule. Remove disabled candidates
+        // before comparing priorities so an entirely disabled high-priority
+        // tier cannot hide enabled fallback rules below it.
+        const enabled = candidates.filter((candidate) => candidate.weight > 0);
+        if (!enabled.length) return [];
 
-        const topPriority = Math.max(...candidates.map((candidate) => candidate.priority));
-        const top = candidates.filter((candidate) => candidate.priority === topPriority);
+        const topPriority = Math.max(...enabled.map((candidate) => candidate.priority));
+        const top = enabled.filter((candidate) => candidate.priority === topPriority);
         const obligations = top.filter(
             (candidate) => candidate.rule.type === GOAL_TYPE.obligation,
         );

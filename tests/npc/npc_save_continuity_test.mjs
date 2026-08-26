@@ -129,6 +129,57 @@ const weightedNpc = new NPC({
 const weightedCandidates = weightedNpc.brain._getDecisionCandidates(START, null);
 check("zero NPC goal weights remain disabled", weightedCandidates[0].weight === 0);
 
+const fallbackGame = new Game({
+    seed: 78,
+    startDate: START,
+    npcTemplates: [
+        {
+            id: "weighted-fallback-npc",
+            name: "Weighted Fallback NPC",
+            homePreference: {
+                withPlaceCategory: [PLACE_TAGS.housing],
+                nameFn: () => "Weighted Fallback Home",
+            },
+            behavior: {
+                goals: [
+                    {
+                        id: "disabled-high-priority",
+                        type: GOAL_TYPE.home,
+                        priority: 100,
+                        weight: 0,
+                        when: { from: "00:00", to: "24:00" },
+                    },
+                    {
+                        id: "enabled-low-priority",
+                        type: GOAL_TYPE.home,
+                        priority: 10,
+                        weight: 1,
+                        when: { from: "00:00", to: "24:00" },
+                    },
+                ],
+            },
+        },
+    ],
+});
+const fallbackBrain = fallbackGame.npcs.get("weighted-fallback-npc").brain;
+check(
+    "resync falls through a disabled high-priority NPC rule",
+    fallbackBrain.currentGoal?.ruleId === "enabled-low-priority",
+);
+fallbackBrain._decideAt(fallbackGame.now, fallbackGame);
+check(
+    "ongoing decisions retain the enabled lower-priority NPC rule",
+    fallbackBrain.currentGoal?.ruleId === "enabled-low-priority",
+);
+fallbackBrain.currentGoal = null;
+fallbackBrain.currentAction = null;
+fallbackBrain.nextDecisionAt = null;
+fallbackBrain._decideAt(fallbackGame.now, fallbackGame);
+check(
+    "fresh decisions select the enabled lower-priority NPC rule",
+    fallbackBrain.currentGoal?.ruleId === "enabled-low-priority",
+);
+
 const invalidWeightNpc = new NPC({
     id: "invalid-weight-npc",
     name: "Invalid Weight NPC",
