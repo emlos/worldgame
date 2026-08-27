@@ -577,7 +577,6 @@ p {
   border-width: 2px;
   border-radius: 32px;
   background: #0d1117;
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
 }
 
 .phone-dialog::before,
@@ -605,12 +604,11 @@ p {
 
 .phone-dialog .dialog-content {
   display: grid;
-  grid-template-rows: auto 1fr;
-  min-height: 100%;
+  grid-template-rows: auto minmax(0, 1fr);
+  height: 100%;
+  min-height: 0;
   padding: 30px 18px 28px;
-  background:
-    radial-gradient(circle at 50% 0%, rgba(65, 86, 112, 0.16), transparent 42%),
-    #0d1117;
+  background: #0d1117;
 }
 
 .phone-dialog .dialog-header {
@@ -629,6 +627,38 @@ p {
   color: #8390a0;
   font-size: 0.76rem;
   font-variant-numeric: tabular-nums;
+}
+
+.phone-header-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.phone-header-button {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid #3b4655;
+  border-radius: 50%;
+  background: transparent;
+  color: #91a8c5;
+  font: inherit;
+  cursor: pointer;
+}
+
+.phone-header-button[hidden] {
+  display: none;
+}
+
+.phone-header-button:hover,
+.phone-header-button:focus-visible {
+  border-color: #718198;
+  background: #171e27;
+  color: #fff;
 }
 
 #close-phone {
@@ -655,6 +685,15 @@ p {
 }
 
 .phone-content {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.phone-screen[hidden] {
+  display: none;
+}
+
+.phone-home-screen {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   grid-auto-rows: 82px;
@@ -680,10 +719,6 @@ p {
   font-size: 1.08rem;
   font-weight: 700;
   line-height: 1;
-  transition:
-    border-color 120ms ease,
-    background 120ms ease,
-    transform 120ms ease;
 }
 
 .phone-button::after {
@@ -706,11 +741,6 @@ p {
   border-color: var(--phone-app-accent);
   background: #1b2531;
   color: var(--phone-app-accent);
-  transform: translateY(-1px);
-}
-
-.phone-button:active {
-  transform: translateY(0);
 }
 
 #phone-reminders-btn {
@@ -723,6 +753,104 @@ p {
 
 #phone-stats-btn {
   --phone-app-accent: #aa98bf;
+}
+
+.phone-relationships-screen {
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 18px 4px 46px 0;
+  scrollbar-color: #465568 transparent;
+  scrollbar-width: thin;
+}
+
+.phone-relationships-screen::-webkit-scrollbar {
+  width: 6px;
+}
+
+.phone-relationships-screen::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: #465568;
+}
+
+.phone-relationships-list {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0 7px 0 0;
+  list-style: none;
+}
+
+.phone-relationship-card {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  align-items: stretch;
+  min-height: 82px;
+  padding: 5px 0;
+}
+
+.phone-relationship-avatar {
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  border: 1px solid #3b4655;
+  background: #11161d;
+  color: #91a8c5;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.phone-relationship-avatar img {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.phone-relationship-details {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  min-width: 0;
+  margin-left: 14px;
+  border-left: 1px solid #536071;
+  padding-left: 14px;
+}
+
+.phone-relationship-details h3 {
+  overflow-wrap: anywhere;
+  margin: 0;
+  border-bottom: 1px solid #3b4655;
+  padding: 4px 0 10px;
+  color: #c7cfd9;
+  font-size: 0.96rem;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.phone-relationship-score {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 8px 0 0;
+  color: #8390a0;
+  font-size: 0.84rem;
+  line-height: 1;
+}
+
+.phone-relationship-score-value {
+  color: #aeb7c2;
+  font-size: 1rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.phone-relationship-score-value[data-tone="positive"] {
+  color: #42bf67;
+}
+
+.phone-relationship-score-value[data-tone="negative"] {
+  color: #dc6b6b;
 }
 
 .debug-panel {

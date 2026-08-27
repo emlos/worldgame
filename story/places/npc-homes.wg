@@ -131,24 +131,24 @@ You are inside {{place.name}}.
   @time 1m
 @endchoice
 
-@entry place.hub.home-vincent
-  @scene place.home-vincent
-  @place-key home_vincent
+@entry place.hub.home-vinny
+  @scene place.home-vinny
+  @place-key home_vinny
   @hub place
 @endentry
 
-:: place.home-vincent [place hub]
+:: place.home-vinny [place hub]
 @kind place
-@heading "Vincent's home"
+@heading "Vinny's home"
 @choices "Activities"
 
 You are inside {{place.name}}.
 
-@choice view "Admire the view" -> place.home-vincent
+@choice view "Admire the view" -> place.home-vinny
   @icon 🌆
 @endchoice
 
-@choice lounge "Relax in the lounge" -> place.home-vincent
+@choice lounge "Relax in the lounge" -> place.home-vinny
   @icon 🛋️
 @endchoice
 

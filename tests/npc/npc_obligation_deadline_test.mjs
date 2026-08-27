@@ -147,11 +147,11 @@ function placeKeyFor(game, npcId) {
     return location?.places?.find((place) => place.id === currentNpc.currentPlaceId)?.key ?? null;
 }
 
-const vincent = new Game({ seed: 19, startDate: new Date("2026-08-24T09:00:00Z") });
-vincent.advanceMinutes(120);
+const vinny = new Game({ seed: 19, startDate: new Date("2026-08-24T09:00:00Z") });
+vinny.advanceMinutes(120);
 check(
-    "Vincent seed 19 reaches the office by 11:00",
-    placeKeyFor(vincent, "vincent") === "office_block",
+    "Vinny seed 19 reaches the office by 11:00",
+    placeKeyFor(vinny, "vinny") === "office_block",
 );
 
 const vega = new Game({ seed: 117, startDate: new Date("2026-08-24T10:00:00Z") });

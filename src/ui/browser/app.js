@@ -4,6 +4,7 @@ import { buildScene } from "../../classes/game/scene/sceneEngine.js";
 import { performChoice } from "../../classes/game/scene/choiceEngine.js";
 import { buildPlayerDiaryView } from "../../classes/game/scene/diaryView.js";
 import { buildFullMapView } from "../../classes/game/scene/mapView.js";
+import { buildPhoneRelationshipsView } from "../../classes/game/scene/phoneView.js";
 import { STATS } from "../../data/player/stats.js";
 import { renderMap as renderGraphMap } from "./renderMap.js";
 
@@ -27,6 +28,13 @@ const fullMapDetails = document.querySelector("#full-map-details");
 const playerPhoneButton = document.querySelector("#player-phone-btn");
 const closePhoneButton = document.querySelector("#close-phone");
 const playerPhoneDialog = document.querySelector("#player-phone-dialog");
+const playerPhoneHeading = document.querySelector("#player-phone-dialog-heading");
+const playerPhoneDate = document.querySelector("#player-phone-date");
+const phoneBackButton = document.querySelector("#phone-back");
+const phoneHomeScreen = document.querySelector("#phone-home-screen");
+const phoneRelationshipsButton = document.querySelector("#phone-relationships-btn");
+const phoneRelationshipsScreen = document.querySelector("#phone-relationships-screen");
+const phoneRelationshipsList = document.querySelector("#phone-relationships-list");
 const debugEnabled = typeof debug !== "undefined" && Boolean(debug);
 const debugPanel = document.querySelector("#debug-panel");
 const debugTeleportTaylorButton = document.querySelector("#debug-teleport-taylor");
@@ -343,6 +351,79 @@ function renderPlayerDiary() {
   playerDiaryContent.append(entry);
 }
 
+function formatRelationshipScore(score) {
+  const value = Number(score);
+  return Number.isFinite(value) ? value.toFixed(2) : "0.00";
+}
+
+function relationshipScoreTone(score) {
+  if (score > 0) return "positive";
+  if (score < 0) return "negative";
+  return "neutral";
+}
+
+function makePhoneRelationshipEntry(entry) {
+  const item = document.createElement("li");
+  item.className = "phone-relationship-card";
+  item.dataset.npcId = entry.id;
+
+  const avatar = document.createElement("div");
+  avatar.className = "phone-relationship-avatar";
+  if (entry.iconPath) {
+    const icon = document.createElement("img");
+    icon.src = entry.iconPath;
+    icon.alt = "";
+    icon.width = 32;
+    icon.height = 32;
+    avatar.append(icon);
+  } else {
+    const fallback = document.createElement("span");
+    fallback.textContent = entry.name.charAt(0).toUpperCase();
+    avatar.append(fallback);
+  }
+
+  const details = document.createElement("div");
+  details.className = "phone-relationship-details";
+
+  const name = document.createElement("h3");
+  name.textContent = entry.name;
+
+  const scoreRow = document.createElement("p");
+  scoreRow.className = "phone-relationship-score";
+
+  const scoreLabel = document.createElement("span");
+  scoreLabel.textContent = "Score:";
+
+  const scoreValue = document.createElement("output");
+  scoreValue.className = "phone-relationship-score-value";
+  scoreValue.dataset.tone = relationshipScoreTone(entry.score);
+  scoreValue.textContent = formatRelationshipScore(entry.score);
+  scoreValue.setAttribute("aria-label", `${entry.name} relationship score`);
+
+  scoreRow.append(scoreLabel, scoreValue);
+  details.append(name, scoreRow);
+  item.append(avatar, details);
+  return item;
+}
+
+function showPhoneHomeScreen() {
+  playerPhoneHeading.textContent = "Phone";
+  phoneBackButton.hidden = true;
+  phoneHomeScreen.hidden = false;
+  phoneRelationshipsScreen.hidden = true;
+}
+
+function showPhoneRelationshipsScreen() {
+  playerPhoneHeading.textContent = "Relationships";
+  phoneBackButton.hidden = false;
+  phoneHomeScreen.hidden = true;
+  phoneRelationshipsScreen.hidden = false;
+  phoneRelationshipsList.replaceChildren(
+    ...buildPhoneRelationshipsView(game).map(makePhoneRelationshipEntry),
+  );
+  phoneRelationshipsScreen.scrollTop = 0;
+}
+
 function renderDebugPanel() {
   if (!debugEnabled) return;
   const taylor = game.npcs.get("taylor");
@@ -455,10 +536,13 @@ fullMapDialog.addEventListener("click", (event) => {
 });
 
 playerPhoneButton.addEventListener("click", () => {
-  //renderPlayerPhone();
+  playerPhoneDate.textContent = diaryDateFormatter.format(game.now);
+  showPhoneHomeScreen();
   playerPhoneDialog.showModal();
 });
 
+phoneRelationshipsButton.addEventListener("click", showPhoneRelationshipsScreen);
+phoneBackButton.addEventListener("click", showPhoneHomeScreen);
 closePhoneButton.addEventListener("click", () => playerPhoneDialog.close());
 playerPhoneDialog.addEventListener("click", (event) => {
   if (event.target === playerPhoneDialog) playerPhoneDialog.close();

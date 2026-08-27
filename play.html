@@ -216,11 +216,27 @@
     >
       <div class="dialog-content">
         <header class="dialog-header">
-          <div>
-            <h2 id="player-phone-dialog-heading">Phone</h2>
-            <p id="player-phone-date"></p>
+          <div class="phone-header-main">
+            <button
+              id="phone-back"
+              class="phone-header-button"
+              type="button"
+              aria-label="Back to phone menu"
+              hidden
+            >
+              ←
+            </button>
+            <div>
+              <h2 id="player-phone-dialog-heading">Phone</h2>
+              <p id="player-phone-date"></p>
+            </div>
           </div>
-          <button id="close-phone" class="utility-button" type="button">
+          <button
+            id="close-phone"
+            class="utility-button"
+            type="button"
+            aria-label="Close phone"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 32 32"
@@ -237,52 +253,68 @@
             </svg>
           </button>
         </header>
-        <div id="player-phone-content" class="phone-content" aria-live="polite">
-          <button
-            id="phone-contacts-btn"
-            class="phone-button button"
-            type="button"
-            aria-label="Contacts"
+        <div id="player-phone-content" class="phone-content">
+          <div
+            id="phone-home-screen"
+            class="phone-screen phone-home-screen"
+            aria-label="Phone apps"
           >
-            C
-          </button>
+            <button
+              id="phone-relationships-btn"
+              class="phone-button button"
+              type="button"
+              aria-label="Relationships"
+            >
+              ♥
+            </button>
 
-          <button
-            id="phone-reminders-btn"
-            class="phone-button button"
-            type="button"
-            aria-label="Reminders"
+            <button
+              id="phone-reminders-btn"
+              class="phone-button button"
+              type="button"
+              aria-label="Reminders"
+            >
+              R
+            </button>
+
+            <button
+              id="phone-inventory-btn"
+              class="phone-button button"
+              type="button"
+              aria-label="Inventory"
+            >
+              I
+            </button>
+
+            <button
+              id="phone-stats-btn"
+              class="phone-button button"
+              type="button"
+              aria-label="Stats"
+            >
+              S
+            </button>
+
+            <button id="phone-2-btn" class="phone-button button hidden">C</button>
+
+            <button id="phone-3-btn" class="phone-button button hidden">C</button>
+
+            <button id="phone-4-btn" class="phone-button button hidden">C</button>
+
+            <button id="phone-5-btn" class="phone-button button hidden">C</button>
+
+            <button id="phone-6-btn" class="phone-button button hidden">C</button>
+          </div>
+
+          <section
+            id="phone-relationships-screen"
+            class="phone-screen phone-relationships-screen"
+            aria-label="Relationships"
+            tabindex="0"
+            hidden
           >
-            R
-          </button>
-
-          <button
-            id="phone-inventory-btn"
-            class="phone-button button"
-            type="button"
-            aria-label="Inventory"
-          >
-            I
-          </button>
-
-          <button
-            id="phone-stats-btn"
-            class="phone-button button"
-            type="button"
-            aria-label="Stats"
-          >
-            S
-          </button>
-
-          <button id="phone-2-btn" class="phone-button button hidden">C</button>
-
-          <button id="phone-3-btn" class="phone-button button hidden">C</button>
-
-          <button id="phone-4-btn" class="phone-button button hidden">C</button>
-
-          <button id="phone-5-btn" class="phone-button button hidden">C</button>
-
-          <button id="phone-6-btn" class="phone-button button hidden">C</button>
+            <ul id="phone-relationships-list" class="phone-relationships-list"></ul>
+          </section>
         </div>
       </div>
     </dialog>

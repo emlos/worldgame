@@ -16,6 +16,7 @@ export const NPC_REGISTRY = [
         meta: {
            // example: true, test flag, remove before release
             shortName: "Taylor",
+            iconPath: "assets/npc/icons/talor/icon.png",
             nicknames: ["Tay"],
             description:
                 "Taylor is a high school student who enjoys exploring the city after school hours.",
@@ -162,6 +163,7 @@ export const NPC_REGISTRY = [
         name: 'Mara "Shade" Kovač',
         meta: {
             shortName: "Shade",
+            iconPath: "assets/npc/icons/shade/icon.png",
             nicknames: ["Shade", "Hey You"],
             description:
                 "Shade is a cunning thief who prowls the city at night, targeting unsuspecting victims for quick robberies.",
@@ -331,6 +333,7 @@ export const NPC_REGISTRY = [
         name: "Officer Leon Vega",
         meta: {
             shortName: "Vega",
+            iconPath: "assets/npc/icons/vega/icon.png",
             nicknames: ["Officer Vega", "Leo"],
             tags: ["human", "cop"],
         },
@@ -574,6 +577,7 @@ export const NPC_REGISTRY = [
         name: "Clara Novak",
         meta: {
             shortName: "Clara",
+            iconPath: "assets/npc/icons/clara/icon.png",
             nicknames: ["Nurse Clara"],
             description:
                 "Clara is the school nurse - but also your local cinema attendant. The economy is *rough* out there.",
@@ -748,6 +752,7 @@ export const NPC_REGISTRY = [
         name: "Mike Thompson",
         meta: {
             shortName: "Mike",
+            iconPath: "assets/npc/icons/mike/icon.png",
             nicknames: ["Mike", "MT"],
             description: "Tourist Mike is here for the sights. And the people. Both count.",
             tags: ["human", "tourist"],
@@ -848,13 +853,14 @@ export const NPC_REGISTRY = [
 
     //businessman type
     {
-        id: "vincent",
-        name: "Vincent Hale",
+        id: "vinny",
+        name: "Vic Hale",
         meta: {
-            shortName: "Vincent",
-            nicknames: ["Vince", "Mr. Hale", "Vic"],
+            shortName: "Vic",
+            iconPath: "assets/npc/icons/vinny/icon.png",
+            nicknames: ["Hale", "Vinny"],
             description:
-                "Vincent has a grip on the city's corporate world, and a taste for the finer things in life. He's often seen at exclusive clubs and high-end restaurants.",
+                "Vic has a grip on the city's corporate world, and a taste for the finer things in life. {{npc.vinny.subject}} is often seen at exclusive clubs and high-end restaurants.",
             tags: ["human", "romance", "corporate"],
         },
 
@@ -870,7 +876,7 @@ export const NPC_REGISTRY = [
         },
 
         homePreference: {
-            nameFn: (chosenLocation) => "Vincent's Penthouse",
+            nameFn: (chosenLocation) => "Vinny's Penthouse",
 
             withPlaceCategory: [PLACE_TAGS.housing, PLACE_TAGS.industry, PLACE_TAGS.culture],
             withLocationCategory: [
@@ -883,13 +889,13 @@ export const NPC_REGISTRY = [
         behavior: {
             goals: [
                 {
-                    id: "vincent_penthouse_sleep",
+                    id: "vinny_penthouse_sleep",
                     type: GOAL_TYPE.home,
                     priority: 90,
                     when: { from: "03:00", to: "10:00" },
                 },
                 {
-                    id: "vincent_morning_routine",
+                    id: "vinny_morning_routine",
                     type: GOAL_TYPE.visit,
                     priority: 30,
                     weight: 70,
@@ -912,7 +918,7 @@ export const NPC_REGISTRY = [
                     requireOpen: true,
                 },
                 {
-                    id: "vincent_morning_home",
+                    id: "vinny_morning_home",
                     type: GOAL_TYPE.home,
                     priority: 30,
                     weight: 30,
@@ -923,7 +929,7 @@ export const NPC_REGISTRY = [
                     },
                 },
                 {
-                    id: "vincent_office_hours",
+                    id: "vinny_office_hours",
                     type: GOAL_TYPE.obligation,
                     priority: 80,
                     when: {
@@ -938,7 +944,7 @@ export const NPC_REGISTRY = [
                     },
                 },
                 {
-                    id: "vincent_midday_out",
+                    id: "vinny_midday_out",
                     type: GOAL_TYPE.visit,
                     priority: 90,
                     when: {
@@ -960,7 +966,7 @@ export const NPC_REGISTRY = [
                     requireOpen: true,
                 },
                 {
-                    id: "vincent_saturday_office",
+                    id: "vinny_saturday_office",
                     type: GOAL_TYPE.obligation,
                     priority: 70,
                     when: {
@@ -975,7 +981,7 @@ export const NPC_REGISTRY = [
                     },
                 },
                 {
-                    id: "vincent_day_off",
+                    id: "vinny_day_off",
                     type: GOAL_TYPE.visit,
                     priority: 30,
                     weight: 80,
@@ -997,7 +1003,7 @@ export const NPC_REGISTRY = [
                     requireOpen: true,
                 },
                 {
-                    id: "vincent_day_off_home",
+                    id: "vinny_day_off_home",
                     type: GOAL_TYPE.home,
                     priority: 30,
                     weight: 20,
@@ -1008,7 +1014,7 @@ export const NPC_REGISTRY = [
                     },
                 },
                 {
-                    id: "vincent_evening_self_care",
+                    id: "vinny_evening_self_care",
                     type: GOAL_TYPE.visit,
                     priority: 40,
                     weight: 75,
@@ -1027,14 +1033,14 @@ export const NPC_REGISTRY = [
                     requireOpen: true,
                 },
                 {
-                    id: "vincent_evening_home",
+                    id: "vinny_evening_home",
                     type: GOAL_TYPE.home,
                     priority: 40,
                     weight: 25,
                     when: { from: "18:00", to: "20:00" },
                 },
                 {
-                    id: "vincent_nightlife",
+                    id: "vinny_nightlife",
                     type: GOAL_TYPE.visit,
                     priority: 40,
                     weight: 80,
@@ -1047,7 +1053,7 @@ export const NPC_REGISTRY = [
                     requireOpen: true,
                 },
                 {
-                    id: "vincent_night_home",
+                    id: "vinny_night_home",
                     type: GOAL_TYPE.home,
                     priority: 40,
                     weight: 20,

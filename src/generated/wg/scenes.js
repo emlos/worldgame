@@ -4722,10 +4722,10 @@ export const WG_BUNDLE = {
         "column": 1
       }
     },
-    "place.home-vincent": {
-      "id": "place.home-vincent",
+    "place.home-vinny": {
+      "id": "place.home-vinny",
       "kind": "place",
-      "heading": "Vincent's home",
+      "heading": "Vinny's home",
       "choiceHeading": "Activities",
       "tags": [
         "place",
@@ -4763,7 +4763,7 @@ export const WG_BUNDLE = {
           "type": "choice",
           "id": "view",
           "label": "Admire the view",
-          "target": "place.home-vincent",
+          "target": "place.home-vinny",
           "icon": "🌆",
           "durationMinutes": 0,
           "when": null,
@@ -4781,7 +4781,7 @@ export const WG_BUNDLE = {
           "type": "choice",
           "id": "lounge",
           "label": "Relax in the lounge",
-          "target": "place.home-vincent",
+          "target": "place.home-vinny",
           "icon": "🛋️",
           "durationMinutes": 0,
           "when": null,
@@ -10791,11 +10791,11 @@ export const WG_BUNDLE = {
         "column": 1
       }
     },
-    "place.hub.home-vincent": {
-      "id": "place.hub.home-vincent",
-      "sceneId": "place.home-vincent",
+    "place.hub.home-vinny": {
+      "id": "place.hub.home-vinny",
+      "sceneId": "place.home-vinny",
       "placeKeys": [
-        "home_vincent"
+        "home_vinny"
       ],
       "placeTags": [],
       "locationTags": [],
