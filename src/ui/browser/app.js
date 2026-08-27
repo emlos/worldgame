@@ -4,7 +4,10 @@ import { buildScene } from "../../classes/game/scene/sceneEngine.js";
 import { performChoice } from "../../classes/game/scene/choiceEngine.js";
 import { buildPlayerDiaryView } from "../../classes/game/scene/diaryView.js";
 import { buildFullMapView } from "../../classes/game/scene/mapView.js";
-import { buildPhoneRelationshipsView } from "../../classes/game/scene/phoneView.js";
+import {
+  buildPhonePlayerStatsView,
+  buildPhoneRelationshipsView,
+} from "../../classes/game/scene/phoneView.js";
 import { STATS } from "../../data/player/stats.js";
 import { renderMap as renderGraphMap } from "./renderMap.js";
 
@@ -28,16 +31,29 @@ const fullMapDetails = document.querySelector("#full-map-details");
 const playerPhoneButton = document.querySelector("#player-phone-btn");
 const closePhoneButton = document.querySelector("#close-phone");
 const playerPhoneDialog = document.querySelector("#player-phone-dialog");
-const playerPhoneHeading = document.querySelector("#player-phone-dialog-heading");
+const playerPhoneHeading = document.querySelector(
+  "#player-phone-dialog-heading",
+);
 const playerPhoneDate = document.querySelector("#player-phone-date");
 const phoneBackButton = document.querySelector("#phone-back");
 const phoneHomeScreen = document.querySelector("#phone-home-screen");
-const phoneRelationshipsButton = document.querySelector("#phone-relationships-btn");
-const phoneRelationshipsScreen = document.querySelector("#phone-relationships-screen");
-const phoneRelationshipsList = document.querySelector("#phone-relationships-list");
+const phoneRelationshipsButton = document.querySelector(
+  "#phone-relationships-btn",
+);
+const phoneRelationshipsScreen = document.querySelector(
+  "#phone-relationships-screen",
+);
+const phoneRelationshipsList = document.querySelector(
+  "#phone-relationships-list",
+);
+const phoneStatsButton = document.querySelector("#phone-stats-btn");
+const phoneStatsScreen = document.querySelector("#phone-stats-screen");
+const phoneStatsContent = document.querySelector("#phone-stats-content");
 const debugEnabled = typeof debug !== "undefined" && Boolean(debug);
 const debugPanel = document.querySelector("#debug-panel");
-const debugTeleportTaylorButton = document.querySelector("#debug-teleport-taylor");
+const debugTeleportTaylorButton = document.querySelector(
+  "#debug-teleport-taylor",
+);
 const debugTaylorPosition = document.querySelector("#debug-taylor-position");
 const debugTaylorGoal = document.querySelector("#debug-taylor-goal");
 const debugTaylorAction = document.querySelector("#debug-taylor-action");
@@ -80,18 +96,21 @@ function formatPlayerTemperature(value) {
 }
 
 function formatStatValue(value) {
-  return Number.isInteger(value) ? String(value) : value.toFixed(1);
+  return Number.isInteger(value) ? String(value) : Math.floor(value);
 }
 
 function renderPlayerPanel() {
   playerMoneyElement.textContent = moneyFormatter.format(game.player.money);
-  playerTemperatureElement.textContent = formatPlayerTemperature(game.player.temperature);
+  playerTemperatureElement.textContent = formatPlayerTemperature(
+    game.player.temperature,
+  );
   playerTemperatureElement.dataset.temperature = game.player.temperature;
   playerStatsElement.replaceChildren();
 
   for (const [name, definition] of Object.entries(STATS)) {
     const value = game.player.getStatValue(name);
-    const fraction = (value - definition.min) / (definition.max - definition.min);
+    const fraction =
+      (value - definition.min) / (definition.max - definition.min);
     const percentage = Math.max(0, Math.min(1, fraction)) * 100;
 
     const row = document.createElement("div");
@@ -196,9 +215,10 @@ function makeChoiceButton(sceneId, choice, number) {
     );
   }
   for (const change of choice.skillChanges) {
-    const className = change.direction === "increase"
-      ? "choice-skill-increase"
-      : "choice-skill-decrease";
+    const className =
+      change.direction === "increase"
+        ? "choice-skill-increase"
+        : "choice-skill-decrease";
     details.append(makeChoiceDetail(className, change.label));
   }
   if (choice.skillCheck) {
@@ -296,8 +316,10 @@ function noSchoolMessage(view) {
   }
 
   const holiday = view.day.holidays[0];
-  if (holiday) return `There is no school for you today because it is ${holiday}.`;
-  if (view.day.isWeekend) return "There is no school for you today. It is the weekend.";
+  if (holiday)
+    return `There is no school for you today because it is ${holiday}.`;
+  if (view.day.isWeekend)
+    return "There is no school for you today. It is the weekend.";
   return "There is no school for you today.";
 }
 
@@ -322,8 +344,7 @@ function renderPlayerDiary() {
 
   const summary = document.createElement("p");
   summary.className = "diary-school-summary";
-  summary.textContent =
-    `You have to go to school from ${view.school.start} to ${view.school.end}.`;
+  summary.textContent = `You have to go to school from ${view.school.start} to ${view.school.end}.`;
 
   const table = document.createElement("table");
   table.className = "diary-schedule";
@@ -333,7 +354,10 @@ function renderPlayerDiary() {
 
   const tableHead = document.createElement("thead");
   const headingRow = document.createElement("tr");
-  headingRow.append(makeDiaryCell("th", "Time"), makeDiaryCell("th", "Class / activity"));
+  headingRow.append(
+    makeDiaryCell("th", "Time"),
+    makeDiaryCell("th", "Class / activity"),
+  );
   tableHead.append(headingRow);
 
   const tableBody = document.createElement("tbody");
@@ -406,11 +430,273 @@ function makePhoneRelationshipEntry(entry) {
   return item;
 }
 
+function formatPhoneLabel(value) {
+  return String(value)
+    .replaceAll("_", " ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+function makePhoneStatsSection(title) {
+  const section = document.createElement("section");
+  section.className = "phone-stats-section";
+
+  const heading = document.createElement("h3");
+  heading.textContent = title;
+  section.append(heading);
+  return section;
+}
+
+function makePhoneValueList(entries) {
+  const list = document.createElement("dl");
+  list.className = "phone-value-list";
+
+  for (const entry of entries) {
+    const row = document.createElement("div");
+    row.className = "phone-value-row";
+
+    const label = document.createElement("dt");
+    label.textContent = entry.label;
+
+    const value = document.createElement("dd");
+    if (entry.color) {
+      const swatch = document.createElement("span");
+      swatch.className = "phone-color-swatch";
+      swatch.style.backgroundColor = entry.color;
+      swatch.setAttribute("aria-hidden", "true");
+      value.append(swatch);
+    }
+    value.append(String(entry.value));
+    row.append(label, value);
+    list.append(row);
+  }
+
+  return list;
+}
+
+function meterPercentage(value, min, max) {
+  if (max === min) return 0;
+  return Math.max(0, Math.min(1, (value - min) / (max - min))) * 100;
+}
+
+function makePhoneMeterEntry(entry, kind) {
+  const item = document.createElement("article");
+  item.className = "phone-meter-entry";
+  item.dataset.valueId = entry.id;
+  item.dataset.kind = kind;
+
+  const header = document.createElement("div");
+  header.className = "phone-meter-header";
+
+  const label = document.createElement("h4");
+  label.textContent = entry.label;
+
+  const value = document.createElement("output");
+  value.textContent =
+    kind === "skill"
+      ? `${formatStatValue(entry.value)} / ${formatStatValue(entry.max)}`
+      : formatStatValue(entry.value);
+  value.setAttribute("aria-label", `${entry.label} value`);
+  header.append(label, value);
+
+  const meter = document.createElement("div");
+  meter.className = "phone-meter";
+  meter.setAttribute("role", "progressbar");
+  meter.setAttribute("aria-label", entry.label);
+  meter.setAttribute("aria-valuemin", String(entry.min));
+  meter.setAttribute("aria-valuemax", String(entry.max));
+  meter.setAttribute("aria-valuenow", String(entry.value));
+
+  const fill = document.createElement("span");
+  fill.className = "phone-meter-fill";
+  fill.style.width = `${meterPercentage(entry.value, entry.min, entry.max)}%`;
+  meter.append(fill);
+
+  item.append(header, meter);
+  return item;
+}
+
+function bodyPartTone(part) {
+  const fraction = part.maxHealth ? part.health / part.maxHealth : 0;
+  if (fraction <= 0.4) return "danger";
+  if (fraction < 0.75 || part.pain > 0 || part.conditions.length)
+    return "warning";
+  return "healthy";
+}
+
+function makePhoneBodyPart(part) {
+  const item = document.createElement("article");
+  item.className = "phone-body-part";
+  item.dataset.partId = part.id;
+  item.dataset.tone = bodyPartTone(part);
+
+  const header = document.createElement("div");
+  header.className = "phone-body-part-header";
+
+  const label = document.createElement("h4");
+  label.textContent = part.label;
+
+  const value = document.createElement("output");
+  value.textContent = `${formatStatValue(part.health)} / ${formatStatValue(part.maxHealth)}`;
+  value.setAttribute("aria-label", `${part.label} health`);
+  header.append(label, value);
+
+  const meter = document.createElement("div");
+  meter.className = "phone-meter phone-body-part-meter";
+  meter.setAttribute("role", "progressbar");
+  meter.setAttribute("aria-label", `${part.label} health`);
+  meter.setAttribute("aria-valuemin", "0");
+  meter.setAttribute("aria-valuemax", String(part.maxHealth));
+  meter.setAttribute("aria-valuenow", String(part.health));
+
+  const fill = document.createElement("span");
+  fill.className = "phone-meter-fill";
+  fill.style.width = `${meterPercentage(part.health, 0, part.maxHealth)}%`;
+  meter.append(fill);
+
+  const detail = document.createElement("p");
+  detail.className = "phone-meter-detail";
+  const condition = part.conditions.length
+    ? part.conditions.map(formatPhoneLabel).join(", ")
+    : "Healthy";
+  detail.textContent = `${formatPhoneLabel(part.region)} · Pain ${formatStatValue(part.pain)} · ${condition}`;
+
+  item.append(header, meter, detail);
+  return item;
+}
+
+function makePhoneEmptyValue(text) {
+  const empty = document.createElement("p");
+  empty.className = "phone-stats-empty";
+  empty.textContent = text;
+  return empty;
+}
+
+function renderPhoneStats() {
+  const view = buildPhonePlayerStatsView(game);
+  const { overview } = view;
+
+  const overviewSection = makePhoneStatsSection("Overview");
+  overviewSection.append(
+    makePhoneValueList([
+      { label: "Money", value: moneyFormatter.format(overview.money) },
+      { label: "Temperature", value: formatPhoneLabel(overview.temperature) },
+    ]),
+  );
+
+  const identitySection = makePhoneStatsSection("Identity");
+  identitySection.append(
+    makePhoneValueList([
+      { label: "Gender", value: formatPhoneLabel(overview.gender) },
+      {
+        label: "Perceived gender",
+        value: formatPhoneLabel(overview.perceivedGender),
+      },
+    ]),
+  );
+
+  const statsSection = makePhoneStatsSection("Stats");
+  statsSection.append(
+    ...view.stats.map((entry) => makePhoneMeterEntry(entry, "stat")),
+  );
+
+  const skillsSection = makePhoneStatsSection("Skills");
+  skillsSection.classList.add("phone-skills-section");
+  skillsSection.append(
+    ...view.skills.map((entry) => makePhoneMeterEntry(entry, "skill")),
+  );
+
+  const bodySection = makePhoneStatsSection("Body status");
+  bodySection.append(
+    makePhoneValueList([
+      { label: "Condition", value: formatPhoneLabel(view.body.painLabel) },
+      { label: "Pain", value: `${formatStatValue(view.body.pain)} / 100` },
+      { label: "Pain stage", value: `${view.body.painStage} / 3` },
+      {
+        label: "Physical performance",
+        value: `${Math.round(view.body.performanceMultiplier * 100)}%`,
+      },
+      {
+        label: "Critical breaks",
+        value: view.body.criticalBreaks ? "Yes" : "No",
+      },
+      { label: "Incapacitated", value: view.body.incapacitated ? "Yes" : "No" },
+    ]),
+  );
+
+  const bodyPartsSection = makePhoneStatsSection("Body parts");
+  bodyPartsSection.append(...view.body.parts.map(makePhoneBodyPart));
+
+  const appearanceSection = makePhoneStatsSection("Appearance");
+  appearanceSection.append(
+    makePhoneValueList([
+      {
+        label: "Skin tone",
+        value: overviewValue(view.appearance.skinTone),
+        color: view.appearance.skinTone,
+      },
+      {
+        label: "Eye colour",
+        value: overviewValue(view.appearance.eyeColor),
+        color: view.appearance.eyeColor,
+      },
+      {
+        label: "Hair colour",
+        value: overviewValue(view.appearance.hairColor),
+        color: view.appearance.hairColor,
+      },
+    ]),
+  );
+
+  const traitsSection = makePhoneStatsSection("Traits");
+  if (!view.traits.length) {
+    traitsSection.append(makePhoneEmptyValue("No traits."));
+  } else {
+    traitsSection.append(
+      makePhoneValueList(
+        view.traits.map((trait) => ({
+          label: formatPhoneLabel(trait.id),
+          value: trait.active ? trait.description || "Active" : "Inactive",
+        })),
+      ),
+    );
+  }
+
+  const clothingSection = makePhoneStatsSection("Clothing");
+  clothingSection.append(
+    makePhoneValueList(
+      view.clothing.map(({ slot, item }) => ({
+        label: formatPhoneLabel(slot),
+        value: item
+          ? `${formatPhoneLabel(item.id)} · ${Math.round(item.durability * 100)}% durability · ${Math.round(item.wetness * 100)}% wet`
+          : "Not equipped",
+        color: item?.color,
+      })),
+    ),
+  );
+
+  phoneStatsContent.replaceChildren(
+    overviewSection,
+    statsSection,
+    skillsSection,
+    bodySection,
+    bodyPartsSection,
+    identitySection,
+    appearanceSection,
+    traitsSection,
+    clothingSection,
+  );
+}
+
+function overviewValue(value) {
+  return value || "Not set";
+}
+
 function showPhoneHomeScreen() {
   playerPhoneHeading.textContent = "Phone";
   phoneBackButton.hidden = true;
   phoneHomeScreen.hidden = false;
   phoneRelationshipsScreen.hidden = true;
+  phoneStatsScreen.hidden = true;
 }
 
 function showPhoneRelationshipsScreen() {
@@ -418,10 +704,21 @@ function showPhoneRelationshipsScreen() {
   phoneBackButton.hidden = false;
   phoneHomeScreen.hidden = true;
   phoneRelationshipsScreen.hidden = false;
+  phoneStatsScreen.hidden = true;
   phoneRelationshipsList.replaceChildren(
     ...buildPhoneRelationshipsView(game).map(makePhoneRelationshipEntry),
   );
   phoneRelationshipsScreen.scrollTop = 0;
+}
+
+function showPhoneStatsScreen() {
+  playerPhoneHeading.textContent = "Player stats";
+  phoneBackButton.hidden = false;
+  phoneHomeScreen.hidden = true;
+  phoneRelationshipsScreen.hidden = true;
+  phoneStatsScreen.hidden = false;
+  renderPhoneStats();
+  phoneStatsScreen.scrollTop = 0;
 }
 
 function renderDebugPanel() {
@@ -541,7 +838,11 @@ playerPhoneButton.addEventListener("click", () => {
   playerPhoneDialog.showModal();
 });
 
-phoneRelationshipsButton.addEventListener("click", showPhoneRelationshipsScreen);
+phoneRelationshipsButton.addEventListener(
+  "click",
+  showPhoneRelationshipsScreen,
+);
+phoneStatsButton.addEventListener("click", showPhoneStatsScreen);
 phoneBackButton.addEventListener("click", showPhoneHomeScreen);
 closePhoneButton.addEventListener("click", () => playerPhoneDialog.close());
 playerPhoneDialog.addEventListener("click", (event) => {

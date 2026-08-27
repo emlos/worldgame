@@ -755,7 +755,7 @@ p {
   --phone-app-accent: #aa98bf;
 }
 
-.phone-relationships-screen {
+.phone-scroll-screen {
   height: 100%;
   overflow-x: hidden;
   overflow-y: auto;
@@ -764,11 +764,11 @@ p {
   scrollbar-width: thin;
 }
 
-.phone-relationships-screen::-webkit-scrollbar {
+.phone-scroll-screen::-webkit-scrollbar {
   width: 6px;
 }
 
-.phone-relationships-screen::-webkit-scrollbar-thumb {
+.phone-scroll-screen::-webkit-scrollbar-thumb {
   border-radius: 999px;
   background: #465568;
 }
@@ -851,6 +851,203 @@ p {
 
 .phone-relationship-score-value[data-tone="negative"] {
   color: #dc6b6b;
+}
+
+.phone-stats-content {
+  display: grid;
+  gap: 20px;
+  padding-right: 7px;
+}
+
+.phone-stats-section {
+  display: grid;
+  gap: 8px;
+}
+
+.phone-stats-section + .phone-stats-section {
+  border-top: 1px solid #303a47;
+  padding-top: 18px;
+}
+
+.phone-stats-section > h3 {
+  margin: 0 0 2px;
+  color: #aa98bf;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.phone-value-list {
+  display: grid;
+  margin: 0;
+}
+
+.phone-value-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
+  align-items: baseline;
+  gap: 12px;
+  border-bottom: 1px solid #232c37;
+  padding: 8px 0;
+}
+
+.phone-value-row dt {
+  color: #8793a2;
+  font-size: 0.78rem;
+}
+
+.phone-value-row dd {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px;
+  min-width: 0;
+  margin: 0;
+  color: #c7cfd9;
+  font-size: 0.82rem;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+
+.phone-color-swatch {
+  flex: 0 0 auto;
+  width: 11px;
+  height: 11px;
+  border: 1px solid #657184;
+  border-radius: 50%;
+}
+
+.phone-meter-entry,
+.phone-body-part {
+  display: grid;
+  gap: 6px;
+  border-bottom: 1px solid #232c37;
+  padding: 8px 0 9px;
+}
+
+.phone-meter-header,
+.phone-body-part-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.phone-meter-header h4,
+.phone-body-part-header h4 {
+  margin: 0;
+  color: #bbc4cf;
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+.phone-meter-header output,
+.phone-body-part-header output {
+  color: #d9dee5;
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.phone-meter {
+  overflow: hidden;
+  height: 4px;
+  border-radius: 999px;
+  background: #252e39;
+}
+
+.phone-meter-fill {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: #aa98bf;
+}
+
+.phone-meter-entry[data-kind="skill"] .phone-meter-fill {
+  background: #91a8c5;
+}
+
+.phone-skills-section {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.phone-skills-section > h3 {
+  grid-column: 1 / -1;
+}
+
+.phone-skills-section .phone-meter-entry {
+  align-content: space-between;
+  min-width: 0;
+  aspect-ratio: 1;
+  border: 1px solid #303a47;
+  border-radius: 6px;
+  padding: 9px;
+  background: #11161d;
+}
+
+.phone-skills-section .phone-meter-header {
+  display: grid;
+  gap: 5px;
+}
+
+.phone-skills-section .phone-meter-header h4 {
+  overflow-wrap: anywhere;
+  font-size: 0.74rem;
+}
+
+.phone-skills-section .phone-meter-header output {
+  font-size: 0.86rem;
+}
+
+.phone-skills-section .phone-meter-detail {
+  font-size: 0.61rem;
+  white-space: nowrap;
+}
+
+.phone-meter-entry[data-value-id="health"] .phone-meter-fill,
+.phone-meter-entry[data-value-id="hygiene"] .phone-meter-fill {
+  background: #79aa88;
+}
+
+.phone-meter-entry[data-value-id="energy"] .phone-meter-fill {
+  background: #c4a76f;
+}
+
+.phone-meter-entry[data-value-id="stress"] .phone-meter-fill,
+.phone-meter-entry[data-value-id="fear"] .phone-meter-fill,
+.phone-meter-entry[data-value-id="trauma"] .phone-meter-fill {
+  background: #bc7777;
+}
+
+.phone-meter-detail {
+  margin: 0;
+  color: #707d8d;
+  font-size: 0.68rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.phone-body-part[data-tone="healthy"] .phone-meter-fill {
+  background: #79aa88;
+}
+
+.phone-body-part[data-tone="warning"] .phone-meter-fill {
+  background: #c4a76f;
+}
+
+.phone-body-part[data-tone="danger"] .phone-meter-fill {
+  background: #bc7777;
+}
+
+.phone-stats-empty {
+  margin: 0;
+  border-bottom: 1px solid #232c37;
+  padding: 8px 0;
+  color: #8793a2;
+  font-size: 0.8rem;
 }
 
 .debug-panel {
