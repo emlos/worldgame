@@ -70,6 +70,8 @@ function labelPlacements(nodes, positions, width, height) {
     .sort(
       (left, right) =>
         Number(right.current) - Number(left.current) ||
+        Number(right.gpsDestination) - Number(left.gpsDestination) ||
+        Number(right.onGpsRoute) - Number(left.onGpsRoute) ||
         Number(right.directlyReachable) - Number(left.directlyReachable) ||
         left.id.localeCompare(right.id),
     );
@@ -147,7 +149,12 @@ function nodeDescription(node) {
   const placeNames = node.places.map((place) => place.name);
   const places = placeNames.length ? ` Places: ${placeNames.join(", ")}.` : "";
   const route = node.directlyReachable ? " Directly reachable." : "";
-  return `${node.name}.${route}${places}`;
+  const gps = node.gpsDestination
+    ? " GPS destination."
+    : node.onGpsRoute
+      ? " On the GPS route."
+      : "";
+  return `${node.name}.${route}${gps}${places}`;
 }
 
 function edgeDescription(edge) {
@@ -189,6 +196,7 @@ export function renderMap(host, mapView, { onSelectNode = null } = {}) {
     });
     line.classList.add("map-edge");
     if (edge.directlyReachable) line.classList.add("map-edge--direct");
+    if (edge.onGpsRoute) line.classList.add("map-edge--gps");
     if (nodesById.get(edge.a)?.boundary || nodesById.get(edge.b)?.boundary) {
       line.classList.add("map-edge--boundary");
     }
@@ -210,6 +218,8 @@ export function renderMap(host, mapView, { onSelectNode = null } = {}) {
     group.classList.add("map-node");
     if (node.current) group.classList.add("map-node--current");
     else if (node.directlyReachable) group.classList.add("map-node--reachable");
+    if (node.onGpsRoute) group.classList.add("map-node--gps-route");
+    if (node.gpsDestination) group.classList.add("map-node--gps-destination");
     if (node.boundary) group.classList.add("map-node--boundary");
 
     if (onSelectNode && !node.boundary) {

@@ -42,6 +42,7 @@ const validScene = {
     temperatureC: 21,
   },
   map: null,
+  alerts: [],
   paragraphs: ["You are home."],
   sections: [
     { id: "actions", heading: "Actions", choices: [waitChoice] },

@@ -97,6 +97,16 @@ function validateSkillCheckAction(action, path) {
   }
 }
 
+function validateNavigation(value, path) {
+  if (value === null) return;
+  requireRecord(value, path);
+  if (value.kind !== "gps") fail(`${path}.kind must be 'gps'`);
+  requireText(value.destinationName, `${path}.destinationName`);
+  if (!Number.isFinite(value.remainingMinutes) || value.remainingMinutes < 0) {
+    fail(`${path}.remainingMinutes must be a non-negative finite number`);
+  }
+}
+
 export function validateChoice(choice, path = "choice") {
   requireRecord(choice, path);
   requireText(choice.id, `${path}.id`);
@@ -123,6 +133,7 @@ export function validateChoice(choice, path = "choice") {
 
   validateOptionalText(choice.disabledReason, `${path}.disabledReason`);
   validateOptionalText(choice.warning, `${path}.warning`);
+  validateNavigation(choice.navigation, `${path}.navigation`);
   validateMetadataList(choice.costs, `${path}.costs`, { isCost: true });
   validateMetadataList(choice.effectsPreview, `${path}.effectsPreview`);
   validateSkillChanges(choice.skillChanges, `${path}.skillChanges`);
@@ -162,6 +173,7 @@ export function createChoice(input) {
     enabled,
     disabledReason,
     warning,
+    navigation,
     action,
     ...extensions
   } = input;
@@ -181,6 +193,8 @@ export function createChoice(input) {
     enabled: enabled === undefined ? true : enabled,
     disabledReason: disabledReason === undefined ? null : disabledReason,
     warning: warning === undefined ? null : warning,
+    navigation:
+      navigation === undefined || navigation === null ? null : { ...navigation },
     action: isRecord(action) ? { ...action } : action,
     ...extensions,
   };

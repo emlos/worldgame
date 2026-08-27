@@ -352,6 +352,17 @@ p {
   color: #f2c14e;
 }
 
+.choice-navigation {
+  color: #f2c14e;
+  font-weight: 600;
+}
+
+.choice-navigation::before {
+  color: #777;
+  content: "| ";
+  font-weight: 400;
+}
+
 .choice-disabled-reason {
   color: #929292;
 }
@@ -408,6 +419,12 @@ p {
   stroke-width: 3;
 }
 
+.map-edge--gps {
+  stroke: #f2c14e;
+  stroke-width: 4;
+  filter: drop-shadow(0 0 2px rgba(242, 193, 78, 0.65));
+}
+
 .map-edge--boundary {
   opacity: 0.35;
   stroke-dasharray: 5 5;
@@ -455,6 +472,35 @@ p {
 .map-node--current text {
   fill: #fff3c5;
   font-weight: 700;
+}
+
+.map-node--gps-route circle {
+  stroke: #f2c14e;
+}
+
+.map-node--gps-destination circle {
+  fill: #f2c14e;
+  stroke: #fff0b3;
+  stroke-width: 4;
+}
+
+.map-node--gps-destination text {
+  fill: #fff3c5;
+  font-weight: 700;
+}
+
+.scene-alert {
+  margin: 0 0 18px;
+  border-left: 3px solid #6f839c;
+  padding: 8px 11px;
+  background: rgba(111, 131, 156, 0.1);
+  color: #c9d4e1;
+}
+
+.scene-alert[data-tone="warning"] {
+  border-left-color: #f2c14e;
+  background: rgba(242, 193, 78, 0.1);
+  color: #f2c14e;
 }
 
 .map-node--boundary {
@@ -518,6 +564,12 @@ p {
   margin: 0;
   color: #e7edf5;
   font-size: 1rem;
+}
+
+.diary-school-location {
+  margin: 5px 0 14px;
+  color: #f2c14e;
+  font-size: 0.9rem;
 }
 
 .diary-school-summary {
@@ -747,6 +799,10 @@ p {
   --phone-app-accent: #c4a76f;
 }
 
+#phone-gps-btn {
+  --phone-app-accent: #f2c14e;
+}
+
 #phone-inventory-btn {
   --phone-app-accent: #8faf91;
 }
@@ -771,6 +827,103 @@ p {
 .phone-scroll-screen::-webkit-scrollbar-thumb {
   border-radius: 999px;
   background: #465568;
+}
+
+.phone-gps-screen.phone-scroll-screen {
+  padding: 0 4px 46px 0px;
+}
+
+.phone-gps-toolbar {
+  position: sticky;
+  z-index: 1;
+  top: 0;
+  border-bottom: 1px solid #29323e;
+  padding: 16px 3px 12px;
+  background: #0d1117;
+}
+
+.phone-gps-toolbar label {
+  display: block;
+  margin-bottom: 6px;
+  color: #aeb7c2;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.phone-gps-search {
+  width: 100%;
+  border: 1px solid #3e4b5c;
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: #161d26;
+  color: #e7edf5;
+  font: inherit;
+}
+
+.phone-gps-search:focus {
+  border-color: #f2c14e;
+  outline: 1px solid #f2c14e;
+}
+
+.phone-gps-status {
+  margin: 10px 0 0;
+  color: #f2c14e;
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.phone-gps-stop {
+  margin-top: 8px;
+  color: #d7b967;
+  font-size: 0.78rem;
+}
+
+.phone-gps-destinations {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 12px 3px 18px;
+  list-style: none;
+}
+
+.phone-gps-destination-button {
+  display: grid;
+  width: 100%;
+  border: 1px solid #303b49;
+  border-radius: 9px;
+  padding: 9px 10px;
+  background: #141b23;
+  color: #dbe3ed;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.phone-gps-destination-button:hover,
+.phone-gps-destination-button:focus-visible,
+.phone-gps-destination-button[data-active="true"] {
+  border-color: #f2c14e;
+  background: rgba(242, 193, 78, 0.08);
+}
+
+.phone-gps-destination-name {
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.phone-gps-destination-district {
+  margin-top: 3px;
+  color: #8996a6;
+  font-size: 0.72rem;
+}
+
+.phone-gps-empty {
+  padding: 18px 8px;
+  color: #8996a6;
+  font-size: 0.82rem;
+  text-align: center;
 }
 
 .phone-relationships-list {

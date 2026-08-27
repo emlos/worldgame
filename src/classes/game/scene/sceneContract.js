@@ -1,6 +1,7 @@
 import { validateChoice } from "./choiceContract.js";
 
 const SCENE_KINDS = new Set(["location", "place", "event"]);
+const ALERT_TONES = new Set(["info", "warning"]);
 
 export class SceneContractError extends TypeError {
   constructor(message) {
@@ -48,6 +49,23 @@ function validateMap(map) {
   if (!Array.isArray(map.edges)) fail("scene.map.edges must be an array");
 }
 
+function validateAlerts(alerts) {
+  if (!Array.isArray(alerts)) fail("scene.alerts must be an array");
+  const ids = new Set();
+  alerts.forEach((alert, index) => {
+    const path = `scene.alerts[${index}]`;
+    requireRecord(alert, path);
+    requireText(alert.id, `${path}.id`);
+    requireText(alert.tone, `${path}.tone`);
+    requireText(alert.text, `${path}.text`);
+    if (!ALERT_TONES.has(alert.tone)) {
+      fail(`${path}.tone must be one of: ${[...ALERT_TONES].join(", ")}`);
+    }
+    if (ids.has(alert.id)) fail(`Duplicate scene alert id '${alert.id}'`);
+    ids.add(alert.id);
+  });
+}
+
 export function validateScene(scene) {
   requireRecord(scene, "scene");
   requireText(scene.id, "scene.id");
@@ -58,6 +76,7 @@ export function validateScene(scene) {
   requireText(scene.heading, "scene.heading");
   validateStatus(scene.status);
   validateMap(scene.map);
+  validateAlerts(scene.alerts);
 
   if (!Array.isArray(scene.paragraphs)) {
     fail("scene.paragraphs must be an array");
@@ -103,6 +122,7 @@ export function createScene(input) {
   const scene = {
     ...input,
     map: input.map === undefined ? null : input.map,
+    alerts: input.alerts === undefined ? [] : input.alerts,
   };
   return validateScene(scene);
 }

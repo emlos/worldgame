@@ -1,5 +1,6 @@
 import { SKILLS, STATS } from "../../../data/player/stats.js";
 import { WearSlot } from "../../../shared/classes/clothing.js";
+import { listNavigationDestinations } from "../navigation.js";
 
 /** Build the read-only list shown by the phone's Relationships app. */
 export function buildPhoneRelationshipsView(game) {
@@ -11,6 +12,29 @@ export function buildPhoneRelationshipsView(game) {
       score: game.player.getRelationship(npc.id).score,
     }))
     .sort((left, right) => left.name.localeCompare(right.name));
+}
+
+/** Build the destination list and current route shown by the phone's GPS app. */
+export function buildPhoneGpsView(game) {
+  const route = game.getGpsRoute();
+  const activePlaceId = game.gpsTarget?.placeId ?? null;
+  const currentLocationId = String(game.currentLocationId);
+
+  return {
+    activeRoute: route
+      ? {
+          destination: { ...route.destination },
+          totalMinutes: route.totalMinutes,
+          nextLocationId: route.nextLocationId,
+        }
+      : null,
+    destinations: listNavigationDestinations(game).map((destination) => ({
+      ...destination,
+      active: destination.placeId === activePlaceId,
+      alreadyHere: destination.locationId === currentLocationId,
+      recommended: destination.placeKey === "high_school",
+    })),
+  };
 }
 
 /** Build a read-only snapshot of every player-facing value shown by the Stats app. */

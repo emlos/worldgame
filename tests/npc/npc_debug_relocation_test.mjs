@@ -88,7 +88,7 @@ const schoolDepartureGame = new Game({
   startDate: new Date("2026-09-02T07:30:00.000Z"),
 });
 const schoolDepartureTaylor = schoolDepartureGame.npcs.get("taylor");
-teleportNPCToPlayer(schoolDepartureGame, "taylor");
+teleportNPCToPlayer(schoolDepartureGame, "taylor", { stayMinutes: 90 });
 const schoolDepartureAt = new Date(schoolDepartureTaylor.brain.nextDecisionAt);
 schoolDepartureGame.advanceMinutes(
   (schoolDepartureAt.getTime() - schoolDepartureGame.now.getTime()) / 60_000 - 1,

@@ -44,9 +44,9 @@ function defaultHighSchool() {
 function schoolFromWorld(game) {
   for (const location of game?.world?.locations?.values?.() || []) {
     const school = (location.places || []).find((place) => place.key === "high_school");
-    if (school) return school;
+    if (school) return { school, location };
   }
-  return defaultHighSchool();
+  return { school: defaultHighSchool(), location: null };
 }
 
 function schoolPeriods(school) {
@@ -113,7 +113,8 @@ export function getSchoolDayPlan(
 
   const schoolDate = asValidDate(date);
   const dayInfo = game.world.getDayInfo(schoolDate);
-  const school = schoolFromWorld(game);
+  const resolvedSchool = schoolFromWorld(game);
+  const school = resolvedSchool.school;
   const periods = schoolPeriods(school);
   const semester = currentSemester(school, schoolDate);
 
@@ -133,7 +134,13 @@ export function getSchoolDayPlan(
       holidays: [...dayInfo.holidays, ...dayInfo.specials].map((entry) => entry.name),
     },
     school: {
+      placeId: school?.id == null ? null : String(school.id),
+      locationId:
+        resolvedSchool.location?.id == null
+          ? null
+          : String(resolvedSchool.location.id),
       name: school?.name || "High School",
+      districtName: resolvedSchool.location?.name || "Unknown district",
       semester: semester.current,
       start: periods[0]?.start || null,
       end: periods.at(-1)?.end || null,

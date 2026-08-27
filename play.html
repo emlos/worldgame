@@ -269,6 +269,15 @@
             </button>
 
             <button
+              id="phone-gps-btn"
+              class="phone-button button"
+              type="button"
+              aria-label="GPS"
+            >
+              ⌖
+            </button>
+
+            <button
               id="phone-reminders-btn"
               class="phone-button button"
               type="button"
@@ -303,7 +312,6 @@
 
             <button id="phone-5-btn" class="phone-button button hidden">C</button>
 
-            <button id="phone-6-btn" class="phone-button button hidden">C</button>
           </div>
 
           <section
@@ -314,6 +322,35 @@
             hidden
           >
             <ul id="phone-relationships-list" class="phone-relationships-list"></ul>
+          </section>
+
+          <section
+            id="phone-gps-screen"
+            class="phone-screen phone-scroll-screen phone-gps-screen"
+            aria-label="GPS destinations"
+            tabindex="0"
+            hidden
+          >
+            <div class="phone-gps-toolbar">
+              <label for="phone-gps-search">Find a destination</label>
+              <input
+                id="phone-gps-search"
+                class="phone-gps-search"
+                type="search"
+                autocomplete="off"
+                placeholder="Place or district"
+              />
+              <p id="phone-gps-status" class="phone-gps-status" aria-live="polite"></p>
+              <button
+                id="phone-gps-stop"
+                class="phone-gps-stop utility-button"
+                type="button"
+                hidden
+              >
+                Stop navigation
+              </button>
+            </div>
+            <ul id="phone-gps-destinations" class="phone-gps-destinations"></ul>
           </section>
 
           <section

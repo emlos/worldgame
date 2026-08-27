@@ -36,7 +36,13 @@ check("a normal workday contains school", schoolDay.hasSchool);
 check("the active semester comes from school data", schoolDay.school.semester?.name === "Fall");
 check(
   "school hours come from the first and last timetable periods",
-  schoolDay.school.start === "08:15" && schoolDay.school.end === "15:00",
+  schoolDay.school.start === "09:00" && schoolDay.school.end === "15:45",
+);
+check(
+  "the diary identifies the district containing the generated high school",
+  schoolDay.school.locationId !== null &&
+    schoolDay.school.districtName ===
+      game.world.getLocation(schoolDay.school.locationId)?.name,
 );
 check(
   "all data-defined school periods are included in chronological order",

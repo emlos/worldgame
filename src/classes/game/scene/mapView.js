@@ -6,7 +6,38 @@ function normalizedDepth(value, label) {
   return depth;
 }
 
-function nodeFromLocation(location, game, depth = null, boundary = false) {
+function edgeKey(a, b) {
+  return [String(a), String(b)].sort().join("\u0000");
+}
+
+function gpsContext(game) {
+  const route = game.getGpsRoute?.() ?? null;
+  if (!route) return null;
+  return {
+    route,
+    locationIds: new Set(route.locationIds.map(String)),
+    edgeKeys: new Set(route.edges.map((edge) => edgeKey(edge.a, edge.b))),
+  };
+}
+
+function gpsSummary(context) {
+  if (!context) return null;
+  return {
+    destinationPlaceId: context.route.destination.placeId,
+    destinationLocationId: context.route.destination.locationId,
+    destinationName: context.route.destination.name,
+    totalMinutes: context.route.totalMinutes,
+    nextLocationId: context.route.nextLocationId,
+  };
+}
+
+function nodeFromLocation(
+  location,
+  game,
+  gps,
+  depth = null,
+  boundary = false,
+) {
   const id = String(location.id);
   const current = id === String(game.currentLocationId);
 
@@ -18,6 +49,8 @@ function nodeFromLocation(location, game, depth = null, boundary = false) {
     depth,
     current,
     directlyReachable: !current && location.neighbors.has(String(game.currentLocationId)),
+    onGpsRoute: gps?.locationIds.has(id) ?? false,
+    gpsDestination: gps?.route.destination.locationId === id,
     boundary,
     districtKey: location.districtKey ?? null,
     places: (location.places || []).map((place) => ({
@@ -28,7 +61,7 @@ function nodeFromLocation(location, game, depth = null, boundary = false) {
   };
 }
 
-function edgesAmong(game, includedIds) {
+function edgesAmong(game, includedIds, gps) {
   const edges = [];
   const seen = new Set();
 
@@ -41,7 +74,7 @@ function edgesAmong(game, includedIds) {
       if (!includedIds.has(neighborId)) continue;
 
       const ends = [String(locationId), neighborId].sort();
-      const key = `${ends[0]}\u0000${ends[1]}`;
+      const key = edgeKey(ends[0], ends[1]);
       if (seen.has(key)) continue;
       seen.add(key);
 
@@ -53,6 +86,7 @@ function edgesAmong(game, includedIds) {
         directlyReachable:
           ends[0] === String(game.currentLocationId) ||
           ends[1] === String(game.currentLocationId),
+        onGpsRoute: gps?.edgeKeys.has(key) ?? false,
       });
     }
   }
@@ -104,12 +138,14 @@ export function buildLocalMapView(
   }
 
   const depths = localDepths(game, centerLocationId, outerDepth);
+  const gps = gpsContext(game);
   const includedIds = new Set(depths.keys());
   const nodes = [...depths.entries()]
     .map(([locationId, nodeDepth]) =>
       nodeFromLocation(
         game.world.getLocation(locationId),
         game,
+        gps,
         nodeDepth,
         nodeDepth > visibleDepth,
       ),
@@ -121,14 +157,16 @@ export function buildLocalMapView(
     centerLocationId,
     depth: visibleDepth,
     boundaryDepth: outerDepth,
+    gps: gpsSummary(gps),
     nodes,
-    edges: edgesAmong(game, includedIds),
+    edges: edgesAmong(game, includedIds, gps),
   };
 }
 
 export function buildFullMapView(game) {
+  const gps = gpsContext(game);
   const nodes = [...game.world.locations.values()]
-    .map((location) => nodeFromLocation(location, game))
+    .map((location) => nodeFromLocation(location, game, gps))
     .sort((left, right) => left.id.localeCompare(right.id));
   const includedIds = new Set(nodes.map((node) => node.id));
 
@@ -137,7 +175,8 @@ export function buildFullMapView(game) {
     centerLocationId: String(game.currentLocationId),
     depth: null,
     boundaryDepth: null,
+    gps: gpsSummary(gps),
     nodes,
-    edges: edgesAmong(game, includedIds),
+    edges: edgesAmong(game, includedIds, gps),
   };
 }

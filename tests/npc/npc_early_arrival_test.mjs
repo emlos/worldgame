@@ -11,7 +11,7 @@ const check = (label, condition) => {
   }
 };
 
-const START = new Date("2026-09-02T07:30:00.000Z");
+const START = new Date("2026-09-02T08:15:00.000Z");
 const makeGame = () => new Game({ seed: 117, startDate: START });
 const largeStep = makeGame();
 const minuteSteps = makeGame();

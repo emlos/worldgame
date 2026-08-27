@@ -12,6 +12,7 @@ import { buildLocalMapView } from "./mapView.js";
 import { buildSceneStatus } from "./sceneContext.js";
 import { createChoice } from "./choiceContract.js";
 import { createScene } from "./sceneContract.js";
+import { buildGlobalSceneAlerts } from "./sceneAlerts.js";
 import {
   getWGOfferEntries,
   getWGPlaceHubEntry,
@@ -77,6 +78,7 @@ function buildLocationScene(game) {
   ];
   const nearbyStreet = streetNames[0];
   const people = game.getNPCsAtCurrentPosition();
+  const gpsRoute = game.getGpsRoute();
 
   const places = location.places.map((place) => {
     const access = game.getPlaceAccess(place, {
@@ -100,6 +102,14 @@ function buildLocationScene(game) {
       icon: "→",
       label: SCENE_TEXT.travelChoice(edge.streetName, destination.name),
       durationMinutes: edge.minutes,
+      navigation:
+        String(targetLocationId) === gpsRoute?.nextLocationId
+          ? {
+              kind: "gps",
+              destinationName: gpsRoute.destination.name,
+              remainingMinutes: gpsRoute.totalMinutes,
+            }
+          : null,
       action: { type: SCENE_ACTION_TYPE.travel, targetLocationId },
     });
   });
@@ -196,29 +206,33 @@ function buildPlaceScene(game, activeDefinition = null) {
 }
 
 export function buildScene(game) {
+  let scene;
   if (game.currentStory?.type === "scene") {
     const definition = getWGScene(game.currentStory.id);
     if (!definition) {
       throw new Error(`Unknown active WG scene: ${game.currentStory.id}`);
     }
     if (definition.kind === "place") {
-      return buildPlaceScene(game, definition);
+      scene = buildPlaceScene(game, definition);
+    } else {
+      scene = materializeWGScene(game, definition);
     }
-    return materializeWGScene(game, definition);
-  }
-  if (game.currentStory?.type === "sequence") {
+  } else if (game.currentStory?.type === "sequence") {
     const definition = getWGSequence(game.currentStory.id);
     if (!definition) {
       throw new Error(`Unknown active WG sequence: ${game.currentStory.id}`);
     }
-    return materializeWGSequence(game, definition, game.currentStory.passageId);
-  }
-  if (game.currentStory !== null) {
+    scene = materializeWGSequence(game, definition, game.currentStory.passageId);
+  } else if (game.currentStory !== null) {
     throw new Error(`Unknown active WG story type: ${String(game.currentStory?.type)}`);
+  } else {
+    scene = game.currentPlace
+      ? buildPlaceScene(game)
+      : buildLocationScene(game);
   }
 
-  const scene = game.currentPlace
-    ? buildPlaceScene(game)
-    : buildLocationScene(game);
-  return createScene(scene);
+  return createScene({
+    ...scene,
+    alerts: buildGlobalSceneAlerts(game),
+  });
 }

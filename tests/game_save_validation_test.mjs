@@ -15,6 +15,17 @@ function makeSave(seed = 44) {
     return JSON.parse(JSON.stringify(new Game({ seed, startDate: START })));
 }
 
+function makeGpsSave(seed = 44) {
+    const game = new Game({ seed, startDate: START });
+    const destination = [...game.world.locations.values()]
+        .flatMap((location) =>
+            (location.places || []).map((place) => ({ location, place })),
+        )
+        .find(({ location }) => String(location.id) !== String(game.currentLocationId));
+    game.setGpsTarget(destination.place.id);
+    return JSON.parse(JSON.stringify(game));
+}
+
 function rejects(label, mutate, expectedPath, saveFactory = makeSave) {
     const save = saveFactory();
     mutate(save);
@@ -31,13 +42,13 @@ function rejects(label, mutate, expectedPath, saveFactory = makeSave) {
 }
 
 const validSave = makeSave();
-check("current v16 save validates directly", validateGameSave(validSave) === validSave);
+check("current v17 save validates directly", validateGameSave(validSave) === validSave);
 check(
     "world-map saves no longer contain density",
     !Object.prototype.hasOwnProperty.call(validSave.world.map, "density"),
 );
 check(
-    "validated v16 save round-trips exactly",
+    "validated v17 save round-trips exactly",
     JSON.stringify(Game.fromJSON(validSave)) === JSON.stringify(validSave),
 );
 
@@ -266,6 +277,39 @@ rejects(
         save.currentPlaceKey = "wrong-key";
     },
     "save.currentPlaceKey",
+);
+rejects(
+    "current saves require an explicit GPS target field",
+    (save) => {
+        delete save.gpsTarget;
+    },
+    "save.gpsTarget",
+);
+rejects(
+    "GPS targets cannot reference missing locations",
+    (save) => {
+        save.gpsTarget.locationId = "missing-location";
+    },
+    "save.gpsTarget.locationId",
+    makeGpsSave,
+);
+rejects(
+    "GPS targets cannot reference missing places",
+    (save) => {
+        save.gpsTarget.placeId = "missing-place";
+    },
+    "save.gpsTarget.placeId",
+    makeGpsSave,
+);
+rejects(
+    "GPS targets must disengage after arrival",
+    (save) => {
+        save.currentLocationId = save.gpsTarget.locationId;
+        save.currentPlaceId = null;
+        save.currentPlaceKey = null;
+    },
+    "save.gpsTarget.locationId",
+    makeGpsSave,
 );
 rejects(
     "duplicate story flags are rejected",

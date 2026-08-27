@@ -803,13 +803,13 @@ export const PLACE_REGISTRY = [
                 { name: "Spring", start: "01-10", end: "05-20" },
             ],
             schedule: {
-                "english": { start: "08:15", end: "09:00" },
-                "math": { start: "09:15", end: "10:00" },
-                "history": { start: "10:15", end: "11:00" },
-                "lunch": { start: "11:15", end: "12:00" },
-                "science": { start: "12:15", end: "13:00" },
-                "art": { start: "13:15", end: "14:00" },
-                "phys-ed": { start: "14:15", end: "15:00" },
+                "english": { start: "09:00", end: "09:45" },
+                "math": { start: "10:00", end: "10:45" },
+                "history": { start: "11:00", end: "11:45" },
+                "lunch": { start: "12:00", end: "12:45" },
+                "science": { start: "13:00", end: "13:45" },
+                "art": { start: "14:00", end: "14:45" },
+                "phys-ed": { start: "15:00", end: "15:45" },
             }
          },
         nameFn: ({ rnd }) =>

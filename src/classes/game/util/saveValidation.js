@@ -1222,9 +1222,9 @@ export function validateGameSave(data) {
     const save = record(data, "save");
     same(
         integer(required(save, "saveVersion", "save"), "save.saveVersion"),
-        16,
+        17,
         "save.saveVersion",
-        "version 16",
+        "version 17",
     );
 
     const seed = uint32(required(save, "seed", "save"), "save.seed");
@@ -1324,6 +1324,28 @@ export function validateGameSave(data) {
     );
     if (current.place) {
         same(currentPlaceKey, current.place.key, "save.currentPlaceKey", "the current place key");
+    }
+
+    const gpsTargetData = required(save, "gpsTarget", "save");
+    if (gpsTargetData !== null) {
+        const gpsTarget = record(gpsTargetData, "save.gpsTarget");
+        const locationId = string(
+            required(gpsTarget, "locationId", "save.gpsTarget"),
+            "save.gpsTarget.locationId",
+            { nonEmpty: true },
+        );
+        const placeId = string(
+            required(gpsTarget, "placeId", "save.gpsTarget"),
+            "save.gpsTarget.placeId",
+            { nonEmpty: true },
+        );
+        if (!mapIndex.locations.has(locationId)) {
+            fail("save.gpsTarget.locationId", `references unknown location '${locationId}'`);
+        }
+        placeAt(mapIndex, locationId, placeId, "save.gpsTarget.placeId");
+        if (locationId === current.locationId) {
+            fail("save.gpsTarget.locationId", "must disengage after reaching the target location");
+        }
     }
 
     uniqueStrings(required(save, "flags", "save"), "save.flags");

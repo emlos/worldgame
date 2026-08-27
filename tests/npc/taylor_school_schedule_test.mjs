@@ -41,22 +41,22 @@ const taylorDefinition = NPC_REGISTRY.find((npc) => npc.id === "taylor");
 const schoolRule = taylorDefinition.behavior.goals.find((goal) => goal.id === "school");
 check(
   "Taylor's obligation uses the timetable's first and last periods",
-  SCHOOL_DAY_START === "08:15" &&
-    SCHOOL_DAY_END === "15:00" &&
+  SCHOOL_DAY_START === "09:00" &&
+    SCHOOL_DAY_END === "15:45" &&
     schoolRule.when.from === SCHOOL_DAY_START &&
     schoolRule.when.to === SCHOOL_DAY_END,
 );
 check("Taylor's obligation requires an actual school day", schoolRule.when.schoolDay === true);
 
-const schoolGame = makeGame("2026-09-02T08:45:00.000Z");
+const schoolGame = makeGame("2026-09-02T09:30:00.000Z");
 const schoolTaylor = schoolGame.npcs.get("taylor");
 const schoolPlan = getSchoolDayPlan(schoolGame);
 check("an in-term workday is a shared school day", schoolPlan.hasSchool);
 check(
   "Taylor attends school for the shared timetable window",
   schoolTaylor.brain.currentGoal?.ruleId === "school" &&
-    schoolTaylor.brain.currentGoal?.windowStart === "2026-09-02T08:15:00.000Z" &&
-    schoolTaylor.brain.currentGoal?.windowEnd === "2026-09-02T15:00:00.000Z" &&
+    schoolTaylor.brain.currentGoal?.windowStart === "2026-09-02T09:00:00.000Z" &&
+    schoolTaylor.brain.currentGoal?.windowEnd === "2026-09-02T15:45:00.000Z" &&
     placeKey(schoolGame, schoolTaylor) === "high_school",
 );
 
@@ -105,7 +105,7 @@ check(
 const previousSchoolFlag = SCHEDULE.school;
 try {
   SCHEDULE.school = false;
-  const disabledGame = makeGame("2026-09-02T08:45:00.000Z");
+  const disabledGame = makeGame("2026-09-02T09:30:00.000Z");
   const disabledTaylor = disabledGame.npcs.get("taylor");
   check(
     "the global school switch also disables Taylor's obligation",

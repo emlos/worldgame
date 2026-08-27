@@ -5,6 +5,7 @@ import { performChoice } from "../../classes/game/scene/choiceEngine.js";
 import { buildPlayerDiaryView } from "../../classes/game/scene/diaryView.js";
 import { buildFullMapView } from "../../classes/game/scene/mapView.js";
 import {
+  buildPhoneGpsView,
   buildPhonePlayerStatsView,
   buildPhoneRelationshipsView,
 } from "../../classes/game/scene/phoneView.js";
@@ -46,6 +47,12 @@ const phoneRelationshipsScreen = document.querySelector(
 const phoneRelationshipsList = document.querySelector(
   "#phone-relationships-list",
 );
+const phoneGpsButton = document.querySelector("#phone-gps-btn");
+const phoneGpsScreen = document.querySelector("#phone-gps-screen");
+const phoneGpsSearch = document.querySelector("#phone-gps-search");
+const phoneGpsStatus = document.querySelector("#phone-gps-status");
+const phoneGpsStopButton = document.querySelector("#phone-gps-stop");
+const phoneGpsDestinations = document.querySelector("#phone-gps-destinations");
 const phoneStatsButton = document.querySelector("#phone-stats-btn");
 const phoneStatsScreen = document.querySelector("#phone-stats-screen");
 const phoneStatsContent = document.querySelector("#phone-stats-content");
@@ -143,7 +150,7 @@ function formatDuration(minutes) {
   const hours = Math.floor(totalSeconds / 3600);
   const remainderMinutes = Math.floor((totalSeconds % 3600) / 60);
   const seconds = totalSeconds % 60;
-  const time = `${hours}:${String(remainderMinutes).padStart(2, "0")}`;
+  const time = `${String(hours).padStart(2, "0")}:${String(remainderMinutes).padStart(2, "0")}`;
   return seconds ? `${time}:${String(seconds).padStart(2, "0")}` : time;
 }
 
@@ -232,6 +239,14 @@ function makeChoiceButton(sceneId, choice, number) {
   if (choice.warning) {
     details.append(makeChoiceDetail("choice-warning", `⚠ ${choice.warning}`));
   }
+  if (choice.navigation) {
+    details.append(
+      makeChoiceDetail(
+        "choice-navigation",
+        `to ${choice.navigation.destinationName}`,
+      ),
+    );
+  }
   if (!choice.enabled && choice.disabledReason) {
     details.append(
       makeChoiceDetail("choice-disabled-reason", choice.disabledReason),
@@ -268,7 +283,10 @@ function renderLocalMap(mapView) {
   details.className = "map-details";
   const currentNode = mapView.nodes.find((node) => node.current);
   details.textContent = currentNode
-    ? `You are in ${currentNode.name}. Select an adjacent location to focus its travel choice.`
+    ? `You are in ${currentNode.name}. Select an adjacent location to focus its travel choice.` +
+      (mapView.gps
+        ? ` The route to ${mapView.gps.destinationName} is highlighted in yellow.`
+        : "")
     : "Select a location for details.";
 
   renderGraphMap(frame, mapView, {
@@ -289,7 +307,10 @@ function renderFullMap() {
   const mapView = buildFullMapView(game);
   const currentNode = mapView.nodes.find((node) => node.current);
   fullMapDetails.textContent = currentNode
-    ? `You are in ${currentNode.name}.`
+    ? `You are in ${currentNode.name}.` +
+      (mapView.gps
+        ? ` The route to ${mapView.gps.destinationName} is highlighted in yellow.`
+        : "")
     : "Select a location for details.";
   renderGraphMap(fullMapElement, mapView, {
     onSelectNode(node) {
@@ -328,19 +349,26 @@ function renderPlayerDiary() {
   playerDiaryDate.textContent = diaryDateFormatter.format(new Date(view.date));
   playerDiaryContent.replaceChildren();
 
-  if (!view.hasSchool) {
-    const notice = document.createElement("p");
-    notice.className = "diary-empty";
-    notice.textContent = noSchoolMessage(view);
-    playerDiaryContent.append(notice);
-    return;
-  }
-
   const entry = document.createElement("section");
   entry.className = "diary-entry";
 
   const heading = document.createElement("h3");
   heading.textContent = view.school.name;
+
+  const location = document.createElement("p");
+  location.className = "diary-school-location";
+  location.textContent = `Located in ${view.school.districtName}.`;
+
+  entry.append(heading, location);
+
+  if (!view.hasSchool) {
+    const notice = document.createElement("p");
+    notice.className = "diary-empty";
+    notice.textContent = noSchoolMessage(view);
+    entry.append(notice);
+    playerDiaryContent.append(entry);
+    return;
+  }
 
   const summary = document.createElement("p");
   summary.className = "diary-school-summary";
@@ -371,7 +399,7 @@ function renderPlayerDiary() {
   }
 
   table.append(caption, tableHead, tableBody);
-  entry.append(heading, summary, table);
+  entry.append(summary, table);
   playerDiaryContent.append(entry);
 }
 
@@ -674,32 +702,121 @@ function overviewValue(value) {
   return value || "Not set";
 }
 
+function makePhoneGpsDestination(entry) {
+  const item = document.createElement("li");
+  item.className = "phone-gps-destination";
+
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "phone-gps-destination-button";
+  button.dataset.active = String(entry.active);
+  button.dataset.placeId = entry.placeId;
+
+  const name = document.createElement("span");
+  name.className = "phone-gps-destination-name";
+  name.textContent = `${entry.icon || "◆"} ${entry.name}`;
+
+  const district = document.createElement("span");
+  district.className = "phone-gps-destination-district";
+  const labels = [entry.districtName];
+  if (entry.recommended) labels.push("School");
+  if (entry.alreadyHere) labels.push("Current district");
+  if (entry.active) labels.push("Navigating");
+  district.textContent = labels.join(" · ");
+
+  button.append(name, district);
+  button.addEventListener("click", () => {
+    try {
+      const result = game.setGpsTarget(entry.placeId);
+      noticeElement.textContent = result.alreadyThere
+        ? `You are already in ${result.destination.districtName}.`
+        : `GPS navigation started for ${result.route.destination.name}.`;
+      noticeElement.className = "notice";
+    } catch (error) {
+      noticeElement.textContent = error.message;
+      noticeElement.className = "notice error";
+    }
+    renderPhoneGps();
+    render();
+  });
+
+  item.append(button);
+  return item;
+}
+
+function renderPhoneGps() {
+  const view = buildPhoneGpsView(game);
+  const query = phoneGpsSearch.value.trim().toLocaleLowerCase();
+  const destinations = query
+    ? view.destinations.filter((entry) =>
+        `${entry.name} ${entry.districtName}`.toLocaleLowerCase().includes(query),
+      )
+    : view.destinations;
+
+  if (view.activeRoute) {
+    phoneGpsStatus.textContent =
+      `Navigating to ${view.activeRoute.destination.name} in ` +
+      `${view.activeRoute.destination.districtName} · ` +
+      `${formatDuration(view.activeRoute.totalMinutes)} remaining`;
+    phoneGpsStopButton.hidden = false;
+  } else {
+    phoneGpsStatus.textContent = "No active route.";
+    phoneGpsStopButton.hidden = true;
+  }
+
+  if (destinations.length) {
+    phoneGpsDestinations.replaceChildren(
+      ...destinations.map(makePhoneGpsDestination),
+    );
+  } else {
+    const empty = document.createElement("li");
+    empty.className = "phone-gps-empty";
+    empty.textContent = "No destinations match your search.";
+    phoneGpsDestinations.replaceChildren(empty);
+  }
+}
+
+const phoneScreens = [
+  phoneHomeScreen,
+  phoneRelationshipsScreen,
+  phoneGpsScreen,
+  phoneStatsScreen,
+];
+
+function showOnlyPhoneScreen(screen) {
+  for (const candidate of phoneScreens) candidate.hidden = candidate !== screen;
+}
+
 function showPhoneHomeScreen() {
   playerPhoneHeading.textContent = "Phone";
   phoneBackButton.hidden = true;
-  phoneHomeScreen.hidden = false;
-  phoneRelationshipsScreen.hidden = true;
-  phoneStatsScreen.hidden = true;
+  showOnlyPhoneScreen(phoneHomeScreen);
 }
 
 function showPhoneRelationshipsScreen() {
   playerPhoneHeading.textContent = "Relationships";
   phoneBackButton.hidden = false;
-  phoneHomeScreen.hidden = true;
-  phoneRelationshipsScreen.hidden = false;
-  phoneStatsScreen.hidden = true;
+  showOnlyPhoneScreen(phoneRelationshipsScreen);
   phoneRelationshipsList.replaceChildren(
     ...buildPhoneRelationshipsView(game).map(makePhoneRelationshipEntry),
   );
   phoneRelationshipsScreen.scrollTop = 0;
 }
 
+function showPhoneGpsScreen() {
+  playerPhoneHeading.textContent = "GPS";
+  phoneBackButton.hidden = false;
+  showOnlyPhoneScreen(phoneGpsScreen);
+  phoneGpsSearch.value = "";
+  renderPhoneGps();
+  phoneGpsScreen.scrollTop = 0;
+  phoneGpsSearch.focus();
+}
+
 function showPhoneStatsScreen() {
   playerPhoneHeading.textContent = "Player stats";
   phoneBackButton.hidden = false;
-  phoneHomeScreen.hidden = true;
-  phoneRelationshipsScreen.hidden = true;
-  phoneStatsScreen.hidden = false;
+  showOnlyPhoneScreen(phoneStatsScreen);
   renderPhoneStats();
   phoneStatsScreen.scrollTop = 0;
 }
@@ -737,6 +854,14 @@ function render() {
   const heading = document.createElement("h1");
   heading.textContent = currentScene.heading;
   sceneElement.append(heading);
+
+  for (const alert of currentScene.alerts) {
+    const alertElement = document.createElement("p");
+    alertElement.className = "scene-alert";
+    alertElement.dataset.tone = alert.tone;
+    alertElement.textContent = alert.text;
+    sceneElement.append(alertElement);
+  }
 
   for (const paragraphText of currentScene.paragraphs) {
     const paragraph = document.createElement("p");
@@ -825,6 +950,15 @@ phoneRelationshipsButton.addEventListener(
   "click",
   showPhoneRelationshipsScreen,
 );
+phoneGpsButton.addEventListener("click", showPhoneGpsScreen);
+phoneGpsSearch.addEventListener("input", renderPhoneGps);
+phoneGpsStopButton.addEventListener("click", () => {
+  game.clearGpsTarget();
+  noticeElement.textContent = "GPS navigation stopped.";
+  noticeElement.className = "notice";
+  renderPhoneGps();
+  render();
+});
 phoneStatsButton.addEventListener("click", showPhoneStatsScreen);
 phoneBackButton.addEventListener("click", showPhoneHomeScreen);
 closePhoneButton.addEventListener("click", () => playerPhoneDialog.close());
