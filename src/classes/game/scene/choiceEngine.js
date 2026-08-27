@@ -15,6 +15,11 @@ import {
 import { calculateSkillCheckChance } from "../../../data/scene/skillChecks.js";
 import { SKILLS } from "../../../data/player/stats.js";
 import { keyedRandom01 } from "../../../shared/util/random.js";
+import {
+  getBusFare,
+  getCurrentBusStop,
+  resolveBusTravelOption,
+} from "../busTransit.js";
 
 export const CHOICE_ERROR_CODE = Object.freeze({
   invalidRequest: "invalid-request",
@@ -195,6 +200,52 @@ function performGreet(game, choice, minutes) {
   return SCENE_TEXT.greetResult(npc.meta?.shortName || npc.name);
 }
 
+function performBusTravel(game, choice, minutes) {
+  const source = getCurrentBusStop(game);
+  if (!source) {
+    fail(
+      CHOICE_ERROR_CODE.invalidAction,
+      "Bus travel is unavailable unless the player is at a bus stop",
+    );
+  }
+
+  const destination = resolveBusTravelOption(game, choice.action.targetPlaceId);
+  if (!destination) {
+    fail(
+      CHOICE_ERROR_CODE.invalidAction,
+      `Bus stop '${String(choice.action.targetPlaceId)}' is not a valid destination`,
+    );
+  }
+  if (minutes !== destination.travelMinutes) {
+    fail(
+      CHOICE_ERROR_CODE.invalidAction,
+      "The selected bus journey has an invalid travel time",
+    );
+  }
+
+  const fare = getBusFare(source);
+  if (game.player.money < fare) {
+    fail(
+      CHOICE_ERROR_CODE.disabledChoice,
+      `The player needs £${fare.toFixed(2)} for a bus ticket`,
+    );
+  }
+
+  game.runAction({
+    label: `Take the bus to ${destination.location.name}`,
+    minutes,
+    apply(currentGame) {
+      currentGame.player.adjustMoney(-fare);
+      currentGame.moveTo(String(destination.location.id));
+      currentGame.setCurrentPlace({ placeId: destination.place.id });
+    },
+    after(currentGame) {
+      resolveWGAutomaticEntry(currentGame, WG_AUTO_TRIGGER.enterPlace);
+    },
+  });
+  return `You arrive at ${destination.place.name} in ${destination.location.name}.`;
+}
+
 function performWG(game, choice, minutes) {
   game.runAction({
     label: choice.label,
@@ -295,6 +346,7 @@ function performSkillCheck(game, choice, _minutes, scene) {
 
 const ACTION_HANDLERS = Object.freeze({
   [SCENE_ACTION_TYPE.travel]: performTravel,
+  [SCENE_ACTION_TYPE.busTravel]: performBusTravel,
   [SCENE_ACTION_TYPE.enter]: performEnter,
   [SCENE_ACTION_TYPE.leave]: performLeave,
   [SCENE_ACTION_TYPE.loiter]: performLoiter,

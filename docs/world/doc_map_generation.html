@@ -609,8 +609,8 @@
                 <ul>
                     <li>Every ordinary registered place key appears exactly once.</li>
                     <li>
-                        Bus stops appear once per three to four locations. The current 23-location
-                        world produces seven stops, with every location within two graph hops of one.
+                        Bus stops appear once per three to five locations. The current 23-location
+                        world produces six stops, with every location within two graph hops of one.
                     </li>
                     <li>
                         NPC homes are created later with unregistered keys and do not affect the
@@ -682,9 +682,18 @@
                             <td>Bus-only: multiplier applied to bus ride time.</td>
                         </tr>
                         <tr>
-                            <td><code>busFrequencyDay</code>, <code>busFrequencyNight</code></td>
-                            <td>number (minutes)</td>
-                            <td>Bus-only: used to compute waiting time aligned to the clock.</td>
+                            <td><code>busCost</code></td>
+                            <td>number</td>
+                            <td>Bus-only: fare charged for one journey.</td>
+                        </tr>
+                        <tr>
+                            <td><code>schedule</code></td>
+                            <td><code>{type: "frequency", periods: [...]}</code></td>
+                            <td>
+                                Bus-only: shared service periods. Each period declares a label,
+                                <code>from</code>/<code>to</code> clock times, and
+                                <code>everyMinutes</code> frequency.
+                            </td>
                         </tr>
                     </tbody>
                 </table>

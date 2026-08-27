@@ -136,7 +136,7 @@ export const PLACE_REGISTRY = [
         label: "Bus Stop",
         distribution: {
             kind: PLACE_DISTRIBUTION_KIND.graphCoverage,
-            locationsPerInstance: { min: 3, max: 4 },
+            locationsPerInstance: { min: 3, max: 5 },
             maxGraphDistance: 2,
         },
         allowedTags: [
@@ -146,8 +146,14 @@ export const PLACE_REGISTRY = [
             icon: "🚌",
             category: [PLACE_TAGS.transport],
             travelTimeMult: 0.4, //how much faster travel is when using bus
-            busFrequencyDay: 15, //how often buses arrive (in minutes)
-            busFrequencyNight: 35,
+            busCost: 2.5,
+            schedule: {
+                type: "frequency",
+                periods: [
+                    { label: "day", from: "06:00", to: "22:00", everyMinutes: 15 },
+                    { label: "night", from: "22:00", to: "06:00", everyMinutes: 35 },
+                ],
+            },
         },
         nameFn: ({ index }) => seqName("Bus Stop", { index }),
     },

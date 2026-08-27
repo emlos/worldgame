@@ -1,5 +1,6 @@
 export const SCENE_ACTION_TYPE = Object.freeze({
   travel: "travel",
+  busTravel: "bus-travel",
   enter: "enter",
   leave: "leave",
   loiter: "loiter",

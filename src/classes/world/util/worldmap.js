@@ -360,6 +360,65 @@ function generatePlaces({ locations, getTag, getNeighbors, rnd }) {
     const graphDistance = (leftId, rightId) =>
         getHopDistances(leftId).get(String(rightId)) ?? Infinity;
 
+    const findCoverageSelection = (orderedCandidates, target, maximumDistance) => {
+        const allMask = (1n << BigInt(locations.length)) - 1n;
+        const coverageMasks = orderedCandidates.map((candidateId) =>
+            locations.reduce(
+                (mask, locationId, index) =>
+                    graphDistance(candidateId, locationId) <= maximumDistance
+                        ? mask | (1n << BigInt(index))
+                        : mask,
+                0n,
+            ),
+        );
+
+        const search = (startIndex, remaining, coveredMask, selectedIndices) => {
+            if (coveredMask === allMask) return selectedIndices;
+            if (remaining === 0) return null;
+
+            let possibleMask = coveredMask;
+            for (let index = startIndex; index < coverageMasks.length; index++) {
+                possibleMask |= coverageMasks[index];
+            }
+            if (possibleMask !== allMask) return null;
+
+            for (let index = startIndex; index < orderedCandidates.length; index++) {
+                const result = search(
+                    index + 1,
+                    remaining - 1,
+                    coveredMask | coverageMasks[index],
+                    [...selectedIndices, index],
+                );
+                if (result) return result;
+            }
+            return null;
+        };
+
+        const selectedIndices = search(0, target, 0n, []);
+        if (!selectedIndices) return null;
+        const selected = selectedIndices.map((index) => orderedCandidates[index]);
+
+        // A smaller set may already satisfy the coverage constraint. Fill the
+        // remaining configured instances by maximizing their distance from it.
+        while (selected.length < target) {
+            let bestLocationId = null;
+            let bestNearestDistance = -Infinity;
+            for (const locationId of orderedCandidates) {
+                if (selected.includes(locationId)) continue;
+                const nearestDistance = Math.min(
+                    ...selected.map((selectedId) => graphDistance(locationId, selectedId)),
+                );
+                if (nearestDistance > bestNearestDistance) {
+                    bestLocationId = locationId;
+                    bestNearestDistance = nearestDistance;
+                }
+            }
+            if (bestLocationId == null) return null;
+            selected.push(bestLocationId);
+        }
+        return selected;
+    };
+
     // Distributed infrastructure reserves its capacity first. Start from the
     // graph's most central legal location, then repeatedly choose the legal
     // location furthest from the stops already selected.
@@ -390,7 +449,7 @@ function generatePlaces({ locations, getTag, getNeighbors, rnd }) {
             }
         }
 
-        const selected = firstLocationId == null ? [] : [firstLocationId];
+        let selected = firstLocationId == null ? [] : [firstLocationId];
         while (selected.length < target) {
             let bestLocationId = null;
             let bestNearestDistance = -Infinity;
@@ -425,9 +484,16 @@ function generatePlaces({ locations, getTag, getNeighbors, rnd }) {
                     ) > maximumCoverageDistance,
             )
         ) {
-            throw new Error(
-                `Distributed place '${def.key}' cannot cover the generated graph`,
+            selected = findCoverageSelection(
+                shuffled,
+                target,
+                maximumCoverageDistance,
             );
+            if (!selected) {
+                throw new Error(
+                    `Distributed place '${def.key}' cannot cover the generated graph`,
+                );
+            }
         }
 
         selected.forEach((locationId, index) => createPlace(def, locationId, index));

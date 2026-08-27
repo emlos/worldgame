@@ -1,10 +1,24 @@
 const DEFAULT_TEMPORARY_STAY_MINUTES = 30;
+const DEBUG_MONEY_GRANT = 100;
 
 function requireNPC(game, npcId) {
   const id = String(npcId);
   const npc = game?.npcs?.get(id);
   if (!npc) throw new Error(`Unknown NPC '${id}'`);
   return npc;
+}
+
+export function addDebugMoney(game) {
+  let balance = null;
+
+  game.runAction({
+    label: `[Debug] Add £${DEBUG_MONEY_GRANT} to the player`,
+    apply(currentGame) {
+      balance = currentGame.player.adjustMoney(DEBUG_MONEY_GRANT);
+    },
+  });
+
+  return balance;
 }
 
 export function teleportNPCToPlayer(
@@ -40,4 +54,3 @@ export function teleportNPCToPlayer(
 
   return { npc, ...relocation };
 }
-

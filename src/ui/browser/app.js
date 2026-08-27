@@ -1,5 +1,8 @@
 import { Game } from "../../classes/game/game.js";
-import { teleportNPCToPlayer } from "../../classes/game/debugCommands.js";
+import {
+  addDebugMoney,
+  teleportNPCToPlayer,
+} from "../../classes/game/debugCommands.js";
 import { buildScene } from "../../classes/game/scene/sceneEngine.js";
 import { performChoice } from "../../classes/game/scene/choiceEngine.js";
 import { buildPlayerDiaryView } from "../../classes/game/scene/diaryView.js";
@@ -58,6 +61,7 @@ const phoneStatsScreen = document.querySelector("#phone-stats-screen");
 const phoneStatsContent = document.querySelector("#phone-stats-content");
 const debugEnabled = typeof debug !== "undefined" && Boolean(debug);
 const debugPanel = document.querySelector("#debug-panel");
+const debugAddMoneyButton = document.querySelector("#debug-add-money");
 const debugTeleportTaylorButton = document.querySelector(
   "#debug-teleport-taylor",
 );
@@ -978,6 +982,13 @@ debugTeleportTaylorButton.addEventListener("click", () => {
     noticeElement.textContent = error.message;
     noticeElement.className = "notice error";
   }
+  render();
+});
+
+debugAddMoneyButton.addEventListener("click", () => {
+  const balance = addDebugMoney(game);
+  noticeElement.textContent = `Added £100.00. Balance: ${moneyFormatter.format(balance)}.`;
+  noticeElement.className = "notice";
   render();
 });
 

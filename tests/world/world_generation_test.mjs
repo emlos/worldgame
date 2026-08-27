@@ -142,7 +142,10 @@ for (const seed of [1, 2, 3, 4, 5, 44, 117, 801]) {
     );
     check(
         `seed ${seed} distributes bus stops across the graph`,
-        placeCounts.get("bus_stop") === 7 && maxHopsToPlace(map, "bus_stop") <= 2,
+        placeCounts.get("bus_stop") === expectedPlaceCounts.get("bus_stop") &&
+            maxHopsToPlace(map, "bus_stop") <=
+                PLACE_REGISTRY.find((definition) => definition.key === "bus_stop")
+                    .distribution.maxGraphDistance,
     );
     check(
         `seed ${seed} represents every registered district`,

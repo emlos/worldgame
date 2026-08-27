@@ -144,17 +144,39 @@ Announcements and rolling luggage keep {{place.name}} in constant motion.
 
 The route display at {{place.name}} is covered with times and destination names.
 
-@choice timetable "Check the timetable" -> place.bus-stop
+@choice timetable "Check the timetable" -> transit.bus-timetable
   @icon 🕒
 @endchoice
 
-@choice wait "Wait for a bus" -> place.bus-stop
+@choice wait "Wait for a bus" -> transit.bus-boarding
   @icon 🚌
 @endchoice
 
 @choice leave "Leave" -> @leave-place
   @icon 🚪
   @time 1m
+@endchoice
+
+:: transit.bus-timetable [event]
+@kind event
+@heading "Bus Timetable"
+@choices "Timetable"
+
+The timetable lists the shared service used by every bus stop in the city.
+
+@choice back "Return to the bus stop" -> @exit
+  @icon ↩️
+@endchoice
+
+:: transit.bus-boarding [event]
+@kind event
+@heading "The Bus Arrives"
+@choices "Destinations"
+
+The bus pulls up and its doors fold open.
+
+@choice step-away "Step away" -> @exit
+  @icon 🚶
 @endchoice
 
 @entry place.hub.boulevard
