@@ -15,6 +15,28 @@ body {
   border-top: 4px solid #111a28;
   background: #111;
 }
+.hidden {
+  visibility: hidden;
+}
+
+.button {
+  padding: 8px 10px;
+  border: 1px solid #5c6776;
+  background: transparent;
+  color: #c7cbd1;
+  font: inherit;
+  cursor: pointer;
+}
+
+.button:hover {
+  border-color: #8b98aa;
+  color: #fff;
+}
+
+.button:focus-visible {
+  outline: 2px solid #5ca3ff;
+  outline-offset: 2px;
+}
 
 .app-layout {
   width: min(1150px, calc(100% - 40px));
@@ -175,23 +197,7 @@ body {
   align-items: center;
   gap: 12px;
   width: 100%;
-  padding: 8px 10px;
-  border: 1px solid #5c6776;
-  background: transparent;
-  color: #c7cbd1;
-  font: inherit;
   text-align: left;
-  cursor: pointer;
-}
-
-.player-menu-button:hover {
-  border-color: #8b98aa;
-  color: #fff;
-}
-
-.player-menu-button:focus-visible {
-  outline: 2px solid #5ca3ff;
-  outline-offset: 2px;
 }
 
 .player-menu-icon {
@@ -463,26 +469,23 @@ p {
   font-size: 0.88rem;
 }
 
-.map-dialog {
-  width: min(1180px, calc(100vw - 32px));
-  max-width: none;
-  max-height: calc(100vh - 32px);
-  border: 1px solid #344154;
-  border-radius: 10px;
-  padding: 0;
-  background: #11151b;
-  color: #ececec;
-}
-
-.map-dialog::backdrop {
+.dialog::backdrop {
   background: rgba(0, 0, 0, 0.76);
 }
 
-.map-dialog-content {
+.dialog {
+  border: 1px solid #344154;
+  padding: 0;
+  background: #11151b;
+  color: #ececec;
+  max-width: none;
+}
+
+.dialog-content {
   padding: 20px;
 }
 
-.map-dialog-header {
+.dialog-header {
   display: flex;
   align-items: start;
   justify-content: space-between;
@@ -490,15 +493,21 @@ p {
   margin-bottom: 16px;
 }
 
-.map-dialog-header h2,
-.map-dialog-header p {
+.dialog-header h2,
+.dialog-header p {
   margin: 0;
 }
 
-.map-dialog-header p {
+.dialog-header p {
   margin-top: 5px;
   color: #9fa9b5;
   font-size: 0.9rem;
+}
+
+.map-dialog {
+  width: min(1180px, calc(100vw - 32px));
+
+  max-height: calc(100vh - 32px);
 }
 
 .diary-dialog {
@@ -558,6 +567,162 @@ p {
   border: 1px solid #3d4857;
   padding: 18px;
   color: #bdc7d3;
+}
+
+.phone-dialog {
+  position: relative;
+  overflow: hidden;
+  width: min(360px, calc(100vw - 24px));
+  height: min(660px, calc(100dvh - 24px));
+  border-width: 2px;
+  border-radius: 32px;
+  background: #0d1117;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
+}
+
+.phone-dialog::before,
+.phone-dialog::after {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  border-radius: 999px;
+  background: #3a4553;
+  content: "";
+  transform: translateX(-50%);
+}
+
+.phone-dialog::before {
+  top: 11px;
+  width: 52px;
+  height: 4px;
+}
+
+.phone-dialog::after {
+  bottom: 10px;
+  width: 72px;
+  height: 3px;
+}
+
+.phone-dialog .dialog-content {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-height: 100%;
+  padding: 30px 18px 28px;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(65, 86, 112, 0.16), transparent 42%),
+    #0d1117;
+}
+
+.phone-dialog .dialog-header {
+  align-items: center;
+  margin-bottom: 0;
+  border-bottom: 1px solid #29323e;
+  padding: 0 4px 14px;
+}
+
+.phone-dialog .dialog-header h2 {
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.phone-dialog .dialog-header p {
+  color: #8390a0;
+  font-size: 0.76rem;
+  font-variant-numeric: tabular-nums;
+}
+
+#close-phone {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid #3b4655;
+  border-radius: 50%;
+  color: #91a8c5;
+}
+
+#close-phone:hover,
+#close-phone:focus-visible {
+  border-color: #718198;
+  background: #171e27;
+  text-decoration: none;
+}
+
+#close-phone .player-menu-icon {
+  width: 19px;
+  height: 19px;
+  color: currentColor;
+}
+
+.phone-content {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-auto-rows: 82px;
+  gap: 20px 8px;
+  align-content: start;
+  place-items: start center;
+  padding: 25px 2px 18px;
+}
+
+.phone-button {
+  --phone-app-accent: #91a8c5;
+
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  padding: 0;
+  border-color: #3e4b5c;
+  border-radius: 15px;
+  background: #161d26;
+  color: var(--phone-app-accent);
+  font-size: 1.08rem;
+  font-weight: 700;
+  line-height: 1;
+  transition:
+    border-color 120ms ease,
+    background 120ms ease,
+    transform 120ms ease;
+}
+
+.phone-button::after {
+  position: absolute;
+  top: calc(100% + 7px);
+  left: 50%;
+  color: #aeb7c2;
+  content: attr(aria-label);
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  pointer-events: none;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.phone-button:hover,
+.phone-button:focus-visible {
+  border-color: var(--phone-app-accent);
+  background: #1b2531;
+  color: var(--phone-app-accent);
+  transform: translateY(-1px);
+}
+
+.phone-button:active {
+  transform: translateY(0);
+}
+
+#phone-reminders-btn {
+  --phone-app-accent: #c4a76f;
+}
+
+#phone-inventory-btn {
+  --phone-app-accent: #8faf91;
+}
+
+#phone-stats-btn {
+  --phone-app-accent: #aa98bf;
 }
 
 .debug-panel {

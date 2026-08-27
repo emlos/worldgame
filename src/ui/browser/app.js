@@ -24,6 +24,9 @@ const closeMapButton = document.querySelector("#close-map");
 const fullMapDialog = document.querySelector("#full-map-dialog");
 const fullMapElement = document.querySelector("#full-map");
 const fullMapDetails = document.querySelector("#full-map-details");
+const playerPhoneButton = document.querySelector("#player-phone-btn");
+const closePhoneButton = document.querySelector("#close-phone");
+const playerPhoneDialog = document.querySelector("#player-phone-dialog");
 const debugEnabled = typeof debug !== "undefined" && Boolean(debug);
 const debugPanel = document.querySelector("#debug-panel");
 const debugTeleportTaylorButton = document.querySelector("#debug-teleport-taylor");
@@ -449,6 +452,16 @@ openMapButton.addEventListener("click", () => {
 closeMapButton.addEventListener("click", () => fullMapDialog.close());
 fullMapDialog.addEventListener("click", (event) => {
   if (event.target === fullMapDialog) fullMapDialog.close();
+});
+
+playerPhoneButton.addEventListener("click", () => {
+  //renderPlayerPhone();
+  playerPhoneDialog.showModal();
+});
+
+closePhoneButton.addEventListener("click", () => playerPhoneDialog.close());
+playerPhoneDialog.addEventListener("click", (event) => {
+  if (event.target === playerPhoneDialog) playerPhoneDialog.close();
 });
 
 debugTeleportTaylorButton.addEventListener("click", () => {

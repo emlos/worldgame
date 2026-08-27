@@ -15,7 +15,11 @@
   </head>
   <body>
     <div class="app-layout">
-      <aside id="player-panel" class="player-panel" aria-labelledby="player-panel-heading">
+      <aside
+        id="player-panel"
+        class="player-panel"
+        aria-labelledby="player-panel-heading"
+      >
         <header class="player-panel-header">
           <h2 id="player-panel-heading">Player</h2>
         </header>
@@ -25,17 +29,23 @@
           <dt>Temperature</dt>
           <dd id="player-temperature"></dd>
         </dl>
-        <section class="player-stats-section" aria-labelledby="player-stats-heading">
+        <section
+          class="player-stats-section"
+          aria-labelledby="player-stats-heading"
+        >
           <h3 id="player-stats-heading">Stats</h3>
           <div id="player-stats" class="player-stats"></div>
         </section>
         <hr class="player-menu-divider" />
-        <section class="player-game-menu" aria-labelledby="player-game-menu-heading">
+        <section
+          class="player-game-menu"
+          aria-labelledby="player-game-menu-heading"
+        >
           <h3 id="player-game-menu-heading">Menu</h3>
           <div class="player-menu-actions">
             <button
               id="player-diary-btn"
-              class="player-menu-button"
+              class="player-menu-button button"
               type="button"
               aria-haspopup="dialog"
               aria-controls="player-diary-dialog"
@@ -61,8 +71,42 @@
               <span class="player-menu-button-label">Diary</span>
             </button>
             <button
+              id="player-phone-btn"
+              class="player-menu-button button"
+              type="button"
+              aria-haspopup="dialog"
+              aria-controls="full-map-dialog"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="player-menu-icon"
+                viewBox="0 0 26 26"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <line class="a" x1="18.5" y1="19.5" x2="5.5" y2="19.5" />
+                <path
+                  d="M12,20.75a.75.75,0,1,0,.75.75.749.749,0,0,0-.75-.75Z"
+                />
+                <rect
+                  class="a"
+                  x="5.5"
+                  y="0.5"
+                  width="13"
+                  height="23"
+                  rx="2"
+                  ry="2"
+                />
+              </svg>
+              <span class="player-menu-button-label">Phone</span>
+            </button>
+            <button
               id="open-map"
-              class="player-menu-button"
+              class="player-menu-button button"
               type="button"
               aria-haspopup="dialog"
               aria-controls="full-map-dialog"
@@ -90,7 +134,9 @@
         <header class="topbar">
           <div id="status"></div>
           <div class="topbar-actions">
-            <button id="restart" class="utility-button" type="button">Restart</button>
+            <button id="restart" class="utility-button" type="button">
+              Restart
+            </button>
           </div>
         </header>
 
@@ -109,7 +155,8 @@
             Teleport to player
           </button>
           <p class="debug-help">
-            Taylor stays for 30 minutes unless an obligation requires them to leave.
+            Taylor stays for 30 minutes unless an obligation requires them to
+            leave.
           </p>
           <dl class="debug-state">
             <dt>Position</dt>
@@ -123,14 +170,16 @@
       </aside>
     </div>
 
-    <dialog id="full-map-dialog" class="map-dialog">
-      <div class="map-dialog-content">
-        <header class="map-dialog-header">
+    <dialog id="full-map-dialog" class="map-dialog dialog">
+      <div class="dialog-content">
+        <header class="dialog-header">
           <div>
             <h2>World map</h2>
             <p>Select a location to see its places.</p>
           </div>
-          <button id="close-map" class="utility-button" type="button">Close</button>
+          <button id="close-map" class="utility-button" type="button">
+            Close
+          </button>
         </header>
         <div id="full-map" class="map-frame map-frame--world"></div>
         <p id="full-map-details" class="map-details" aria-live="polite"></p>
@@ -139,18 +188,102 @@
 
     <dialog
       id="player-diary-dialog"
-      class="map-dialog diary-dialog"
+      class="dialog diary-dialog"
       aria-labelledby="player-diary-dialog-heading"
     >
-      <div class="map-dialog-content">
-        <header class="map-dialog-header">
+      <div class="dialog-content">
+        <header class="dialog-header">
           <div>
             <h2 id="player-diary-dialog-heading">Diary</h2>
             <p id="player-diary-date"></p>
           </div>
-          <button id="close-diary" class="utility-button" type="button">Close</button>
+          <button id="close-diary" class="utility-button" type="button">
+            Close
+          </button>
         </header>
-        <div id="player-diary-content" class="diary-content" aria-live="polite"></div>
+        <div
+          id="player-diary-content"
+          class="diary-content"
+          aria-live="polite"
+        ></div>
+      </div>
+    </dialog>
+
+    <dialog
+      id="player-phone-dialog"
+      class="phone-dialog dialog"
+      aria-labelledby="player-phone-dialog-heading"
+    >
+      <div class="dialog-content">
+        <header class="dialog-header">
+          <div>
+            <h2 id="player-phone-dialog-heading">Phone</h2>
+            <p id="player-phone-date"></p>
+          </div>
+          <button id="close-phone" class="utility-button" type="button">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 32 32"
+              class="player-menu-icon"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-miterlimit="10"
+            >
+              <path
+                d="M10.2,7.8C7.1,9.8,5,13.2,5,17.1C5,23.1,9.9,28,16,28s11-4.9,11-10.9c0-3.9-2.1-7.3-5.2-9.2"
+              />
+              <line x1="16" y1="3" x2="16" y2="12" />
+            </svg>
+          </button>
+        </header>
+        <div id="player-phone-content" class="phone-content" aria-live="polite">
+          <button
+            id="phone-contacts-btn"
+            class="phone-button button"
+            type="button"
+            aria-label="Contacts"
+          >
+            C
+          </button>
+
+          <button
+            id="phone-reminders-btn"
+            class="phone-button button"
+            type="button"
+            aria-label="Reminders"
+          >
+            R
+          </button>
+
+          <button
+            id="phone-inventory-btn"
+            class="phone-button button"
+            type="button"
+            aria-label="Inventory"
+          >
+            I
+          </button>
+
+          <button
+            id="phone-stats-btn"
+            class="phone-button button"
+            type="button"
+            aria-label="Stats"
+          >
+            S
+          </button>
+
+          <button id="phone-2-btn" class="phone-button button hidden">C</button>
+
+          <button id="phone-3-btn" class="phone-button button hidden">C</button>
+
+          <button id="phone-4-btn" class="phone-button button hidden">C</button>
+
+          <button id="phone-5-btn" class="phone-button button hidden">C</button>
+
+          <button id="phone-6-btn" class="phone-button button hidden">C</button>
+        </div>
       </div>
     </dialog>
 
