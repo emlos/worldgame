@@ -49,3 +49,9 @@ export function finitePositive(value, label) {
     }
     return number;
 }
+
+/** Clone plain JSON-compatible runtime data. */
+export function cloneData(value) {
+    if (value == null || typeof value !== "object") return value;
+    return JSON.parse(JSON.stringify(value));
+}

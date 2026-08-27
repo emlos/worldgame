@@ -8,7 +8,6 @@ import * as clothing from "./shared/classes/clothing.js";
 import * as pronouns from "./shared/classes/pronouns.js";
 import * as relationship from "./shared/classes/relationship.js";
 import * as stat from "./shared/classes/stat.js";
-import * as trait from "./shared/classes/trait.js";
 import * as body from "./shared/classes/body.js";
 import * as flags from "./shared/classes/flags.js";
 import * as color from "./shared/util/color.js";
@@ -49,7 +48,6 @@ if (typeof debug !== "undefined" && debug) {
         ...pronouns,
         ...relationship,
         ...stat,
-        ...trait,
         ...body,
         ...flags,
         ...color,

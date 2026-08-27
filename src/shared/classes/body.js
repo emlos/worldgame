@@ -438,6 +438,55 @@ export class Body {
         return list;
     }
 
+    /** Combined current health across every body part. */
+    getTotalHealth() {
+        let total = 0;
+        for (const part of this.allParts()) total += part.health;
+        return total;
+    }
+
+    /** Combined maximum health across every body part. */
+    getMaximumHealth() {
+        let total = 0;
+        for (const part of this.allParts()) total += part.maxHealth;
+        return total;
+    }
+
+    /** Overall health as the pooled body-part percentage, from 0 through 100. */
+    getHealthPercentage() {
+        const maximum = this.getMaximumHealth();
+        return maximum > 0 ? clamp((this.getTotalHealth() / maximum) * 100, 0, 100) : 0;
+    }
+
+    /**
+     * Set pooled health while preserving the relative condition of all parts.
+     * This is used by generic stat effects; targeted injuries should use
+     * applyDamage() so they also produce local pain.
+     */
+    setHealthPercentage(value) {
+        const percentage = clamp(finiteNumber(value, "Body health percentage"), 0, 100);
+        const maximum = this.getMaximumHealth();
+        const current = this.getTotalHealth();
+        if (maximum <= 0) return 0;
+
+        const target = maximum * (percentage / 100);
+        if (target < current && current > 0) {
+            const ratio = target / current;
+            for (const part of this.allParts()) {
+                part.health *= ratio;
+                this._updateConditionsFromHealth(part, DamageType.BLUNT);
+            }
+        } else if (target > current) {
+            const missing = maximum - current;
+            const restoredFraction = missing > 0 ? (target - current) / missing : 0;
+            for (const part of this.allParts()) {
+                part.health += (part.maxHealth - part.health) * restoredFraction;
+                this._downgradeConditionsFromHealth(part);
+            }
+        }
+        return this.getHealthPercentage();
+    }
+
     // --- Damage / healing ------------------------------------------------------
 
     /**

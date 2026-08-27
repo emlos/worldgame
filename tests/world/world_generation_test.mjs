@@ -56,6 +56,29 @@ function hasCrossingEdges(map) {
     return false;
 }
 
+function travelGeometryCorrelation(map) {
+    const pairs = map.edges.map((edge) => ({
+        minutes: edge.minutes,
+        length: Math.hypot(
+            map.getLocation(edge.a).x - map.getLocation(edge.b).x,
+            map.getLocation(edge.a).y - map.getLocation(edge.b).y,
+        ),
+    }));
+    const meanMinutes = pairs.reduce((sum, pair) => sum + pair.minutes, 0) / pairs.length;
+    const meanLength = pairs.reduce((sum, pair) => sum + pair.length, 0) / pairs.length;
+    const covariance = pairs.reduce(
+        (sum, pair) => sum + (pair.minutes - meanMinutes) * (pair.length - meanLength),
+        0,
+    );
+    const minutesSpread = Math.sqrt(
+        pairs.reduce((sum, pair) => sum + (pair.minutes - meanMinutes) ** 2, 0),
+    );
+    const lengthSpread = Math.sqrt(
+        pairs.reduce((sum, pair) => sum + (pair.length - meanLength) ** 2, 0),
+    );
+    return covariance / (minutesSpread * lengthSpread);
+}
+
 function maxHopsToPlace(map, placeKey) {
     const targetIds = new Set(
         [...map.locations.values()]
@@ -178,6 +201,10 @@ for (const seed of [1, 2, 3, 4, 5, 44, 117, 801]) {
         graph.branchingStreetCount === 0 && graph.longestStreetLength <= 4,
     );
     check(`seed ${seed} keeps the graph planar`, !hasCrossingEdges(map));
+    check(
+        `seed ${seed} derives geometry from rolled travel minutes`,
+        travelGeometryCorrelation(map) > 0.9,
+    );
 
     const serialized = map.toJSON();
     check(

@@ -1122,7 +1122,7 @@ export const PLACE_REGISTRY = [
         props: {
             icon: "💋",
             category: [PLACE_TAGS.crime, PLACE_TAGS.nsfw],
-            ages: { min: 18 }, //TODO: add min/max age limit to certain locations
+            ages: { min: 18 },
         },
         nameFn: ({ rnd }) =>
             `${

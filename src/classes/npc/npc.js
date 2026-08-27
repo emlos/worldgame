@@ -2,7 +2,6 @@ import { Relationship } from "../../shared/classes/relationship.js";
 import { Stat } from "../../shared/classes/stat.js";
 import { Gender, PronounSets } from "../../shared/classes/pronouns.js";
 import { Clothing } from "../../shared/classes/clothing.js";
-import { Trait } from "../../shared/classes/trait.js";
 import { clamp } from "../../shared/util/util.js";
 import { Body, HUMAN_BODY_TEMPLATE } from "../../shared/classes/body.js";
 import { NPCBrain } from "./npcBrain.js";
@@ -120,8 +119,7 @@ export class NPC {
         this.gender = gender;
         this.pronouns = { ...pronouns };
 
-        // Traits / relationships / clothing -----------------------
-        this.traits = new Map(); // id -> Trait
+        // Relationships / clothing -------------------------------
         this.relationships = new Map(); // npcId -> Relationship (other NPCs OR player if you want)
         this.clothing = new Map(); // slot -> Clothing
 
@@ -182,14 +180,7 @@ export class NPC {
         return this.stats[name]?.base ?? 0;
     }
     getStatValue(name) {
-        const evaluated = (this.stats[name] || new Stat(0)).clone();
-        for (const trait of this.traits.values()) {
-            if (!trait.has(this)) continue;
-            const mods = trait.statMods?.[name];
-            if (mods?.add) mods.add.forEach((v) => evaluated.addFlat(v));
-            if (mods?.mult) mods.mult.forEach((m) => evaluated.addMult(m));
-        }
-        return evaluated.value;
+        return (this.stats[name] || new Stat(0)).value;
     }
 
     //sets a flag to a value (default true)
@@ -207,17 +198,6 @@ export class NPC {
         return this.flags[flag] !== undefined;
     }
 
-    // --- Traits ---
-    addTrait(trait) {
-        this.traits.set(trait.id, trait);
-        return this;
-    }
-    removeTrait(id) {
-        this.traits.delete(id);
-    }
-    hasTrait(id) {
-        return this.traits.has(id) && this.traits.get(id).has(this);
-    }
     equip(item) {
         if (!(item instanceof Clothing)) throw new Error("equip expects Clothing");
         this.clothing.set(item.slot, item);
@@ -238,9 +218,6 @@ export class NPC {
     get perceivedGender() {
         let score = 0;
         score += this.totalClothingGenderBias();
-        for (const t of this.traits.values()) {
-            if (typeof t.genderBias === "number") score += t.genderBias;
-        }
         score = clamp(score, -1, 1);
         let label = Gender.NB;
         if (score <= -0.33) label = Gender.M;
@@ -260,7 +237,6 @@ export class NPC {
             flags: { ...this.flags },
             gender: this.gender,
             pronouns: { ...this.pronouns },
-            traits: [...this.traits.values()].map((trait) => trait.toJSON()),
             relationships: [...this.relationships.entries()].map(([otherId, rel]) => [
                 otherId,
                 rel.toJSON(),
@@ -278,7 +254,7 @@ export class NPC {
         };
     }
 
-    static fromJSON(data, { traitResolver = null } = {}) {
+    static fromJSON(data) {
         if (data instanceof NPC) return data;
         if (!data || typeof data !== "object") {
             throw new TypeError("NPC.fromJSON expects an NPC save object");
@@ -312,12 +288,6 @@ export class NPC {
         }
 
         npc.flags = data?.flags && typeof data.flags === "object" ? { ...data.flags } : {};
-
-        npc.traits = new Map();
-        for (const traitData of data?.traits || []) {
-            const trait = Trait.fromJSON(traitData, { resolver: traitResolver });
-            if (trait?.id != null) npc.traits.set(trait.id, trait);
-        }
 
         npc.relationships = new Map();
         for (const [otherId, relData] of data?.relationships || []) {

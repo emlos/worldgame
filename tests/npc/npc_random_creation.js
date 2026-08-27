@@ -51,7 +51,6 @@ function init() {
       ageMax = 80,
       equipRatio = 0.6,
       nameStyle = "auto",
-      traits = [],
       stats,
     } = opts;
 
@@ -75,9 +74,6 @@ function init() {
       gender,
       pronouns: pronouns || PRONOUN_BY_GENDER[gender] || PronounSets.THEY_THEM,
     });
-
-    // Traits (optional preset array)
-    for (const t of traits) npc.addTrait(t);
 
     // Clothing
     for (const slot in WearSlot) {
@@ -146,12 +142,6 @@ function init() {
   byId("stats").innerHTML = "";
   byId("stats").append(el("h2", { html: "Stats" }));
   byId("stats").append(table(statRows, ["Stat", "Base", "Computed Value"]));
-
-  // Traits
-  const traitRows = [...npc.traits.values()].map((t) => [`<code>${t.id}</code>`, t.description || "-", String(t.has(npc))]);
-  byId("traits").innerHTML = "";
-  byId("traits").append(el("h2", { html: "Traits" }));
-  byId("traits").append(table(traitRows.length ? traitRows : [["-", "-", "-"]], ["ID", "Description", "Active?"]));
 
   // Relationships (with other NPCs)
   const relRows = [...npc.relationships.values()].map((r) => [r.npcId, String(r.met), r.score.toFixed(2)]);

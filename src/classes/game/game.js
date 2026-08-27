@@ -6,7 +6,10 @@ import { RandomStreams, deriveSeed, normalizeSeed, rollSeed } from "../../shared
 import { PLACE_TAGS } from "../../data/world/place.js";
 import { NPC_REGISTRY } from "../../data/npc/npcs.js";
 import { DEFAULT_NPC_INTERACTION_MINUTES } from "../../data/scene/actions.js";
-import { PLAYER_ENERGY_DRAIN_PER_MINUTE } from "../../data/player/stats.js";
+import {
+    INITIAL_PLAYER_AGE,
+    PLAYER_ENERGY_DRAIN_PER_MINUTE,
+} from "../../data/player/stats.js";
 import { npcHomeAccessFlag } from "../../data/world/access.js";
 import { SaveValidationError, validateGameSave } from "./util/saveValidation.js";
 
@@ -38,6 +41,7 @@ export class Game {
 
         // --- player ---
         this.player = new Player(playerOptions);
+        this.player.setAgeAtDate(INITIAL_PLAYER_AGE, this.now);
 
         // --- story flags (separate from skills) ---
         this.flags = new Set();
@@ -220,6 +224,7 @@ export class Game {
     }
 
     _applyElapsedPlayerChanges(minutes) {
+        this.player.syncAgeAt(this.now);
         if (minutes <= 0) return;
 
         const energy = this.player.adjustStatBase(
@@ -247,6 +252,7 @@ export class Game {
             date: new Date(this.now.getTime()),
             random: this.random.toJSON(),
             playerEnergy: this.player.getStatBase("energy"),
+            playerAge: this.player.age,
             dailyFlags: [...this.dailyFlags],
             npcs: this.npcsArray.map((npc) => ({
                 npc,
@@ -262,6 +268,7 @@ export class Game {
         this.random.restoreJSON(snapshot.random);
         this.rnd = this.getRNG("gameplay");
         this.player.setStatBase("energy", snapshot.playerEnergy);
+        this.player.age = snapshot.playerAge;
         this.dailyFlags.clear();
         for (const flag of snapshot.dailyFlags) this.dailyFlags.add(flag);
 
@@ -463,6 +470,25 @@ export class Game {
             }
         }
 
+        const ageRange = place.props?.ages;
+        const playerAge = this.player.getAgeAt(at);
+        if (ageRange?.min != null && playerAge < ageRange.min) {
+            return {
+                allowed: false,
+                code: "age-minimum",
+                place,
+                requiredAge: ageRange.min,
+            };
+        }
+        if (ageRange?.max != null && playerAge > ageRange.max) {
+            return {
+                allowed: false,
+                code: "age-maximum",
+                place,
+                requiredAge: ageRange.max,
+            };
+        }
+
         if (typeof place.isOpen === "function" && !place.isOpen(at)) {
             return {
                 allowed: false,
@@ -533,43 +559,15 @@ export class Game {
                 { set, callbacks: [...set] },
             ]),
         );
-        const traitPredicates = {
-            player: new Map(
-                [...this.player.traits.entries()].map(([id, trait]) => [id, trait.has]),
-            ),
-            npcs: new Map(
-                [...this.npcs.entries()].map(([npcId, npc]) => [
-                    npcId,
-                    new Map([...npc.traits.entries()].map(([id, trait]) => [id, trait.has])),
-                ]),
-            ),
-        };
-
         return {
             save,
             ownKeys: new Set(Object.keys(this)),
             listeners,
-            traitPredicates,
         };
     }
 
     _restoreActionCheckpoint(checkpoint) {
         const restored = Game.fromJSON(checkpoint.save);
-
-        // Trait predicates are executable runtime behavior and therefore cannot
-        // survive the JSON checkpoint. Restore each predicate to the matching
-        // character after hydrating its data-only trait state.
-        const restoreTraitPredicates = (traits, predicates) => {
-            for (const [id, predicate] of predicates || []) {
-                const trait = traits.get(id);
-                if (trait && typeof predicate === "function") trait.has = predicate;
-            }
-        };
-        restoreTraitPredicates(restored.player.traits, checkpoint.traitPredicates?.player);
-        for (const [npcId, predicates] of checkpoint.traitPredicates?.npcs || []) {
-            const npc = restored.npcs.get(npcId);
-            if (npc) restoreTraitPredicates(npc.traits, predicates);
-        }
 
         // Remove runtime properties added by the failed callback, then adopt
         // every current/future constructor field except the listener registry.
@@ -627,7 +625,7 @@ export class Game {
     // --------------------------
     toJSON() {
         return {
-            saveVersion: 14,
+            saveVersion: 15,
             seed: this.seed,
             random: this.random.toJSON(),
             time: this.now.toISOString(),
@@ -649,7 +647,7 @@ export class Game {
         };
     }
 
-    static fromJSON(data, { traitResolver = null } = {}) {
+    static fromJSON(data) {
         validateGameSave(data);
 
         const savedStartDate = data.world.time.date;
@@ -667,11 +665,12 @@ export class Game {
         game.rnd = game.getRNG("gameplay");
         game.world = World.fromJSON(data.world);
 
-        game.player = Player.fromJSON(data.player || {}, { traitResolver });
+        game.player = Player.fromJSON(data.player || {});
+        game.player.syncAgeAt(game.now);
 
         game.npcs = new Map();
         for (const npcData of Array.isArray(data.npcs) ? data.npcs : []) {
-            const npc = NPC.fromJSON(npcData, { traitResolver });
+            const npc = NPC.fromJSON(npcData);
             const id = String(npc.id || npc.name);
             npc.id = id;
             game.npcs.set(id, npc);

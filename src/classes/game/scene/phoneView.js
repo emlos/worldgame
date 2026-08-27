@@ -21,6 +21,7 @@ export function buildPhonePlayerStatsView(game) {
     overview: {
       money: player.money,
       temperature: player.temperature,
+      age: player.age,
       gender: player.gender,
       perceivedGender: player.perceivedGender.label,
       pronouns: { ...player.pronouns },
@@ -41,6 +42,9 @@ export function buildPhonePlayerStatsView(game) {
       max: definition.max,
     })),
     body: {
+      health: player.body?.getTotalHealth() ?? 0,
+      maxHealth: player.body?.getMaximumHealth() ?? 0,
+      healthPercentage: player.body?.getHealthPercentage() ?? 0,
       pain: player.getBodyPain(),
       painLabel: player.getBodyPainLabel(),
       painStage: player.getBodyPainStage(),
@@ -62,11 +66,6 @@ export function buildPhonePlayerStatsView(game) {
       eyeColor: player.eyeColor,
       hairColor: player.hairColor,
     },
-    traits: [...player.traits.values()].map((trait) => ({
-      id: trait.id,
-      description: trait.description,
-      active: player.hasTrait(trait.id),
-    })),
     clothing: Object.values(WearSlot).map((slot) => {
       const item = player.getEquipped(slot);
       return {

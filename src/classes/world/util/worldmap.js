@@ -20,6 +20,10 @@ const MAX_NODE_DEGREE = 5;
 const TARGET_LEAF_COUNT = 3;
 const TARGET_CORRIDOR_LENGTH = 4;
 const EXTRA_EDGE_LENGTH_RATIO = 2.8;
+const GEOMETRY_RELAXATION_STEPS = 250;
+const MIN_GEOMETRY_SPACING = 5.05;
+const TRAVEL_LENGTH_BASE = 5;
+const TRAVEL_LENGTH_PER_MINUTE = 3.2;
 
 const dist = (A, B) => Math.hypot(A.x - B.x, A.y - B.y);
 
@@ -544,6 +548,7 @@ export class WorldMap {
         this._generateLocations(count, mapWidth, mapHeight);
         this._connectGraph();
         this._populatePlaces();
+        this._fitGeometryToTravelTimes(mapWidth, mapHeight);
     }
 
     toJSON() {
@@ -806,6 +811,167 @@ export class WorldMap {
                 return !(B.x === C.x && B.y === C.y) && !(B.x === D.x && B.y === D.y);
 
             return false;
+        }
+    }
+
+    /**
+     * Relax the initial planar drawing toward edge lengths implied by rolled
+     * travel minutes. Topology and travel rolls stay unchanged; candidate
+     * movements are accepted only while the drawing remains planar, bounded,
+     * and collision-resistant.
+     */
+    _fitGeometryToTravelTimes(mapWidth, mapHeight) {
+        const nodes = [...this.locations.values()];
+        if (nodes.length < 2 || !this.edges.length) return;
+
+        const originals = new Map(nodes.map((node) => [String(node.id), { x: node.x, y: node.y }]));
+        const padding = Math.min(mapWidth, mapHeight) * 0.01;
+        const desiredLength = (edge) =>
+            TRAVEL_LENGTH_BASE + edge.minutes * TRAVEL_LENGTH_PER_MINUTE;
+
+        const objective = () =>
+            this.edges.reduce((sum, edge) => {
+                const actual = dist(
+                    this.locations.get(String(edge.a)),
+                    this.locations.get(String(edge.b)),
+                );
+                const desired = desiredLength(edge);
+                const relativeError = (actual - desired) / desired;
+                return sum + relativeError * relativeError;
+            }, 0);
+
+        const minimumSpacing = () => {
+            let minimum = Infinity;
+            for (let left = 0; left < nodes.length; left++) {
+                for (let right = left + 1; right < nodes.length; right++) {
+                    minimum = Math.min(minimum, dist(nodes[left], nodes[right]));
+                }
+            }
+            return minimum;
+        };
+
+        const orientation = (a, b, c) => {
+            const value = (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+            return value === 0 ? 0 : value > 0 ? 1 : -1;
+        };
+        const edgesCross = (a, b, c, d) =>
+            orientation(a, b, c) !== orientation(a, b, d) &&
+            orientation(c, d, a) !== orientation(c, d, b);
+        const hasCrossings = () => {
+            for (let left = 0; left < this.edges.length; left++) {
+                const first = this.edges[left];
+                for (let right = left + 1; right < this.edges.length; right++) {
+                    const second = this.edges[right];
+                    if (
+                        first.a === second.a ||
+                        first.a === second.b ||
+                        first.b === second.a ||
+                        first.b === second.b
+                    ) {
+                        continue;
+                    }
+                    if (
+                        edgesCross(
+                            this.locations.get(String(first.a)),
+                            this.locations.get(String(first.b)),
+                            this.locations.get(String(second.a)),
+                            this.locations.get(String(second.b)),
+                        )
+                    ) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        };
+
+        let score = objective();
+        for (let iteration = 0; iteration < GEOMETRY_RELAXATION_STEPS; iteration++) {
+            const forces = new Map(nodes.map((node) => [String(node.id), { x: 0, y: 0 }]));
+
+            for (const edge of this.edges) {
+                const a = this.locations.get(String(edge.a));
+                const b = this.locations.get(String(edge.b));
+                const dx = b.x - a.x;
+                const dy = b.y - a.y;
+                const distance = Math.max(0.000001, Math.hypot(dx, dy));
+                const error = (distance - desiredLength(edge)) / desiredLength(edge);
+                const fx = (dx / distance) * error;
+                const fy = (dy / distance) * error;
+                forces.get(String(a.id)).x += fx;
+                forces.get(String(a.id)).y += fy;
+                forces.get(String(b.id)).x -= fx;
+                forces.get(String(b.id)).y -= fy;
+            }
+
+            for (let left = 0; left < nodes.length; left++) {
+                for (let right = left + 1; right < nodes.length; right++) {
+                    const a = nodes[left];
+                    const b = nodes[right];
+                    const dx = b.x - a.x;
+                    const dy = b.y - a.y;
+                    const distance = Math.max(0.000001, Math.hypot(dx, dy));
+                    if (distance >= MIN_GEOMETRY_SPACING + 1) continue;
+                    const pressure = (MIN_GEOMETRY_SPACING + 1 - distance) * 0.8;
+                    const fx = (dx / distance) * pressure;
+                    const fy = (dy / distance) * pressure;
+                    forces.get(String(a.id)).x -= fx;
+                    forces.get(String(a.id)).y -= fy;
+                    forces.get(String(b.id)).x += fx;
+                    forces.get(String(b.id)).y += fy;
+                }
+            }
+
+            for (const node of nodes) {
+                const original = originals.get(String(node.id));
+                const force = forces.get(String(node.id));
+                force.x += (original.x - node.x) * 0.003;
+                force.y += (original.y - node.y) * 0.003;
+            }
+
+            const before = new Map(nodes.map((node) => [String(node.id), { x: node.x, y: node.y }]));
+            let accepted = false;
+            for (let attempt = 0; attempt < 8 && !accepted; attempt++) {
+                const step = 0.85 / 2 ** attempt;
+                for (const node of nodes) {
+                    const previous = before.get(String(node.id));
+                    const force = forces.get(String(node.id));
+                    const magnitude = Math.hypot(force.x, force.y);
+                    const scale = magnitude > 0.45 ? 0.45 / magnitude : 1;
+                    node.x = clampCoordinate(
+                        previous.x + force.x * scale * step,
+                        padding,
+                        mapWidth - padding,
+                    );
+                    node.y = clampCoordinate(
+                        previous.y + force.y * scale * step,
+                        padding,
+                        mapHeight - padding,
+                    );
+                }
+
+                const nextScore = objective();
+                if (
+                    nextScore <= score + 1e-12 &&
+                    minimumSpacing() > MIN_GEOMETRY_SPACING &&
+                    !hasCrossings()
+                ) {
+                    score = nextScore;
+                    accepted = true;
+                }
+            }
+
+            if (!accepted) {
+                for (const node of nodes) {
+                    const previous = before.get(String(node.id));
+                    node.x = previous.x;
+                    node.y = previous.y;
+                }
+            }
+        }
+
+        function clampCoordinate(value, min, max) {
+            return Math.max(min, Math.min(max, value));
         }
     }
 

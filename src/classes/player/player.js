@@ -3,10 +3,11 @@ import { Stat } from "../../shared/classes/stat.js";
 import { Gender, PronounSets } from "../../shared/classes/pronouns.js";
 import { adjustHexLightness } from "../../shared/util/color.js";
 import { Clothing } from "../../shared/classes/clothing.js";
-import { Trait } from "../../shared/classes/trait.js";
 import { clamp, deepFreeze, finiteNumber } from "../../shared/util/util.js";
+import { ageAtDate, asDate } from "../../shared/util/date.js";
 import { Body, DamageType, HUMAN_BODY_TEMPLATE } from "../../shared/classes/body.js";
 import {
+    INITIAL_PLAYER_AGE,
     INITIAL_PLAYER_MONEY,
     INITIAL_PLAYER_TEMPERATURE,
     PLAYER_TEMPERATURE_VALUES,
@@ -38,7 +39,6 @@ function normalizedSkillValue(value, definition, label) {
   It focuses on Player state, including:
     - Stats with base values and modifiers
     - Physical appearance & colors (incl. tan/losenTan helpers)
-    - Traits (world/interaction/stat modifiers)
     - Relationships with NPCs
     - Skills (flag or meter 0..1)
     - Gender, pronouns, and perceived gender (derived)
@@ -66,6 +66,8 @@ export class Player {
         skills = null,
         money = INITIAL_PLAYER_MONEY,
         temperature = INITIAL_PLAYER_TEMPERATURE,
+        age = INITIAL_PLAYER_AGE,
+        birthDate = null,
         appearance = {
             head: "head/1.png",
             body: "body/1.png",
@@ -91,6 +93,15 @@ export class Player {
             throw new RangeError(`Unknown player temperature comfort '${temperature}'`);
         }
         this.temperature = temperature;
+        const numericAge = finiteNumber(age, "Player age");
+        if (!Number.isInteger(numericAge) || numericAge < 0) {
+            throw new RangeError("Player age must be a non-negative integer");
+        }
+        this.age = numericAge;
+        this.birthDate = birthDate == null ? null : asDate(birthDate)?.toISOString();
+        if (birthDate != null && this.birthDate == null) {
+            throw new TypeError("Player birth date must be a valid date");
+        }
 
         // Appearance -----------------------------------------------
         this._bodyImmutable = deepFreeze({ body: appearance.body }); // body fixed after creation
@@ -109,8 +120,7 @@ export class Player {
         this.gender = gender; // declared gender
         this.pronouns = { ...pronouns };
 
-        // Traits, Relationships, Skills ----------------------------
-        this.traits = new Map(); // id -> Trait
+        // Relationships, Skills -----------------------------------
         this.relationships = new Map(); // npcId -> Relationship
         this.skills = new Map(); // registered name -> fractional 0..10 value
         const suppliedSkills = skills instanceof Map
@@ -163,11 +173,14 @@ export class Player {
 
     // --- Stats ---
     getStatBase(name) {
+        if (name === "health") return this.body?.getHealthPercentage() ?? 0;
         return this.stats[name]?.base ?? 0;
     }
     setStatBase(name, v) {
+        if (name === "health") return this.body?.setHealthPercentage(v) ?? 0;
         if (!this.stats[name]) this.stats[name] = new Stat(0);
         this.stats[name].base = v;
+        return this.stats[name].base;
     }
     adjustStatBase(name, delta) {
         const id = String(name);
@@ -178,17 +191,9 @@ export class Player {
         this.setStatBase(id, next);
         return this.getStatBase(id);
     }
-    /**
-     * Compute stat with trait modifiers applied without mutating stored state.
-     */
     getStatValue(name) {
+        if (name === "health") return this.getStatBase(name);
         const evaluated = (this.stats[name] || new Stat(0)).clone();
-        for (const trait of this.traits.values()) {
-            if (!trait.has(this)) continue;
-            const mods = trait.statMods?.[name];
-            if (mods?.add) mods.add.forEach((v) => evaluated.addFlat(v));
-            if (mods?.mult) mods.mult.forEach((m) => evaluated.addMult(m));
-        }
         // clothing / other systems could hook here later
         return evaluated.value;
     }
@@ -197,18 +202,6 @@ export class Player {
         const next = this.money + finiteNumber(amount, "Player money adjustment");
         this.money = finiteNumber(next, "Player money");
         return this.money;
-    }
-
-    // --- Traits ---
-    addTrait(trait) {
-        this.traits.set(trait.id, trait);
-        return this;
-    }
-    removeTrait(id) {
-        this.traits.delete(id);
-    }
-    hasTrait(id) {
-        return this.traits.has(id) && this.traits.get(id).has(this);
     }
 
     // --- Relationships ---
@@ -263,16 +256,12 @@ export class Player {
     // --- Perceived gender ---
     /**
      * Returns { score: -1..+1, label: 'm'|'f'|'nb' }
-     * Heuristic combining clothing bias and trait cues; can be extended later
+     * Heuristic based on currently equipped clothing; can be extended later.
      */
     get perceivedGender() {
         let score = 0;
         // clothing contribution
         score += this.totalClothingGenderBias();
-        // trait cues (opt-in): a trait may expose a genderBias property
-        for (const t of this.traits.values()) {
-            if (typeof t.genderBias === "number") score += t.genderBias;
-        }
         score = clamp(score, -1, 1);
         let label = Gender.NB;
         if (score <= -0.33) label = Gender.M;
@@ -295,9 +284,10 @@ export class Player {
             skinTone: this._skinTone,
             eyeColor: this.eyeColor,
             hairColor: this.hairColor,
+            age: this.age,
+            birthDate: this.birthDate,
             gender: this.gender,
             pronouns: { ...this.pronouns },
-            traits: [...this.traits.values()].map((trait) => trait.toJSON()),
             relationships: [...this.relationships.entries()].map(([npcId, rel]) => [
                 npcId,
                 rel.toJSON(),
@@ -310,7 +300,7 @@ export class Player {
         };
     }
 
-    static fromJSON(data, { traitResolver = null } = {}) {
+    static fromJSON(data) {
         if (data instanceof Player) return data;
 
         const appearance = data?.appearance || {};
@@ -325,6 +315,8 @@ export class Player {
             skinTone: data?.skinTone ?? "#f2d3b3",
             eyeColor: data?.eyeColor ?? "#5b7fa6",
             hairColor: data?.hairColor ?? "#5a3b1f",
+            age: data?.age ?? INITIAL_PLAYER_AGE,
+            birthDate: data?.birthDate ?? null,
             gender: data?.gender ?? Gender.NB,
             pronouns: data?.pronouns ?? PronounSets.THEY_THEM,
             money: data?.money ?? INITIAL_PLAYER_MONEY,
@@ -336,12 +328,6 @@ export class Player {
         player.stats = {};
         for (const [name, statData] of Object.entries(data?.stats || {})) {
             player.stats[name] = Stat.fromJSON(statData);
-        }
-
-        player.traits = new Map();
-        for (const traitData of data?.traits || []) {
-            const trait = Trait.fromJSON(traitData, { resolver: traitResolver });
-            if (trait?.id != null) player.traits.set(trait.id, trait);
         }
 
         player.relationships = new Map();
@@ -362,6 +348,33 @@ export class Player {
 
         player.body = data?.body ? Body.fromJSON(data.body) : new Body(HUMAN_BODY_TEMPLATE);
         return player;
+    }
+
+    /** Anchor the starting age to a world timestamp. */
+    setAgeAtDate(age, value) {
+        const numericAge = finiteNumber(age, "Player age");
+        const at = asDate(value);
+        if (!Number.isInteger(numericAge) || numericAge < 0) {
+            throw new RangeError("Player age must be a non-negative integer");
+        }
+        if (!at) throw new TypeError("Player age anchor must be a valid date");
+
+        const birthDate = new Date(at);
+        birthDate.setUTCFullYear(at.getUTCFullYear() - numericAge);
+        this.birthDate = birthDate.toISOString();
+        this.age = numericAge;
+        return this.age;
+    }
+
+    /** Synchronize the stored display age to the current world timestamp. */
+    syncAgeAt(value) {
+        this.age = this.getAgeAt(value);
+        return this.age;
+    }
+
+    /** Query age at an arbitrary timestamp without changing player state. */
+    getAgeAt(value) {
+        return this.birthDate == null ? this.age : ageAtDate(this.birthDate, value);
     }
 
     // --- Body / injury convenience methods ----------------------

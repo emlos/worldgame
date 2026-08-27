@@ -8,7 +8,7 @@ import {
 import { RANDOM_HOLIDAYS, MONTH_DAYS, DayKind } from "../../../data/world/calendar.js";
 import { DAY_KEYS, MS_PER_MINUTE } from "../../../data/world/time.js";
 import { WeatherType } from "../../../data/world/weather.js";
-import { PLAYER_TEMPERATURE_VALUES, SKILLS } from "../../../data/player/stats.js";
+import { PLAYER_TEMPERATURE_VALUES, SKILLS, STATS } from "../../../data/player/stats.js";
 import { npcHomeAccessFlag } from "../../../data/world/access.js";
 import {
     getPlaceInstanceTarget,
@@ -20,6 +20,7 @@ import {
     PLACE_LEAVE_MINUTES,
 } from "../../../data/world/travel.js";
 import { Weather } from "../../world/util/weather.js";
+import { ageAtDate } from "../../../shared/util/date.js";
 
 const UINT32_MAX = 0xffffffff;
 const WEATHER_SAVE_VERSION = 2;
@@ -220,32 +221,6 @@ function validateBody(data, path) {
     });
 }
 
-function validateTraits(data, path) {
-    const seen = new Set();
-    array(data, path).forEach((traitData, index) => {
-        const traitPath = `${path}[${index}]`;
-        const trait = record(traitData, traitPath);
-        const id = string(required(trait, "id", traitPath), `${traitPath}.id`, { nonEmpty: true });
-        if (seen.has(id)) fail(`${traitPath}.id`, `duplicates trait '${id}'`);
-        seen.add(id);
-        string(required(trait, "description", traitPath), `${traitPath}.description`);
-        const statModsPath = `${traitPath}.statMods`;
-        const statMods = record(required(trait, "statMods", traitPath), statModsPath);
-        for (const [statName, modifierData] of Object.entries(statMods)) {
-            string(statName, `${statModsPath} key`, { nonEmpty: true });
-            const modifierPath = `${statModsPath}.${statName}`;
-            const modifiers = record(modifierData, modifierPath);
-
-            for (const kind of ["add", "mult"]) {
-                if (!Object.prototype.hasOwnProperty.call(modifiers, kind)) continue;
-                array(modifiers[kind], `${modifierPath}.${kind}`).forEach((value, modifierIndex) =>
-                    finiteNumber(value, `${modifierPath}.${kind}[${modifierIndex}]`),
-                );
-            }
-        }
-    });
-}
-
 function validateRelationships(data, path, knownNpcIds = null) {
     const seen = new Set();
     array(data, path).forEach((entry, index) => {
@@ -322,18 +297,35 @@ function validateClothing(data, path) {
 function validateCharacterCore(data, path) {
     validateStats(required(data, "stats", path), `${path}.stats`);
     record(required(data, "pronouns", path), `${path}.pronouns`);
-    validateTraits(required(data, "traits", path), `${path}.traits`);
     validateClothing(required(data, "clothing", path), `${path}.clothing`);
     validateBody(required(data, "body", path), `${path}.body`);
 }
 
-function validatePlayer(data, path, npcIds) {
+function validatePlayer(data, path, npcIds, gameTime) {
     const player = record(data, path);
     validateCharacterCore(player, path);
+    const storedStats = record(required(player, "stats", path), `${path}.stats`);
+    for (const [name, definition] of Object.entries(STATS)) {
+        const present = Object.prototype.hasOwnProperty.call(storedStats, name);
+        if (definition.derived && present) {
+            fail(`${path}.stats.${name}`, "must not store a body-derived stat");
+        }
+        if (!definition.derived && !present) {
+            fail(`${path}.stats.${name}`, "is required");
+        }
+    }
     record(required(player, "appearance", path), `${path}.appearance`);
     string(required(player, "skinTone", path), `${path}.skinTone`, { nonEmpty: true });
     string(required(player, "eyeColor", path), `${path}.eyeColor`, { nonEmpty: true });
     string(required(player, "hairColor", path), `${path}.hairColor`, { nonEmpty: true });
+    const age = integer(required(player, "age", path), `${path}.age`, { min: 0 });
+    const birthDate = dateMilliseconds(required(player, "birthDate", path), `${path}.birthDate`);
+    same(
+        age,
+        ageAtDate(new Date(birthDate), new Date(gameTime)),
+        `${path}.age`,
+        "the birth date and game clock",
+    );
     string(required(player, "gender", path), `${path}.gender`, { nonEmpty: true });
     finiteNumber(required(player, "money", path), `${path}.money`);
     const temperature = string(
@@ -1214,9 +1206,9 @@ export function validateGameSave(data) {
     const save = record(data, "save");
     same(
         integer(required(save, "saveVersion", "save"), "save.saveVersion"),
-        14,
+        15,
         "save.saveVersion",
-        "version 14",
+        "version 15",
     );
 
     const seed = uint32(required(save, "seed", "save"), "save.seed");
@@ -1274,7 +1266,7 @@ export function validateGameSave(data) {
         npcIds.add(id);
     });
 
-    validatePlayer(required(save, "player", "save"), "save.player", npcIds);
+    validatePlayer(required(save, "player", "save"), "save.player", npcIds, gameTime);
     npcs.forEach((npcData, index) =>
         validateNPC(npcData, `save.npcs[${index}]`, { mapIndex, gameTime }),
     );

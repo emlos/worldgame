@@ -5,6 +5,7 @@ export const STATS = {
     max: 100,
     min: 0,
     initial: 100,
+    derived: true,
   },
   mind: {
     label: "Mind",
@@ -60,10 +61,13 @@ export const PlayerTemperature = Object.freeze({
 export const PLAYER_TEMPERATURE_VALUES = Object.freeze(Object.values(PlayerTemperature));
 export const INITIAL_PLAYER_TEMPERATURE = PlayerTemperature.COMFORTABLE;
 export const INITIAL_PLAYER_MONEY = 0;
+export const INITIAL_PLAYER_AGE = 18;
 
 export function initialPlayerStats() {
   return Object.fromEntries(
-    Object.entries(STATS).map(([name, definition]) => [name, definition.initial]),
+    Object.entries(STATS)
+      .filter(([, definition]) => !definition.derived)
+      .map(([name, definition]) => [name, definition.initial]),
   );
 }
 

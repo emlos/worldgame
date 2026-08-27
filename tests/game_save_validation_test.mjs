@@ -31,13 +31,13 @@ function rejects(label, mutate, expectedPath, saveFactory = makeSave) {
 }
 
 const validSave = makeSave();
-check("current v14 save validates directly", validateGameSave(validSave) === validSave);
+check("current v15 save validates directly", validateGameSave(validSave) === validSave);
 check(
     "world-map saves no longer contain density",
     !Object.prototype.hasOwnProperty.call(validSave.world.map, "density"),
 );
 check(
-    "validated v14 save round-trips exactly",
+    "validated v15 save round-trips exactly",
     JSON.stringify(Game.fromJSON(validSave)) === JSON.stringify(validSave),
 );
 
@@ -98,37 +98,31 @@ rejects(
     "save.dailyFlags[1]",
 );
 
-const validTraitSave = makeSave();
-validTraitSave.player.traits.push({
-    id: "valid-modifiers",
-    description: "",
-    statMods: { strength: { add: [2], mult: [1.5] } },
-});
 check(
-    "well-formed trait modifiers validate",
-    validateGameSave(validTraitSave) === validTraitSave,
+    "traits are absent from current character saves",
+    !Object.prototype.hasOwnProperty.call(validSave.player, "traits") &&
+        validSave.npcs.every((npc) => !Object.prototype.hasOwnProperty.call(npc, "traits")),
 );
 rejects(
-    "trait additive modifiers must be arrays",
+    "player age must match birth date and game time",
     (save) => {
-        save.player.traits.push({
-            id: "bad-add",
-            description: "",
-            statMods: { strength: { add: "not-an-array" } },
-        });
+        save.player.age += 1;
     },
-    "save.player.traits[0].statMods.strength.add",
+    "save.player.age",
 );
 rejects(
-    "NPC trait multipliers must contain finite numbers",
+    "player birth date must be valid",
     (save) => {
-        save.npcs[0].traits.push({
-            id: "bad-mult",
-            description: "",
-            statMods: { strength: { mult: [1, "not-a-number"] } },
-        });
+        save.player.birthDate = "not-a-date";
     },
-    "save.npcs[0].traits[0].statMods.strength.mult[1]",
+    "save.player.birthDate",
+);
+rejects(
+    "body-derived health cannot be stored as a separate stat",
+    (save) => {
+        save.player.stats.health = { base: 100, add: [], mult: [] };
+    },
+    "save.player.stats.health",
 );
 
 rejects("missing required world state is rejected", (save) => delete save.world, "save.world");

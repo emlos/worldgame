@@ -170,3 +170,14 @@ export const weightedPick = (
     }
     return null;
 };
+
+/** Resolve a rule's optional non-negative selection weight. */
+export function ruleWeight(rule, error = "Invalid rule weight") {
+    if (rule?.weight == null) return 1;
+
+    const weight = Number(rule.weight);
+    if (!Number.isFinite(weight) || weight < 0) {
+        throw new TypeError(typeof error === "function" ? error(rule.weight) : error);
+    }
+    return weight;
+}

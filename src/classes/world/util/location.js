@@ -5,7 +5,7 @@
 /**
  * Location is a node on the world graph. We extend it with:
  *  - districtKey: which entry from LOCATION_REGISTRY it instantiates
- *  - tags: array of strings describing this location's district traits
+ *  - tags: array of strings describing this location's district characteristics
  */
 export class Location {
   constructor({ id, name, places = [], x = 0, y = 0, districtKey = null, tags = [], meta = {} } = {}) {

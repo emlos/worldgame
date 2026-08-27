@@ -227,6 +227,29 @@ check(
   playerHomeGame.getPlaceAccess(playerHomeGame.homePlaceId).allowed === true,
 );
 
+const ageGame = new Game({
+  seed: 121,
+  startDate: new Date("2026-08-29T12:00:00.000Z"),
+  playerOptions: { startPlaceId: null },
+  npcTemplates: [],
+});
+const ageTarget = allPlaces(ageGame).find(({ place }) => place.props?.ages?.min === 18);
+ageGame.player.setAgeAtDate(17, ageGame.now);
+ageGame.moveTo(ageTarget.location.id);
+const ageAccess = ageGame.getPlaceAccess(ageTarget.place);
+check(
+  "minimum-age place access uses the player's current age",
+  ageAccess.allowed === false &&
+    ageAccess.code === "age-minimum" &&
+    ageAccess.requiredAge === 18,
+);
+const ageChoice = enterChoice(buildScene(ageGame), ageTarget.place.id);
+check(
+  "age-restricted places explain their disabled entry choice",
+  ageChoice?.enabled === false &&
+    ageChoice.disabledReason === "You must be at least 18 to enter.",
+);
+
 if (failures.length) {
   console.error("\nPlace access failures:");
   failures.forEach((failure) => console.error(`- ${failure}`));

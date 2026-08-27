@@ -73,6 +73,10 @@ export const SCENE_TEXT = Object.freeze({
           ? `You need ${ownerName}'s permission to enter.`
           : "You do not have permission to enter that place.";
       }
+      case "age-minimum":
+        return `You must be at least ${access.requiredAge} to enter.`;
+      case "age-maximum":
+        return `You must be ${access.requiredAge} or younger to enter.`;
       case "allowed":
         return null;
       default:

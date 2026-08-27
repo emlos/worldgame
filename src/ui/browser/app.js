@@ -564,13 +564,6 @@ function makePhoneBodyPart(part) {
   return item;
 }
 
-function makePhoneEmptyValue(text) {
-  const empty = document.createElement("p");
-  empty.className = "phone-stats-empty";
-  empty.textContent = text;
-  return empty;
-}
-
 function renderPhoneStats() {
   const view = buildPhonePlayerStatsView(game);
   const { overview } = view;
@@ -586,6 +579,7 @@ function renderPhoneStats() {
   const identitySection = makePhoneStatsSection("Identity");
   identitySection.append(
     makePhoneValueList([
+      { label: "Age", value: overview.age },
       { label: "Gender", value: formatPhoneLabel(overview.gender) },
       {
         label: "Perceived gender",
@@ -608,6 +602,10 @@ function renderPhoneStats() {
   const bodySection = makePhoneStatsSection("Body status");
   bodySection.append(
     makePhoneValueList([
+      {
+        label: "Overall health",
+        value: `${formatStatValue(view.body.healthPercentage)}%`,
+      },
       { label: "Condition", value: formatPhoneLabel(view.body.painLabel) },
       { label: "Pain", value: `${formatStatValue(view.body.pain)} / 100` },
       { label: "Pain stage", value: `${view.body.painStage} / 3` },
@@ -647,20 +645,6 @@ function renderPhoneStats() {
     ]),
   );
 
-  const traitsSection = makePhoneStatsSection("Traits");
-  if (!view.traits.length) {
-    traitsSection.append(makePhoneEmptyValue("No traits."));
-  } else {
-    traitsSection.append(
-      makePhoneValueList(
-        view.traits.map((trait) => ({
-          label: formatPhoneLabel(trait.id),
-          value: trait.active ? trait.description || "Active" : "Inactive",
-        })),
-      ),
-    );
-  }
-
   const clothingSection = makePhoneStatsSection("Clothing");
   clothingSection.append(
     makePhoneValueList(
@@ -682,7 +666,6 @@ function renderPhoneStats() {
     bodyPartsSection,
     identitySection,
     appearanceSection,
-    traitsSection,
     clothingSection,
   );
 }

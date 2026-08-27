@@ -1,5 +1,18 @@
-import { parseTimeToMinutes } from "../../shared/util/date.js";
-import { deriveSeed, makeRNG, randInt, weightedPick } from "../../shared/util/random.js";
+import {
+    addMinutes,
+    asDate,
+    minDate,
+    parseTimeToMinutes,
+    utcDayStart,
+} from "../../shared/util/date.js";
+import {
+    deriveSeed,
+    makeRNG,
+    randInt,
+    ruleWeight,
+    weightedPick,
+} from "../../shared/util/random.js";
+import { cloneData } from "../../shared/util/util.js";
 import {
     GOAL_TYPE,
     TARGET_TYPE,
@@ -14,56 +27,10 @@ import { getPlaceTransitionMinutes } from "../../data/world/travel.js";
 const EPSILON_MS = 1;
 const MAX_DECISIONS_PER_UPDATE = 100_000;
 
-//TODO: move to shared/util/date.js
-function asDate(value) {
-    if (value instanceof Date) return new Date(value.getTime());
-    const date = new Date(value);
-    return Number.isFinite(date.getTime()) ? date : null;
-}
-
-//TODO: move to shared/util/util.js
-function cloneData(value) {
-    if (value == null || typeof value !== "object") return value;
-    return JSON.parse(JSON.stringify(value));
-}
-
-//TODO: move to shared/util/date.js
-function utcDayStart(date, dayOffset = 0) {
-    return new Date(
-        Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate() + dayOffset),
-    );
-}
-
-//TODO: move to shared/util/date.js
-function addMinutes(date, minutes) {
-    return new Date(date.getTime() + minutes * MS_PER_MINUTE);
-}
-
-//TODO: move to shared/util/date.js
-function minDate(...dates) {
-    let best = null;
-    for (const date of dates) {
-        if (!(date instanceof Date) || !Number.isFinite(date.getTime())) continue;
-        if (!best || date < best) best = date;
-    }
-    return best;
-}
-
 function categoriesOf(place) {
     const category = place?.props?.category;
     if (Array.isArray(category)) return category;
     return category == null ? [] : [category];
-}
-
-//TODO: move to shared/util/random.js (with error being the error message to throw if the weight is invalid)
-function ruleWeight(rule, error) {
-    if (rule?.weight == null) return 1;
-
-    const weight = Number(rule.weight);
-    if (!Number.isFinite(weight) || weight < 0) {
-        throw new TypeError(`Invalid NPC goal weight: ${rule.weight}`);
-    }
-    return weight;
 }
 
 function descriptorMatchesPlace(descriptor, place) {
@@ -863,7 +830,7 @@ export class NPCBrain {
                     rule,
                     interval: activeInterval,
                     priority: Number(rule.priority) || 0,
-                    weight: ruleWeight(rule),
+                    weight: ruleWeight(rule, (weight) => `Invalid NPC goal weight: ${weight}`),
                     ...(timing || {}),
                     ...(target
                         ? {
@@ -896,7 +863,7 @@ export class NPCBrain {
                     interval: upcoming,
                     target,
                     priority: Number(rule.priority) || 0,
-                    weight: ruleWeight(rule),
+                    weight: ruleWeight(rule, (weight) => `Invalid NPC goal weight: ${weight}`),
                     ...timing,
                     departureAt,
                 });

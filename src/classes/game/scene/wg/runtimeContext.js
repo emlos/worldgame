@@ -19,6 +19,7 @@ function playerContext(player) {
     ...evaluatedStats(player),
     ...pronounValues(player),
     gender: player.gender,
+    age: player.age,
     money: player.money,
     temperature: player.temperature,
     skills: skillValues(player),

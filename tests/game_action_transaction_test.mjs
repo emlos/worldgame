@@ -1,6 +1,5 @@
 import { Game } from "../src/classes/game/game.js";
 import { BodyPartId } from "../src/shared/classes/body.js";
-import { Trait } from "../src/shared/classes/trait.js";
 
 const START = new Date("2026-01-05T12:00:00.000Z");
 const failures = [];
@@ -95,54 +94,6 @@ check("callback failure removes runtime properties added by the action", !("fail
 check(
     "callback failure restores event subscriptions",
     callbackFailure._listeners.location.size === originalLocationListeners,
-);
-
-const traitFailure = new Game({ seed: 212, startDate: START });
-traitFailure.player.setStatBase("strength", 10);
-const inactivePredicate = () => false;
-traitFailure.player.addTrait(
-    new Trait({
-        id: "conditional-strength",
-        has: inactivePredicate,
-        statMods: { strength: { add: [100] } },
-    }),
-);
-const traitNpc = traitFailure.npcs.get("taylor");
-const activeNpcPredicate = () => true;
-traitNpc.addTrait(
-    new Trait({
-        id: "conditional-strength",
-        has: activeNpcPredicate,
-        statMods: { strength: { add: [7] } },
-    }),
-);
-const npcStrengthBefore = traitNpc.getStatValue("strength");
-const traitError = new Error("trait action failed");
-catchesExpected(
-    "a failed action with a conditional trait rethrows its error",
-    () =>
-        traitFailure.runAction({
-            apply() {
-                throw traitError;
-            },
-        }),
-    traitError,
-);
-check(
-    "rollback preserves a conditional trait predicate",
-    traitFailure.player.traits.get("conditional-strength")?.has === inactivePredicate,
-);
-check(
-    "rollback preserves conditional trait stat logic",
-    traitFailure.player.getStatValue("strength") === 10,
-);
-check(
-    "rollback preserves the matching NPC trait predicate",
-    traitFailure.npcs.get("taylor")?.traits.get("conditional-strength")?.has === activeNpcPredicate,
-);
-check(
-    "rollback keeps same-id character traits isolated",
-    traitFailure.npcs.get("taylor")?.getStatValue("strength") === npcStrengthBefore,
 );
 
 const simulationFailure = new Game({ seed: 303, startDate: START });

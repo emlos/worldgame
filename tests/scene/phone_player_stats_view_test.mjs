@@ -3,7 +3,6 @@ import { buildPhonePlayerStatsView } from "../../src/classes/game/scene/phoneVie
 import { SKILLS, STATS } from "../../src/data/player/stats.js";
 import { BodyPartId } from "../../src/shared/classes/body.js";
 import { Clothing, WearSlot } from "../../src/shared/classes/clothing.js";
-import { Trait } from "../../src/shared/classes/trait.js";
 
 const failures = [];
 
@@ -15,13 +14,7 @@ function check(label, condition) {
 const game = new Game({ seed: 117 });
 game.player.money = 42.5;
 game.player.temperature = "cold";
-game.player.setStatBase("health", 83);
 game.player.setSkillValue("strength", 4.25);
-game.player.addTrait(new Trait({
-  id: "tough",
-  description: "Hard to knock down.",
-  statMods: { health: { add: [5] } },
-}));
 game.player.equip(new Clothing({
   id: "plain_shirt",
   slot: WearSlot.UPPER,
@@ -39,8 +32,9 @@ const shirt = view.clothing.find((entry) => entry.slot === WearSlot.UPPER)?.item
 
 check(
   "overview exposes current money, temperature, identity, and pronouns",
-  view.overview.money === 42.5 &&
+    view.overview.money === 42.5 &&
     view.overview.temperature === "cold" &&
+    view.overview.age === 18 &&
     view.overview.gender === game.player.gender &&
     view.overview.pronouns.subject === game.player.pronouns.subject,
 );
@@ -52,8 +46,12 @@ check(
       view.stats.some((entry) => entry.id === id && entry.label === definition.label)),
 );
 check(
-  "stats include both stored and trait-modified values",
-  health?.base === 83 && health?.value === 88 && health?.min === 0 && health?.max === 100,
+  "health is the pooled percentage of all body parts",
+  health?.base === game.player.body.getHealthPercentage() &&
+    health?.value === health.base &&
+    health?.value < 100 &&
+    health?.min === 0 &&
+    health?.max === 100,
 );
 check(
   "every registered skill is named and includes its current value and range",
@@ -66,6 +64,9 @@ check(
 check(
   "body summary exposes pain, condition, performance, and incapacitation",
   view.body.pain === game.player.getBodyPain() &&
+    view.body.healthPercentage === health.value &&
+    view.body.health === game.player.body.getTotalHealth() &&
+    view.body.maxHealth === game.player.body.getMaximumHealth() &&
     view.body.painLabel === game.player.getBodyPainLabel() &&
     view.body.performanceMultiplier === game.player.getPhysicalPerformanceMultiplier() &&
     view.body.incapacitated === game.player.isIncapacitated(),
@@ -79,9 +80,8 @@ check(
     Array.isArray(head?.conditions),
 );
 check(
-  "appearance colours, traits, and every clothing slot are included",
+  "appearance colours and every clothing slot are included",
   view.appearance.skinTone === game.player.skinTone &&
-    view.traits.some((trait) => trait.id === "tough" && trait.active) &&
     view.clothing.length === Object.keys(WearSlot).length &&
     shirt?.id === "plain_shirt" &&
     shirt?.durability === 0.8 &&

@@ -2,22 +2,7 @@ function init() {
   // ------- Demo data -------
   const defaultStats = () => ({ looks: 5, strength: 3, intelligence: 4 });
 
-  const TRAITS = {
-    CHARISMATIC: new Trait({
-      id: "charismatic",
-      description: "People tend to like you; +2 looks, +10% looks multiplier.",
-      statMods: { looks: { add: [2], mult: [1.1] } },
-    }),
-    GYM_GOER: new Trait({
-      id: "gym_goer",
-      description: "+1 strength per session (abstracted here as +1 flat)",
-      statMods: { strength: { add: [1] } },
-    }),
-  };
-
   const p = new Player({ stats: defaultStats(), skinTone: "#d4a373", eyeColor: "#4d6fa9", hairColor: "#3a2a1a", gender: Gender.NB, pronouns: PronounSets.THEY_THEM });
-  p.addTrait(TRAITS.CHARISMATIC);
-  p.addTrait(TRAITS.GYM_GOER);
   p.setSkillValue("perception", 0.35);
   p.setSkillValue("strength", 0);
   p.setRelationship({ npcId: "npc-1", met: true, score: 0.2 });
@@ -66,6 +51,7 @@ function init() {
       byId("identity").append(
         table(
           [
+            ["Age", String(p.age)],
             ["Gender", `<code>${p.gender}</code>`],
             ["Pronouns", `<code>${p.pronouns.subject}/${p.pronouns.object}/${p.pronouns.dependent}/${p.pronouns.independent}/${p.pronouns.reflexive}</code>`],
             ["Perceived Gender", `<code>${p.perceivedGender.label}</code> (score: ${p.perceivedGender.score.toFixed(2)})`],
@@ -105,14 +91,6 @@ function init() {
       byId("stats").innerHTML = "";
       byId("stats").append(el("h2", { html: "Stats" }));
       byId("stats").append(table(statRows, ["Stat", "Base", "Computed Value"]));
-    }
-
-    // Traits
-    {
-      const traitRows = [...p.traits.values()].map((t) => [`<code>${t.id}</code>`, t.description || "-", String(t.has(p))]);
-      byId("traits").innerHTML = "";
-      byId("traits").append(el("h2", { html: "Traits" }));
-      byId("traits").append(table(traitRows, ["ID", "Description", "Active?"]));
     }
 
     // Skills

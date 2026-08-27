@@ -30,10 +30,5 @@ export const NPC_SCHEDULE_PHASE = Object.freeze({
     active: "active",
 });
 
-//TODO: behavior preferences:
-// weather
-// time
-// day of week
-// recent activities
-// events
-// distance/travel time
+//TODO: add NPC preferences for weather, recent activities, and world events.
+// Time, day kind, weekday, opening hours, and travel distance are already authoritative.

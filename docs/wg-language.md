@@ -200,7 +200,7 @@ The currently exposed paths are:
   `player.trauma`, `player.hygiene`, and `player.fear`: evaluated player stats.
 - `player.subject`, `player.object`, `player.dependent`,
   `player.independent`, and `player.reflexive`: player pronouns.
-- `player.gender`, `player.money`, and `player.temperature`. Temperature is one
+- `player.gender`, `player.age`, `player.money`, and `player.temperature`. Temperature is one
   of `overheating`, `hot`, `warm`, `comfortable`, `cool`, `cold`, or `freezing`.
 - `player.skills.strength`, `.perception`, `.endurance`, `.speech`,
   `.resolve`, and `.fitness`. Skill values retain their fractional progress
@@ -224,8 +224,8 @@ The currently exposed paths are:
 - `place.id`, `place.key`, `place.name`, and `place.tags` while indoors.
   `place` is `null` outdoors.
 
-The player does not currently expose a name, age, traits, inventory, body,
-clothing, or a `player.flags` path to WG. A location does not expose its
+The player does not currently expose a name, inventory, body, clothing, or a
+`player.flags` path to WG. A location does not expose its
 district key or type.
 
 NPC relationship scores are between `-1` and `1`. `npc.<id>.present` means the
