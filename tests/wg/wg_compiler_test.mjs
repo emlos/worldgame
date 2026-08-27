@@ -232,10 +232,50 @@ const sampleBundle = compileStorySources([
 ]);
 check(
   "linked bundles use a versioned scene map",
-  sampleBundle.formatVersion === 7 &&
+  sampleBundle.formatVersion === 8 &&
     Object.keys(sampleBundle.scenes).join(",") === "intro,next" &&
     Object.keys(sampleBundle.sequences).length === 0 &&
     Object.keys(sampleBundle.entries).join(",") === "sample.introduction",
+);
+
+const GROUPED_CHOICE_SOURCE = `:: grouped.example
+@heading "Grouped choices"
+@choices "Other"
+
+@choicegroup activities "Activities"
+Room descriptions may remain inside a choice group.
+@choice room "Visit a room" -> @exit
+@endchoice
+@if true
+@choice current "Do the current activity" -> @exit
+@endchoice
+@endif
+@endchoicegroup
+
+@choice leave "Leave" -> @exit
+@endchoice`;
+const groupedScene = parseWGSource({
+  file: "story/grouped.wg",
+  source: GROUPED_CHOICE_SOURCE,
+})[0];
+const groupedNode = groupedScene.body.find(
+  (node) => node.type === "choice-group",
+);
+check(
+  "choice groups compile stable ids, headings, prose, and conditional choices",
+  groupedNode.id === "activities" &&
+    groupedNode.heading === "Activities" &&
+    groupedNode.nodes.some((node) => node.type === "paragraph") &&
+    groupedNode.nodes.some((node) => node.type === "choice") &&
+    groupedNode.nodes.some((node) => node.type === "if"),
+);
+check(
+  "choice-group targets link through the ordinary compiler walk",
+  Boolean(
+    compileStorySources([
+      { file: "story/grouped.wg", source: GROUPED_CHOICE_SOURCE },
+    ]),
+  ),
 );
 
 const SCHOOL_CHOICE_SOURCE = `:: school.example
@@ -533,6 +573,56 @@ rejects(
     },
   ],
   "Duplicate choice id 'same'",
+);
+rejects(
+  "duplicate choice-group ids are rejected",
+  [
+    {
+      file: "duplicate-choice-group.wg",
+      source: `:: intro
+@heading "Intro"
+@choicegroup same "First"
+@choice one "One" -> @exit
+@endchoice
+@endchoicegroup
+@choicegroup same "Second"
+@choice two "Two" -> @exit
+@endchoice
+@endchoicegroup`,
+    },
+  ],
+  "Duplicate choice-group id 'same'",
+);
+rejects(
+  "choice groups require at least one choice",
+  [
+    {
+      file: "empty-choice-group.wg",
+      source: `:: intro
+@heading "Intro"
+@choicegroup empty "Empty"
+Only prose.
+@endchoicegroup`,
+    },
+  ],
+  "@choicegroup requires at least one @choice",
+);
+rejects(
+  "choice groups cannot be nested",
+  [
+    {
+      file: "nested-choice-group.wg",
+      source: `:: intro
+@heading "Intro"
+@choicegroup outer "Outer"
+@choicegroup inner "Inner"
+@choice one "One" -> @exit
+@endchoice
+@endchoicegroup
+@endchoicegroup`,
+    },
+  ],
+  "@choicegroup blocks cannot be nested",
 );
 rejects(
   "unknown target scenes are rejected",

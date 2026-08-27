@@ -295,6 +295,11 @@ class SceneBodyParser {
         nodes.push(this.parseChoice());
         continue;
       }
+      if (name === "choicegroup") {
+        flushParagraph();
+        nodes.push(this.parseChoiceGroup());
+        continue;
+      }
       if (name) {
         flushParagraph();
         failWG(`Unexpected @${name}`, lineLocation(this.file, line.line));
@@ -313,6 +318,64 @@ class SceneBodyParser {
 
     flushParagraph();
     return nodes;
+  }
+
+  parseChoiceGroup() {
+    const opening = this.current();
+    const openingText = opening.text.trim();
+    const match = openingText.match(
+      new RegExp(`^@choicegroup\\s+(${ID_PATTERN})\\s+(${QUOTED_PATTERN})\\s*$`),
+    );
+    if (!match) {
+      failWG(
+        'Malformed @choicegroup header; expected @choicegroup <id> "<heading>"',
+        lineLocation(this.file, opening.line),
+      );
+    }
+
+    this.index += 1;
+    const nodes = this.parseNodes(new Set(["endchoicegroup"]));
+    const closing = this.current();
+    if (!closing || closing.text.trim() !== "@endchoicegroup") {
+      failWG("Unclosed @choicegroup block", lineLocation(this.file, opening.line));
+    }
+    this.index += 1;
+
+    let hasChoice = false;
+    const inspect = (children) => {
+      for (const node of children) {
+        if (node.type === "choice") {
+          hasChoice = true;
+        } else if (node.type === "if") {
+          for (const branch of node.branches) inspect(branch.nodes);
+          if (node.elseNodes) inspect(node.elseNodes);
+        } else if (node.type === "choice-group") {
+          failWG(
+            "@choicegroup blocks cannot be nested",
+            lineLocation(this.file, node.source?.line || opening.line),
+          );
+        }
+      }
+    };
+    inspect(nodes);
+    if (!hasChoice) {
+      failWG(
+        "@choicegroup requires at least one @choice",
+        lineLocation(this.file, opening.line),
+      );
+    }
+
+    return {
+      type: "choice-group",
+      id: match[1],
+      heading: parseQuotedString(
+        match[2],
+        lineLocation(this.file, opening.line),
+        "Choice-group heading",
+      ),
+      nodes,
+      source: nodeSource(this.file, opening.line),
+    };
   }
 
   parseConditional() {

@@ -68,8 +68,28 @@ game.setCurrentPlace({ placeId: highSchool.place.id });
 
 let state = getSchoolDayState(game);
 let scene = buildScene(game);
+const activitiesSection = scene.sections.find(
+  (section) => section.id === "choices:activities",
+);
+const currentActivitiesSection = scene.sections.find(
+  (section) => section.id === "choices:current-activities",
+);
 const firstClassWait = choices(scene).find(
   (candidate) => candidate.id === "wait-for-first-class",
+);
+check(
+  "the school hub separates rooms from current activities",
+  activitiesSection?.heading === "Activities" &&
+    activitiesSection.choices.some(
+      (candidate) => candidate.id === "math-classroom",
+    ) &&
+    currentActivitiesSection?.heading === "Current Activities" &&
+    currentActivitiesSection.choices.some(
+      (candidate) => candidate.id === "wait-for-first-class",
+    ) &&
+    !currentActivitiesSection.choices.some(
+      (candidate) => candidate.id === "math-classroom",
+    ),
 );
 check(
   "the pre-school hub waits exactly until the first class",

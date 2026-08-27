@@ -10,6 +10,7 @@
     { "include": "#sequence-header" },
     { "include": "#passage-header" },
     { "include": "#next-directive" },
+    { "include": "#choicegroup-header" },
     { "include": "#choice-header" },
     { "include": "#outcome-header" },
     { "include": "#condition-directives" },
@@ -115,6 +116,19 @@
         }
       ]
     },
+    "choicegroup-header": {
+      "patterns": [
+        {
+          "name": "meta.choicegroup.header.wg",
+          "match": "^(\\s*)(@choicegroup)\\s+([a-z][a-z0-9_.-]*)\\s+(\"(?:\\\\.|[^\"\\\\])*\")\\s*$",
+          "captures": {
+            "2": { "name": "keyword.control.block.begin.wg" },
+            "3": { "name": "entity.name.type.choicegroup.wg" },
+            "4": { "name": "string.quoted.double.wg" }
+          }
+        }
+      ]
+    },
     "outcome-header": {
       "patterns": [
         {
@@ -147,7 +161,7 @@
           "beginCaptures": { "2": { "name": "keyword.control.effect.wg" } },
           "end": "$",
           "patterns": [
-            { "name": "storage.type.effect.wg", "match": "\\b(?:set|add|flag|daily-flag|relationship|money|skill|stat)\\b" },
+            { "name": "storage.type.effect.wg", "match": "\\b(?:set|add|flag|daily-flag|relationship|money|skill|stat|grade|attendance)\\b" },
             { "include": "#expression" }
           ]
         }
@@ -157,7 +171,7 @@
       "patterns": [
         {
           "name": "meta.property.directive.wg",
-          "begin": "^(\\s*)(@(kind|heading|choices|scene|place-key|place-tag|location-tag|hub|offer|label|icon|hub-text|auto|priority|chance|weight|time|warning|preview|check))\\b",
+          "begin": "^(\\s*)(@(kind|heading|choices|scene|place-key|place-tag|location-tag|hub|offer|label|icon|hub-text|auto|priority|chance|weight|time|time-until|warning|preview|check))\\b",
           "beginCaptures": { "2": { "name": "keyword.other.directive.wg" } },
           "end": "$",
           "patterns": [{ "include": "#expression" }]
@@ -168,7 +182,7 @@
       "patterns": [
         {
           "name": "keyword.control.block.wg",
-          "match": "^\\s*(@(?:else|endif|endentry|endchoice|endsequence|success|endsuccess|failure|endfailure|onenter|endonenter))\\s*$"
+          "match": "^\\s*(@(?:else|endif|endentry|endchoice|endchoicegroup|endsequence|success|endsuccess|failure|endfailure|onenter|endonenter))\\s*$"
         }
       ]
     },
@@ -208,7 +222,7 @@
         { "name": "constant.numeric.percentage.wg", "match": "\\b[0-9]+(?:\\.[0-9]+)?%(?![A-Za-z0-9_])" },
         { "name": "constant.numeric.wg", "match": "\\b[0-9]+(?:\\.[0-9]+)?\\b" },
         { "name": "constant.language.wg", "match": "\\b(?:true|false|null)\\b|@(?:exit|leave-place)\\b" },
-        { "name": "variable.other.object.wg", "match": "\\b(?:story|player|npc|flags|daily|place|location)(?:\\.[A-Za-z_][A-Za-z0-9_-]*)+\\b" },
+        { "name": "variable.other.object.wg", "match": "\\b(?:story|player|npc|flags|daily|time|school|place|location)(?:\\.[A-Za-z_][A-Za-z0-9_-]*)+\\b" },
         { "name": "keyword.operator.logical.wg", "match": "\\b(?:and|or|not|in)\\b" },
         { "name": "keyword.operator.comparison.wg", "match": "==|!=|<=|>=|<|>" },
         { "name": "keyword.operator.arithmetic.wg", "match": "[+*/%-]" },

@@ -166,8 +166,21 @@ function materializeChoice(node, context, { sequenceId = null } = {}) {
   });
 }
 
+function choiceSection(output, id, heading) {
+  let section = output.sections.find((candidate) => candidate.id === id);
+  if (!section) {
+    section = { id, heading, choices: [] };
+    output.sections.push(section);
+  } else if (section.heading !== heading) {
+    fail(`Choice section '${id}' has conflicting headings`);
+  }
+  return section;
+}
+
 function materializeNodes(nodes, context, output, options = {}) {
   if (!Array.isArray(nodes)) fail("Scene body must be an array");
+  const sectionId = options.choiceSectionId || "choices";
+  const sectionHeading = options.choiceSectionHeading || "Choices";
   for (const node of nodes) {
     if (node?.type === "paragraph") {
       output.paragraphs.push(renderParagraph(node, context));
@@ -175,7 +188,9 @@ function materializeNodes(nodes, context, output, options = {}) {
     }
     if (node?.type === "choice") {
       const choice = materializeChoice(node, context, options);
-      if (choice) output.choices.push(choice);
+      if (choice) {
+        choiceSection(output, sectionId, sectionHeading).choices.push(choice);
+      }
       continue;
     }
     if (node?.type === "if") {
@@ -183,6 +198,18 @@ function materializeNodes(nodes, context, output, options = {}) {
         Boolean(evaluateWGExpression(candidate.test, context)),
       );
       materializeNodes(branch?.nodes || node.elseNodes || [], context, output, options);
+      continue;
+    }
+    if (node?.type === "choice-group") {
+      if (options.inChoiceGroup) {
+        fail("@choicegroup blocks cannot be nested", node.source);
+      }
+      materializeNodes(node.nodes, context, output, {
+        ...options,
+        inChoiceGroup: true,
+        choiceSectionId: `choices:${node.id}`,
+        choiceSectionHeading: node.heading,
+      });
       continue;
     }
     fail(`Unknown scene node '${String(node?.type)}'`, node?.source);
@@ -195,8 +222,10 @@ export function materializeWGScene(game, definition) {
   }
 
   const context = createWGRuntimeContext(game);
-  const output = { paragraphs: [], choices: [] };
-  materializeNodes(definition.body, context, output);
+  const output = { paragraphs: [], sections: [] };
+  materializeNodes(definition.body, context, output, {
+    choiceSectionHeading: definition.choiceHeading,
+  });
 
   return createScene({
     id: `wg:${game.storyRevision}:scene:${definition.id}:${game.now.toISOString()}`,
@@ -205,9 +234,7 @@ export function materializeWGScene(game, definition) {
     status: buildSceneStatus(game),
     map: null,
     paragraphs: output.paragraphs,
-    sections: output.choices.length
-      ? [{ id: "choices", heading: definition.choiceHeading, choices: output.choices }]
-      : [],
+    sections: output.sections,
   });
 }
 
@@ -219,10 +246,13 @@ export function materializeWGSequence(game, definition, passageId) {
   if (!passage) fail(`WG sequence '${definition.id}' has no passage '${String(passageId)}'`);
 
   const context = createWGRuntimeContext(game);
-  const output = { paragraphs: [], choices: [] };
-  materializeNodes(passage.body, context, output, { sequenceId: definition.id });
+  const output = { paragraphs: [], sections: [] };
+  materializeNodes(passage.body, context, output, {
+    sequenceId: definition.id,
+    choiceSectionHeading: definition.choiceHeading,
+  });
   if (passage.next) {
-    output.choices.push(createChoice({
+    choiceSection(output, "choices", definition.choiceHeading).choices.push(createChoice({
       id: "__wg_next",
       label: passage.next.label,
       action: {
@@ -240,8 +270,6 @@ export function materializeWGSequence(game, definition, passageId) {
     status: buildSceneStatus(game),
     map: null,
     paragraphs: output.paragraphs,
-    sections: output.choices.length
-      ? [{ id: "choices", heading: definition.choiceHeading, choices: output.choices }]
-      : [],
+    sections: output.sections,
   });
 }

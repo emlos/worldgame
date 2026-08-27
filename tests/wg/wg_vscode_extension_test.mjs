@@ -35,9 +35,11 @@ test("WG editor configuration covers comments and compiler block pairs", async (
   assert.equal(configuration.comments.lineComment, "@#");
   assert.match(configuration.folding.markers.start, /entry/);
   assert.match(configuration.folding.markers.start, /choice/);
+  assert.match(configuration.folding.markers.start, /choicegroup/);
   assert.match(configuration.folding.markers.start, /sequence/);
   assert.match(configuration.folding.markers.end, /endentry/);
   assert.match(configuration.folding.markers.end, /endchoice/);
+  assert.match(configuration.folding.markers.end, /endchoicegroup/);
   assert.match(configuration.folding.markers.end, /endsequence/);
 });
 
@@ -67,6 +69,10 @@ test("WG TextMate grammar contains valid regular expressions and core syntax", a
     firstPattern("choice-header"),
   );
   assert.match(
+    '@choicegroup current "Current Activities"',
+    firstPattern("choicegroup-header"),
+  );
+  assert.match(
     "@success -> jar.opened",
     firstPattern("outcome-header"),
   );
@@ -78,6 +84,7 @@ test("WG TextMate grammar contains valid regular expressions and core syntax", a
     "@auto enter-place",
     "@check strength tricky",
     "@time 8h free",
+    "@time-until school.nextBoundaryAt",
   ]) {
     assert.match(line, firstPattern("property-directives", "begin"));
   }
@@ -90,7 +97,10 @@ test("WG TextMate grammar contains valid regular expressions and core syntax", a
   assert.match("daily-flag", effectKeyword);
   assert.match("skill", effectKeyword);
   assert.match("stat", effectKeyword);
+  assert.match("grade", effectKeyword);
+  assert.match("attendance", effectKeyword);
   assert.match("@endchoice", firstPattern("block-directives"));
+  assert.match("@endchoicegroup", firstPattern("block-directives"));
   assert.match("@endsuccess", firstPattern("block-directives"));
   assert.match(
     '@choice leave "Leave" -> @leave-place',

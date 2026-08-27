@@ -1268,6 +1268,10 @@ p {
   opacity: 0.5;
 }
 
+.debug-button + .debug-button {
+  margin-top: 8px;
+}
+
 .debug-help {
   margin: 9px 0 14px;
   color: #9299a4;

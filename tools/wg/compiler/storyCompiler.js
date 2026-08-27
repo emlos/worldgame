@@ -8,9 +8,12 @@ function compareText(left, right) {
 function walkNodes(nodes, visit) {
   for (const node of nodes) {
     visit(node);
-    if (node.type !== "if") continue;
-    for (const branch of node.branches) walkNodes(branch.nodes, visit);
-    if (node.elseNodes) walkNodes(node.elseNodes, visit);
+    if (node.type === "if") {
+      for (const branch of node.branches) walkNodes(branch.nodes, visit);
+      if (node.elseNodes) walkNodes(node.elseNodes, visit);
+    } else if (node.type === "choice-group") {
+      walkNodes(node.nodes, visit);
+    }
   }
 }
 
@@ -106,7 +109,19 @@ export function compileStorySources(sources) {
 
   for (const scene of sceneMap.values()) {
     const choiceIds = new Map();
+    const choiceGroupIds = new Map();
     walkNodes(scene.body, (node) => {
+      if (node.type === "choice-group") {
+        const previous = choiceGroupIds.get(node.id);
+        if (previous) {
+          failWG(
+            `Duplicate choice-group id '${node.id}' in scene '${scene.id}' (first declared at ${previous.file}:${previous.line})`,
+            atSource(node.source),
+          );
+        }
+        choiceGroupIds.set(node.id, node.source);
+        return;
+      }
       if (node.type !== "choice") return;
 
       const previous = choiceIds.get(node.id);
@@ -131,7 +146,19 @@ export function compileStorySources(sources) {
     validateTarget(sequence.finalTarget, sequence.source, { sequence });
     for (const passage of sequence.passages) {
       const choiceIds = new Map();
+      const choiceGroupIds = new Map();
       walkNodes(passage.body, (node) => {
+        if (node.type === "choice-group") {
+          const previous = choiceGroupIds.get(node.id);
+          if (previous) {
+            failWG(
+              `Duplicate choice-group id '${node.id}' in passage '${passage.id}' of sequence '${sequence.id}' (first declared at ${previous.file}:${previous.line})`,
+              atSource(node.source),
+            );
+          }
+          choiceGroupIds.set(node.id, node.source);
+          return;
+        }
         if (node.type !== "choice") return;
         const previous = choiceIds.get(node.id);
         if (previous) {
@@ -195,7 +222,7 @@ export function compileStorySources(sources) {
   const entries = Object.fromEntries(
     [...entryMap.entries()].sort(([left], [right]) => compareText(left, right)),
   );
-  return { formatVersion: 7, scenes, sequences, entries };
+  return { formatVersion: 8, scenes, sequences, entries };
 }
 
 export { walkNodes };
