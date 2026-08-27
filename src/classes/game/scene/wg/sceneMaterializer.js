@@ -130,6 +130,7 @@ function materializeChoice(node, context, { sequenceId = null } = {}) {
     icon: node.icon,
     label: node.label,
     durationMinutes: node.check ? 0 : node.durationMinutes,
+    energyFree: node.check ? false : node.energyFree,
     enabled: disabledReason === null,
     disabledReason,
     warning: node.warning,

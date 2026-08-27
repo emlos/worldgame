@@ -98,6 +98,7 @@ function performTravel(game, choice, minutes) {
   game.runAction({
     label: SCENE_TEXT.travelLog(destination.name),
     minutes,
+    energyFree: choice.energyFree,
     apply(currentGame) {
       currentGame.moveTo(targetLocationId);
     },
@@ -123,6 +124,7 @@ function performEnter(game, choice, minutes) {
   game.runAction({
     label: SCENE_TEXT.enterLog(place.name),
     minutes,
+    energyFree: choice.energyFree,
     apply(currentGame) {
       currentGame.setCurrentPlace({ placeId: place.id });
     },
@@ -145,6 +147,7 @@ function performLeave(game, choice, minutes) {
   game.runAction({
     label: SCENE_TEXT.leaveLog(place.name),
     minutes,
+    energyFree: choice.energyFree,
     apply(currentGame) {
       if (choice.action.effects) {
         applyWGEffects(currentGame, choice.action.effects);
@@ -158,9 +161,13 @@ function performLeave(game, choice, minutes) {
   return SCENE_TEXT.leaveResult(place.name);
 }
 
-function performLoiter(game, _choice, minutes) {
+function performLoiter(game, choice, minutes) {
   requireOutdoors(game, "Loitering");
-  game.runAction({ label: SCENE_TEXT.loiterLog, minutes });
+  game.runAction({
+    label: SCENE_TEXT.loiterLog,
+    minutes,
+    energyFree: choice.energyFree,
+  });
   return SCENE_TEXT.loiterResult;
 }
 
@@ -180,6 +187,7 @@ function performGreet(game, choice, minutes) {
   game.runAction({
     label: SCENE_TEXT.greetLog(npc.name),
     minutes,
+    energyFree: choice.energyFree,
     apply(currentGame) {
       currentGame.player.bumpRelationship(npc.id, 0.02);
     },
@@ -191,6 +199,7 @@ function performWG(game, choice, minutes) {
   game.runAction({
     label: choice.label,
     minutes,
+    energyFree: choice.energyFree,
     apply(currentGame) {
       followWGChoice(currentGame, choice);
     },
@@ -262,6 +271,7 @@ function performSkillCheck(game, choice, _minutes, scene) {
       game,
       {
         ...choice,
+        energyFree: outcome.energyFree,
         action: {
           type: SCENE_ACTION_TYPE.leave,
           effects: outcome.effects,
@@ -275,6 +285,7 @@ function performSkillCheck(game, choice, _minutes, scene) {
   game.runAction({
     label: choice.label,
     minutes,
+    energyFree: outcome.energyFree,
     apply(currentGame) {
       followWGOutcome(currentGame, outcome);
     },

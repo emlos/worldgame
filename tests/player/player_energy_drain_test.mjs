@@ -51,6 +51,31 @@ check(
   actionGame.player.getStatBase("energy") === 94,
 );
 
+const freeActionGame = makeGame();
+freeActionGame.player.setStatBase("energy", 25);
+const freeActionStart = freeActionGame.now.getTime();
+freeActionGame.runAction({
+  label: "Rest without passive drain",
+  minutes: 8 * 60,
+  energyFree: true,
+  apply(game) {
+    game.player.adjustStatBase("energy", 75);
+  },
+});
+check(
+  "energy-free actions still advance the full game clock",
+  freeActionGame.now.getTime() === freeActionStart + 8 * 60 * 60_000,
+);
+check(
+  "energy-free actions skip passive drain but retain explicit energy effects",
+  freeActionGame.player.getStatBase("energy") === 100,
+);
+check(
+  "energy-free actions remain ordinary logged gameplay actions",
+  freeActionGame.actionRevision === 1 &&
+    freeActionGame.log.at(-1)?.label === "Rest without passive drain",
+);
+
 const depletedGame = makeGame();
 depletedGame.player.setStatBase("energy", 0.05);
 depletedGame.advanceMinutes(1);

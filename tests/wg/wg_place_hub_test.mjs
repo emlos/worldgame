@@ -111,11 +111,13 @@ game.currentStory = null;
 scene = buildScene(game);
 const rest = choices(scene).find((choice) => choice.id === "rest");
 const restStart = game.now.getTime();
+game.player.setStatBase("energy", 20);
 performChoice(game, { sceneId: scene.id, choiceId: rest.id });
 check(
   "authored home activities stay on their hub and apply their duration",
   game.currentStory?.type === "scene" && game.currentStory.id === "place.player-home" &&
     game.now.getTime() === restStart + 8 * 60 * 60_000 &&
+    game.player.getStatBase("energy") === 95 &&
     buildScene(game).kind === "place",
 );
 

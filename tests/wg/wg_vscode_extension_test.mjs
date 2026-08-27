@@ -77,6 +77,7 @@ test("WG TextMate grammar contains valid regular expressions and core syntax", a
     '@hub-text "Taylor waits beside the table."',
     "@auto enter-place",
     "@check strength tricky",
+    "@time 8h free",
   ]) {
     assert.match(line, firstPattern("property-directives", "begin"));
   }

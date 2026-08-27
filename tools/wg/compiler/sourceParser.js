@@ -130,6 +130,16 @@ export function parseDuration(value, location = {}) {
   return minutes;
 }
 
+function parseTime(value, location) {
+  const text = String(value).trim();
+  const freeMatch = text.match(/^(.*?)\s+free$/);
+  const durationText = freeMatch ? freeMatch[1].trim() : text;
+  return {
+    durationMinutes: parseDuration(durationText, location),
+    energyFree: Boolean(freeMatch),
+  };
+}
+
 function parseEffect(text, file, line) {
   const location = lineLocation(file, line);
   const argument = directiveArgument(text, "effect", location);
@@ -347,6 +357,7 @@ class SceneBodyParser {
     const outcome = {
       target: match[1],
       durationMinutes: 0,
+      energyFree: false,
       effects: [],
       source: nodeSource(this.file, opening.line),
     };
@@ -370,10 +381,12 @@ class SceneBodyParser {
       if (name === "time") {
         if (sawTime) failWG(`Duplicate @time in @${kind}`, location);
         sawTime = true;
-        outcome.durationMinutes = parseDuration(
+        const parsedTime = parseTime(
           directiveArgument(directive, "time", location),
           location,
         );
+        outcome.durationMinutes = parsedTime.durationMinutes;
+        outcome.energyFree = parsedTime.energyFree;
       } else if (name === "effect") {
         outcome.effects.push(parseEffect(directive, this.file, line.line));
       } else {
@@ -404,6 +417,7 @@ class SceneBodyParser {
     }
     delete choice.target;
     delete choice.durationMinutes;
+    delete choice.energyFree;
     delete choice.previews;
     delete choice.effects;
     return choice;
@@ -432,6 +446,7 @@ class SceneBodyParser {
       outcomes: { success: null, failure: null },
       icon: null,
       durationMinutes: 0,
+      energyFree: false,
       when: null,
       requirements: [],
       warning: null,
@@ -478,10 +493,12 @@ class SceneBodyParser {
           ? parseQuotedString(value, location, "Choice icon")
           : value;
       } else if (name === "time") {
-        choice.durationMinutes = parseDuration(
+        const parsedTime = parseTime(
           directiveArgument(text, "time", location),
           location,
         );
+        choice.durationMinutes = parsedTime.durationMinutes;
+        choice.energyFree = parsedTime.energyFree;
       } else if (name === "when") {
         choice.when = parseExpression(
           directiveArgument(text, "when", location),

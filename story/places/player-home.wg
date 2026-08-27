@@ -14,9 +14,8 @@ You are back in the privacy of {{place.name}}.
 
 @choice rest "Go to Bed" -> place.player-home
   @icon 🛏️
-  @time 8h
+  @time 8h free
   @effect stat energy +75
-  @#noenergyloss //TODO: operator for disabling the automatic 0.1 energy per minute loss
 @endchoice
 
 @choice chores "Do some chores" -> place.player-home

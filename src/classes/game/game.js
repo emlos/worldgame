@@ -143,14 +143,21 @@ export class Game {
     /**
      * Advance world time by N minutes and exactly simulate intervening NPC decisions.
      */
-    advanceMinutes(mins) {
+    advanceMinutes(mins, { drainPlayerEnergy = true } = {}) {
         const amount = Number(mins);
         if (!Number.isFinite(amount) || amount <= 0) {
             throw new TypeError(`Game.advanceMinutes requires positive minutes: ${String(mins)}`);
         }
+        if (typeof drainPlayerEnergy !== "boolean") {
+            throw new TypeError("Game.advanceMinutes drainPlayerEnergy must be a boolean");
+        }
 
         const target = new Date(this.now.getTime() + amount * MS_PER_MINUTE);
-        return this._changeTimeTo(target, { mode: "simulate", source: "advance" });
+        return this._changeTimeTo(target, {
+            mode: "simulate",
+            source: "advance",
+            drainPlayerEnergy,
+        });
     }
 
     /**
@@ -167,10 +174,14 @@ export class Game {
             throw new Error(`Unknown time jump mode: ${mode}`);
         }
 
-        return this._changeTimeTo(target, { mode, source: "jump" });
+        return this._changeTimeTo(target, {
+            mode,
+            source: "jump",
+            drainPlayerEnergy: true,
+        });
     }
 
-    _changeTimeTo(target, { mode, source }) {
+    _changeTimeTo(target, { mode, source, drainPlayerEnergy }) {
         const from = new Date(this.now.getTime());
         const to = new Date(target.getTime());
         const minutes = (to.getTime() - from.getTime()) / MS_PER_MINUTE;
@@ -180,7 +191,7 @@ export class Game {
         }
         
         if (minutes === 0) {
-            return { from, to, minutes, mode, source };
+            return { from, to, minutes, mode, source, drainPlayerEnergy };
         }
 
         const eventName = mode === "simulate" ? "time" : "timeJump";
@@ -202,14 +213,21 @@ export class Game {
                 }
             }
 
-            this._applyElapsedPlayerChanges(minutes);
+            this._applyElapsedPlayerChanges(minutes, { drainEnergy: drainPlayerEnergy });
             this._clearDailyFlagsAfterMidnight(from, this.now);
         } catch (error) {
             this._restoreTimeRuntimeState(snapshot);
             throw error;
         }
 
-        const change = { from, to: new Date(this.now.getTime()), minutes, mode, source };
+        const change = {
+            from,
+            to: new Date(this.now.getTime()),
+            minutes,
+            mode,
+            source,
+            drainPlayerEnergy,
+        };
 
         if (mode === "simulate") {
             // Normal time listeners are reserved for genuinely simulated elapsed time.
@@ -223,9 +241,9 @@ export class Game {
         return change;
     }
 
-    _applyElapsedPlayerChanges(minutes) {
+    _applyElapsedPlayerChanges(minutes, { drainEnergy = true } = {}) {
         this.player.syncAgeAt(this.now);
-        if (minutes <= 0) return;
+        if (minutes <= 0 || !drainEnergy) return;
 
         const energy = this.player.adjustStatBase(
             "energy",
@@ -504,13 +522,16 @@ export class Game {
      * Wrapper for player actions: do stuff, spend time, log it.
      * This is a good fit for your “choices” later.
      */
-    runAction({ label, minutes = 0, apply, after }) {
+    runAction({ label, minutes = 0, energyFree = false, apply, after }) {
         let amount = 0;
         if (minutes !== 0) {
             amount = Number(minutes);
             if (!Number.isFinite(amount) || amount <= 0) {
                 throw new TypeError(`runAction requires positive minutes: ${String(minutes)}`);
             }
+        }
+        if (typeof energyFree !== "boolean") {
+            throw new TypeError("runAction energyFree must be a boolean");
         }
 
         const startedAt = this.now.toISOString();
@@ -525,7 +546,7 @@ export class Game {
             }
 
             if (amount > 0) {
-                this.advanceMinutes(amount);
+                this.advanceMinutes(amount, { drainPlayerEnergy: !energyFree });
             }
 
             // Arrival/event resolution belongs after time simulation so it

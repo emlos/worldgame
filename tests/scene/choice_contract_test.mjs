@@ -35,6 +35,7 @@ check(
   "minimal choices receive every optional contract field",
   minimal.icon === null &&
     minimal.durationMinutes === 0 &&
+    minimal.energyFree === false &&
     Array.isArray(minimal.costs) &&
     minimal.costs.length === 0 &&
     Array.isArray(minimal.effectsPreview) &&
@@ -52,6 +53,7 @@ const detailed = createChoice({
   icon: "☀",
   label: "Use service",
   durationMinutes: 2.5,
+  energyFree: true,
   costs: [{ type: "money", amount: 25, label: "£25", currency: "GBP" }],
   effectsPreview: [{ type: "stress", amount: -10, label: "−Stress" }],
   enabled: false,
@@ -60,7 +62,10 @@ const detailed = createChoice({
   analyticsTag: "service-choice",
   action: { type: "service", serviceId: "spa" },
 });
-check("fractional choice durations remain valid", detailed.durationMinutes === 2.5);
+check(
+  "fractional energy-free choice durations remain valid",
+  detailed.durationMinutes === 2.5 && detailed.energyFree === true,
+);
 check(
   "choice metadata preserves engine-specific fields",
   detailed.costs[0].currency === "GBP" &&
@@ -85,8 +90,8 @@ const checked = createChoice({
     type: "skill-check",
     check: { skillId: "strength", difficultyId: "tricky" },
     outcomes: {
-      success: { target: "opened", durationMinutes: 1, effects: [] },
-      failure: { target: "stuck", durationMinutes: 2, effects: [] },
+      success: { target: "opened", durationMinutes: 1, energyFree: true, effects: [] },
+      failure: { target: "stuck", durationMinutes: 2, energyFree: false, effects: [] },
     },
   },
 });
@@ -121,7 +126,12 @@ rejects("skill checks require both outcome payloads", () =>
       type: "skill-check",
       check: { skillId: "strength", difficultyId: "tricky" },
       outcomes: {
-        success: { target: "opened", durationMinutes: 1, effects: [] },
+        success: {
+          target: "opened",
+          durationMinutes: 1,
+          energyFree: false,
+          effects: [],
+        },
       },
     },
   }),
@@ -153,6 +163,14 @@ rejects("non-finite choice durations are rejected", () =>
     id: "wait",
     label: "Wait",
     durationMinutes: Number.NaN,
+    action: { type: "wait" },
+  }),
+);
+rejects("energy-free choice metadata must be boolean", () =>
+  createChoice({
+    id: "wait",
+    label: "Wait",
+    energyFree: "yes",
     action: { type: "wait" },
   }),
 );

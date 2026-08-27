@@ -108,7 +108,7 @@ Taylor waits.
 
 @choice continue "Continue" -> next
   @icon "→"
-  @time 1h30m
+  @time 1h30m free
   @when npc.taylor.present
   @require player.energy >= 10 "You are too tired."
   @warning "This may take a while."
@@ -202,8 +202,9 @@ const compiledChoice = sampleScenes[0].body.find(
 );
 check(
   "choice presentation and timing directives compile",
-  compiledChoice.icon === "→" &&
+    compiledChoice.icon === "→" &&
     compiledChoice.durationMinutes === 90 &&
+    compiledChoice.energyFree === true &&
     compiledChoice.warning === "This may take a while.",
 );
 check(
@@ -231,7 +232,7 @@ const sampleBundle = compileStorySources([
 ]);
 check(
   "linked bundles use a versioned scene map",
-  sampleBundle.formatVersion === 5 &&
+  sampleBundle.formatVersion === 6 &&
     Object.keys(sampleBundle.scenes).join(",") === "intro,next" &&
     Object.keys(sampleBundle.sequences).length === 0 &&
     Object.keys(sampleBundle.entries).join(",") === "sample.introduction",
@@ -310,7 +311,7 @@ const CHECK_SOURCE = [
   "@choice jar \"Open the jar\"",
   "  @check strength tricky",
   "  @success -> check.success",
-  "    @time 1m",
+  "    @time 1m free",
   "    @effect skill strength 0.1",
   "    @effect stat energy -2",
   "  @endsuccess",
@@ -341,10 +342,12 @@ check(
   "skill-check outcomes compile separate targets, times, and effects",
   checkedChoice.outcomes.success.target === "check.success" &&
     checkedChoice.outcomes.success.durationMinutes === 1 &&
+    checkedChoice.outcomes.success.energyFree === true &&
     checkedChoice.outcomes.success.effects[0].op === "skill" &&
     checkedChoice.outcomes.success.effects[1].op === "stat" &&
     checkedChoice.outcomes.failure.target === "check.failure" &&
-    checkedChoice.outcomes.failure.durationMinutes === 2,
+    checkedChoice.outcomes.failure.durationMinutes === 2 &&
+    checkedChoice.outcomes.failure.energyFree === false,
 );
 check(
   "skill-check outcome targets link across the bundle",
@@ -553,6 +556,20 @@ rejects(
     },
   ],
   "Invalid duration 'tomorrow'",
+);
+rejects(
+  "unknown time modifiers are rejected",
+  [
+    {
+      file: "time-modifier.wg",
+      source: `:: intro
+@heading "Intro"
+@choice wait "Wait" -> @exit
+@time 1h restful
+@endchoice`,
+    },
+  ],
+  "Invalid duration '1h restful'",
 );
 rejects(
   "malformed interpolation is rejected",

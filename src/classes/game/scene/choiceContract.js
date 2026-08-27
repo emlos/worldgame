@@ -90,6 +90,9 @@ function validateSkillCheckAction(action, path) {
     if (!Number.isFinite(outcome.durationMinutes) || outcome.durationMinutes < 0) {
       fail(`${outcomePath}.durationMinutes must be a non-negative finite number`);
     }
+    if (typeof outcome.energyFree !== "boolean") {
+      fail(`${outcomePath}.energyFree must be a boolean`);
+    }
     if (!Array.isArray(outcome.effects)) fail(`${outcomePath}.effects must be an array`);
   }
 }
@@ -109,6 +112,9 @@ export function validateChoice(choice, path = "choice") {
 
   if (!Number.isFinite(choice.durationMinutes) || choice.durationMinutes < 0) {
     fail(`${path}.durationMinutes must be a non-negative finite number`);
+  }
+  if (typeof choice.energyFree !== "boolean") {
+    fail(`${path}.energyFree must be a boolean`);
   }
 
   if (typeof choice.enabled !== "boolean") {
@@ -148,6 +154,7 @@ export function createChoice(input) {
     icon,
     label,
     durationMinutes,
+    energyFree,
     costs,
     effectsPreview,
     skillChanges,
@@ -164,6 +171,7 @@ export function createChoice(input) {
     icon: icon === undefined ? null : icon,
     label,
     durationMinutes: durationMinutes === undefined ? 0 : durationMinutes,
+    energyFree: energyFree === undefined ? false : energyFree,
     costs: copyMetadataList(costs === undefined ? [] : costs),
     effectsPreview: copyMetadataList(
       effectsPreview === undefined ? [] : effectsPreview,

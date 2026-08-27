@@ -402,6 +402,12 @@ Choice directives are:
 - `@time <duration>`: action duration; omitted means zero time. Durations may
   combine decimal hours, minutes, and seconds in that order, such as `30s`,
   `5m`, `1h`, or `1h30m`.
+- `@time <duration> free`: advances the full world simulation for the given
+  duration but suppresses the player's passive elapsed-time energy drain for
+  this action. It is valid in direct choices and skill-check outcomes. Explicit
+  effects such as `@effect stat energy -10` still apply.
+  NPC simulation, the calendar and weather, age synchronization, midnight
+  daily-flag clearing, listeners, and action logging are unchanged.
 - `@when <expression>`: hides the choice when false.
 - `@require <expression> "<reason>"`: leaves the choice visible but disabled
   when false. Requirements may repeat; the first failed reason is displayed.
@@ -419,6 +425,16 @@ state changes and log entry are rolled back.
 
 A choice with no `@time`, or with a zero duration such as `0m`, does not advance
 the clock or update NPC simulation state.
+
+For example, an eight-hour rest that restores energy without losing passive
+energy during those same hours can use:
+
+```wg
+@choice rest "Rest" -> place.player-home
+  @time 8h free
+  @effect stat energy 75
+@endchoice
+```
 
 ## Skill changes and checks
 
