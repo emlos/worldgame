@@ -301,6 +301,22 @@ function validateCharacterCore(data, path) {
     validateBody(required(data, "body", path), `${path}.body`);
 }
 
+function validateCurrentStory(value, path) {
+    if (value === null) return null;
+    const frame = record(value, path);
+    const type = string(required(frame, "type", path), `${path}.type`, { nonEmpty: true });
+    if (type !== "scene" && type !== "sequence") {
+        fail(`${path}.type`, "must be 'scene' or 'sequence'");
+    }
+    string(required(frame, "id", path), `${path}.id`, { nonEmpty: true });
+    if (type === "sequence") {
+        string(required(frame, "passageId", path), `${path}.passageId`, { nonEmpty: true });
+    } else if (Object.prototype.hasOwnProperty.call(frame, "passageId")) {
+        fail(`${path}.passageId`, "is only valid for sequence story state");
+    }
+    return frame;
+}
+
 function validatePlayer(data, path, npcIds, gameTime) {
     const player = record(data, path);
     validateCharacterCore(player, path);
@@ -1206,9 +1222,9 @@ export function validateGameSave(data) {
     const save = record(data, "save");
     same(
         integer(required(save, "saveVersion", "save"), "save.saveVersion"),
-        15,
+        16,
         "save.saveVersion",
-        "version 15",
+        "version 16",
     );
 
     const seed = uint32(required(save, "seed", "save"), "save.seed");
@@ -1313,11 +1329,8 @@ export function validateGameSave(data) {
     uniqueStrings(required(save, "flags", "save"), "save.flags");
     uniqueStrings(required(save, "dailyFlags", "save"), "save.dailyFlags", { nonEmpty: true });
     record(required(save, "story", "save"), "save.story");
-    optionalNullableString(
-        required(save, "currentStorySceneId", "save"),
-        "save.currentStorySceneId",
-    );
-    integer(required(save, "storySceneRevision", "save"), "save.storySceneRevision", {
+    validateCurrentStory(required(save, "currentStory", "save"), "save.currentStory");
+    integer(required(save, "storyRevision", "save"), "save.storyRevision", {
         min: 0,
     });
     integer(required(save, "actionRevision", "save"), "save.actionRevision", {

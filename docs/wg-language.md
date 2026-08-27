@@ -1,4 +1,4 @@
-# WG scene-authoring reference
+# WG story-authoring reference
 
 WG is Worldgame's text-first story format. Source files live under
 `story/**/*.wg`. The compiler turns them into the generated data module at
@@ -41,7 +41,8 @@ Taylor looks up from the textbook.
 @endchoice
 ```
 
-Files are UTF-8 and may contain any number of top-level entry and scene blocks.
+Files are UTF-8 and may contain any number of top-level entry, scene, and
+sequence blocks.
 
 ## Entries
 
@@ -51,7 +52,7 @@ must be unique across all WG files.
 
 Every entry requires:
 
-- exactly one `@scene <scene-id>` pointing to a compiled scene; and
+- exactly one `@scene <story-id>` pointing to a compiled scene or sequence; and
 - at least one exposure directive: `@hub`, `@offer`, or `@auto`.
 
 ### Place hubs
@@ -77,6 +78,9 @@ Rows of bookshelves divide the quiet room.
 `@hub place` makes a `@kind place` scene the ordinary hub for every matching
 place. It requires at least one `@place-key` or `@place-tag`, and a hub entry
 cannot also contain `@offer` or `@auto`.
+
+Place hubs must target scenes rather than sequences. Offered and automatic
+entries may target either kind of authored story block.
 
 At runtime exactly one hub must match the current place. The compiler rejects
 two hubs that explicitly name the same place key; overlapping tag-based hubs
@@ -170,6 +174,92 @@ Taylor looks up from the textbook.
 
 Only one authored choice section is produced. If the materialized scene has no
 visible choices, that section is omitted.
+
+## Sequences and passages
+
+A sequence groups several rendered screens under one global story ID. Use it
+when prose should be paced behind one or more zero-time Next buttons without
+creating a separate scene and choice for every screen:
+
+```wg
+@choice inspect "Inspect the room" -> example.inspection
+  @icon 👀
+  @time 5m
+@endchoice
+
+@sequence example.inspection -> @exit
+@heading "Inspecting the room"
+
+You look over the room carefully.
+
+@next
+
+Nothing else catches your attention.
+
+@next "Return"
+@endsequence
+```
+
+A sequence starts with `@sequence <id> -> <final-target>` and ends with
+`@endsequence`. Its ID shares the global namespace used by scene IDs. The
+final target may be `@exit`, a scene ID, or another sequence ID. `@heading` is
+required; `@kind`, `@choices`, and `@onenter` have the same metadata placement
+rules as scenes.
+
+Each `@next` ends the current passage and creates a navigation choice. Prose
+after it begins the next anonymous passage. A bare `@next` uses the label
+`"Next"` and targets the following passage. The last bare `@next` uses the
+sequence's final target. A quoted label changes only the displayed text:
+
+```wg
+@next "Wake up"
+```
+
+Next navigation is presentation-only. It never advances time, applies effects,
+adds an action-log entry, increments the gameplay action revision, or runs
+`@onenter` on either the current sequence or a global target it enters. Use an
+ordinary choice when entering the target should be an authoritative action.
+The active sequence and passage are included in save data, so loading resumes
+on the same screen.
+
+### Named passages and local targets
+
+Use `@passage <id>` when a choice or Next button must address a passage. Passage
+IDs are lowercase local identifiers and need to be unique only within their
+sequence. Prefix one with `.` when targeting it:
+
+```wg
+@sequence taylor.study -> @exit
+@heading "Studying with Taylor"
+@choices "What do you do?"
+
+@passage peek
+
+Taylor remains focused on the textbook.
+
+@choice study "Return to studying" -> .studying
+  @time 1h
+@endchoice
+
+@choice leave "Give up" -> @exit
+@endchoice
+
+@passage studying
+
+You return your attention to your notes.
+
+@next -> .peek
+@endsequence
+```
+
+`@next -> <target>` and `@next "<label>" -> <target>` override the normal
+source-order target. They may point to a local passage, `@exit`, a scene, or a
+sequence. `@next` cannot perform `@leave-place`; use an ordinary choice for an
+authoritative place exit.
+
+Ordinary choices inside passages keep their normal effects, duration, skill
+checks, requirements, and atomic rollback behavior. Choice IDs must be unique
+within their passage. Local `.passage` targets are invalid in ordinary scenes.
 
 ## Prose and interpolation
 
@@ -290,17 +380,18 @@ and never execute JavaScript.
 
 A direct choice header has the form
 `@choice <id> "<label>" -> <target>` and ends with `@endchoice`. Choice IDs
-must be unique throughout their scene, including mutually exclusive
-conditional branches. A choice block may contain only choice directives; put
-prose and conditionals outside it.
+must be unique throughout their scene or current sequence passage, including
+mutually exclusive conditional branches. A choice block may contain only
+choice directives; put prose and conditionals outside it.
 
 The target may be:
 
-- another compiled scene ID;
-- `@exit`, which closes the authored scene and returns to the current place hub
+- another compiled scene or sequence ID;
+- a local `.passage-id` while authoring inside a sequence;
+- `@exit`, which closes the authored story and returns to the current place hub
   indoors or the ordinary location scene outdoors; or
 - `@leave-place`, which performs the authoritative place-exit action and
-  closes the authored scene. It fails if the player is already outdoors.
+  closes the authored story. It fails if the player is already outdoors.
 
 `@leave-place` does not add a duration. Add `@time 1m` when leaving should take
 the game's normal one-minute transition.
@@ -321,10 +412,10 @@ Choice directives are:
 
 Before an action runs, the game rebuilds the current scene and rechecks that
 the choice still exists and is enabled. Direct-choice effects run in their
-authored order, then a normal target scene is entered and its `@onenter`
-effects run, then `@time` advances the world. The resulting scene is rendered
-against the post-time state. If any part of the action fails, its state changes
-and log entry are rolled back.
+authored order, then a normal scene or sequence target is entered and its
+`@onenter` effects run, then `@time` advances the world. The resulting screen
+is rendered against the post-time state. If any part of the action fails, its
+state changes and log entry are rolled back.
 
 A choice with no `@time`, or with a zero duration such as `0m`, does not advance
 the clock or update NPC simulation state.
@@ -397,8 +488,8 @@ action transaction.
 
 ## Effects
 
-Effects may appear inside direct choices, skill-check outcomes, or a scene's
-`@onenter` block:
+Effects may appear inside direct choices, skill-check outcomes, or a scene or
+sequence `@onenter` block:
 
 ```wg
 @onenter
@@ -407,10 +498,11 @@ Effects may appear inside direct choices, skill-check outcomes, or a scene's
 @endonenter
 ```
 
-`@onenter` runs once each time that scene is authoritatively entered. It does
-not run while the scene is merely rendered or rebuilt. Entering the same scene
-again, including through a self-targeting choice, runs it again. The block may
-contain only `@effect` directives, comments, and blank lines.
+`@onenter` runs once each time that scene or sequence is authoritatively
+entered. It does not run while a screen is merely rendered or rebuilt. Moving
+between passages in the same sequence does not run it again. Entering the same
+story target again through an ordinary choice does. The block may contain only
+`@effect` directives, comments, and blank lines.
 
 Implemented effects are:
 
@@ -470,11 +562,11 @@ prose line, `\@` and `\::` emit literal `@` and `::` markers.
 ## Validation and editor support
 
 The compiler rejects malformed directives, duplicate single-value fields,
-unclosed blocks, duplicate scene, entry, or choice IDs, invalid expressions
-and durations, unknown choice and outcome targets, unknown skill-check
-difficulties, unknown registered skill/stat effect IDs, missing entry targets,
-and direct duplicate place hubs. It does not validate general runtime paths,
-NPC IDs, or overlapping tag-based hub selectors.
+unclosed blocks, duplicate scene, sequence, passage, entry, or choice IDs,
+invalid expressions and durations, unknown global and local targets, unknown
+skill-check difficulties, unknown registered skill/stat effect IDs, missing
+entry targets, and direct duplicate place hubs. It does not validate general
+runtime paths, NPC IDs, or overlapping tag-based hub selectors.
 
 The repository includes a zero-build VS Code extension with WG syntax
 highlighting, comments, indentation, bracket pairing, and folding. Install or

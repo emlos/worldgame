@@ -56,7 +56,7 @@ let everyGeneratedPlaceMaterializes = true;
 for (const { location, place } of generatedPlaces) {
   game.currentLocationId = location.id;
   game.setCurrentPlace({ placeId: place.id });
-  game.currentStorySceneId = null;
+  game.currentStory = null;
 
   const entry = getWGPlaceHubEntry(game);
   const scene = buildScene(game);
@@ -76,7 +76,7 @@ check(
 const jail = generatedPlaces.find(({ place }) => place.key === "jail");
 game.currentLocationId = jail.location.id;
 game.setCurrentPlace({ placeId: jail.place.id });
-game.currentStorySceneId = null;
+game.currentStory = null;
 const taylor = game.npcs.get("taylor");
 taylor.setLocationAndPlace(jail.location.id, jail.place.id);
 taylor.brain.currentGoal = null;
@@ -88,7 +88,7 @@ performChoice(game, { sceneId: scene.id, choiceId: desk.id });
 const reloadedJailScene = buildScene(game);
 check(
   "active place hubs preserve their live place heading and present NPC choices",
-  game.currentStorySceneId === "place.jail" &&
+  game.currentStory?.type === "scene" && game.currentStory.id === "place.jail" &&
     game.now.getTime() === jailActivityStart &&
     game.getNPCsAtCurrentPosition().includes(taylor) &&
     reloadedJailScene.heading === jail.place.name &&
@@ -107,15 +107,15 @@ check(
 
 game.currentLocationId = game.homeLocationId;
 game.setCurrentPlace({ placeId: game.homePlaceId });
-game.currentStorySceneId = null;
+game.currentStory = null;
 scene = buildScene(game);
 const rest = choices(scene).find((choice) => choice.id === "rest");
 const restStart = game.now.getTime();
 performChoice(game, { sceneId: scene.id, choiceId: rest.id });
 check(
-  "placeholder activities stay on their authored hub without mutating time",
-  game.currentStorySceneId === "place.player-home" &&
-    game.now.getTime() === restStart &&
+  "authored home activities stay on their hub and apply their duration",
+  game.currentStory?.type === "scene" && game.currentStory.id === "place.player-home" &&
+    game.now.getTime() === restStart + 8 * 60 * 60_000 &&
     buildScene(game).kind === "place",
 );
 
@@ -124,7 +124,7 @@ const leave = choices(scene).find((choice) => choice.action.type === "leave");
 performChoice(game, { sceneId: scene.id, choiceId: leave.id });
 check(
   "@leave-place exits both the place and its active authored hub",
-  game.currentPlaceId === null && game.currentStorySceneId === null,
+  game.currentPlaceId === null && game.currentStory === null,
 );
 
 if (failures.length) {

@@ -1,0 +1,72 @@
+
+@entry place.hub.player-home
+  @scene place.player-home
+  @place-key player_home
+  @hub place
+@endentry
+
+:: place.player-home [place hub]
+@kind place
+@heading "Home"
+@choices "Activities"
+
+You are back in the privacy of {{place.name}}.
+
+@choice rest "Go to Bed" -> place.player-home
+  @icon 🛏️
+  @time 8h
+  @effect stat energy +75
+  @#noenergyloss //TODO: operator for disabling the automatic 0.1 energy per minute loss
+@endchoice
+
+@choice chores "Do some chores" -> place.player-home
+  @icon 🧹
+  @time 30m
+  @effect stat energy -10
+  @effect stat hygiene 10
+  
+@endchoice
+
+@choice lift-weights "Lift weights" -> place.player-home
+  @icon 🏋️
+  @time 5m
+  @when not daily.home_weightlifting
+  @effect skill strength 0.1
+  @effect daily-flag home_weightlifting true
+@endchoice
+
+@choice open-jar "Open a stubborn jar"
+  @icon 🫙
+  @check strength tricky
+
+  @success -> home.jar-opened
+    @time 1m
+    @effect flag jar_opened true
+  @endsuccess
+
+  @failure -> home.jar-stuck
+    @time 1m
+    @effect flag jar_opened false
+  @endfailure
+@endchoice
+
+@choice leave "Leave" -> @leave-place
+  @icon 🚪
+  @time 1m
+@endchoice
+
+:: home.jar-opened [event home skill-check]
+@heading "The stubborn jar"
+
+The lid gives way with a sharp pop. You set the opened jar down with quiet satisfaction.
+
+@choice back "Put the jar away" -> place.player-home
+@endchoice
+
+:: home.jar-stuck [event home skill-check]
+@heading "The stubborn jar"
+
+You twist until your palm aches, but the lid refuses to move.
+
+@choice back "Put the jar back" -> place.player-home
+@endchoice

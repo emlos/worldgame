@@ -1,0 +1,29 @@
+@# Compiler/runtime fixture and authoring example for passage sequences.
+
+@sequence example.passage-sequence -> @exit
+@heading "A short sequence"
+@onenter
+  @effect add story.examples.sequenceEntries 1
+@endonenter
+
+The first passage is displayed without requiring a standalone scene.
+
+@next
+
+@passage decision
+
+The second passage can offer ordinary authored choices.
+
+@choice stay "Read this passage again" -> .decision
+@endchoice
+
+@choice finish "Continue to the ending" -> .ending
+  @effect set story.examples.sequenceFinished true
+@endchoice
+
+@passage ending
+
+The final passage returns to the underlying world hub.
+
+@next "Return"
+@endsequence

@@ -5,6 +5,8 @@ import { SKILL_CHECK_DIFFICULTIES } from "../../../src/data/scene/skillChecks.js
 
 const ID_PATTERN = "[a-z][a-z0-9_.-]*";
 const ID_REGEX = new RegExp(`^${ID_PATTERN}$`);
+const PASSAGE_ID_PATTERN = "[a-z][a-z0-9_-]*";
+const STORY_TARGET_PATTERN = `(?:@exit|@leave-place|\\.${PASSAGE_ID_PATTERN}|${ID_PATTERN})`;
 const TAG_REGEX = /^[a-z][a-z0-9_-]*$/;
 const PATH_REGEX = /^[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)+$/;
 const QUOTED_PATTERN = '"(?:\\\\.|[^"\\\\])*"';
@@ -338,7 +340,7 @@ class SceneBodyParser {
     const text = opening.text.trim();
     const closingDirective = `end${kind}`;
     const match = text.match(
-      new RegExp(`^@${kind}\\s+->\\s+(@exit|@leave-place|${ID_PATTERN})\\s*$`),
+      new RegExp(`^@${kind}\\s+->\\s+(${STORY_TARGET_PATTERN})\\s*$`),
     );
     if (!match) failWG(`Malformed @${kind} header`, lineLocation(this.file, opening.line));
 
@@ -411,7 +413,7 @@ class SceneBodyParser {
     const opening = this.current();
     const openingText = opening.text.trim();
     const match = openingText.match(
-      new RegExp(`^@choice\\s+(${ID_PATTERN})\\s+(${QUOTED_PATTERN})(?:\\s+->\\s+(@exit|@leave-place|${ID_PATTERN}))?\\s*$`),
+      new RegExp(`^@choice\\s+(${ID_PATTERN})\\s+(${QUOTED_PATTERN})(?:\\s+->\\s+(${STORY_TARGET_PATTERN}))?\\s*$`),
     );
     if (!match) {
       failWG("Malformed @choice header", lineLocation(this.file, opening.line));
@@ -632,6 +634,173 @@ function parseSceneChunk(file, chunk) {
   };
 }
 
+function parseNext(text, file, line) {
+  const location = lineLocation(file, line);
+  const match = text.match(
+    new RegExp(`^@next(?:\\s+(${QUOTED_PATTERN}))?(?:\\s+->\\s+(${STORY_TARGET_PATTERN}))?\\s*$`),
+  );
+  if (!match || match[2] === "@leave-place") {
+    failWG("Malformed @next", location);
+  }
+  return {
+    label: match[1] ? parseQuotedString(match[1], location, "Next label") : "Next",
+    target: match[2] ?? null,
+    source: nodeSource(file, line),
+  };
+}
+
+function parseSequenceBlock(file, lines, startIndex) {
+  const opening = lines[startIndex];
+  const header = opening.text.trim().match(
+    new RegExp(`^@sequence\\s+(${ID_PATTERN})\\s+->\\s+(@exit|${ID_PATTERN})\\s*$`),
+  );
+  if (!header) failWG("Malformed @sequence header", lineLocation(file, opening.line));
+
+  const sequence = {
+    id: header[1],
+    finalTarget: header[2],
+    kind: "event",
+    heading: null,
+    choiceHeading: "Choices",
+    onEnter: [],
+    passages: [],
+    source: nodeSource(file, opening.line),
+  };
+  const seenMetadata = new Set();
+  const passageIds = new Set();
+  let anonymousIndex = 1;
+  let index = startIndex + 1;
+
+  while (index < lines.length) {
+    const line = lines[index];
+    const text = line.text.trim();
+    if (!text || isComment(text)) {
+      index += 1;
+      continue;
+    }
+    const name = directiveName(text);
+    if (!["kind", "heading", "choices", "onenter"].includes(name)) break;
+    if (seenMetadata.has(name)) failWG(`Duplicate @${name}`, lineLocation(file, line.line));
+    seenMetadata.add(name);
+
+    if (name === "kind") {
+      sequence.kind = directiveArgument(text, "kind", lineLocation(file, line.line));
+      if (!ID_REGEX.test(sequence.kind)) {
+        failWG("Sequence kind must be a lowercase identifier", lineLocation(file, line.line));
+      }
+      index += 1;
+    } else if (name === "heading") {
+      sequence.heading = parseQuotedString(
+        directiveArgument(text, "heading", lineLocation(file, line.line)),
+        lineLocation(file, line.line),
+        "Sequence heading",
+      );
+      index += 1;
+    } else if (name === "choices") {
+      sequence.choiceHeading = parseQuotedString(
+        directiveArgument(text, "choices", lineLocation(file, line.line)),
+        lineLocation(file, line.line),
+        "Choice section heading",
+      );
+      index += 1;
+    } else {
+      if (text !== "@onenter") {
+        failWG("@onenter does not accept arguments", lineLocation(file, line.line));
+      }
+      const parsed = parseOnEnter(file, lines, index + 1, line.line);
+      sequence.onEnter = parsed.effects;
+      index = parsed.nextIndex;
+    }
+  }
+
+  if (sequence.heading === null) {
+    failWG("Sequence requires @heading", lineLocation(file, opening.line));
+  }
+
+  const nextAnonymousId = () => {
+    while (passageIds.has(`p${anonymousIndex}`)) anonymousIndex += 1;
+    const id = `p${anonymousIndex}`;
+    anonymousIndex += 1;
+    return id;
+  };
+  const startPassage = (id, line) => {
+    if (passageIds.has(id)) {
+      failWG(`Duplicate passage id '${id}' in sequence '${sequence.id}'`, lineLocation(file, line));
+    }
+    passageIds.add(id);
+    const passage = {
+      id,
+      body: [],
+      next: null,
+      source: nodeSource(file, line),
+    };
+    sequence.passages.push(passage);
+    return passage;
+  };
+
+  let currentPassage = null;
+  while (index < lines.length) {
+    const line = lines[index];
+    const text = line.text.trim();
+
+    if (!text || isComment(text)) {
+      index += 1;
+      continue;
+    }
+    if (text === "@endsequence") {
+      if (!sequence.passages.length) {
+        failWG("Sequence requires at least one passage", lineLocation(file, opening.line));
+      }
+      for (let passageIndex = 0; passageIndex < sequence.passages.length; passageIndex += 1) {
+        const passage = sequence.passages[passageIndex];
+        if (!passage.body.length) {
+          failWG(
+            `Passage '${passage.id}' cannot be empty`,
+            lineLocation(file, passage.source.line),
+          );
+        }
+        if (passage.next && passage.next.target === null) {
+          passage.next.target = passageIndex + 1 < sequence.passages.length
+            ? `.${sequence.passages[passageIndex + 1].id}`
+            : sequence.finalTarget;
+        }
+      }
+      return { sequence, nextIndex: index + 1 };
+    }
+    if (text.startsWith("@sequence") || text.startsWith("@entry") || text.startsWith("::")) {
+      failWG("Unclosed @sequence block", lineLocation(file, opening.line));
+    }
+
+    const name = directiveName(text);
+    if (name === "passage") {
+      const passageId = directiveArgument(text, "passage", lineLocation(file, line.line));
+      if (!new RegExp(`^${PASSAGE_ID_PATTERN}$`).test(passageId)) {
+        failWG("Passage id must be a lowercase local identifier", lineLocation(file, line.line));
+      }
+      currentPassage = startPassage(passageId, line.line);
+      index += 1;
+      continue;
+    }
+    if (name === "next") {
+      if (!currentPassage) currentPassage = startPassage(nextAnonymousId(), line.line);
+      if (currentPassage.next) failWG("Duplicate @next in passage", lineLocation(file, line.line));
+      currentPassage.next = parseNext(text, file, line.line);
+      currentPassage = null;
+      index += 1;
+      continue;
+    }
+
+    if (!currentPassage) currentPassage = startPassage(nextAnonymousId(), line.line);
+    const bodyParser = new SceneBodyParser(file, lines, index);
+    currentPassage.body.push(
+      ...bodyParser.parseNodes(new Set(["passage", "next", "endsequence"])),
+    );
+    index = bodyParser.index;
+  }
+
+  failWG("Unclosed @sequence block", lineLocation(file, opening.line));
+}
+
 function parseEntryBlock(file, lines, startIndex) {
   const opening = lines[startIndex];
   const openingText = opening.text.trim();
@@ -800,6 +969,7 @@ export function parseWGDocument({ file = "<wg>", source }) {
   const lines = rawLines.map((text, index) => ({ text, line: index + 1 }));
   const chunks = [];
   const entries = [];
+  const sequences = [];
   let currentChunk = null;
   let index = 0;
 
@@ -811,6 +981,13 @@ export function parseWGDocument({ file = "<wg>", source }) {
       currentChunk = null;
       const parsed = parseEntryBlock(normalizedFile, lines, index);
       entries.push(parsed.entry);
+      index = parsed.nextIndex;
+      continue;
+    }
+    if (trimmed.startsWith("@sequence")) {
+      currentChunk = null;
+      const parsed = parseSequenceBlock(normalizedFile, lines, index);
+      sequences.push(parsed.sequence);
       index = parsed.nextIndex;
       continue;
     }
@@ -853,6 +1030,7 @@ export function parseWGDocument({ file = "<wg>", source }) {
 
   return {
     scenes: chunks.map((chunk) => parseSceneChunk(normalizedFile, chunk)),
+    sequences,
     entries,
   };
 }

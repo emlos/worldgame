@@ -17,8 +17,11 @@ import {
   getWGPlaceHubEntry,
   WG_OFFER_TYPE,
 } from "./wg/entryResolver.js";
-import { materializeWGScene } from "./wg/sceneMaterializer.js";
-import { getWGScene } from "./wg/storyRuntime.js";
+import {
+  materializeWGScene,
+  materializeWGSequence,
+} from "./wg/sceneMaterializer.js";
+import { getWGScene, getWGSequence } from "./wg/storyRuntime.js";
 
 function stablePick(lines, game, key) {
   const index = Math.floor(keyedRandom01(game.seed, key) * lines.length);
@@ -193,15 +196,25 @@ function buildPlaceScene(game, activeDefinition = null) {
 }
 
 export function buildScene(game) {
-  if (game.currentStorySceneId) {
-    const definition = getWGScene(game.currentStorySceneId);
+  if (game.currentStory?.type === "scene") {
+    const definition = getWGScene(game.currentStory.id);
     if (!definition) {
-      throw new Error(`Unknown active WG scene: ${game.currentStorySceneId}`);
+      throw new Error(`Unknown active WG scene: ${game.currentStory.id}`);
     }
     if (definition.kind === "place") {
       return buildPlaceScene(game, definition);
     }
     return materializeWGScene(game, definition);
+  }
+  if (game.currentStory?.type === "sequence") {
+    const definition = getWGSequence(game.currentStory.id);
+    if (!definition) {
+      throw new Error(`Unknown active WG sequence: ${game.currentStory.id}`);
+    }
+    return materializeWGSequence(game, definition, game.currentStory.passageId);
+  }
+  if (game.currentStory !== null) {
+    throw new Error(`Unknown active WG story type: ${String(game.currentStory?.type)}`);
   }
 
   const scene = game.currentPlace

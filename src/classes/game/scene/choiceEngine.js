@@ -2,8 +2,9 @@ import { SCENE_ACTION_TYPE } from "../../../data/scene/actions.js";
 import { SCENE_TEXT } from "../../../content/scene/genericText.js";
 import { buildScene } from "./sceneEngine.js";
 import {
+  advanceWGSequence,
   applyWGEffects,
-  exitWGScene,
+  exitWGStory,
   followWGChoice,
   followWGOutcome,
 } from "./wg/storyRuntime.js";
@@ -149,8 +150,8 @@ function performLeave(game, choice, minutes) {
         applyWGEffects(currentGame, choice.action.effects);
       }
       currentGame.setCurrentPlace();
-      if (choice.action.exitStory && currentGame.currentStorySceneId) {
-        exitWGScene(currentGame);
+      if (choice.action.exitStory && currentGame.currentStory) {
+        exitWGStory(currentGame);
       }
     },
   });
@@ -194,6 +195,14 @@ function performWG(game, choice, minutes) {
       followWGChoice(currentGame, choice);
     },
   });
+  return "Continue.";
+}
+
+function performWGNext(game, choice, minutes) {
+  if (minutes !== 0) {
+    fail(CHOICE_ERROR_CODE.invalidAction, "Sequence navigation cannot advance time");
+  }
+  advanceWGSequence(game, choice.action);
   return "Continue.";
 }
 
@@ -280,6 +289,7 @@ const ACTION_HANDLERS = Object.freeze({
   [SCENE_ACTION_TYPE.loiter]: performLoiter,
   [SCENE_ACTION_TYPE.greet]: performGreet,
   [SCENE_ACTION_TYPE.wg]: performWG,
+  [SCENE_ACTION_TYPE.wgNext]: performWGNext,
   [SCENE_ACTION_TYPE.skillCheck]: performSkillCheck,
 });
 

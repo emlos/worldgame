@@ -231,9 +231,48 @@ const sampleBundle = compileStorySources([
 ]);
 check(
   "linked bundles use a versioned scene map",
-  sampleBundle.formatVersion === 4 &&
+  sampleBundle.formatVersion === 5 &&
     Object.keys(sampleBundle.scenes).join(",") === "intro,next" &&
+    Object.keys(sampleBundle.sequences).length === 0 &&
     Object.keys(sampleBundle.entries).join(",") === "sample.introduction",
+);
+
+const sequenceBundle = compileStorySources([
+  {
+    file: "story/sequence.wg",
+    source: `@sequence example.flow -> @exit
+@heading "Example flow"
+
+First passage.
+@next
+
+@passage decision
+Second passage.
+@choice finish "Finish" -> .ending
+@endchoice
+
+@passage ending
+Final passage.
+@next "Return"
+@endsequence`,
+  },
+]);
+const exampleSequence = sequenceBundle.sequences["example.flow"];
+check(
+  "sequences compile ordered anonymous and named passages",
+  exampleSequence?.passages.map((passage) => passage.id).join(",") ===
+    "p1,decision,ending",
+);
+check(
+  "bare @next links to the following passage and the sequence final target",
+  exampleSequence?.passages[0].next?.target === ".decision" &&
+    exampleSequence?.passages[2].next?.target === "@exit" &&
+    exampleSequence?.passages[2].next?.label === "Return",
+);
+check(
+  "sequence choices retain local passage targets",
+  exampleSequence?.passages[1].body.find((node) => node.type === "choice")?.target ===
+    ".ending",
 );
 
 const HUB_SOURCE = `@entry place.hub.home
@@ -375,7 +414,7 @@ rejects(
       source: `@entry bad\n@scene missing\n@auto enter-location\n@endentry\n${sourceA}`,
     },
   ],
-  "Unknown entry scene 'missing'",
+  "Unknown entry target 'missing'",
 );
 rejects(
   "entries require a hub, offer, or automatic trigger",
@@ -479,7 +518,7 @@ rejects(
 @endchoice`,
     },
   ],
-  "Unknown target scene 'missing'",
+  "Unknown story target 'missing'",
 );
 rejects(
   "unclosed condition blocks are rejected",
@@ -602,7 +641,57 @@ rejects(
       source: CHECK_SOURCE.replace("@success -> check.success", "@success -> missing"),
     },
   ],
-  "Unknown target scene 'missing'",
+  "Unknown story target 'missing'",
+);
+rejects(
+  "sequences require headings",
+  [
+    {
+      file: "sequence-heading.wg",
+      source: `@sequence example.flow -> @exit\nProse.\n@next\n@endsequence`,
+    },
+  ],
+  "Sequence requires @heading",
+);
+rejects(
+  "sequence final targets must exist",
+  [
+    {
+      file: "sequence-final.wg",
+      source: `@sequence example.flow -> missing\n@heading "Flow"\nProse.\n@next\n@endsequence`,
+    },
+  ],
+  "Unknown story target 'missing'",
+);
+rejects(
+  "local passage targets must exist in their sequence",
+  [
+    {
+      file: "sequence-local.wg",
+      source: `@sequence example.flow -> @exit\n@heading "Flow"\n@choice next "Next" -> .missing\n@endchoice\n@endsequence`,
+    },
+  ],
+  "Unknown passage target '.missing'",
+);
+rejects(
+  "local passage targets are rejected in ordinary scenes",
+  [
+    {
+      file: "scene-local.wg",
+      source: `:: intro\n@heading "Intro"\n@choice next "Next" -> .missing\n@endchoice`,
+    },
+  ],
+  "only valid inside a sequence",
+);
+rejects(
+  "duplicate sequence passage ids are rejected",
+  [
+    {
+      file: "sequence-duplicate.wg",
+      source: `@sequence example.flow -> @exit\n@heading "Flow"\n@passage same\nFirst.\n@passage same\nSecond.\n@endsequence`,
+    },
+  ],
+  "Duplicate passage id 'same'",
 );
 rejects(
   "unknown directives are rejected",

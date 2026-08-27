@@ -212,7 +212,7 @@ const resolved = resolveWGAutomaticEntry(game, WG_AUTO_TRIGGER.enterLocation, {
   random: sequenceRandom([0, 0]),
 });
 check("automatic resolution enters the selected compiled passage", resolved?.id === locationEntry.id);
-check("automatic resolution activates its scene", game.currentStorySceneId === "taylor.study.peek");
+check("automatic resolution activates its scene", game.currentStory?.type === "scene" && game.currentStory.id === "taylor.study.peek");
 
 const menuGame = new Game({
   seed: 802,
@@ -313,7 +313,7 @@ performChoice(travelGame, {
   sceneId: travelScene.id,
   choiceId: travelChoice.id,
 });
-check("travel resolves enter-location entries after arrival", travelGame.currentStorySceneId === "taylor.study.peek");
+check("travel resolves enter-location entries after arrival", travelGame.currentStory?.type === "scene" && travelGame.currentStory.id === "taylor.study.peek");
 delete WG_BUNDLE.entries["test.location-arrival"];
 
 const finalPositionGame = new Game({
@@ -346,7 +346,7 @@ performChoice(finalPositionGame, {
 });
 check(
   "post-arrival conditions observe NPC movement during the action's elapsed time",
-  finalPositionGame.currentStorySceneId === null,
+  finalPositionGame.currentStory === null,
 );
 removeTimeListener();
 

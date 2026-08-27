@@ -73,7 +73,7 @@ check("the location scene offers entry to the player's home", Boolean(enterHome)
 choose(game, scene, enterHome.id);
 
 scene = buildScene(game);
-check("entering the player's home does not activate the Taylor WG scene", game.currentStorySceneId === null);
+check("entering the player's home does not activate the Taylor WG scene", game.currentStory === null);
 check("the ordinary home hub remains active", scene.kind === "place");
 check(
   "Taylor's eligible entry contributes authored home flavor text",
@@ -89,7 +89,7 @@ check(
 choose(game, scene, initialTaylorLauncher.id);
 
 scene = buildScene(game);
-check("the launcher activates the Taylor WG scene", game.currentStorySceneId === "taylor.study.peek");
+check("the launcher activates the Taylor WG scene", game.currentStory?.type === "scene" && game.currentStory.id === "taylor.study.peek");
 check("the active WG definition materializes as an event Scene", scene.kind === "event");
 check("interpolation resolves and capitalizes Taylor's pronoun", scene.paragraphs[0].includes("Her gaze"));
 check("the false conditional branch supplies its prose", scene.paragraphs.includes("Taylor remains focused on the textbook."));
@@ -108,11 +108,11 @@ check("relationship conditions select their branch", scene.paragraphs.includes("
 const relationshipBeforeMess = game.player.getRelationship(taylor.id).score;
 choose(game, scene, "mess");
 check("WG choice effects change authoritative relationship state", game.player.getRelationship(taylor.id).score === relationshipBeforeMess - 0.02);
-check("WG choices transition to their compiled target", game.currentStorySceneId === "taylor.study.mess");
+check("WG choices transition to their compiled target", game.currentStory?.type === "scene" && game.currentStory.id === "taylor.study.mess");
 
 scene = buildScene(game);
 choose(game, scene, "apologise");
-check("a second WG transition returns to the requested scene", game.currentStorySceneId === "taylor.study.peek");
+check("a second WG transition returns to the requested scene", game.currentStory?.type === "scene" && game.currentStory.id === "taylor.study.peek");
 check("the apology relationship effect is applied", game.player.getRelationship(taylor.id).score === relationshipBeforeMess);
 
 scene = buildScene(game);
@@ -133,7 +133,7 @@ check("a failed timed WG transition rolls back story state", JSON.stringify(game
 removeStudyListener();
 choose(game, scene, "study");
 check("WG choice durations advance game time", game.now.getTime() === studyStart + 60 * 60_000);
-check("the study choice enters its target", game.currentStorySceneId === "taylor.study.back");
+check("the study choice enters its target", game.currentStory?.type === "scene" && game.currentStory.id === "taylor.study.back");
 check("target @onenter effects run during transition", game.story.daily?.taylorStudyCompany === true);
 const storyAfterEntry = JSON.stringify(game.story);
 buildScene(game);
@@ -141,7 +141,7 @@ buildScene(game);
 check("rebuilding a WG scene does not repeat entry effects", JSON.stringify(game.story) === storyAfterEntry);
 
 const restored = Game.fromJSON(JSON.parse(JSON.stringify(game)));
-check("active WG scene state survives save/load", restored.currentStorySceneId === "taylor.study.back");
+check("active WG scene state survives save/load", restored.currentStory?.type === "scene" && restored.currentStory.id === "taylor.study.back");
 check("authored story state survives save/load", restored.story.daily?.taylorStudyCompany === true);
 check("a restored active WG scene can be materialized", buildScene(restored).kind === "event");
 
@@ -149,13 +149,13 @@ scene = buildScene(game);
 choose(game, scene, "continue");
 scene = buildScene(game);
 choose(game, scene, "leave");
-check("an @exit target closes the WG scene", game.currentStorySceneId === null);
+check("an @exit target closes the WG scene", game.currentStory === null);
 scene = buildScene(game);
 check("@exit returns to the ordinary home place scene", scene.kind === "place");
 const reopenTaylor = findChoice(scene, "entry:home.taylor-study");
 check("the home scene offers a way back into the Taylor event", reopenTaylor?.label === "Study with Taylor");
 choose(game, scene, reopenTaylor.id);
-check("the home event launcher reopens the WG scene", game.currentStorySceneId === "taylor.study.peek");
+check("the home event launcher reopens the WG scene", game.currentStory?.type === "scene" && game.currentStory.id === "taylor.study.peek");
 
 scene = buildScene(game);
 choose(game, scene, "leave");
@@ -171,7 +171,7 @@ const reenterHome = scene.sections
       String(choice.action.placeId) === String(game.homePlaceId),
   );
 choose(game, scene, reenterHome.id);
-check("later home entries also remain on the hub", game.currentStorySceneId === null);
+check("later home entries also remain on the hub", game.currentStory === null);
 scene = buildScene(game);
 check(
   "later home hubs still expose Taylor's presence and launcher",

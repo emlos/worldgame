@@ -31,13 +31,13 @@ function rejects(label, mutate, expectedPath, saveFactory = makeSave) {
 }
 
 const validSave = makeSave();
-check("current v15 save validates directly", validateGameSave(validSave) === validSave);
+check("current v16 save validates directly", validateGameSave(validSave) === validSave);
 check(
     "world-map saves no longer contain density",
     !Object.prototype.hasOwnProperty.call(validSave.world.map, "density"),
 );
 check(
-    "validated v15 save round-trips exactly",
+    "validated v16 save round-trips exactly",
     JSON.stringify(Game.fromJSON(validSave)) === JSON.stringify(validSave),
 );
 
@@ -348,11 +348,36 @@ rejects(
     "save.story",
 );
 rejects(
-    "story scene revisions cannot be negative",
+    "active story state rejects unknown frame types",
     (save) => {
-        save.storySceneRevision = -1;
+        save.currentStory = { type: "passage", id: "example.invalid" };
     },
-    "save.storySceneRevision",
+    "save.currentStory.type",
+);
+rejects(
+    "active sequence state requires a passage id",
+    (save) => {
+        save.currentStory = { type: "sequence", id: "example.invalid" };
+    },
+    "save.currentStory.passageId",
+);
+rejects(
+    "ordinary scene state cannot contain a passage id",
+    (save) => {
+        save.currentStory = {
+            type: "scene",
+            id: "example.invalid",
+            passageId: "extra",
+        };
+    },
+    "save.currentStory.passageId",
+);
+rejects(
+    "story revisions cannot be negative",
+    (save) => {
+        save.storyRevision = -1;
+    },
+    "save.storyRevision",
 );
 rejects(
     "future action log entries are rejected",

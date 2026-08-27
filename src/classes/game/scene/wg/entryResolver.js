@@ -1,7 +1,7 @@
 import { WG_BUNDLE } from "../../../../generated/wg/scenes.js";
 import { evaluateWGExpression } from "./expressionEvaluator.js";
 import { createWGRuntimeContext } from "./runtimeContext.js";
-import { enterWGScene } from "./storyRuntime.js";
+import { enterWGTarget } from "./storyRuntime.js";
 
 export const WG_AUTO_TRIGGER = Object.freeze({
   enterPlace: "enter-place",
@@ -197,7 +197,7 @@ export function resolveWGAutomaticEntry(
   trigger,
   { entries = undefined, random = undefined } = {},
 ) {
-  if (game.currentStorySceneId) return null;
+  if (game.currentStory) return null;
   const candidates = getEligibleWGAutomaticEntries(game, trigger, { entries });
   if (!candidates.length) return null;
 
@@ -206,6 +206,6 @@ export function resolveWGAutomaticEntry(
     random ?? game.getRNG("wg-events"),
   );
   if (!selected) return null;
-  enterWGScene(game, selected.sceneId);
+  enterWGTarget(game, selected.sceneId);
   return selected;
 }

@@ -47,8 +47,8 @@ export class Game {
         this.flags = new Set();
         this.dailyFlags = new Set();
         this.story = {};
-        this.currentStorySceneId = null;
-        this.storySceneRevision = 0;
+        this.currentStory = null;
+        this.storyRevision = 0;
         this.actionRevision = 0;
 
         // --- npcs ---
@@ -292,7 +292,7 @@ export class Game {
         // When moving, you're typically not inside any specific place
         this.currentPlaceId = null;
         this.currentPlaceKey = null;
-        this._clearStoryScene();
+        this._clearStory();
 
         // Subscribers should observe a fully consistent position.
         this._dispatchListeners("location", [this, locationId], listenerCheckpoint);
@@ -306,7 +306,7 @@ export class Game {
         if (placeId == null) {
             this.currentPlaceId = null;
             this.currentPlaceKey = placeKey == null ? null : String(placeKey);
-            this._clearStoryScene();
+            this._clearStory();
             return;
         }
 
@@ -325,13 +325,13 @@ export class Game {
         // place keys are represented only by { placeId: null, placeKey: ... }.
         this.currentPlaceId = place.id;
         this.currentPlaceKey = place.key ?? null;
-        this._clearStoryScene();
+        this._clearStory();
     }
 
-    _clearStoryScene() {
-        if (this.currentStorySceneId === null) return;
-        this.currentStorySceneId = null;
-        this.storySceneRevision += 1;
+    _clearStory() {
+        if (this.currentStory === null) return;
+        this.currentStory = null;
+        this.storyRevision += 1;
     }
 
     // --- Story flags ---
@@ -625,7 +625,7 @@ export class Game {
     // --------------------------
     toJSON() {
         return {
-            saveVersion: 15,
+            saveVersion: 16,
             seed: this.seed,
             random: this.random.toJSON(),
             time: this.now.toISOString(),
@@ -640,8 +640,10 @@ export class Game {
             flags: [...this.flags],
             dailyFlags: [...this.dailyFlags],
             story: JSON.parse(JSON.stringify(this.story)),
-            currentStorySceneId: this.currentStorySceneId,
-            storySceneRevision: this.storySceneRevision,
+            currentStory: this.currentStory === null
+                ? null
+                : JSON.parse(JSON.stringify(this.currentStory)),
+            storyRevision: this.storyRevision,
             actionRevision: this.actionRevision,
             log: this.log.map((entry) => ({ ...entry })),
         };
@@ -684,8 +686,10 @@ export class Game {
         game.flags = new Set(data.flags);
         game.dailyFlags = new Set(data.dailyFlags);
         game.story = JSON.parse(JSON.stringify(data.story));
-        game.currentStorySceneId = data.currentStorySceneId;
-        game.storySceneRevision = data.storySceneRevision;
+        game.currentStory = data.currentStory === null
+            ? null
+            : JSON.parse(JSON.stringify(data.currentStory));
+        game.storyRevision = data.storyRevision;
         game.actionRevision = data.actionRevision;
         game.log = data.log.map((entry) => ({ ...entry }));
 

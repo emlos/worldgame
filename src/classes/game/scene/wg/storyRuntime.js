@@ -19,6 +19,11 @@ export function getWGScene(sceneId) {
   return WG_BUNDLE.scenes[id] || null;
 }
 
+export function getWGSequence(sequenceId) {
+  const id = String(sequenceId);
+  return WG_BUNDLE.sequences?.[id] || null;
+}
+
 function storyParent(game, path) {
   if (!Array.isArray(path) || path[0] !== "story" || path.length < 2) {
     fail("WG story mutations require a story.* path");
@@ -118,18 +123,61 @@ export function applyWGEffects(game, effects) {
   for (const effect of effects) applyWGEffect(game, effect);
 }
 
-export function enterWGScene(game, sceneId) {
+export function enterWGScene(game, sceneId, { runOnEnter = true } = {}) {
   const definition = getWGScene(sceneId);
   if (!definition) fail(`Unknown WG scene '${String(sceneId)}'`);
 
-  game.currentStorySceneId = definition.id;
-  game.storySceneRevision += 1;
-  applyWGEffects(game, definition.onEnter || []);
+  game.currentStory = { type: "scene", id: definition.id };
+  game.storyRevision += 1;
+  if (runOnEnter) applyWGEffects(game, definition.onEnter || []);
 }
 
-export function exitWGScene(game) {
-  game.currentStorySceneId = null;
-  game.storySceneRevision += 1;
+export function enterWGSequence(game, sequenceId, passageId = null, { runOnEnter = true } = {}) {
+  const definition = getWGSequence(sequenceId);
+  if (!definition) fail(`Unknown WG sequence '${String(sequenceId)}'`);
+  const resolvedPassageId = passageId ?? definition.passages?.[0]?.id;
+  if (!definition.passages?.some((passage) => passage.id === resolvedPassageId)) {
+    fail(`Unknown passage '${String(resolvedPassageId)}' in WG sequence '${definition.id}'`);
+  }
+
+  game.currentStory = {
+    type: "sequence",
+    id: definition.id,
+    passageId: resolvedPassageId,
+  };
+  game.storyRevision += 1;
+  if (runOnEnter) applyWGEffects(game, definition.onEnter || []);
+}
+
+export function exitWGStory(game) {
+  game.currentStory = null;
+  game.storyRevision += 1;
+}
+
+export function enterWGTarget(
+  game,
+  target,
+  { sequenceId = null, runOnEnter = true } = {},
+) {
+  if (target === "@exit") {
+    exitWGStory(game);
+    return;
+  }
+  if (typeof target !== "string" || !target) fail("WG story targets must be non-empty strings");
+  if (target.startsWith(".")) {
+    if (!sequenceId) fail(`Local passage target '${target}' has no owning sequence`);
+    enterWGSequence(game, sequenceId, target.slice(1), { runOnEnter: false });
+    return;
+  }
+  if (getWGScene(target)) {
+    enterWGScene(game, target, { runOnEnter });
+    return;
+  }
+  if (getWGSequence(target)) {
+    enterWGSequence(game, target, null, { runOnEnter });
+    return;
+  }
+  fail(`Unknown WG story target '${target}'`);
 }
 
 export function followWGChoice(game, choice) {
@@ -138,6 +186,16 @@ export function followWGChoice(game, choice) {
 
 export function followWGOutcome(game, outcome) {
   applyWGEffects(game, outcome.effects || []);
-  if (outcome.target === "@exit") exitWGScene(game);
-  else enterWGScene(game, outcome.target);
+  enterWGTarget(game, outcome.target, { sequenceId: outcome.sequenceId || null });
+}
+
+export function advanceWGSequence(game, action) {
+  const frame = game.currentStory;
+  if (frame?.type !== "sequence" || frame.id !== action.sequenceId) {
+    fail("WG sequence navigation no longer matches the active sequence");
+  }
+  enterWGTarget(game, action.target, {
+    sequenceId: action.sequenceId,
+    runOnEnter: false,
+  });
 }

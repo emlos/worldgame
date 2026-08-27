@@ -94,9 +94,9 @@ const replayGame = new Game({
 const playedScenes = [];
 for (let index = 0; index < 2; index++) {
   enterHome(replayGame);
-  playedScenes.push(replayGame.currentStorySceneId);
+  playedScenes.push(replayGame.currentStory?.id);
   performById(replayGame, "next");
-  check(`event ${index + 1} Next returns to the home hub`, replayGame.currentStorySceneId === null);
+  check(`event ${index + 1} Next returns to the home hub`, replayGame.currentStory === null);
   performById(replayGame, "leave");
 }
 check(
@@ -107,7 +107,7 @@ check(
 enterHome(replayGame);
 check(
   "played unconditional events never trigger again",
-  replayGame.currentStorySceneId === null,
+  replayGame.currentStory === null,
 );
 
 const timedGame = new Game({
@@ -123,14 +123,14 @@ timedGame.story.homeEvents = {
 enterHome(timedGame);
 check(
   "the time-gated event triggers during its window",
-  timedGame.currentStorySceneId === "home.random.late-breakfast",
+  timedGame.currentStory?.type === "scene" && timedGame.currentStory.id === "home.random.late-breakfast",
 );
 performById(timedGame, "next");
 performById(timedGame, "leave");
 enterHome(timedGame);
 check(
   "the time-gated event also plays only once",
-  timedGame.currentStorySceneId === null,
+  timedGame.currentStory === null,
 );
 
 if (failures.length) {

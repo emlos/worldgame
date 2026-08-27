@@ -85,7 +85,7 @@ choose(game, scene, "open-jar");
 choose(restored, restoredScene, "open-jar");
 check(
   "save/reload preserves the skill-check branch",
-  restored.currentStorySceneId === game.currentStorySceneId &&
+  JSON.stringify(restored.currentStory) === JSON.stringify(game.currentStory) &&
     restored.hasFlag("jar_opened") === game.hasFlag("jar_opened"),
 );
 check(
@@ -95,7 +95,8 @@ check(
 );
 check(
   "jar checks enter exactly one authored result passage",
-  ["home.jar-opened", "home.jar-stuck"].includes(game.currentStorySceneId),
+  game.currentStory?.type === "scene" &&
+    ["home.jar-opened", "home.jar-stuck"].includes(game.currentStory.id),
 );
 
 if (failures.length) {

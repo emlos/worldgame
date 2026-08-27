@@ -7,6 +7,9 @@
     { "include": "#escaped-markers" },
     { "include": "#scene-header" },
     { "include": "#entry-header" },
+    { "include": "#sequence-header" },
+    { "include": "#passage-header" },
+    { "include": "#next-directive" },
     { "include": "#choice-header" },
     { "include": "#outcome-header" },
     { "include": "#condition-directives" },
@@ -57,11 +60,51 @@
         }
       ]
     },
+    "sequence-header": {
+      "patterns": [
+        {
+          "name": "meta.sequence.header.wg",
+          "match": "^(\\s*)(@sequence)\\s+([a-z][a-z0-9_.-]*)\\s+(->)\\s+(@exit|[a-z][a-z0-9_.-]*)\\s*$",
+          "captures": {
+            "2": { "name": "keyword.control.block.begin.wg" },
+            "3": { "name": "entity.name.type.sequence.wg" },
+            "4": { "name": "keyword.operator.arrow.wg" },
+            "5": { "name": "entity.name.section.reference.wg" }
+          }
+        }
+      ]
+    },
+    "passage-header": {
+      "patterns": [
+        {
+          "name": "meta.passage.header.wg",
+          "match": "^(\\s*)(@passage)\\s+([a-z][a-z0-9_-]*)\\s*$",
+          "captures": {
+            "2": { "name": "keyword.control.section.wg" },
+            "3": { "name": "entity.name.section.wg" }
+          }
+        }
+      ]
+    },
+    "next-directive": {
+      "patterns": [
+        {
+          "name": "meta.next.directive.wg",
+          "match": "^(\\s*)(@next)(?:\\s+(\"(?:\\\\.|[^\"\\\\])*\"))?(?:\\s+(->)\\s+(@exit|\\.[a-z][a-z0-9_-]*|[a-z][a-z0-9_.-]*))?\\s*$",
+          "captures": {
+            "2": { "name": "keyword.control.flow.wg" },
+            "3": { "name": "string.quoted.double.wg" },
+            "4": { "name": "keyword.operator.arrow.wg" },
+            "5": { "name": "entity.name.section.reference.wg" }
+          }
+        }
+      ]
+    },
     "choice-header": {
       "patterns": [
         {
           "name": "meta.choice.header.wg",
-          "match": "^(\\s*)(@choice)\\s+([a-z0-9_][a-z0-9_.-]*)\\s+(\"(?:\\\\.|[^\"\\\\])*\")(?:\\s+(->)\\s+(@exit|@leave-place|[a-z0-9_][a-z0-9_.-]*))?\\s*$",
+          "match": "^(\\s*)(@choice)\\s+([a-z0-9_][a-z0-9_.-]*)\\s+(\"(?:\\\\.|[^\"\\\\])*\")(?:\\s+(->)\\s+(@exit|@leave-place|\\.[a-z][a-z0-9_-]*|[a-z0-9_][a-z0-9_.-]*))?\\s*$",
           "captures": {
             "2": { "name": "keyword.control.block.begin.wg" },
             "3": { "name": "entity.name.function.choice.wg" },
@@ -76,7 +119,7 @@
       "patterns": [
         {
           "name": "meta.choice.outcome.header.wg",
-          "match": "^(\\s*)(@(success|failure))\\s+(->)\\s+(@exit|@leave-place|[a-z0-9_][a-z0-9_.-]*)\\s*$",
+          "match": "^(\\s*)(@(success|failure))\\s+(->)\\s+(@exit|@leave-place|\\.[a-z][a-z0-9_-]*|[a-z0-9_][a-z0-9_.-]*)\\s*$",
           "captures": {
             "2": { "name": "keyword.control.block.begin.wg" },
             "4": { "name": "keyword.operator.arrow.wg" },
@@ -125,7 +168,7 @@
       "patterns": [
         {
           "name": "keyword.control.block.wg",
-          "match": "^\\s*(@(?:else|endif|endentry|endchoice|success|endsuccess|failure|endfailure|onenter|endonenter))\\s*$"
+          "match": "^\\s*(@(?:else|endif|endentry|endchoice|endsequence|success|endsuccess|failure|endfailure|onenter|endonenter))\\s*$"
         }
       ]
     },

@@ -72,7 +72,7 @@ function materializeSkillChanges(effects) {
     }));
 }
 
-function materializeChoice(node, context) {
+function materializeChoice(node, context, { sequenceId = null } = {}) {
   if (node.when && !Boolean(evaluateWGExpression(node.when, context))) return null;
 
   let disabledReason = null;
@@ -102,8 +102,12 @@ function materializeChoice(node, context) {
         difficultyId: node.check.difficultyId,
       },
       outcomes: {
-        success: node.outcomes.success,
-        failure: node.outcomes.failure,
+        success: sequenceId
+          ? { ...node.outcomes.success, sequenceId }
+          : node.outcomes.success,
+        failure: sequenceId
+          ? { ...node.outcomes.failure, sequenceId }
+          : node.outcomes.failure,
       },
     };
   } else {
@@ -117,6 +121,7 @@ function materializeChoice(node, context) {
           type: SCENE_ACTION_TYPE.wg,
           target: node.target,
           effects: node.effects || [],
+          sequenceId,
         };
   }
 
@@ -139,7 +144,7 @@ function materializeChoice(node, context) {
   });
 }
 
-function materializeNodes(nodes, context, output) {
+function materializeNodes(nodes, context, output, options = {}) {
   if (!Array.isArray(nodes)) fail("Scene body must be an array");
   for (const node of nodes) {
     if (node?.type === "paragraph") {
@@ -147,7 +152,7 @@ function materializeNodes(nodes, context, output) {
       continue;
     }
     if (node?.type === "choice") {
-      const choice = materializeChoice(node, context);
+      const choice = materializeChoice(node, context, options);
       if (choice) output.choices.push(choice);
       continue;
     }
@@ -155,7 +160,7 @@ function materializeNodes(nodes, context, output) {
       const branch = (node.branches || []).find((candidate) =>
         Boolean(evaluateWGExpression(candidate.test, context)),
       );
-      materializeNodes(branch?.nodes || node.elseNodes || [], context, output);
+      materializeNodes(branch?.nodes || node.elseNodes || [], context, output, options);
       continue;
     }
     fail(`Unknown scene node '${String(node?.type)}'`, node?.source);
@@ -172,7 +177,42 @@ export function materializeWGScene(game, definition) {
   materializeNodes(definition.body, context, output);
 
   return createScene({
-    id: `wg:${game.storySceneRevision}:${definition.id}:${game.now.toISOString()}`,
+    id: `wg:${game.storyRevision}:scene:${definition.id}:${game.now.toISOString()}`,
+    kind: definition.kind,
+    heading: definition.heading,
+    status: buildSceneStatus(game),
+    map: null,
+    paragraphs: output.paragraphs,
+    sections: output.choices.length
+      ? [{ id: "choices", heading: definition.choiceHeading, choices: output.choices }]
+      : [],
+  });
+}
+
+export function materializeWGSequence(game, definition, passageId) {
+  if (!definition || typeof definition !== "object" || Array.isArray(definition)) {
+    fail("WG sequence definition must be an object");
+  }
+  const passage = definition.passages?.find((candidate) => candidate.id === passageId);
+  if (!passage) fail(`WG sequence '${definition.id}' has no passage '${String(passageId)}'`);
+
+  const context = createWGRuntimeContext(game);
+  const output = { paragraphs: [], choices: [] };
+  materializeNodes(passage.body, context, output, { sequenceId: definition.id });
+  if (passage.next) {
+    output.choices.push(createChoice({
+      id: "__wg_next",
+      label: passage.next.label,
+      action: {
+        type: SCENE_ACTION_TYPE.wgNext,
+        sequenceId: definition.id,
+        target: passage.next.target,
+      },
+    }));
+  }
+
+  return createScene({
+    id: `wg:${game.storyRevision}:sequence:${definition.id}:${passage.id}:${game.now.toISOString()}`,
     kind: definition.kind,
     heading: definition.heading,
     status: buildSceneStatus(game),
