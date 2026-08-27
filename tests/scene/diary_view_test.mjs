@@ -48,12 +48,12 @@ check(
   "all data-defined school periods are included in chronological order",
   equal(
     schoolDay.school.periods.map((period) => period.id),
-    ["english", "math", "history", "lunch", "science", "art", "phys-ed"],
+    ["english", "math", "history", "lunch", "science", "art", "physical_education"],
   ),
 );
 check(
   "data keys receive readable diary labels",
-  schoolDay.school.periods.at(-1).label === "Phys Ed",
+  schoolDay.school.periods.at(-1).label === "Physical Education",
 );
 
 const weekend = buildPlayerDiaryView(game, {

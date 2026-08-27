@@ -32,8 +32,6 @@ export const SCENE_TEXT = Object.freeze({
     navigation: "Navigation",
   }),
 
-  relationshipPreview: "+Relationship",
-
   locationHeading(streetName, locationName) {
     return streetName ? `${streetName} · ${locationName}` : locationName;
   },
@@ -46,10 +44,6 @@ export const SCENE_TEXT = Object.freeze({
 
   placeIntroduction(placeName, locationName) {
     return `You are inside ${placeName} in ${locationName}.`;
-  },
-
-  greetChoice(npcName) {
-    return `Say hello to ${npcName}`;
   },
 
   travelChoice(streetName, destinationName) {
@@ -98,10 +92,6 @@ export const SCENE_TEXT = Object.freeze({
 
   loiterLog: "Loiter",
 
-  greetLog(npcName) {
-    return `Greet ${npcName}`;
-  },
-
   travelResult(destinationName) {
     return `You arrive in ${destinationName}.`;
   },
@@ -116,11 +106,4 @@ export const SCENE_TEXT = Object.freeze({
 
   loiterResult: "You spend a little while watching the area around you.",
 
-  greetResult(npcName) {
-    return `You say hello to ${npcName}.`;
-  },
-
-  busyGreetResult(npcName) {
-    return `“Sorry, I'm busy,” ${npcName} says, continuing on their errand.`;
-  },
 });

@@ -1,6 +1,7 @@
 import { Game } from "../../src/classes/game/game.js";
 import { buildPhonePlayerStatsView } from "../../src/classes/game/scene/phoneView.js";
 import { SKILLS, STATS } from "../../src/data/player/stats.js";
+import { SCHOOL_SUBJECTS } from "../../src/data/player/education.js";
 import { BodyPartId } from "../../src/shared/classes/body.js";
 import { Clothing, WearSlot } from "../../src/shared/classes/clothing.js";
 
@@ -15,6 +16,8 @@ const game = new Game({ seed: 117 });
 game.player.money = 42.5;
 game.player.temperature = "cold";
 game.player.setSkillValue("strength", 4.25);
+game.player.adjustSubjectGrade("english", 2);
+game.player.recordSubjectAttendance("english", 1);
 game.player.equip(new Clothing({
   id: "plain_shirt",
   slot: WearSlot.UPPER,
@@ -27,6 +30,7 @@ game.player.applyDamageToPart({ partId: BodyPartId.HEAD, amount: 12 });
 const view = buildPhonePlayerStatsView(game);
 const health = view.stats.find((entry) => entry.id === "health");
 const strength = view.skills.find((entry) => entry.id === "strength");
+const english = view.education.find((entry) => entry.id === "english");
 const head = view.body.parts.find((entry) => entry.id === BodyPartId.HEAD);
 const shirt = view.clothing.find((entry) => entry.slot === WearSlot.UPPER)?.item;
 
@@ -60,6 +64,14 @@ check(
     strength?.value === 4.25 &&
     strength?.min === 0 &&
     strength?.max === 10,
+);
+check(
+  "every school subject exposes its grade and attendance",
+  view.education.length === Object.keys(SCHOOL_SUBJECTS).length &&
+    english?.grade === 52 &&
+    english?.attendedSegments === 1 &&
+    english?.min === 0 &&
+    english?.max === 100,
 );
 check(
   "body summary exposes pain, condition, performance, and incapacitation",
@@ -101,6 +113,7 @@ check(
   "the complete stats view rebuilds correctly after save and load",
   restoredView.overview.money === 1 &&
     restoredView.skills.find((entry) => entry.id === "strength")?.value === 9 &&
+    restoredView.education.find((entry) => entry.id === "english")?.grade === 52 &&
     restoredView.body.parts.find((entry) => entry.id === BodyPartId.HEAD)?.health === 88 &&
     restoredView.clothing.find((entry) => entry.slot === WearSlot.UPPER)?.item?.id === "plain_shirt",
 );

@@ -1,3 +1,5 @@
+import { getSchoolDayState } from "../../../../data/player/schedule.js";
+
 function evaluatedStats(character) {
   const values = {};
   for (const name of Object.keys(character.stats || {})) {
@@ -15,6 +17,12 @@ function skillValues(player) {
 }
 
 function playerContext(player) {
+  const education = Object.fromEntries(
+    Object.entries(player.education?.subjects || {}).map(([id, subject]) => [
+      id,
+      { grade: subject.grade, attendedSegments: subject.attendedSegments },
+    ]),
+  );
   return {
     ...evaluatedStats(player),
     ...pronounValues(player),
@@ -23,6 +31,7 @@ function playerContext(player) {
     money: player.money,
     temperature: player.temperature,
     skills: skillValues(player),
+    education,
   };
 }
 
@@ -30,6 +39,7 @@ function timeContext(date) {
   const hour = date.getUTCHours();
   const minute = date.getUTCMinutes();
   return {
+    iso: date.toISOString(),
     hour,
     minute,
     minutesSinceMidnight: hour * 60 + minute,
@@ -80,6 +90,7 @@ export function createWGRuntimeContext(game) {
     flags,
     daily,
     time: timeContext(game.now),
+    school: getSchoolDayState(game),
     location: game.location
       ? {
           id: game.location.id,

@@ -3,10 +3,7 @@ import {
   LOCATION_DESCRIPTIONS,
   SCENE_TEXT,
 } from "../../../content/scene/genericText.js";
-import {
-  DEFAULT_NPC_INTERACTION_MINUTES,
-  SCENE_ACTION_TYPE,
-} from "../../../data/scene/actions.js";
+import { SCENE_ACTION_TYPE } from "../../../data/scene/actions.js";
 import { PLACE_ENTER_MINUTES } from "../../../data/world/travel.js";
 import { buildLocalMapView } from "./mapView.js";
 import { buildSceneStatus } from "./sceneContext.js";
@@ -168,25 +165,6 @@ function stablePick(lines, game, key) {
   return lines[index];
 }
 
-function personChoice(npc) {
-  const npcName = npc.meta?.shortName || npc.name;
-  return createChoice({
-    id: `greet:${npc.id}`,
-    icon: "👋",
-    label: SCENE_TEXT.greetChoice(npcName),
-    durationMinutes: DEFAULT_NPC_INTERACTION_MINUTES,
-    effectsPreview: [
-      {
-        type: "relationship",
-        amount: 0.02,
-        targetId: npc.id,
-        label: SCENE_TEXT.relationshipPreview,
-      },
-    ],
-    action: { type: SCENE_ACTION_TYPE.greet, npcId: npc.id },
-  });
-}
-
 function entryChoice(entry) {
   return createChoice({
     id: `entry:${entry.id}`,
@@ -206,7 +184,7 @@ function personChoices(game, npc) {
     type: WG_OFFER_TYPE.npc,
     npcId: npc.id,
   });
-  return [personChoice(npc), ...offers.map(entryChoice)];
+  return offers.map(entryChoice);
 }
 
 function buildLocationScene(game) {

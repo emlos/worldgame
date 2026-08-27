@@ -9,6 +9,11 @@ import { RANDOM_HOLIDAYS, MONTH_DAYS, DayKind } from "../../../data/world/calend
 import { DAY_KEYS, MS_PER_MINUTE } from "../../../data/world/time.js";
 import { WeatherType } from "../../../data/world/weather.js";
 import { PLAYER_TEMPERATURE_VALUES, SKILLS, STATS } from "../../../data/player/stats.js";
+import {
+    SCHOOL_SUBJECTS,
+    SUBJECT_GRADE_MAX,
+    SUBJECT_GRADE_MIN,
+} from "../../../data/player/education.js";
 import { npcHomeAccessFlag } from "../../../data/world/access.js";
 import {
     getPlaceInstanceTarget,
@@ -371,6 +376,30 @@ function validatePlayer(data, path, npcIds, gameTime) {
     });
     for (const name of Object.keys(SKILLS)) {
         if (!seenSkills.has(name)) fail(`${path}.skills`, `is missing registered skill '${name}'`);
+    }
+
+    const education = record(required(player, "education", path), `${path}.education`);
+    const subjects = record(
+        required(education, "subjects", `${path}.education`),
+        `${path}.education.subjects`,
+    );
+    for (const id of Object.keys(subjects)) {
+        if (!SCHOOL_SUBJECTS[id]) {
+            fail(`${path}.education.subjects.${id}`, `references unknown school subject '${id}'`);
+        }
+    }
+    for (const id of Object.keys(SCHOOL_SUBJECTS)) {
+        const subjectPath = `${path}.education.subjects.${id}`;
+        const subject = record(required(subjects, id, `${path}.education.subjects`), subjectPath);
+        finiteNumber(required(subject, "grade", subjectPath), `${subjectPath}.grade`, {
+            min: SUBJECT_GRADE_MIN,
+            max: SUBJECT_GRADE_MAX,
+        });
+        integer(
+            required(subject, "attendedSegments", subjectPath),
+            `${subjectPath}.attendedSegments`,
+            { min: 0 },
+        );
     }
 }
 
@@ -1222,9 +1251,9 @@ export function validateGameSave(data) {
     const save = record(data, "save");
     same(
         integer(required(save, "saveVersion", "save"), "save.saveVersion"),
-        17,
+        18,
         "save.saveVersion",
-        "version 17",
+        "version 18",
     );
 
     const seed = uint32(required(save, "seed", "save"), "save.seed");

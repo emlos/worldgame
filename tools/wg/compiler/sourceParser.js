@@ -1,6 +1,7 @@
 import { failWG, sourceLocation } from "./diagnostic.js";
 import { parseExpression } from "./expressionParser.js";
 import { SKILLS, STATS } from "../../../src/data/player/stats.js";
+import { SCHOOL_SUBJECTS } from "../../../src/data/player/education.js";
 import { SKILL_CHECK_DIFFICULTIES } from "../../../src/data/scene/skillChecks.js";
 
 const ID_PATTERN = "[a-z][a-z0-9_.-]*";
@@ -211,6 +212,26 @@ function parseEffect(text, file, line) {
     };
   }
 
+  const educationValue = argument.match(
+    new RegExp(`^(grade|attendance)\\s+(${ID_PATTERN})\\s+([+-]?\\d+(?:\\.\\d+)?)$`),
+  );
+  if (educationValue) {
+    const [, operation, id, amountText] = educationValue;
+    if (!SCHOOL_SUBJECTS[id]) {
+      failWG(`@effect ${operation} references unknown school subject '${id}'`, location);
+    }
+    const amount = Number(amountText);
+    if (operation === "attendance" && (!Number.isInteger(amount) || amount <= 0)) {
+      failWG("@effect attendance requires a positive whole number", location);
+    }
+    return {
+      op: operation,
+      id,
+      amount,
+      source: nodeSource(file, line),
+    };
+  }
+
   failWG("Unknown or malformed @effect", location);
 }
 
@@ -412,11 +433,12 @@ class SceneBodyParser {
     if (!choice.outcomes.success || !choice.outcomes.failure) {
       failWG("Skill checks require both @success and @failure outcomes", location);
     }
-    if (singleFields.has("time") || choice.effects.length || choice.previews.length) {
+    if (singleFields.has("timing") || choice.effects.length || choice.previews.length) {
       failWG("Checked choices keep @time and @effect inside outcome blocks and cannot use @preview", location);
     }
     delete choice.target;
     delete choice.durationMinutes;
+    delete choice.timeUntilPath;
     delete choice.energyFree;
     delete choice.previews;
     delete choice.effects;
@@ -446,6 +468,7 @@ class SceneBodyParser {
       outcomes: { success: null, failure: null },
       icon: null,
       durationMinutes: 0,
+      timeUntilPath: null,
       energyFree: false,
       when: null,
       requirements: [],
@@ -482,9 +505,13 @@ class SceneBodyParser {
         continue;
       }
 
-      if (["icon", "time", "when", "warning", "check"].includes(name)) {
+      if (["icon", "when", "warning", "check"].includes(name)) {
         if (singleFields.has(name)) failWG(`Duplicate @${name}`, location);
         singleFields.add(name);
+      }
+      if (name === "time" || name === "time-until") {
+        if (singleFields.has("timing")) failWG("Duplicate choice timing directive", location);
+        singleFields.add("timing");
       }
 
       if (name === "icon") {
@@ -499,6 +526,12 @@ class SceneBodyParser {
         );
         choice.durationMinutes = parsedTime.durationMinutes;
         choice.energyFree = parsedTime.energyFree;
+      } else if (name === "time-until") {
+        const pathText = directiveArgument(text, "time-until", location);
+        if (!PATH_REGEX.test(pathText)) {
+          failWG("@time-until requires a dotted runtime path", location);
+        }
+        choice.timeUntilPath = pathText.split(".");
       } else if (name === "when") {
         choice.when = parseExpression(
           directiveArgument(text, "when", location),

@@ -136,7 +136,7 @@ export const PLACE_REGISTRY = [
         label: "Bus Stop",
         distribution: {
             kind: PLACE_DISTRIBUTION_KIND.graphCoverage,
-            locationsPerInstance: { min: 3, max: 5 },
+            locationsPerInstance: { min: 2, max: 4 },
             maxGraphDistance: 2,
         },
         allowedTags: [
@@ -803,21 +803,24 @@ export const PLACE_REGISTRY = [
             LOCATION_TAGS.suburban_hub,
             LOCATION_TAGS.residential,
         ],
-        props: { icon: "🏫", category: [PLACE_TAGS.education],
+        props: {
+            icon: "🏫",
+            category: [PLACE_TAGS.education],
+            ejectAtClose: true,
             semesters: [
                 { name: "Fall", start: "09-01", end: "12-15" },
                 { name: "Spring", start: "01-10", end: "05-20" },
             ],
-            schedule: {
-                "english": { start: "09:00", end: "09:45" },
-                "math": { start: "10:00", end: "10:45" },
-                "history": { start: "11:00", end: "11:45" },
-                "lunch": { start: "12:00", end: "12:45" },
-                "science": { start: "13:00", end: "13:45" },
-                "art": { start: "14:00", end: "14:45" },
-                "phys-ed": { start: "15:00", end: "15:45" },
-            }
-         },
+            timetable: [
+                { id: "english", kind: "class", subjectId: "english", start: "09:00", end: "09:45", segments: 3 },
+                { id: "math", kind: "class", subjectId: "math", start: "10:00", end: "10:45", segments: 3 },
+                { id: "history", kind: "class", subjectId: "history", start: "11:00", end: "11:45", segments: 3 },
+                { id: "lunch", kind: "lunch", start: "12:00", end: "13:00" },
+                { id: "science", kind: "class", subjectId: "science", start: "13:00", end: "13:45", segments: 3 },
+                { id: "art", kind: "class", subjectId: "art", start: "14:00", end: "14:45", segments: 3 },
+                { id: "physical_education", kind: "class", subjectId: "physical_education", start: "15:00", end: "15:45", segments: 3 },
+            ],
+        },
         nameFn: ({ rnd }) =>
             `${pick(["St. Genevieve's High School", "Riverside High", "Docktown High"], rnd)}`,
     },
@@ -1508,6 +1511,7 @@ export const DEFAULT_OPENING_HOURS = hoursAllDay();
 
 // Per-place overrides
 const SCHOOL_HOURS = hoursWeekdays({ from: "08:00", to: "17:00" });
+const HIGH_SCHOOL_HOURS = hoursWeekdays({ from: "07:00", to: "17:00" });
 
 export const DEFAULT_OPENING_HOURS_BY_KEY = {
     // 24/7 LOCATIONS
@@ -1608,7 +1612,7 @@ export const DEFAULT_OPENING_HOURS_BY_KEY = {
     // SCHOOLS
     primary_school: SCHOOL_HOURS,
     middle_school: SCHOOL_HOURS,
-    high_school: SCHOOL_HOURS,
+    high_school: HIGH_SCHOOL_HOURS,
     university: hoursWeekdays({ from: "08:00", to: "22:00" }), // Late classes/library access
 
     // LUXURY

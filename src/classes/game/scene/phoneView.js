@@ -1,4 +1,9 @@
 import { SKILLS, STATS } from "../../../data/player/stats.js";
+import {
+  SCHOOL_SUBJECTS,
+  SUBJECT_GRADE_MAX,
+  SUBJECT_GRADE_MIN,
+} from "../../../data/player/education.js";
 import { WearSlot } from "../../../shared/classes/clothing.js";
 import { listNavigationDestinations } from "../navigation.js";
 
@@ -65,6 +70,17 @@ export function buildPhonePlayerStatsView(game) {
       min: definition.min,
       max: definition.max,
     })),
+    education: Object.entries(SCHOOL_SUBJECTS).map(([id, definition]) => {
+      const subject = player.getSubjectRecord(id);
+      return {
+        id,
+        label: definition.label,
+        grade: subject.grade,
+        attendedSegments: subject.attendedSegments,
+        min: SUBJECT_GRADE_MIN,
+        max: SUBJECT_GRADE_MAX,
+      };
+    }),
     body: {
       health: player.body?.getTotalHealth() ?? 0,
       maxHealth: player.body?.getMaximumHealth() ?? 0,

@@ -1,9 +1,23 @@
+import { SCHOOL_SUBJECTS } from "./education.js";
 import { DayKind } from "../world/calendar.js";
 import { PLACE_REGISTRY } from "../world/place.js";
+import { parseTimeToMinutes } from "../../shared/util/date.js";
 
 export const SCHEDULE = {
   school: true,
 };
+
+export const SCHOOL_PHASE = Object.freeze({
+  closed: "closed",
+  noSchool: "no_school",
+  beforeSchool: "before_school",
+  class: "class",
+  break: "break",
+  lunch: "lunch",
+  afterSchool: "after_school",
+});
+
+const MS_PER_MINUTE = 60_000;
 
 function asValidDate(value) {
   const date = value instanceof Date ? new Date(value.getTime()) : new Date(value);
@@ -50,23 +64,57 @@ function schoolFromWorld(game) {
 }
 
 function schoolPeriods(school) {
-  const timetable = school?.props?.schedule;
-  if (!timetable || typeof timetable !== "object") return [];
+  const timetable = school?.props?.timetable;
+  if (!Array.isArray(timetable)) return [];
 
-  return Object.entries(timetable)
-    .filter(([, period]) => validTime(period?.start) && validTime(period?.end))
-    .map(([id, period]) => ({
-      id,
-      label: labelFromKey(id),
-      start: period.start,
-      end: period.end,
-    }))
+  return timetable
+    .filter(
+      (period) =>
+        period &&
+        typeof period.id === "string" &&
+        validTime(period.start) &&
+        validTime(period.end),
+    )
+    .map((period) => {
+      const kind = period.kind === "lunch" ? "lunch" : "class";
+      const subject = period.subjectId == null
+        ? null
+        : SCHOOL_SUBJECTS[String(period.subjectId)] || null;
+      return {
+        id: String(period.id),
+        kind,
+        subjectId: subject ? String(period.subjectId) : null,
+        label: subject?.label || labelFromKey(period.id),
+        start: period.start,
+        end: period.end,
+        segments:
+          kind === "class" && Number.isInteger(period.segments) && period.segments > 0
+            ? period.segments
+            : null,
+      };
+    })
     .sort(
       (left, right) =>
         left.start.localeCompare(right.start) ||
         left.end.localeCompare(right.end) ||
         left.id.localeCompare(right.id),
     );
+}
+
+function dateAtUtcMinute(date, minute) {
+  return new Date(
+    Date.UTC(
+      date.getUTCFullYear(),
+      date.getUTCMonth(),
+      date.getUTCDate(),
+    ) + minute * MS_PER_MINUTE,
+  );
+}
+
+function isoOrNull(value) {
+  return value instanceof Date && Number.isFinite(value.getTime())
+    ? value.toISOString()
+    : null;
 }
 
 function currentSemester(school, date) {
@@ -122,7 +170,11 @@ export function getSchoolDayPlan(
   if (!schoolEnabled) noSchoolReason = "school_disabled";
   else if (dayInfo.kind === DayKind.DAY_OFF) noSchoolReason = "day_off";
   else if (semester.configured && !semester.current) noSchoolReason = "out_of_term";
-  else if (!periods.length) noSchoolReason = "timetable_unavailable";
+  else if (!periods.some((period) => period.kind === "class")) {
+    noSchoolReason = "timetable_unavailable";
+  }
+
+  const classPeriods = periods.filter((period) => period.kind === "class");
 
   return {
     date: schoolDate.toISOString(),
@@ -142,14 +194,112 @@ export function getSchoolDayPlan(
       name: school?.name || "High School",
       districtName: resolvedSchool.location?.name || "Unknown district",
       semester: semester.current,
-      start: periods[0]?.start || null,
-      end: periods.at(-1)?.end || null,
+      start: classPeriods[0]?.start || null,
+      end: classPeriods.at(-1)?.end || null,
       periods,
     },
   };
 }
 
-const defaultPeriods = schoolPeriods(defaultHighSchool());
+/** Derive the semantic school phase used by authored school scenes. */
+export function getSchoolDayState(
+  game,
+  { date = game?.now, schoolEnabled = SCHEDULE.school } = {},
+) {
+  const at = asValidDate(date);
+  const plan = getSchoolDayPlan(game, { date: at, schoolEnabled });
+  const resolved = schoolFromWorld(game);
+  const school = resolved.school;
+  const periods = plan.school.periods.map((period) => ({
+    ...period,
+    startMinute: parseTimeToMinutes(period.start),
+    endMinute: parseTimeToMinutes(period.end),
+  }));
+  const classPeriods = periods.filter((period) => period.kind === "class");
+  const minute = at.getUTCHours() * 60 + at.getUTCMinutes();
+  const atSchool =
+    String(game?.currentLocationId) === String(plan.school.locationId) &&
+    String(game?.currentPlaceId) === String(plan.school.placeId);
+  const isOpen = typeof school?.isOpen === "function" ? school.isOpen(at) : true;
+  const closesAt = typeof school?.getClosingTime === "function"
+    ? school.getClosingTime(at)
+    : null;
+
+  let phase = SCHOOL_PHASE.closed;
+  let period = null;
+  let segment = null;
+  let nextBoundary = null;
+
+  if (isOpen) {
+    if (!plan.hasSchool) {
+      phase = SCHOOL_PHASE.noSchool;
+      nextBoundary = closesAt;
+    } else {
+      period = periods.find(
+        (candidate) => minute >= candidate.startMinute && minute < candidate.endMinute,
+      ) || null;
+      const firstClass = classPeriods[0];
+      const lastClass = classPeriods.at(-1);
+
+      if (period?.kind === "class") {
+        phase = SCHOOL_PHASE.class;
+        const duration = period.endMinute - period.startMinute;
+        const segmentCount = period.segments || 1;
+        const segmentMinutes = duration / segmentCount;
+        segment = Math.min(
+          segmentCount,
+          Math.floor((minute - period.startMinute) / segmentMinutes) + 1,
+        );
+        nextBoundary = dateAtUtcMinute(
+          at,
+          period.startMinute + segment * segmentMinutes,
+        );
+      } else if (period?.kind === "lunch") {
+        phase = SCHOOL_PHASE.lunch;
+        const nextClass = classPeriods.find((candidate) => candidate.startMinute > minute);
+        nextBoundary = nextClass
+          ? dateAtUtcMinute(at, nextClass.startMinute)
+          : closesAt;
+      } else if (firstClass && minute < firstClass.startMinute) {
+        phase = SCHOOL_PHASE.beforeSchool;
+        nextBoundary = dateAtUtcMinute(at, firstClass.startMinute);
+      } else if (lastClass && minute >= lastClass.endMinute) {
+        phase = SCHOOL_PHASE.afterSchool;
+        nextBoundary = closesAt;
+      } else {
+        phase = SCHOOL_PHASE.break;
+        const nextClass = classPeriods.find((candidate) => candidate.startMinute > minute);
+        nextBoundary = nextClass
+          ? dateAtUtcMinute(at, nextClass.startMinute)
+          : closesAt;
+      }
+    }
+  }
+
+  const minutesUntilNextBoundary = nextBoundary
+    ? (nextBoundary.getTime() - at.getTime()) / MS_PER_MINUTE
+    : null;
+
+  return {
+    isSchoolDay: plan.hasSchool,
+    noSchoolReason: plan.noSchoolReason,
+    atSchool,
+    phase,
+    periodId: period?.id ?? null,
+    periodLabel: period?.label ?? null,
+    subjectId: period?.subjectId ?? null,
+    segment,
+    segmentCount: period?.segments ?? null,
+    nextBoundaryAt: isoOrNull(nextBoundary),
+    minutesUntilNextBoundary,
+    closesAt: isoOrNull(closesAt),
+    school: plan.school,
+  };
+}
+
+const defaultPeriods = schoolPeriods(defaultHighSchool()).filter(
+  (period) => period.kind === "class",
+);
 
 export const SCHOOL_DAY_START = defaultPeriods[0]?.start ?? null;
 export const SCHOOL_DAY_END = defaultPeriods.at(-1)?.end ?? null;

@@ -72,6 +72,27 @@ function materializeSkillChanges(effects) {
     }));
 }
 
+function materializeDuration(node, context) {
+  if (!node.timeUntilPath) return node.durationMinutes;
+  const targetValue = resolveWGPath(context, node.timeUntilPath);
+  const target = new Date(targetValue);
+  const now = new Date(context.time?.iso);
+  if (!Number.isFinite(target.getTime()) || !Number.isFinite(now.getTime())) {
+    fail(
+      `@time-until path '${node.timeUntilPath.join(".")}' must resolve to a timestamp`,
+      node.source,
+    );
+  }
+  const minutes = (target.getTime() - now.getTime()) / 60_000;
+  if (!Number.isFinite(minutes) || minutes <= 0) {
+    fail(
+      `@time-until path '${node.timeUntilPath.join(".")}' must be in the future`,
+      node.source,
+    );
+  }
+  return minutes;
+}
+
 function materializeChoice(node, context, { sequenceId = null } = {}) {
   if (node.when && !Boolean(evaluateWGExpression(node.when, context))) return null;
 
@@ -129,7 +150,7 @@ function materializeChoice(node, context, { sequenceId = null } = {}) {
     id: node.id,
     icon: node.icon,
     label: node.label,
-    durationMinutes: node.check ? 0 : node.durationMinutes,
+    durationMinutes: node.check ? 0 : materializeDuration(node, context),
     energyFree: node.check ? false : node.energyFree,
     enabled: disabledReason === null,
     disabledReason,

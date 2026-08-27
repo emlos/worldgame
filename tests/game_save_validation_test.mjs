@@ -42,13 +42,13 @@ function rejects(label, mutate, expectedPath, saveFactory = makeSave) {
 }
 
 const validSave = makeSave();
-check("current v17 save validates directly", validateGameSave(validSave) === validSave);
+check("current v18 save validates directly", validateGameSave(validSave) === validSave);
 check(
     "world-map saves no longer contain density",
     !Object.prototype.hasOwnProperty.call(validSave.world.map, "density"),
 );
 check(
-    "validated v17 save round-trips exactly",
+    "validated v18 save round-trips exactly",
     JSON.stringify(Game.fromJSON(validSave)) === JSON.stringify(validSave),
 );
 
@@ -86,6 +86,34 @@ rejects(
         save.player.skills.pop();
     },
     "save.player.skills",
+);
+rejects(
+    "saves must retain every registered school subject",
+    (save) => {
+        delete save.player.education.subjects.english;
+    },
+    "save.player.education.subjects.english",
+);
+rejects(
+    "unknown school subjects are rejected",
+    (save) => {
+        save.player.education.subjects.alchemy = { grade: 50, attendedSegments: 0 };
+    },
+    "save.player.education.subjects.alchemy",
+);
+rejects(
+    "school grades must stay within their range",
+    (save) => {
+        save.player.education.subjects.english.grade = 101;
+    },
+    "save.player.education.subjects.english.grade",
+);
+rejects(
+    "school attendance cannot be negative",
+    (save) => {
+        save.player.education.subjects.english.attendedSegments = -1;
+    },
+    "save.player.education.subjects.english.attendedSegments",
 );
 rejects(
     "action revisions cannot be negative",

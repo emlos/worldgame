@@ -16,6 +16,11 @@ import {
     initialPlayerSkills,
     STATS,
 } from "../../data/player/stats.js";
+import {
+    initialPlayerEducation,
+    normalizeSubjectGrade,
+    requireSchoolSubject,
+} from "../../data/player/education.js";
 
 const SKILL_PRECISION = 1_000_000;
 
@@ -64,6 +69,7 @@ export class Player {
     constructor({
         stats = null,
         skills = null,
+        education = null,
         money = INITIAL_PLAYER_MONEY,
         temperature = INITIAL_PLAYER_TEMPERATURE,
         age = INITIAL_PLAYER_AGE,
@@ -134,6 +140,28 @@ export class Player {
                 name,
                 normalizedSkillValue(value, definition, `Player skill '${name}'`),
             );
+        }
+
+        // Education ------------------------------------------------
+        this.education = initialPlayerEducation();
+        if (education?.subjects && typeof education.subjects === "object") {
+            for (const id of Object.keys(this.education.subjects)) {
+                const saved = education.subjects[id];
+                if (!saved) continue;
+                const attendedSegments = Number(saved.attendedSegments);
+                if (!Number.isInteger(attendedSegments) || attendedSegments < 0) {
+                    throw new RangeError(
+                        `Player subject '${id}' attendance must be a non-negative integer`,
+                    );
+                }
+                this.education.subjects[id] = {
+                    grade: normalizeSubjectGrade(
+                        saved.grade,
+                        `Player subject '${id}' grade`,
+                    ),
+                    attendedSegments,
+                };
+            }
         }
 
         // Clothing --------------------------------------------------
@@ -236,6 +264,35 @@ export class Player {
         return this.setSkillValue(id, this.getSkillValue(id) + amount);
     }
 
+    // --- Education ---
+    getSubjectRecord(subjectId) {
+        const { id } = requireSchoolSubject(subjectId);
+        return this.education.subjects[id];
+    }
+    getSubjectGrade(subjectId) {
+        return this.getSubjectRecord(subjectId).grade;
+    }
+    adjustSubjectGrade(subjectId, delta) {
+        const { id } = requireSchoolSubject(subjectId);
+        const amount = finiteNumber(delta, `Player subject '${id}' grade adjustment`);
+        const record = this.education.subjects[id];
+        record.grade = normalizeSubjectGrade(
+            record.grade + amount,
+            `Player subject '${id}' grade`,
+        );
+        return record.grade;
+    }
+    recordSubjectAttendance(subjectId, segments = 1) {
+        const { id } = requireSchoolSubject(subjectId);
+        const amount = finiteNumber(segments, `Player subject '${id}' attendance`);
+        if (!Number.isInteger(amount) || amount <= 0) {
+            throw new RangeError("Attendance segments must be a positive integer");
+        }
+        const record = this.education.subjects[id];
+        record.attendedSegments += amount;
+        return record.attendedSegments;
+    }
+
     // --- Clothing ---
     equip(item) {
         if (!(item instanceof Clothing)) throw new Error("equip expects Clothing");
@@ -293,6 +350,14 @@ export class Player {
                 rel.toJSON(),
             ]),
             skills: [...this.skills.entries()],
+            education: {
+                subjects: Object.fromEntries(
+                    Object.entries(this.education.subjects).map(([id, record]) => [
+                        id,
+                        { ...record },
+                    ]),
+                ),
+            },
             money: this.money,
             temperature: this.temperature,
             clothing: [...this.clothing.entries()].map(([slot, item]) => [slot, item.toJSON()]),
@@ -322,6 +387,7 @@ export class Player {
             money: data?.money ?? INITIAL_PLAYER_MONEY,
             temperature: data?.temperature ?? INITIAL_PLAYER_TEMPERATURE,
             skills: initialPlayerSkills(),
+            education: data?.education ?? null,
             bodyTemplate: [],
         });
 

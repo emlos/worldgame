@@ -2,6 +2,7 @@ import { WG_BUNDLE } from "../../../../generated/wg/scenes.js";
 import { evaluateWGExpression, resolveWGPath } from "./expressionEvaluator.js";
 import { createWGRuntimeContext } from "./runtimeContext.js";
 import { SKILLS, STATS } from "../../../../data/player/stats.js";
+import { SCHOOL_SUBJECTS } from "../../../../data/player/education.js";
 
 export class WGRuntimeError extends Error {
   constructor(message) {
@@ -112,6 +113,26 @@ function applyWGEffect(game, effect) {
     }
     if (!Number.isFinite(effect.amount)) fail("WG stat effect needs a finite amount");
     game.player.adjustStatBase(effect.id, effect.amount);
+    return;
+  }
+
+  if (effect.op === "grade") {
+    if (!SCHOOL_SUBJECTS[effect.id]) {
+      fail("WG grade effect references unknown school subject '" + String(effect.id) + "'");
+    }
+    if (!Number.isFinite(effect.amount)) fail("WG grade effect needs a finite amount");
+    game.player.adjustSubjectGrade(effect.id, effect.amount);
+    return;
+  }
+
+  if (effect.op === "attendance") {
+    if (!SCHOOL_SUBJECTS[effect.id]) {
+      fail("WG attendance effect references unknown school subject '" + String(effect.id) + "'");
+    }
+    if (!Number.isInteger(effect.amount) || effect.amount <= 0) {
+      fail("WG attendance effect needs a positive whole number");
+    }
+    game.player.recordSubjectAttendance(effect.id, effect.amount);
     return;
   }
 

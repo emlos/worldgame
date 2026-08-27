@@ -80,7 +80,7 @@ let choiceButtonsById = new Map();
 function createGame() {
   return new Game({
     seed: 117,
-    startDate: new Date("2026-08-24T08:00:00.000Z"),
+    startDate: new Date("2026-09-01T07:00:00.000Z"),
     playerOptions: { startPlaceId: null },
   });
 }
@@ -631,6 +631,22 @@ function renderPhoneStats() {
     ...view.skills.map((entry) => makePhoneMeterEntry(entry, "skill")),
   );
 
+  const educationSection = makePhoneStatsSection("School grades");
+  educationSection.append(
+    ...view.education.map((entry) =>
+      makePhoneMeterEntry(
+        {
+          id: entry.id,
+          label: `${entry.label} · ${entry.attendedSegments} segments attended`,
+          value: entry.grade,
+          min: entry.min,
+          max: entry.max,
+        },
+        "grade",
+      ),
+    ),
+  );
+
   const bodySection = makePhoneStatsSection("Body status");
   bodySection.append(
     makePhoneValueList([
@@ -694,6 +710,7 @@ function renderPhoneStats() {
     overviewSection,
     statsSection,
     skillsSection,
+    educationSection,
     bodySection,
     bodyPartsSection,
     identitySection,

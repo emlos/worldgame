@@ -94,7 +94,7 @@ choice heading, conditional content, and authored choices are used normally.
 ### Offered entries
 
 - `@offer place` adds the entry to the current place's “Things to do” section.
-- `@offer npc <id>` adds the entry beside that NPC's ordinary interaction. The
+- `@offer npc <id>` adds an authored interaction for that NPC. The
   NPC must be at the player's exact indoor or outdoor position.
 - Every offered entry requires `@label "..."`. `@icon` is optional and may be
   quoted or written directly.
@@ -295,6 +295,8 @@ The currently exposed paths are:
 - `player.skills.strength`, `.perception`, `.endurance`, `.speech`,
   `.resolve`, and `.fitness`. Skill values retain their fractional progress
   from `0` through `10`.
+- `player.education.<subject-id>.grade` and `.attendedSegments` for each
+  registered school subject.
 - `npc.<id>.id`, `.name`, `.shortName`, `.age`, `.gender`, `.relationship`,
   `.present`, and `.available`.
 - `npc.<id>` pronouns and every evaluated stat declared for that NPC, such as
@@ -307,8 +309,12 @@ The currently exposed paths are:
 - `daily.<id>` for active daily flags. Inactive flags are absent. Daily flags
   are saved normally and are cleared automatically when forward game time
   crosses UTC midnight.
-- `time.hour`, `time.minute`, and `time.minutesSinceMidnight`, using the UTC
-  world clock shown by the game.
+- `time.iso`, `time.hour`, `time.minute`, and
+  `time.minutesSinceMidnight`, using the UTC world clock shown by the game.
+- `school.isSchoolDay`, `.noSchoolReason`, `.atSchool`, `.phase`,
+  `.periodId`, `.periodLabel`, `.subjectId`, `.segment`,
+  `.segmentCount`, `.nextBoundaryAt`, `.minutesUntilNextBoundary`, and
+  `.closesAt`. Timestamps are ISO strings or `null`.
 - `location.id`, `location.name`, and `location.tags` for the containing
   location.
 - `place.id`, `place.key`, `place.name`, and `place.tags` while indoors.
@@ -323,6 +329,11 @@ NPC shares the player's exact position, and `.available` is the authoritative
 five-minute interaction check. Schedule phases are `free`, `departing`,
 `travelling`, `early`, or `active`; schedule timestamps are ISO strings or
 `null`.
+
+School phases are `closed`, `no_school`, `before_school`, `class`,
+`break`, `lunch`, or `after_school`. The timetable stored on the high
+school place definition determines periods and segment boundaries; WG scenes
+use these semantic values rather than comparing clock strings themselves.
 
 Expression path segments use letters, numbers, and `_`, and cannot start with
 a number. IDs containing `-` can be used by directives such as `@effect flag`,
@@ -408,6 +419,11 @@ Choice directives are:
   effects such as `@effect stat energy -10` still apply.
   NPC simulation, the calendar and weather, age synchronization, midnight
   daily-flag clearing, listeners, and action logging are unchanged.
+- `@time-until <runtime.path>`: calculates the duration from `time.iso` to
+  a future ISO timestamp at materialization time. It is useful for waiting for
+  the next class or closing time. It is valid only on direct choices, cannot
+  be combined with `@time`, and fails if the path is missing, invalid, or not
+  in the future.
 - `@when <expression>`: hides the choice when false.
 - `@require <expression> "<reason>"`: leaves the choice visible but disabled
   when false. Requirements may repeat; the first failed reason is displayed.
@@ -537,6 +553,8 @@ Implemented effects are:
 @effect skill strength 0.1
 @effect skill strength -0.05
 @effect stat energy -5
+@effect grade english 1
+@effect attendance english 1
 ```
 
 - `set` and `add` target only `story.*`. Their values are expressions, and
@@ -554,6 +572,10 @@ Implemented effects are:
   skill while preserving fractional progress.
 - `stat <stat-id> <signed-number>` adjusts and clamps a registered player's
   base stat.
+- `grade <subject-id> <signed-number>` adjusts and clamps a registered
+  school subject grade from `0` through `100`.
+- `attendance <subject-id> <positive-whole-number>` records completed class
+  segments for a registered school subject.
 
 Effects run sequentially, so a later effect can read state changed by an
 earlier effect. Warnings, previews, requirements, and time costs do not create
@@ -580,9 +602,11 @@ prose line, `\@` and `\::` emit literal `@` and `::` markers.
 The compiler rejects malformed directives, duplicate single-value fields,
 unclosed blocks, duplicate scene, sequence, passage, entry, or choice IDs,
 invalid expressions and durations, unknown global and local targets, unknown
-skill-check difficulties, unknown registered skill/stat effect IDs, missing
-entry targets, and direct duplicate place hubs. It does not validate general
-runtime paths, NPC IDs, or overlapping tag-based hub selectors.
+skill-check difficulties, unknown registered skill/stat/school-subject effect
+IDs, missing entry targets, and direct duplicate place hubs. It checks
+`@time-until` path syntax but not whether that runtime value exists. It does
+not validate other general runtime paths, NPC IDs, or overlapping tag-based
+hub selectors.
 
 The repository includes a zero-build VS Code extension with WG syntax
 highlighting, comments, indentation, bracket pairing, and folding. Install or

@@ -87,13 +87,13 @@ const jailActivityStart = game.now.getTime();
 performChoice(game, { sceneId: scene.id, choiceId: desk.id });
 const reloadedJailScene = buildScene(game);
 check(
-  "active place hubs preserve their live place heading and present NPC choices",
+  "active place hubs preserve their live place heading without placeholder NPC choices",
   game.currentStory?.type === "scene" && game.currentStory.id === "place.jail" &&
     game.now.getTime() === jailActivityStart &&
     game.getNPCsAtCurrentPosition().includes(taylor) &&
     reloadedJailScene.heading === jail.place.name &&
-    reloadedJailScene.sections.some((section) => section.id === "people") &&
-    choices(reloadedJailScene).some((choice) => choice.id === "greet:taylor"),
+    !reloadedJailScene.sections.some((section) => section.id === "people") &&
+    !choices(reloadedJailScene).some((choice) => choice.id === "greet:taylor"),
 );
 
 const locationAwayFromJail = [...game.world.locations.keys()].find(
@@ -101,8 +101,9 @@ const locationAwayFromJail = [...game.world.locations.keys()].find(
 );
 taylor.setLocationAndPlace(locationAwayFromJail, null);
 check(
-  "active place hubs re-evaluate NPC presence instead of retaining stale choices",
-  !choices(buildScene(game)).some((choice) => choice.id === "greet:taylor"),
+  "moving an NPC away leaves the authored place hub stable",
+  buildScene(game).heading === jail.place.name &&
+    !choices(buildScene(game)).some((choice) => choice.id === "greet:taylor"),
 );
 
 game.currentLocationId = game.homeLocationId;

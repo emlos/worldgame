@@ -229,6 +229,7 @@ export class Game {
     const eventName = mode === "simulate" ? "time" : "timeJump";
     const listenerCheckpoint = this._captureListenerCheckpoint(eventName);
     const snapshot = this._captureTimeRuntimeState();
+    let ejectedFrom = null;
     try {
       if (mode === "simulate") {
         this.world.advance(minutes);
@@ -249,6 +250,7 @@ export class Game {
         drainEnergy: drainPlayerEnergy,
       });
       this._clearDailyFlagsAfterMidnight(from, this.now);
+      ejectedFrom = this._enforcePlaceClosing(from, this.now);
     } catch (error) {
       this._restoreTimeRuntimeState(snapshot);
       throw error;
@@ -261,6 +263,7 @@ export class Game {
       mode,
       source,
       drainPlayerEnergy,
+      ejectedFrom,
     };
 
     if (mode === "simulate") {
@@ -303,6 +306,25 @@ export class Game {
     if (!sameUtcDay) this.dailyFlags.clear();
   }
 
+  _enforcePlaceClosing(from, to) {
+    const place = this.currentPlace;
+    if (!place?.props?.ejectAtClose || !(to > from)) return null;
+
+    const closingTime = place.getClosingTime?.(from) ?? null;
+    const crossedClosingTime = closingTime && to >= closingTime;
+    const alreadyClosed = typeof place.isOpen === "function" && !place.isOpen(from);
+    if (!crossedClosingTime && !alreadyClosed) return null;
+
+    const ejectedFrom = {
+      id: String(place.id),
+      key: place.key == null ? null : String(place.key),
+      name: place.name,
+      closedAt: closingTime?.toISOString?.() ?? null,
+    };
+    this.setCurrentPlace();
+    return ejectedFrom;
+  }
+
   _captureTimeRuntimeState() {
     return {
       date: new Date(this.now.getTime()),
@@ -310,6 +332,14 @@ export class Game {
       playerEnergy: this.player.getStatBase("energy"),
       playerAge: this.player.age,
       dailyFlags: [...this.dailyFlags],
+      currentLocationId: this.currentLocationId,
+      currentPlaceId: this.currentPlaceId,
+      currentPlaceKey: this.currentPlaceKey,
+      currentStory:
+        this.currentStory === null
+          ? null
+          : JSON.parse(JSON.stringify(this.currentStory)),
+      storyRevision: this.storyRevision,
       npcs: this.npcsArray.map((npc) => ({
         npc,
         locationId: npc.locationId,
@@ -325,6 +355,11 @@ export class Game {
     this.rnd = this.getRNG("gameplay");
     this.player.setStatBase("energy", snapshot.playerEnergy);
     this.player.age = snapshot.playerAge;
+    this.currentLocationId = snapshot.currentLocationId;
+    this.currentPlaceId = snapshot.currentPlaceId;
+    this.currentPlaceKey = snapshot.currentPlaceKey;
+    this.currentStory = snapshot.currentStory;
+    this.storyRevision = snapshot.storyRevision;
     this.dailyFlags.clear();
     for (const flag of snapshot.dailyFlags) this.dailyFlags.add(flag);
 
@@ -625,6 +660,7 @@ export class Game {
     const startedAt = this.now.toISOString();
     const checkpoint = this._captureActionCheckpoint();
 
+    let timeChange = null;
     try {
       if (typeof apply === "function") {
         // Let the action mutate game / player / NPCs / world. The
@@ -634,7 +670,7 @@ export class Game {
       }
 
       if (amount > 0) {
-        this.advanceMinutes(amount, { drainPlayerEnergy: !energyFree });
+        timeChange = this.advanceMinutes(amount, { drainPlayerEnergy: !energyFree });
       }
 
       // Arrival/event resolution belongs after time simulation so it
@@ -657,6 +693,7 @@ export class Game {
       this._restoreActionCheckpoint(checkpoint);
       throw error;
     }
+    return { timeChange };
   }
 
   _captureActionCheckpoint() {
@@ -736,7 +773,7 @@ export class Game {
   // --------------------------
   toJSON() {
     return {
-      saveVersion: 17,
+      saveVersion: 18,
       seed: this.seed,
       random: this.random.toJSON(),
       time: this.now.toISOString(),

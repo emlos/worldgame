@@ -232,10 +232,34 @@ const sampleBundle = compileStorySources([
 ]);
 check(
   "linked bundles use a versioned scene map",
-  sampleBundle.formatVersion === 6 &&
+  sampleBundle.formatVersion === 7 &&
     Object.keys(sampleBundle.scenes).join(",") === "intro,next" &&
     Object.keys(sampleBundle.sequences).length === 0 &&
     Object.keys(sampleBundle.entries).join(",") === "sample.introduction",
+);
+
+const SCHOOL_CHOICE_SOURCE = `:: school.example
+@heading "School"
+@choice wait "Wait for class" -> @exit
+  @time-until school.nextBoundaryAt
+  @effect attendance english 1
+  @effect grade english 1
+@endchoice`;
+const schoolChoice = parseWGSource({
+  file: "story/school.wg",
+  source: SCHOOL_CHOICE_SOURCE,
+})[0].body.find((node) => node.type === "choice");
+check(
+  "dynamic timing compiles a runtime timestamp path",
+  schoolChoice.timeUntilPath.join(".") === "school.nextBoundaryAt" &&
+    schoolChoice.durationMinutes === 0,
+);
+check(
+  "school attendance and grade effects compile against registered subjects",
+  schoolChoice.effects[0].op === "attendance" &&
+    schoolChoice.effects[0].id === "english" &&
+    schoolChoice.effects[1].op === "grade" &&
+    schoolChoice.effects[1].amount === 1,
 );
 
 const sequenceBundle = compileStorySources([
@@ -570,6 +594,55 @@ rejects(
     },
   ],
   "Invalid duration '1h restful'",
+);
+rejects(
+  "fixed and dynamic timing cannot be combined",
+  [
+    {
+      file: "duplicate-timing.wg",
+      source: SCHOOL_CHOICE_SOURCE.replace(
+        "  @time-until school.nextBoundaryAt",
+        "  @time 5m\n  @time-until school.nextBoundaryAt",
+      ),
+    },
+  ],
+  "Duplicate choice timing directive",
+);
+rejects(
+  "dynamic timing requires a dotted runtime path",
+  [
+    {
+      file: "dynamic-timing.wg",
+      source: SCHOOL_CHOICE_SOURCE.replace(
+        "school.nextBoundaryAt",
+        "nextBoundaryAt",
+      ),
+    },
+  ],
+  "@time-until requires a dotted runtime path",
+);
+rejects(
+  "grade effects reject unknown school subjects",
+  [
+    {
+      file: "school-subject.wg",
+      source: SCHOOL_CHOICE_SOURCE.replace("grade english", "grade alchemy"),
+    },
+  ],
+  "references unknown school subject 'alchemy'",
+);
+rejects(
+  "attendance effects require positive whole segments",
+  [
+    {
+      file: "school-attendance.wg",
+      source: SCHOOL_CHOICE_SOURCE.replace(
+        "attendance english 1",
+        "attendance english 0.5",
+      ),
+    },
+  ],
+  "attendance requires a positive whole number",
 );
 rejects(
   "malformed interpolation is rejected",

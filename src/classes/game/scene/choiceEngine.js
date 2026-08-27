@@ -176,30 +176,6 @@ function performLoiter(game, choice, minutes) {
   return SCENE_TEXT.loiterResult;
 }
 
-function performGreet(game, choice, minutes) {
-  const npc = game.npcs.get(String(choice.action.npcId));
-  const access = game.getNPCInteractionAccess(npc, { durationMinutes: minutes });
-  if (access.code === "not-here" || access.code === "unknown-npc") {
-    fail(
-      CHOICE_ERROR_CODE.invalidAction,
-      `NPC '${choice.action.npcId}' is no longer at the player's position`,
-    );
-  }
-  if (!access.allowed) {
-    return SCENE_TEXT.busyGreetResult(npc.meta?.shortName || npc.name);
-  }
-
-  game.runAction({
-    label: SCENE_TEXT.greetLog(npc.name),
-    minutes,
-    energyFree: choice.energyFree,
-    apply(currentGame) {
-      currentGame.player.bumpRelationship(npc.id, 0.02);
-    },
-  });
-  return SCENE_TEXT.greetResult(npc.meta?.shortName || npc.name);
-}
-
 function performBusTravel(game, choice, minutes) {
   const source = getCurrentBusStop(game);
   if (!source) {
@@ -247,7 +223,7 @@ function performBusTravel(game, choice, minutes) {
 }
 
 function performWG(game, choice, minutes) {
-  game.runAction({
+  const result = game.runAction({
     label: choice.label,
     minutes,
     energyFree: choice.energyFree,
@@ -255,6 +231,9 @@ function performWG(game, choice, minutes) {
       followWGChoice(currentGame, choice);
     },
   });
+  if (result.timeChange?.ejectedFrom) {
+    return `${result.timeChange.ejectedFrom.name} has closed. A member of staff ushers you outside.`;
+  }
   return "Continue.";
 }
 
@@ -350,7 +329,6 @@ const ACTION_HANDLERS = Object.freeze({
   [SCENE_ACTION_TYPE.enter]: performEnter,
   [SCENE_ACTION_TYPE.leave]: performLeave,
   [SCENE_ACTION_TYPE.loiter]: performLoiter,
-  [SCENE_ACTION_TYPE.greet]: performGreet,
   [SCENE_ACTION_TYPE.wg]: performWG,
   [SCENE_ACTION_TYPE.wgNext]: performWGNext,
   [SCENE_ACTION_TYPE.skillCheck]: performSkillCheck,

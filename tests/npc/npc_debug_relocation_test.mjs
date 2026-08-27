@@ -2,7 +2,6 @@ import { teleportNPCToPlayer } from "../../src/classes/game/debugCommands.js";
 import { Game } from "../../src/classes/game/game.js";
 import { performChoice } from "../../src/classes/game/scene/choiceEngine.js";
 import { buildScene } from "../../src/classes/game/scene/sceneEngine.js";
-import { SCENE_TEXT } from "../../src/content/scene/genericText.js";
 import { NPC_ACTION_TYPE } from "../../src/data/npc/behavior.js";
 
 const failures = [];
@@ -41,19 +40,12 @@ check(
   loadedFreeTaylor.brain.currentAction?.type === NPC_ACTION_TYPE.temporaryStay,
 );
 let loadedScene = buildScene(loadedFreeGame);
-const freeGreeting = loadedScene.sections
-  .flatMap((section) => section.choices)
-  .find((choice) => choice.id === "greet:taylor");
-const greetingResult = performChoice(loadedFreeGame, {
-  sceneId: loadedScene.id,
-  choiceId: freeGreeting.id,
-});
 check(
-  "normal conversation works during a temporary relocation",
-  greetingResult === SCENE_TEXT.greetResult("Taylor") &&
-    loadedFreeGame.now.toISOString() === "2026-08-24T08:05:00.000Z",
+  "temporary relocation does not create a placeholder greeting",
+  !loadedScene.sections
+    .flatMap((section) => section.choices)
+    .some((choice) => choice.id === "greet:taylor"),
 );
-loadedScene = buildScene(loadedFreeGame);
 const leaveChoice = loadedScene.sections
   .flatMap((section) => section.choices)
   .find((choice) => choice.id === "leave");
@@ -62,9 +54,9 @@ performChoice(loadedFreeGame, {
   choiceId: leaveChoice.id,
 });
 check(
-  "another choice still works after greeting Taylor",
+  "authored choices still work during a temporary relocation",
   loadedFreeGame.currentPlaceId === null &&
-    loadedFreeGame.now.toISOString() === "2026-08-24T08:06:00.000Z",
+    loadedFreeGame.now.toISOString() === "2026-08-24T08:01:00.000Z",
 );
 
 const noSchoolStayEndsAt = new Date(freeTaylor.brain.nextDecisionAt);
@@ -128,23 +120,11 @@ check(
 );
 
 const busyScene = buildScene(busyGame);
-const greetTaylor = busyScene.sections
-  .flatMap((section) => section.choices)
-  .find((choice) => choice.id === "greet:taylor");
-const relationshipBefore = busyGame.player.getRelationship("taylor").score;
-const timeBefore = busyGame.now.getTime();
-const rejection = performChoice(busyGame, {
-  sceneId: busyScene.id,
-  choiceId: greetTaylor.id,
-});
 check(
-  "attempting to chat produces the generic busy rejection",
-  rejection === SCENE_TEXT.busyGreetResult("Taylor"),
-);
-check(
-  "rejected chat changes neither time nor relationship",
-  busyGame.now.getTime() === timeBefore &&
-    busyGame.player.getRelationship("taylor").score === relationshipBefore,
+  "busy NPCs do not create placeholder greeting choices",
+  !busyScene.sections
+    .flatMap((section) => section.choices)
+    .some((choice) => choice.id === "greet:taylor"),
 );
 
 const arrivalAt = new Date(busyTaylor.brain.currentAction.arrivalAt);

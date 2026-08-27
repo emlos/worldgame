@@ -63,20 +63,417 @@ Class schedules and club posters cover the walls of {{place.name}}.
 @heading "High School"
 @choices "Activities"
 
-Students move between classrooms throughout {{place.name}}.
+@if school.phase == "before_school"
 
-@choice class "Go to class" -> place.high-school
-  @icon 📚
+The halls of {{place.name}} are open, though lessons have not begun yet.
+
+@choice before-school-taylor "Talk with Taylor before class" -> place.high-school
+  @icon 💬
+  @time 5m
+  @when npc.taylor.present and not daily.school_before_taylor
+  @effect relationship taylor 0.003
+  @effect daily-flag school_before_taylor true
 @endchoice
 
-@choice office "Visit the school office" -> place.high-school
-  @icon 🏫
+@choice wait-for-first-class "Wait for the first class" -> place.high-school
+  @icon ⏳
+  @time-until school.nextBoundaryAt
 @endchoice
 
-@choice leave "Leave" -> @leave-place
+@choice leave-before-school "Leave" -> @leave-place
   @icon 🚪
   @time 1m
 @endchoice
+
+@elseif school.phase == "class" and school.subjectId == "english"
+
+English class is in progress. This is segment {{school.segment}} of {{school.segmentCount}}.
+
+@if school.segment == 1
+@choice english-1-taylor "Interact with Taylor" -> place.high-school
+  @icon 💬
+  @time 15m
+  @when npc.taylor.present
+  @effect attendance english 1
+  @effect relationship taylor 0.003
+@endchoice
+@choice english-1-study "Study hard" -> place.high-school
+  @icon 📖
+  @time 15m
+  @preview grade 1 "+English grade"
+  @effect attendance english 1
+  @effect grade english 1
+@endchoice
+@elseif school.segment == 2
+@choice english-2-taylor "Interact with Taylor" -> place.high-school
+  @icon 💬
+  @time 15m
+  @when npc.taylor.present
+  @effect attendance english 1
+  @effect relationship taylor 0.003
+@endchoice
+@choice english-2-study "Study hard" -> place.high-school
+  @icon 📖
+  @time 15m
+  @preview grade 1 "+English grade"
+  @effect attendance english 1
+  @effect grade english 1
+@endchoice
+@else
+@choice english-3-taylor "Interact with Taylor" -> place.high-school
+  @icon 💬
+  @time 15m
+  @when npc.taylor.present
+  @effect attendance english 1
+  @effect relationship taylor 0.003
+@endchoice
+@choice english-3-study "Study hard" -> place.high-school
+  @icon 📖
+  @time 15m
+  @preview grade 1 "+English grade"
+  @effect attendance english 1
+  @effect grade english 1
+@endchoice
+@endif
+
+@elseif school.phase == "class" and school.subjectId == "math"
+
+Mathematics class is in progress. This is segment {{school.segment}} of {{school.segmentCount}}.
+
+@if school.segment == 1
+@choice math-1-taylor "Interact with Taylor" -> place.high-school
+  @icon 💬
+  @time 15m
+  @when npc.taylor.present
+  @effect attendance math 1
+  @effect relationship taylor 0.003
+@endchoice
+@choice math-1-study "Study hard" -> place.high-school
+  @icon 🧮
+  @time 15m
+  @preview grade 1 "+Mathematics grade"
+  @effect attendance math 1
+  @effect grade math 1
+@endchoice
+@elseif school.segment == 2
+@choice math-2-taylor "Interact with Taylor" -> place.high-school
+  @icon 💬
+  @time 15m
+  @when npc.taylor.present
+  @effect attendance math 1
+  @effect relationship taylor 0.003
+@endchoice
+@choice math-2-study "Study hard" -> place.high-school
+  @icon 🧮
+  @time 15m
+  @preview grade 1 "+Mathematics grade"
+  @effect attendance math 1
+  @effect grade math 1
+@endchoice
+@else
+@choice math-3-taylor "Interact with Taylor" -> place.high-school
+  @icon 💬
+  @time 15m
+  @when npc.taylor.present
+  @effect attendance math 1
+  @effect relationship taylor 0.003
+@endchoice
+@choice math-3-study "Study hard" -> place.high-school
+  @icon 🧮
+  @time 15m
+  @preview grade 1 "+Mathematics grade"
+  @effect attendance math 1
+  @effect grade math 1
+@endchoice
+@endif
+
+@elseif school.phase == "class" and school.subjectId == "history"
+
+History class is in progress. This is segment {{school.segment}} of {{school.segmentCount}}.
+
+@if school.segment == 1
+@choice history-1-taylor "Interact with Taylor" -> place.high-school
+  @icon 💬
+  @time 15m
+  @when npc.taylor.present
+  @effect attendance history 1
+  @effect relationship taylor 0.003
+@endchoice
+@choice history-1-study "Study hard" -> place.high-school
+  @icon 📜
+  @time 15m
+  @preview grade 1 "+History grade"
+  @effect attendance history 1
+  @effect grade history 1
+@endchoice
+@elseif school.segment == 2
+@choice history-2-taylor "Interact with Taylor" -> place.high-school
+  @icon 💬
+  @time 15m
+  @when npc.taylor.present
+  @effect attendance history 1
+  @effect relationship taylor 0.003
+@endchoice
+@choice history-2-study "Study hard" -> place.high-school
+  @icon 📜
+  @time 15m
+  @preview grade 1 "+History grade"
+  @effect attendance history 1
+  @effect grade history 1
+@endchoice
+@else
+@choice history-3-taylor "Interact with Taylor" -> place.high-school
+  @icon 💬
+  @time 15m
+  @when npc.taylor.present
+  @effect attendance history 1
+  @effect relationship taylor 0.003
+@endchoice
+@choice history-3-study "Study hard" -> place.high-school
+  @icon 📜
+  @time 15m
+  @preview grade 1 "+History grade"
+  @effect attendance history 1
+  @effect grade history 1
+@endchoice
+@endif
+
+@elseif school.phase == "lunch"
+
+Lunch break is underway. The cafeteria is open until afternoon classes begin.
+
+@choice lunch-cafeteria "Go to the cafeteria" -> place.high-school
+  @icon 🍽️
+  @time-until school.nextBoundaryAt
+@endchoice
+
+@choice lunch-wait "Wait for the next class" -> place.high-school
+  @icon ⏳
+  @time-until school.nextBoundaryAt
+@endchoice
+
+@choice lunch-leave "Leave school" -> @leave-place
+  @icon 🚪
+  @time 1m
+@endchoice
+
+@elseif school.phase == "class" and school.subjectId == "science"
+
+Science class is in progress. This is segment {{school.segment}} of {{school.segmentCount}}.
+
+@if school.segment == 1
+@choice science-1-taylor "Interact with Taylor" -> place.high-school
+  @icon 💬
+  @time 15m
+  @when npc.taylor.present
+  @effect attendance science 1
+  @effect relationship taylor 0.003
+@endchoice
+@choice science-1-study "Study hard" -> place.high-school
+  @icon 🔬
+  @time 15m
+  @preview grade 1 "+Science grade"
+  @effect attendance science 1
+  @effect grade science 1
+@endchoice
+@elseif school.segment == 2
+@choice science-2-taylor "Interact with Taylor" -> place.high-school
+  @icon 💬
+  @time 15m
+  @when npc.taylor.present
+  @effect attendance science 1
+  @effect relationship taylor 0.003
+@endchoice
+@choice science-2-study "Study hard" -> place.high-school
+  @icon 🔬
+  @time 15m
+  @preview grade 1 "+Science grade"
+  @effect attendance science 1
+  @effect grade science 1
+@endchoice
+@else
+@choice science-3-taylor "Interact with Taylor" -> place.high-school
+  @icon 💬
+  @time 15m
+  @when npc.taylor.present
+  @effect attendance science 1
+  @effect relationship taylor 0.003
+@endchoice
+@choice science-3-study "Study hard" -> place.high-school
+  @icon 🔬
+  @time 15m
+  @preview grade 1 "+Science grade"
+  @effect attendance science 1
+  @effect grade science 1
+@endchoice
+@endif
+
+@elseif school.phase == "class" and school.subjectId == "art"
+
+Art class is in progress. This is segment {{school.segment}} of {{school.segmentCount}}.
+
+@if school.segment == 1
+@choice art-1-taylor "Interact with Taylor" -> place.high-school
+  @icon 💬
+  @time 15m
+  @when npc.taylor.present
+  @effect attendance art 1
+  @effect relationship taylor 0.003
+@endchoice
+@choice art-1-study "Study hard" -> place.high-school
+  @icon 🎨
+  @time 15m
+  @preview grade 1 "+Art grade"
+  @effect attendance art 1
+  @effect grade art 1
+@endchoice
+@elseif school.segment == 2
+@choice art-2-taylor "Interact with Taylor" -> place.high-school
+  @icon 💬
+  @time 15m
+  @when npc.taylor.present
+  @effect attendance art 1
+  @effect relationship taylor 0.003
+@endchoice
+@choice art-2-study "Study hard" -> place.high-school
+  @icon 🎨
+  @time 15m
+  @preview grade 1 "+Art grade"
+  @effect attendance art 1
+  @effect grade art 1
+@endchoice
+@else
+@choice art-3-taylor "Interact with Taylor" -> place.high-school
+  @icon 💬
+  @time 15m
+  @when npc.taylor.present
+  @effect attendance art 1
+  @effect relationship taylor 0.003
+@endchoice
+@choice art-3-study "Study hard" -> place.high-school
+  @icon 🎨
+  @time 15m
+  @preview grade 1 "+Art grade"
+  @effect attendance art 1
+  @effect grade art 1
+@endchoice
+@endif
+
+@elseif school.phase == "class" and school.subjectId == "physical_education"
+
+Physical education is in progress. This is segment {{school.segment}} of {{school.segmentCount}}.
+
+@if school.segment == 1
+@choice physical-education-1-taylor "Interact with Taylor" -> place.high-school
+  @icon 💬
+  @time 15m
+  @when npc.taylor.present
+  @effect attendance physical_education 1
+  @effect relationship taylor 0.003
+@endchoice
+@choice physical-education-1-study "Train hard" -> place.high-school
+  @icon 🏃
+  @time 15m
+  @preview grade 1 "+Physical Education grade"
+  @effect attendance physical_education 1
+  @effect grade physical_education 1
+  @effect skill strength 0.02
+@endchoice
+@elseif school.segment == 2
+@choice physical-education-2-taylor "Interact with Taylor" -> place.high-school
+  @icon 💬
+  @time 15m
+  @when npc.taylor.present
+  @effect attendance physical_education 1
+  @effect relationship taylor 0.003
+@endchoice
+@choice physical-education-2-study "Train hard" -> place.high-school
+  @icon 🏃
+  @time 15m
+  @preview grade 1 "+Physical Education grade"
+  @effect attendance physical_education 1
+  @effect grade physical_education 1
+  @effect skill strength 0.02
+@endchoice
+@else
+@choice physical-education-3-taylor "Interact with Taylor" -> place.high-school
+  @icon 💬
+  @time 15m
+  @when npc.taylor.present
+  @effect attendance physical_education 1
+  @effect relationship taylor 0.003
+@endchoice
+@choice physical-education-3-study "Train hard" -> place.high-school
+  @icon 🏃
+  @time 15m
+  @preview grade 1 "+Physical Education grade"
+  @effect attendance physical_education 1
+  @effect grade physical_education 1
+  @effect skill strength 0.02
+@endchoice
+@endif
+
+@elseif school.phase == "break"
+
+There is a short break before the next class begins.
+
+@choice break-cafeteria "Go to the cafeteria" -> place.high-school
+  @icon 🍎
+  @time-until school.nextBoundaryAt
+@endchoice
+
+@choice break-wait "Wait for the next class" -> place.high-school
+  @icon ⏳
+  @time-until school.nextBoundaryAt
+@endchoice
+
+@choice break-leave "Leave school" -> @leave-place
+  @icon 🚪
+  @time 1m
+@endchoice
+
+@elseif school.phase == "after_school"
+
+Lessons are over, but {{place.name}} remains open until 17:00.
+
+@choice after-school-wait "Stay until school closes" -> place.high-school
+  @icon ⏳
+  @time-until school.nextBoundaryAt
+@endchoice
+
+@choice after-school-leave "Leave school" -> @leave-place
+  @icon 🚪
+  @time 1m
+@endchoice
+
+@elseif school.phase == "no_school"
+
+There are no lessons today, though the administrative areas remain open.
+
+@choice no-school-office "Visit the school office" -> place.high-school
+  @icon 🏫
+  @time 15m
+@endchoice
+
+@choice no-school-notices "Read the school notices" -> place.high-school
+  @icon 📌
+  @time 5m
+@endchoice
+
+@choice no-school-leave "Leave" -> @leave-place
+  @icon 🚪
+  @time 1m
+@endchoice
+
+@else
+
+The school has closed for the day.
+
+@choice closed-leave "Step outside" -> @leave-place
+  @icon 🚪
+@endchoice
+
+@endif
 
 @entry place.hub.university
   @scene place.university

@@ -1,9 +1,6 @@
 import { Game } from "../../src/classes/game/game.js";
-import { performChoice } from "../../src/classes/game/scene/choiceEngine.js";
-import { buildScene } from "../../src/classes/game/scene/sceneEngine.js";
 import { createWGRuntimeContext } from "../../src/classes/game/scene/wg/runtimeContext.js";
 import { NPCBrain } from "../../src/classes/npc/npcBrain.js";
-import { SCENE_TEXT } from "../../src/content/scene/genericText.js";
 import { GOAL_TYPE, NPC_ACTION_TYPE, TARGET_TYPE } from "../../src/data/npc/behavior.js";
 
 const failures = [];
@@ -222,23 +219,6 @@ check("Game uses five minutes for a normal NPC interaction", requestedDuration =
 check(
   "WG npc.available observes the deadline-aware interaction query",
   createWGRuntimeContext(game).npc.taylor.available === false,
-);
-
-const scene = buildScene(game);
-const greet = scene.sections
-  .flatMap((section) => section.choices)
-  .find((choice) => choice.id === "greet:taylor");
-const timeBefore = game.now.getTime();
-const relationshipBefore = game.player.getRelationship("taylor").score;
-const rejection = performChoice(game, { sceneId: scene.id, choiceId: greet.id });
-check(
-  "a deadline rejection uses the generic busy response",
-  rejection === SCENE_TEXT.busyGreetResult("Taylor"),
-);
-check(
-  "a rejected conversation changes neither time nor relationship",
-  game.now.getTime() === timeBefore &&
-    game.player.getRelationship("taylor").score === relationshipBefore,
 );
 
 taylor.brain.currentGoal = { type: GOAL_TYPE.obligation };
