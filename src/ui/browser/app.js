@@ -1,6 +1,7 @@
 import { Game } from "../../classes/game/game.js";
 import {
   addDebugMoney,
+  teleportPlayerToSchool,
   teleportNPCToPlayer,
 } from "../../classes/game/debugCommands.js";
 import { buildScene } from "../../classes/game/scene/sceneEngine.js";
@@ -62,6 +63,9 @@ const phoneStatsContent = document.querySelector("#phone-stats-content");
 const debugEnabled = typeof debug !== "undefined" && Boolean(debug);
 const debugPanel = document.querySelector("#debug-panel");
 const debugAddMoneyButton = document.querySelector("#debug-add-money");
+const debugTeleportSchoolButton = document.querySelector(
+  "#debug-teleport-school",
+);
 const debugTeleportTaylorButton = document.querySelector(
   "#debug-teleport-taylor",
 );
@@ -994,6 +998,18 @@ debugTeleportTaylorButton.addEventListener("click", () => {
     noticeElement.textContent = result.busyWithObligation
       ? `${name} was moved here, but is still committed to their obligation.`
       : `${name} was moved here and will stay for up to 30 minutes.`;
+    noticeElement.className = "notice";
+  } catch (error) {
+    noticeElement.textContent = error.message;
+    noticeElement.className = "notice error";
+  }
+  render();
+});
+
+debugTeleportSchoolButton.addEventListener("click", () => {
+  try {
+    const destination = teleportPlayerToSchool(game);
+    noticeElement.textContent = `Teleported to ${destination.place.name} in ${destination.location.name}.`;
     noticeElement.className = "notice";
   } catch (error) {
     noticeElement.textContent = error.message;
