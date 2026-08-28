@@ -1,6 +1,7 @@
 import { Game } from "../../src/classes/game/game.js";
 import { performChoice } from "../../src/classes/game/scene/choiceEngine.js";
 import { buildScene } from "../../src/classes/game/scene/sceneEngine.js";
+import { WG_BUNDLE } from "../../src/generated/wg/scenes.js";
 import {
   getSchoolDayPlan,
   getSchoolDayState,
@@ -42,6 +43,23 @@ const game = new Game({
   startDate: START,
   playerOptions: { startPlaceId: null },
 });
+const classSequenceIds = [
+  "school.class.english",
+  "school.class.math",
+  "school.class.history",
+  "school.class.science",
+  "school.class.art",
+  "school.class.physical-education",
+];
+check(
+  "every class is authored as a three-passage named sequence",
+  classSequenceIds.every(
+    (id) =>
+      WG_BUNDLE.sequences[id]?.passages
+        .map((passage) => passage.id)
+        .join(",") === "segment-1,segment-2,segment-3",
+  ),
+);
 const highSchool = [...game.world.locations.values()]
   .flatMap((location) =>
     location.places.map((place) => ({ location, place })),
@@ -107,25 +125,58 @@ state = getSchoolDayState(game);
 scene = buildScene(game);
 const taylor = game.npcs.get("taylor");
 check(
-  "waiting advances to English segment one with Taylor present",
+  "waiting reaches English while the player remains in the school hub",
   game.now.toISOString() === "2026-09-01T09:00:00.000Z" &&
     state.phase === SCHOOL_PHASE.class &&
     state.subjectId === "english" &&
     state.segment === 1 &&
+    game.currentStory?.type !== "sequence" &&
     game.getNPCsAtCurrentPosition().includes(taylor),
 );
 check(
-  "each class segment offers Taylor interaction or studying",
-  ["english-1-taylor", "english-1-study"].every((id) =>
-    choices(scene).some((candidate) => candidate.id === id),
-  ),
+  "rooms remain available when class is scheduled but the player is not attending",
+  scene.sections
+    .find((section) => section.id === "choices:activities")
+    ?.choices.some((candidate) => candidate.id === "cafeteria-room") &&
+    scene.sections
+      .find((section) => section.id === "choices:current-activities")
+      ?.choices.some((candidate) => candidate.id === "attend-english") &&
+    !choices(scene).some((candidate) => candidate.id === "english-1-study"),
+);
+
+perform(game, "cafeteria-room");
+check(
+  "skipping the immediate class prompt keeps the general school menu available",
+  game.now.toISOString() === "2026-09-01T09:01:00.000Z" &&
+    getSchoolDayState(game).phase === SCHOOL_PHASE.class &&
+    choice(game, "attend-english").selected.durationMinutes === 0 &&
+    Boolean(
+      buildScene(game).sections.find(
+        (section) => section.id === "choices:activities",
+      ),
+    ),
+);
+
+perform(game, "attend-english");
+scene = buildScene(game);
+check(
+  "attending class enters its first named sequence passage and hides school rooms",
+  game.currentStory?.type === "sequence" &&
+    game.currentStory.id === "school.class.english" &&
+    game.currentStory.passageId === "segment-1" &&
+    !scene.sections.some((section) => section.id === "choices:activities") &&
+    ["english-1-taylor", "english-1-study"].every((id) =>
+      choices(scene).some((candidate) => candidate.id === id),
+    ) &&
+    choice(game, "english-1-taylor").selected.durationMinutes === 14,
 );
 
 const relationshipBefore = game.player.getRelationship("taylor").score;
 perform(game, "english-1-taylor");
 check(
-  "interacting with Taylor records attendance and improves the relationship",
+  "the first class passage reaches the next timetable boundary",
   game.now.toISOString() === "2026-09-01T09:15:00.000Z" &&
+    game.currentStory?.passageId === "segment-2" &&
     game.player.getSubjectGrade("english") === 50 &&
     game.player.getSubjectRecord("english").attendedSegments === 1 &&
     Math.abs(
@@ -135,8 +186,9 @@ check(
 
 perform(game, "english-2-study");
 check(
-  "studying records attendance and improves the subject grade",
+  "the second class passage records studying and advances by name",
   game.now.toISOString() === "2026-09-01T09:30:00.000Z" &&
+    game.currentStory?.passageId === "segment-3" &&
     game.player.getSubjectGrade("english") === 51 &&
     game.player.getSubjectRecord("english").attendedSegments === 2,
 );
@@ -145,8 +197,14 @@ perform(game, "english-3-study");
 state = getSchoolDayState(game);
 const breakChoice = choice(game, "break-cafeteria").selected;
 check(
-  "the gap after English becomes a fifteen-minute break",
+  "the final passage exits class and restores the school hub for break",
   state.phase === SCHOOL_PHASE.break &&
+    game.currentStory === null &&
+    Boolean(
+      buildScene(game).sections.find(
+        (section) => section.id === "choices:activities",
+      ),
+    ) &&
     state.nextBoundaryAt === "2026-09-01T10:00:00.000Z" &&
     breakChoice.durationMinutes === 15,
 );

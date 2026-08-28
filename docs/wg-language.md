@@ -166,14 +166,49 @@ Taylor looks up from the textbook.
   the runtime.
 - `@kind` supports `event`, `place`, or `location` and defaults to `event`.
 - `@heading "..."` is required.
-- `@choices "..."` labels the authored choice section and defaults to
-  `"Choices"`.
+- `@choices "..."` labels the default section for ungrouped choices and
+  defaults to `"Choices"`.
 - `@kind`, `@heading`, `@choices`, and `@onenter` are optional scene metadata
   directives, except for the required heading. They must all appear before
   prose, conditionals, or choices, and each may appear at most once.
 
-Only one authored choice section is produced. If the materialized scene has no
-visible choices, that section is omitted.
+### Choice groups
+
+Use a choice group when one screen needs multiple choice headings:
+
+```wg
+@choicegroup rooms "Rooms"
+@choice cafeteria "Go to the cafeteria" -> place.high-school
+@endchoice
+@choice gym "Go to the school gym" -> place.high-school
+@endchoice
+@endchoicegroup
+
+@choicegroup current "Current Activities"
+@if school.phase == "class"
+Class is currently in progress.
+@choice attend "Attend class" -> place.high-school
+@endchoice
+@endif
+@endchoicegroup
+```
+
+A group begins with `@choicegroup <id> "<heading>"` and ends with
+`@endchoicegroup`. Group IDs must be unique within a scene or sequence
+passage. Groups cannot be nested.
+
+Choices inside the block render under that group's heading. Prose still joins
+the scene's ordinary paragraphs, so a group may wrap conditionals containing
+both descriptive text and choices. A group with no visible choices at runtime
+is omitted. Choices outside every group continue to render in the default
+`@choices` section. Sections preserve the source order in which their first
+visible choice appears.
+
+For hub activities, do not hide the general group merely because a scheduled
+activity is currently happening. Keep the hub group unconditional and make
+the scheduled choice target a scene or sequence. While that target is active,
+its screen replaces the hub automatically; returning through `@exit` restores
+the hub and its general choices.
 
 ## Sequences and passages
 
@@ -204,7 +239,8 @@ A sequence starts with `@sequence <id> -> <final-target>` and ends with
 `@endsequence`. Its ID shares the global namespace used by scene IDs. The
 final target may be `@exit`, a scene ID, or another sequence ID. `@heading` is
 required; `@kind`, `@choices`, and `@onenter` have the same metadata placement
-rules as scenes.
+rules as scenes. Choice groups work inside sequence passages as they do in
+ordinary scenes.
 
 Each `@next` ends the current passage and creates a navigation choice. Prose
 after it begins the next anonymous passage. A bare `@next` uses the label
@@ -600,7 +636,8 @@ prose line, `\@` and `\::` emit literal `@` and `::` markers.
 ## Validation and editor support
 
 The compiler rejects malformed directives, duplicate single-value fields,
-unclosed blocks, duplicate scene, sequence, passage, entry, or choice IDs,
+unclosed blocks, duplicate scene, sequence, passage, entry, choice, or
+choice-group IDs,
 invalid expressions and durations, unknown global and local targets, unknown
 skill-check difficulties, unknown registered skill/stat/school-subject effect
 IDs, missing entry targets, and direct duplicate place hubs. It checks

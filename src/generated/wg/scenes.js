@@ -3683,7 +3683,7 @@ export const WG_BUNDLE = {
           ],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 648,
+            "line": 875,
             "column": 1
           }
         },
@@ -3703,7 +3703,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 650,
+            "line": 877,
             "column": 1
           }
         },
@@ -3723,7 +3723,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 654,
+            "line": 881,
             "column": 1
           }
         },
@@ -3743,14 +3743,14 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 658,
+            "line": 885,
             "column": 1
           }
         }
       ],
       "source": {
         "file": "story/places/education-work.wg",
-        "line": 643,
+        "line": 870,
         "column": 1
       }
     },
@@ -4382,205 +4382,13 @@ export const WG_BUNDLE = {
       "id": "place.high-school",
       "kind": "place",
       "heading": "High School",
-      "choiceHeading": "Activities",
+      "choiceHeading": "Travel",
       "tags": [
         "place",
         "hub"
       ],
       "onEnter": [],
       "body": [
-        {
-          "type": "choice-group",
-          "id": "activities",
-          "heading": "Activities",
-          "nodes": [
-            {
-              "type": "choice",
-              "id": "cafeteria-room",
-              "label": "Go to the cafeteria",
-              "target": "place.high-school",
-              "icon": "🍽️",
-              "durationMinutes": 1,
-              "timeUntilPath": null,
-              "energyFree": false,
-              "when": null,
-              "requirements": [],
-              "warning": null,
-              "previews": [],
-              "effects": [],
-              "source": {
-                "file": "story/places/education-work.wg",
-                "line": 68,
-                "column": 1
-              }
-            },
-            {
-              "type": "choice",
-              "id": "math-classroom",
-              "label": "Go to the math classroom",
-              "target": "place.high-school",
-              "icon": "🧮",
-              "durationMinutes": 1,
-              "timeUntilPath": null,
-              "energyFree": false,
-              "when": null,
-              "requirements": [],
-              "warning": null,
-              "previews": [],
-              "effects": [],
-              "source": {
-                "file": "story/places/education-work.wg",
-                "line": 73,
-                "column": 1
-              }
-            },
-            {
-              "type": "choice",
-              "id": "english-classroom",
-              "label": "Go to the English classroom",
-              "target": "place.high-school",
-              "icon": "📖",
-              "durationMinutes": 1,
-              "timeUntilPath": null,
-              "energyFree": false,
-              "when": null,
-              "requirements": [],
-              "warning": null,
-              "previews": [],
-              "effects": [],
-              "source": {
-                "file": "story/places/education-work.wg",
-                "line": 78,
-                "column": 1
-              }
-            },
-            {
-              "type": "choice",
-              "id": "history-classroom",
-              "label": "Go to the history classroom",
-              "target": "place.high-school",
-              "icon": "📜",
-              "durationMinutes": 1,
-              "timeUntilPath": null,
-              "energyFree": false,
-              "when": null,
-              "requirements": [],
-              "warning": null,
-              "previews": [],
-              "effects": [],
-              "source": {
-                "file": "story/places/education-work.wg",
-                "line": 83,
-                "column": 1
-              }
-            },
-            {
-              "type": "choice",
-              "id": "science-classroom",
-              "label": "Go to the science classroom",
-              "target": "place.high-school",
-              "icon": "🔬",
-              "durationMinutes": 2,
-              "timeUntilPath": null,
-              "energyFree": false,
-              "when": null,
-              "requirements": [],
-              "warning": null,
-              "previews": [],
-              "effects": [],
-              "source": {
-                "file": "story/places/education-work.wg",
-                "line": 88,
-                "column": 1
-              }
-            },
-            {
-              "type": "choice",
-              "id": "art-classroom",
-              "label": "Go to the art classroom",
-              "target": "place.high-school",
-              "icon": "🎨",
-              "durationMinutes": 2,
-              "timeUntilPath": null,
-              "energyFree": false,
-              "when": null,
-              "requirements": [],
-              "warning": null,
-              "previews": [],
-              "effects": [],
-              "source": {
-                "file": "story/places/education-work.wg",
-                "line": 93,
-                "column": 1
-              }
-            },
-            {
-              "type": "choice",
-              "id": "physical-education-classroom",
-              "label": "Go to the school gym",
-              "target": "place.high-school",
-              "icon": "🏃",
-              "durationMinutes": 5,
-              "timeUntilPath": null,
-              "energyFree": false,
-              "when": null,
-              "requirements": [],
-              "warning": null,
-              "previews": [],
-              "effects": [],
-              "source": {
-                "file": "story/places/education-work.wg",
-                "line": 98,
-                "column": 1
-              }
-            },
-            {
-              "type": "choice",
-              "id": "student-council-room",
-              "label": "Visit the student council office",
-              "target": "place.high-school",
-              "icon": "🏫",
-              "durationMinutes": 5,
-              "timeUntilPath": null,
-              "energyFree": false,
-              "when": null,
-              "requirements": [],
-              "warning": null,
-              "previews": [],
-              "effects": [],
-              "source": {
-                "file": "story/places/education-work.wg",
-                "line": 103,
-                "column": 1
-              }
-            },
-            {
-              "type": "choice",
-              "id": "leave-school",
-              "label": "Leave",
-              "target": "@leave-place",
-              "icon": "🚪",
-              "durationMinutes": 1,
-              "timeUntilPath": null,
-              "energyFree": false,
-              "when": null,
-              "requirements": [],
-              "warning": null,
-              "previews": [],
-              "effects": [],
-              "source": {
-                "file": "story/places/education-work.wg",
-                "line": 108,
-                "column": 1
-              }
-            }
-          ],
-          "source": {
-            "file": "story/places/education-work.wg",
-            "line": 66,
-            "column": 1
-          }
-        },
         {
           "type": "choice-group",
           "id": "current-activities",
@@ -4628,7 +4436,7 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/places/education-work.wg",
-                        "line": 119,
+                        "line": 71,
                         "column": 1
                       }
                     },
@@ -4674,7 +4482,7 @@ export const WG_BUNDLE = {
                           "amount": 0.003,
                           "source": {
                             "file": "story/places/education-work.wg",
-                            "line": 125,
+                            "line": 77,
                             "column": 1
                           }
                         },
@@ -4684,14 +4492,14 @@ export const WG_BUNDLE = {
                           "value": true,
                           "source": {
                             "file": "story/places/education-work.wg",
-                            "line": 126,
+                            "line": 78,
                             "column": 1
                           }
                         }
                       ],
                       "source": {
                         "file": "story/places/education-work.wg",
-                        "line": 121,
+                        "line": 73,
                         "column": 1
                       }
                     },
@@ -4714,34 +4522,14 @@ export const WG_BUNDLE = {
                       "effects": [],
                       "source": {
                         "file": "story/places/education-work.wg",
-                        "line": 129,
-                        "column": 1
-                      }
-                    },
-                    {
-                      "type": "choice",
-                      "id": "leave-before-school",
-                      "label": "Leave",
-                      "target": "@leave-place",
-                      "icon": "🚪",
-                      "durationMinutes": 1,
-                      "timeUntilPath": null,
-                      "energyFree": false,
-                      "when": null,
-                      "requirements": [],
-                      "warning": null,
-                      "previews": [],
-                      "effects": [],
-                      "source": {
-                        "file": "story/places/education-work.wg",
-                        "line": 134,
+                        "line": 81,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/education-work.wg",
-                    "line": 117,
+                    "line": 69,
                     "column": 1
                   }
                 },
@@ -4786,403 +4574,53 @@ export const WG_BUNDLE = {
                       "parts": [
                         {
                           "type": "text",
-                          "value": "English class is in progress. This is segment "
-                        },
-                        {
-                          "type": "interpolation",
-                          "path": [
-                            "school",
-                            "segment"
-                          ],
-                          "filters": []
-                        },
-                        {
-                          "type": "text",
-                          "value": " of "
-                        },
-                        {
-                          "type": "interpolation",
-                          "path": [
-                            "school",
-                            "segmentCount"
-                          ],
-                          "filters": []
-                        },
-                        {
-                          "type": "text",
-                          "value": "."
+                          "value": "English class is in progress. You can attend during its opening segment or keep exploring the school."
                         }
                       ],
                       "source": {
                         "file": "story/places/education-work.wg",
-                        "line": 143,
+                        "line": 88,
                         "column": 1
                       }
                     },
                     {
-                      "type": "if",
-                      "branches": [
-                        {
-                          "test": {
-                            "type": "binary",
-                            "operator": "==",
-                            "left": {
-                              "type": "path",
-                              "value": [
-                                "school",
-                                "segment"
-                              ]
-                            },
-                            "right": {
-                              "type": "literal",
-                              "value": 1
-                            }
-                          },
-                          "nodes": [
-                            {
-                              "type": "choice",
-                              "id": "english-1-taylor",
-                              "label": "Interact with Taylor",
-                              "target": "place.high-school",
-                              "icon": "💬",
-                              "durationMinutes": 15,
-                              "timeUntilPath": null,
-                              "energyFree": false,
-                              "when": {
-                                "type": "path",
-                                "value": [
-                                  "npc",
-                                  "taylor",
-                                  "present"
-                                ]
-                              },
-                              "requirements": [],
-                              "warning": null,
-                              "previews": [],
-                              "effects": [
-                                {
-                                  "op": "attendance",
-                                  "id": "english",
-                                  "amount": 1,
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 150,
-                                    "column": 1
-                                  }
-                                },
-                                {
-                                  "op": "relationship",
-                                  "npcId": "taylor",
-                                  "amount": 0.003,
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 151,
-                                    "column": 1
-                                  }
-                                }
-                              ],
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 146,
-                                "column": 1
-                              }
-                            },
-                            {
-                              "type": "choice",
-                              "id": "english-1-study",
-                              "label": "Study hard",
-                              "target": "place.high-school",
-                              "icon": "📖",
-                              "durationMinutes": 15,
-                              "timeUntilPath": null,
-                              "energyFree": false,
-                              "when": null,
-                              "requirements": [],
-                              "warning": null,
-                              "previews": [
-                                {
-                                  "type": "grade",
-                                  "amount": 1,
-                                  "label": "+English grade",
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 156,
-                                    "column": 1
-                                  }
-                                }
-                              ],
-                              "effects": [
-                                {
-                                  "op": "attendance",
-                                  "id": "english",
-                                  "amount": 1,
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 157,
-                                    "column": 1
-                                  }
-                                },
-                                {
-                                  "op": "grade",
-                                  "id": "english",
-                                  "amount": 1,
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 158,
-                                    "column": 1
-                                  }
-                                }
-                              ],
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 153,
-                                "column": 1
-                              }
-                            }
-                          ],
-                          "source": {
-                            "file": "story/places/education-work.wg",
-                            "line": 145,
-                            "column": 1
-                          }
+                      "type": "choice",
+                      "id": "attend-english",
+                      "label": "Attend English class",
+                      "target": "school.class.english",
+                      "icon": "📖",
+                      "durationMinutes": 0,
+                      "timeUntilPath": null,
+                      "energyFree": false,
+                      "when": {
+                        "type": "binary",
+                        "operator": "==",
+                        "left": {
+                          "type": "path",
+                          "value": [
+                            "school",
+                            "segment"
+                          ]
                         },
-                        {
-                          "test": {
-                            "type": "binary",
-                            "operator": "==",
-                            "left": {
-                              "type": "path",
-                              "value": [
-                                "school",
-                                "segment"
-                              ]
-                            },
-                            "right": {
-                              "type": "literal",
-                              "value": 2
-                            }
-                          },
-                          "nodes": [
-                            {
-                              "type": "choice",
-                              "id": "english-2-taylor",
-                              "label": "Interact with Taylor",
-                              "target": "place.high-school",
-                              "icon": "💬",
-                              "durationMinutes": 15,
-                              "timeUntilPath": null,
-                              "energyFree": false,
-                              "when": {
-                                "type": "path",
-                                "value": [
-                                  "npc",
-                                  "taylor",
-                                  "present"
-                                ]
-                              },
-                              "requirements": [],
-                              "warning": null,
-                              "previews": [],
-                              "effects": [
-                                {
-                                  "op": "attendance",
-                                  "id": "english",
-                                  "amount": 1,
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 165,
-                                    "column": 1
-                                  }
-                                },
-                                {
-                                  "op": "relationship",
-                                  "npcId": "taylor",
-                                  "amount": 0.003,
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 166,
-                                    "column": 1
-                                  }
-                                }
-                              ],
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 161,
-                                "column": 1
-                              }
-                            },
-                            {
-                              "type": "choice",
-                              "id": "english-2-study",
-                              "label": "Study hard",
-                              "target": "place.high-school",
-                              "icon": "📖",
-                              "durationMinutes": 15,
-                              "timeUntilPath": null,
-                              "energyFree": false,
-                              "when": null,
-                              "requirements": [],
-                              "warning": null,
-                              "previews": [
-                                {
-                                  "type": "grade",
-                                  "amount": 1,
-                                  "label": "+English grade",
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 171,
-                                    "column": 1
-                                  }
-                                }
-                              ],
-                              "effects": [
-                                {
-                                  "op": "attendance",
-                                  "id": "english",
-                                  "amount": 1,
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 172,
-                                    "column": 1
-                                  }
-                                },
-                                {
-                                  "op": "grade",
-                                  "id": "english",
-                                  "amount": 1,
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 173,
-                                    "column": 1
-                                  }
-                                }
-                              ],
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 168,
-                                "column": 1
-                              }
-                            }
-                          ],
-                          "source": {
-                            "file": "story/places/education-work.wg",
-                            "line": 160,
-                            "column": 1
-                          }
+                        "right": {
+                          "type": "literal",
+                          "value": 1
                         }
-                      ],
-                      "elseNodes": [
-                        {
-                          "type": "choice",
-                          "id": "english-3-taylor",
-                          "label": "Interact with Taylor",
-                          "target": "place.high-school",
-                          "icon": "💬",
-                          "durationMinutes": 15,
-                          "timeUntilPath": null,
-                          "energyFree": false,
-                          "when": {
-                            "type": "path",
-                            "value": [
-                              "npc",
-                              "taylor",
-                              "present"
-                            ]
-                          },
-                          "requirements": [],
-                          "warning": null,
-                          "previews": [],
-                          "effects": [
-                            {
-                              "op": "attendance",
-                              "id": "english",
-                              "amount": 1,
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 180,
-                                "column": 1
-                              }
-                            },
-                            {
-                              "op": "relationship",
-                              "npcId": "taylor",
-                              "amount": 0.003,
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 181,
-                                "column": 1
-                              }
-                            }
-                          ],
-                          "source": {
-                            "file": "story/places/education-work.wg",
-                            "line": 176,
-                            "column": 1
-                          }
-                        },
-                        {
-                          "type": "choice",
-                          "id": "english-3-study",
-                          "label": "Study hard",
-                          "target": "place.high-school",
-                          "icon": "📖",
-                          "durationMinutes": 15,
-                          "timeUntilPath": null,
-                          "energyFree": false,
-                          "when": null,
-                          "requirements": [],
-                          "warning": null,
-                          "previews": [
-                            {
-                              "type": "grade",
-                              "amount": 1,
-                              "label": "+English grade",
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 186,
-                                "column": 1
-                              }
-                            }
-                          ],
-                          "effects": [
-                            {
-                              "op": "attendance",
-                              "id": "english",
-                              "amount": 1,
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 187,
-                                "column": 1
-                              }
-                            },
-                            {
-                              "op": "grade",
-                              "id": "english",
-                              "amount": 1,
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 188,
-                                "column": 1
-                              }
-                            }
-                          ],
-                          "source": {
-                            "file": "story/places/education-work.wg",
-                            "line": 183,
-                            "column": 1
-                          }
-                        }
-                      ],
+                      },
+                      "requirements": [],
+                      "warning": null,
+                      "previews": [],
+                      "effects": [],
                       "source": {
                         "file": "story/places/education-work.wg",
-                        "line": 145,
+                        "line": 90,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/education-work.wg",
-                    "line": 141,
+                    "line": 86,
                     "column": 1
                   }
                 },
@@ -5227,403 +4665,53 @@ export const WG_BUNDLE = {
                       "parts": [
                         {
                           "type": "text",
-                          "value": "Mathematics class is in progress. This is segment "
-                        },
-                        {
-                          "type": "interpolation",
-                          "path": [
-                            "school",
-                            "segment"
-                          ],
-                          "filters": []
-                        },
-                        {
-                          "type": "text",
-                          "value": " of "
-                        },
-                        {
-                          "type": "interpolation",
-                          "path": [
-                            "school",
-                            "segmentCount"
-                          ],
-                          "filters": []
-                        },
-                        {
-                          "type": "text",
-                          "value": "."
+                          "value": "Mathematics class is in progress. You can attend during its opening segment or keep exploring the school."
                         }
                       ],
                       "source": {
                         "file": "story/places/education-work.wg",
-                        "line": 194,
+                        "line": 97,
                         "column": 1
                       }
                     },
                     {
-                      "type": "if",
-                      "branches": [
-                        {
-                          "test": {
-                            "type": "binary",
-                            "operator": "==",
-                            "left": {
-                              "type": "path",
-                              "value": [
-                                "school",
-                                "segment"
-                              ]
-                            },
-                            "right": {
-                              "type": "literal",
-                              "value": 1
-                            }
-                          },
-                          "nodes": [
-                            {
-                              "type": "choice",
-                              "id": "math-1-taylor",
-                              "label": "Interact with Taylor",
-                              "target": "place.high-school",
-                              "icon": "💬",
-                              "durationMinutes": 15,
-                              "timeUntilPath": null,
-                              "energyFree": false,
-                              "when": {
-                                "type": "path",
-                                "value": [
-                                  "npc",
-                                  "taylor",
-                                  "present"
-                                ]
-                              },
-                              "requirements": [],
-                              "warning": null,
-                              "previews": [],
-                              "effects": [
-                                {
-                                  "op": "attendance",
-                                  "id": "math",
-                                  "amount": 1,
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 201,
-                                    "column": 1
-                                  }
-                                },
-                                {
-                                  "op": "relationship",
-                                  "npcId": "taylor",
-                                  "amount": 0.003,
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 202,
-                                    "column": 1
-                                  }
-                                }
-                              ],
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 197,
-                                "column": 1
-                              }
-                            },
-                            {
-                              "type": "choice",
-                              "id": "math-1-study",
-                              "label": "Study hard",
-                              "target": "place.high-school",
-                              "icon": "🧮",
-                              "durationMinutes": 15,
-                              "timeUntilPath": null,
-                              "energyFree": false,
-                              "when": null,
-                              "requirements": [],
-                              "warning": null,
-                              "previews": [
-                                {
-                                  "type": "grade",
-                                  "amount": 1,
-                                  "label": "+Mathematics grade",
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 207,
-                                    "column": 1
-                                  }
-                                }
-                              ],
-                              "effects": [
-                                {
-                                  "op": "attendance",
-                                  "id": "math",
-                                  "amount": 1,
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 208,
-                                    "column": 1
-                                  }
-                                },
-                                {
-                                  "op": "grade",
-                                  "id": "math",
-                                  "amount": 1,
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 209,
-                                    "column": 1
-                                  }
-                                }
-                              ],
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 204,
-                                "column": 1
-                              }
-                            }
-                          ],
-                          "source": {
-                            "file": "story/places/education-work.wg",
-                            "line": 196,
-                            "column": 1
-                          }
+                      "type": "choice",
+                      "id": "attend-math",
+                      "label": "Attend Mathematics class",
+                      "target": "school.class.math",
+                      "icon": "🧮",
+                      "durationMinutes": 0,
+                      "timeUntilPath": null,
+                      "energyFree": false,
+                      "when": {
+                        "type": "binary",
+                        "operator": "==",
+                        "left": {
+                          "type": "path",
+                          "value": [
+                            "school",
+                            "segment"
+                          ]
                         },
-                        {
-                          "test": {
-                            "type": "binary",
-                            "operator": "==",
-                            "left": {
-                              "type": "path",
-                              "value": [
-                                "school",
-                                "segment"
-                              ]
-                            },
-                            "right": {
-                              "type": "literal",
-                              "value": 2
-                            }
-                          },
-                          "nodes": [
-                            {
-                              "type": "choice",
-                              "id": "math-2-taylor",
-                              "label": "Interact with Taylor",
-                              "target": "place.high-school",
-                              "icon": "💬",
-                              "durationMinutes": 15,
-                              "timeUntilPath": null,
-                              "energyFree": false,
-                              "when": {
-                                "type": "path",
-                                "value": [
-                                  "npc",
-                                  "taylor",
-                                  "present"
-                                ]
-                              },
-                              "requirements": [],
-                              "warning": null,
-                              "previews": [],
-                              "effects": [
-                                {
-                                  "op": "attendance",
-                                  "id": "math",
-                                  "amount": 1,
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 216,
-                                    "column": 1
-                                  }
-                                },
-                                {
-                                  "op": "relationship",
-                                  "npcId": "taylor",
-                                  "amount": 0.003,
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 217,
-                                    "column": 1
-                                  }
-                                }
-                              ],
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 212,
-                                "column": 1
-                              }
-                            },
-                            {
-                              "type": "choice",
-                              "id": "math-2-study",
-                              "label": "Study hard",
-                              "target": "place.high-school",
-                              "icon": "🧮",
-                              "durationMinutes": 15,
-                              "timeUntilPath": null,
-                              "energyFree": false,
-                              "when": null,
-                              "requirements": [],
-                              "warning": null,
-                              "previews": [
-                                {
-                                  "type": "grade",
-                                  "amount": 1,
-                                  "label": "+Mathematics grade",
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 222,
-                                    "column": 1
-                                  }
-                                }
-                              ],
-                              "effects": [
-                                {
-                                  "op": "attendance",
-                                  "id": "math",
-                                  "amount": 1,
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 223,
-                                    "column": 1
-                                  }
-                                },
-                                {
-                                  "op": "grade",
-                                  "id": "math",
-                                  "amount": 1,
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 224,
-                                    "column": 1
-                                  }
-                                }
-                              ],
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 219,
-                                "column": 1
-                              }
-                            }
-                          ],
-                          "source": {
-                            "file": "story/places/education-work.wg",
-                            "line": 211,
-                            "column": 1
-                          }
+                        "right": {
+                          "type": "literal",
+                          "value": 1
                         }
-                      ],
-                      "elseNodes": [
-                        {
-                          "type": "choice",
-                          "id": "math-3-taylor",
-                          "label": "Interact with Taylor",
-                          "target": "place.high-school",
-                          "icon": "💬",
-                          "durationMinutes": 15,
-                          "timeUntilPath": null,
-                          "energyFree": false,
-                          "when": {
-                            "type": "path",
-                            "value": [
-                              "npc",
-                              "taylor",
-                              "present"
-                            ]
-                          },
-                          "requirements": [],
-                          "warning": null,
-                          "previews": [],
-                          "effects": [
-                            {
-                              "op": "attendance",
-                              "id": "math",
-                              "amount": 1,
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 231,
-                                "column": 1
-                              }
-                            },
-                            {
-                              "op": "relationship",
-                              "npcId": "taylor",
-                              "amount": 0.003,
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 232,
-                                "column": 1
-                              }
-                            }
-                          ],
-                          "source": {
-                            "file": "story/places/education-work.wg",
-                            "line": 227,
-                            "column": 1
-                          }
-                        },
-                        {
-                          "type": "choice",
-                          "id": "math-3-study",
-                          "label": "Study hard",
-                          "target": "place.high-school",
-                          "icon": "🧮",
-                          "durationMinutes": 15,
-                          "timeUntilPath": null,
-                          "energyFree": false,
-                          "when": null,
-                          "requirements": [],
-                          "warning": null,
-                          "previews": [
-                            {
-                              "type": "grade",
-                              "amount": 1,
-                              "label": "+Mathematics grade",
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 237,
-                                "column": 1
-                              }
-                            }
-                          ],
-                          "effects": [
-                            {
-                              "op": "attendance",
-                              "id": "math",
-                              "amount": 1,
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 238,
-                                "column": 1
-                              }
-                            },
-                            {
-                              "op": "grade",
-                              "id": "math",
-                              "amount": 1,
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 239,
-                                "column": 1
-                              }
-                            }
-                          ],
-                          "source": {
-                            "file": "story/places/education-work.wg",
-                            "line": 234,
-                            "column": 1
-                          }
-                        }
-                      ],
+                      },
+                      "requirements": [],
+                      "warning": null,
+                      "previews": [],
+                      "effects": [],
                       "source": {
                         "file": "story/places/education-work.wg",
-                        "line": 196,
+                        "line": 99,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/education-work.wg",
-                    "line": 192,
+                    "line": 95,
                     "column": 1
                   }
                 },
@@ -5668,403 +4756,53 @@ export const WG_BUNDLE = {
                       "parts": [
                         {
                           "type": "text",
-                          "value": "History class is in progress. This is segment "
-                        },
-                        {
-                          "type": "interpolation",
-                          "path": [
-                            "school",
-                            "segment"
-                          ],
-                          "filters": []
-                        },
-                        {
-                          "type": "text",
-                          "value": " of "
-                        },
-                        {
-                          "type": "interpolation",
-                          "path": [
-                            "school",
-                            "segmentCount"
-                          ],
-                          "filters": []
-                        },
-                        {
-                          "type": "text",
-                          "value": "."
+                          "value": "History class is in progress. You can attend during its opening segment or keep exploring the school."
                         }
                       ],
                       "source": {
                         "file": "story/places/education-work.wg",
-                        "line": 245,
+                        "line": 106,
                         "column": 1
                       }
                     },
                     {
-                      "type": "if",
-                      "branches": [
-                        {
-                          "test": {
-                            "type": "binary",
-                            "operator": "==",
-                            "left": {
-                              "type": "path",
-                              "value": [
-                                "school",
-                                "segment"
-                              ]
-                            },
-                            "right": {
-                              "type": "literal",
-                              "value": 1
-                            }
-                          },
-                          "nodes": [
-                            {
-                              "type": "choice",
-                              "id": "history-1-taylor",
-                              "label": "Interact with Taylor",
-                              "target": "place.high-school",
-                              "icon": "💬",
-                              "durationMinutes": 15,
-                              "timeUntilPath": null,
-                              "energyFree": false,
-                              "when": {
-                                "type": "path",
-                                "value": [
-                                  "npc",
-                                  "taylor",
-                                  "present"
-                                ]
-                              },
-                              "requirements": [],
-                              "warning": null,
-                              "previews": [],
-                              "effects": [
-                                {
-                                  "op": "attendance",
-                                  "id": "history",
-                                  "amount": 1,
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 252,
-                                    "column": 1
-                                  }
-                                },
-                                {
-                                  "op": "relationship",
-                                  "npcId": "taylor",
-                                  "amount": 0.003,
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 253,
-                                    "column": 1
-                                  }
-                                }
-                              ],
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 248,
-                                "column": 1
-                              }
-                            },
-                            {
-                              "type": "choice",
-                              "id": "history-1-study",
-                              "label": "Study hard",
-                              "target": "place.high-school",
-                              "icon": "📜",
-                              "durationMinutes": 15,
-                              "timeUntilPath": null,
-                              "energyFree": false,
-                              "when": null,
-                              "requirements": [],
-                              "warning": null,
-                              "previews": [
-                                {
-                                  "type": "grade",
-                                  "amount": 1,
-                                  "label": "+History grade",
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 258,
-                                    "column": 1
-                                  }
-                                }
-                              ],
-                              "effects": [
-                                {
-                                  "op": "attendance",
-                                  "id": "history",
-                                  "amount": 1,
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 259,
-                                    "column": 1
-                                  }
-                                },
-                                {
-                                  "op": "grade",
-                                  "id": "history",
-                                  "amount": 1,
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 260,
-                                    "column": 1
-                                  }
-                                }
-                              ],
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 255,
-                                "column": 1
-                              }
-                            }
-                          ],
-                          "source": {
-                            "file": "story/places/education-work.wg",
-                            "line": 247,
-                            "column": 1
-                          }
+                      "type": "choice",
+                      "id": "attend-history",
+                      "label": "Attend History class",
+                      "target": "school.class.history",
+                      "icon": "📜",
+                      "durationMinutes": 0,
+                      "timeUntilPath": null,
+                      "energyFree": false,
+                      "when": {
+                        "type": "binary",
+                        "operator": "==",
+                        "left": {
+                          "type": "path",
+                          "value": [
+                            "school",
+                            "segment"
+                          ]
                         },
-                        {
-                          "test": {
-                            "type": "binary",
-                            "operator": "==",
-                            "left": {
-                              "type": "path",
-                              "value": [
-                                "school",
-                                "segment"
-                              ]
-                            },
-                            "right": {
-                              "type": "literal",
-                              "value": 2
-                            }
-                          },
-                          "nodes": [
-                            {
-                              "type": "choice",
-                              "id": "history-2-taylor",
-                              "label": "Interact with Taylor",
-                              "target": "place.high-school",
-                              "icon": "💬",
-                              "durationMinutes": 15,
-                              "timeUntilPath": null,
-                              "energyFree": false,
-                              "when": {
-                                "type": "path",
-                                "value": [
-                                  "npc",
-                                  "taylor",
-                                  "present"
-                                ]
-                              },
-                              "requirements": [],
-                              "warning": null,
-                              "previews": [],
-                              "effects": [
-                                {
-                                  "op": "attendance",
-                                  "id": "history",
-                                  "amount": 1,
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 267,
-                                    "column": 1
-                                  }
-                                },
-                                {
-                                  "op": "relationship",
-                                  "npcId": "taylor",
-                                  "amount": 0.003,
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 268,
-                                    "column": 1
-                                  }
-                                }
-                              ],
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 263,
-                                "column": 1
-                              }
-                            },
-                            {
-                              "type": "choice",
-                              "id": "history-2-study",
-                              "label": "Study hard",
-                              "target": "place.high-school",
-                              "icon": "📜",
-                              "durationMinutes": 15,
-                              "timeUntilPath": null,
-                              "energyFree": false,
-                              "when": null,
-                              "requirements": [],
-                              "warning": null,
-                              "previews": [
-                                {
-                                  "type": "grade",
-                                  "amount": 1,
-                                  "label": "+History grade",
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 273,
-                                    "column": 1
-                                  }
-                                }
-                              ],
-                              "effects": [
-                                {
-                                  "op": "attendance",
-                                  "id": "history",
-                                  "amount": 1,
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 274,
-                                    "column": 1
-                                  }
-                                },
-                                {
-                                  "op": "grade",
-                                  "id": "history",
-                                  "amount": 1,
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 275,
-                                    "column": 1
-                                  }
-                                }
-                              ],
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 270,
-                                "column": 1
-                              }
-                            }
-                          ],
-                          "source": {
-                            "file": "story/places/education-work.wg",
-                            "line": 262,
-                            "column": 1
-                          }
+                        "right": {
+                          "type": "literal",
+                          "value": 1
                         }
-                      ],
-                      "elseNodes": [
-                        {
-                          "type": "choice",
-                          "id": "history-3-taylor",
-                          "label": "Interact with Taylor",
-                          "target": "place.high-school",
-                          "icon": "💬",
-                          "durationMinutes": 15,
-                          "timeUntilPath": null,
-                          "energyFree": false,
-                          "when": {
-                            "type": "path",
-                            "value": [
-                              "npc",
-                              "taylor",
-                              "present"
-                            ]
-                          },
-                          "requirements": [],
-                          "warning": null,
-                          "previews": [],
-                          "effects": [
-                            {
-                              "op": "attendance",
-                              "id": "history",
-                              "amount": 1,
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 282,
-                                "column": 1
-                              }
-                            },
-                            {
-                              "op": "relationship",
-                              "npcId": "taylor",
-                              "amount": 0.003,
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 283,
-                                "column": 1
-                              }
-                            }
-                          ],
-                          "source": {
-                            "file": "story/places/education-work.wg",
-                            "line": 278,
-                            "column": 1
-                          }
-                        },
-                        {
-                          "type": "choice",
-                          "id": "history-3-study",
-                          "label": "Study hard",
-                          "target": "place.high-school",
-                          "icon": "📜",
-                          "durationMinutes": 15,
-                          "timeUntilPath": null,
-                          "energyFree": false,
-                          "when": null,
-                          "requirements": [],
-                          "warning": null,
-                          "previews": [
-                            {
-                              "type": "grade",
-                              "amount": 1,
-                              "label": "+History grade",
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 288,
-                                "column": 1
-                              }
-                            }
-                          ],
-                          "effects": [
-                            {
-                              "op": "attendance",
-                              "id": "history",
-                              "amount": 1,
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 289,
-                                "column": 1
-                              }
-                            },
-                            {
-                              "op": "grade",
-                              "id": "history",
-                              "amount": 1,
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 290,
-                                "column": 1
-                              }
-                            }
-                          ],
-                          "source": {
-                            "file": "story/places/education-work.wg",
-                            "line": 285,
-                            "column": 1
-                          }
-                        }
-                      ],
+                      },
+                      "requirements": [],
+                      "warning": null,
+                      "previews": [],
+                      "effects": [],
                       "source": {
                         "file": "story/places/education-work.wg",
-                        "line": 247,
+                        "line": 108,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/education-work.wg",
-                    "line": 243,
+                    "line": 104,
                     "column": 1
                   }
                 },
@@ -6095,7 +4833,7 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/places/education-work.wg",
-                        "line": 296,
+                        "line": 115,
                         "column": 1
                       }
                     },
@@ -6118,7 +4856,7 @@ export const WG_BUNDLE = {
                       "effects": [],
                       "source": {
                         "file": "story/places/education-work.wg",
-                        "line": 298,
+                        "line": 117,
                         "column": 1
                       }
                     },
@@ -6141,34 +4879,14 @@ export const WG_BUNDLE = {
                       "effects": [],
                       "source": {
                         "file": "story/places/education-work.wg",
-                        "line": 303,
-                        "column": 1
-                      }
-                    },
-                    {
-                      "type": "choice",
-                      "id": "lunch-leave",
-                      "label": "Leave school",
-                      "target": "@leave-place",
-                      "icon": "🚪",
-                      "durationMinutes": 1,
-                      "timeUntilPath": null,
-                      "energyFree": false,
-                      "when": null,
-                      "requirements": [],
-                      "warning": null,
-                      "previews": [],
-                      "effects": [],
-                      "source": {
-                        "file": "story/places/education-work.wg",
-                        "line": 308,
+                        "line": 122,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/education-work.wg",
-                    "line": 294,
+                    "line": 113,
                     "column": 1
                   }
                 },
@@ -6213,403 +4931,53 @@ export const WG_BUNDLE = {
                       "parts": [
                         {
                           "type": "text",
-                          "value": "Science class is in progress. This is segment "
-                        },
-                        {
-                          "type": "interpolation",
-                          "path": [
-                            "school",
-                            "segment"
-                          ],
-                          "filters": []
-                        },
-                        {
-                          "type": "text",
-                          "value": " of "
-                        },
-                        {
-                          "type": "interpolation",
-                          "path": [
-                            "school",
-                            "segmentCount"
-                          ],
-                          "filters": []
-                        },
-                        {
-                          "type": "text",
-                          "value": "."
+                          "value": "Science class is in progress. You can attend during its opening segment or keep exploring the school."
                         }
                       ],
                       "source": {
                         "file": "story/places/education-work.wg",
-                        "line": 315,
+                        "line": 129,
                         "column": 1
                       }
                     },
                     {
-                      "type": "if",
-                      "branches": [
-                        {
-                          "test": {
-                            "type": "binary",
-                            "operator": "==",
-                            "left": {
-                              "type": "path",
-                              "value": [
-                                "school",
-                                "segment"
-                              ]
-                            },
-                            "right": {
-                              "type": "literal",
-                              "value": 1
-                            }
-                          },
-                          "nodes": [
-                            {
-                              "type": "choice",
-                              "id": "science-1-taylor",
-                              "label": "Interact with Taylor",
-                              "target": "place.high-school",
-                              "icon": "💬",
-                              "durationMinutes": 15,
-                              "timeUntilPath": null,
-                              "energyFree": false,
-                              "when": {
-                                "type": "path",
-                                "value": [
-                                  "npc",
-                                  "taylor",
-                                  "present"
-                                ]
-                              },
-                              "requirements": [],
-                              "warning": null,
-                              "previews": [],
-                              "effects": [
-                                {
-                                  "op": "attendance",
-                                  "id": "science",
-                                  "amount": 1,
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 322,
-                                    "column": 1
-                                  }
-                                },
-                                {
-                                  "op": "relationship",
-                                  "npcId": "taylor",
-                                  "amount": 0.003,
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 323,
-                                    "column": 1
-                                  }
-                                }
-                              ],
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 318,
-                                "column": 1
-                              }
-                            },
-                            {
-                              "type": "choice",
-                              "id": "science-1-study",
-                              "label": "Study hard",
-                              "target": "place.high-school",
-                              "icon": "🔬",
-                              "durationMinutes": 15,
-                              "timeUntilPath": null,
-                              "energyFree": false,
-                              "when": null,
-                              "requirements": [],
-                              "warning": null,
-                              "previews": [
-                                {
-                                  "type": "grade",
-                                  "amount": 1,
-                                  "label": "+Science grade",
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 328,
-                                    "column": 1
-                                  }
-                                }
-                              ],
-                              "effects": [
-                                {
-                                  "op": "attendance",
-                                  "id": "science",
-                                  "amount": 1,
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 329,
-                                    "column": 1
-                                  }
-                                },
-                                {
-                                  "op": "grade",
-                                  "id": "science",
-                                  "amount": 1,
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 330,
-                                    "column": 1
-                                  }
-                                }
-                              ],
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 325,
-                                "column": 1
-                              }
-                            }
-                          ],
-                          "source": {
-                            "file": "story/places/education-work.wg",
-                            "line": 317,
-                            "column": 1
-                          }
+                      "type": "choice",
+                      "id": "attend-science",
+                      "label": "Attend Science class",
+                      "target": "school.class.science",
+                      "icon": "🔬",
+                      "durationMinutes": 0,
+                      "timeUntilPath": null,
+                      "energyFree": false,
+                      "when": {
+                        "type": "binary",
+                        "operator": "==",
+                        "left": {
+                          "type": "path",
+                          "value": [
+                            "school",
+                            "segment"
+                          ]
                         },
-                        {
-                          "test": {
-                            "type": "binary",
-                            "operator": "==",
-                            "left": {
-                              "type": "path",
-                              "value": [
-                                "school",
-                                "segment"
-                              ]
-                            },
-                            "right": {
-                              "type": "literal",
-                              "value": 2
-                            }
-                          },
-                          "nodes": [
-                            {
-                              "type": "choice",
-                              "id": "science-2-taylor",
-                              "label": "Interact with Taylor",
-                              "target": "place.high-school",
-                              "icon": "💬",
-                              "durationMinutes": 15,
-                              "timeUntilPath": null,
-                              "energyFree": false,
-                              "when": {
-                                "type": "path",
-                                "value": [
-                                  "npc",
-                                  "taylor",
-                                  "present"
-                                ]
-                              },
-                              "requirements": [],
-                              "warning": null,
-                              "previews": [],
-                              "effects": [
-                                {
-                                  "op": "attendance",
-                                  "id": "science",
-                                  "amount": 1,
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 337,
-                                    "column": 1
-                                  }
-                                },
-                                {
-                                  "op": "relationship",
-                                  "npcId": "taylor",
-                                  "amount": 0.003,
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 338,
-                                    "column": 1
-                                  }
-                                }
-                              ],
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 333,
-                                "column": 1
-                              }
-                            },
-                            {
-                              "type": "choice",
-                              "id": "science-2-study",
-                              "label": "Study hard",
-                              "target": "place.high-school",
-                              "icon": "🔬",
-                              "durationMinutes": 15,
-                              "timeUntilPath": null,
-                              "energyFree": false,
-                              "when": null,
-                              "requirements": [],
-                              "warning": null,
-                              "previews": [
-                                {
-                                  "type": "grade",
-                                  "amount": 1,
-                                  "label": "+Science grade",
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 343,
-                                    "column": 1
-                                  }
-                                }
-                              ],
-                              "effects": [
-                                {
-                                  "op": "attendance",
-                                  "id": "science",
-                                  "amount": 1,
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 344,
-                                    "column": 1
-                                  }
-                                },
-                                {
-                                  "op": "grade",
-                                  "id": "science",
-                                  "amount": 1,
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 345,
-                                    "column": 1
-                                  }
-                                }
-                              ],
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 340,
-                                "column": 1
-                              }
-                            }
-                          ],
-                          "source": {
-                            "file": "story/places/education-work.wg",
-                            "line": 332,
-                            "column": 1
-                          }
+                        "right": {
+                          "type": "literal",
+                          "value": 1
                         }
-                      ],
-                      "elseNodes": [
-                        {
-                          "type": "choice",
-                          "id": "science-3-taylor",
-                          "label": "Interact with Taylor",
-                          "target": "place.high-school",
-                          "icon": "💬",
-                          "durationMinutes": 15,
-                          "timeUntilPath": null,
-                          "energyFree": false,
-                          "when": {
-                            "type": "path",
-                            "value": [
-                              "npc",
-                              "taylor",
-                              "present"
-                            ]
-                          },
-                          "requirements": [],
-                          "warning": null,
-                          "previews": [],
-                          "effects": [
-                            {
-                              "op": "attendance",
-                              "id": "science",
-                              "amount": 1,
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 352,
-                                "column": 1
-                              }
-                            },
-                            {
-                              "op": "relationship",
-                              "npcId": "taylor",
-                              "amount": 0.003,
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 353,
-                                "column": 1
-                              }
-                            }
-                          ],
-                          "source": {
-                            "file": "story/places/education-work.wg",
-                            "line": 348,
-                            "column": 1
-                          }
-                        },
-                        {
-                          "type": "choice",
-                          "id": "science-3-study",
-                          "label": "Study hard",
-                          "target": "place.high-school",
-                          "icon": "🔬",
-                          "durationMinutes": 15,
-                          "timeUntilPath": null,
-                          "energyFree": false,
-                          "when": null,
-                          "requirements": [],
-                          "warning": null,
-                          "previews": [
-                            {
-                              "type": "grade",
-                              "amount": 1,
-                              "label": "+Science grade",
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 358,
-                                "column": 1
-                              }
-                            }
-                          ],
-                          "effects": [
-                            {
-                              "op": "attendance",
-                              "id": "science",
-                              "amount": 1,
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 359,
-                                "column": 1
-                              }
-                            },
-                            {
-                              "op": "grade",
-                              "id": "science",
-                              "amount": 1,
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 360,
-                                "column": 1
-                              }
-                            }
-                          ],
-                          "source": {
-                            "file": "story/places/education-work.wg",
-                            "line": 355,
-                            "column": 1
-                          }
-                        }
-                      ],
+                      },
+                      "requirements": [],
+                      "warning": null,
+                      "previews": [],
+                      "effects": [],
                       "source": {
                         "file": "story/places/education-work.wg",
-                        "line": 317,
+                        "line": 131,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/education-work.wg",
-                    "line": 313,
+                    "line": 127,
                     "column": 1
                   }
                 },
@@ -6654,403 +5022,53 @@ export const WG_BUNDLE = {
                       "parts": [
                         {
                           "type": "text",
-                          "value": "Art class is in progress. This is segment "
-                        },
-                        {
-                          "type": "interpolation",
-                          "path": [
-                            "school",
-                            "segment"
-                          ],
-                          "filters": []
-                        },
-                        {
-                          "type": "text",
-                          "value": " of "
-                        },
-                        {
-                          "type": "interpolation",
-                          "path": [
-                            "school",
-                            "segmentCount"
-                          ],
-                          "filters": []
-                        },
-                        {
-                          "type": "text",
-                          "value": "."
+                          "value": "Art class is in progress. You can attend during its opening segment or keep exploring the school."
                         }
                       ],
                       "source": {
                         "file": "story/places/education-work.wg",
-                        "line": 366,
+                        "line": 138,
                         "column": 1
                       }
                     },
                     {
-                      "type": "if",
-                      "branches": [
-                        {
-                          "test": {
-                            "type": "binary",
-                            "operator": "==",
-                            "left": {
-                              "type": "path",
-                              "value": [
-                                "school",
-                                "segment"
-                              ]
-                            },
-                            "right": {
-                              "type": "literal",
-                              "value": 1
-                            }
-                          },
-                          "nodes": [
-                            {
-                              "type": "choice",
-                              "id": "art-1-taylor",
-                              "label": "Interact with Taylor",
-                              "target": "place.high-school",
-                              "icon": "💬",
-                              "durationMinutes": 15,
-                              "timeUntilPath": null,
-                              "energyFree": false,
-                              "when": {
-                                "type": "path",
-                                "value": [
-                                  "npc",
-                                  "taylor",
-                                  "present"
-                                ]
-                              },
-                              "requirements": [],
-                              "warning": null,
-                              "previews": [],
-                              "effects": [
-                                {
-                                  "op": "attendance",
-                                  "id": "art",
-                                  "amount": 1,
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 373,
-                                    "column": 1
-                                  }
-                                },
-                                {
-                                  "op": "relationship",
-                                  "npcId": "taylor",
-                                  "amount": 0.003,
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 374,
-                                    "column": 1
-                                  }
-                                }
-                              ],
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 369,
-                                "column": 1
-                              }
-                            },
-                            {
-                              "type": "choice",
-                              "id": "art-1-study",
-                              "label": "Study hard",
-                              "target": "place.high-school",
-                              "icon": "🎨",
-                              "durationMinutes": 15,
-                              "timeUntilPath": null,
-                              "energyFree": false,
-                              "when": null,
-                              "requirements": [],
-                              "warning": null,
-                              "previews": [
-                                {
-                                  "type": "grade",
-                                  "amount": 1,
-                                  "label": "+Art grade",
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 379,
-                                    "column": 1
-                                  }
-                                }
-                              ],
-                              "effects": [
-                                {
-                                  "op": "attendance",
-                                  "id": "art",
-                                  "amount": 1,
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 380,
-                                    "column": 1
-                                  }
-                                },
-                                {
-                                  "op": "grade",
-                                  "id": "art",
-                                  "amount": 1,
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 381,
-                                    "column": 1
-                                  }
-                                }
-                              ],
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 376,
-                                "column": 1
-                              }
-                            }
-                          ],
-                          "source": {
-                            "file": "story/places/education-work.wg",
-                            "line": 368,
-                            "column": 1
-                          }
+                      "type": "choice",
+                      "id": "attend-art",
+                      "label": "Attend Art class",
+                      "target": "school.class.art",
+                      "icon": "🎨",
+                      "durationMinutes": 0,
+                      "timeUntilPath": null,
+                      "energyFree": false,
+                      "when": {
+                        "type": "binary",
+                        "operator": "==",
+                        "left": {
+                          "type": "path",
+                          "value": [
+                            "school",
+                            "segment"
+                          ]
                         },
-                        {
-                          "test": {
-                            "type": "binary",
-                            "operator": "==",
-                            "left": {
-                              "type": "path",
-                              "value": [
-                                "school",
-                                "segment"
-                              ]
-                            },
-                            "right": {
-                              "type": "literal",
-                              "value": 2
-                            }
-                          },
-                          "nodes": [
-                            {
-                              "type": "choice",
-                              "id": "art-2-taylor",
-                              "label": "Interact with Taylor",
-                              "target": "place.high-school",
-                              "icon": "💬",
-                              "durationMinutes": 15,
-                              "timeUntilPath": null,
-                              "energyFree": false,
-                              "when": {
-                                "type": "path",
-                                "value": [
-                                  "npc",
-                                  "taylor",
-                                  "present"
-                                ]
-                              },
-                              "requirements": [],
-                              "warning": null,
-                              "previews": [],
-                              "effects": [
-                                {
-                                  "op": "attendance",
-                                  "id": "art",
-                                  "amount": 1,
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 388,
-                                    "column": 1
-                                  }
-                                },
-                                {
-                                  "op": "relationship",
-                                  "npcId": "taylor",
-                                  "amount": 0.003,
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 389,
-                                    "column": 1
-                                  }
-                                }
-                              ],
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 384,
-                                "column": 1
-                              }
-                            },
-                            {
-                              "type": "choice",
-                              "id": "art-2-study",
-                              "label": "Study hard",
-                              "target": "place.high-school",
-                              "icon": "🎨",
-                              "durationMinutes": 15,
-                              "timeUntilPath": null,
-                              "energyFree": false,
-                              "when": null,
-                              "requirements": [],
-                              "warning": null,
-                              "previews": [
-                                {
-                                  "type": "grade",
-                                  "amount": 1,
-                                  "label": "+Art grade",
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 394,
-                                    "column": 1
-                                  }
-                                }
-                              ],
-                              "effects": [
-                                {
-                                  "op": "attendance",
-                                  "id": "art",
-                                  "amount": 1,
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 395,
-                                    "column": 1
-                                  }
-                                },
-                                {
-                                  "op": "grade",
-                                  "id": "art",
-                                  "amount": 1,
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 396,
-                                    "column": 1
-                                  }
-                                }
-                              ],
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 391,
-                                "column": 1
-                              }
-                            }
-                          ],
-                          "source": {
-                            "file": "story/places/education-work.wg",
-                            "line": 383,
-                            "column": 1
-                          }
+                        "right": {
+                          "type": "literal",
+                          "value": 1
                         }
-                      ],
-                      "elseNodes": [
-                        {
-                          "type": "choice",
-                          "id": "art-3-taylor",
-                          "label": "Interact with Taylor",
-                          "target": "place.high-school",
-                          "icon": "💬",
-                          "durationMinutes": 15,
-                          "timeUntilPath": null,
-                          "energyFree": false,
-                          "when": {
-                            "type": "path",
-                            "value": [
-                              "npc",
-                              "taylor",
-                              "present"
-                            ]
-                          },
-                          "requirements": [],
-                          "warning": null,
-                          "previews": [],
-                          "effects": [
-                            {
-                              "op": "attendance",
-                              "id": "art",
-                              "amount": 1,
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 403,
-                                "column": 1
-                              }
-                            },
-                            {
-                              "op": "relationship",
-                              "npcId": "taylor",
-                              "amount": 0.003,
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 404,
-                                "column": 1
-                              }
-                            }
-                          ],
-                          "source": {
-                            "file": "story/places/education-work.wg",
-                            "line": 399,
-                            "column": 1
-                          }
-                        },
-                        {
-                          "type": "choice",
-                          "id": "art-3-study",
-                          "label": "Study hard",
-                          "target": "place.high-school",
-                          "icon": "🎨",
-                          "durationMinutes": 15,
-                          "timeUntilPath": null,
-                          "energyFree": false,
-                          "when": null,
-                          "requirements": [],
-                          "warning": null,
-                          "previews": [
-                            {
-                              "type": "grade",
-                              "amount": 1,
-                              "label": "+Art grade",
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 409,
-                                "column": 1
-                              }
-                            }
-                          ],
-                          "effects": [
-                            {
-                              "op": "attendance",
-                              "id": "art",
-                              "amount": 1,
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 410,
-                                "column": 1
-                              }
-                            },
-                            {
-                              "op": "grade",
-                              "id": "art",
-                              "amount": 1,
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 411,
-                                "column": 1
-                              }
-                            }
-                          ],
-                          "source": {
-                            "file": "story/places/education-work.wg",
-                            "line": 406,
-                            "column": 1
-                          }
-                        }
-                      ],
+                      },
+                      "requirements": [],
+                      "warning": null,
+                      "previews": [],
+                      "effects": [],
                       "source": {
                         "file": "story/places/education-work.wg",
-                        "line": 368,
+                        "line": 140,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/education-work.wg",
-                    "line": 364,
+                    "line": 136,
                     "column": 1
                   }
                 },
@@ -7095,433 +5113,53 @@ export const WG_BUNDLE = {
                       "parts": [
                         {
                           "type": "text",
-                          "value": "Physical education is in progress. This is segment "
-                        },
-                        {
-                          "type": "interpolation",
-                          "path": [
-                            "school",
-                            "segment"
-                          ],
-                          "filters": []
-                        },
-                        {
-                          "type": "text",
-                          "value": " of "
-                        },
-                        {
-                          "type": "interpolation",
-                          "path": [
-                            "school",
-                            "segmentCount"
-                          ],
-                          "filters": []
-                        },
-                        {
-                          "type": "text",
-                          "value": "."
+                          "value": "Physical education is in progress. You can attend during its opening segment or keep exploring the school."
                         }
                       ],
                       "source": {
                         "file": "story/places/education-work.wg",
-                        "line": 417,
+                        "line": 147,
                         "column": 1
                       }
                     },
                     {
-                      "type": "if",
-                      "branches": [
-                        {
-                          "test": {
-                            "type": "binary",
-                            "operator": "==",
-                            "left": {
-                              "type": "path",
-                              "value": [
-                                "school",
-                                "segment"
-                              ]
-                            },
-                            "right": {
-                              "type": "literal",
-                              "value": 1
-                            }
-                          },
-                          "nodes": [
-                            {
-                              "type": "choice",
-                              "id": "physical-education-1-taylor",
-                              "label": "Interact with Taylor",
-                              "target": "place.high-school",
-                              "icon": "💬",
-                              "durationMinutes": 15,
-                              "timeUntilPath": null,
-                              "energyFree": false,
-                              "when": {
-                                "type": "path",
-                                "value": [
-                                  "npc",
-                                  "taylor",
-                                  "present"
-                                ]
-                              },
-                              "requirements": [],
-                              "warning": null,
-                              "previews": [],
-                              "effects": [
-                                {
-                                  "op": "attendance",
-                                  "id": "physical_education",
-                                  "amount": 1,
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 424,
-                                    "column": 1
-                                  }
-                                },
-                                {
-                                  "op": "relationship",
-                                  "npcId": "taylor",
-                                  "amount": 0.003,
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 425,
-                                    "column": 1
-                                  }
-                                }
-                              ],
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 420,
-                                "column": 1
-                              }
-                            },
-                            {
-                              "type": "choice",
-                              "id": "physical-education-1-study",
-                              "label": "Train hard",
-                              "target": "place.high-school",
-                              "icon": "🏃",
-                              "durationMinutes": 15,
-                              "timeUntilPath": null,
-                              "energyFree": false,
-                              "when": null,
-                              "requirements": [],
-                              "warning": null,
-                              "previews": [
-                                {
-                                  "type": "grade",
-                                  "amount": 1,
-                                  "label": "+Physical Education grade",
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 430,
-                                    "column": 1
-                                  }
-                                }
-                              ],
-                              "effects": [
-                                {
-                                  "op": "attendance",
-                                  "id": "physical_education",
-                                  "amount": 1,
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 431,
-                                    "column": 1
-                                  }
-                                },
-                                {
-                                  "op": "grade",
-                                  "id": "physical_education",
-                                  "amount": 1,
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 432,
-                                    "column": 1
-                                  }
-                                },
-                                {
-                                  "op": "skill",
-                                  "id": "strength",
-                                  "amount": 0.02,
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 433,
-                                    "column": 1
-                                  }
-                                }
-                              ],
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 427,
-                                "column": 1
-                              }
-                            }
-                          ],
-                          "source": {
-                            "file": "story/places/education-work.wg",
-                            "line": 419,
-                            "column": 1
-                          }
+                      "type": "choice",
+                      "id": "attend-physical-education",
+                      "label": "Attend Physical Education",
+                      "target": "school.class.physical-education",
+                      "icon": "🏃",
+                      "durationMinutes": 0,
+                      "timeUntilPath": null,
+                      "energyFree": false,
+                      "when": {
+                        "type": "binary",
+                        "operator": "==",
+                        "left": {
+                          "type": "path",
+                          "value": [
+                            "school",
+                            "segment"
+                          ]
                         },
-                        {
-                          "test": {
-                            "type": "binary",
-                            "operator": "==",
-                            "left": {
-                              "type": "path",
-                              "value": [
-                                "school",
-                                "segment"
-                              ]
-                            },
-                            "right": {
-                              "type": "literal",
-                              "value": 2
-                            }
-                          },
-                          "nodes": [
-                            {
-                              "type": "choice",
-                              "id": "physical-education-2-taylor",
-                              "label": "Interact with Taylor",
-                              "target": "place.high-school",
-                              "icon": "💬",
-                              "durationMinutes": 15,
-                              "timeUntilPath": null,
-                              "energyFree": false,
-                              "when": {
-                                "type": "path",
-                                "value": [
-                                  "npc",
-                                  "taylor",
-                                  "present"
-                                ]
-                              },
-                              "requirements": [],
-                              "warning": null,
-                              "previews": [],
-                              "effects": [
-                                {
-                                  "op": "attendance",
-                                  "id": "physical_education",
-                                  "amount": 1,
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 440,
-                                    "column": 1
-                                  }
-                                },
-                                {
-                                  "op": "relationship",
-                                  "npcId": "taylor",
-                                  "amount": 0.003,
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 441,
-                                    "column": 1
-                                  }
-                                }
-                              ],
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 436,
-                                "column": 1
-                              }
-                            },
-                            {
-                              "type": "choice",
-                              "id": "physical-education-2-study",
-                              "label": "Train hard",
-                              "target": "place.high-school",
-                              "icon": "🏃",
-                              "durationMinutes": 15,
-                              "timeUntilPath": null,
-                              "energyFree": false,
-                              "when": null,
-                              "requirements": [],
-                              "warning": null,
-                              "previews": [
-                                {
-                                  "type": "grade",
-                                  "amount": 1,
-                                  "label": "+Physical Education grade",
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 446,
-                                    "column": 1
-                                  }
-                                }
-                              ],
-                              "effects": [
-                                {
-                                  "op": "attendance",
-                                  "id": "physical_education",
-                                  "amount": 1,
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 447,
-                                    "column": 1
-                                  }
-                                },
-                                {
-                                  "op": "grade",
-                                  "id": "physical_education",
-                                  "amount": 1,
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 448,
-                                    "column": 1
-                                  }
-                                },
-                                {
-                                  "op": "skill",
-                                  "id": "strength",
-                                  "amount": 0.02,
-                                  "source": {
-                                    "file": "story/places/education-work.wg",
-                                    "line": 449,
-                                    "column": 1
-                                  }
-                                }
-                              ],
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 443,
-                                "column": 1
-                              }
-                            }
-                          ],
-                          "source": {
-                            "file": "story/places/education-work.wg",
-                            "line": 435,
-                            "column": 1
-                          }
+                        "right": {
+                          "type": "literal",
+                          "value": 1
                         }
-                      ],
-                      "elseNodes": [
-                        {
-                          "type": "choice",
-                          "id": "physical-education-3-taylor",
-                          "label": "Interact with Taylor",
-                          "target": "place.high-school",
-                          "icon": "💬",
-                          "durationMinutes": 15,
-                          "timeUntilPath": null,
-                          "energyFree": false,
-                          "when": {
-                            "type": "path",
-                            "value": [
-                              "npc",
-                              "taylor",
-                              "present"
-                            ]
-                          },
-                          "requirements": [],
-                          "warning": null,
-                          "previews": [],
-                          "effects": [
-                            {
-                              "op": "attendance",
-                              "id": "physical_education",
-                              "amount": 1,
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 456,
-                                "column": 1
-                              }
-                            },
-                            {
-                              "op": "relationship",
-                              "npcId": "taylor",
-                              "amount": 0.003,
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 457,
-                                "column": 1
-                              }
-                            }
-                          ],
-                          "source": {
-                            "file": "story/places/education-work.wg",
-                            "line": 452,
-                            "column": 1
-                          }
-                        },
-                        {
-                          "type": "choice",
-                          "id": "physical-education-3-study",
-                          "label": "Train hard",
-                          "target": "place.high-school",
-                          "icon": "🏃",
-                          "durationMinutes": 15,
-                          "timeUntilPath": null,
-                          "energyFree": false,
-                          "when": null,
-                          "requirements": [],
-                          "warning": null,
-                          "previews": [
-                            {
-                              "type": "grade",
-                              "amount": 1,
-                              "label": "+Physical Education grade",
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 462,
-                                "column": 1
-                              }
-                            }
-                          ],
-                          "effects": [
-                            {
-                              "op": "attendance",
-                              "id": "physical_education",
-                              "amount": 1,
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 463,
-                                "column": 1
-                              }
-                            },
-                            {
-                              "op": "grade",
-                              "id": "physical_education",
-                              "amount": 1,
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 464,
-                                "column": 1
-                              }
-                            },
-                            {
-                              "op": "skill",
-                              "id": "strength",
-                              "amount": 0.02,
-                              "source": {
-                                "file": "story/places/education-work.wg",
-                                "line": 465,
-                                "column": 1
-                              }
-                            }
-                          ],
-                          "source": {
-                            "file": "story/places/education-work.wg",
-                            "line": 459,
-                            "column": 1
-                          }
-                        }
-                      ],
+                      },
+                      "requirements": [],
+                      "warning": null,
+                      "previews": [],
+                      "effects": [],
                       "source": {
                         "file": "story/places/education-work.wg",
-                        "line": 419,
+                        "line": 149,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/education-work.wg",
-                    "line": 415,
+                    "line": 145,
                     "column": 1
                   }
                 },
@@ -7552,7 +5190,7 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/places/education-work.wg",
-                        "line": 471,
+                        "line": 156,
                         "column": 1
                       }
                     },
@@ -7575,7 +5213,7 @@ export const WG_BUNDLE = {
                       "effects": [],
                       "source": {
                         "file": "story/places/education-work.wg",
-                        "line": 473,
+                        "line": 158,
                         "column": 1
                       }
                     },
@@ -7598,34 +5236,14 @@ export const WG_BUNDLE = {
                       "effects": [],
                       "source": {
                         "file": "story/places/education-work.wg",
-                        "line": 478,
-                        "column": 1
-                      }
-                    },
-                    {
-                      "type": "choice",
-                      "id": "break-leave",
-                      "label": "Leave school",
-                      "target": "@leave-place",
-                      "icon": "🚪",
-                      "durationMinutes": 1,
-                      "timeUntilPath": null,
-                      "energyFree": false,
-                      "when": null,
-                      "requirements": [],
-                      "warning": null,
-                      "previews": [],
-                      "effects": [],
-                      "source": {
-                        "file": "story/places/education-work.wg",
-                        "line": 483,
+                        "line": 163,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/education-work.wg",
-                    "line": 469,
+                    "line": 154,
                     "column": 1
                   }
                 },
@@ -7668,7 +5286,7 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/places/education-work.wg",
-                        "line": 490,
+                        "line": 170,
                         "column": 1
                       }
                     },
@@ -7691,34 +5309,14 @@ export const WG_BUNDLE = {
                       "effects": [],
                       "source": {
                         "file": "story/places/education-work.wg",
-                        "line": 492,
-                        "column": 1
-                      }
-                    },
-                    {
-                      "type": "choice",
-                      "id": "after-school-leave",
-                      "label": "Leave school",
-                      "target": "@leave-place",
-                      "icon": "🚪",
-                      "durationMinutes": 1,
-                      "timeUntilPath": null,
-                      "energyFree": false,
-                      "when": null,
-                      "requirements": [],
-                      "warning": null,
-                      "previews": [],
-                      "effects": [],
-                      "source": {
-                        "file": "story/places/education-work.wg",
-                        "line": 497,
+                        "line": 172,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/education-work.wg",
-                    "line": 488,
+                    "line": 168,
                     "column": 1
                   }
                 },
@@ -7749,7 +5347,7 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/places/education-work.wg",
-                        "line": 504,
+                        "line": 179,
                         "column": 1
                       }
                     },
@@ -7769,7 +5367,7 @@ export const WG_BUNDLE = {
                       "effects": [],
                       "source": {
                         "file": "story/places/education-work.wg",
-                        "line": 506,
+                        "line": 181,
                         "column": 1
                       }
                     },
@@ -7789,34 +5387,14 @@ export const WG_BUNDLE = {
                       "effects": [],
                       "source": {
                         "file": "story/places/education-work.wg",
-                        "line": 511,
-                        "column": 1
-                      }
-                    },
-                    {
-                      "type": "choice",
-                      "id": "no-school-leave",
-                      "label": "Leave",
-                      "target": "@leave-place",
-                      "icon": "🚪",
-                      "durationMinutes": 1,
-                      "timeUntilPath": null,
-                      "energyFree": false,
-                      "when": null,
-                      "requirements": [],
-                      "warning": null,
-                      "previews": [],
-                      "effects": [],
-                      "source": {
-                        "file": "story/places/education-work.wg",
-                        "line": 516,
+                        "line": 186,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/education-work.wg",
-                    "line": 502,
+                    "line": 177,
                     "column": 1
                   }
                 }
@@ -7832,41 +5410,213 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/places/education-work.wg",
-                    "line": 523,
-                    "column": 1
-                  }
-                },
-                {
-                  "type": "choice",
-                  "id": "closed-leave",
-                  "label": "Step outside",
-                  "target": "@leave-place",
-                  "icon": "🚪",
-                  "durationMinutes": 0,
-                  "timeUntilPath": null,
-                  "energyFree": false,
-                  "when": null,
-                  "requirements": [],
-                  "warning": null,
-                  "previews": [],
-                  "effects": [],
-                  "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 525,
+                    "line": 193,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/education-work.wg",
-                "line": 117,
+                "line": 69,
                 "column": 1
               }
             }
           ],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 115,
+            "line": 67,
+            "column": 1
+          }
+        },
+        {
+          "type": "choice-group",
+          "id": "activities",
+          "heading": "Activities",
+          "nodes": [
+            {
+              "type": "choice",
+              "id": "cafeteria-room",
+              "label": "Go to the cafeteria",
+              "target": "place.high-school.cafeteria",
+              "icon": "🍽️",
+              "durationMinutes": 1,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 201,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "math-classroom",
+              "label": "Go to the math classroom",
+              "target": "place.high-school.math-classroom",
+              "icon": "🧮",
+              "durationMinutes": 1,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 206,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "english-classroom",
+              "label": "Go to the english classroom",
+              "target": "place.high-school.english-classroom",
+              "icon": "📖",
+              "durationMinutes": 1,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 211,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "history-classroom",
+              "label": "Go to the history classroom",
+              "target": "place.high-school.history-classroom",
+              "icon": "📜",
+              "durationMinutes": 1,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 216,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "science-classroom",
+              "label": "Go to the science classroom",
+              "target": "place.high-school.science-classroom",
+              "icon": "🔬",
+              "durationMinutes": 2,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 221,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "art-classroom",
+              "label": "Go to the art classroom",
+              "target": "place.high-school.art-classroom",
+              "icon": "🎨",
+              "durationMinutes": 2,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 226,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "school-gym",
+              "label": "Go to the school gym",
+              "target": "place.high-school.gym",
+              "icon": "🏃",
+              "durationMinutes": 5,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 231,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "student-council-room",
+              "label": "Visit the student council office",
+              "target": "place.high-school.student-council-room",
+              "icon": "🏫",
+              "durationMinutes": 5,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 236,
+                "column": 1
+              }
+            }
+          ],
+          "source": {
+            "file": "story/places/education-work.wg",
+            "line": 199,
+            "column": 1
+          }
+        },
+        {
+          "type": "choice",
+          "id": "leave-school",
+          "label": "Leave",
+          "target": "@leave-place",
+          "icon": "🚪",
+          "durationMinutes": 1,
+          "timeUntilPath": null,
+          "energyFree": false,
+          "when": null,
+          "requirements": [],
+          "warning": null,
+          "previews": [],
+          "effects": [],
+          "source": {
+            "file": "story/places/education-work.wg",
+            "line": 244,
             "column": 1
           }
         }
@@ -7874,6 +5624,949 @@ export const WG_BUNDLE = {
       "source": {
         "file": "story/places/education-work.wg",
         "line": 61,
+        "column": 1
+      }
+    },
+    "place.high-school.art-classroom": {
+      "id": "place.high-school.art-classroom",
+      "kind": "event",
+      "heading": "Art Classroom",
+      "choiceHeading": "Choices",
+      "tags": [],
+      "onEnter": [],
+      "body": [
+        {
+          "type": "if",
+          "branches": [
+            {
+              "test": {
+                "type": "binary",
+                "operator": "or",
+                "left": {
+                  "type": "binary",
+                  "operator": "==",
+                  "left": {
+                    "type": "path",
+                    "value": [
+                      "school",
+                      "phase"
+                    ]
+                  },
+                  "right": {
+                    "type": "literal",
+                    "value": "lunch"
+                  }
+                },
+                "right": {
+                  "type": "binary",
+                  "operator": "==",
+                  "left": {
+                    "type": "path",
+                    "value": [
+                      "school",
+                      "phase"
+                    ]
+                  },
+                  "right": {
+                    "type": "literal",
+                    "value": "break"
+                  }
+                }
+              },
+              "nodes": [
+                {
+                  "type": "paragraph",
+                  "parts": [
+                    {
+                      "type": "text",
+                      "value": "The classroom is open, and students are studying and socialising."
+                    }
+                  ],
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 726,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 725,
+                "column": 1
+              }
+            }
+          ],
+          "elseNodes": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Everyone looks at you as you enter the classroom. The teacher is at the front of the room, and students are seated at their desks."
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 728,
+                "column": 1
+              }
+            }
+          ],
+          "source": {
+            "file": "story/places/education-work.wg",
+            "line": 725,
+            "column": 1
+          }
+        },
+        {
+          "type": "choice",
+          "id": "leave",
+          "label": "Leave",
+          "target": "place.high-school",
+          "icon": null,
+          "durationMinutes": 2,
+          "timeUntilPath": null,
+          "energyFree": false,
+          "when": null,
+          "requirements": [],
+          "warning": null,
+          "previews": [],
+          "effects": [],
+          "source": {
+            "file": "story/places/education-work.wg",
+            "line": 731,
+            "column": 1
+          }
+        }
+      ],
+      "source": {
+        "file": "story/places/education-work.wg",
+        "line": 722,
+        "column": 1
+      }
+    },
+    "place.high-school.cafeteria": {
+      "id": "place.high-school.cafeteria",
+      "kind": "event",
+      "heading": "Cafeteria",
+      "choiceHeading": "Choices",
+      "tags": [],
+      "onEnter": [],
+      "body": [
+        {
+          "type": "if",
+          "branches": [
+            {
+              "test": {
+                "type": "binary",
+                "operator": "or",
+                "left": {
+                  "type": "binary",
+                  "operator": "==",
+                  "left": {
+                    "type": "path",
+                    "value": [
+                      "school",
+                      "phase"
+                    ]
+                  },
+                  "right": {
+                    "type": "literal",
+                    "value": "lunch"
+                  }
+                },
+                "right": {
+                  "type": "binary",
+                  "operator": "==",
+                  "left": {
+                    "type": "path",
+                    "value": [
+                      "school",
+                      "phase"
+                    ]
+                  },
+                  "right": {
+                    "type": "literal",
+                    "value": "break"
+                  }
+                }
+              },
+              "nodes": [
+                {
+                  "type": "paragraph",
+                  "parts": [
+                    {
+                      "type": "text",
+                      "value": "The cafeteria is open, and students are eating and socialising."
+                    }
+                  ],
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 653,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 652,
+                "column": 1
+              }
+            }
+          ],
+          "elseNodes": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The few students in the cafeteria are eating quietly. It seems kind of empty."
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 655,
+                "column": 1
+              }
+            }
+          ],
+          "source": {
+            "file": "story/places/education-work.wg",
+            "line": 652,
+            "column": 1
+          }
+        },
+        {
+          "type": "choice",
+          "id": "socialize",
+          "label": "Chat with Taylor",
+          "target": "place.high-school.cafeteria",
+          "icon": "💬",
+          "durationMinutes": 15,
+          "timeUntilPath": null,
+          "energyFree": false,
+          "when": {
+            "type": "binary",
+            "operator": "and",
+            "left": {
+              "type": "path",
+              "value": [
+                "npc",
+                "taylor",
+                "present"
+              ]
+            },
+            "right": {
+              "type": "binary",
+              "operator": "!=",
+              "left": {
+                "type": "path",
+                "value": [
+                  "school",
+                  "phase"
+                ]
+              },
+              "right": {
+                "type": "literal",
+                "value": "class"
+              }
+            }
+          },
+          "requirements": [],
+          "warning": null,
+          "previews": [
+            {
+              "type": "relationship",
+              "amount": 0.003,
+              "label": "+Relationship",
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 663,
+                "column": 1
+              }
+            }
+          ],
+          "effects": [
+            {
+              "op": "relationship",
+              "npcId": "taylor",
+              "amount": 0.003,
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 662,
+                "column": 1
+              }
+            }
+          ],
+          "source": {
+            "file": "story/places/education-work.wg",
+            "line": 658,
+            "column": 1
+          }
+        },
+        {
+          "type": "choice",
+          "id": "leave",
+          "label": "Leave",
+          "target": "place.high-school",
+          "icon": null,
+          "durationMinutes": 1,
+          "timeUntilPath": null,
+          "energyFree": false,
+          "when": null,
+          "requirements": [],
+          "warning": null,
+          "previews": [],
+          "effects": [],
+          "source": {
+            "file": "story/places/education-work.wg",
+            "line": 666,
+            "column": 1
+          }
+        }
+      ],
+      "source": {
+        "file": "story/places/education-work.wg",
+        "line": 649,
+        "column": 1
+      }
+    },
+    "place.high-school.english-classroom": {
+      "id": "place.high-school.english-classroom",
+      "kind": "event",
+      "heading": "English Classroom",
+      "choiceHeading": "Choices",
+      "tags": [],
+      "onEnter": [],
+      "body": [
+        {
+          "type": "if",
+          "branches": [
+            {
+              "test": {
+                "type": "binary",
+                "operator": "or",
+                "left": {
+                  "type": "binary",
+                  "operator": "==",
+                  "left": {
+                    "type": "path",
+                    "value": [
+                      "school",
+                      "phase"
+                    ]
+                  },
+                  "right": {
+                    "type": "literal",
+                    "value": "lunch"
+                  }
+                },
+                "right": {
+                  "type": "binary",
+                  "operator": "==",
+                  "left": {
+                    "type": "path",
+                    "value": [
+                      "school",
+                      "phase"
+                    ]
+                  },
+                  "right": {
+                    "type": "literal",
+                    "value": "break"
+                  }
+                }
+              },
+              "nodes": [
+                {
+                  "type": "paragraph",
+                  "parts": [
+                    {
+                      "type": "text",
+                      "value": "The classroom is open, and students are studying and socialising."
+                    }
+                  ],
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 674,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 673,
+                "column": 1
+              }
+            }
+          ],
+          "elseNodes": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Everyone looks at you as you enter the classroom. The teacher is at the front of the room, and students are seated at their desks."
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 676,
+                "column": 1
+              }
+            }
+          ],
+          "source": {
+            "file": "story/places/education-work.wg",
+            "line": 673,
+            "column": 1
+          }
+        },
+        {
+          "type": "choice",
+          "id": "leave",
+          "label": "Leave",
+          "target": "place.high-school",
+          "icon": null,
+          "durationMinutes": 1,
+          "timeUntilPath": null,
+          "energyFree": false,
+          "when": null,
+          "requirements": [],
+          "warning": null,
+          "previews": [],
+          "effects": [],
+          "source": {
+            "file": "story/places/education-work.wg",
+            "line": 679,
+            "column": 1
+          }
+        }
+      ],
+      "source": {
+        "file": "story/places/education-work.wg",
+        "line": 670,
+        "column": 1
+      }
+    },
+    "place.high-school.gym": {
+      "id": "place.high-school.gym",
+      "kind": "event",
+      "heading": "Gym",
+      "choiceHeading": "Choices",
+      "tags": [],
+      "onEnter": [],
+      "body": [
+        {
+          "type": "if",
+          "branches": [
+            {
+              "test": {
+                "type": "binary",
+                "operator": "or",
+                "left": {
+                  "type": "binary",
+                  "operator": "==",
+                  "left": {
+                    "type": "path",
+                    "value": [
+                      "school",
+                      "phase"
+                    ]
+                  },
+                  "right": {
+                    "type": "literal",
+                    "value": "lunch"
+                  }
+                },
+                "right": {
+                  "type": "binary",
+                  "operator": "==",
+                  "left": {
+                    "type": "path",
+                    "value": [
+                      "school",
+                      "phase"
+                    ]
+                  },
+                  "right": {
+                    "type": "literal",
+                    "value": "break"
+                  }
+                }
+              },
+              "nodes": [
+                {
+                  "type": "paragraph",
+                  "parts": [
+                    {
+                      "type": "text",
+                      "value": "The gym is open, and students are exercising and socialising."
+                    }
+                  ],
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 739,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 738,
+                "column": 1
+              }
+            }
+          ],
+          "elseNodes": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Everyone looks at you as you enter the gym. The teacher is at the front of the room, and students are exercising."
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 741,
+                "column": 1
+              }
+            }
+          ],
+          "source": {
+            "file": "story/places/education-work.wg",
+            "line": 738,
+            "column": 1
+          }
+        },
+        {
+          "type": "choice",
+          "id": "leave",
+          "label": "Leave",
+          "target": "place.high-school",
+          "icon": null,
+          "durationMinutes": 5,
+          "timeUntilPath": null,
+          "energyFree": false,
+          "when": null,
+          "requirements": [],
+          "warning": null,
+          "previews": [],
+          "effects": [],
+          "source": {
+            "file": "story/places/education-work.wg",
+            "line": 744,
+            "column": 1
+          }
+        }
+      ],
+      "source": {
+        "file": "story/places/education-work.wg",
+        "line": 735,
+        "column": 1
+      }
+    },
+    "place.high-school.history-classroom": {
+      "id": "place.high-school.history-classroom",
+      "kind": "event",
+      "heading": "History Classroom",
+      "choiceHeading": "Choices",
+      "tags": [],
+      "onEnter": [],
+      "body": [
+        {
+          "type": "if",
+          "branches": [
+            {
+              "test": {
+                "type": "binary",
+                "operator": "or",
+                "left": {
+                  "type": "binary",
+                  "operator": "==",
+                  "left": {
+                    "type": "path",
+                    "value": [
+                      "school",
+                      "phase"
+                    ]
+                  },
+                  "right": {
+                    "type": "literal",
+                    "value": "lunch"
+                  }
+                },
+                "right": {
+                  "type": "binary",
+                  "operator": "==",
+                  "left": {
+                    "type": "path",
+                    "value": [
+                      "school",
+                      "phase"
+                    ]
+                  },
+                  "right": {
+                    "type": "literal",
+                    "value": "break"
+                  }
+                }
+              },
+              "nodes": [
+                {
+                  "type": "paragraph",
+                  "parts": [
+                    {
+                      "type": "text",
+                      "value": "The classroom is open, and students are studying and socialising."
+                    }
+                  ],
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 713,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 712,
+                "column": 1
+              }
+            }
+          ],
+          "elseNodes": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Everyone looks at you as you enter the classroom. The teacher is at the front of the room, and students are seated at their desks."
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 715,
+                "column": 1
+              }
+            }
+          ],
+          "source": {
+            "file": "story/places/education-work.wg",
+            "line": 712,
+            "column": 1
+          }
+        },
+        {
+          "type": "choice",
+          "id": "leave",
+          "label": "Leave",
+          "target": "place.high-school",
+          "icon": null,
+          "durationMinutes": 2,
+          "timeUntilPath": null,
+          "energyFree": false,
+          "when": null,
+          "requirements": [],
+          "warning": null,
+          "previews": [],
+          "effects": [],
+          "source": {
+            "file": "story/places/education-work.wg",
+            "line": 718,
+            "column": 1
+          }
+        }
+      ],
+      "source": {
+        "file": "story/places/education-work.wg",
+        "line": 709,
+        "column": 1
+      }
+    },
+    "place.high-school.math-classroom": {
+      "id": "place.high-school.math-classroom",
+      "kind": "event",
+      "heading": "Maths Classroom",
+      "choiceHeading": "Choices",
+      "tags": [],
+      "onEnter": [],
+      "body": [
+        {
+          "type": "if",
+          "branches": [
+            {
+              "test": {
+                "type": "binary",
+                "operator": "or",
+                "left": {
+                  "type": "binary",
+                  "operator": "==",
+                  "left": {
+                    "type": "path",
+                    "value": [
+                      "school",
+                      "phase"
+                    ]
+                  },
+                  "right": {
+                    "type": "literal",
+                    "value": "lunch"
+                  }
+                },
+                "right": {
+                  "type": "binary",
+                  "operator": "==",
+                  "left": {
+                    "type": "path",
+                    "value": [
+                      "school",
+                      "phase"
+                    ]
+                  },
+                  "right": {
+                    "type": "literal",
+                    "value": "break"
+                  }
+                }
+              },
+              "nodes": [
+                {
+                  "type": "paragraph",
+                  "parts": [
+                    {
+                      "type": "text",
+                      "value": "The classroom is open, and students are studying and socialising."
+                    }
+                  ],
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 687,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 686,
+                "column": 1
+              }
+            }
+          ],
+          "elseNodes": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Everyone looks at you as you enter the classroom. The teacher is at the front of the room, and students are seated at their desks."
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 689,
+                "column": 1
+              }
+            }
+          ],
+          "source": {
+            "file": "story/places/education-work.wg",
+            "line": 686,
+            "column": 1
+          }
+        },
+        {
+          "type": "choice",
+          "id": "leave",
+          "label": "Leave",
+          "target": "place.high-school",
+          "icon": null,
+          "durationMinutes": 1,
+          "timeUntilPath": null,
+          "energyFree": false,
+          "when": null,
+          "requirements": [],
+          "warning": null,
+          "previews": [],
+          "effects": [],
+          "source": {
+            "file": "story/places/education-work.wg",
+            "line": 692,
+            "column": 1
+          }
+        }
+      ],
+      "source": {
+        "file": "story/places/education-work.wg",
+        "line": 683,
+        "column": 1
+      }
+    },
+    "place.high-school.science-classroom": {
+      "id": "place.high-school.science-classroom",
+      "kind": "event",
+      "heading": "Science Classroom",
+      "choiceHeading": "Choices",
+      "tags": [],
+      "onEnter": [],
+      "body": [
+        {
+          "type": "if",
+          "branches": [
+            {
+              "test": {
+                "type": "binary",
+                "operator": "or",
+                "left": {
+                  "type": "binary",
+                  "operator": "==",
+                  "left": {
+                    "type": "path",
+                    "value": [
+                      "school",
+                      "phase"
+                    ]
+                  },
+                  "right": {
+                    "type": "literal",
+                    "value": "lunch"
+                  }
+                },
+                "right": {
+                  "type": "binary",
+                  "operator": "==",
+                  "left": {
+                    "type": "path",
+                    "value": [
+                      "school",
+                      "phase"
+                    ]
+                  },
+                  "right": {
+                    "type": "literal",
+                    "value": "break"
+                  }
+                }
+              },
+              "nodes": [
+                {
+                  "type": "paragraph",
+                  "parts": [
+                    {
+                      "type": "text",
+                      "value": "The classroom is open, and students are studying and socialising."
+                    }
+                  ],
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 700,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 699,
+                "column": 1
+              }
+            }
+          ],
+          "elseNodes": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Everyone looks at you as you enter the classroom. The teacher is at the front of the room, and students are seated at their desks."
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 702,
+                "column": 1
+              }
+            }
+          ],
+          "source": {
+            "file": "story/places/education-work.wg",
+            "line": 699,
+            "column": 1
+          }
+        },
+        {
+          "type": "choice",
+          "id": "leave",
+          "label": "Leave",
+          "target": "place.high-school",
+          "icon": null,
+          "durationMinutes": 1,
+          "timeUntilPath": null,
+          "energyFree": false,
+          "when": null,
+          "requirements": [],
+          "warning": null,
+          "previews": [],
+          "effects": [],
+          "source": {
+            "file": "story/places/education-work.wg",
+            "line": 705,
+            "column": 1
+          }
+        }
+      ],
+      "source": {
+        "file": "story/places/education-work.wg",
+        "line": 696,
+        "column": 1
+      }
+    },
+    "place.high-school.student-council-room": {
+      "id": "place.high-school.student-council-room",
+      "kind": "event",
+      "heading": "Student Council Office",
+      "choiceHeading": "Choices",
+      "tags": [],
+      "onEnter": [],
+      "body": [
+        {
+          "type": "paragraph",
+          "parts": [
+            {
+              "type": "text",
+              "value": "The office is open, but there's hardly anyone there."
+            }
+          ],
+          "source": {
+            "file": "story/places/education-work.wg",
+            "line": 752,
+            "column": 1
+          }
+        },
+        {
+          "type": "choice",
+          "id": "leave",
+          "label": "Leave",
+          "target": "place.high-school",
+          "icon": null,
+          "durationMinutes": 1,
+          "timeUntilPath": null,
+          "energyFree": false,
+          "when": null,
+          "requirements": [],
+          "warning": null,
+          "previews": [],
+          "effects": [],
+          "source": {
+            "file": "story/places/education-work.wg",
+            "line": 755,
+            "column": 1
+          }
+        }
+      ],
+      "source": {
+        "file": "story/places/education-work.wg",
+        "line": 748,
         "column": 1
       }
     },
@@ -8950,7 +7643,7 @@ export const WG_BUNDLE = {
           ],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 700,
+            "line": 927,
             "column": 1
           }
         },
@@ -8970,7 +7663,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 702,
+            "line": 929,
             "column": 1
           }
         },
@@ -8990,7 +7683,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 706,
+            "line": 933,
             "column": 1
           }
         },
@@ -9010,14 +7703,14 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 710,
+            "line": 937,
             "column": 1
           }
         }
       ],
       "source": {
         "file": "story/places/education-work.wg",
-        "line": 695,
+        "line": 922,
         "column": 1
       }
     },
@@ -9574,7 +8267,7 @@ export const WG_BUNDLE = {
           ],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 596,
+            "line": 823,
             "column": 1
           }
         },
@@ -9594,7 +8287,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 598,
+            "line": 825,
             "column": 1
           }
         },
@@ -9614,7 +8307,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 602,
+            "line": 829,
             "column": 1
           }
         },
@@ -9634,14 +8327,14 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 606,
+            "line": 833,
             "column": 1
           }
         }
       ],
       "source": {
         "file": "story/places/education-work.wg",
-        "line": 591,
+        "line": 818,
         "column": 1
       }
     },
@@ -10198,7 +8891,7 @@ export const WG_BUNDLE = {
           ],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 570,
+            "line": 797,
             "column": 1
           }
         },
@@ -10218,7 +8911,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 572,
+            "line": 799,
             "column": 1
           }
         },
@@ -10238,7 +8931,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 576,
+            "line": 803,
             "column": 1
           }
         },
@@ -10258,14 +8951,14 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 580,
+            "line": 807,
             "column": 1
           }
         }
       ],
       "source": {
         "file": "story/places/education-work.wg",
-        "line": 565,
+        "line": 792,
         "column": 1
       }
     },
@@ -11078,7 +9771,7 @@ export const WG_BUNDLE = {
           ],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 622,
+            "line": 849,
             "column": 1
           }
         },
@@ -11098,7 +9791,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 624,
+            "line": 851,
             "column": 1
           }
         },
@@ -11118,7 +9811,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 628,
+            "line": 855,
             "column": 1
           }
         },
@@ -11138,14 +9831,14 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 632,
+            "line": 859,
             "column": 1
           }
         }
       ],
       "source": {
         "file": "story/places/education-work.wg",
-        "line": 617,
+        "line": 844,
         "column": 1
       }
     },
@@ -12638,7 +11331,7 @@ export const WG_BUNDLE = {
           ],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 544,
+            "line": 771,
             "column": 1
           }
         },
@@ -12658,7 +11351,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 546,
+            "line": 773,
             "column": 1
           }
         },
@@ -12678,7 +11371,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 550,
+            "line": 777,
             "column": 1
           }
         },
@@ -12698,14 +11391,14 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 554,
+            "line": 781,
             "column": 1
           }
         }
       ],
       "source": {
         "file": "story/places/education-work.wg",
-        "line": 539,
+        "line": 766,
         "column": 1
       }
     },
@@ -12846,7 +11539,7 @@ export const WG_BUNDLE = {
           ],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 674,
+            "line": 901,
             "column": 1
           }
         },
@@ -12866,7 +11559,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 676,
+            "line": 903,
             "column": 1
           }
         },
@@ -12886,7 +11579,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 680,
+            "line": 907,
             "column": 1
           }
         },
@@ -12906,14 +11599,14 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 684,
+            "line": 911,
             "column": 1
           }
         }
       ],
       "source": {
         "file": "story/places/education-work.wg",
-        "line": 669,
+        "line": 896,
         "column": 1
       }
     },
@@ -13693,6 +12386,2484 @@ export const WG_BUNDLE = {
       "source": {
         "file": "story/examples/sequences.wg",
         "line": 3,
+        "column": 1
+      }
+    },
+    "school.class.art": {
+      "id": "school.class.art",
+      "finalTarget": "@exit",
+      "kind": "event",
+      "heading": "Art Class",
+      "choiceHeading": "Class activity",
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "segment-1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The first segment of Art class begins."
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 520,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "art-1-taylor",
+              "label": "Interact with Taylor",
+              "target": ".segment-2",
+              "icon": "💬",
+              "durationMinutes": 0,
+              "timeUntilPath": [
+                "school",
+                "nextBoundaryAt"
+              ],
+              "energyFree": false,
+              "when": {
+                "type": "path",
+                "value": [
+                  "npc",
+                  "taylor",
+                  "present"
+                ]
+              },
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [
+                {
+                  "op": "attendance",
+                  "id": "art",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 526,
+                    "column": 1
+                  }
+                },
+                {
+                  "op": "relationship",
+                  "npcId": "taylor",
+                  "amount": 0.003,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 527,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 522,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "art-1-study",
+              "label": "Study hard",
+              "target": ".segment-2",
+              "icon": "🎨",
+              "durationMinutes": 0,
+              "timeUntilPath": [
+                "school",
+                "nextBoundaryAt"
+              ],
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [
+                {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+Art grade",
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 533,
+                    "column": 1
+                  }
+                }
+              ],
+              "effects": [
+                {
+                  "op": "attendance",
+                  "id": "art",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 534,
+                    "column": 1
+                  }
+                },
+                {
+                  "op": "grade",
+                  "id": "art",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 535,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 530,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/places/education-work.wg",
+            "line": 518,
+            "column": 1
+          }
+        },
+        {
+          "id": "segment-2",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Art class continues into its second segment."
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 540,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "art-2-taylor",
+              "label": "Interact with Taylor",
+              "target": ".segment-3",
+              "icon": "💬",
+              "durationMinutes": 0,
+              "timeUntilPath": [
+                "school",
+                "nextBoundaryAt"
+              ],
+              "energyFree": false,
+              "when": {
+                "type": "path",
+                "value": [
+                  "npc",
+                  "taylor",
+                  "present"
+                ]
+              },
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [
+                {
+                  "op": "attendance",
+                  "id": "art",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 546,
+                    "column": 1
+                  }
+                },
+                {
+                  "op": "relationship",
+                  "npcId": "taylor",
+                  "amount": 0.003,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 547,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 542,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "art-2-study",
+              "label": "Study hard",
+              "target": ".segment-3",
+              "icon": "🎨",
+              "durationMinutes": 0,
+              "timeUntilPath": [
+                "school",
+                "nextBoundaryAt"
+              ],
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [
+                {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+Art grade",
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 553,
+                    "column": 1
+                  }
+                }
+              ],
+              "effects": [
+                {
+                  "op": "attendance",
+                  "id": "art",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 554,
+                    "column": 1
+                  }
+                },
+                {
+                  "op": "grade",
+                  "id": "art",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 555,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 550,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/places/education-work.wg",
+            "line": 538,
+            "column": 1
+          }
+        },
+        {
+          "id": "segment-3",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The final segment of Art class gets underway."
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 560,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "art-3-taylor",
+              "label": "Interact with Taylor",
+              "target": "@exit",
+              "icon": "💬",
+              "durationMinutes": 0,
+              "timeUntilPath": [
+                "school",
+                "nextBoundaryAt"
+              ],
+              "energyFree": false,
+              "when": {
+                "type": "path",
+                "value": [
+                  "npc",
+                  "taylor",
+                  "present"
+                ]
+              },
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [
+                {
+                  "op": "attendance",
+                  "id": "art",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 566,
+                    "column": 1
+                  }
+                },
+                {
+                  "op": "relationship",
+                  "npcId": "taylor",
+                  "amount": 0.003,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 567,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 562,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "art-3-study",
+              "label": "Study hard",
+              "target": "@exit",
+              "icon": "🎨",
+              "durationMinutes": 0,
+              "timeUntilPath": [
+                "school",
+                "nextBoundaryAt"
+              ],
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [
+                {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+Art grade",
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 573,
+                    "column": 1
+                  }
+                }
+              ],
+              "effects": [
+                {
+                  "op": "attendance",
+                  "id": "art",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 574,
+                    "column": 1
+                  }
+                },
+                {
+                  "op": "grade",
+                  "id": "art",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 575,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 570,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/places/education-work.wg",
+            "line": 558,
+            "column": 1
+          }
+        }
+      ],
+      "source": {
+        "file": "story/places/education-work.wg",
+        "line": 514,
+        "column": 1
+      }
+    },
+    "school.class.english": {
+      "id": "school.class.english",
+      "finalTarget": "@exit",
+      "kind": "event",
+      "heading": "English Class",
+      "choiceHeading": "Class activity",
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "segment-1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The first segment of English class begins."
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 256,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "english-1-taylor",
+              "label": "Interact with Taylor",
+              "target": ".segment-2",
+              "icon": "💬",
+              "durationMinutes": 0,
+              "timeUntilPath": [
+                "school",
+                "nextBoundaryAt"
+              ],
+              "energyFree": false,
+              "when": {
+                "type": "path",
+                "value": [
+                  "npc",
+                  "taylor",
+                  "present"
+                ]
+              },
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [
+                {
+                  "op": "attendance",
+                  "id": "english",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 262,
+                    "column": 1
+                  }
+                },
+                {
+                  "op": "relationship",
+                  "npcId": "taylor",
+                  "amount": 0.003,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 263,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 258,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "english-1-study",
+              "label": "Study hard",
+              "target": ".segment-2",
+              "icon": "📖",
+              "durationMinutes": 0,
+              "timeUntilPath": [
+                "school",
+                "nextBoundaryAt"
+              ],
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [
+                {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+English grade",
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 269,
+                    "column": 1
+                  }
+                }
+              ],
+              "effects": [
+                {
+                  "op": "attendance",
+                  "id": "english",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 270,
+                    "column": 1
+                  }
+                },
+                {
+                  "op": "grade",
+                  "id": "english",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 271,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 266,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/places/education-work.wg",
+            "line": 254,
+            "column": 1
+          }
+        },
+        {
+          "id": "segment-2",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "English class continues into its second segment."
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 276,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "english-2-taylor",
+              "label": "Interact with Taylor",
+              "target": ".segment-3",
+              "icon": "💬",
+              "durationMinutes": 0,
+              "timeUntilPath": [
+                "school",
+                "nextBoundaryAt"
+              ],
+              "energyFree": false,
+              "when": {
+                "type": "path",
+                "value": [
+                  "npc",
+                  "taylor",
+                  "present"
+                ]
+              },
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [
+                {
+                  "op": "attendance",
+                  "id": "english",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 282,
+                    "column": 1
+                  }
+                },
+                {
+                  "op": "relationship",
+                  "npcId": "taylor",
+                  "amount": 0.003,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 283,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 278,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "english-2-study",
+              "label": "Study hard",
+              "target": ".segment-3",
+              "icon": "📖",
+              "durationMinutes": 0,
+              "timeUntilPath": [
+                "school",
+                "nextBoundaryAt"
+              ],
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [
+                {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+English grade",
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 289,
+                    "column": 1
+                  }
+                }
+              ],
+              "effects": [
+                {
+                  "op": "attendance",
+                  "id": "english",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 290,
+                    "column": 1
+                  }
+                },
+                {
+                  "op": "grade",
+                  "id": "english",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 291,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 286,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/places/education-work.wg",
+            "line": 274,
+            "column": 1
+          }
+        },
+        {
+          "id": "segment-3",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The final segment of English class gets underway."
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 296,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "english-3-taylor",
+              "label": "Interact with Taylor",
+              "target": "@exit",
+              "icon": "💬",
+              "durationMinutes": 0,
+              "timeUntilPath": [
+                "school",
+                "nextBoundaryAt"
+              ],
+              "energyFree": false,
+              "when": {
+                "type": "path",
+                "value": [
+                  "npc",
+                  "taylor",
+                  "present"
+                ]
+              },
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [
+                {
+                  "op": "attendance",
+                  "id": "english",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 302,
+                    "column": 1
+                  }
+                },
+                {
+                  "op": "relationship",
+                  "npcId": "taylor",
+                  "amount": 0.003,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 303,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 298,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "english-3-study",
+              "label": "Study hard",
+              "target": "@exit",
+              "icon": "📖",
+              "durationMinutes": 0,
+              "timeUntilPath": [
+                "school",
+                "nextBoundaryAt"
+              ],
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [
+                {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+English grade",
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 309,
+                    "column": 1
+                  }
+                }
+              ],
+              "effects": [
+                {
+                  "op": "attendance",
+                  "id": "english",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 310,
+                    "column": 1
+                  }
+                },
+                {
+                  "op": "grade",
+                  "id": "english",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 311,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 306,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/places/education-work.wg",
+            "line": 294,
+            "column": 1
+          }
+        }
+      ],
+      "source": {
+        "file": "story/places/education-work.wg",
+        "line": 250,
+        "column": 1
+      }
+    },
+    "school.class.history": {
+      "id": "school.class.history",
+      "finalTarget": "@exit",
+      "kind": "event",
+      "heading": "History Class",
+      "choiceHeading": "Class activity",
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "segment-1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The first segment of History class begins."
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 388,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "history-1-taylor",
+              "label": "Interact with Taylor",
+              "target": ".segment-2",
+              "icon": "💬",
+              "durationMinutes": 0,
+              "timeUntilPath": [
+                "school",
+                "nextBoundaryAt"
+              ],
+              "energyFree": false,
+              "when": {
+                "type": "path",
+                "value": [
+                  "npc",
+                  "taylor",
+                  "present"
+                ]
+              },
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [
+                {
+                  "op": "attendance",
+                  "id": "history",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 394,
+                    "column": 1
+                  }
+                },
+                {
+                  "op": "relationship",
+                  "npcId": "taylor",
+                  "amount": 0.003,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 395,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 390,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "history-1-study",
+              "label": "Study hard",
+              "target": ".segment-2",
+              "icon": "📜",
+              "durationMinutes": 0,
+              "timeUntilPath": [
+                "school",
+                "nextBoundaryAt"
+              ],
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [
+                {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+History grade",
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 401,
+                    "column": 1
+                  }
+                }
+              ],
+              "effects": [
+                {
+                  "op": "attendance",
+                  "id": "history",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 402,
+                    "column": 1
+                  }
+                },
+                {
+                  "op": "grade",
+                  "id": "history",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 403,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 398,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/places/education-work.wg",
+            "line": 386,
+            "column": 1
+          }
+        },
+        {
+          "id": "segment-2",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "History class continues into its second segment."
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 408,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "history-2-taylor",
+              "label": "Interact with Taylor",
+              "target": ".segment-3",
+              "icon": "💬",
+              "durationMinutes": 0,
+              "timeUntilPath": [
+                "school",
+                "nextBoundaryAt"
+              ],
+              "energyFree": false,
+              "when": {
+                "type": "path",
+                "value": [
+                  "npc",
+                  "taylor",
+                  "present"
+                ]
+              },
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [
+                {
+                  "op": "attendance",
+                  "id": "history",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 414,
+                    "column": 1
+                  }
+                },
+                {
+                  "op": "relationship",
+                  "npcId": "taylor",
+                  "amount": 0.003,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 415,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 410,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "history-2-study",
+              "label": "Study hard",
+              "target": ".segment-3",
+              "icon": "📜",
+              "durationMinutes": 0,
+              "timeUntilPath": [
+                "school",
+                "nextBoundaryAt"
+              ],
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [
+                {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+History grade",
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 421,
+                    "column": 1
+                  }
+                }
+              ],
+              "effects": [
+                {
+                  "op": "attendance",
+                  "id": "history",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 422,
+                    "column": 1
+                  }
+                },
+                {
+                  "op": "grade",
+                  "id": "history",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 423,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 418,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/places/education-work.wg",
+            "line": 406,
+            "column": 1
+          }
+        },
+        {
+          "id": "segment-3",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The final segment of History class gets underway."
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 428,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "history-3-taylor",
+              "label": "Interact with Taylor",
+              "target": "@exit",
+              "icon": "💬",
+              "durationMinutes": 0,
+              "timeUntilPath": [
+                "school",
+                "nextBoundaryAt"
+              ],
+              "energyFree": false,
+              "when": {
+                "type": "path",
+                "value": [
+                  "npc",
+                  "taylor",
+                  "present"
+                ]
+              },
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [
+                {
+                  "op": "attendance",
+                  "id": "history",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 434,
+                    "column": 1
+                  }
+                },
+                {
+                  "op": "relationship",
+                  "npcId": "taylor",
+                  "amount": 0.003,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 435,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 430,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "history-3-study",
+              "label": "Study hard",
+              "target": "@exit",
+              "icon": "📜",
+              "durationMinutes": 0,
+              "timeUntilPath": [
+                "school",
+                "nextBoundaryAt"
+              ],
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [
+                {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+History grade",
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 441,
+                    "column": 1
+                  }
+                }
+              ],
+              "effects": [
+                {
+                  "op": "attendance",
+                  "id": "history",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 442,
+                    "column": 1
+                  }
+                },
+                {
+                  "op": "grade",
+                  "id": "history",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 443,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 438,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/places/education-work.wg",
+            "line": 426,
+            "column": 1
+          }
+        }
+      ],
+      "source": {
+        "file": "story/places/education-work.wg",
+        "line": 382,
+        "column": 1
+      }
+    },
+    "school.class.math": {
+      "id": "school.class.math",
+      "finalTarget": "@exit",
+      "kind": "event",
+      "heading": "Mathematics Class",
+      "choiceHeading": "Class activity",
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "segment-1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The first segment of Mathematics class begins."
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 322,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "math-1-taylor",
+              "label": "Interact with Taylor",
+              "target": ".segment-2",
+              "icon": "💬",
+              "durationMinutes": 0,
+              "timeUntilPath": [
+                "school",
+                "nextBoundaryAt"
+              ],
+              "energyFree": false,
+              "when": {
+                "type": "path",
+                "value": [
+                  "npc",
+                  "taylor",
+                  "present"
+                ]
+              },
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [
+                {
+                  "op": "attendance",
+                  "id": "math",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 328,
+                    "column": 1
+                  }
+                },
+                {
+                  "op": "relationship",
+                  "npcId": "taylor",
+                  "amount": 0.003,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 329,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 324,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "math-1-study",
+              "label": "Study hard",
+              "target": ".segment-2",
+              "icon": "🧮",
+              "durationMinutes": 0,
+              "timeUntilPath": [
+                "school",
+                "nextBoundaryAt"
+              ],
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [
+                {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+Mathematics grade",
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 335,
+                    "column": 1
+                  }
+                }
+              ],
+              "effects": [
+                {
+                  "op": "attendance",
+                  "id": "math",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 336,
+                    "column": 1
+                  }
+                },
+                {
+                  "op": "grade",
+                  "id": "math",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 337,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 332,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/places/education-work.wg",
+            "line": 320,
+            "column": 1
+          }
+        },
+        {
+          "id": "segment-2",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Mathematics class continues into its second segment."
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 342,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "math-2-taylor",
+              "label": "Interact with Taylor",
+              "target": ".segment-3",
+              "icon": "💬",
+              "durationMinutes": 0,
+              "timeUntilPath": [
+                "school",
+                "nextBoundaryAt"
+              ],
+              "energyFree": false,
+              "when": {
+                "type": "path",
+                "value": [
+                  "npc",
+                  "taylor",
+                  "present"
+                ]
+              },
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [
+                {
+                  "op": "attendance",
+                  "id": "math",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 348,
+                    "column": 1
+                  }
+                },
+                {
+                  "op": "relationship",
+                  "npcId": "taylor",
+                  "amount": 0.003,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 349,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 344,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "math-2-study",
+              "label": "Study hard",
+              "target": ".segment-3",
+              "icon": "🧮",
+              "durationMinutes": 0,
+              "timeUntilPath": [
+                "school",
+                "nextBoundaryAt"
+              ],
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [
+                {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+Mathematics grade",
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 355,
+                    "column": 1
+                  }
+                }
+              ],
+              "effects": [
+                {
+                  "op": "attendance",
+                  "id": "math",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 356,
+                    "column": 1
+                  }
+                },
+                {
+                  "op": "grade",
+                  "id": "math",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 357,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 352,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/places/education-work.wg",
+            "line": 340,
+            "column": 1
+          }
+        },
+        {
+          "id": "segment-3",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The final segment of Mathematics class gets underway."
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 362,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "math-3-taylor",
+              "label": "Interact with Taylor",
+              "target": "@exit",
+              "icon": "💬",
+              "durationMinutes": 0,
+              "timeUntilPath": [
+                "school",
+                "nextBoundaryAt"
+              ],
+              "energyFree": false,
+              "when": {
+                "type": "path",
+                "value": [
+                  "npc",
+                  "taylor",
+                  "present"
+                ]
+              },
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [
+                {
+                  "op": "attendance",
+                  "id": "math",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 368,
+                    "column": 1
+                  }
+                },
+                {
+                  "op": "relationship",
+                  "npcId": "taylor",
+                  "amount": 0.003,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 369,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 364,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "math-3-study",
+              "label": "Study hard",
+              "target": "@exit",
+              "icon": "🧮",
+              "durationMinutes": 0,
+              "timeUntilPath": [
+                "school",
+                "nextBoundaryAt"
+              ],
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [
+                {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+Mathematics grade",
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 375,
+                    "column": 1
+                  }
+                }
+              ],
+              "effects": [
+                {
+                  "op": "attendance",
+                  "id": "math",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 376,
+                    "column": 1
+                  }
+                },
+                {
+                  "op": "grade",
+                  "id": "math",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 377,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 372,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/places/education-work.wg",
+            "line": 360,
+            "column": 1
+          }
+        }
+      ],
+      "source": {
+        "file": "story/places/education-work.wg",
+        "line": 316,
+        "column": 1
+      }
+    },
+    "school.class.physical-education": {
+      "id": "school.class.physical-education",
+      "finalTarget": "@exit",
+      "kind": "event",
+      "heading": "Physical Education",
+      "choiceHeading": "Class activity",
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "segment-1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The first segment of Physical Education begins."
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 586,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "physical-education-1-taylor",
+              "label": "Interact with Taylor",
+              "target": ".segment-2",
+              "icon": "💬",
+              "durationMinutes": 0,
+              "timeUntilPath": [
+                "school",
+                "nextBoundaryAt"
+              ],
+              "energyFree": false,
+              "when": {
+                "type": "path",
+                "value": [
+                  "npc",
+                  "taylor",
+                  "present"
+                ]
+              },
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [
+                {
+                  "op": "attendance",
+                  "id": "physical_education",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 592,
+                    "column": 1
+                  }
+                },
+                {
+                  "op": "relationship",
+                  "npcId": "taylor",
+                  "amount": 0.003,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 593,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 588,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "physical-education-1-study",
+              "label": "Train hard",
+              "target": ".segment-2",
+              "icon": "🏃",
+              "durationMinutes": 0,
+              "timeUntilPath": [
+                "school",
+                "nextBoundaryAt"
+              ],
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [
+                {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+Physical Education grade",
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 599,
+                    "column": 1
+                  }
+                }
+              ],
+              "effects": [
+                {
+                  "op": "attendance",
+                  "id": "physical_education",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 600,
+                    "column": 1
+                  }
+                },
+                {
+                  "op": "grade",
+                  "id": "physical_education",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 601,
+                    "column": 1
+                  }
+                },
+                {
+                  "op": "skill",
+                  "id": "strength",
+                  "amount": 0.02,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 602,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 596,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/places/education-work.wg",
+            "line": 584,
+            "column": 1
+          }
+        },
+        {
+          "id": "segment-2",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Physical Education continues into its second segment."
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 607,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "physical-education-2-taylor",
+              "label": "Interact with Taylor",
+              "target": ".segment-3",
+              "icon": "💬",
+              "durationMinutes": 0,
+              "timeUntilPath": [
+                "school",
+                "nextBoundaryAt"
+              ],
+              "energyFree": false,
+              "when": {
+                "type": "path",
+                "value": [
+                  "npc",
+                  "taylor",
+                  "present"
+                ]
+              },
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [
+                {
+                  "op": "attendance",
+                  "id": "physical_education",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 613,
+                    "column": 1
+                  }
+                },
+                {
+                  "op": "relationship",
+                  "npcId": "taylor",
+                  "amount": 0.003,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 614,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 609,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "physical-education-2-study",
+              "label": "Train hard",
+              "target": ".segment-3",
+              "icon": "🏃",
+              "durationMinutes": 0,
+              "timeUntilPath": [
+                "school",
+                "nextBoundaryAt"
+              ],
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [
+                {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+Physical Education grade",
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 620,
+                    "column": 1
+                  }
+                }
+              ],
+              "effects": [
+                {
+                  "op": "attendance",
+                  "id": "physical_education",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 621,
+                    "column": 1
+                  }
+                },
+                {
+                  "op": "grade",
+                  "id": "physical_education",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 622,
+                    "column": 1
+                  }
+                },
+                {
+                  "op": "skill",
+                  "id": "strength",
+                  "amount": 0.02,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 623,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 617,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/places/education-work.wg",
+            "line": 605,
+            "column": 1
+          }
+        },
+        {
+          "id": "segment-3",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The final segment of Physical Education gets underway."
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 628,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "physical-education-3-taylor",
+              "label": "Interact with Taylor",
+              "target": "@exit",
+              "icon": "💬",
+              "durationMinutes": 0,
+              "timeUntilPath": [
+                "school",
+                "nextBoundaryAt"
+              ],
+              "energyFree": false,
+              "when": {
+                "type": "path",
+                "value": [
+                  "npc",
+                  "taylor",
+                  "present"
+                ]
+              },
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [
+                {
+                  "op": "attendance",
+                  "id": "physical_education",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 634,
+                    "column": 1
+                  }
+                },
+                {
+                  "op": "relationship",
+                  "npcId": "taylor",
+                  "amount": 0.003,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 635,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 630,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "physical-education-3-study",
+              "label": "Train hard",
+              "target": "@exit",
+              "icon": "🏃",
+              "durationMinutes": 0,
+              "timeUntilPath": [
+                "school",
+                "nextBoundaryAt"
+              ],
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [
+                {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+Physical Education grade",
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 641,
+                    "column": 1
+                  }
+                }
+              ],
+              "effects": [
+                {
+                  "op": "attendance",
+                  "id": "physical_education",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 642,
+                    "column": 1
+                  }
+                },
+                {
+                  "op": "grade",
+                  "id": "physical_education",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 643,
+                    "column": 1
+                  }
+                },
+                {
+                  "op": "skill",
+                  "id": "strength",
+                  "amount": 0.02,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 644,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 638,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/places/education-work.wg",
+            "line": 626,
+            "column": 1
+          }
+        }
+      ],
+      "source": {
+        "file": "story/places/education-work.wg",
+        "line": 580,
+        "column": 1
+      }
+    },
+    "school.class.science": {
+      "id": "school.class.science",
+      "finalTarget": "@exit",
+      "kind": "event",
+      "heading": "Science Class",
+      "choiceHeading": "Class activity",
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "segment-1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The first segment of Science class begins."
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 454,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "science-1-taylor",
+              "label": "Interact with Taylor",
+              "target": ".segment-2",
+              "icon": "💬",
+              "durationMinutes": 0,
+              "timeUntilPath": [
+                "school",
+                "nextBoundaryAt"
+              ],
+              "energyFree": false,
+              "when": {
+                "type": "path",
+                "value": [
+                  "npc",
+                  "taylor",
+                  "present"
+                ]
+              },
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [
+                {
+                  "op": "attendance",
+                  "id": "science",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 460,
+                    "column": 1
+                  }
+                },
+                {
+                  "op": "relationship",
+                  "npcId": "taylor",
+                  "amount": 0.003,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 461,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 456,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "science-1-study",
+              "label": "Study hard",
+              "target": ".segment-2",
+              "icon": "🔬",
+              "durationMinutes": 0,
+              "timeUntilPath": [
+                "school",
+                "nextBoundaryAt"
+              ],
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [
+                {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+Science grade",
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 467,
+                    "column": 1
+                  }
+                }
+              ],
+              "effects": [
+                {
+                  "op": "attendance",
+                  "id": "science",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 468,
+                    "column": 1
+                  }
+                },
+                {
+                  "op": "grade",
+                  "id": "science",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 469,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 464,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/places/education-work.wg",
+            "line": 452,
+            "column": 1
+          }
+        },
+        {
+          "id": "segment-2",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Science class continues into its second segment."
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 474,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "science-2-taylor",
+              "label": "Interact with Taylor",
+              "target": ".segment-3",
+              "icon": "💬",
+              "durationMinutes": 0,
+              "timeUntilPath": [
+                "school",
+                "nextBoundaryAt"
+              ],
+              "energyFree": false,
+              "when": {
+                "type": "path",
+                "value": [
+                  "npc",
+                  "taylor",
+                  "present"
+                ]
+              },
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [
+                {
+                  "op": "attendance",
+                  "id": "science",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 480,
+                    "column": 1
+                  }
+                },
+                {
+                  "op": "relationship",
+                  "npcId": "taylor",
+                  "amount": 0.003,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 481,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 476,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "science-2-study",
+              "label": "Study hard",
+              "target": ".segment-3",
+              "icon": "🔬",
+              "durationMinutes": 0,
+              "timeUntilPath": [
+                "school",
+                "nextBoundaryAt"
+              ],
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [
+                {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+Science grade",
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 487,
+                    "column": 1
+                  }
+                }
+              ],
+              "effects": [
+                {
+                  "op": "attendance",
+                  "id": "science",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 488,
+                    "column": 1
+                  }
+                },
+                {
+                  "op": "grade",
+                  "id": "science",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 489,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 484,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/places/education-work.wg",
+            "line": 472,
+            "column": 1
+          }
+        },
+        {
+          "id": "segment-3",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The final segment of Science class gets underway."
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 494,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "science-3-taylor",
+              "label": "Interact with Taylor",
+              "target": "@exit",
+              "icon": "💬",
+              "durationMinutes": 0,
+              "timeUntilPath": [
+                "school",
+                "nextBoundaryAt"
+              ],
+              "energyFree": false,
+              "when": {
+                "type": "path",
+                "value": [
+                  "npc",
+                  "taylor",
+                  "present"
+                ]
+              },
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [
+                {
+                  "op": "attendance",
+                  "id": "science",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 500,
+                    "column": 1
+                  }
+                },
+                {
+                  "op": "relationship",
+                  "npcId": "taylor",
+                  "amount": 0.003,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 501,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 496,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "science-3-study",
+              "label": "Study hard",
+              "target": "@exit",
+              "icon": "🔬",
+              "durationMinutes": 0,
+              "timeUntilPath": [
+                "school",
+                "nextBoundaryAt"
+              ],
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [
+                {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+Science grade",
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 507,
+                    "column": 1
+                  }
+                }
+              ],
+              "effects": [
+                {
+                  "op": "attendance",
+                  "id": "science",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 508,
+                    "column": 1
+                  }
+                },
+                {
+                  "op": "grade",
+                  "id": "science",
+                  "amount": 1,
+                  "source": {
+                    "file": "story/places/education-work.wg",
+                    "line": 509,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/places/education-work.wg",
+                "line": 504,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/places/education-work.wg",
+            "line": 492,
+            "column": 1
+          }
+        }
+      ],
+      "source": {
+        "file": "story/places/education-work.wg",
+        "line": 448,
         "column": 1
       }
     }
@@ -14742,7 +15913,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/places/education-work.wg",
-        "line": 637,
+        "line": 864,
         "column": 1
       }
     },
@@ -15210,7 +16381,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/places/education-work.wg",
-        "line": 689,
+        "line": 916,
         "column": 1
       }
     },
@@ -15366,7 +16537,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/places/education-work.wg",
-        "line": 585,
+        "line": 812,
         "column": 1
       }
     },
@@ -15522,7 +16693,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/places/education-work.wg",
-        "line": 559,
+        "line": 786,
         "column": 1
       }
     },
@@ -15704,7 +16875,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/places/education-work.wg",
-        "line": 611,
+        "line": 838,
         "column": 1
       }
     },
@@ -16094,7 +17265,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/places/education-work.wg",
-        "line": 533,
+        "line": 760,
         "column": 1
       }
     },
@@ -16146,7 +17317,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/places/education-work.wg",
-        "line": 663,
+        "line": 890,
         "column": 1
       }
     },
