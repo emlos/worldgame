@@ -297,6 +297,42 @@ Ordinary choices inside passages keep their normal effects, duration, skill
 checks, requirements, and atomic rollback behavior. Choice IDs must be unique
 within their passage. Local `.passage` targets are invalid in ordinary scenes.
 
+### School class sequences
+
+Use `@school-class <subject-id>` on a sequence to make its initial passage
+follow the active school timetable segment:
+
+```wg
+@sequence school.class.english -> @exit
+@school-class english
+@heading "English Class"
+
+@passage segment-1
+The first segment begins.
+
+@passage segment-2
+The second segment is underway.
+
+@passage segment-3
+The final segment is underway.
+@endsequence
+```
+
+School class passages must be named consecutively in source order, starting
+with `segment-1`. Entry is allowed only while the player is at school during a
+class for the declared subject. The runtime opens the passage matching
+`school.segment`; for a 45-minute, three-segment class, arrival at 0–14 minutes
+late opens `segment-1`, 15–29 opens `segment-2`, and 30–44 opens `segment-3`.
+Ordinary local passage transitions continue from there, and
+`@time-until school.nextBoundaryAt` advances exactly to the next segment or
+the end of class.
+
+Entry also records an immutable arrival snapshot on the active story frame.
+It is available to class prose and expressions as `school.arrival.*`, survives
+local passage transitions and save/load, and is cleared when the sequence
+ends. This is intended as the input for later lateness penalties or detention
+rules; those consequences are not applied automatically.
+
 ## Prose and interpolation
 
 Ordinary non-directive lines are prose. Blank lines separate paragraphs.
@@ -349,8 +385,12 @@ The currently exposed paths are:
   `time.minutesSinceMidnight`, using the UTC world clock shown by the game.
 - `school.isSchoolDay`, `.noSchoolReason`, `.atSchool`, `.phase`,
   `.periodId`, `.periodLabel`, `.subjectId`, `.segment`,
-  `.segmentCount`, `.nextBoundaryAt`, `.minutesUntilNextBoundary`, and
-  `.closesAt`. Timestamps are ISO strings or `null`.
+  `.segmentCount`, `.periodStartsAt`, `.periodEndsAt`, `.minutesIntoPeriod`,
+  `.nextBoundaryAt`, `.minutesUntilNextBoundary`, and `.closesAt`. Timestamps
+  are ISO strings or `null`.
+- During an active `@school-class` sequence: `school.arrival.periodId`,
+  `.subjectId`, `.scheduledAt`, `.arrivedAt`, `.minutesLate`, and
+  `.startingSegment`.
 - `location.id`, `location.name`, and `location.tags` for the containing
   location.
 - `place.id`, `place.key`, `place.name`, and `place.tags` while indoors.

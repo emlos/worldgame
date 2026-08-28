@@ -3,6 +3,10 @@ import { evaluateWGExpression, resolveWGPath } from "./expressionEvaluator.js";
 import { createWGRuntimeContext } from "./runtimeContext.js";
 import { SKILLS, STATS } from "../../../../data/player/stats.js";
 import { SCHOOL_SUBJECTS } from "../../../../data/player/education.js";
+import {
+  getSchoolDayState,
+  SCHOOL_PHASE,
+} from "../../../../data/player/schedule.js";
 
 export class WGRuntimeError extends Error {
   constructor(message) {
@@ -156,7 +160,48 @@ export function enterWGScene(game, sceneId, { runOnEnter = true } = {}) {
 export function enterWGSequence(game, sequenceId, passageId = null, { runOnEnter = true } = {}) {
   const definition = getWGSequence(sequenceId);
   if (!definition) fail(`Unknown WG sequence '${String(sequenceId)}'`);
-  const resolvedPassageId = passageId ?? definition.passages?.[0]?.id;
+
+  let resolvedPassageId = passageId ?? definition.passages?.[0]?.id;
+  let schoolClass = null;
+  if (definition.schoolClass && runOnEnter) {
+    const state = getSchoolDayState(game);
+    const subjectId = definition.schoolClass.subjectId;
+    if (!state.atSchool || state.phase !== SCHOOL_PHASE.class) {
+      fail(`School class '${definition.id}' can only begin during class at school`);
+    }
+    if (state.subjectId !== subjectId) {
+      fail(
+        `School class '${definition.id}' requires '${subjectId}', but '${String(state.subjectId)}' is scheduled`,
+      );
+    }
+    if (!Number.isInteger(state.segment) || state.segment < 1) {
+      fail(`School class '${definition.id}' has no active timetable segment`);
+    }
+    if (
+      typeof state.periodStartsAt !== "string" ||
+      !Number.isFinite(state.minutesIntoPeriod)
+    ) {
+      fail(`School class '${definition.id}' has invalid arrival timing`);
+    }
+
+    resolvedPassageId = `segment-${state.segment}`;
+    schoolClass = {
+      periodId: state.periodId,
+      subjectId,
+      scheduledAt: state.periodStartsAt,
+      arrivedAt: game.now.toISOString(),
+      minutesLate: Math.max(0, state.minutesIntoPeriod),
+      startingSegment: state.segment,
+    };
+  } else if (
+    !runOnEnter &&
+    game.currentStory?.type === "sequence" &&
+    game.currentStory.id === definition.id &&
+    game.currentStory.schoolClass
+  ) {
+    schoolClass = { ...game.currentStory.schoolClass };
+  }
+
   if (!definition.passages?.some((passage) => passage.id === resolvedPassageId)) {
     fail(`Unknown passage '${String(resolvedPassageId)}' in WG sequence '${definition.id}'`);
   }
@@ -165,6 +210,7 @@ export function enterWGSequence(game, sequenceId, passageId = null, { runOnEnter
     type: "sequence",
     id: definition.id,
     passageId: resolvedPassageId,
+    ...(schoolClass ? { schoolClass } : {}),
   };
   game.storyRevision += 1;
   if (runOnEnter) applyWGEffects(game, definition.onEnter || []);

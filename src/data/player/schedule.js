@@ -279,6 +279,15 @@ export function getSchoolDayState(
   const minutesUntilNextBoundary = nextBoundary
     ? (nextBoundary.getTime() - at.getTime()) / MS_PER_MINUTE
     : null;
+  const periodStartsAt = period
+    ? dateAtUtcMinute(at, period.startMinute)
+    : null;
+  const periodEndsAt = period
+    ? dateAtUtcMinute(at, period.endMinute)
+    : null;
+  const minutesIntoPeriod = periodStartsAt
+    ? (at.getTime() - periodStartsAt.getTime()) / MS_PER_MINUTE
+    : null;
 
   return {
     isSchoolDay: plan.hasSchool,
@@ -290,6 +299,9 @@ export function getSchoolDayState(
     subjectId: period?.subjectId ?? null,
     segment,
     segmentCount: period?.segments ?? null,
+    periodStartsAt: isoOrNull(periodStartsAt),
+    periodEndsAt: isoOrNull(periodEndsAt),
+    minutesIntoPeriod,
     nextBoundaryAt: isoOrNull(nextBoundary),
     minutesUntilNextBoundary,
     closesAt: isoOrNull(closesAt),

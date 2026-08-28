@@ -267,7 +267,7 @@ const sampleBundle = compileStorySources([
 ]);
 check(
   "linked bundles use a versioned scene map",
-  sampleBundle.formatVersion === 9 &&
+  sampleBundle.formatVersion === 10 &&
     Object.keys(sampleBundle.scenes).join(",") === "intro,next" &&
     Object.keys(sampleBundle.sequences).length === 0 &&
     Object.keys(sampleBundle.entries).join(",") === "sample.introduction",
@@ -373,6 +373,30 @@ check(
   "sequence choices retain local passage targets",
   exampleSequence?.passages[1].body.find((node) => node.type === "choice")?.target ===
     ".ending",
+);
+
+const schoolClassBundle = compileStorySources([
+  {
+    file: "story/school-class.wg",
+    source: `@sequence school.class.english -> @exit
+@school-class english
+@heading "English Class"
+@passage segment-1
+First segment.
+@passage segment-2
+Second segment.
+@passage segment-3
+Third segment.
+@endsequence`,
+  },
+]);
+check(
+  "school class sequences compile their subject and ordered segments",
+  schoolClassBundle.sequences["school.class.english"]?.schoolClass?.subjectId ===
+    "english" &&
+    schoolClassBundle.sequences["school.class.english"]?.passages
+      .map((passage) => passage.id)
+      .join(",") === "segment-1,segment-2,segment-3",
 );
 
 const HUB_SOURCE = `@entry place.hub.home
@@ -942,6 +966,38 @@ rejects(
     },
   ],
   "Duplicate passage id 'same'",
+);
+rejects(
+  "school class sequences reject unknown subjects",
+  [
+    {
+      file: "school-class-subject.wg",
+      source: `@sequence school.class.alchemy -> @exit
+@school-class alchemy
+@heading "Alchemy"
+@passage segment-1
+Prose.
+@endsequence`,
+    },
+  ],
+  "references unknown school subject 'alchemy'",
+);
+rejects(
+  "school class sequences require contiguous segment passage names",
+  [
+    {
+      file: "school-class-passages.wg",
+      source: `@sequence school.class.english -> @exit
+@school-class english
+@heading "English"
+@passage segment-1
+First.
+@passage segment-3
+Third.
+@endsequence`,
+    },
+  ],
+  "requires contiguous passages named segment-1 through segment-2",
 );
 rejects(
   "random blocks require at least two alternatives",

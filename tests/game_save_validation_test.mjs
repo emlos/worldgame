@@ -444,6 +444,54 @@ rejects(
     },
     "save.currentStory.passageId",
 );
+const schoolClassSave = makeSave();
+schoolClassSave.currentStory = {
+    type: "sequence",
+    id: "school.class.english",
+    passageId: "segment-2",
+    schoolClass: {
+        periodId: "english",
+        subjectId: "english",
+        scheduledAt: START.toISOString(),
+        arrivedAt: START.toISOString(),
+        minutesLate: 0,
+        startingSegment: 2,
+    },
+};
+check(
+    "active school class arrival state survives save validation",
+    JSON.stringify(Game.fromJSON(schoolClassSave).currentStory) ===
+        JSON.stringify(schoolClassSave.currentStory),
+);
+rejects(
+    "ordinary scenes cannot contain school class arrival state",
+    (save) => {
+        save.currentStory = {
+            type: "scene",
+            id: "example.invalid",
+            schoolClass: {},
+        };
+    },
+    "save.currentStory.schoolClass",
+);
+rejects(
+    "school class arrival state rejects negative lateness",
+    (save) => {
+        save.currentStory = JSON.parse(JSON.stringify(schoolClassSave.currentStory));
+        save.currentStory.schoolClass.minutesLate = -1;
+    },
+    "save.currentStory.schoolClass.minutesLate",
+);
+rejects(
+    "school class arrival state rejects future arrival times",
+    (save) => {
+        save.currentStory = JSON.parse(JSON.stringify(schoolClassSave.currentStory));
+        save.currentStory.schoolClass.arrivedAt = new Date(
+            Date.parse(save.time) + 60_000,
+        ).toISOString();
+    },
+    "save.currentStory.schoolClass.arrivedAt",
+);
 rejects(
     "story revisions cannot be negative",
     (save) => {

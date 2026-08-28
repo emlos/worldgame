@@ -83,6 +83,11 @@ export function createWGRuntimeContext(game) {
   const daily = {};
   for (const flag of game.dailyFlags) daily[flag] = true;
 
+  const school = getSchoolDayState(game);
+  if (game.currentStory?.type === "sequence" && game.currentStory.schoolClass) {
+    school.arrival = { ...game.currentStory.schoolClass };
+  }
+
   return {
     story: game.story,
     player: playerContext(game.player),
@@ -90,7 +95,7 @@ export function createWGRuntimeContext(game) {
     flags,
     daily,
     time: timeContext(game.now),
-    school: getSchoolDayState(game),
+    school,
     location: game.location
       ? {
           id: game.location.id,

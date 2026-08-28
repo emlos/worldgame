@@ -872,6 +872,7 @@ function parseSequenceBlock(file, lines, startIndex) {
     kind: "event",
     heading: null,
     choiceHeading: "Choices",
+    schoolClass: null,
     onEnter: [],
     passages: [],
     source: nodeSource(file, opening.line),
@@ -889,7 +890,7 @@ function parseSequenceBlock(file, lines, startIndex) {
       continue;
     }
     const name = directiveName(text);
-    if (!["kind", "heading", "choices", "onenter"].includes(name)) break;
+    if (!["kind", "heading", "choices", "school-class", "onenter"].includes(name)) break;
     if (seenMetadata.has(name)) failWG(`Duplicate @${name}`, lineLocation(file, line.line));
     seenMetadata.add(name);
 
@@ -912,6 +913,23 @@ function parseSequenceBlock(file, lines, startIndex) {
         lineLocation(file, line.line),
         "Choice section heading",
       );
+      index += 1;
+    } else if (name === "school-class") {
+      const subjectId = directiveArgument(
+        text,
+        "school-class",
+        lineLocation(file, line.line),
+      );
+      if (!ID_REGEX.test(subjectId) || !SCHOOL_SUBJECTS[subjectId]) {
+        failWG(
+          `@school-class references unknown school subject '${subjectId}'`,
+          lineLocation(file, line.line),
+        );
+      }
+      sequence.schoolClass = {
+        subjectId,
+        source: nodeSource(file, line.line),
+      };
       index += 1;
     } else {
       if (text !== "@onenter") {

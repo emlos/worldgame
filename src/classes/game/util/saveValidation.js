@@ -306,7 +306,7 @@ function validateCharacterCore(data, path) {
     validateBody(required(data, "body", path), `${path}.body`);
 }
 
-function validateCurrentStory(value, path) {
+function validateCurrentStory(value, path, gameTime) {
     if (value === null) return null;
     const frame = record(value, path);
     const type = string(required(frame, "type", path), `${path}.type`, { nonEmpty: true });
@@ -318,6 +318,48 @@ function validateCurrentStory(value, path) {
         string(required(frame, "passageId", path), `${path}.passageId`, { nonEmpty: true });
     } else if (Object.prototype.hasOwnProperty.call(frame, "passageId")) {
         fail(`${path}.passageId`, "is only valid for sequence story state");
+    }
+    if (Object.prototype.hasOwnProperty.call(frame, "schoolClass")) {
+        if (type !== "sequence") {
+            fail(`${path}.schoolClass`, "is only valid for sequence story state");
+        }
+        const schoolClassPath = `${path}.schoolClass`;
+        const schoolClass = record(frame.schoolClass, schoolClassPath);
+        string(required(schoolClass, "periodId", schoolClassPath), `${schoolClassPath}.periodId`, {
+            nonEmpty: true,
+        });
+        const subjectId = string(
+            required(schoolClass, "subjectId", schoolClassPath),
+            `${schoolClassPath}.subjectId`,
+            { nonEmpty: true },
+        );
+        if (!SCHOOL_SUBJECTS[subjectId]) {
+            fail(`${schoolClassPath}.subjectId`, `references unknown school subject '${subjectId}'`);
+        }
+        const scheduledAt = dateMilliseconds(
+            required(schoolClass, "scheduledAt", schoolClassPath),
+            `${schoolClassPath}.scheduledAt`,
+        );
+        const arrivedAt = dateMilliseconds(
+            required(schoolClass, "arrivedAt", schoolClassPath),
+            `${schoolClassPath}.arrivedAt`,
+        );
+        if (scheduledAt > arrivedAt) {
+            fail(`${schoolClassPath}.scheduledAt`, "must not be later than arrival time");
+        }
+        if (arrivedAt > gameTime) {
+            fail(`${schoolClassPath}.arrivedAt`, "must not be later than the game clock");
+        }
+        finiteNumber(
+            required(schoolClass, "minutesLate", schoolClassPath),
+            `${schoolClassPath}.minutesLate`,
+            { min: 0 },
+        );
+        integer(
+            required(schoolClass, "startingSegment", schoolClassPath),
+            `${schoolClassPath}.startingSegment`,
+            { min: 1 },
+        );
     }
     return frame;
 }
@@ -1380,7 +1422,11 @@ export function validateGameSave(data) {
     uniqueStrings(required(save, "flags", "save"), "save.flags");
     uniqueStrings(required(save, "dailyFlags", "save"), "save.dailyFlags", { nonEmpty: true });
     record(required(save, "story", "save"), "save.story");
-    validateCurrentStory(required(save, "currentStory", "save"), "save.currentStory");
+    validateCurrentStory(
+        required(save, "currentStory", "save"),
+        "save.currentStory",
+        gameTime,
+    );
     integer(required(save, "storyRevision", "save"), "save.storyRevision", {
         min: 0,
     });

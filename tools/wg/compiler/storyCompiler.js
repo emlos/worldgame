@@ -146,6 +146,19 @@ export function compileStorySources(sources) {
 
   for (const sequence of sequenceMap.values()) {
     validateTarget(sequence.finalTarget, sequence.source, { sequence });
+    if (sequence.schoolClass) {
+      const passageIds = sequence.passages.map((passage) => passage.id);
+      const expectedIds = passageIds.map((_, index) => `segment-${index + 1}`);
+      if (
+        passageIds.length === 0 ||
+        passageIds.some((passageId, index) => passageId !== expectedIds[index])
+      ) {
+        failWG(
+          `School class sequence '${sequence.id}' requires contiguous passages named segment-1 through segment-${passageIds.length}`,
+          atSource(sequence.schoolClass.source),
+        );
+      }
+    }
     for (const passage of sequence.passages) {
       const choiceIds = new Map();
       const choiceGroupIds = new Map();
@@ -224,7 +237,7 @@ export function compileStorySources(sources) {
   const entries = Object.fromEntries(
     [...entryMap.entries()].sort(([left], [right]) => compareText(left, right)),
   );
-  return { formatVersion: 9, scenes, sequences, entries };
+  return { formatVersion: 10, scenes, sequences, entries };
 }
 
 export { walkNodes };

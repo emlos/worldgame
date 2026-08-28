@@ -85,6 +85,7 @@ test("WG TextMate grammar contains valid regular expressions and core syntax", a
     "@place-key player_home",
     "@offer npc taylor",
     "@hub place",
+    "@school-class english",
     '@hub-text "Taylor waits beside the table."',
     "@auto enter-place",
     "@check strength tricky",
