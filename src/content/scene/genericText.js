@@ -59,6 +59,8 @@ export const SCENE_TEXT = Object.freeze({
         return `You must leave ${currentPlaceName || "this place"} first.`;
       case "not-here":
         return "That place is not available from here.";
+      case "locked":
+        return "That place is not available.";
       case "closed":
         return `${access.place?.name || "That place"} is closed.`;
       case "missing-access-flag": {

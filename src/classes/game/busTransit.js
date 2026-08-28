@@ -1,4 +1,5 @@
 import { parseTimeToMinutes } from "../../shared/util/date.js";
+import { isPlaceUnlocked } from "../world/util/place.js";
 
 export const BUS_STOP_KEY = "bus_stop";
 export const BUS_BOARDING_SCENE_ID = "transit.bus-boarding";
@@ -147,7 +148,9 @@ export function listBusStops(game) {
   const stops = [];
   for (const location of game.world.locations.values()) {
     for (const place of location.places || []) {
-      if (place.key === BUS_STOP_KEY) stops.push({ place, location });
+      if (isPlaceUnlocked(place) && place.key === BUS_STOP_KEY) {
+        stops.push({ place, location });
+      }
     }
   }
   return stops;

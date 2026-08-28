@@ -1,3 +1,5 @@
+import { isPlaceUnlocked } from "../../world/util/place.js";
+
 function normalizedDepth(value, label) {
   const depth = Number(value);
   if (!Number.isInteger(depth) || depth < 0) {
@@ -53,11 +55,13 @@ function nodeFromLocation(
     gpsDestination: gps?.route.destination.locationId === id,
     boundary,
     districtKey: location.districtKey ?? null,
-    places: (location.places || []).map((place) => ({
-      id: String(place.id),
-      name: place.name,
-      icon: place.props?.icon || null,
-    })),
+    places: (location.places || [])
+      .filter(isPlaceUnlocked)
+      .map((place) => ({
+        id: String(place.id),
+        name: place.name,
+        icon: place.props?.icon || null,
+      })),
   };
 }
 

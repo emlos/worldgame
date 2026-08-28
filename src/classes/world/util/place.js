@@ -121,11 +121,15 @@ function inferOpeningHours(key, categories) {
 // ---- Place class ---------------------------------------------------
 
 export class Place {
-    constructor({ id, key, name, locationId, props = {} }) {
+    constructor({ id, key, name, locationId, props = {}, unlocked = true }) {
         this.id = id; // unique string id for this instance
         this.key = key; // registry key ("park", "bus_stop", ...)
         this.name = name; // human label ("Central Park", "Bus Stop")
         this.locationId = locationId; // where on the map it lives
+        if (typeof unlocked !== "boolean") {
+            throw new TypeError("Place unlocked state must be a boolean");
+        }
+        this._unlocked = unlocked;
 
         const inferredHours = inferOpeningHours(key, props.category);
 
@@ -137,12 +141,24 @@ export class Place {
         };
     }
 
+    get unlocked() {
+        return this._unlocked;
+    }
+
+    /** Reveal this place to the player. Unlocking is intentionally irreversible. */
+    unlock() {
+        if (this._unlocked) return false;
+        this._unlocked = true;
+        return true;
+    }
+
     toJSON() {
         return {
             id: this.id,
             key: this.key,
             name: this.name,
             locationId: this.locationId,
+            unlocked: this.unlocked,
             props: this.props,
         };
     }
@@ -157,6 +173,10 @@ export class Place {
         place.key = data?.key;
         place.name = data?.name;
         place.locationId = data?.locationId;
+        if (typeof data?.unlocked !== "boolean") {
+            throw new TypeError("Saved place unlocked state must be a boolean");
+        }
+        place._unlocked = data.unlocked;
         place.props =
             data?.props && typeof data.props === "object"
                 ? JSON.parse(JSON.stringify(data.props))
@@ -222,4 +242,8 @@ export class Place {
 
         return null;
     }
+}
+
+export function isPlaceUnlocked(place) {
+    return place?.unlocked === true;
 }

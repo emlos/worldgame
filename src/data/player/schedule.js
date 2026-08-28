@@ -49,7 +49,9 @@ function monthDayNumber(value) {
 }
 
 function defaultHighSchool() {
-  const definition = PLACE_REGISTRY.find((place) => place.key === "high_school");
+  const definition = PLACE_REGISTRY.find(
+    (place) => place.key === "high_school" && place.unlocked === true,
+  );
   return definition
     ? { name: definition.label, props: definition.props }
     : null;
@@ -57,7 +59,9 @@ function defaultHighSchool() {
 
 function schoolFromWorld(game) {
   for (const location of game?.world?.locations?.values?.() || []) {
-    const school = (location.places || []).find((place) => place.key === "high_school");
+    const school = (location.places || []).find(
+      (place) => place.key === "high_school" && place.unlocked === true,
+    );
     if (school) return { school, location };
   }
   return { school: defaultHighSchool(), location: null };

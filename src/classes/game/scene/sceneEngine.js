@@ -1,4 +1,5 @@
 import { keyedRandom01 } from "../../../shared/util/random.js";
+import { isPlaceUnlocked } from "../../world/util/place.js";
 import {
   LOCATION_DESCRIPTIONS,
   SCENE_TEXT,
@@ -197,7 +198,7 @@ function buildLocationScene(game) {
   const people = game.getNPCsAtCurrentPosition();
   const gpsRoute = game.getGpsRoute();
 
-  const places = location.places.map((place) => {
+  const places = location.places.filter(isPlaceUnlocked).map((place) => {
     const access = game.getPlaceAccess(place, {
       at: new Date(game.now.getTime() + PLACE_ENTER_MINUTES * 60_000),
     });

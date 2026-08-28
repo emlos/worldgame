@@ -474,6 +474,9 @@ function validateMap(data, path) {
     const map = record(data, path);
     const locations = new Map();
     const places = new Map();
+    const registeredPlaceDefinitions = new Map(
+        PLACE_REGISTRY.map((definition) => [String(definition.key), definition]),
+    );
     const registeredPlaceCounts = new Map(
         PLACE_REGISTRY.map((definition) => [String(definition.key), 0]),
     );
@@ -529,6 +532,16 @@ function validateMap(data, path) {
                     );
                 }
                 string(required(place, "name", placePath), `${placePath}.name`, { nonEmpty: true });
+                const unlocked = boolean(
+                    required(place, "unlocked", placePath),
+                    `${placePath}.unlocked`,
+                );
+                if (registeredPlaceDefinitions.get(placeKey)?.unlocked === true && !unlocked) {
+                    fail(
+                        `${placePath}.unlocked`,
+                        "cannot relock a place that starts unlocked",
+                    );
+                }
                 const props = record(required(place, "props", placePath), `${placePath}.props`);
                 validateSchedule(
                     required(props, "openingHours", `${placePath}.props`),
@@ -1293,9 +1306,9 @@ export function validateGameSave(data) {
     const save = record(data, "save");
     same(
         integer(required(save, "saveVersion", "save"), "save.saveVersion"),
-        18,
+        19,
         "save.saveVersion",
-        "version 18",
+        "version 19",
     );
 
     const seed = uint32(required(save, "seed", "save"), "save.seed");
@@ -1394,6 +1407,9 @@ export function validateGameSave(data) {
         { nonEmpty: false },
     );
     if (current.place) {
+        if (!current.place.unlocked) {
+            fail("save.currentPlaceId", "references a locked place");
+        }
         same(currentPlaceKey, current.place.key, "save.currentPlaceKey", "the current place key");
     }
 
@@ -1413,7 +1429,10 @@ export function validateGameSave(data) {
         if (!mapIndex.locations.has(locationId)) {
             fail("save.gpsTarget.locationId", `references unknown location '${locationId}'`);
         }
-        placeAt(mapIndex, locationId, placeId, "save.gpsTarget.placeId");
+        const place = placeAt(mapIndex, locationId, placeId, "save.gpsTarget.placeId");
+        if (!place.unlocked) {
+            fail("save.gpsTarget.placeId", "references a locked place");
+        }
         if (locationId === current.locationId) {
             fail("save.gpsTarget.locationId", "must disengage after reaching the target location");
         }

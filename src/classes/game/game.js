@@ -1,5 +1,6 @@
 // worldgame/src/game/game.js
 import { World } from "../world/world.js";
+import { isPlaceUnlocked } from "../world/util/place.js";
 import { Player } from "../player/player.js";
 import { NPC } from "../npc/npc.js";
 import {
@@ -414,6 +415,9 @@ export class Game {
         `Unknown place '${placeId}' in location '${this.currentLocationId}'`,
       );
     }
+    if (!isPlaceUnlocked(place)) {
+      throw new Error("That place has not been unlocked");
+    }
 
     if (placeKey != null && String(placeKey) !== String(place.key ?? "")) {
       throw new Error(
@@ -445,6 +449,20 @@ export class Game {
   }
   hasFlag(flag) {
     return this.flags.has(String(flag));
+  }
+
+  /** Reveal every generated instance with this registry key. */
+  unlockPlacesByKey(placeKey) {
+    const key = String(placeKey ?? "");
+    if (!key) throw new TypeError("Unlocking places requires a place key");
+
+    let unlocked = 0;
+    for (const location of this.world.locations.values()) {
+      for (const place of location.places || []) {
+        if (String(place.key) === key && place.unlock()) unlocked += 1;
+      }
+    }
+    return unlocked;
   }
 
   // --- Daily flags (cleared after crossing UTC midnight) ---
@@ -585,6 +603,14 @@ export class Game {
       return {
         allowed: false,
         code: "not-here",
+        place: null,
+      };
+    }
+
+    if (!isPlaceUnlocked(place)) {
+      return {
+        allowed: false,
+        code: "locked",
         place: null,
       };
     }
@@ -773,7 +799,7 @@ export class Game {
   // --------------------------
   toJSON() {
     return {
-      saveVersion: 18,
+      saveVersion: 19,
       seed: this.seed,
       random: this.random.toJSON(),
       time: this.now.toISOString(),

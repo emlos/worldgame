@@ -1,3 +1,5 @@
+import { isPlaceUnlocked } from "../world/util/place.js";
+
 function requireGameWorld(game) {
   if (
     !game?.world?.locations ||
@@ -15,7 +17,8 @@ export function resolveNavigationDestination(game, placeId) {
 
   for (const location of game.world.locations.values()) {
     const place = (location.places || []).find(
-      (candidate) => String(candidate.id) === targetId,
+      (candidate) =>
+        isPlaceUnlocked(candidate) && String(candidate.id) === targetId,
     );
     if (!place) continue;
 
@@ -39,6 +42,7 @@ export function listNavigationDestinations(game) {
   const destinations = [];
   for (const location of game.world.locations.values()) {
     for (const place of location.places || []) {
+      if (!isPlaceUnlocked(place)) continue;
       destinations.push({
         placeId: String(place.id),
         locationId: String(location.id),

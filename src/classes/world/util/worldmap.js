@@ -288,6 +288,9 @@ function generatePlaces({ locations, getTag, getNeighbors, rnd }) {
     const placements = PLACE_REGISTRY.map((def, registryIndex) => {
         const key = String(def?.key ?? "");
         if (!key) throw new Error("Every PLACE_REGISTRY definition requires a key");
+        if (typeof def.unlocked !== "boolean") {
+            throw new Error(`Registered place '${key}' requires a boolean unlocked state`);
+        }
         if (seenKeys.has(key)) {
             throw new Error(`PLACE_REGISTRY contains duplicate key '${key}'`);
         }
@@ -330,6 +333,7 @@ function generatePlaces({ locations, getTag, getNeighbors, rnd }) {
             name,
             locationId,
             props: def.props || {},
+            unlocked: def.unlocked,
         });
         results.push(place);
         const locationKey = String(locationId);
@@ -1373,7 +1377,7 @@ export class WorldMap {
     /**
      * Create a Place at a given location and attach it to that Location.
      *
-     * @param {Object} placeData - data for the Place constructor ({id,key,name,props,...})
+     * @param {Object} placeData - data for the Place constructor ({id,key,name,props,unlocked,...})
      * @param {string|number} locationId - target location id (overrides placeData.locationId)
      * @returns {Place|null} the created Place or null if location not found
      */
@@ -1383,7 +1387,7 @@ export class WorldMap {
         const loc = this.locations.get(locId);
         if (!loc) return null;
 
-        const { id, key, name, props = {} } = placeData;
+        const { id, key, name, props = {}, unlocked = true } = placeData;
 
         if (!key) {
             throw new Error("createPlaceAt: 'key' is required");
@@ -1397,6 +1401,7 @@ export class WorldMap {
             name: name || key,
             locationId: locId,
             props,
+            unlocked,
         });
 
         if (!Array.isArray(loc.places)) {
