@@ -193,6 +193,16 @@ The school has closed for the day.
 
 The first segment of English class begins.
 
+@random
+The lesson goes poorly—you leave more confused than before.
+@change grade english -1
+@or
+The lesson goes well—you learn a lot!
+@change grade english 1
+@or
+You don't really pay attention and get through the work normally.
+@endrandom
+
 @choice english-1-taylor "Interact with Taylor" -> .segment-2
   @icon 💬
   @time-until school.nextBoundaryAt
@@ -213,6 +223,16 @@ The first segment of English class begins.
 
 English class continues into its second segment.
 
+@random
+The lesson goes poorly—you leave more confused than before.
+@change grade english -1
+@or
+The lesson goes well—you learn a lot!
+@change grade english 1
+@or
+You don't really pay attention and get through the work normally.
+@endrandom
+
 @choice english-2-taylor "Interact with Taylor" -> .segment-3
   @icon 💬
   @time-until school.nextBoundaryAt
@@ -232,6 +252,16 @@ English class continues into its second segment.
 @passage segment-3
 
 The final segment of English class gets underway.
+
+@random
+The lesson goes poorly—you leave more confused than before.
+@change grade english -1
+@or
+The lesson goes well—you learn a lot!
+@change grade english 1
+@or
+You don't really pay attention and get through the work normally.
+@endrandom
 
 @choice english-3-taylor "Interact with Taylor" -> @exit
   @icon 💬
@@ -260,6 +290,16 @@ The final segment of English class gets underway.
 
 The first segment of Mathematics class begins.
 
+@random
+The lesson goes poorly—you leave more confused than before.
+@change grade math -1
+@or
+The lesson goes well—you learn a lot!
+@change grade math 1
+@or
+You don't really pay attention and get through the work normally.
+@endrandom
+
 @choice math-1-taylor "Interact with Taylor" -> .segment-2
   @icon 💬
   @time-until school.nextBoundaryAt
@@ -280,6 +320,16 @@ The first segment of Mathematics class begins.
 
 Mathematics class continues into its second segment.
 
+@random
+The lesson goes poorly—you leave more confused than before.
+@change grade math -1
+@or
+The lesson goes well—you learn a lot!
+@change grade math 1
+@or
+You don't really pay attention and get through the work normally.
+@endrandom
+
 @choice math-2-taylor "Interact with Taylor" -> .segment-3
   @icon 💬
   @time-until school.nextBoundaryAt
@@ -299,6 +349,16 @@ Mathematics class continues into its second segment.
 @passage segment-3
 
 The final segment of Mathematics class gets underway.
+
+@random
+The lesson goes poorly—you leave more confused than before.
+@change grade math -1
+@or
+The lesson goes well—you learn a lot!
+@change grade math 1
+@or
+You don't really pay attention and get through the work normally.
+@endrandom
 
 @choice math-3-taylor "Interact with Taylor" -> @exit
   @icon 💬
@@ -327,6 +387,16 @@ The final segment of Mathematics class gets underway.
 
 The first segment of History class begins.
 
+@random
+The lesson goes poorly—you leave more confused than before.
+@change grade history -1
+@or
+The lesson goes well—you learn a lot!
+@change grade history 1
+@or
+You don't really pay attention and get through the work normally.
+@endrandom
+
 @choice history-1-taylor "Interact with Taylor" -> .segment-2
   @icon 💬
   @time-until school.nextBoundaryAt
@@ -347,6 +417,16 @@ The first segment of History class begins.
 
 History class continues into its second segment.
 
+@random
+The lesson goes poorly—you leave more confused than before.
+@change grade history -1
+@or
+The lesson goes well—you learn a lot!
+@change grade history 1
+@or
+You don't really pay attention and get through the work normally.
+@endrandom
+
 @choice history-2-taylor "Interact with Taylor" -> .segment-3
   @icon 💬
   @time-until school.nextBoundaryAt
@@ -366,6 +446,16 @@ History class continues into its second segment.
 @passage segment-3
 
 The final segment of History class gets underway.
+
+@random
+The lesson goes poorly—you leave more confused than before.
+@change grade history -1
+@or
+The lesson goes well—you learn a lot!
+@change grade history 1
+@or
+You don't really pay attention and get through the work normally.
+@endrandom
 
 @choice history-3-taylor "Interact with Taylor" -> @exit
   @icon 💬
@@ -394,6 +484,16 @@ The final segment of History class gets underway.
 
 The first segment of Science class begins.
 
+@random
+The lesson goes poorly—you leave more confused than before.
+@change grade science -1
+@or
+The lesson goes well—you learn a lot!
+@change grade science 1
+@or
+You don't really pay attention and get through the work normally.
+@endrandom
+
 @choice science-1-taylor "Interact with Taylor" -> .segment-2
   @icon 💬
   @time-until school.nextBoundaryAt
@@ -414,6 +514,16 @@ The first segment of Science class begins.
 
 Science class continues into its second segment.
 
+@random
+The lesson goes poorly—you leave more confused than before.
+@change grade science -1
+@or
+The lesson goes well—you learn a lot!
+@change grade science 1
+@or
+You don't really pay attention and get through the work normally.
+@endrandom
+
 @choice science-2-taylor "Interact with Taylor" -> .segment-3
   @icon 💬
   @time-until school.nextBoundaryAt
@@ -433,6 +543,16 @@ Science class continues into its second segment.
 @passage segment-3
 
 The final segment of Science class gets underway.
+
+@random
+The lesson goes poorly—you leave more confused than before.
+@change grade science -1
+@or
+The lesson goes well—you learn a lot!
+@change grade science 1
+@or
+You don't really pay attention and get through the work normally.
+@endrandom
 
 @choice science-3-taylor "Interact with Taylor" -> @exit
   @icon 💬
@@ -461,6 +581,16 @@ The final segment of Science class gets underway.
 
 The first segment of Art class begins.
 
+@random
+The lesson goes poorly—you leave more confused than before.
+@change grade art -1
+@or
+The lesson goes well—you learn a lot!
+@change grade art 1
+@or
+You don't really pay attention and get through the work normally.
+@endrandom
+
 @choice art-1-taylor "Interact with Taylor" -> .segment-2
   @icon 💬
   @time-until school.nextBoundaryAt
@@ -481,6 +611,16 @@ The first segment of Art class begins.
 
 Art class continues into its second segment.
 
+@random
+The lesson goes poorly—you leave more confused than before.
+@change grade art -1
+@or
+The lesson goes well—you learn a lot!
+@change grade art 1
+@or
+You don't really pay attention and get through the work normally.
+@endrandom
+
 @choice art-2-taylor "Interact with Taylor" -> .segment-3
   @icon 💬
   @time-until school.nextBoundaryAt
@@ -500,6 +640,16 @@ Art class continues into its second segment.
 @passage segment-3
 
 The final segment of Art class gets underway.
+
+@random
+The lesson goes poorly—you leave more confused than before.
+@change grade art -1
+@or
+The lesson goes well—you learn a lot!
+@change grade art 1
+@or
+You don't really pay attention and get through the work normally.
+@endrandom
 
 @choice art-3-taylor "Interact with Taylor" -> @exit
   @icon 💬
@@ -528,6 +678,16 @@ The final segment of Art class gets underway.
 
 The first segment of Physical Education begins.
 
+@random
+The lesson goes poorly—you leave more confused than before.
+@change grade physical_education -1
+@or
+The lesson goes well—you learn a lot!
+@change grade physical_education 1
+@or
+You don't really pay attention and get through the work normally.
+@endrandom
+
 @choice physical-education-1-taylor "Interact with Taylor" -> .segment-2
   @icon 💬
   @time-until school.nextBoundaryAt
@@ -549,6 +709,16 @@ The first segment of Physical Education begins.
 
 Physical Education continues into its second segment.
 
+@random
+The lesson goes poorly—you leave more confused than before.
+@change grade physical_education -1
+@or
+The lesson goes well—you learn a lot!
+@change grade physical_education 1
+@or
+You don't really pay attention and get through the work normally.
+@endrandom
+
 @choice physical-education-2-taylor "Interact with Taylor" -> .segment-3
   @icon 💬
   @time-until school.nextBoundaryAt
@@ -569,6 +739,16 @@ Physical Education continues into its second segment.
 @passage segment-3
 
 The final segment of Physical Education gets underway.
+
+@random
+The lesson goes poorly—you leave more confused than before.
+@change grade physical_education -1
+@or
+The lesson goes well—you learn a lot!
+@change grade physical_education 1
+@or
+You don't really pay attention and get through the work normally.
+@endrandom
 
 @choice physical-education-3-taylor "Interact with Taylor" -> @exit
   @icon 💬
@@ -726,19 +906,22 @@ Nobody answers your knock. The office is closed during class time.
 :: place.high-school.nurse-office
 @heading "School Nurse's Office"
 
-@if school.phase == "after-school" or school.phase == "lunch" or school.phase == "break"
-"Hello," the school nurse says as you enter the office, "how can I help you?"
-@elseif school.phase == "class"
-Nobody answers your knock. The office is closed during class time.
+@if npc.caro.present
+  @if school.phase == "class"
+    Nobody answers your knock. The office is closed during class time.
+  @else
+    Nurse Caro looks up from {{npc.caro.dependent}} paperwork.
+  @endif
 @else
-  "It's quite early," the school nurse says as you enter the office, "how can I help you?"
+  The office is empty. You can see the nurse's chair pushed back from the desk.
 @endif
+
 
 @choice school-nurse-checkup "Ask the school nurse for a checkup" -> place.high-school.nurse-office
   @time 2m
   @when npc.caro.present and school.phase != "class"
   @response
-    The nurse looks you over and takes your vitals. "Everything looks good," they say, "but make sure to get enough sleep and eat well!"
+    The nurse looks you over and takes your vitals. "Everything looks good," {{npc.caro.subject}} says, "but make sure to get enough sleep and eat well!"
   @endresponse
 @endchoice
 

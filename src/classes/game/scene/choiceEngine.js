@@ -7,6 +7,7 @@ import {
   exitWGStory,
   followWGChoice,
   followWGOutcome,
+  resolveActiveWGStory,
 } from "./wg/storyRuntime.js";
 import { materializeWGResponse } from "./wg/sceneMaterializer.js";
 import {
@@ -271,6 +272,7 @@ function performWG(game, choice, minutes, scene) {
       followWGChoice(currentGame, choice);
     },
     after(currentGame) {
+      resolveActiveWGStory(currentGame);
       responseParagraphs = selectWGResponse(
         currentGame,
         choice.action.responses,
@@ -294,7 +296,15 @@ function performWGNext(game, choice, minutes) {
   if (minutes !== 0) {
     fail(CHOICE_ERROR_CODE.invalidAction, "Sequence navigation cannot advance time");
   }
-  advanceWGSequence(game, choice.action);
+  game.runAction({
+    label: "",
+    apply(currentGame) {
+      advanceWGSequence(currentGame, choice.action);
+    },
+    after(currentGame) {
+      resolveActiveWGStory(currentGame);
+    },
+  });
   return actionResult("Continue.");
 }
 
@@ -378,6 +388,7 @@ function performSkillCheck(game, choice, _minutes, scene) {
       followWGOutcome(currentGame, outcome);
     },
     after(currentGame) {
+      resolveActiveWGStory(currentGame);
       responseParagraphs = selectWGResponse(currentGame, outcome.responses, {
         revision,
         sceneId: scene.id,

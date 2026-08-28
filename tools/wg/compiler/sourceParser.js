@@ -235,6 +235,56 @@ function parseEffect(text, file, line) {
   failWG("Unknown or malformed @effect", location);
 }
 
+function defaultChangeLabel(effect) {
+  const sign = effect.amount > 0 ? "+" : effect.amount < 0 ? "-" : "";
+  if (effect.op === "relationship") return `${sign}Relationship`;
+  if (effect.op === "money") return `${sign}Money`;
+  if (effect.op === "skill") return `${sign}${SKILLS[effect.id].label}`;
+  if (effect.op === "stat") return `${sign}${STATS[effect.id].label}`;
+  if (effect.op === "grade") {
+    return `${sign}${SCHOOL_SUBJECTS[effect.id].label} grade`;
+  }
+  if (effect.op === "attendance") {
+    return `${sign}${SCHOOL_SUBJECTS[effect.id].label} attendance`;
+  }
+  return null;
+}
+
+function parseChange(text, file, line) {
+  const location = lineLocation(file, line);
+  const argument = directiveArgument(text, "change", location);
+  const labelMatch = argument.match(
+    new RegExp(`^(.*\\S)\\s+(${QUOTED_PATTERN})\\s*$`),
+  );
+  const effectArgument = labelMatch ? labelMatch[1] : argument;
+  const effect = parseEffect(`@effect ${effectArgument}`, file, line);
+  const label = labelMatch
+    ? parseQuotedString(labelMatch[2], location, "Change label")
+    : defaultChangeLabel(effect);
+
+  if (label === null) {
+    failWG(
+      `@change does not support '${String(effect.op)}'; use @effect for silent state changes`,
+      location,
+    );
+  }
+
+  return {
+    ...effect,
+    feedback: {
+      type: effect.op,
+      amount: effect.amount,
+      label,
+      direction:
+        effect.amount > 0
+          ? "increase"
+          : effect.amount < 0
+            ? "decrease"
+            : "neutral",
+    },
+  };
+}
+
 class SceneBodyParser {
   constructor(file, lines, startIndex = 0) {
     this.file = file;
@@ -305,6 +355,24 @@ class SceneBodyParser {
         nodes.push(this.parseRandom());
         continue;
       }
+      if (name === "check") {
+        flushParagraph();
+        nodes.push(this.parsePassiveCheck());
+        continue;
+      }
+      if (name === "effect" || name === "change") {
+        flushParagraph();
+        nodes.push({
+          type: "effect",
+          effect:
+            name === "change"
+              ? parseChange(trimmed, this.file, line.line)
+              : parseEffect(trimmed, this.file, line.line),
+          source: nodeSource(this.file, line.line),
+        });
+        this.index += 1;
+        continue;
+      }
       if (name) {
         flushParagraph();
         failWG(`Unexpected @${name}`, lineLocation(this.file, line.line));
@@ -356,6 +424,9 @@ class SceneBodyParser {
           if (node.elseNodes) inspect(node.elseNodes);
         } else if (node.type === "random") {
           for (const variant of node.variants) inspect(variant);
+        } else if (node.type === "passive-check") {
+          inspect(node.outcomes?.success || []);
+          inspect(node.outcomes?.failure || []);
         } else if (node.type === "choice-group") {
           failWG(
             "@choicegroup blocks cannot be nested",
@@ -429,6 +500,69 @@ class SceneBodyParser {
     }
 
     failWG("Unclosed @random block", lineLocation(this.file, opening.line));
+  }
+
+  parsePassiveCheck() {
+    const opening = this.current();
+    const location = lineLocation(this.file, opening.line);
+    const argument = directiveArgument(opening.text.trim(), "check", location);
+    const match = argument.match(
+      new RegExp(`^(${ID_PATTERN})\\s+(${ID_PATTERN})$`),
+    );
+    if (!match) failWG("@check needs a skill id and difficulty id", location);
+
+    const [, skillId, difficultyId] = match;
+    if (!SKILLS[skillId]) {
+      failWG(`@check references unknown skill '${skillId}'`, location);
+    }
+    if (!SKILL_CHECK_DIFFICULTIES[difficultyId]) {
+      failWG(`@check references unknown difficulty '${difficultyId}'`, location);
+    }
+
+    this.index += 1;
+    const preamble = this.parseNodes(new Set(["success", "failure", "endcheck"]));
+    if (preamble.length || this.current()?.text.trim() !== "@success") {
+      failWG(
+        "A prose @check must begin with @success",
+        lineLocation(this.file, this.current()?.line || opening.line),
+      );
+    }
+
+    this.index += 1;
+    const successNodes = this.parseNodes(new Set(["failure", "endcheck"]));
+    if (!successNodes.length) {
+      failWG("A prose @check requires a non-empty @success branch", location);
+    }
+    if (this.current()?.text.trim() !== "@failure") {
+      failWG(
+        "A prose @check requires @failure after @success",
+        lineLocation(this.file, this.current()?.line || opening.line),
+      );
+    }
+
+    this.index += 1;
+    const failureNodes = this.parseNodes(new Set(["endcheck"]));
+    if (!failureNodes.length) {
+      failWG("A prose @check requires a non-empty @failure branch", location);
+    }
+    if (this.current()?.text.trim() !== "@endcheck") {
+      failWG("Unclosed prose @check block", location);
+    }
+    this.index += 1;
+
+    return {
+      type: "passive-check",
+      check: {
+        skillId,
+        difficultyId,
+        source: nodeSource(this.file, opening.line),
+      },
+      outcomes: {
+        success: successNodes,
+        failure: failureNodes,
+      },
+      source: nodeSource(this.file, opening.line),
+    };
   }
 
   parseConditional() {
@@ -561,7 +695,10 @@ class SceneBodyParser {
       choice.effects.length ||
       choice.previews.length
     ) {
-      failWG("Checked choices keep @time, @response, and @effect inside outcome blocks and cannot use @preview", location);
+      failWG(
+        "Checked choices keep @time, @response, and @effect inside outcome blocks and cannot use @change or @preview",
+        location,
+      );
     }
     delete choice.target;
     delete choice.durationMinutes;
@@ -712,6 +849,8 @@ class SceneBodyParser {
         });
       } else if (name === "effect") {
         choice.effects.push(parseEffect(text, this.file, line.line));
+      } else if (name === "change") {
+        choice.effects.push(parseChange(text, this.file, line.line));
       } else {
         failWG(`Unknown choice directive @${name}`, location);
       }

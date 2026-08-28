@@ -1,7 +1,7 @@
 import { WG_BUNDLE } from "../../../../generated/wg/scenes.js";
 import { evaluateWGExpression } from "./expressionEvaluator.js";
 import { createWGRuntimeContext } from "./runtimeContext.js";
-import { enterWGTarget } from "./storyRuntime.js";
+import { enterWGTarget, resolveActiveWGStory } from "./storyRuntime.js";
 
 export const WG_AUTO_TRIGGER = Object.freeze({
   enterPlace: "enter-place",
@@ -207,5 +207,6 @@ export function resolveWGAutomaticEntry(
   );
   if (!selected) return null;
   enterWGTarget(game, selected.sceneId);
+  resolveActiveWGStory(game);
   return selected;
 }

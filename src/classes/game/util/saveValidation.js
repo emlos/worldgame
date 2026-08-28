@@ -319,6 +319,26 @@ function validateCurrentStory(value, path, gameTime) {
     } else if (Object.prototype.hasOwnProperty.call(frame, "passageId")) {
         fail(`${path}.passageId`, "is only valid for sequence story state");
     }
+    const resolutionPath = `${path}.resolution`;
+    const resolution = record(required(frame, "resolution", path), resolutionPath);
+    integer(required(resolution, "revision", resolutionPath), `${resolutionPath}.revision`, {
+        min: 0,
+    });
+    const decisions = record(
+        required(resolution, "decisions", resolutionPath),
+        `${resolutionPath}.decisions`,
+    );
+    for (const [key, decision] of Object.entries(decisions)) {
+        string(key, `${resolutionPath}.decisions key`, { nonEmpty: true });
+        if (typeof decision === "number") {
+            integer(decision, `${resolutionPath}.decisions.${key}`, { min: -1 });
+        } else if (decision !== "success" && decision !== "failure") {
+            fail(
+                `${resolutionPath}.decisions.${key}`,
+                "must be a branch index, 'success', or 'failure'",
+            );
+        }
+    }
     if (Object.prototype.hasOwnProperty.call(frame, "schoolClass")) {
         if (type !== "sequence") {
             fail(`${path}.schoolClass`, "is only valid for sequence story state");
@@ -1306,9 +1326,9 @@ export function validateGameSave(data) {
     const save = record(data, "save");
     same(
         integer(required(save, "saveVersion", "save"), "save.saveVersion"),
-        19,
+        20,
         "save.saveVersion",
-        "version 19",
+        "version 20",
     );
 
     const seed = uint32(required(save, "seed", "save"), "save.seed");
@@ -1441,14 +1461,22 @@ export function validateGameSave(data) {
     uniqueStrings(required(save, "flags", "save"), "save.flags");
     uniqueStrings(required(save, "dailyFlags", "save"), "save.dailyFlags", { nonEmpty: true });
     record(required(save, "story", "save"), "save.story");
-    validateCurrentStory(
+    const currentStory = validateCurrentStory(
         required(save, "currentStory", "save"),
         "save.currentStory",
         gameTime,
     );
-    integer(required(save, "storyRevision", "save"), "save.storyRevision", {
+    const storyRevision = integer(required(save, "storyRevision", "save"), "save.storyRevision", {
         min: 0,
     });
+    if (currentStory !== null) {
+        same(
+            currentStory.resolution.revision,
+            storyRevision,
+            "save.currentStory.resolution.revision",
+            "save.storyRevision",
+        );
+    }
     integer(required(save, "actionRevision", "save"), "save.actionRevision", {
         min: 0,
     });

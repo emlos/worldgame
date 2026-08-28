@@ -225,8 +225,12 @@ function makeChoiceButton(sceneId, choice, number) {
     );
   }
   for (const effect of choice.effectsPreview) {
+    const className =
+      effect.direction === "decrease" || effect.amount < 0
+        ? "choice-change-decrease"
+        : "choice-effect";
     details.append(
-      makeChoiceDetail("choice-effect", formatDescriptor(effect, "effect")),
+      makeChoiceDetail(className, formatDescriptor(effect, "effect")),
     );
   }
   for (const change of choice.skillChanges) {
@@ -895,10 +899,24 @@ function render(preludeParagraphs = []) {
     sceneElement.append(paragraph);
   }
 
-  for (const paragraphText of currentScene.paragraphs) {
-    const paragraph = document.createElement("p");
-    paragraph.textContent = paragraphText;
-    sceneElement.append(paragraph);
+  for (const block of currentScene.content) {
+    if (block.type === "paragraph") {
+      const paragraph = document.createElement("p");
+      paragraph.textContent = block.text;
+      sceneElement.append(paragraph);
+      continue;
+    }
+    if (block.type === "changes") {
+      const changes = document.createElement("div");
+      changes.className = "scene-changes";
+      for (const change of block.items) {
+        const item = document.createElement("span");
+        item.className = `scene-change scene-change--${change.direction}`;
+        item.textContent = change.label;
+        changes.append(item);
+      }
+      sceneElement.append(changes);
+    }
   }
 
   let choiceNumber = 1;

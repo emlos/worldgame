@@ -336,6 +336,10 @@ p {
   color: #73cf76;
 }
 
+.choice-change-decrease {
+  color: #dc6b6b;
+}
+
 .choice-skill-increase {
   color: #73cf76;
 }
@@ -346,6 +350,26 @@ p {
 
 .choice-skill-check {
   color: #e7a85f;
+}
+
+.scene-changes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.75rem;
+  margin: -0.45rem 0 1rem;
+  font-size: 0.9rem;
+}
+
+.scene-change--increase {
+  color: #73cf76;
+}
+
+.scene-change--decrease {
+  color: #dc6b6b;
+}
+
+.scene-change--neutral {
+  color: #c7cbd1;
 }
 
 .choice-warning {

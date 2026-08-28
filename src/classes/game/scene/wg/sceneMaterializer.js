@@ -7,6 +7,7 @@ import { createWGRuntimeContext } from "./runtimeContext.js";
 import { SKILLS } from "../../../../data/player/stats.js";
 import { getSkillCheckDifficulty } from "../../../../data/scene/skillChecks.js";
 import { keyedRandom01 } from "../../../../shared/util/random.js";
+import { resolutionNodeKey } from "./storyResolver.js";
 
 export class WGMaterializationError extends Error {
   constructor(message) {
@@ -71,7 +72,11 @@ export function materializeWGResponse(game, response) {
 function materializeSkillChanges(effects) {
   const totals = new Map();
   for (const effect of effects || []) {
-    if (effect?.op !== "skill" || !Number.isFinite(effect.amount)) continue;
+    if (
+      effect?.op !== "skill" ||
+      effect.feedback ||
+      !Number.isFinite(effect.amount)
+    ) continue;
     totals.set(effect.id, (totals.get(effect.id) || 0) + effect.amount);
   }
   return [...totals.entries()]
@@ -81,6 +86,12 @@ function materializeSkillChanges(effects) {
       label: (amount > 0 ? "+" : "-") + (SKILLS[skillId]?.label || skillId),
       direction: amount > 0 ? "increase" : "decrease",
     }));
+}
+
+function materializeVisibleEffects(effects) {
+  return (effects || [])
+    .filter((effect) => effect?.feedback)
+    .map((effect) => ({ ...effect.feedback }));
 }
 
 function materializeDuration(node, context) {
@@ -168,11 +179,14 @@ function materializeChoice(node, context, { sequenceId = null } = {}) {
     enabled: disabledReason === null,
     disabledReason,
     warning: node.warning,
-    effectsPreview: (node.previews || []).map(({ type, amount, label }) => ({
-      type,
-      amount,
-      label,
-    })),
+    effectsPreview: [
+      ...(node.previews || []).map(({ type, amount, label }) => ({
+        type,
+        amount,
+        label,
+      })),
+      ...materializeVisibleEffects(node.effects),
+    ],
     skillChanges: node.check ? [] : materializeSkillChanges(node.effects),
     skillCheck,
     action,
@@ -190,13 +204,39 @@ function choiceSection(output, id, heading) {
   return section;
 }
 
+function appendChange(output, feedback) {
+  if (!feedback) return;
+  const previous = output.content.at(-1);
+  if (previous?.type === "changes") {
+    previous.items.push({ ...feedback });
+  } else {
+    output.content.push({ type: "changes", items: [{ ...feedback }] });
+  }
+}
+
+function resolvedDecision(node, options) {
+  const decisions = options.resolution?.decisions;
+  const key = resolutionNodeKey(node);
+  if (!decisions || !Object.prototype.hasOwnProperty.call(decisions, key)) {
+    fail(`Story resolution is missing a decision for '${key}'`, node.source);
+  }
+  return decisions[key];
+}
+
 function materializeNodes(nodes, context, output, options = {}) {
   if (!Array.isArray(nodes)) fail("Scene body must be an array");
   const sectionId = options.choiceSectionId || "choices";
   const sectionHeading = options.choiceSectionHeading || "Choices";
   for (const node of nodes) {
     if (node?.type === "paragraph") {
-      output.paragraphs.push(renderParagraph(node, context));
+      output.content.push({ type: "paragraph", text: renderParagraph(node, context) });
+      continue;
+    }
+    if (node?.type === "effect") {
+      if (!options.resolution) {
+        fail("Prose effects require a resolved story instance", node.source);
+      }
+      appendChange(output, node.effect?.feedback);
       continue;
     }
     if (node?.type === "choice") {
@@ -207,28 +247,55 @@ function materializeNodes(nodes, context, output, options = {}) {
       continue;
     }
     if (node?.type === "if") {
-      const branch = (node.branches || []).find((candidate) =>
-        Boolean(evaluateWGExpression(candidate.test, context)),
-      );
-      materializeNodes(branch?.nodes || node.elseNodes || [], context, output, options);
+      const index = options.resolution
+        ? resolvedDecision(node, options)
+        : (node.branches || []).findIndex((candidate) =>
+            Boolean(evaluateWGExpression(candidate.test, context)),
+          );
+      if (!Number.isInteger(index) || index < -1 || index >= (node.branches || []).length) {
+        fail("Conditional story resolution has an invalid branch", node.source);
+      }
+      const selected = index >= 0
+        ? node.branches[index]?.nodes || []
+        : node.elseNodes || [];
+      materializeNodes(selected, context, output, options);
       continue;
     }
     if (node?.type === "random") {
       if (!Array.isArray(node.variants) || node.variants.length < 2) {
         fail("Random blocks require at least two alternatives", node.source);
       }
-      const source = node.source || {};
-      const key = [
-        "wg-random-v1",
-        options.storyInstanceKey,
-        source.file || "<wg>",
-        source.line || 1,
-        source.column || 1,
-      ].join(":");
-      const index = Math.floor(
-        keyedRandom01(options.gameSeed, key) * node.variants.length,
-      );
+      let index;
+      if (options.resolution) {
+        index = resolvedDecision(node, options);
+      } else {
+        const source = node.source || {};
+        const key = [
+          "wg-random-v1",
+          options.storyInstanceKey,
+          source.file || "<wg>",
+          source.line || 1,
+          source.column || 1,
+        ].join(":");
+        index = Math.floor(
+          keyedRandom01(options.gameSeed, key) * node.variants.length,
+        );
+      }
+      if (!Number.isInteger(index) || index < 0 || index >= node.variants.length) {
+        fail("Random story resolution has an invalid alternative", node.source);
+      }
       materializeNodes(node.variants[index], context, output, options);
+      continue;
+    }
+    if (node?.type === "passive-check") {
+      if (!options.resolution) {
+        fail("Passive checks require a resolved story instance", node.source);
+      }
+      const result = resolvedDecision(node, options);
+      if (result !== "success" && result !== "failure") {
+        fail("Passive-check resolution has an invalid outcome", node.source);
+      }
+      materializeNodes(node.outcomes?.[result] || [], context, output, options);
       continue;
     }
     if (node?.type === "choice-group") {
@@ -247,16 +314,31 @@ function materializeNodes(nodes, context, output, options = {}) {
   }
 }
 
+function activeResolution(game, type, id, passageId = null) {
+  const frame = game.currentStory;
+  if (frame?.type !== type || frame.id !== id) return null;
+  if (type === "sequence" && frame.passageId !== passageId) return null;
+  if (!frame.resolution || frame.resolution.revision !== game.storyRevision) {
+    fail("Active WG story has not been resolved for this revision");
+  }
+  return frame.resolution;
+}
+
 export function materializeWGScene(game, definition) {
   if (!definition || typeof definition !== "object" || Array.isArray(definition)) {
     fail("WG scene definition must be an object");
   }
 
   const context = createWGRuntimeContext(game);
-  const output = { paragraphs: [], sections: [] };
+  const resolution = activeResolution(game, "scene", definition.id);
+  if (!resolution && definition.kind !== "place") {
+    fail("Entered WG scenes must resolve before materialization", definition.source);
+  }
+  const output = { content: [], sections: [] };
   materializeNodes(definition.body, context, output, {
     choiceSectionHeading: definition.choiceHeading,
     gameSeed: game.seed,
+    resolution,
     storyInstanceKey: [
       "scene",
       definition.id,
@@ -271,7 +353,7 @@ export function materializeWGScene(game, definition) {
     heading: definition.heading,
     status: buildSceneStatus(game),
     map: null,
-    paragraphs: output.paragraphs,
+    content: output.content,
     sections: output.sections,
   });
 }
@@ -284,11 +366,21 @@ export function materializeWGSequence(game, definition, passageId) {
   if (!passage) fail(`WG sequence '${definition.id}' has no passage '${String(passageId)}'`);
 
   const context = createWGRuntimeContext(game);
-  const output = { paragraphs: [], sections: [] };
+  const resolution = activeResolution(
+    game,
+    "sequence",
+    definition.id,
+    passage.id,
+  );
+  if (!resolution) {
+    fail("Entered WG sequence passages must resolve before materialization", passage.source);
+  }
+  const output = { content: [], sections: [] };
   materializeNodes(passage.body, context, output, {
     sequenceId: definition.id,
     choiceSectionHeading: definition.choiceHeading,
     gameSeed: game.seed,
+    resolution,
     storyInstanceKey: [
       "sequence",
       definition.id,
@@ -315,7 +407,7 @@ export function materializeWGSequence(game, definition, passageId) {
     heading: definition.heading,
     status: buildSceneStatus(game),
     map: null,
-    paragraphs: output.paragraphs,
+    content: output.content,
     sections: output.sections,
   });
 }

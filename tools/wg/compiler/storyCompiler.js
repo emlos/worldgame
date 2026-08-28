@@ -15,6 +15,9 @@ function walkNodes(nodes, visit) {
       walkNodes(node.nodes, visit);
     } else if (node.type === "random") {
       for (const variant of node.variants) walkNodes(variant, visit);
+    } else if (node.type === "passive-check") {
+      walkNodes(node.outcomes?.success || [], visit);
+      walkNodes(node.outcomes?.failure || [], visit);
     }
   }
 }
@@ -113,6 +116,15 @@ export function compileStorySources(sources) {
     const choiceIds = new Map();
     const choiceGroupIds = new Map();
     walkNodes(scene.body, (node) => {
+      if (
+        scene.kind === "place" &&
+        (node.type === "effect" || node.type === "passive-check")
+      ) {
+        failWG(
+          "Persistent place hubs cannot contain prose effects or passive checks",
+          atSource(node.source),
+        );
+      }
       if (node.type === "choice-group") {
         const previous = choiceGroupIds.get(node.id);
         if (previous) {
@@ -237,7 +249,7 @@ export function compileStorySources(sources) {
   const entries = Object.fromEntries(
     [...entryMap.entries()].sort(([left], [right]) => compareText(left, right)),
   );
-  return { formatVersion: 10, scenes, sequences, entries };
+  return { formatVersion: 11, scenes, sequences, entries };
 }
 
 export { walkNodes };

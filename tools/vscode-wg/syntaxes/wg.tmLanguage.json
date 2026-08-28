@@ -178,7 +178,7 @@
       "patterns": [
         {
           "name": "meta.effect.directive.wg",
-          "begin": "^(\\s*)(@effect)\\b",
+          "begin": "^(\\s*)(@(effect|change))\\b",
           "beginCaptures": { "2": { "name": "keyword.control.effect.wg" } },
           "end": "$",
           "patterns": [
@@ -203,7 +203,7 @@
       "patterns": [
         {
           "name": "keyword.control.block.wg",
-          "match": "^\\s*(@(?:else|endif|endentry|endchoice|endchoicegroup|endsequence|success|endsuccess|failure|endfailure|response|endresponse|endrandom|onenter|endonenter))\\s*$"
+          "match": "^\\s*(@(?:else|endif|endentry|endchoice|endchoicegroup|endsequence|success|endsuccess|failure|endfailure|endcheck|response|endresponse|endrandom|onenter|endonenter))\\s*$"
         }
       ]
     },

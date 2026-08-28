@@ -2,6 +2,7 @@ import { validateChoice } from "./choiceContract.js";
 
 const SCENE_KINDS = new Set(["location", "place", "event"]);
 const ALERT_TONES = new Set(["info", "warning"]);
+const CHANGE_DIRECTIONS = new Set(["increase", "decrease", "neutral"]);
 
 export class SceneContractError extends TypeError {
   constructor(message) {
@@ -66,6 +67,40 @@ function validateAlerts(alerts) {
   });
 }
 
+function validateContent(content) {
+  if (!Array.isArray(content)) fail("scene.content must be an array");
+  content.forEach((block, index) => {
+    const path = `scene.content[${index}]`;
+    requireRecord(block, path);
+    requireText(block.type, `${path}.type`);
+    if (block.type === "paragraph") {
+      requireText(block.text, `${path}.text`);
+      return;
+    }
+    if (block.type === "changes") {
+      if (!Array.isArray(block.items) || !block.items.length) {
+        fail(`${path}.items must be a non-empty array`);
+      }
+      block.items.forEach((change, changeIndex) => {
+        const changePath = `${path}.items[${changeIndex}]`;
+        requireRecord(change, changePath);
+        requireText(change.type, `${changePath}.type`);
+        requireText(change.label, `${changePath}.label`);
+        if (!Number.isFinite(change.amount)) {
+          fail(`${changePath}.amount must be a finite number`);
+        }
+        if (!CHANGE_DIRECTIONS.has(change.direction)) {
+          fail(
+            `${changePath}.direction must be one of: ${[...CHANGE_DIRECTIONS].join(", ")}`,
+          );
+        }
+      });
+      return;
+    }
+    fail(`${path}.type must be 'paragraph' or 'changes'`);
+  });
+}
+
 export function validateScene(scene) {
   requireRecord(scene, "scene");
   requireText(scene.id, "scene.id");
@@ -78,14 +113,7 @@ export function validateScene(scene) {
   validateMap(scene.map);
   validateAlerts(scene.alerts);
 
-  if (!Array.isArray(scene.paragraphs)) {
-    fail("scene.paragraphs must be an array");
-  }
-  scene.paragraphs.forEach((paragraph, index) => {
-    if (typeof paragraph !== "string") {
-      fail(`scene.paragraphs[${index}] must be a string`);
-    }
-  });
+  validateContent(scene.content);
 
   if (!Array.isArray(scene.sections)) fail("scene.sections must be an array");
   const sectionIds = new Set();

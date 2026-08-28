@@ -48,6 +48,14 @@ function capitalize(value) {
   return text ? text[0].toUpperCase() + text.slice(1) : text;
 }
 
+function paragraphBlock(text) {
+  return { type: "paragraph", text };
+}
+
+function paragraphBlocks(values) {
+  return values.map(paragraphBlock);
+}
+
 function decorateBusStopHub(game, authored) {
   const place = getCurrentBusStop(game);
   if (!place) throw new Error("Bus-stop hub requires the player to be at a bus stop");
@@ -79,9 +87,9 @@ function decorateBusStopHub(game, authored) {
 
   return {
     ...authored,
-    paragraphs: [
-      ...authored.paragraphs,
-      `A single bus ticket costs ${formatBusFare(fare)}.`,
+    content: [
+      ...authored.content,
+      paragraphBlock(`A single bus ticket costs ${formatBusFare(fare)}.`),
     ],
     sections,
   };
@@ -102,10 +110,10 @@ function decorateBusTimetableScene(game, authored) {
 
   return {
     ...authored,
-    paragraphs: [
-      ...authored.paragraphs,
-      ...periodText,
-      `The next departures are ${departureText}.`,
+    content: [
+      ...authored.content,
+      ...paragraphBlocks(periodText),
+      paragraphBlock(`The next departures are ${departureText}.`),
     ],
   };
 }
@@ -238,9 +246,9 @@ function buildLocationScene(game) {
     heading: SCENE_TEXT.locationHeading(nearbyStreet, location.name),
     status: buildSceneStatus(game),
     map: buildLocalMapView(game),
-    paragraphs: [
-      SCENE_TEXT.locationIntroduction(nearbyStreet, location.name),
-      stablePick(LOCATION_DESCRIPTIONS, game, `location:${location.id}`),
+    content: [
+      paragraphBlock(SCENE_TEXT.locationIntroduction(nearbyStreet, location.name)),
+      paragraphBlock(stablePick(LOCATION_DESCRIPTIONS, game, `location:${location.id}`)),
     ],
     sections: [
       {
@@ -307,7 +315,7 @@ function buildPlaceScene(game, activeDefinition = null) {
     ...authored,
     kind: "place",
     heading: place.name,
-    paragraphs: [...authored.paragraphs, ...hubText],
+    content: [...authored.content, ...paragraphBlocks(hubText)],
     sections: [
       ...authored.sections,
       {

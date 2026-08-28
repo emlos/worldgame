@@ -321,10 +321,12 @@ sequence's final target. A quoted label changes only the displayed text:
 @next "Wake up"
 ```
 
-Next navigation is presentation-only. It never advances time, applies effects,
-adds an action-log entry, increments the gameplay action revision, or runs
-`@onenter` on either the current sequence or a global target it enters. Use an
-ordinary choice when entering the target should be an authoritative action.
+Next navigation never advances time, adds an action-log entry, or runs
+`@onenter` on either the current sequence or a global target it enters. It is
+an atomic zero-time transition: entering its target resolves that passage's
+prose effects and passive checks and advances the gameplay action revision.
+Use an ordinary choice when the transition itself needs authored choice
+effects or a duration.
 The active sequence and passage are included in save data, so loading resumes
 on the same screen.
 
@@ -511,7 +513,11 @@ Taylor returns to the textbook.
 
 `@if`, any number of `@elseif` branches, an optional `@else`, and `@endif`
 form a conditional block. Blocks may be nested and may contain prose, choices,
-or more conditions. The first truthy branch is materialized.
+effects, passive checks, or more conditions. When an event scene or sequence
+passage is entered, its selected structural branches are saved for that story
+instance. This ensures an effect cannot change the condition that selected its
+own prose. Persistent place hubs remain live and read-only, so their
+conditionals are evaluated on every materialization.
 
 Expressions support:
 
@@ -557,16 +563,75 @@ This is the third possible passage.
 
 `@random` chooses exactly one alternative, with alternatives separated by
 `@or` and the block closed by `@endrandom`. A block requires at least two
-non-empty alternatives. Alternatives may contain prose, choices, conditionals,
-choice groups, or nested random blocks. Random blocks may likewise appear
-inside `@if` branches.
+non-empty alternatives. Alternatives may contain prose, choices, effects,
+passive checks, conditionals, choice groups, or nested random blocks. Random
+blocks may likewise appear inside `@if` branches.
 
-Selection is deterministic for a materialized scene instance. Rebuilding the
-same unchanged scene therefore produces the same alternative, which keeps
-choice validation and rendering stable. Entering another scene instance or
-advancing game state supplies a new selection key and may choose a different
-alternative. Selection never consumes a mutable random stream or changes save
-state.
+Selection is deterministic for an entered story instance and the selected
+alternative is recorded in the active story save frame. Rebuilding, saving,
+or loading therefore keeps the same alternative. Entering another scene or
+passage creates a new story instance and may choose differently. Selection
+never consumes a mutable random stream.
+
+## Prose effects, visible changes, and passive checks
+
+Entered event scenes and sequence passages resolve their structural content
+exactly once. Resolution happens after the incoming action's time has advanced
+and before the screen is rendered. Active `@effect` and `@change` directives
+run in authored order; a later condition or passive check observes state
+changed by an earlier directive. The selected conditional, random, and check
+branches are stored with `currentStory`, so rendering and authoritative choice
+revalidation are read-only.
+
+Use `@effect` for a silent prose mutation and `@change` when the player should
+also see a coloured result beside the prose:
+
+```wg
+@random
+The lesson goes poorly—you leave more confused than before.
+@change grade english -1
+@or
+The lesson goes well—you learn a lot!
+@change grade english 1
+@or
+You get through the work normally.
+@endrandom
+```
+
+`@change` accepts `relationship`, `money`, `skill`, `stat`, `grade`, and
+`attendance` operations. It derives labels such as `-English grade` from the
+registered data. Add an optional quoted label to override that text:
+
+```wg
+@change relationship taylor 0.02 "+Taylor relationship"
+```
+
+Directives must occupy their own lines. A body-level `@preview` is invalid:
+previews describe an uncommitted choice, while a prose change has already been
+committed.
+
+A body-level `@check` opens a passive, targetless skill check:
+
+```wg
+@check resolve tricky
+@success
+You manage to focus and follow the explanation.
+@change grade english 1
+@failure
+Most of the explanation goes over your head.
+@change grade english -1
+@endcheck
+```
+
+Both branches are required and may contain any normal body content, including
+nested conditions, random blocks, effects, and passive checks. The check uses
+the same registered skills, difficulty curve, and hidden keyed roll as an
+interactive skill check. Its result is saved for the story instance and is
+never rerolled by rendering or loading.
+
+Persistent `@kind place` hubs cannot contain prose effects or passive checks,
+because they are live views rather than entered story instances. Put such an
+outcome in a targeted event scene or sequence passage instead.
 
 ## Choices
 
@@ -636,6 +701,9 @@ Choice directives are:
 - `@preview <type> <signed-number> "<label>"`: repeatable display-only effect
   preview. A preview never applies or validates a real effect.
 - `@effect ...`: repeatable authoritative effect, described below.
+- `@change ... ["<label>"]`: an authoritative effect with a derived or custom
+  preview. It is valid in direct choices for the same player-facing operations
+  supported by prose changes.
 
 Before an action runs, the game rebuilds the current scene and rechecks that
 the choice still exists and is enabled. Direct-choice effects run in their
@@ -697,8 +765,8 @@ difficulty, and two outcome blocks:
 The player sees only the choice label and orange `Strength: Tricky`. The UI
 does not display a probability, roll, selected outcome, branch duration, or
 sanitized preview of branch effects. Checked choices cannot use choice-level
-`@time`, `@response`, `@effect`, or `@preview`; put time, responses, and
-effects inside each outcome.
+`@time`, `@response`, `@effect`, `@change`, or `@preview`; put time,
+responses, and silent effects inside each outcome.
 They may still use one `@icon`, `@when`, `@warning`, and `@check`, plus repeated
 `@require` directives. Both outcomes are required and may target another scene
 or sequence, a local passage when inside a sequence, `@exit`, or
@@ -737,8 +805,9 @@ action transaction.
 
 ## Effects
 
-Effects may appear inside direct choices, skill-check outcomes, or a scene or
-sequence `@onenter` block:
+Effects may appear inside direct choices, skill-check outcomes, a scene or
+sequence `@onenter` block, or the body of an entered event scene or sequence
+passage:
 
 ```wg
 @onenter
@@ -752,6 +821,11 @@ entered. It does not run while a screen is merely rendered or rebuilt. Moving
 between passages in the same sequence does not run it again. Entering the same
 story target again through an ordinary choice does. The block may contain only
 `@effect` directives, comments, and blank lines.
+
+Body effects instead run during one-time post-time prose resolution. Moving to
+a new passage resolves that passage and can run its body effects without
+rerunning the sequence's `@onenter`. Use `@change` rather than `@effect` when
+the mutation should create visible result feedback.
 
 Implemented effects are:
 
@@ -800,9 +874,9 @@ Implemented effects are:
 - `attendance <subject-id> <positive-whole-number>` records completed class
   segments for a registered school subject.
 
-Effects run sequentially, so a later effect can read state changed by an
-earlier effect. Warnings, previews, requirements, and time costs do not create
-implicit effects or resource costs.
+Effects and changes run sequentially, so a later mutation, condition, or
+passive check can read state changed by an earlier one. Warnings, previews,
+requirements, and time costs do not create implicit effects or resource costs.
 
 NPC residences use `home_access_<npc-id>`. Setting, for example,
 `home_access_taylor` to `true` grants access to Taylor's home and setting it to
@@ -866,8 +940,8 @@ not implemented.
 | Entry | `@scene`, `@hub`, `@offer`, `@auto`, `@place-key`, `@place-tag`, `@location-tag`, `@when`, `@label`, `@icon`, `@hub-text`, `@priority`, `@chance`, `@weight` |
 | Scene metadata | `@kind`, `@heading`, `@choices`, `@onenter ... @endonenter` |
 | Sequence metadata/navigation | scene metadata plus `@school-class`, `@passage`, `@next` |
-| Scene or passage body | prose, `@if` / `@elseif` / `@else` / `@endif`, `@random` / `@or` / `@endrandom`, `@choicegroup ... @endchoicegroup`, `@choice ... @endchoice` |
-| Direct choice | `@icon`, `@time`, `@time-until`, `@when`, `@require`, `@warning`, `@response ... @endresponse`, `@preview`, `@effect` |
+| Scene or passage body | prose, `@if` / `@elseif` / `@else` / `@endif`, `@random` / `@or` / `@endrandom`, passive `@check` / `@success` / `@failure` / `@endcheck`, `@effect`, `@change`, `@choicegroup ... @endchoicegroup`, `@choice ... @endchoice` |
+| Direct choice | `@icon`, `@time`, `@time-until`, `@when`, `@require`, `@warning`, `@response ... @endresponse`, `@preview`, `@effect`, `@change` |
 | Checked choice | `@icon`, `@when`, `@require`, `@warning`, `@check`, `@success ... @endsuccess`, `@failure ... @endfailure` |
 | Check outcome | `@time`, `@response ... @endresponse`, `@effect` |
 | Effect operations | `set`, `add`, `flag`, `daily-flag`, `relationship`, `money`, `skill`, `stat`, `grade`, `attendance` |
