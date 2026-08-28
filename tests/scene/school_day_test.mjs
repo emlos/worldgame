@@ -84,6 +84,32 @@ check(
 game.currentLocationId = highSchool.location.id;
 game.setCurrentPlace({ placeId: highSchool.place.id });
 
+const morningGame = Game.fromJSON(JSON.parse(JSON.stringify(game)));
+const morningTaylor = morningGame.npcs.get("taylor");
+morningTaylor.setLocationAndPlace(
+  highSchool.location.id,
+  highSchool.place.id,
+);
+const morningRelationship = morningGame.player.getRelationship("taylor").score;
+const morningResult = perform(morningGame, "before-school-taylor");
+check(
+  "the Taylor chat advances time, applies effects, and returns its transient response",
+  morningGame.now.toISOString() === "2026-09-01T07:05:00.000Z" &&
+    morningGame.hasDailyFlag("school_before_taylor") &&
+    Math.abs(
+      morningGame.player.getRelationship("taylor").score -
+        morningRelationship -
+        0.003,
+    ) < 1e-12 &&
+    morningResult.paragraphs.length === 1 &&
+    morningResult.paragraphs[0] ===
+      'Taylor giggles. "Have you heard that Prof. Sokolev has uploaded a mixtape on TwoYube? We should totally watch it together after class!"',
+);
+check(
+  "the Taylor response is absent from the next ordinary hub render",
+  !buildScene(morningGame).paragraphs.includes(morningResult.paragraphs[0]),
+);
+
 let state = getSchoolDayState(game);
 let scene = buildScene(game);
 const activitiesSection = scene.sections.find(
@@ -246,7 +272,7 @@ check(
   game.now.toISOString() === "2026-09-01T17:00:00.000Z" &&
     game.currentPlaceId === null &&
     game.currentStory === null &&
-    closingResult.includes("ushers you outside"),
+    closingResult.notice.includes("ushers you outside"),
 );
 
 const restored = Game.fromJSON(JSON.parse(JSON.stringify(game)));

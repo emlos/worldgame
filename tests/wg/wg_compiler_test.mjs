@@ -376,11 +376,17 @@ const CHECK_SOURCE = [
   "  @check strength tricky",
   "  @success -> check.success",
   "    @time 1m free",
+  "    @response",
+  "      The lid pops open.",
+  "    @endresponse",
   "    @effect skill strength 0.1",
   "    @effect stat energy -2",
   "  @endsuccess",
   "  @failure -> check.failure",
   "    @time 2m",
+  "    @response",
+  "      The lid refuses to move.",
+  "    @endresponse",
   "    @effect flag jar_stuck true",
   "  @endfailure",
   "@endchoice",
@@ -407,15 +413,41 @@ check(
   checkedChoice.outcomes.success.target === "check.success" &&
     checkedChoice.outcomes.success.durationMinutes === 1 &&
     checkedChoice.outcomes.success.energyFree === true &&
+    checkedChoice.outcomes.success.responses[0].paragraphs.length === 1 &&
     checkedChoice.outcomes.success.effects[0].op === "skill" &&
     checkedChoice.outcomes.success.effects[1].op === "stat" &&
     checkedChoice.outcomes.failure.target === "check.failure" &&
     checkedChoice.outcomes.failure.durationMinutes === 2 &&
+    checkedChoice.outcomes.failure.responses[0].paragraphs.length === 1 &&
     checkedChoice.outcomes.failure.energyFree === false,
 );
 check(
   "skill-check outcome targets link across the bundle",
   Boolean(compileStorySources([{ file: "story/check.wg", source: CHECK_SOURCE }])),
+);
+
+const RESPONSE_SOURCE = `:: response.test
+@heading "Responses"
+@choice talk "Talk" -> @exit
+  @response
+    Taylor smiles.
+  @endresponse
+  @response
+    {{npc.taylor.subject|cap}} waves.
+
+    You wave back.
+  @endresponse
+@endchoice`;
+const responseChoice = parseWGDocument({
+  file: "story/response.wg",
+  source: RESPONSE_SOURCE,
+}).scenes[0].body.find((node) => node.type === "choice");
+check(
+  "direct choices compile repeatable prose response variants",
+  responseChoice.responses.length === 2 &&
+    responseChoice.responses[0].paragraphs.length === 1 &&
+    responseChoice.responses[1].paragraphs.length === 2 &&
+    responseChoice.responses[1].paragraphs[0].parts[0].type === "interpolation",
 );
 
 const sourceA = `:: alpha\n@heading "Alpha"\n@choice leave "Leave" -> @exit\n@endchoice`;
@@ -791,6 +823,9 @@ rejects(
         [
           "  @failure -> check.failure",
           "    @time 2m",
+          "    @response",
+          "      The lid refuses to move.",
+          "    @endresponse",
           "    @effect flag jar_stuck true",
           "  @endfailure",
         ].join("\n"),

@@ -868,7 +868,7 @@ function renderDebugPanel() {
   debugTaylorAction.textContent = taylor.brain?.currentAction?.type || "None";
 }
 
-function render() {
+function render(preludeParagraphs = []) {
   currentScene = buildScene(game);
   choiceButtons = [];
   choiceButtonsById = new Map();
@@ -886,6 +886,13 @@ function render() {
     alertElement.dataset.tone = alert.tone;
     alertElement.textContent = alert.text;
     sceneElement.append(alertElement);
+  }
+
+  for (const paragraphText of preludeParagraphs) {
+    const paragraph = document.createElement("p");
+    paragraph.className = "scene-response";
+    paragraph.textContent = paragraphText;
+    sceneElement.append(paragraph);
   }
 
   for (const paragraphText of currentScene.paragraphs) {
@@ -919,16 +926,18 @@ function render() {
 
 function choose(sceneId, choiceId) {
   try {
-    noticeElement.textContent = performChoice(game, {
+    const result = performChoice(game, {
       sceneId,
       choiceId,
     });
+    noticeElement.textContent = result.paragraphs.length ? "" : result.notice;
     noticeElement.className = "notice";
+    render(result.paragraphs);
   } catch (error) {
     noticeElement.textContent = error.message;
     noticeElement.className = "notice error";
+    render();
   }
-  render();
 }
 
 window.addEventListener("keydown", (event) => {

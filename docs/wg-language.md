@@ -418,6 +418,9 @@ and never execute JavaScript.
   @icon 😈
   @time 5m
   @when npc.taylor.present
+  @response
+    Taylor gives you an unimpressed look.
+  @endresponse
   @require player.energy >= 10 "You are too tired."
   @warning "This may annoy Taylor."
   @preview relationship -0.02 "-Relationship"
@@ -464,6 +467,12 @@ Choice directives are:
 - `@require <expression> "<reason>"`: leaves the choice visible but disabled
   when false. Requirements may repeat; the first failed reason is displayed.
 - `@warning "<text>"`: optional display-only warning.
+- `@response ... @endresponse`: prose shown before the target scene's normal
+  paragraphs on the immediate post-action render. The block may contain one or
+  more prose paragraphs and supports normal `{{interpolation}}`. Repeat the
+  block to author variants; the game deterministically picks one at random when
+  the action succeeds. Responses are presentation-only and are not stored in
+  flags or save data, so a later render does not show them again.
 - `@preview <type> <signed-number> "<label>"`: repeatable display-only effect
   preview. A preview never applies or validates a real effect.
 - `@effect ...`: repeatable authoritative effect, described below.
@@ -512,6 +521,9 @@ difficulty, and two outcome blocks:
 
   @success -> home.jar-opened
     @time 1m
+    @response
+      The lid pops open.
+    @endresponse
     @effect flag jar_opened true
   @endsuccess
 
@@ -525,7 +537,8 @@ difficulty, and two outcome blocks:
 The player sees only the choice label and orange `Strength: Tricky`. The UI
 does not display a probability, roll, selected outcome, branch duration, or
 sanitized preview of branch effects. Checked choices cannot use choice-level
-`@time`, `@effect`, or `@preview`; put time and effects inside each outcome.
+`@time`, `@response`, `@effect`, or `@preview`; put time, responses, and
+effects inside each outcome.
 Both outcomes are required and may target another scene, `@exit`, or
 `@leave-place`.
 

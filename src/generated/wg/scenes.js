@@ -3683,7 +3683,7 @@ export const WG_BUNDLE = {
           ],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 875,
+            "line": 173,
             "column": 1
           }
         },
@@ -3703,7 +3703,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 877,
+            "line": 175,
             "column": 1
           }
         },
@@ -3723,7 +3723,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 881,
+            "line": 179,
             "column": 1
           }
         },
@@ -3743,14 +3743,14 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 885,
+            "line": 183,
             "column": 1
           }
         }
       ],
       "source": {
         "file": "story/places/education-work.wg",
-        "line": 870,
+        "line": 168,
         "column": 1
       }
     },
@@ -4435,8 +4435,8 @@ export const WG_BUNDLE = {
                         }
                       ],
                       "source": {
-                        "file": "story/places/education-work.wg",
-                        "line": 71,
+                        "file": "story/places/school.wg",
+                        "line": 17,
                         "column": 1
                       }
                     },
@@ -4474,6 +4474,31 @@ export const WG_BUNDLE = {
                       },
                       "requirements": [],
                       "warning": null,
+                      "responses": [
+                        {
+                          "paragraphs": [
+                            {
+                              "type": "paragraph",
+                              "parts": [
+                                {
+                                  "type": "text",
+                                  "value": "Taylor giggles. \"Have you heard that Prof. Sokolev has uploaded a mixtape on TwoYube? We should totally watch it together after class!\""
+                                }
+                              ],
+                              "source": {
+                                "file": "story/places/school.wg",
+                                "line": 24,
+                                "column": 1
+                              }
+                            }
+                          ],
+                          "source": {
+                            "file": "story/places/school.wg",
+                            "line": 23,
+                            "column": 1
+                          }
+                        }
+                      ],
                       "previews": [],
                       "effects": [
                         {
@@ -4481,8 +4506,8 @@ export const WG_BUNDLE = {
                           "npcId": "taylor",
                           "amount": 0.003,
                           "source": {
-                            "file": "story/places/education-work.wg",
-                            "line": 77,
+                            "file": "story/places/school.wg",
+                            "line": 26,
                             "column": 1
                           }
                         },
@@ -4491,15 +4516,15 @@ export const WG_BUNDLE = {
                           "flag": "school_before_taylor",
                           "value": true,
                           "source": {
-                            "file": "story/places/education-work.wg",
-                            "line": 78,
+                            "file": "story/places/school.wg",
+                            "line": 27,
                             "column": 1
                           }
                         }
                       ],
                       "source": {
-                        "file": "story/places/education-work.wg",
-                        "line": 73,
+                        "file": "story/places/school.wg",
+                        "line": 19,
                         "column": 1
                       }
                     },
@@ -4521,15 +4546,15 @@ export const WG_BUNDLE = {
                       "previews": [],
                       "effects": [],
                       "source": {
-                        "file": "story/places/education-work.wg",
-                        "line": 81,
+                        "file": "story/places/school.wg",
+                        "line": 30,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 69,
+                    "file": "story/places/school.wg",
+                    "line": 15,
                     "column": 1
                   }
                 },
@@ -4578,8 +4603,8 @@ export const WG_BUNDLE = {
                         }
                       ],
                       "source": {
-                        "file": "story/places/education-work.wg",
-                        "line": 88,
+                        "file": "story/places/school.wg",
+                        "line": 37,
                         "column": 1
                       }
                     },
@@ -4612,15 +4637,15 @@ export const WG_BUNDLE = {
                       "previews": [],
                       "effects": [],
                       "source": {
-                        "file": "story/places/education-work.wg",
-                        "line": 90,
+                        "file": "story/places/school.wg",
+                        "line": 39,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 86,
+                    "file": "story/places/school.wg",
+                    "line": 35,
                     "column": 1
                   }
                 },
@@ -4669,8 +4694,8 @@ export const WG_BUNDLE = {
                         }
                       ],
                       "source": {
-                        "file": "story/places/education-work.wg",
-                        "line": 97,
+                        "file": "story/places/school.wg",
+                        "line": 46,
                         "column": 1
                       }
                     },
@@ -4703,15 +4728,15 @@ export const WG_BUNDLE = {
                       "previews": [],
                       "effects": [],
                       "source": {
-                        "file": "story/places/education-work.wg",
-                        "line": 99,
+                        "file": "story/places/school.wg",
+                        "line": 48,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 95,
+                    "file": "story/places/school.wg",
+                    "line": 44,
                     "column": 1
                   }
                 },
@@ -4760,8 +4785,8 @@ export const WG_BUNDLE = {
                         }
                       ],
                       "source": {
-                        "file": "story/places/education-work.wg",
-                        "line": 106,
+                        "file": "story/places/school.wg",
+                        "line": 55,
                         "column": 1
                       }
                     },
@@ -4794,15 +4819,15 @@ export const WG_BUNDLE = {
                       "previews": [],
                       "effects": [],
                       "source": {
-                        "file": "story/places/education-work.wg",
-                        "line": 108,
+                        "file": "story/places/school.wg",
+                        "line": 57,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 104,
+                    "file": "story/places/school.wg",
+                    "line": 53,
                     "column": 1
                   }
                 },
@@ -4832,8 +4857,8 @@ export const WG_BUNDLE = {
                         }
                       ],
                       "source": {
-                        "file": "story/places/education-work.wg",
-                        "line": 115,
+                        "file": "story/places/school.wg",
+                        "line": 64,
                         "column": 1
                       }
                     },
@@ -4855,8 +4880,8 @@ export const WG_BUNDLE = {
                       "previews": [],
                       "effects": [],
                       "source": {
-                        "file": "story/places/education-work.wg",
-                        "line": 117,
+                        "file": "story/places/school.wg",
+                        "line": 66,
                         "column": 1
                       }
                     },
@@ -4878,15 +4903,15 @@ export const WG_BUNDLE = {
                       "previews": [],
                       "effects": [],
                       "source": {
-                        "file": "story/places/education-work.wg",
-                        "line": 122,
+                        "file": "story/places/school.wg",
+                        "line": 71,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 113,
+                    "file": "story/places/school.wg",
+                    "line": 62,
                     "column": 1
                   }
                 },
@@ -4935,8 +4960,8 @@ export const WG_BUNDLE = {
                         }
                       ],
                       "source": {
-                        "file": "story/places/education-work.wg",
-                        "line": 129,
+                        "file": "story/places/school.wg",
+                        "line": 78,
                         "column": 1
                       }
                     },
@@ -4969,15 +4994,15 @@ export const WG_BUNDLE = {
                       "previews": [],
                       "effects": [],
                       "source": {
-                        "file": "story/places/education-work.wg",
-                        "line": 131,
+                        "file": "story/places/school.wg",
+                        "line": 80,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 127,
+                    "file": "story/places/school.wg",
+                    "line": 76,
                     "column": 1
                   }
                 },
@@ -5026,8 +5051,8 @@ export const WG_BUNDLE = {
                         }
                       ],
                       "source": {
-                        "file": "story/places/education-work.wg",
-                        "line": 138,
+                        "file": "story/places/school.wg",
+                        "line": 87,
                         "column": 1
                       }
                     },
@@ -5060,15 +5085,15 @@ export const WG_BUNDLE = {
                       "previews": [],
                       "effects": [],
                       "source": {
-                        "file": "story/places/education-work.wg",
-                        "line": 140,
+                        "file": "story/places/school.wg",
+                        "line": 89,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 136,
+                    "file": "story/places/school.wg",
+                    "line": 85,
                     "column": 1
                   }
                 },
@@ -5117,8 +5142,8 @@ export const WG_BUNDLE = {
                         }
                       ],
                       "source": {
-                        "file": "story/places/education-work.wg",
-                        "line": 147,
+                        "file": "story/places/school.wg",
+                        "line": 96,
                         "column": 1
                       }
                     },
@@ -5151,15 +5176,15 @@ export const WG_BUNDLE = {
                       "previews": [],
                       "effects": [],
                       "source": {
-                        "file": "story/places/education-work.wg",
-                        "line": 149,
+                        "file": "story/places/school.wg",
+                        "line": 98,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 145,
+                    "file": "story/places/school.wg",
+                    "line": 94,
                     "column": 1
                   }
                 },
@@ -5189,8 +5214,8 @@ export const WG_BUNDLE = {
                         }
                       ],
                       "source": {
-                        "file": "story/places/education-work.wg",
-                        "line": 156,
+                        "file": "story/places/school.wg",
+                        "line": 105,
                         "column": 1
                       }
                     },
@@ -5212,8 +5237,8 @@ export const WG_BUNDLE = {
                       "previews": [],
                       "effects": [],
                       "source": {
-                        "file": "story/places/education-work.wg",
-                        "line": 158,
+                        "file": "story/places/school.wg",
+                        "line": 107,
                         "column": 1
                       }
                     },
@@ -5235,15 +5260,15 @@ export const WG_BUNDLE = {
                       "previews": [],
                       "effects": [],
                       "source": {
-                        "file": "story/places/education-work.wg",
-                        "line": 163,
+                        "file": "story/places/school.wg",
+                        "line": 112,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 154,
+                    "file": "story/places/school.wg",
+                    "line": 103,
                     "column": 1
                   }
                 },
@@ -5285,8 +5310,8 @@ export const WG_BUNDLE = {
                         }
                       ],
                       "source": {
-                        "file": "story/places/education-work.wg",
-                        "line": 170,
+                        "file": "story/places/school.wg",
+                        "line": 119,
                         "column": 1
                       }
                     },
@@ -5308,15 +5333,15 @@ export const WG_BUNDLE = {
                       "previews": [],
                       "effects": [],
                       "source": {
-                        "file": "story/places/education-work.wg",
-                        "line": 172,
+                        "file": "story/places/school.wg",
+                        "line": 121,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 168,
+                    "file": "story/places/school.wg",
+                    "line": 117,
                     "column": 1
                   }
                 },
@@ -5346,8 +5371,8 @@ export const WG_BUNDLE = {
                         }
                       ],
                       "source": {
-                        "file": "story/places/education-work.wg",
-                        "line": 179,
+                        "file": "story/places/school.wg",
+                        "line": 128,
                         "column": 1
                       }
                     },
@@ -5366,8 +5391,8 @@ export const WG_BUNDLE = {
                       "previews": [],
                       "effects": [],
                       "source": {
-                        "file": "story/places/education-work.wg",
-                        "line": 181,
+                        "file": "story/places/school.wg",
+                        "line": 130,
                         "column": 1
                       }
                     },
@@ -5386,15 +5411,15 @@ export const WG_BUNDLE = {
                       "previews": [],
                       "effects": [],
                       "source": {
-                        "file": "story/places/education-work.wg",
-                        "line": 186,
+                        "file": "story/places/school.wg",
+                        "line": 135,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 177,
+                    "file": "story/places/school.wg",
+                    "line": 126,
                     "column": 1
                   }
                 }
@@ -5409,22 +5434,22 @@ export const WG_BUNDLE = {
                     }
                   ],
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 193,
+                    "file": "story/places/school.wg",
+                    "line": 142,
                     "column": 1
                   }
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 69,
+                "file": "story/places/school.wg",
+                "line": 15,
                 "column": 1
               }
             }
           ],
           "source": {
-            "file": "story/places/education-work.wg",
-            "line": 67,
+            "file": "story/places/school.wg",
+            "line": 13,
             "column": 1
           }
         },
@@ -5448,8 +5473,8 @@ export const WG_BUNDLE = {
               "previews": [],
               "effects": [],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 201,
+                "file": "story/places/school.wg",
+                "line": 150,
                 "column": 1
               }
             },
@@ -5468,8 +5493,8 @@ export const WG_BUNDLE = {
               "previews": [],
               "effects": [],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 206,
+                "file": "story/places/school.wg",
+                "line": 155,
                 "column": 1
               }
             },
@@ -5488,8 +5513,8 @@ export const WG_BUNDLE = {
               "previews": [],
               "effects": [],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 211,
+                "file": "story/places/school.wg",
+                "line": 160,
                 "column": 1
               }
             },
@@ -5508,8 +5533,8 @@ export const WG_BUNDLE = {
               "previews": [],
               "effects": [],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 216,
+                "file": "story/places/school.wg",
+                "line": 165,
                 "column": 1
               }
             },
@@ -5528,8 +5553,8 @@ export const WG_BUNDLE = {
               "previews": [],
               "effects": [],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 221,
+                "file": "story/places/school.wg",
+                "line": 170,
                 "column": 1
               }
             },
@@ -5548,8 +5573,8 @@ export const WG_BUNDLE = {
               "previews": [],
               "effects": [],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 226,
+                "file": "story/places/school.wg",
+                "line": 175,
                 "column": 1
               }
             },
@@ -5568,8 +5593,8 @@ export const WG_BUNDLE = {
               "previews": [],
               "effects": [],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 231,
+                "file": "story/places/school.wg",
+                "line": 180,
                 "column": 1
               }
             },
@@ -5588,15 +5613,15 @@ export const WG_BUNDLE = {
               "previews": [],
               "effects": [],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 236,
+                "file": "story/places/school.wg",
+                "line": 185,
                 "column": 1
               }
             }
           ],
           "source": {
-            "file": "story/places/education-work.wg",
-            "line": 199,
+            "file": "story/places/school.wg",
+            "line": 148,
             "column": 1
           }
         },
@@ -5615,15 +5640,15 @@ export const WG_BUNDLE = {
           "previews": [],
           "effects": [],
           "source": {
-            "file": "story/places/education-work.wg",
-            "line": 244,
+            "file": "story/places/school.wg",
+            "line": 193,
             "column": 1
           }
         }
       ],
       "source": {
-        "file": "story/places/education-work.wg",
-        "line": 61,
+        "file": "story/places/school.wg",
+        "line": 7,
         "column": 1
       }
     },
@@ -5683,15 +5708,15 @@ export const WG_BUNDLE = {
                     }
                   ],
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 726,
+                    "file": "story/places/school.wg",
+                    "line": 675,
                     "column": 1
                   }
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 725,
+                "file": "story/places/school.wg",
+                "line": 674,
                 "column": 1
               }
             }
@@ -5706,15 +5731,15 @@ export const WG_BUNDLE = {
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 728,
+                "file": "story/places/school.wg",
+                "line": 677,
                 "column": 1
               }
             }
           ],
           "source": {
-            "file": "story/places/education-work.wg",
-            "line": 725,
+            "file": "story/places/school.wg",
+            "line": 674,
             "column": 1
           }
         },
@@ -5733,15 +5758,15 @@ export const WG_BUNDLE = {
           "previews": [],
           "effects": [],
           "source": {
-            "file": "story/places/education-work.wg",
-            "line": 731,
+            "file": "story/places/school.wg",
+            "line": 680,
             "column": 1
           }
         }
       ],
       "source": {
-        "file": "story/places/education-work.wg",
-        "line": 722,
+        "file": "story/places/school.wg",
+        "line": 671,
         "column": 1
       }
     },
@@ -5801,15 +5826,15 @@ export const WG_BUNDLE = {
                     }
                   ],
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 653,
+                    "file": "story/places/school.wg",
+                    "line": 602,
                     "column": 1
                   }
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 652,
+                "file": "story/places/school.wg",
+                "line": 601,
                 "column": 1
               }
             }
@@ -5824,15 +5849,15 @@ export const WG_BUNDLE = {
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 655,
+                "file": "story/places/school.wg",
+                "line": 604,
                 "column": 1
               }
             }
           ],
           "source": {
-            "file": "story/places/education-work.wg",
-            "line": 652,
+            "file": "story/places/school.wg",
+            "line": 601,
             "column": 1
           }
         },
@@ -5880,8 +5905,8 @@ export const WG_BUNDLE = {
               "amount": 0.003,
               "label": "+Relationship",
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 663,
+                "file": "story/places/school.wg",
+                "line": 612,
                 "column": 1
               }
             }
@@ -5892,15 +5917,15 @@ export const WG_BUNDLE = {
               "npcId": "taylor",
               "amount": 0.003,
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 662,
+                "file": "story/places/school.wg",
+                "line": 611,
                 "column": 1
               }
             }
           ],
           "source": {
-            "file": "story/places/education-work.wg",
-            "line": 658,
+            "file": "story/places/school.wg",
+            "line": 607,
             "column": 1
           }
         },
@@ -5919,15 +5944,15 @@ export const WG_BUNDLE = {
           "previews": [],
           "effects": [],
           "source": {
-            "file": "story/places/education-work.wg",
-            "line": 666,
+            "file": "story/places/school.wg",
+            "line": 615,
             "column": 1
           }
         }
       ],
       "source": {
-        "file": "story/places/education-work.wg",
-        "line": 649,
+        "file": "story/places/school.wg",
+        "line": 598,
         "column": 1
       }
     },
@@ -5987,15 +6012,15 @@ export const WG_BUNDLE = {
                     }
                   ],
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 674,
+                    "file": "story/places/school.wg",
+                    "line": 623,
                     "column": 1
                   }
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 673,
+                "file": "story/places/school.wg",
+                "line": 622,
                 "column": 1
               }
             }
@@ -6010,15 +6035,15 @@ export const WG_BUNDLE = {
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 676,
+                "file": "story/places/school.wg",
+                "line": 625,
                 "column": 1
               }
             }
           ],
           "source": {
-            "file": "story/places/education-work.wg",
-            "line": 673,
+            "file": "story/places/school.wg",
+            "line": 622,
             "column": 1
           }
         },
@@ -6037,15 +6062,15 @@ export const WG_BUNDLE = {
           "previews": [],
           "effects": [],
           "source": {
-            "file": "story/places/education-work.wg",
-            "line": 679,
+            "file": "story/places/school.wg",
+            "line": 628,
             "column": 1
           }
         }
       ],
       "source": {
-        "file": "story/places/education-work.wg",
-        "line": 670,
+        "file": "story/places/school.wg",
+        "line": 619,
         "column": 1
       }
     },
@@ -6105,15 +6130,15 @@ export const WG_BUNDLE = {
                     }
                   ],
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 739,
+                    "file": "story/places/school.wg",
+                    "line": 688,
                     "column": 1
                   }
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 738,
+                "file": "story/places/school.wg",
+                "line": 687,
                 "column": 1
               }
             }
@@ -6128,15 +6153,15 @@ export const WG_BUNDLE = {
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 741,
+                "file": "story/places/school.wg",
+                "line": 690,
                 "column": 1
               }
             }
           ],
           "source": {
-            "file": "story/places/education-work.wg",
-            "line": 738,
+            "file": "story/places/school.wg",
+            "line": 687,
             "column": 1
           }
         },
@@ -6155,15 +6180,15 @@ export const WG_BUNDLE = {
           "previews": [],
           "effects": [],
           "source": {
-            "file": "story/places/education-work.wg",
-            "line": 744,
+            "file": "story/places/school.wg",
+            "line": 693,
             "column": 1
           }
         }
       ],
       "source": {
-        "file": "story/places/education-work.wg",
-        "line": 735,
+        "file": "story/places/school.wg",
+        "line": 684,
         "column": 1
       }
     },
@@ -6223,15 +6248,15 @@ export const WG_BUNDLE = {
                     }
                   ],
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 713,
+                    "file": "story/places/school.wg",
+                    "line": 662,
                     "column": 1
                   }
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 712,
+                "file": "story/places/school.wg",
+                "line": 661,
                 "column": 1
               }
             }
@@ -6246,15 +6271,15 @@ export const WG_BUNDLE = {
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 715,
+                "file": "story/places/school.wg",
+                "line": 664,
                 "column": 1
               }
             }
           ],
           "source": {
-            "file": "story/places/education-work.wg",
-            "line": 712,
+            "file": "story/places/school.wg",
+            "line": 661,
             "column": 1
           }
         },
@@ -6273,15 +6298,15 @@ export const WG_BUNDLE = {
           "previews": [],
           "effects": [],
           "source": {
-            "file": "story/places/education-work.wg",
-            "line": 718,
+            "file": "story/places/school.wg",
+            "line": 667,
             "column": 1
           }
         }
       ],
       "source": {
-        "file": "story/places/education-work.wg",
-        "line": 709,
+        "file": "story/places/school.wg",
+        "line": 658,
         "column": 1
       }
     },
@@ -6341,15 +6366,15 @@ export const WG_BUNDLE = {
                     }
                   ],
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 687,
+                    "file": "story/places/school.wg",
+                    "line": 636,
                     "column": 1
                   }
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 686,
+                "file": "story/places/school.wg",
+                "line": 635,
                 "column": 1
               }
             }
@@ -6364,15 +6389,15 @@ export const WG_BUNDLE = {
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 689,
+                "file": "story/places/school.wg",
+                "line": 638,
                 "column": 1
               }
             }
           ],
           "source": {
-            "file": "story/places/education-work.wg",
-            "line": 686,
+            "file": "story/places/school.wg",
+            "line": 635,
             "column": 1
           }
         },
@@ -6391,15 +6416,15 @@ export const WG_BUNDLE = {
           "previews": [],
           "effects": [],
           "source": {
-            "file": "story/places/education-work.wg",
-            "line": 692,
+            "file": "story/places/school.wg",
+            "line": 641,
             "column": 1
           }
         }
       ],
       "source": {
-        "file": "story/places/education-work.wg",
-        "line": 683,
+        "file": "story/places/school.wg",
+        "line": 632,
         "column": 1
       }
     },
@@ -6459,15 +6484,15 @@ export const WG_BUNDLE = {
                     }
                   ],
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 700,
+                    "file": "story/places/school.wg",
+                    "line": 649,
                     "column": 1
                   }
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 699,
+                "file": "story/places/school.wg",
+                "line": 648,
                 "column": 1
               }
             }
@@ -6482,15 +6507,15 @@ export const WG_BUNDLE = {
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 702,
+                "file": "story/places/school.wg",
+                "line": 651,
                 "column": 1
               }
             }
           ],
           "source": {
-            "file": "story/places/education-work.wg",
-            "line": 699,
+            "file": "story/places/school.wg",
+            "line": 648,
             "column": 1
           }
         },
@@ -6509,15 +6534,15 @@ export const WG_BUNDLE = {
           "previews": [],
           "effects": [],
           "source": {
-            "file": "story/places/education-work.wg",
-            "line": 705,
+            "file": "story/places/school.wg",
+            "line": 654,
             "column": 1
           }
         }
       ],
       "source": {
-        "file": "story/places/education-work.wg",
-        "line": 696,
+        "file": "story/places/school.wg",
+        "line": 645,
         "column": 1
       }
     },
@@ -6538,8 +6563,8 @@ export const WG_BUNDLE = {
             }
           ],
           "source": {
-            "file": "story/places/education-work.wg",
-            "line": 752,
+            "file": "story/places/school.wg",
+            "line": 701,
             "column": 1
           }
         },
@@ -6549,7 +6574,7 @@ export const WG_BUNDLE = {
           "label": "Leave",
           "target": "place.high-school",
           "icon": null,
-          "durationMinutes": 1,
+          "durationMinutes": 5,
           "timeUntilPath": null,
           "energyFree": false,
           "when": null,
@@ -6558,15 +6583,15 @@ export const WG_BUNDLE = {
           "previews": [],
           "effects": [],
           "source": {
-            "file": "story/places/education-work.wg",
-            "line": 755,
+            "file": "story/places/school.wg",
+            "line": 703,
             "column": 1
           }
         }
       ],
       "source": {
-        "file": "story/places/education-work.wg",
-        "line": 748,
+        "file": "story/places/school.wg",
+        "line": 697,
         "column": 1
       }
     },
@@ -7643,7 +7668,7 @@ export const WG_BUNDLE = {
           ],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 927,
+            "line": 225,
             "column": 1
           }
         },
@@ -7663,7 +7688,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 929,
+            "line": 227,
             "column": 1
           }
         },
@@ -7683,7 +7708,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 933,
+            "line": 231,
             "column": 1
           }
         },
@@ -7703,14 +7728,14 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 937,
+            "line": 235,
             "column": 1
           }
         }
       ],
       "source": {
         "file": "story/places/education-work.wg",
-        "line": 922,
+        "line": 220,
         "column": 1
       }
     },
@@ -8267,7 +8292,7 @@ export const WG_BUNDLE = {
           ],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 823,
+            "line": 121,
             "column": 1
           }
         },
@@ -8287,7 +8312,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 825,
+            "line": 123,
             "column": 1
           }
         },
@@ -8307,7 +8332,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 829,
+            "line": 127,
             "column": 1
           }
         },
@@ -8327,14 +8352,14 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 833,
+            "line": 131,
             "column": 1
           }
         }
       ],
       "source": {
         "file": "story/places/education-work.wg",
-        "line": 818,
+        "line": 116,
         "column": 1
       }
     },
@@ -8891,7 +8916,7 @@ export const WG_BUNDLE = {
           ],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 797,
+            "line": 95,
             "column": 1
           }
         },
@@ -8911,7 +8936,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 799,
+            "line": 97,
             "column": 1
           }
         },
@@ -8931,7 +8956,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 803,
+            "line": 101,
             "column": 1
           }
         },
@@ -8951,14 +8976,14 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 807,
+            "line": 105,
             "column": 1
           }
         }
       ],
       "source": {
         "file": "story/places/education-work.wg",
-        "line": 792,
+        "line": 90,
         "column": 1
       }
     },
@@ -9771,7 +9796,7 @@ export const WG_BUNDLE = {
           ],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 849,
+            "line": 147,
             "column": 1
           }
         },
@@ -9791,7 +9816,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 851,
+            "line": 149,
             "column": 1
           }
         },
@@ -9811,7 +9836,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 855,
+            "line": 153,
             "column": 1
           }
         },
@@ -9831,14 +9856,14 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 859,
+            "line": 157,
             "column": 1
           }
         }
       ],
       "source": {
         "file": "story/places/education-work.wg",
-        "line": 844,
+        "line": 142,
         "column": 1
       }
     },
@@ -11331,7 +11356,7 @@ export const WG_BUNDLE = {
           ],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 771,
+            "line": 69,
             "column": 1
           }
         },
@@ -11351,7 +11376,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 773,
+            "line": 71,
             "column": 1
           }
         },
@@ -11371,7 +11396,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 777,
+            "line": 75,
             "column": 1
           }
         },
@@ -11391,14 +11416,14 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 781,
+            "line": 79,
             "column": 1
           }
         }
       ],
       "source": {
         "file": "story/places/education-work.wg",
-        "line": 766,
+        "line": 64,
         "column": 1
       }
     },
@@ -11539,7 +11564,7 @@ export const WG_BUNDLE = {
           ],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 901,
+            "line": 199,
             "column": 1
           }
         },
@@ -11559,7 +11584,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 903,
+            "line": 201,
             "column": 1
           }
         },
@@ -11579,7 +11604,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 907,
+            "line": 205,
             "column": 1
           }
         },
@@ -11599,14 +11624,14 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/education-work.wg",
-            "line": 911,
+            "line": 209,
             "column": 1
           }
         }
       ],
       "source": {
         "file": "story/places/education-work.wg",
-        "line": 896,
+        "line": 194,
         "column": 1
       }
     },
@@ -12409,8 +12434,8 @@ export const WG_BUNDLE = {
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 520,
+                "file": "story/places/school.wg",
+                "line": 469,
                 "column": 1
               }
             },
@@ -12443,8 +12468,8 @@ export const WG_BUNDLE = {
                   "id": "art",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 526,
+                    "file": "story/places/school.wg",
+                    "line": 475,
                     "column": 1
                   }
                 },
@@ -12453,15 +12478,15 @@ export const WG_BUNDLE = {
                   "npcId": "taylor",
                   "amount": 0.003,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 527,
+                    "file": "story/places/school.wg",
+                    "line": 476,
                     "column": 1
                   }
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 522,
+                "file": "story/places/school.wg",
+                "line": 471,
                 "column": 1
               }
             },
@@ -12486,8 +12511,8 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "label": "+Art grade",
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 533,
+                    "file": "story/places/school.wg",
+                    "line": 482,
                     "column": 1
                   }
                 }
@@ -12498,8 +12523,8 @@ export const WG_BUNDLE = {
                   "id": "art",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 534,
+                    "file": "story/places/school.wg",
+                    "line": 483,
                     "column": 1
                   }
                 },
@@ -12508,23 +12533,23 @@ export const WG_BUNDLE = {
                   "id": "art",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 535,
+                    "file": "story/places/school.wg",
+                    "line": 484,
                     "column": 1
                   }
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 530,
+                "file": "story/places/school.wg",
+                "line": 479,
                 "column": 1
               }
             }
           ],
           "next": null,
           "source": {
-            "file": "story/places/education-work.wg",
-            "line": 518,
+            "file": "story/places/school.wg",
+            "line": 467,
             "column": 1
           }
         },
@@ -12540,8 +12565,8 @@ export const WG_BUNDLE = {
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 540,
+                "file": "story/places/school.wg",
+                "line": 489,
                 "column": 1
               }
             },
@@ -12574,8 +12599,8 @@ export const WG_BUNDLE = {
                   "id": "art",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 546,
+                    "file": "story/places/school.wg",
+                    "line": 495,
                     "column": 1
                   }
                 },
@@ -12584,15 +12609,15 @@ export const WG_BUNDLE = {
                   "npcId": "taylor",
                   "amount": 0.003,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 547,
+                    "file": "story/places/school.wg",
+                    "line": 496,
                     "column": 1
                   }
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 542,
+                "file": "story/places/school.wg",
+                "line": 491,
                 "column": 1
               }
             },
@@ -12617,8 +12642,8 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "label": "+Art grade",
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 553,
+                    "file": "story/places/school.wg",
+                    "line": 502,
                     "column": 1
                   }
                 }
@@ -12629,8 +12654,8 @@ export const WG_BUNDLE = {
                   "id": "art",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 554,
+                    "file": "story/places/school.wg",
+                    "line": 503,
                     "column": 1
                   }
                 },
@@ -12639,23 +12664,23 @@ export const WG_BUNDLE = {
                   "id": "art",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 555,
+                    "file": "story/places/school.wg",
+                    "line": 504,
                     "column": 1
                   }
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 550,
+                "file": "story/places/school.wg",
+                "line": 499,
                 "column": 1
               }
             }
           ],
           "next": null,
           "source": {
-            "file": "story/places/education-work.wg",
-            "line": 538,
+            "file": "story/places/school.wg",
+            "line": 487,
             "column": 1
           }
         },
@@ -12671,8 +12696,8 @@ export const WG_BUNDLE = {
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 560,
+                "file": "story/places/school.wg",
+                "line": 509,
                 "column": 1
               }
             },
@@ -12705,8 +12730,8 @@ export const WG_BUNDLE = {
                   "id": "art",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 566,
+                    "file": "story/places/school.wg",
+                    "line": 515,
                     "column": 1
                   }
                 },
@@ -12715,15 +12740,15 @@ export const WG_BUNDLE = {
                   "npcId": "taylor",
                   "amount": 0.003,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 567,
+                    "file": "story/places/school.wg",
+                    "line": 516,
                     "column": 1
                   }
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 562,
+                "file": "story/places/school.wg",
+                "line": 511,
                 "column": 1
               }
             },
@@ -12748,8 +12773,8 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "label": "+Art grade",
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 573,
+                    "file": "story/places/school.wg",
+                    "line": 522,
                     "column": 1
                   }
                 }
@@ -12760,8 +12785,8 @@ export const WG_BUNDLE = {
                   "id": "art",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 574,
+                    "file": "story/places/school.wg",
+                    "line": 523,
                     "column": 1
                   }
                 },
@@ -12770,30 +12795,30 @@ export const WG_BUNDLE = {
                   "id": "art",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 575,
+                    "file": "story/places/school.wg",
+                    "line": 524,
                     "column": 1
                   }
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 570,
+                "file": "story/places/school.wg",
+                "line": 519,
                 "column": 1
               }
             }
           ],
           "next": null,
           "source": {
-            "file": "story/places/education-work.wg",
-            "line": 558,
+            "file": "story/places/school.wg",
+            "line": 507,
             "column": 1
           }
         }
       ],
       "source": {
-        "file": "story/places/education-work.wg",
-        "line": 514,
+        "file": "story/places/school.wg",
+        "line": 463,
         "column": 1
       }
     },
@@ -12817,8 +12842,8 @@ export const WG_BUNDLE = {
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 256,
+                "file": "story/places/school.wg",
+                "line": 205,
                 "column": 1
               }
             },
@@ -12851,8 +12876,8 @@ export const WG_BUNDLE = {
                   "id": "english",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 262,
+                    "file": "story/places/school.wg",
+                    "line": 211,
                     "column": 1
                   }
                 },
@@ -12861,15 +12886,15 @@ export const WG_BUNDLE = {
                   "npcId": "taylor",
                   "amount": 0.003,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 263,
+                    "file": "story/places/school.wg",
+                    "line": 212,
                     "column": 1
                   }
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 258,
+                "file": "story/places/school.wg",
+                "line": 207,
                 "column": 1
               }
             },
@@ -12894,8 +12919,8 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "label": "+English grade",
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 269,
+                    "file": "story/places/school.wg",
+                    "line": 218,
                     "column": 1
                   }
                 }
@@ -12906,8 +12931,8 @@ export const WG_BUNDLE = {
                   "id": "english",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 270,
+                    "file": "story/places/school.wg",
+                    "line": 219,
                     "column": 1
                   }
                 },
@@ -12916,23 +12941,23 @@ export const WG_BUNDLE = {
                   "id": "english",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 271,
+                    "file": "story/places/school.wg",
+                    "line": 220,
                     "column": 1
                   }
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 266,
+                "file": "story/places/school.wg",
+                "line": 215,
                 "column": 1
               }
             }
           ],
           "next": null,
           "source": {
-            "file": "story/places/education-work.wg",
-            "line": 254,
+            "file": "story/places/school.wg",
+            "line": 203,
             "column": 1
           }
         },
@@ -12948,8 +12973,8 @@ export const WG_BUNDLE = {
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 276,
+                "file": "story/places/school.wg",
+                "line": 225,
                 "column": 1
               }
             },
@@ -12982,8 +13007,8 @@ export const WG_BUNDLE = {
                   "id": "english",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 282,
+                    "file": "story/places/school.wg",
+                    "line": 231,
                     "column": 1
                   }
                 },
@@ -12992,15 +13017,15 @@ export const WG_BUNDLE = {
                   "npcId": "taylor",
                   "amount": 0.003,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 283,
+                    "file": "story/places/school.wg",
+                    "line": 232,
                     "column": 1
                   }
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 278,
+                "file": "story/places/school.wg",
+                "line": 227,
                 "column": 1
               }
             },
@@ -13025,8 +13050,8 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "label": "+English grade",
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 289,
+                    "file": "story/places/school.wg",
+                    "line": 238,
                     "column": 1
                   }
                 }
@@ -13037,8 +13062,8 @@ export const WG_BUNDLE = {
                   "id": "english",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 290,
+                    "file": "story/places/school.wg",
+                    "line": 239,
                     "column": 1
                   }
                 },
@@ -13047,23 +13072,23 @@ export const WG_BUNDLE = {
                   "id": "english",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 291,
+                    "file": "story/places/school.wg",
+                    "line": 240,
                     "column": 1
                   }
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 286,
+                "file": "story/places/school.wg",
+                "line": 235,
                 "column": 1
               }
             }
           ],
           "next": null,
           "source": {
-            "file": "story/places/education-work.wg",
-            "line": 274,
+            "file": "story/places/school.wg",
+            "line": 223,
             "column": 1
           }
         },
@@ -13079,8 +13104,8 @@ export const WG_BUNDLE = {
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 296,
+                "file": "story/places/school.wg",
+                "line": 245,
                 "column": 1
               }
             },
@@ -13113,8 +13138,8 @@ export const WG_BUNDLE = {
                   "id": "english",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 302,
+                    "file": "story/places/school.wg",
+                    "line": 251,
                     "column": 1
                   }
                 },
@@ -13123,15 +13148,15 @@ export const WG_BUNDLE = {
                   "npcId": "taylor",
                   "amount": 0.003,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 303,
+                    "file": "story/places/school.wg",
+                    "line": 252,
                     "column": 1
                   }
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 298,
+                "file": "story/places/school.wg",
+                "line": 247,
                 "column": 1
               }
             },
@@ -13156,8 +13181,8 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "label": "+English grade",
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 309,
+                    "file": "story/places/school.wg",
+                    "line": 258,
                     "column": 1
                   }
                 }
@@ -13168,8 +13193,8 @@ export const WG_BUNDLE = {
                   "id": "english",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 310,
+                    "file": "story/places/school.wg",
+                    "line": 259,
                     "column": 1
                   }
                 },
@@ -13178,30 +13203,30 @@ export const WG_BUNDLE = {
                   "id": "english",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 311,
+                    "file": "story/places/school.wg",
+                    "line": 260,
                     "column": 1
                   }
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 306,
+                "file": "story/places/school.wg",
+                "line": 255,
                 "column": 1
               }
             }
           ],
           "next": null,
           "source": {
-            "file": "story/places/education-work.wg",
-            "line": 294,
+            "file": "story/places/school.wg",
+            "line": 243,
             "column": 1
           }
         }
       ],
       "source": {
-        "file": "story/places/education-work.wg",
-        "line": 250,
+        "file": "story/places/school.wg",
+        "line": 199,
         "column": 1
       }
     },
@@ -13225,8 +13250,8 @@ export const WG_BUNDLE = {
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 388,
+                "file": "story/places/school.wg",
+                "line": 337,
                 "column": 1
               }
             },
@@ -13259,8 +13284,8 @@ export const WG_BUNDLE = {
                   "id": "history",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 394,
+                    "file": "story/places/school.wg",
+                    "line": 343,
                     "column": 1
                   }
                 },
@@ -13269,15 +13294,15 @@ export const WG_BUNDLE = {
                   "npcId": "taylor",
                   "amount": 0.003,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 395,
+                    "file": "story/places/school.wg",
+                    "line": 344,
                     "column": 1
                   }
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 390,
+                "file": "story/places/school.wg",
+                "line": 339,
                 "column": 1
               }
             },
@@ -13302,8 +13327,8 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "label": "+History grade",
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 401,
+                    "file": "story/places/school.wg",
+                    "line": 350,
                     "column": 1
                   }
                 }
@@ -13314,8 +13339,8 @@ export const WG_BUNDLE = {
                   "id": "history",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 402,
+                    "file": "story/places/school.wg",
+                    "line": 351,
                     "column": 1
                   }
                 },
@@ -13324,23 +13349,23 @@ export const WG_BUNDLE = {
                   "id": "history",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 403,
+                    "file": "story/places/school.wg",
+                    "line": 352,
                     "column": 1
                   }
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 398,
+                "file": "story/places/school.wg",
+                "line": 347,
                 "column": 1
               }
             }
           ],
           "next": null,
           "source": {
-            "file": "story/places/education-work.wg",
-            "line": 386,
+            "file": "story/places/school.wg",
+            "line": 335,
             "column": 1
           }
         },
@@ -13356,8 +13381,8 @@ export const WG_BUNDLE = {
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 408,
+                "file": "story/places/school.wg",
+                "line": 357,
                 "column": 1
               }
             },
@@ -13390,8 +13415,8 @@ export const WG_BUNDLE = {
                   "id": "history",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 414,
+                    "file": "story/places/school.wg",
+                    "line": 363,
                     "column": 1
                   }
                 },
@@ -13400,15 +13425,15 @@ export const WG_BUNDLE = {
                   "npcId": "taylor",
                   "amount": 0.003,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 415,
+                    "file": "story/places/school.wg",
+                    "line": 364,
                     "column": 1
                   }
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 410,
+                "file": "story/places/school.wg",
+                "line": 359,
                 "column": 1
               }
             },
@@ -13433,8 +13458,8 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "label": "+History grade",
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 421,
+                    "file": "story/places/school.wg",
+                    "line": 370,
                     "column": 1
                   }
                 }
@@ -13445,8 +13470,8 @@ export const WG_BUNDLE = {
                   "id": "history",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 422,
+                    "file": "story/places/school.wg",
+                    "line": 371,
                     "column": 1
                   }
                 },
@@ -13455,23 +13480,23 @@ export const WG_BUNDLE = {
                   "id": "history",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 423,
+                    "file": "story/places/school.wg",
+                    "line": 372,
                     "column": 1
                   }
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 418,
+                "file": "story/places/school.wg",
+                "line": 367,
                 "column": 1
               }
             }
           ],
           "next": null,
           "source": {
-            "file": "story/places/education-work.wg",
-            "line": 406,
+            "file": "story/places/school.wg",
+            "line": 355,
             "column": 1
           }
         },
@@ -13487,8 +13512,8 @@ export const WG_BUNDLE = {
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 428,
+                "file": "story/places/school.wg",
+                "line": 377,
                 "column": 1
               }
             },
@@ -13521,8 +13546,8 @@ export const WG_BUNDLE = {
                   "id": "history",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 434,
+                    "file": "story/places/school.wg",
+                    "line": 383,
                     "column": 1
                   }
                 },
@@ -13531,15 +13556,15 @@ export const WG_BUNDLE = {
                   "npcId": "taylor",
                   "amount": 0.003,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 435,
+                    "file": "story/places/school.wg",
+                    "line": 384,
                     "column": 1
                   }
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 430,
+                "file": "story/places/school.wg",
+                "line": 379,
                 "column": 1
               }
             },
@@ -13564,8 +13589,8 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "label": "+History grade",
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 441,
+                    "file": "story/places/school.wg",
+                    "line": 390,
                     "column": 1
                   }
                 }
@@ -13576,8 +13601,8 @@ export const WG_BUNDLE = {
                   "id": "history",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 442,
+                    "file": "story/places/school.wg",
+                    "line": 391,
                     "column": 1
                   }
                 },
@@ -13586,30 +13611,30 @@ export const WG_BUNDLE = {
                   "id": "history",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 443,
+                    "file": "story/places/school.wg",
+                    "line": 392,
                     "column": 1
                   }
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 438,
+                "file": "story/places/school.wg",
+                "line": 387,
                 "column": 1
               }
             }
           ],
           "next": null,
           "source": {
-            "file": "story/places/education-work.wg",
-            "line": 426,
+            "file": "story/places/school.wg",
+            "line": 375,
             "column": 1
           }
         }
       ],
       "source": {
-        "file": "story/places/education-work.wg",
-        "line": 382,
+        "file": "story/places/school.wg",
+        "line": 331,
         "column": 1
       }
     },
@@ -13633,8 +13658,8 @@ export const WG_BUNDLE = {
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 322,
+                "file": "story/places/school.wg",
+                "line": 271,
                 "column": 1
               }
             },
@@ -13667,8 +13692,8 @@ export const WG_BUNDLE = {
                   "id": "math",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 328,
+                    "file": "story/places/school.wg",
+                    "line": 277,
                     "column": 1
                   }
                 },
@@ -13677,15 +13702,15 @@ export const WG_BUNDLE = {
                   "npcId": "taylor",
                   "amount": 0.003,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 329,
+                    "file": "story/places/school.wg",
+                    "line": 278,
                     "column": 1
                   }
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 324,
+                "file": "story/places/school.wg",
+                "line": 273,
                 "column": 1
               }
             },
@@ -13710,8 +13735,8 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "label": "+Mathematics grade",
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 335,
+                    "file": "story/places/school.wg",
+                    "line": 284,
                     "column": 1
                   }
                 }
@@ -13722,8 +13747,8 @@ export const WG_BUNDLE = {
                   "id": "math",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 336,
+                    "file": "story/places/school.wg",
+                    "line": 285,
                     "column": 1
                   }
                 },
@@ -13732,23 +13757,23 @@ export const WG_BUNDLE = {
                   "id": "math",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 337,
+                    "file": "story/places/school.wg",
+                    "line": 286,
                     "column": 1
                   }
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 332,
+                "file": "story/places/school.wg",
+                "line": 281,
                 "column": 1
               }
             }
           ],
           "next": null,
           "source": {
-            "file": "story/places/education-work.wg",
-            "line": 320,
+            "file": "story/places/school.wg",
+            "line": 269,
             "column": 1
           }
         },
@@ -13764,8 +13789,8 @@ export const WG_BUNDLE = {
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 342,
+                "file": "story/places/school.wg",
+                "line": 291,
                 "column": 1
               }
             },
@@ -13798,8 +13823,8 @@ export const WG_BUNDLE = {
                   "id": "math",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 348,
+                    "file": "story/places/school.wg",
+                    "line": 297,
                     "column": 1
                   }
                 },
@@ -13808,15 +13833,15 @@ export const WG_BUNDLE = {
                   "npcId": "taylor",
                   "amount": 0.003,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 349,
+                    "file": "story/places/school.wg",
+                    "line": 298,
                     "column": 1
                   }
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 344,
+                "file": "story/places/school.wg",
+                "line": 293,
                 "column": 1
               }
             },
@@ -13841,8 +13866,8 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "label": "+Mathematics grade",
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 355,
+                    "file": "story/places/school.wg",
+                    "line": 304,
                     "column": 1
                   }
                 }
@@ -13853,8 +13878,8 @@ export const WG_BUNDLE = {
                   "id": "math",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 356,
+                    "file": "story/places/school.wg",
+                    "line": 305,
                     "column": 1
                   }
                 },
@@ -13863,23 +13888,23 @@ export const WG_BUNDLE = {
                   "id": "math",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 357,
+                    "file": "story/places/school.wg",
+                    "line": 306,
                     "column": 1
                   }
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 352,
+                "file": "story/places/school.wg",
+                "line": 301,
                 "column": 1
               }
             }
           ],
           "next": null,
           "source": {
-            "file": "story/places/education-work.wg",
-            "line": 340,
+            "file": "story/places/school.wg",
+            "line": 289,
             "column": 1
           }
         },
@@ -13895,8 +13920,8 @@ export const WG_BUNDLE = {
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 362,
+                "file": "story/places/school.wg",
+                "line": 311,
                 "column": 1
               }
             },
@@ -13929,8 +13954,8 @@ export const WG_BUNDLE = {
                   "id": "math",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 368,
+                    "file": "story/places/school.wg",
+                    "line": 317,
                     "column": 1
                   }
                 },
@@ -13939,15 +13964,15 @@ export const WG_BUNDLE = {
                   "npcId": "taylor",
                   "amount": 0.003,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 369,
+                    "file": "story/places/school.wg",
+                    "line": 318,
                     "column": 1
                   }
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 364,
+                "file": "story/places/school.wg",
+                "line": 313,
                 "column": 1
               }
             },
@@ -13972,8 +13997,8 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "label": "+Mathematics grade",
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 375,
+                    "file": "story/places/school.wg",
+                    "line": 324,
                     "column": 1
                   }
                 }
@@ -13984,8 +14009,8 @@ export const WG_BUNDLE = {
                   "id": "math",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 376,
+                    "file": "story/places/school.wg",
+                    "line": 325,
                     "column": 1
                   }
                 },
@@ -13994,30 +14019,30 @@ export const WG_BUNDLE = {
                   "id": "math",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 377,
+                    "file": "story/places/school.wg",
+                    "line": 326,
                     "column": 1
                   }
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 372,
+                "file": "story/places/school.wg",
+                "line": 321,
                 "column": 1
               }
             }
           ],
           "next": null,
           "source": {
-            "file": "story/places/education-work.wg",
-            "line": 360,
+            "file": "story/places/school.wg",
+            "line": 309,
             "column": 1
           }
         }
       ],
       "source": {
-        "file": "story/places/education-work.wg",
-        "line": 316,
+        "file": "story/places/school.wg",
+        "line": 265,
         "column": 1
       }
     },
@@ -14041,8 +14066,8 @@ export const WG_BUNDLE = {
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 586,
+                "file": "story/places/school.wg",
+                "line": 535,
                 "column": 1
               }
             },
@@ -14075,8 +14100,8 @@ export const WG_BUNDLE = {
                   "id": "physical_education",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 592,
+                    "file": "story/places/school.wg",
+                    "line": 541,
                     "column": 1
                   }
                 },
@@ -14085,15 +14110,15 @@ export const WG_BUNDLE = {
                   "npcId": "taylor",
                   "amount": 0.003,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 593,
+                    "file": "story/places/school.wg",
+                    "line": 542,
                     "column": 1
                   }
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 588,
+                "file": "story/places/school.wg",
+                "line": 537,
                 "column": 1
               }
             },
@@ -14118,8 +14143,8 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "label": "+Physical Education grade",
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 599,
+                    "file": "story/places/school.wg",
+                    "line": 548,
                     "column": 1
                   }
                 }
@@ -14130,8 +14155,8 @@ export const WG_BUNDLE = {
                   "id": "physical_education",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 600,
+                    "file": "story/places/school.wg",
+                    "line": 549,
                     "column": 1
                   }
                 },
@@ -14140,8 +14165,8 @@ export const WG_BUNDLE = {
                   "id": "physical_education",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 601,
+                    "file": "story/places/school.wg",
+                    "line": 550,
                     "column": 1
                   }
                 },
@@ -14150,23 +14175,23 @@ export const WG_BUNDLE = {
                   "id": "strength",
                   "amount": 0.02,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 602,
+                    "file": "story/places/school.wg",
+                    "line": 551,
                     "column": 1
                   }
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 596,
+                "file": "story/places/school.wg",
+                "line": 545,
                 "column": 1
               }
             }
           ],
           "next": null,
           "source": {
-            "file": "story/places/education-work.wg",
-            "line": 584,
+            "file": "story/places/school.wg",
+            "line": 533,
             "column": 1
           }
         },
@@ -14182,8 +14207,8 @@ export const WG_BUNDLE = {
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 607,
+                "file": "story/places/school.wg",
+                "line": 556,
                 "column": 1
               }
             },
@@ -14216,8 +14241,8 @@ export const WG_BUNDLE = {
                   "id": "physical_education",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 613,
+                    "file": "story/places/school.wg",
+                    "line": 562,
                     "column": 1
                   }
                 },
@@ -14226,15 +14251,15 @@ export const WG_BUNDLE = {
                   "npcId": "taylor",
                   "amount": 0.003,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 614,
+                    "file": "story/places/school.wg",
+                    "line": 563,
                     "column": 1
                   }
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 609,
+                "file": "story/places/school.wg",
+                "line": 558,
                 "column": 1
               }
             },
@@ -14259,8 +14284,8 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "label": "+Physical Education grade",
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 620,
+                    "file": "story/places/school.wg",
+                    "line": 569,
                     "column": 1
                   }
                 }
@@ -14271,8 +14296,8 @@ export const WG_BUNDLE = {
                   "id": "physical_education",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 621,
+                    "file": "story/places/school.wg",
+                    "line": 570,
                     "column": 1
                   }
                 },
@@ -14281,8 +14306,8 @@ export const WG_BUNDLE = {
                   "id": "physical_education",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 622,
+                    "file": "story/places/school.wg",
+                    "line": 571,
                     "column": 1
                   }
                 },
@@ -14291,23 +14316,23 @@ export const WG_BUNDLE = {
                   "id": "strength",
                   "amount": 0.02,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 623,
+                    "file": "story/places/school.wg",
+                    "line": 572,
                     "column": 1
                   }
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 617,
+                "file": "story/places/school.wg",
+                "line": 566,
                 "column": 1
               }
             }
           ],
           "next": null,
           "source": {
-            "file": "story/places/education-work.wg",
-            "line": 605,
+            "file": "story/places/school.wg",
+            "line": 554,
             "column": 1
           }
         },
@@ -14323,8 +14348,8 @@ export const WG_BUNDLE = {
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 628,
+                "file": "story/places/school.wg",
+                "line": 577,
                 "column": 1
               }
             },
@@ -14357,8 +14382,8 @@ export const WG_BUNDLE = {
                   "id": "physical_education",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 634,
+                    "file": "story/places/school.wg",
+                    "line": 583,
                     "column": 1
                   }
                 },
@@ -14367,15 +14392,15 @@ export const WG_BUNDLE = {
                   "npcId": "taylor",
                   "amount": 0.003,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 635,
+                    "file": "story/places/school.wg",
+                    "line": 584,
                     "column": 1
                   }
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 630,
+                "file": "story/places/school.wg",
+                "line": 579,
                 "column": 1
               }
             },
@@ -14400,8 +14425,8 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "label": "+Physical Education grade",
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 641,
+                    "file": "story/places/school.wg",
+                    "line": 590,
                     "column": 1
                   }
                 }
@@ -14412,8 +14437,8 @@ export const WG_BUNDLE = {
                   "id": "physical_education",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 642,
+                    "file": "story/places/school.wg",
+                    "line": 591,
                     "column": 1
                   }
                 },
@@ -14422,8 +14447,8 @@ export const WG_BUNDLE = {
                   "id": "physical_education",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 643,
+                    "file": "story/places/school.wg",
+                    "line": 592,
                     "column": 1
                   }
                 },
@@ -14432,30 +14457,30 @@ export const WG_BUNDLE = {
                   "id": "strength",
                   "amount": 0.02,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 644,
+                    "file": "story/places/school.wg",
+                    "line": 593,
                     "column": 1
                   }
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 638,
+                "file": "story/places/school.wg",
+                "line": 587,
                 "column": 1
               }
             }
           ],
           "next": null,
           "source": {
-            "file": "story/places/education-work.wg",
-            "line": 626,
+            "file": "story/places/school.wg",
+            "line": 575,
             "column": 1
           }
         }
       ],
       "source": {
-        "file": "story/places/education-work.wg",
-        "line": 580,
+        "file": "story/places/school.wg",
+        "line": 529,
         "column": 1
       }
     },
@@ -14479,8 +14504,8 @@ export const WG_BUNDLE = {
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 454,
+                "file": "story/places/school.wg",
+                "line": 403,
                 "column": 1
               }
             },
@@ -14513,8 +14538,8 @@ export const WG_BUNDLE = {
                   "id": "science",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 460,
+                    "file": "story/places/school.wg",
+                    "line": 409,
                     "column": 1
                   }
                 },
@@ -14523,15 +14548,15 @@ export const WG_BUNDLE = {
                   "npcId": "taylor",
                   "amount": 0.003,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 461,
+                    "file": "story/places/school.wg",
+                    "line": 410,
                     "column": 1
                   }
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 456,
+                "file": "story/places/school.wg",
+                "line": 405,
                 "column": 1
               }
             },
@@ -14556,8 +14581,8 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "label": "+Science grade",
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 467,
+                    "file": "story/places/school.wg",
+                    "line": 416,
                     "column": 1
                   }
                 }
@@ -14568,8 +14593,8 @@ export const WG_BUNDLE = {
                   "id": "science",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 468,
+                    "file": "story/places/school.wg",
+                    "line": 417,
                     "column": 1
                   }
                 },
@@ -14578,23 +14603,23 @@ export const WG_BUNDLE = {
                   "id": "science",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 469,
+                    "file": "story/places/school.wg",
+                    "line": 418,
                     "column": 1
                   }
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 464,
+                "file": "story/places/school.wg",
+                "line": 413,
                 "column": 1
               }
             }
           ],
           "next": null,
           "source": {
-            "file": "story/places/education-work.wg",
-            "line": 452,
+            "file": "story/places/school.wg",
+            "line": 401,
             "column": 1
           }
         },
@@ -14610,8 +14635,8 @@ export const WG_BUNDLE = {
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 474,
+                "file": "story/places/school.wg",
+                "line": 423,
                 "column": 1
               }
             },
@@ -14644,8 +14669,8 @@ export const WG_BUNDLE = {
                   "id": "science",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 480,
+                    "file": "story/places/school.wg",
+                    "line": 429,
                     "column": 1
                   }
                 },
@@ -14654,15 +14679,15 @@ export const WG_BUNDLE = {
                   "npcId": "taylor",
                   "amount": 0.003,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 481,
+                    "file": "story/places/school.wg",
+                    "line": 430,
                     "column": 1
                   }
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 476,
+                "file": "story/places/school.wg",
+                "line": 425,
                 "column": 1
               }
             },
@@ -14687,8 +14712,8 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "label": "+Science grade",
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 487,
+                    "file": "story/places/school.wg",
+                    "line": 436,
                     "column": 1
                   }
                 }
@@ -14699,8 +14724,8 @@ export const WG_BUNDLE = {
                   "id": "science",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 488,
+                    "file": "story/places/school.wg",
+                    "line": 437,
                     "column": 1
                   }
                 },
@@ -14709,23 +14734,23 @@ export const WG_BUNDLE = {
                   "id": "science",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 489,
+                    "file": "story/places/school.wg",
+                    "line": 438,
                     "column": 1
                   }
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 484,
+                "file": "story/places/school.wg",
+                "line": 433,
                 "column": 1
               }
             }
           ],
           "next": null,
           "source": {
-            "file": "story/places/education-work.wg",
-            "line": 472,
+            "file": "story/places/school.wg",
+            "line": 421,
             "column": 1
           }
         },
@@ -14741,8 +14766,8 @@ export const WG_BUNDLE = {
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 494,
+                "file": "story/places/school.wg",
+                "line": 443,
                 "column": 1
               }
             },
@@ -14775,8 +14800,8 @@ export const WG_BUNDLE = {
                   "id": "science",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 500,
+                    "file": "story/places/school.wg",
+                    "line": 449,
                     "column": 1
                   }
                 },
@@ -14785,15 +14810,15 @@ export const WG_BUNDLE = {
                   "npcId": "taylor",
                   "amount": 0.003,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 501,
+                    "file": "story/places/school.wg",
+                    "line": 450,
                     "column": 1
                   }
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 496,
+                "file": "story/places/school.wg",
+                "line": 445,
                 "column": 1
               }
             },
@@ -14818,8 +14843,8 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "label": "+Science grade",
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 507,
+                    "file": "story/places/school.wg",
+                    "line": 456,
                     "column": 1
                   }
                 }
@@ -14830,8 +14855,8 @@ export const WG_BUNDLE = {
                   "id": "science",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 508,
+                    "file": "story/places/school.wg",
+                    "line": 457,
                     "column": 1
                   }
                 },
@@ -14840,30 +14865,30 @@ export const WG_BUNDLE = {
                   "id": "science",
                   "amount": 1,
                   "source": {
-                    "file": "story/places/education-work.wg",
-                    "line": 509,
+                    "file": "story/places/school.wg",
+                    "line": 458,
                     "column": 1
                   }
                 }
               ],
               "source": {
-                "file": "story/places/education-work.wg",
-                "line": 504,
+                "file": "story/places/school.wg",
+                "line": 453,
                 "column": 1
               }
             }
           ],
           "next": null,
           "source": {
-            "file": "story/places/education-work.wg",
-            "line": 492,
+            "file": "story/places/school.wg",
+            "line": 441,
             "column": 1
           }
         }
       ],
       "source": {
-        "file": "story/places/education-work.wg",
-        "line": 448,
+        "file": "story/places/school.wg",
+        "line": 397,
         "column": 1
       }
     }
@@ -15913,7 +15938,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/places/education-work.wg",
-        "line": 864,
+        "line": 162,
         "column": 1
       }
     },
@@ -16094,8 +16119,8 @@ export const WG_BUNDLE = {
       "chance": 1,
       "weight": 1,
       "source": {
-        "file": "story/places/education-work.wg",
-        "line": 55,
+        "file": "story/places/school.wg",
+        "line": 1,
         "column": 1
       }
     },
@@ -16381,7 +16406,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/places/education-work.wg",
-        "line": 916,
+        "line": 214,
         "column": 1
       }
     },
@@ -16537,7 +16562,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/places/education-work.wg",
-        "line": 812,
+        "line": 110,
         "column": 1
       }
     },
@@ -16693,7 +16718,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/places/education-work.wg",
-        "line": 786,
+        "line": 84,
         "column": 1
       }
     },
@@ -16875,7 +16900,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/places/education-work.wg",
-        "line": 838,
+        "line": 136,
         "column": 1
       }
     },
@@ -17265,7 +17290,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/places/education-work.wg",
-        "line": 760,
+        "line": 58,
         "column": 1
       }
     },
@@ -17317,7 +17342,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/places/education-work.wg",
-        "line": 890,
+        "line": 188,
         "column": 1
       }
     },

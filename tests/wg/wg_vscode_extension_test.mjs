@@ -76,6 +76,7 @@ test("WG TextMate grammar contains valid regular expressions and core syntax", a
     "@success -> jar.opened",
     firstPattern("outcome-header"),
   );
+  assert.match("@response", firstPattern("response-header"));
   for (const line of [
     "@place-key player_home",
     "@offer npc taylor",
@@ -102,6 +103,7 @@ test("WG TextMate grammar contains valid regular expressions and core syntax", a
   assert.match("@endchoice", firstPattern("block-directives"));
   assert.match("@endchoicegroup", firstPattern("block-directives"));
   assert.match("@endsuccess", firstPattern("block-directives"));
+  assert.match("@endresponse", firstPattern("block-directives"));
   assert.match(
     '@choice leave "Leave" -> @leave-place',
     firstPattern("choice-header"),

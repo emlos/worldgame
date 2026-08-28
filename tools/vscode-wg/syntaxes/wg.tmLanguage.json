@@ -13,6 +13,7 @@
     { "include": "#choicegroup-header" },
     { "include": "#choice-header" },
     { "include": "#outcome-header" },
+    { "include": "#response-header" },
     { "include": "#condition-directives" },
     { "include": "#effect-directives" },
     { "include": "#property-directives" },
@@ -142,6 +143,17 @@
         }
       ]
     },
+    "response-header": {
+      "patterns": [
+        {
+          "name": "meta.choice.response.header.wg",
+          "match": "^(\\s*)(@response)\\s*$",
+          "captures": {
+            "2": { "name": "keyword.control.block.begin.wg" }
+          }
+        }
+      ]
+    },
     "condition-directives": {
       "patterns": [
         {
@@ -182,7 +194,7 @@
       "patterns": [
         {
           "name": "keyword.control.block.wg",
-          "match": "^\\s*(@(?:else|endif|endentry|endchoice|endchoicegroup|endsequence|success|endsuccess|failure|endfailure|onenter|endonenter))\\s*$"
+          "match": "^\\s*(@(?:else|endif|endentry|endchoice|endchoicegroup|endsequence|success|endsuccess|failure|endfailure|response|endresponse|onenter|endonenter))\\s*$"
         }
       ]
     },

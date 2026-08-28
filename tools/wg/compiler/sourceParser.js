@@ -442,6 +442,7 @@ class SceneBodyParser {
       target: match[1],
       durationMinutes: 0,
       energyFree: false,
+      responses: [],
       effects: [],
       source: nodeSource(this.file, opening.line),
     };
@@ -457,6 +458,7 @@ class SceneBodyParser {
         continue;
       }
       if (directive === `@${closingDirective}`) {
+        if (!outcome.responses.length) delete outcome.responses;
         this.index += 1;
         return outcome;
       }
@@ -473,8 +475,11 @@ class SceneBodyParser {
         outcome.energyFree = parsedTime.energyFree;
       } else if (name === "effect") {
         outcome.effects.push(parseEffect(directive, this.file, line.line));
+      } else if (name === "response") {
+        outcome.responses.push(this.parseResponse());
+        continue;
       } else {
-        failWG(`@${kind} may contain only @time and @effect directives`, location);
+        failWG(`@${kind} may contain only @time, @response, and @effect directives`, location);
       }
       this.index += 1;
     }
@@ -487,6 +492,7 @@ class SceneBodyParser {
       if (choice.check || choice.outcomes.success || choice.outcomes.failure) {
         failWG("Direct choices cannot contain skill-check outcomes", location);
       }
+      if (!choice.responses.length) delete choice.responses;
       delete choice.check;
       delete choice.outcomes;
       return choice;
@@ -496,8 +502,13 @@ class SceneBodyParser {
     if (!choice.outcomes.success || !choice.outcomes.failure) {
       failWG("Skill checks require both @success and @failure outcomes", location);
     }
-    if (singleFields.has("timing") || choice.effects.length || choice.previews.length) {
-      failWG("Checked choices keep @time and @effect inside outcome blocks and cannot use @preview", location);
+    if (
+      singleFields.has("timing") ||
+      choice.responses.length ||
+      choice.effects.length ||
+      choice.previews.length
+    ) {
+      failWG("Checked choices keep @time, @response, and @effect inside outcome blocks and cannot use @preview", location);
     }
     delete choice.target;
     delete choice.durationMinutes;
@@ -505,6 +516,7 @@ class SceneBodyParser {
     delete choice.energyFree;
     delete choice.previews;
     delete choice.effects;
+    delete choice.responses;
     return choice;
   }
 
@@ -536,6 +548,7 @@ class SceneBodyParser {
       when: null,
       requirements: [],
       warning: null,
+      responses: [],
       previews: [],
       effects: [],
       source: nodeSource(this.file, opening.line),
@@ -629,6 +642,9 @@ class SceneBodyParser {
           location,
           "Choice warning",
         );
+      } else if (name === "response") {
+        choice.responses.push(this.parseResponse());
+        continue;
       } else if (name === "preview") {
         const argument = directiveArgument(text, "preview", location);
         const preview = argument.match(
@@ -651,6 +667,34 @@ class SceneBodyParser {
     }
 
     failWG("Unclosed @choice block", lineLocation(this.file, opening.line));
+  }
+
+  parseResponse() {
+    const opening = this.current();
+    if (opening.text.trim() !== "@response") {
+      failWG(
+        "Malformed @response header; expected @response on its own line",
+        lineLocation(this.file, opening.line),
+      );
+    }
+
+    this.index += 1;
+    const paragraphs = this.parseNodes(new Set(["endresponse"]));
+    const closing = this.current();
+    if (!closing || closing.text.trim() !== "@endresponse") {
+      failWG("Unclosed @response block", lineLocation(this.file, opening.line));
+    }
+    if (!paragraphs.length || paragraphs.some((node) => node.type !== "paragraph")) {
+      failWG(
+        "@response requires one or more prose paragraphs",
+        lineLocation(this.file, opening.line),
+      );
+    }
+    this.index += 1;
+    return {
+      paragraphs,
+      source: nodeSource(this.file, opening.line),
+    };
   }
 }
 

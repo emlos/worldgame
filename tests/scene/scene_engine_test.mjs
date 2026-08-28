@@ -138,7 +138,8 @@ check(
 );
 check(
   "loiter choice still returns its result prose",
-  loiterResult === SCENE_TEXT.loiterResult,
+  loiterResult.notice === SCENE_TEXT.loiterResult &&
+    loiterResult.paragraphs.length === 0,
 );
 
 choiceScene = buildScene(choiceGame);
@@ -159,7 +160,8 @@ check(
 );
 check(
   "enter choice returns result prose",
-  enterResult.startsWith("You enter "),
+  enterResult.notice.startsWith("You enter ") &&
+    enterResult.paragraphs.length === 0,
 );
 
 choiceScene = buildScene(choiceGame);
@@ -180,7 +182,8 @@ check(
 );
 check(
   "leave choice returns result prose",
-  leaveResult.startsWith("You step outside "),
+  leaveResult.notice.startsWith("You step outside ") &&
+    leaveResult.paragraphs.length === 0,
 );
 
 choiceScene = buildScene(choiceGame);
@@ -202,7 +205,8 @@ check(
 );
 check(
   "travel choice returns result prose",
-  travelResult.startsWith("You arrive in "),
+  travelResult.notice.startsWith("You arrive in ") &&
+    travelResult.paragraphs.length === 0,
 );
 
 if (failures.length) {

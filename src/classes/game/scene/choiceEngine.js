@@ -8,6 +8,7 @@ import {
   followWGChoice,
   followWGOutcome,
 } from "./wg/storyRuntime.js";
+import { materializeWGResponse } from "./wg/sceneMaterializer.js";
 import {
   resolveWGAutomaticEntry,
   WG_AUTO_TRIGGER,
@@ -40,6 +41,27 @@ export class ChoiceError extends Error {
 
 function fail(code, message) {
   throw new ChoiceError(code, message);
+}
+
+function actionResult(notice, paragraphs = []) {
+  return { notice, paragraphs };
+}
+
+function selectWGResponse(
+  game,
+  responses,
+  { revision, sceneId, choiceId, variant },
+) {
+  if (!Array.isArray(responses) || !responses.length) return [];
+  const key = [
+    "wg-response-v1",
+    revision,
+    sceneId,
+    choiceId,
+    variant || "direct",
+  ].join(":");
+  const index = Math.floor(keyedRandom01(game.seed, key) * responses.length);
+  return materializeWGResponse(game, responses[index]);
 }
 
 function validateRequest(request) {
@@ -111,7 +133,7 @@ function performTravel(game, choice, minutes) {
       resolveWGAutomaticEntry(currentGame, WG_AUTO_TRIGGER.enterLocation);
     },
   });
-  return SCENE_TEXT.travelResult(destination.name);
+  return actionResult(SCENE_TEXT.travelResult(destination.name));
 }
 
 function performEnter(game, choice, minutes) {
@@ -137,10 +159,10 @@ function performEnter(game, choice, minutes) {
       resolveWGAutomaticEntry(currentGame, WG_AUTO_TRIGGER.enterPlace);
     },
   });
-  return SCENE_TEXT.enterResult(place.name);
+  return actionResult(SCENE_TEXT.enterResult(place.name));
 }
 
-function performLeave(game, choice, minutes) {
+function performLeave(game, choice, minutes, scene) {
   const place = game.currentPlace;
   if (!place) {
     fail(
@@ -149,6 +171,8 @@ function performLeave(game, choice, minutes) {
     );
   }
 
+  const revision = game.actionRevision;
+  let responseParagraphs = [];
   game.runAction({
     label: SCENE_TEXT.leaveLog(place.name),
     minutes,
@@ -162,8 +186,20 @@ function performLeave(game, choice, minutes) {
         exitWGStory(currentGame);
       }
     },
+    after(currentGame) {
+      responseParagraphs = selectWGResponse(
+        currentGame,
+        choice.action.responses,
+        {
+          revision,
+          sceneId: scene.id,
+          choiceId: choice.id,
+          variant: choice.action.responseVariant,
+        },
+      );
+    },
   });
-  return SCENE_TEXT.leaveResult(place.name);
+  return actionResult(SCENE_TEXT.leaveResult(place.name), responseParagraphs);
 }
 
 function performLoiter(game, choice, minutes) {
@@ -173,7 +209,7 @@ function performLoiter(game, choice, minutes) {
     minutes,
     energyFree: choice.energyFree,
   });
-  return SCENE_TEXT.loiterResult;
+  return actionResult(SCENE_TEXT.loiterResult);
 }
 
 function performBusTravel(game, choice, minutes) {
@@ -219,10 +255,14 @@ function performBusTravel(game, choice, minutes) {
       resolveWGAutomaticEntry(currentGame, WG_AUTO_TRIGGER.enterPlace);
     },
   });
-  return `You arrive at ${destination.place.name} in ${destination.location.name}.`;
+  return actionResult(
+    `You arrive at ${destination.place.name} in ${destination.location.name}.`,
+  );
 }
 
-function performWG(game, choice, minutes) {
+function performWG(game, choice, minutes, scene) {
+  const revision = game.actionRevision;
+  let responseParagraphs = [];
   const result = game.runAction({
     label: choice.label,
     minutes,
@@ -230,11 +270,24 @@ function performWG(game, choice, minutes) {
     apply(currentGame) {
       followWGChoice(currentGame, choice);
     },
+    after(currentGame) {
+      responseParagraphs = selectWGResponse(
+        currentGame,
+        choice.action.responses,
+        {
+          revision,
+          sceneId: scene.id,
+          choiceId: choice.id,
+        },
+      );
+    },
   });
   if (result.timeChange?.ejectedFrom) {
-    return `${result.timeChange.ejectedFrom.name} has closed. A member of staff ushers you outside.`;
+    return actionResult(
+      `${result.timeChange.ejectedFrom.name} has closed. A member of staff ushers you outside.`,
+    );
   }
-  return "Continue.";
+  return actionResult("Continue.", responseParagraphs);
 }
 
 function performWGNext(game, choice, minutes) {
@@ -242,7 +295,7 @@ function performWGNext(game, choice, minutes) {
     fail(CHOICE_ERROR_CODE.invalidAction, "Sequence navigation cannot advance time");
   }
   advanceWGSequence(game, choice.action);
-  return "Continue.";
+  return actionResult("Continue.");
 }
 
 function outcomeMinutes(choice, outcome, result) {
@@ -277,11 +330,12 @@ function performSkillCheck(game, choice, _minutes, scene) {
     fail(CHOICE_ERROR_CODE.invalidAction, error.message);
   }
 
+  const revision = game.actionRevision;
   const roll = keyedRandom01(
     game.seed,
     [
       "skill-check-v1",
-      game.actionRevision,
+      revision,
       scene.id,
       choice.id,
     ].join(":"),
@@ -305,13 +359,17 @@ function performSkillCheck(game, choice, _minutes, scene) {
         action: {
           type: SCENE_ACTION_TYPE.leave,
           effects: outcome.effects,
+          responses: outcome.responses,
+          responseVariant: result,
           exitStory: true,
         },
       },
       minutes,
+      scene,
     );
   }
 
+  let responseParagraphs = [];
   game.runAction({
     label: choice.label,
     minutes,
@@ -319,8 +377,16 @@ function performSkillCheck(game, choice, _minutes, scene) {
     apply(currentGame) {
       followWGOutcome(currentGame, outcome);
     },
+    after(currentGame) {
+      responseParagraphs = selectWGResponse(currentGame, outcome.responses, {
+        revision,
+        sceneId: scene.id,
+        choiceId: choice.id,
+        variant: result,
+      });
+    },
   });
-  return "Continue.";
+  return actionResult("Continue.", responseParagraphs);
 }
 
 const ACTION_HANDLERS = Object.freeze({

@@ -57,6 +57,16 @@ function renderParagraph(node, context) {
     .join("");
 }
 
+export function materializeWGResponse(game, response) {
+  if (!Array.isArray(response?.paragraphs) || !response.paragraphs.length) {
+    fail("WG responses require one or more paragraphs", response?.source);
+  }
+  const context = createWGRuntimeContext(game);
+  return response.paragraphs.map((paragraph) =>
+    renderParagraph(paragraph, context),
+  );
+}
+
 function materializeSkillChanges(effects) {
   const totals = new Map();
   for (const effect of effects || []) {
@@ -136,12 +146,14 @@ function materializeChoice(node, context, { sequenceId = null } = {}) {
       ? {
           type: SCENE_ACTION_TYPE.leave,
           effects: node.effects || [],
+          responses: node.responses || [],
           exitStory: true,
         }
       : {
           type: SCENE_ACTION_TYPE.wg,
           target: node.target,
           effects: node.effects || [],
+          responses: node.responses || [],
           sequenceId,
         };
   }
