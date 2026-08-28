@@ -36,10 +36,12 @@ test("WG editor configuration covers comments and compiler block pairs", async (
   assert.match(configuration.folding.markers.start, /entry/);
   assert.match(configuration.folding.markers.start, /choice/);
   assert.match(configuration.folding.markers.start, /choicegroup/);
+  assert.match(configuration.folding.markers.start, /random/);
   assert.match(configuration.folding.markers.start, /sequence/);
   assert.match(configuration.folding.markers.end, /endentry/);
   assert.match(configuration.folding.markers.end, /endchoice/);
   assert.match(configuration.folding.markers.end, /endchoicegroup/);
+  assert.match(configuration.folding.markers.end, /endrandom/);
   assert.match(configuration.folding.markers.end, /endsequence/);
 });
 
@@ -77,6 +79,8 @@ test("WG TextMate grammar contains valid regular expressions and core syntax", a
     firstPattern("outcome-header"),
   );
   assert.match("@response", firstPattern("response-header"));
+  assert.match("@random", firstPattern("random-directives"));
+  assert.match("@or", firstPattern("random-directives"));
   for (const line of [
     "@place-key player_home",
     "@offer npc taylor",
@@ -104,6 +108,7 @@ test("WG TextMate grammar contains valid regular expressions and core syntax", a
   assert.match("@endchoicegroup", firstPattern("block-directives"));
   assert.match("@endsuccess", firstPattern("block-directives"));
   assert.match("@endresponse", firstPattern("block-directives"));
+  assert.match("@endrandom", firstPattern("block-directives"));
   assert.match(
     '@choice leave "Leave" -> @leave-place',
     firstPattern("choice-header"),

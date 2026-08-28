@@ -411,6 +411,33 @@ Ordered comparisons require two numbers or two strings. Arithmetic on missing
 or non-numeric values is a runtime error. Authored expressions compile to data
 and never execute JavaScript.
 
+## Random scene blocks
+
+```wg
+This text is always shown.
+
+@random
+This is the first possible passage.
+@or
+This is the second possible passage.
+@or
+This is the third possible passage.
+@endrandom
+```
+
+`@random` chooses exactly one alternative, with alternatives separated by
+`@or` and the block closed by `@endrandom`. A block requires at least two
+non-empty alternatives. Alternatives may contain prose, choices, conditionals,
+choice groups, or nested random blocks. Random blocks may likewise appear
+inside `@if` branches.
+
+Selection is deterministic for a materialized scene instance. Rebuilding the
+same unchanged scene therefore produces the same alternative, which keeps
+choice validation and rendering stable. Entering another scene instance or
+advancing game state supplies a new selection key and may choose a different
+alternative. Selection never consumes a mutable random stream or changes save
+state.
+
 ## Choices
 
 ```wg

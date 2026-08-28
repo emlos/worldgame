@@ -6,6 +6,7 @@ import { evaluateWGExpression, resolveWGPath } from "./expressionEvaluator.js";
 import { createWGRuntimeContext } from "./runtimeContext.js";
 import { SKILLS } from "../../../../data/player/stats.js";
 import { getSkillCheckDifficulty } from "../../../../data/scene/skillChecks.js";
+import { keyedRandom01 } from "../../../../shared/util/random.js";
 
 export class WGMaterializationError extends Error {
   constructor(message) {
@@ -212,6 +213,24 @@ function materializeNodes(nodes, context, output, options = {}) {
       materializeNodes(branch?.nodes || node.elseNodes || [], context, output, options);
       continue;
     }
+    if (node?.type === "random") {
+      if (!Array.isArray(node.variants) || node.variants.length < 2) {
+        fail("Random blocks require at least two alternatives", node.source);
+      }
+      const source = node.source || {};
+      const key = [
+        "wg-random-v1",
+        options.storyInstanceKey,
+        source.file || "<wg>",
+        source.line || 1,
+        source.column || 1,
+      ].join(":");
+      const index = Math.floor(
+        keyedRandom01(options.gameSeed, key) * node.variants.length,
+      );
+      materializeNodes(node.variants[index], context, output, options);
+      continue;
+    }
     if (node?.type === "choice-group") {
       if (options.inChoiceGroup) {
         fail("@choicegroup blocks cannot be nested", node.source);
@@ -237,6 +256,13 @@ export function materializeWGScene(game, definition) {
   const output = { paragraphs: [], sections: [] };
   materializeNodes(definition.body, context, output, {
     choiceSectionHeading: definition.choiceHeading,
+    gameSeed: game.seed,
+    storyInstanceKey: [
+      "scene",
+      definition.id,
+      game.storyRevision,
+      game.now.toISOString(),
+    ].join(":"),
   });
 
   return createScene({
@@ -262,6 +288,14 @@ export function materializeWGSequence(game, definition, passageId) {
   materializeNodes(passage.body, context, output, {
     sequenceId: definition.id,
     choiceSectionHeading: definition.choiceHeading,
+    gameSeed: game.seed,
+    storyInstanceKey: [
+      "sequence",
+      definition.id,
+      passage.id,
+      game.storyRevision,
+      game.now.toISOString(),
+    ].join(":"),
   });
   if (passage.next) {
     choiceSection(output, "choices", definition.choiceHeading).choices.push(createChoice({

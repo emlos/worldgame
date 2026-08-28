@@ -10,12 +10,12 @@
   "surroundingPairs": [["\"", "\""], ["[", "]"], ["(", ")"], ["{{", "}}"]],
   "folding": {
     "markers": {
-      "start": "^\\s*@(entry|sequence|choice|choicegroup|if|success|failure|response|onenter)\\b",
-      "end": "^\\s*@(endentry|endsequence|endchoice|endchoicegroup|endif|endsuccess|endfailure|endresponse|endonenter)\\b"
+      "start": "^\\s*@(entry|sequence|choice|choicegroup|if|success|failure|response|random|onenter)\\b",
+      "end": "^\\s*@(endentry|endsequence|endchoice|endchoicegroup|endif|endsuccess|endfailure|endresponse|endrandom|endonenter)\\b"
     }
   },
   "indentationRules": {
-    "increaseIndentPattern": "^\\s*@(entry|sequence|choice|choicegroup|if|elseif|else|success|failure|response|onenter)\\b.*$",
-    "decreaseIndentPattern": "^\\s*@(endentry|endsequence|endchoice|endchoicegroup|endif|endsuccess|endfailure|endresponse|endonenter|elseif|else)\\b.*$"
+    "increaseIndentPattern": "^\\s*@(entry|sequence|choice|choicegroup|if|elseif|else|success|failure|response|random|or|onenter)\\b.*$",
+    "decreaseIndentPattern": "^\\s*@(endentry|endsequence|endchoice|endchoicegroup|endif|endsuccess|endfailure|endresponse|endrandom|endonenter|elseif|else|or)\\b.*$"
   }
 }

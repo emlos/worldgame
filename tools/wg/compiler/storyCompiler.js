@@ -13,6 +13,8 @@ function walkNodes(nodes, visit) {
       if (node.elseNodes) walkNodes(node.elseNodes, visit);
     } else if (node.type === "choice-group") {
       walkNodes(node.nodes, visit);
+    } else if (node.type === "random") {
+      for (const variant of node.variants) walkNodes(variant, visit);
     }
   }
 }
@@ -222,7 +224,7 @@ export function compileStorySources(sources) {
   const entries = Object.fromEntries(
     [...entryMap.entries()].sort(([left], [right]) => compareText(left, right)),
   );
-  return { formatVersion: 8, scenes, sequences, entries };
+  return { formatVersion: 9, scenes, sequences, entries };
 }
 
 export { walkNodes };

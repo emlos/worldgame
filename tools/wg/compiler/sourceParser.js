@@ -300,6 +300,11 @@ class SceneBodyParser {
         nodes.push(this.parseChoiceGroup());
         continue;
       }
+      if (name === "random") {
+        flushParagraph();
+        nodes.push(this.parseRandom());
+        continue;
+      }
       if (name) {
         flushParagraph();
         failWG(`Unexpected @${name}`, lineLocation(this.file, line.line));
@@ -349,6 +354,8 @@ class SceneBodyParser {
         } else if (node.type === "if") {
           for (const branch of node.branches) inspect(branch.nodes);
           if (node.elseNodes) inspect(node.elseNodes);
+        } else if (node.type === "random") {
+          for (const variant of node.variants) inspect(variant);
         } else if (node.type === "choice-group") {
           failWG(
             "@choicegroup blocks cannot be nested",
@@ -376,6 +383,52 @@ class SceneBodyParser {
       nodes,
       source: nodeSource(this.file, opening.line),
     };
+  }
+
+  parseRandom() {
+    const opening = this.current();
+    if (opening.text.trim() !== "@random") {
+      failWG(
+        "Malformed @random header; expected @random on its own line",
+        lineLocation(this.file, opening.line),
+      );
+    }
+
+    const variants = [];
+    this.index += 1;
+    while (this.current()) {
+      const nodes = this.parseNodes(new Set(["or", "endrandom"]));
+      if (!nodes.length) {
+        failWG(
+          "@random alternatives cannot be empty",
+          lineLocation(this.file, this.current()?.line || opening.line),
+        );
+      }
+      variants.push(nodes);
+
+      const separator = this.current();
+      if (separator?.text.trim() === "@or") {
+        this.index += 1;
+        continue;
+      }
+      if (separator?.text.trim() === "@endrandom") {
+        if (variants.length < 2) {
+          failWG(
+            "@random requires at least two alternatives separated by @or",
+            lineLocation(this.file, opening.line),
+          );
+        }
+        this.index += 1;
+        return {
+          type: "random",
+          variants,
+          source: nodeSource(this.file, opening.line),
+        };
+      }
+      break;
+    }
+
+    failWG("Unclosed @random block", lineLocation(this.file, opening.line));
   }
 
   parseConditional() {

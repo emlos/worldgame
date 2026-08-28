@@ -1,11 +1,13 @@
 import { Game } from "../../src/classes/game/game.js";
 import { performChoice } from "../../src/classes/game/scene/choiceEngine.js";
 import { buildScene } from "../../src/classes/game/scene/sceneEngine.js";
+import { materializeWGScene } from "../../src/classes/game/scene/wg/sceneMaterializer.js";
 import {
   applyWGEffects,
   WGRuntimeError,
 } from "../../src/classes/game/scene/wg/storyRuntime.js";
 import { NPC_REGISTRY } from "../../src/data/npc/npcs.js";
+import { parseWGSource } from "../../tools/wg/compiler/sourceParser.js";
 
 const START = new Date("2026-08-24T08:00:00.000Z");
 const failures = [];
@@ -27,6 +29,71 @@ function findChoice(scene, choiceId) {
 function choose(game, scene, choiceId) {
   return performChoice(game, { sceneId: scene.id, choiceId });
 }
+
+const randomDefinition = parseWGSource({
+  file: "story/runtime-random.wg",
+  source: `:: runtime.random
+@heading "Random runtime"
+
+Always shown.
+
+@if story.random.enabled
+Condition fulfilled.
+@endif
+
+@random
+First random passage.
+@or
+Second random passage.
+@or
+Third random passage.
+@endrandom
+
+@if story.random.enabled
+  @random
+  First conditional random passage.
+  @or
+  Second conditional random passage.
+  @endrandom
+@endif`,
+})[0];
+const randomGame = new Game({ seed: 8128, startDate: START });
+randomGame.story.random = { enabled: true };
+const firstRandomScene = materializeWGScene(randomGame, randomDefinition);
+const rebuiltRandomScene = materializeWGScene(randomGame, randomDefinition);
+const topLevelPossibilities = [
+  "First random passage.",
+  "Second random passage.",
+  "Third random passage.",
+];
+const conditionalPossibilities = [
+  "First conditional random passage.",
+  "Second conditional random passage.",
+];
+check(
+  "random blocks select one passage and compose with conditionals",
+  firstRandomScene.paragraphs.length === 4 &&
+    firstRandomScene.paragraphs[0] === "Always shown." &&
+    firstRandomScene.paragraphs[1] === "Condition fulfilled." &&
+    topLevelPossibilities.includes(firstRandomScene.paragraphs[2]) &&
+    conditionalPossibilities.includes(firstRandomScene.paragraphs[3]),
+);
+check(
+  "rebuilding an unchanged scene keeps random selections stable",
+  JSON.stringify(rebuiltRandomScene.paragraphs) ===
+    JSON.stringify(firstRandomScene.paragraphs),
+);
+const selectionsAcrossInstances = new Set();
+for (let revision = 0; revision < 16; revision += 1) {
+  randomGame.storyRevision = revision;
+  selectionsAcrossInstances.add(
+    materializeWGScene(randomGame, randomDefinition).paragraphs[2],
+  );
+}
+check(
+  "new scene instances can select different random passages",
+  selectionsAcrossInstances.size > 1,
+);
 
 const taylorTemplate = NPC_REGISTRY.find((definition) => definition.id === "taylor");
 const game = new Game({

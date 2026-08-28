@@ -197,6 +197,41 @@ check(
   "if, elseif, and else branches compile",
   conditional.branches.length === 2 && conditional.elseNodes.length === 1,
 );
+
+const RANDOM_SOURCE = `:: random.example
+@heading "Random example"
+
+Always shown.
+
+@random
+First possibility.
+@or
+Second possibility.
+@or
+Third possibility.
+@endrandom
+
+@if story.random.enabled
+  @random
+  Conditional first possibility.
+  @or
+  Conditional second possibility.
+  @endrandom
+@endif`;
+const randomScene = parseWGSource({
+  file: "story/random.wg",
+  source: RANDOM_SOURCE,
+})[0];
+const randomNode = randomScene.body.find((node) => node.type === "random");
+const conditionalRandom = randomScene.body
+  .find((node) => node.type === "if")
+  .branches[0].nodes.find((node) => node.type === "random");
+check(
+  "random blocks compile alternatives and nest inside conditionals",
+  randomNode.variants.length === 3 &&
+    randomNode.variants.every((variant) => variant[0].type === "paragraph") &&
+    conditionalRandom.variants.length === 2,
+);
 const compiledChoice = sampleScenes[0].body.find(
   (node) => node.type === "choice",
 );
@@ -232,7 +267,7 @@ const sampleBundle = compileStorySources([
 ]);
 check(
   "linked bundles use a versioned scene map",
-  sampleBundle.formatVersion === 8 &&
+  sampleBundle.formatVersion === 9 &&
     Object.keys(sampleBundle.scenes).join(",") === "intro,next" &&
     Object.keys(sampleBundle.sequences).length === 0 &&
     Object.keys(sampleBundle.entries).join(",") === "sample.introduction",
@@ -907,6 +942,53 @@ rejects(
     },
   ],
   "Duplicate passage id 'same'",
+);
+rejects(
+  "random blocks require at least two alternatives",
+  [
+    {
+      file: "random-single.wg",
+      source: `:: intro
+@heading "Intro"
+@random
+Only one.
+@endrandom`,
+    },
+  ],
+  "@random requires at least two alternatives",
+);
+rejects(
+  "random alternatives cannot be empty",
+  [
+    {
+      file: "random-empty.wg",
+      source: `:: intro
+@heading "Intro"
+@random
+First.
+@or
+@endrandom`,
+    },
+  ],
+  "@random alternatives cannot be empty",
+);
+rejects(
+  "choice ids remain unique across random alternatives",
+  [
+    {
+      file: "random-choices.wg",
+      source: `:: intro
+@heading "Intro"
+@random
+@choice same "First" -> @exit
+@endchoice
+@or
+@choice same "Second" -> @exit
+@endchoice
+@endrandom`,
+    },
+  ],
+  "Duplicate choice id 'same'",
 );
 rejects(
   "unknown directives are rejected",
