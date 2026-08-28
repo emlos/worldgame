@@ -4,6 +4,14 @@ Each registered place key has one authored WG hub in this directory. The files
 are grouped by broad domain only to keep them manageable; every hub still has
 its own entry, scene, prose, and choices.
 
+All hubs are compiled even when their registry place starts with
+`unlocked: false`. A locked place remains generated for NPC simulation but is
+absent from every player-facing map, destination list, and entry choice, so its
+hub and place offers remain dormant. Runtime code unlocks all generated
+instances of a key with `game.unlockPlacesByKey("place_key")`; that state is
+saved and cannot be reversed. WG does not yet have an `@unlock` directive or
+effect.
+
 The initial activity choices deliberately target their own hub and have no
 time or state effects. They are scaffolds: selecting one simply redraws the
 same place menu. To expand an activity, point it at a new scene and add the

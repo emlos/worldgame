@@ -44,6 +44,34 @@ Taylor looks up from the textbook.
 Files are UTF-8 and may contain any number of top-level entry, scene, and
 sequence blocks.
 
+## Core syntax and identifiers
+
+WG is line-oriented. Leading and trailing whitespace does not change how a
+directive is recognized, so indentation is for readability. A directive must
+occupy its own logical line unless its documented syntax includes arguments.
+
+- Story, scene, sequence, entry, choice, and choice-group IDs start with a
+  lowercase letter and may then contain lowercase letters, numbers, `_`, `-`,
+  or `.`.
+- Passage IDs and scene tags use the same rules but do not allow `.`. A local
+  passage is declared as `@passage result` and targeted as `.result`.
+- Expression paths contain one or more segments. Every segment starts with a
+  letter or `_` and then uses letters, numbers, or `_`. Interpolation and
+  `@time-until` specifically require a dotted path with at least two segments.
+- Quoted directive fields are non-empty JSON-style double-quoted strings.
+  Normal JSON escapes such as `\"` and `\\` are supported. Expression string
+  literals use the same escaping but may be empty. Single-quoted strings are
+  not supported.
+- `@icon` accepts either a quoted string or the non-empty remainder of its line,
+  which makes a bare emoji convenient.
+
+Only blank lines, comments, and top-level `@entry`, `@sequence`, or `::` scene
+declarations may appear outside a block. Entries and sequences have explicit
+closing directives. A scene ends at the next top-level declaration or at the
+end of its file. Source files and emitted object keys are sorted
+deterministically, so compiling unchanged sources produces an unchanged
+module.
+
 ## Entries
 
 An entry starts with `@entry <id>` and ends with `@endentry`. Entry IDs use a
@@ -54,6 +82,12 @@ Every entry requires:
 
 - exactly one `@scene <story-id>` pointing to a compiled scene or sequence; and
 - at least one exposure directive: `@hub`, `@offer`, or `@auto`.
+
+The following entry fields may appear once: `@scene`, `@hub`, `@offer`,
+`@label`, `@icon`, `@hub-text`, `@priority`, `@chance`, and `@weight`.
+`@place-key`, `@place-tag`, `@location-tag`, and `@when` may repeat. `@auto`
+may repeat once per distinct trigger. An offered entry may also be automatic;
+only `@hub` is exclusive with the other exposure types.
 
 ### Place hubs
 
@@ -130,6 +164,11 @@ Selection works as follows:
 decimal from `0` to `1` or a percentage from `0%` to `100%`, and defaults to
 `100%`. `@weight` must be positive and defaults to `1`.
 
+Automatic resolution uses the saved `wg-events` random stream. Chance rolls
+and the weighted pick therefore advance that stream only when automatic
+candidates are actually resolved. A selected target is authoritatively entered
+and runs its `@onenter` effects.
+
 ### Position selectors and conditions
 
 Entries may repeat these selectors:
@@ -146,10 +185,28 @@ cannot match while the player is outdoors.
 Every repeated `@when <expression>` must pass. Conditions apply to hubs,
 offers, and automatic entries before those entries are used.
 
+### Locked generated places
+
+A place definition with `unlocked: false` is still created during world
+generation and remains available to NPC simulation, but is completely hidden
+from the player. It is omitted from local and world maps, place-entry choices,
+bus destinations, player schedule destinations, and GPS targets. The player
+cannot be loaded into it or enter it through a direct runtime call.
+
+WG hubs and place offers for a locked place remain compiled but dormant because
+the player cannot enter or select that place. An `@auto enter-place` entry can
+therefore trigger only after the place has been unlocked. Runtime code can call
+`game.unlockPlacesByKey("place_key")` to unlock every generated instance with
+that key. Unlocking is saved and irreversible: an unlocked instance never
+returns to the locked state.
+
+WG does not yet expose `place.unlocked` or implement an unlock effect/directive.
+Until `@unlock` is added, unlocking must be initiated by game code outside WG.
+
 ## Scenes
 
-A scene starts with a header and continues until the next top-level scene or
-entry block:
+A scene starts with a header and continues until the next top-level scene,
+entry, or sequence declaration:
 
 ```wg
 :: taylor.study.peek [event taylor study]
@@ -162,8 +219,8 @@ Taylor looks up from the textbook.
 
 - Scene IDs follow the same syntax as entry IDs and must be globally unique.
 - Header tags are optional lowercase metadata using letters, numbers, `_`, and
-  `-`. They are emitted into the compiled data but are not currently used by
-  the runtime.
+  `-`. Duplicate tags on one header are collapsed. Tags are emitted into the
+  compiled data but are not currently used by the runtime.
 - `@kind` supports `event`, `place`, or `location` and defaults to `event`.
 - `@heading "..."` is required.
 - `@choices "..."` labels the default section for ungrouped choices and
@@ -171,6 +228,11 @@ Taylor looks up from the textbook.
 - `@kind`, `@heading`, `@choices`, and `@onenter` are optional scene metadata
   directives, except for the required heading. They must all appear before
   prose, conditionals, or choices, and each may appear at most once.
+
+WG materialization does not create map data: authored scenes of any kind have
+`map: null`. The ordinary generated outdoor location screen still supplies the
+interactive map. A `place` kind has additional hub behavior only when selected
+by a matching `@hub place` entry.
 
 ### Choice groups
 
@@ -195,7 +257,8 @@ Class is currently in progress.
 
 A group begins with `@choicegroup <id> "<heading>"` and ends with
 `@endchoicegroup`. Group IDs must be unique within a scene or sequence
-passage. Groups cannot be nested.
+passage. Groups cannot be nested, and each group must contain at least one
+authored choice somewhere in its direct, conditional, or random content.
 
 Choices inside the block render under that group's heading. Prose still joins
 the scene's ordinary paragraphs, so a group may wrap conditionals containing
@@ -239,8 +302,15 @@ A sequence starts with `@sequence <id> -> <final-target>` and ends with
 `@endsequence`. Its ID shares the global namespace used by scene IDs. The
 final target may be `@exit`, a scene ID, or another sequence ID. `@heading` is
 required; `@kind`, `@choices`, and `@onenter` have the same metadata placement
-rules as scenes. Choice groups work inside sequence passages as they do in
+rules and defaults as scenes. `@school-class` is the one additional sequence
+metadata directive. Choice groups work inside sequence passages as they do in
 ordinary scenes.
+
+Every sequence must contain at least one non-empty passage. Prose before the
+first `@passage` or between `@next` directives creates anonymous passages named
+`p1`, `p2`, and so on, skipping any ID already explicitly declared. Those
+generated names may be targeted just like named passages, but explicit names
+are less fragile when source order may change.
 
 Each `@next` ends the current passage and creates a navigation choice. Prose
 after it begins the next anonymous passage. A bare `@next` uses the label
@@ -262,7 +332,8 @@ on the same screen.
 
 Use `@passage <id>` when a choice or Next button must address a passage. Passage
 IDs are lowercase local identifiers and need to be unique only within their
-sequence. Prefix one with `.` when targeting it:
+sequence; unlike global IDs, they cannot contain dots. Prefix one with `.` when
+targeting it:
 
 ```wg
 @sequence taylor.study -> @exit
@@ -368,7 +439,8 @@ The currently exposed paths are:
   `.resolve`, and `.fitness`. Skill values retain their fractional progress
   from `0` through `10`.
 - `player.education.<subject-id>.grade` and `.attendedSegments` for each
-  registered school subject.
+  registered school subject: `english`, `math`, `history`, `science`, `art`,
+  and `physical_education`.
 - `npc.<id>.id`, `.name`, `.shortName`, `.age`, `.gender`, `.relationship`,
   `.present`, and `.available`.
 - `npc.<id>` pronouns and every evaluated stat declared for that NPC, such as
@@ -419,6 +491,10 @@ A missing expression path evaluates to `undefined`, which is false when used
 directly as a condition. The compiler checks expression syntax but does not
 verify that an authored runtime path exists.
 
+Condition truthiness follows JavaScript boolean conversion: `false`, `0`, an
+empty string, `null`, and a missing value are false; other finite numbers,
+non-empty strings, lists, and objects are true.
+
 ## Expressions and conditionals
 
 ```wg
@@ -450,6 +526,20 @@ Expressions support:
 Ordered comparisons require two numbers or two strings. Arithmetic on missing
 or non-numeric values is a runtime error. Authored expressions compile to data
 and never execute JavaScript.
+
+Numbers use decimal notation without exponents; a negative value is parsed as
+unary `-` applied to a positive number. Lists may contain any expression and
+may be nested, but cannot end in a trailing comma. `==` and `!=` use strict
+type-sensitive equality. `in` requires a list on the right and uses the same
+strict equality for membership. An ordered comparison involving `null` or a
+missing value is false. Division or remainder by zero fails because WG never
+permits a non-finite numeric result.
+
+From highest to lowest, operator precedence is: unary `not`/`-`; `*`, `/`,
+`%`; `+`, `-`; `in` and ordered comparisons; `==`, `!=`; `and`; `or`.
+Binary operators at the same level are left-associative. Parentheses override
+that order. Logical operators always return booleans rather than one of their
+operands.
 
 ## Random scene blocks
 
@@ -517,8 +607,9 @@ Choice directives are:
 
 - `@icon <value>`: optional quoted or unquoted display icon.
 - `@time <duration>`: action duration; omitted means zero time. Durations may
-  combine decimal hours, minutes, and seconds in that order, such as `30s`,
-  `5m`, `1h`, or `1h30m`.
+  combine non-negative decimal hours, minutes, and seconds in that order, with
+  no spaces, such as `30s`, `5m`, `0.5h`, or `1h30m`. Each unit may appear at
+  most once. Use `0m` for an explicit zero duration; bare `0` is invalid.
 - `@time <duration> free`: advances the full world simulation for the given
   duration but suppresses the player's passive elapsed-time energy drain for
   this action. It is valid in direct choices and skill-check outcomes. Explicit
@@ -539,7 +630,9 @@ Choice directives are:
   more prose paragraphs and supports normal `{{interpolation}}`. Repeat the
   block to author variants; the game deterministically picks one at random when
   the action succeeds. Responses are presentation-only and are not stored in
-  flags or save data, so a later render does not show them again.
+  flags or save data, so a later render does not show them again. Interpolation
+  is evaluated against the completed post-effect, post-transition, and
+  post-time state.
 - `@preview <type> <signed-number> "<label>"`: repeatable display-only effect
   preview. A preview never applies or validates a real effect.
 - `@effect ...`: repeatable authoritative effect, described below.
@@ -606,8 +699,16 @@ does not display a probability, roll, selected outcome, branch duration, or
 sanitized preview of branch effects. Checked choices cannot use choice-level
 `@time`, `@response`, `@effect`, or `@preview`; put time, responses, and
 effects inside each outcome.
-Both outcomes are required and may target another scene, `@exit`, or
+They may still use one `@icon`, `@when`, `@warning`, and `@check`, plus repeated
+`@require` directives. Both outcomes are required and may target another scene
+or sequence, a local passage when inside a sequence, `@exit`, or
 `@leave-place`.
+
+Each `@success` or `@failure` block may contain at most one `@time`, including
+the optional `free` suffix, and any number of `@response` and `@effect`
+directives. It cannot contain `@time-until`, conditions, requirements,
+warnings, previews, icons, nested checks, or ordinary prose outside a response
+block.
 
 Implemented difficulty IDs are:
 
@@ -675,19 +776,25 @@ Implemented effects are:
 
 - `set` and `add` target only `story.*`. Their values are expressions, and
   missing intermediate story objects are created automatically. `add` treats a
-  missing final value as zero and requires both values to be finite numbers.
+  missing or `null` final value as zero and requires both values to be finite
+  numbers. Neither operation can write through an existing scalar or list used
+  as an intermediate path segment.
 - `flag <id> true|false` enables or removes a game flag.
 - `daily-flag <id> true|false` enables or removes a daily flag. All daily flags
   are cleared together when forward game time crosses UTC midnight. Use
   `not daily.<id>` to gate a once-per-day choice.
-- `relationship <npc-id> <signed-number>` changes that NPC relationship and
-  fails at runtime if the NPC does not exist.
+- `relationship <npc-id> <signed-number>` changes and clamps that NPC
+  relationship to `-1` through `1`, marks the relationship as met, and fails at
+  runtime if the NPC does not exist.
 - `money <signed-number>` adjusts `player.money`; positive values earn money
-  and negative values spend it.
+  and negative values spend it. WG does not implicitly require or clamp a
+  non-negative balance; use `@require` when an action needs sufficient funds.
 - `skill <skill-id> <signed-number>` adjusts and clamps a registered player
   skill while preserving fractional progress.
-- `stat <stat-id> <signed-number>` adjusts and clamps a registered player's
-  base stat.
+- `stat <stat-id> <signed-number>` adjusts and clamps a registered player stat:
+  `health`, `mind`, `stress`, `energy`, `trauma`, `hygiene`, or `fear`.
+  `health` routes through the player's body health rather than an ordinary
+  stored base-stat meter.
 - `grade <subject-id> <signed-number>` adjusts and clamps a registered
   school subject grade from `0` through `100`.
 - `attendance <subject-id> <positive-whole-number>` records completed class
@@ -702,6 +809,10 @@ NPC residences use `home_access_<npc-id>`. Setting, for example,
 `false` revokes access. The residence remains visible as a disabled place
 choice while permission is absent.
 
+This residence permission flag is separate from a generated place's
+irreversible `unlocked` state. There is currently no WG effect for unlocking a
+place.
+
 ## Comments and escaping
 
 ```wg
@@ -710,8 +821,9 @@ choice while permission is absent.
 \:: this is also prose
 ```
 
-`@#` is a full-line comment, not an inline comment. At the beginning of a
-prose line, `\@` and `\::` emit literal `@` and `::` markers.
+`@#` is a full-line comment, not an inline comment. A comment between two prose
+lines does not split their paragraph; use a blank line for that. At the
+beginning of a prose line, `\@` and `\::` emit literal `@` and `::` markers.
 
 ## Validation and editor support
 
@@ -725,6 +837,13 @@ IDs, missing entry targets, and direct duplicate place hubs. It checks
 not validate other general runtime paths, NPC IDs, or overlapping tag-based
 hub selectors.
 
+Compilation is whole-project rather than file-local. Scene and sequence IDs
+share one global namespace; entry IDs have a separate global namespace.
+Choice and choice-group IDs are checked across all conditional and random
+branches in their scene, or separately within each sequence passage. Passage
+IDs are local to one sequence. The compiler validates all global and local
+targets even if their branch is unreachable at runtime.
+
 The repository includes a zero-build VS Code extension with WG syntax
 highlighting, comments, indentation, bracket pairing, and folding. Install or
 update it from the repository root with:
@@ -736,8 +855,26 @@ powershell -ExecutionPolicy Bypass -File .\tools\vscode-wg\install.ps1
 Reload open VS Code windows afterward. See `tools/vscode-wg/README.md` for the
 same installation notes.
 
+## Complete directive index
+
+This index is the complete accepted WG surface. A directive not listed here is
+not implemented.
+
+| Context | Directives |
+| --- | --- |
+| Top level | `:: <scene-id> [tags...]`, `@entry ... @endentry`, `@sequence ... @endsequence`, `@#` |
+| Entry | `@scene`, `@hub`, `@offer`, `@auto`, `@place-key`, `@place-tag`, `@location-tag`, `@when`, `@label`, `@icon`, `@hub-text`, `@priority`, `@chance`, `@weight` |
+| Scene metadata | `@kind`, `@heading`, `@choices`, `@onenter ... @endonenter` |
+| Sequence metadata/navigation | scene metadata plus `@school-class`, `@passage`, `@next` |
+| Scene or passage body | prose, `@if` / `@elseif` / `@else` / `@endif`, `@random` / `@or` / `@endrandom`, `@choicegroup ... @endchoicegroup`, `@choice ... @endchoice` |
+| Direct choice | `@icon`, `@time`, `@time-until`, `@when`, `@require`, `@warning`, `@response ... @endresponse`, `@preview`, `@effect` |
+| Checked choice | `@icon`, `@when`, `@require`, `@warning`, `@check`, `@success ... @endsuccess`, `@failure ... @endfailure` |
+| Check outcome | `@time`, `@response ... @endresponse`, `@effect` |
+| Effect operations | `set`, `add`, `flag`, `daily-flag`, `relationship`, `money`, `skill`, `stat`, `grade`, `attendance` |
+| Story targets | global scene/sequence ID, local `.passage`, `@exit`, `@leave-place` (`@next` and sequence final targets have the narrower rules documented above) |
+
 ## Not supported by WG
 
 WG currently has no arbitrary JavaScript, Twine widgets, HTML rendering,
-loops, includes, user-defined macros, authored random blocks, localization,
-automatic resource costs, undo/history, or hot reloading.
+loops, includes, user-defined macros, localization, automatic resource costs,
+place-unlock directive/effect, undo/history, or hot reloading.

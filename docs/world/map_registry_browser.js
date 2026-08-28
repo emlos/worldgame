@@ -445,6 +445,7 @@ function init() {
                         "id",
                         "key",
                         "label",
+                        "unlocked",
                         "props",
                         "allowedTags",
                         "nameFn",

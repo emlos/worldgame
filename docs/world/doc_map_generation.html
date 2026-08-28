@@ -569,6 +569,15 @@
                             <td>Fallback display name when no <code>nameFn</code> exists.</td>
                         </tr>
                         <tr>
+                            <td><code>unlocked</code></td>
+                            <td><span class="pill req">required</span></td>
+                            <td>
+                                Initial player visibility. Every registry definition must supply an
+                                explicit boolean. <code>false</code> still generates the place but
+                                hides it from the player until runtime code unlocks it.
+                            </td>
+                        </tr>
+                        <tr>
                             <td><code>allowedTags</code></td>
                             <td><span class="pill opt">optional</span></td>
                             <td>
@@ -624,6 +633,40 @@
                 <div class="note">
                     Registered places are limited to ten per location. The current registries create
                     one of every district as well, providing legal locations for all place tags.
+                </div>
+            </section>
+            <section>
+                <h2>Place visibility and irreversible unlocking</h2>
+                <p>
+                    <code>unlocked</code> belongs to the top-level registry definition, not
+                    <code>props</code>. Generation copies it onto every produced
+                    <code>Place</code> instance. Distributed definitions therefore give every
+                    generated instance the same initial value.
+                </p>
+                <ul>
+                    <li>
+                        A locked place remains in the world graph and can still be used by NPC
+                        simulation. Locking controls player visibility and access only.
+                    </li>
+                    <li>
+                        Locked places are omitted from the local/world map, place-entry choices,
+                        bus destinations, player schedule destinations, and GPS targets. Saves
+                        cannot place the player in, or target GPS at, a locked place.
+                    </li>
+                    <li>
+                        <code>place.unlock()</code> unlocks one instance. It returns whether the
+                        state changed. <code>game.unlockPlacesByKey(key)</code> unlocks every
+                        instance with that key and returns the number changed.
+                    </li>
+                    <li>
+                        Unlocking is persisted in save data and is one-way. There is deliberately
+                        no lock method and an unlocked place cannot become locked again.
+                    </li>
+                </ul>
+                <div class="warnbox">
+                    WG currently has no place-unlock directive/effect and does not expose
+                    <code>place.unlocked</code>. A story-triggered unlock must call the game API
+                    from non-WG runtime code until that WG feature is added.
                 </div>
             </section>
             <section>
