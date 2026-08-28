@@ -165,6 +165,11 @@ The school has closed for the day.
   @time 5m
 @endchoice
 
+@choice school-nurse-office "Go to the school nurse's office" -> place.high-school.nurse-office
+  @icon 🏥
+  @time 2m
+@endchoice
+
 @choice student-council-room "Visit the student council office" -> place.high-school.student-council-room
   @icon 🏫
   @time 5m
@@ -717,3 +722,28 @@ Nobody answers your knock. The office is closed during class time.
 @choice leave "Leave" -> place.high-school
   @time 5m
 @endchoice
+
+:: place.high-school.nurse-office
+@heading "School Nurse's Office"
+
+@if school.phase == "after-school" or school.phase == "lunch" or school.phase == "break"
+"Hello," the school nurse says as you enter the office, "how can I help you?"
+@elseif school.phase == "class"
+Nobody answers your knock. The office is closed during class time.
+@else
+  "It's quite early," the school nurse says as you enter the office, "how can I help you?"
+@endif
+
+@choice school-nurse-checkup "Ask the school nurse for a checkup" -> place.high-school.nurse-office
+  @time 2m
+  @when npc.caro.present and school.phase != "class"
+  @response
+    The nurse looks you over and takes your vitals. "Everything looks good," they say, "but make sure to get enough sleep and eat well!"
+  @endresponse
+@endchoice
+
+@choice leave "Leave" -> place.high-school
+  @time 2m
+@endchoice
+
+

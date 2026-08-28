@@ -160,7 +160,7 @@ export const NPC_REGISTRY = [
     //thief type
     {
         id: "shade",
-        name: 'Mara "Shade" Kovač',
+        name: 'Drew "Shade" Kovač',
         meta: {
             shortName: "Shade",
             iconPath: "assets/npc/icons/shade/icon.png",
@@ -330,11 +330,11 @@ export const NPC_REGISTRY = [
     //cop type
     {
         id: "officer_vega",
-        name: "Officer Leon Vega",
+        name: "Officer Jules Vega",
         meta: {
             shortName: "Vega",
             iconPath: "assets/npc/icons/vega/icon.png",
-            nicknames: ["Officer Vega", "Leo"],
+            nicknames: ["Officer Vega", "Jule"],
             tags: ["human", "cop"],
         },
 
@@ -573,14 +573,14 @@ export const NPC_REGISTRY = [
 
     //nurse type
     {
-        id: "clara",
-        name: "Clara Novak",
+        id: "caro",
+        name: "Caro Novak",
         meta: {
-            shortName: "Clara",
-            iconPath: "assets/npc/icons/clara/icon.png",
-            nicknames: ["Nurse Clara"],
+            shortName: "Caro",
+            iconPath: "assets/npc/icons/caro/icon.png",
+            nicknames: ["Nurse Caro"],
             description:
-                "Clara is the school nurse - but also your local cinema attendant. The economy is *rough* out there.",
+                "Caro is the school nurse - but also your local cinema attendant. The economy is *rough* out there.",
             tags: ["human", "staff"],
         },
 
@@ -597,8 +597,8 @@ export const NPC_REGISTRY = [
         homePreference: {
             nameFn: (chosenLocation) =>
                 chosenLocation.places.find((p) => p.key === "apartment_complex")
-                    ? "Clara's flat"
-                    : "Clara's home",
+                    ? "Caro's flat"
+                    : "Caro's home",
 
             withKey: ["apartment_complex"],
             withPlaceCategory: [PLACE_TAGS.housing],
@@ -616,13 +616,13 @@ export const NPC_REGISTRY = [
         behavior: {
             goals: [
                 {
-                    id: "clara_sleep_at_home",
+                    id: "caro_sleep_at_home",
                     type: GOAL_TYPE.home,
                     priority: 90,
                     when: { from: "22:00", to: "06:00" },
                 },
                 {
-                    id: "clara_nurse_hours",
+                    id: "caro_nurse_hours",
                     type: GOAL_TYPE.obligation,
                     priority: 100,
                     when: {
@@ -637,7 +637,7 @@ export const NPC_REGISTRY = [
                     },
                 },
                 {
-                    id: "clara_after_work_errands",
+                    id: "caro_after_work_errands",
                     type: GOAL_TYPE.visit,
                     priority: 30,
                     weight: 70,
@@ -654,7 +654,7 @@ export const NPC_REGISTRY = [
                     requireOpen: true,
                 },
                 {
-                    id: "clara_after_work_home",
+                    id: "caro_after_work_home",
                     type: GOAL_TYPE.home,
                     priority: 30,
                     weight: 30,
@@ -665,7 +665,7 @@ export const NPC_REGISTRY = [
                     },
                 },
                 {
-                    id: "clara_part_time_cinema",
+                    id: "caro_part_time_cinema",
                     type: GOAL_TYPE.obligation,
                     priority: 110,
                     when: {
@@ -680,7 +680,7 @@ export const NPC_REGISTRY = [
                     },
                 },
                 {
-                    id: "clara_day_off_life",
+                    id: "caro_day_off_life",
                     type: GOAL_TYPE.visit,
                     priority: 30,
                     weight: 75,
@@ -704,7 +704,7 @@ export const NPC_REGISTRY = [
                     requireOpen: true,
                 },
                 {
-                    id: "clara_day_off_home",
+                    id: "caro_day_off_home",
                     type: GOAL_TYPE.home,
                     priority: 30,
                     weight: 25,
@@ -715,7 +715,7 @@ export const NPC_REGISTRY = [
                     },
                 },
                 {
-                    id: "clara_day_off_evening",
+                    id: "caro_day_off_evening",
                     type: GOAL_TYPE.visit,
                     priority: 30,
                     weight: 30,
@@ -732,7 +732,7 @@ export const NPC_REGISTRY = [
                     requireOpen: true,
                 },
                 {
-                    id: "clara_day_off_evening_home",
+                    id: "caro_day_off_evening_home",
                     type: GOAL_TYPE.home,
                     priority: 30,
                     weight: 70,
@@ -749,11 +749,11 @@ export const NPC_REGISTRY = [
     //tourist type
     {
         id: "mike",
-        name: "Mike Thompson",
+        name: "Michael Thompson",
         meta: {
-            shortName: "Mike",
+            shortName: "Michael",
             iconPath: "assets/npc/icons/mike/icon.png",
-            nicknames: ["Mike", "MT"],
+            nicknames: ["Mic", "MT"],
             description: "Tourist Mike is here for the sights. And the people. Both count.",
             tags: ["human", "tourist"],
         },

@@ -1,7 +1,7 @@
 function init() {
   const NAME_POOLS = {
     masc: ["Alex", "Ben", "Carter", "Diego", "Ethan", "Felix", "Hiro", "Ivan", "Jonas", "Kai"],
-    fem: ["Ada", "Bianca", "Clara", "Dina", "Eva", "Freya", "Hana", "Iris", "Julia", "Kira"],
+    fem: ["Ada", "Bianca", "Caro", "Dina", "Eva", "Freya", "Hana", "Iris", "Julia", "Kira"],
     nb: ["Cameron", "Chandler", "Dakota", "Darcy", "Drew", "Hayden", "Kim", "Taylor", "Ash", "Blair", "Carey", "Devon", "Elliott", "Finley", "Harper", "Indigo", "Jules", "Kit", "Taylor", "Blake", "Blue", "Larkin", "Sasha", "Mickey", "North", "Quincy", "Ramsey", "Hope", "Sky", "Salem", "Tavi", "Valentine", "Milo", "Austin", "Brooke"],
     surnames: ["Morgan", "Rivera", "Kowalski", "Khan", "Okoye", "Novak", "Nguyen", "Garcia", "Patel", "Silva"],
   };

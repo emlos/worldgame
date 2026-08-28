@@ -79,24 +79,24 @@ You are inside {{place.name}}.
   @time 1m
 @endchoice
 
-@entry place.hub.home-clara
-  @scene place.home-clara
-  @place-key home_clara
+@entry place.hub.home-caro
+  @scene place.home-caro
+  @place-key home_caro
   @hub place
 @endentry
 
-:: place.home-clara [place hub]
+:: place.home-caro [place hub]
 @kind place
-@heading "Clara's home"
+@heading "Caro's home"
 @choices "Activities"
 
 You are inside {{place.name}}.
 
-@choice tea "Make some tea" -> place.home-clara
+@choice tea "Make some tea" -> place.home-caro
   @icon ☕
 @endchoice
 
-@choice sit "Sit down for a while" -> place.home-clara
+@choice sit "Sit down for a while" -> place.home-caro
   @icon 🛋️
 @endchoice
 
