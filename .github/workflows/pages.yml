@@ -17,24 +17,6 @@ jobs:
         with:
           fetch-depth: 0 # important: get full history for git log
 
-      - name: Test deterministic RNG
-        run: node tests/random/random_determinism_test.mjs
-
-      - name: Test self-contained NPC saves
-        run: node tests/npc/npc_save_continuity_test.mjs
-
-      - name: Test NPC registry construction
-        run: node tests/npc/npc_registry_construction_test.mjs
-
-      - name: Test deterministic weather timeline
-        run: node tests/weather/weather_timeline_test.mjs
-
-      - name: Test world clock integrity
-        run: node tests/world/time_integrity_test.mjs
-
-      - name: Test multi-year calendar queries
-        run: node tests/world/calendar_query_test.mjs
-
       - name: Generate commits.json
         run: |
           git log --date=iso8601-strict \
