@@ -1,0 +1,15 @@
+SCHOOL CLASS MINIGAME IDEAS
+
+Science: A generated lab practical. Choose a hypothesis, identify variables and controls, select equipment, interpret observations, and draw a conclusion. A small lab-bench diagram, gauge, or apparatus display could show the experiment state.
+
+Physical education: A short turn-based tactical challenge. Choose positioning, pace, movement, teamwork, or risk while managing stamina. A simple court, track, or position diagram could update between choices.
+
+Art: A composition challenge based on a generated brief. Choose a subject, composition, palette, and technique. Grade several qualities such as meeting the brief, balance, contrast, and originality instead of using one strictly correct answer. A small SVG or canvas preview could reflect the choices.
+
+History: A source-analysis or reconstruction activity once more world lore exists. Examine short accounts, evidence cards, dates, and possible biases, then order events or decide which explanation is best supported. A timeline or evidence-board display could accompany the passages.
+
+Shared visual framework: Allow a system-generated scene to optionally provide a lightweight activity renderer and serializable model. Possible renderers include timeline, evidence board, lab bench, meter panel, art preview, court, and track. The visual should be derived from saved activity state while normal scene choices remain the authoritative controls.
+
+Design principle: Give each class a different core action instead of turning every subject into a quiz: investigate for history, experiment for science, compose for art, and make tactical decisions for physical education.
+
+Suggested implementation order: science, physical education, art, then history after the setting lore is developed.
