@@ -117,7 +117,6 @@ function validateState(state) {
 function answerChoice(definition, systemId, question, choice) {
   return createChoice({
     id: `quiz-answer:${choice.id}`,
-    icon: "✍️",
     label: choice.label,
     action: {
       type: SCENE_ACTION_TYPE.wgSystem,

@@ -180,7 +180,6 @@
 @endsequence
 
 @sequence school.english.event.surprise-quiz -> @return
-  @heading "Surprise English Quiz"
   @choices "Choose an answer"
   @onenter
     @effect daily-flag school_quiz_english true
@@ -357,7 +356,6 @@
 @endsequence
 
 @sequence school.math.event.surprise-quiz -> @return
-  @heading "Surprise Math Quiz"
   @choices "Choose an answer"
   @onenter
     @effect daily-flag school_quiz_math true
