@@ -25,7 +25,7 @@ Random gain.
 Random neutral.
 @endrandom
 
-@check resolve trivial
+@check skill resolve trivial
 @success
 Passive success.
 @change grade english 1
@@ -166,12 +166,20 @@ const classDefinitions = {
   art: "school.class.art",
   physical_education: "school.class.physical-education",
 };
+const classPassagesWithoutRandomOutcomes = new Set([
+  "school.class.english.segment-1",
+]);
 for (const [subjectId, sequenceId] of Object.entries(classDefinitions)) {
   const sequence = WG_BUNDLE.sequences[sequenceId];
   assert.equal(sequence.passages.length, 3, `${sequenceId} should have three segments`);
   for (const passage of sequence.passages) {
+    const passageKey = `${sequenceId}.${passage.id}`;
     const random = passage.body.find((node) => node.type === "random");
-    assert.equal(random?.variants.length, 3, `${sequenceId}.${passage.id} needs three outcomes`);
+    if (classPassagesWithoutRandomOutcomes.has(passageKey)) {
+      assert.equal(random, undefined, `${passageKey} should use authored choices`);
+      continue;
+    }
+    assert.equal(random?.variants.length, 3, `${passageKey} needs three outcomes`);
     const changedEffects = random.variants
       .flat()
       .filter((node) => node.type === "effect" && node.effect?.feedback);

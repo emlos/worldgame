@@ -5,7 +5,10 @@ import { createScene } from "../sceneContract.js";
 import { evaluateWGExpression, resolveWGPath } from "./expressionEvaluator.js";
 import { createWGRuntimeContext } from "./runtimeContext.js";
 import { SKILLS } from "../../../../data/player/stats.js";
-import { getSkillCheckDifficulty } from "../../../../data/scene/skillChecks.js";
+import {
+  getSkillCheckDifficulty,
+  getSkillCheckTargetDefinition,
+} from "../../../../data/scene/skillChecks.js";
 import { keyedRandom01 } from "../../../../shared/util/random.js";
 import { resolutionNodeKey } from "./storyResolver.js";
 
@@ -132,19 +135,26 @@ function materializeChoice(node, context, { sequenceId = null } = {}) {
     ? { id: node.eventPool, chance: node.eventChance }
     : null;
   if (node.check) {
-    const skill = SKILLS[node.check.skillId];
+    const target = getSkillCheckTargetDefinition(
+      node.check.targetType,
+      node.check.targetId,
+    );
     const difficulty = getSkillCheckDifficulty(node.check.difficultyId);
-    if (!skill || !difficulty) fail("Checked choice has invalid skill metadata", node.source);
+    if (!target || !difficulty) {
+      fail("Checked choice has invalid check metadata", node.source);
+    }
     skillCheck = {
-      skillId: node.check.skillId,
-      skillLabel: skill.label,
+      targetType: node.check.targetType,
+      targetId: node.check.targetId,
+      targetLabel: target.label,
       difficultyId: node.check.difficultyId,
       difficultyLabel: difficulty.label,
     };
     action = {
       type: SCENE_ACTION_TYPE.skillCheck,
       check: {
-        skillId: node.check.skillId,
+        targetType: node.check.targetType,
+        targetId: node.check.targetId,
         difficultyId: node.check.difficultyId,
       },
       outcomes: {

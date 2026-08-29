@@ -1,5 +1,8 @@
-import { SKILLS } from "../../../../data/player/stats.js";
-import { calculateSkillCheckChance } from "../../../../data/scene/skillChecks.js";
+import {
+  calculateSkillCheckChance,
+  getPlayerSkillCheckValue,
+  getSkillCheckTargetDefinition,
+} from "../../../../data/scene/skillChecks.js";
 import { keyedRandom01 } from "../../../../shared/util/random.js";
 import { evaluateWGExpression } from "./expressionEvaluator.js";
 import { applyWGEffect } from "./effectRuntime.js";
@@ -43,13 +46,20 @@ function randomIndex(game, node, instanceKey) {
 }
 
 function passiveResult(game, node, instanceKey) {
-  const definition = SKILLS[node.check?.skillId];
-  if (!definition) fail("Passive check has invalid skill metadata", node.source);
+  const definition = getSkillCheckTargetDefinition(
+    node.check?.targetType,
+    node.check?.targetId,
+  );
+  if (!definition) fail("Passive check has invalid target metadata", node.source);
 
   let chance;
   try {
     chance = calculateSkillCheckChance(
-      game.player.getSkillValue(node.check.skillId),
+      getPlayerSkillCheckValue(
+        game.player,
+        node.check.targetType,
+        node.check.targetId,
+      ),
       node.check.difficultyId,
       definition,
     );

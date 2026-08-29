@@ -44,9 +44,17 @@ Taylor turns slightly in your direction, clearly waiting to hear what you think.
 The room stays awkwardly quiet while everyone avoids being the first to answer.
 @endif
 
-@choice discussion-argue "Offer your own interpretation" -> .argued
+@choice discussion-argue "Offer your own interpretation"
   @icon 💡
-  @change grade english 1
+  @check grade english difficult
+
+  @success -> .argued
+    @effect grade english 1
+  @endsuccess
+
+  @failure -> .misread
+    @effect grade english -1
+  @endfailure
 @endchoice
 
 @choice discussion-listen "Listen to the other answers" -> .listened
@@ -62,6 +70,12 @@ The room stays awkwardly quiet while everyone avoids being the first to answer.
 @passage argued
 
 You explain that a narrator can report events honestly and still misunderstand what those events mean. The teacher nods and uses your answer to move the discussion forward.
+
+@next "Return to the lesson" -> @return
+
+@passage misread
+
+You start confidently, but mix up the narrator's assumptions with the author's intent. The teacher corrects the distinction before moving the discussion on.
 
 @next "Return to the lesson" -> @return
 
@@ -94,7 +108,7 @@ The unfamiliar phrasing makes the passage look more intimidating than it sounded
 
 @choice reading-volunteer "Volunteer to read"
   @icon 📖
-  @check resolve tricky
+  @check skill resolve tricky
 
   @success -> .steady
     @effect grade english 1

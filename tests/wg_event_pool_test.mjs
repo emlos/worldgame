@@ -36,7 +36,7 @@ The event runs.
 @endchoice
 `,
 }]);
-assert.equal(fixture.formatVersion, 14);
+assert.equal(fixture.formatVersion, 15);
 assert.deepEqual(fixture.entries["test.event"].pools, ["test.pool"]);
 assert.equal(fixture.sequences["test.event"].finalTarget, "@return");
 const fixtureChoice = fixture.scenes["test.source"].body.find(

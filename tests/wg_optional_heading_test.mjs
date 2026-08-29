@@ -19,7 +19,7 @@ This sequence has no page heading.
 `,
 }]);
 
-assert.equal(compiled.formatVersion, 14);
+assert.equal(compiled.formatVersion, 15);
 assert.equal(compiled.scenes["test.headingless-scene"].heading, null);
 assert.equal(compiled.sequences["test.headingless-sequence"].heading, null);
 

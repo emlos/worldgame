@@ -36,7 +36,7 @@ You are back in the privacy of {{place.name}}.
 
 @choice open-jar "Open a stubborn jar"
   @icon 🫙
-  @check strength tricky
+  @check skill strength tricky
 
   @success -> home.jar-opened
     @time 1m

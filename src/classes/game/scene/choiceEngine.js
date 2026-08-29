@@ -15,8 +15,11 @@ import {
   resolveWGPoolEntry,
   WG_AUTO_TRIGGER,
 } from "./wg/entryResolver.js";
-import { calculateSkillCheckChance } from "../../../data/scene/skillChecks.js";
-import { SKILLS } from "../../../data/player/stats.js";
+import {
+  calculateSkillCheckChance,
+  getPlayerSkillCheckValue,
+  getSkillCheckTargetDefinition,
+} from "../../../data/scene/skillChecks.js";
 import { keyedRandom01 } from "../../../shared/util/random.js";
 import {
   getBusFare,
@@ -359,18 +362,25 @@ function outcomeMinutes(choice, outcome, result) {
 
 function performSkillCheck(game, choice, _minutes, scene) {
   const check = choice.action.check;
-  const definition = SKILLS[check.skillId];
+  const definition = getSkillCheckTargetDefinition(
+    check.targetType,
+    check.targetId,
+  );
   if (!definition) {
     fail(
       CHOICE_ERROR_CODE.invalidAction,
-      "Unknown player skill '" + String(check.skillId) + "'",
+      "Unknown skill-check target '" +
+        String(check.targetType) +
+        "." +
+        String(check.targetId) +
+        "'",
     );
   }
 
   let chance;
   try {
     chance = calculateSkillCheckChance(
-      game.player.getSkillValue(check.skillId),
+      getPlayerSkillCheckValue(game.player, check.targetType, check.targetId),
       check.difficultyId,
       definition,
     );

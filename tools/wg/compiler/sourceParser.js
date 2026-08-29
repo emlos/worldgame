@@ -46,6 +46,30 @@ function directiveArgument(text, directive, location) {
   return argument;
 }
 
+function parseCheck(argument, location) {
+  const match = argument.match(
+    new RegExp(`^(${ID_PATTERN})\\s+(${ID_PATTERN})\\s+(${ID_PATTERN})$`),
+  );
+  if (!match) {
+    failWG("@check needs a target type, target id, and difficulty id", location);
+  }
+
+  const [, targetType, targetId, difficultyId] = match;
+  if (targetType !== "skill" && targetType !== "grade") {
+    failWG("@check target type must be 'skill' or 'grade'", location);
+  }
+  if (targetType === "skill" && !SKILLS[targetId]) {
+    failWG(`@check references unknown skill '${targetId}'`, location);
+  }
+  if (targetType === "grade" && !SCHOOL_SUBJECTS[targetId]) {
+    failWG(`@check references unknown school subject '${targetId}'`, location);
+  }
+  if (!SKILL_CHECK_DIFFICULTIES[difficultyId]) {
+    failWG(`@check references unknown difficulty '${difficultyId}'`, location);
+  }
+  return { targetType, targetId, difficultyId };
+}
+
 function directiveName(text) {
   return text.match(/^@([a-z][a-z-]*)/)?.[1] ?? null;
 }
@@ -520,18 +544,7 @@ class SceneBodyParser {
     const opening = this.current();
     const location = lineLocation(this.file, opening.line);
     const argument = directiveArgument(opening.text.trim(), "check", location);
-    const match = argument.match(
-      new RegExp(`^(${ID_PATTERN})\\s+(${ID_PATTERN})$`),
-    );
-    if (!match) failWG("@check needs a skill id and difficulty id", location);
-
-    const [, skillId, difficultyId] = match;
-    if (!SKILLS[skillId]) {
-      failWG(`@check references unknown skill '${skillId}'`, location);
-    }
-    if (!SKILL_CHECK_DIFFICULTIES[difficultyId]) {
-      failWG(`@check references unknown difficulty '${difficultyId}'`, location);
-    }
+    const check = parseCheck(argument, location);
 
     this.index += 1;
     const preamble = this.parseNodes(new Set(["success", "failure", "endcheck"]));
@@ -567,8 +580,7 @@ class SceneBodyParser {
     return {
       type: "passive-check",
       check: {
-        skillId,
-        difficultyId,
+        ...check,
         source: nodeSource(this.file, opening.line),
       },
       outcomes: {
@@ -883,14 +895,10 @@ class SceneBodyParser {
         );
       } else if (name === "check") {
         const argument = directiveArgument(text, "check", location);
-        const check = argument.match(new RegExp(`^(${ID_PATTERN})\\s+(${ID_PATTERN})$`));
-        if (!check) failWG("@check needs a skill id and difficulty id", location);
-        const [, skillId, difficultyId] = check;
-        if (!SKILLS[skillId]) failWG(`@check references unknown skill '${skillId}'`, location);
-        if (!SKILL_CHECK_DIFFICULTIES[difficultyId]) {
-          failWG(`@check references unknown difficulty '${difficultyId}'`, location);
-        }
-        choice.check = { skillId, difficultyId, source: nodeSource(this.file, line.line) };
+        choice.check = {
+          ...parseCheck(argument, location),
+          source: nodeSource(this.file, line.line),
+        };
       } else if (name === "require") {
         const argument = directiveArgument(text, "require", location);
         const requirement = argument.match(

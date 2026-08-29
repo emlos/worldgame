@@ -658,7 +658,7 @@ committed.
 A body-level `@check` opens a passive, targetless skill check:
 
 ```wg
-@check resolve tricky
+@check skill resolve tricky
 @success
 You manage to focus and follow the explanation.
 @change grade english 1
@@ -669,10 +669,11 @@ Most of the explanation goes over your head.
 ```
 
 Both branches are required and may contain any normal body content, including
-nested conditions, random blocks, effects, and passive checks. The check uses
-the same registered skills, difficulty curve, and hidden keyed roll as an
-interactive skill check. Its result is saved for the story instance and is
-never rerolled by rendering or loading.
+nested conditions, random blocks, effects, and passive checks. A check target
+is written as `skill <skill-id>` or `grade <subject-id>`, followed by the
+difficulty. Both use the same difficulty curve and hidden keyed roll. The
+result is saved for the story instance and is never rerolled by rendering or
+loading.
 
 Persistent `@kind place` hubs cannot contain prose effects or passive checks,
 because they are live views rather than entered story instances. Put such an
@@ -815,12 +816,12 @@ The runtime clamps the result to the skill's range. A direct positive change
 automatically displays green `+Strength`; a negative change displays red
 `-Strength`. The exact amount is never included in the display metadata.
 
-A checked choice omits the arrow from its choice header and supplies a skill,
+A checked choice omits the arrow from its choice header and supplies a target,
 difficulty, and two outcome blocks:
 
 ```wg
 @choice open-jar "Open a stubborn jar"
-  @check strength tricky
+  @check skill strength tricky
 
   @success -> home.jar-opened
     @time 1m
@@ -847,6 +848,11 @@ They may still use one `@icon`, `@when`, `@warning`, and `@check`, plus repeated
 or sequence, a local passage when inside a sequence, `@exit`, or
 `@leave-place`.
 
+To check a school grade instead, use syntax such as
+`@check grade english difficult`. The UI displays `English Grade: Difficult`.
+Grades are normalized from their `0`–`100` range to the same `0`–`10` check
+level used by skills.
+
 Each `@success` or `@failure` block may contain at most one `@time`, including
 the optional `free` suffix, and any number of `@response` and `@effect`
 directives. It cannot contain `@time-until`, conditions, requirements,
@@ -862,11 +868,12 @@ Implemented difficulty IDs are:
 - `near-impossible`: displayed as `Impossible?`.
 - `impossible`: exactly 0% success.
 
-For rolled difficulties, the engine floors the skill before calculating the
-chance. Thus `2.05` and `2.99` both check as level `2`. Chance rises smoothly
-with skill using the centralized logistic difficulty curve; the author does
-not specify percentages. Even level `10` has a failure chance on
-`near-impossible`.
+For rolled difficulties, the engine floors the normalized check level before
+calculating the chance. Thus skill values `2.05` and `2.99` both check as level
+`2`, while English grades `20.5` and `29.9` both do the same. Chance rises
+smoothly with the target value using the centralized logistic difficulty
+curve; the author does not specify percentages. Even level `10` has a failure
+chance on `near-impossible`.
 
 Checks are resolved only after the choice is authoritatively rebuilt. Their
 keyed roll uses the game seed, successful-action revision, current scene
@@ -987,8 +994,9 @@ The compiler rejects malformed directives, duplicate single-value fields,
 unclosed blocks, duplicate scene, sequence, passage, entry, choice, or
 choice-group IDs,
 invalid expressions and durations, unknown global and local targets, unknown
-skill-check difficulties, unknown registered skill/stat/school-subject effect
-IDs, missing entry targets, and direct duplicate place hubs. It checks
+skill-check target types, target IDs, and difficulties, unknown registered
+skill/stat/school-subject effect IDs, missing entry targets, and direct
+duplicate place hubs. It checks
 `@time-until` path syntax but not whether that runtime value exists. It does
 not validate other general runtime paths, NPC IDs, or overlapping tag-based
 hub selectors.

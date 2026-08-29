@@ -260,7 +260,7 @@ function makeChoiceButton(sceneId, choice, number) {
     details.append(
       makeChoiceDetail(
         "choice-skill-check",
-        choice.skillCheck.skillLabel + ": " + choice.skillCheck.difficultyLabel,
+        choice.skillCheck.targetLabel + ": " + choice.skillCheck.difficultyLabel,
       ),
     );
   }
