@@ -132,7 +132,7 @@ assert.equal(visibleChoice.action.effects[0].op, "grade");
 const restored = Game.fromJSON(JSON.parse(JSON.stringify(game)));
 assert.deepEqual(buildScene(restored).content, firstScene.content);
 assert.equal(restored.player.getSubjectGrade("english"), startingGrade + randomDelta + 1);
-assert.equal(restored.toJSON().saveVersion, 20);
+assert.equal(restored.toJSON().saveVersion, 21);
 
 const rollbackGame = new Game({
   seed: 722,

@@ -410,7 +410,20 @@ rules; those consequences are not applied automatically.
 
 Ordinary non-directive lines are prose. Blank lines separate paragraphs.
 Consecutive lines inside one paragraph are trimmed and joined with a single
-space. WG does not interpret HTML or other inline markup.
+space. HTML stays literal and is never executed. Passage prose and response
+paragraphs support these outcome-colour markers:
+
+```wg
+[good]A very good result.[/good]
+[ok]Things are under control.[/ok]
+[warning]This may become a problem.[/warning]
+[bad]The outcome is bad.[/bad]
+[dire]The situation is dire.[/dire]
+```
+
+`[good]` is the short form of `[very-good]`. Markers are not nested. Missing
+or mismatched closing markers remain visible as ordinary text, which makes
+authoring mistakes obvious instead of swallowing prose.
 
 ```wg
 You have £{{player.money}}.
@@ -879,6 +892,13 @@ Implemented effects are:
 - `daily-flag <id> true|false` enables or removes a daily flag. All daily flags
   are cleared together when forward game time crosses UTC midnight. Use
   `not daily.<id>` to gate a once-per-day choice.
+- The ordinary flags `announcement_vega_station` and
+  `announcement_school_project_last_day` feed the day-start announcement
+  registry. When set as midnight is crossed, their registered text joins all
+  automatic announcements at the top of the destination passage. The visible
+  batch is dismissed by the next successful action, including `@next`, but its
+  source flags remain set until an authored effect unsets them. This makes a
+  reminder repeat on later days unless the story explicitly cancels it.
 - `relationship <npc-id> <signed-number>` changes and clamps that NPC
   relationship to `-1` through `1`, marks the relationship as met, and fails at
   runtime if the NPC does not exist.

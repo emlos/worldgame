@@ -15,6 +15,12 @@ import {
 } from "../../classes/game/scene/phoneView.js";
 import { STATS } from "../../data/player/stats.js";
 import { renderMap as renderGraphMap } from "./renderMap.js";
+import {
+  OUTCOME,
+  outcomeForRange,
+  outcomeForRelationship,
+  setOutcomeText,
+} from "./outcomes.js";
 
 const statusElement = document.querySelector("#status");
 const noticeElement = document.querySelector("#notice");
@@ -131,10 +137,18 @@ function renderPlayerPanel() {
     const row = document.createElement("div");
     row.className = "player-stat";
     row.dataset.stat = name;
+    row.dataset.outcome = outcomeForRange(value, definition.min, definition.max, {
+      lowerIsBetter: definition.higherIsBetter === false,
+    });
 
     const label = document.createElement("span");
     label.className = "player-stat-label";
     label.textContent = definition.label;
+
+    const valueElement = document.createElement("output");
+    valueElement.className = "player-stat-value";
+    valueElement.textContent = formatStatValue(value);
+    valueElement.setAttribute("aria-label", `${definition.label} value`);
 
     const meter = document.createElement("div");
     meter.className = "player-stat-meter";
@@ -148,7 +162,7 @@ function renderPlayerPanel() {
     fill.className = "player-stat-meter-fill";
     fill.style.width = `${percentage}%`;
     meter.append(fill);
-    row.append(label, meter);
+    row.append(label, valueElement, meter);
     playerStatsElement.append(row);
   }
 }
@@ -228,6 +242,8 @@ function makeChoiceButton(sceneId, choice, number) {
     const className =
       effect.direction === "decrease" || effect.amount < 0
         ? "choice-change-decrease"
+        : effect.direction === "neutral" || effect.amount === 0
+          ? "choice-effect-neutral"
         : "choice-effect";
     details.append(
       makeChoiceDetail(className, formatDescriptor(effect, "effect")),
@@ -420,12 +436,6 @@ function formatRelationshipScore(score) {
   return Number.isFinite(value) ? value.toFixed(2) : "0.00";
 }
 
-function relationshipScoreTone(score) {
-  if (score > 0) return "positive";
-  if (score < 0) return "negative";
-  return "neutral";
-}
-
 function makePhoneRelationshipEntry(entry) {
   const item = document.createElement("li");
   item.className = "phone-relationship-card";
@@ -460,7 +470,7 @@ function makePhoneRelationshipEntry(entry) {
 
   const scoreValue = document.createElement("output");
   scoreValue.className = "phone-relationship-score-value";
-  scoreValue.dataset.tone = relationshipScoreTone(entry.score);
+  scoreValue.dataset.outcome = outcomeForRelationship(entry.score);
   scoreValue.textContent = formatRelationshipScore(entry.score);
   scoreValue.setAttribute("aria-label", `${entry.name} relationship score`);
 
@@ -523,6 +533,10 @@ function makePhoneMeterEntry(entry, kind) {
   item.className = "phone-meter-entry";
   item.dataset.valueId = entry.id;
   item.dataset.kind = kind;
+  item.dataset.outcome = outcomeForRange(entry.value, entry.min, entry.max, {
+    lowerIsBetter:
+      kind === "stat" && STATS[entry.id]?.higherIsBetter === false,
+  });
 
   const header = document.createElement("div");
   header.className = "phone-meter-header";
@@ -555,19 +569,23 @@ function makePhoneMeterEntry(entry, kind) {
   return item;
 }
 
-function bodyPartTone(part) {
+function bodyPartOutcome(part) {
   const fraction = part.maxHealth ? part.health / part.maxHealth : 0;
-  if (fraction <= 0.4) return "danger";
-  if (fraction < 0.75 || part.pain > 0 || part.conditions.length)
-    return "warning";
-  return "healthy";
+  const healthOutcome = outcomeForRange(fraction, 0, 1);
+  if (
+    (part.pain > 0 || part.conditions.length) &&
+    [OUTCOME.VERY_GOOD, OUTCOME.OK].includes(healthOutcome)
+  ) {
+    return OUTCOME.WARNING;
+  }
+  return healthOutcome;
 }
 
 function makePhoneBodyPart(part) {
   const item = document.createElement("article");
   item.className = "phone-body-part";
   item.dataset.partId = part.id;
-  item.dataset.tone = bodyPartTone(part);
+  item.dataset.outcome = bodyPartOutcome(part);
 
   const header = document.createElement("div");
   header.className = "phone-body-part-header";
@@ -888,21 +906,21 @@ function render(preludeParagraphs = []) {
     const alertElement = document.createElement("p");
     alertElement.className = "scene-alert";
     alertElement.dataset.tone = alert.tone;
-    alertElement.textContent = alert.text;
+    setOutcomeText(alertElement, alert.text);
     sceneElement.append(alertElement);
   }
 
   for (const paragraphText of preludeParagraphs) {
     const paragraph = document.createElement("p");
     paragraph.className = "scene-response";
-    paragraph.textContent = paragraphText;
+    setOutcomeText(paragraph, paragraphText);
     sceneElement.append(paragraph);
   }
 
   for (const block of currentScene.content) {
     if (block.type === "paragraph") {
       const paragraph = document.createElement("p");
-      paragraph.textContent = block.text;
+      setOutcomeText(paragraph, block.text);
       sceneElement.append(paragraph);
       continue;
     }

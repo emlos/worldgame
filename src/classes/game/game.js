@@ -22,6 +22,11 @@ import {
   validateGameSave,
 } from "./util/saveValidation.js";
 import { buildGpsRoute, resolveNavigationDestination } from "./navigation.js";
+import {
+  announcementDayKey,
+  collectDailyAnnouncements,
+  emptyDailyAnnouncements,
+} from "./announcements.js";
 
 export { SaveValidationError, validateGameSave };
 
@@ -133,6 +138,10 @@ export class Game {
       timeJump: new Set(), // (game, { from, to, minutes, mode, source }) => void
       location: new Set(), // (game, newLocationId) => void
     };
+
+    // A new game starts partway through its first day, so seed the same batch
+    // that a midnight crossing would have created for that date.
+    this.dailyAnnouncements = collectDailyAnnouncements(this, this.now);
   }
 
   // --------------------------
@@ -252,6 +261,7 @@ export class Game {
       });
       this._clearDailyFlagsAfterMidnight(from, this.now);
       ejectedFrom = this._enforcePlaceClosing(from, this.now);
+      this._syncDailyAnnouncementsAfterDateChange(from, this.now);
     } catch (error) {
       this._restoreTimeRuntimeState(snapshot);
       throw error;
@@ -307,6 +317,15 @@ export class Game {
     if (!sameUtcDay) this.dailyFlags.clear();
   }
 
+  _syncDailyAnnouncementsAfterDateChange(from, to) {
+    if (announcementDayKey(from) === announcementDayKey(to)) return;
+
+    this.dailyAnnouncements =
+      to > from
+        ? collectDailyAnnouncements(this, to)
+        : emptyDailyAnnouncements(to);
+  }
+
   _enforcePlaceClosing(from, to) {
     const place = this.currentPlace;
     if (!place?.props?.ejectAtClose || !(to > from)) return null;
@@ -333,6 +352,7 @@ export class Game {
       playerEnergy: this.player.getStatBase("energy"),
       playerAge: this.player.age,
       dailyFlags: [...this.dailyFlags],
+      dailyAnnouncements: JSON.parse(JSON.stringify(this.dailyAnnouncements)),
       currentLocationId: this.currentLocationId,
       currentPlaceId: this.currentPlaceId,
       currentPlaceKey: this.currentPlaceKey,
@@ -363,6 +383,7 @@ export class Game {
     this.storyRevision = snapshot.storyRevision;
     this.dailyFlags.clear();
     for (const flag of snapshot.dailyFlags) this.dailyFlags.add(flag);
+    this.dailyAnnouncements = snapshot.dailyAnnouncements;
 
     for (const state of snapshot.npcs) {
       state.npc.setLocationAndPlace(state.locationId, state.currentPlaceId);
@@ -476,6 +497,15 @@ export class Game {
   }
   hasDailyFlag(flag) {
     return this.dailyFlags.has(String(flag));
+  }
+
+  /** Dismiss the visible batch without changing any source story flags. */
+  dismissDailyAnnouncements() {
+    const dismissed = this.dailyAnnouncements.items.length;
+    if (dismissed > 0) {
+      this.dailyAnnouncements = emptyDailyAnnouncements(this.now);
+    }
+    return dismissed;
   }
 
   // --- Phone GPS navigation ---
@@ -688,6 +718,11 @@ export class Game {
 
     let timeChange = null;
     try {
+      // Any committed player action acknowledges the currently visible batch.
+      // If this action crosses midnight, time synchronization creates a fresh
+      // batch for the destination day later in this same transaction.
+      this.dismissDailyAnnouncements();
+
       if (typeof apply === "function") {
         // Let the action mutate game / player / NPCs / world. The
         // detached checkpoint below restores all persisted state if
@@ -799,7 +834,7 @@ export class Game {
   // --------------------------
   toJSON() {
     return {
-      saveVersion: 20,
+      saveVersion: 21,
       seed: this.seed,
       random: this.random.toJSON(),
       time: this.now.toISOString(),
@@ -814,6 +849,7 @@ export class Game {
       gpsTarget: this.gpsTarget === null ? null : { ...this.gpsTarget },
       flags: [...this.flags],
       dailyFlags: [...this.dailyFlags],
+      dailyAnnouncements: JSON.parse(JSON.stringify(this.dailyAnnouncements)),
       story: JSON.parse(JSON.stringify(this.story)),
       currentStory:
         this.currentStory === null
@@ -862,6 +898,7 @@ export class Game {
     game.gpsTarget = data.gpsTarget === null ? null : { ...data.gpsTarget };
     game.flags = new Set(data.flags);
     game.dailyFlags = new Set(data.dailyFlags);
+    game.dailyAnnouncements = JSON.parse(JSON.stringify(data.dailyAnnouncements));
     game.story = JSON.parse(JSON.stringify(data.story));
     game.currentStory =
       data.currentStory === null

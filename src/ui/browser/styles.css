@@ -3,6 +3,36 @@
   font-family: Arial, Helvetica, sans-serif;
   background: #0d0f12;
   color: #ececec;
+  --outcome-very-good: #73cf76;
+  --outcome-ok: #8fb8d8;
+  --outcome-warning: #f2c14e;
+  --outcome-bad: #e78c6a;
+  --outcome-dire: #ff6b81;
+}
+
+[data-outcome="very-good"] {
+  --outcome-color: var(--outcome-very-good);
+}
+
+[data-outcome="ok"] {
+  --outcome-color: var(--outcome-ok);
+}
+
+[data-outcome="warning"] {
+  --outcome-color: var(--outcome-warning);
+}
+
+[data-outcome="bad"] {
+  --outcome-color: var(--outcome-bad);
+}
+
+[data-outcome="dire"] {
+  --outcome-color: var(--outcome-dire);
+}
+
+.outcome-text {
+  color: var(--outcome-color, inherit);
+  font-weight: 600;
 }
 
 * {
@@ -96,18 +126,22 @@ body {
 }
 
 #player-temperature[data-temperature="overheating"],
-#player-temperature[data-temperature="hot"],
 #player-temperature[data-temperature="freezing"] {
-  color: #ff7d7d;
+  color: var(--outcome-dire);
+}
+
+#player-temperature[data-temperature="hot"],
+#player-temperature[data-temperature="cold"] {
+  color: var(--outcome-bad);
 }
 
 #player-temperature[data-temperature="warm"],
-#player-temperature[data-temperature="cold"] {
-  color: #e7b66a;
+#player-temperature[data-temperature="cool"] {
+  color: var(--outcome-warning);
 }
 
 #player-temperature[data-temperature="comfortable"] {
-  color: #73cf76;
+  color: var(--outcome-very-good);
 }
 
 .player-panel h3 {
@@ -135,7 +169,7 @@ body {
 }
 
 .player-stat-value {
-  color: #858d99;
+  color: var(--outcome-color, var(--outcome-ok));
   font-variant-numeric: tabular-nums;
 }
 
@@ -150,26 +184,8 @@ body {
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: #5ca3ff;
+  background: var(--outcome-color, var(--outcome-ok));
   transition: width 160ms ease;
-}
-
-.player-stat[data-stat="health"] .player-stat-meter-fill,
-.player-stat[data-stat="hygiene"] .player-stat-meter-fill {
-  background: #73cf76;
-}
-
-.player-stat[data-stat="energy"] .player-stat-meter-fill {
-  background: #f2c14e;
-}
-
-.player-stat[data-stat="stress"] .player-stat-meter-fill,
-.player-stat[data-stat="fear"] .player-stat-meter-fill {
-  background: #e78c6a;
-}
-
-.player-stat[data-stat="trauma"] .player-stat-meter-fill {
-  background: #b487e8;
 }
 
 .player-stats-section {
@@ -256,7 +272,7 @@ body {
 }
 
 .notice.error {
-  color: #ff7d7d;
+  color: var(--outcome-dire);
 }
 
 h1 {
@@ -329,27 +345,31 @@ p {
 }
 
 .choice-cost {
-  color: #e7b66a;
+  color: var(--outcome-warning);
 }
 
 .choice-effect {
-  color: #73cf76;
+  color: var(--outcome-very-good);
+}
+
+.choice-effect-neutral {
+  color: var(--outcome-ok);
 }
 
 .choice-change-decrease {
-  color: #dc6b6b;
+  color: var(--outcome-bad);
 }
 
 .choice-skill-increase {
-  color: #73cf76;
+  color: var(--outcome-very-good);
 }
 
 .choice-skill-decrease {
-  color: #dc6b6b;
+  color: var(--outcome-bad);
 }
 
 .choice-skill-check {
-  color: #e7a85f;
+  color: var(--outcome-warning);
 }
 
 .scene-changes {
@@ -361,19 +381,19 @@ p {
 }
 
 .scene-change--increase {
-  color: #73cf76;
+  color: var(--outcome-very-good);
 }
 
 .scene-change--decrease {
-  color: #dc6b6b;
+  color: var(--outcome-bad);
 }
 
 .scene-change--neutral {
-  color: #c7cbd1;
+  color: var(--outcome-ok);
 }
 
 .choice-warning {
-  color: #f2c14e;
+  color: var(--outcome-warning);
 }
 
 .choice-navigation {
@@ -513,18 +533,9 @@ p {
   font-weight: 700;
 }
 
-.scene-alert {
-  margin: 0 0 18px;
-  border-left: 3px solid #6f839c;
-  padding: 8px 11px;
-  background: rgba(111, 131, 156, 0.1);
-  color: #c9d4e1;
-}
 
 .scene-alert[data-tone="warning"] {
-  border-left-color: #f2c14e;
-  background: rgba(242, 193, 78, 0.1);
-  color: #f2c14e;
+  color: var(--outcome-warning);
 }
 
 .map-node--boundary {
@@ -1016,18 +1027,10 @@ p {
 }
 
 .phone-relationship-score-value {
-  color: #aeb7c2;
+  color: var(--outcome-color, var(--outcome-ok));
   font-size: 1rem;
   font-variant-numeric: tabular-nums;
   font-weight: 600;
-}
-
-.phone-relationship-score-value[data-tone="positive"] {
-  color: #42bf67;
-}
-
-.phone-relationship-score-value[data-tone="negative"] {
-  color: #dc6b6b;
 }
 
 .phone-stats-content {
@@ -1122,7 +1125,7 @@ p {
 
 .phone-meter-header output,
 .phone-body-part-header output {
-  color: #d9dee5;
+  color: var(--outcome-color, var(--outcome-ok));
   font-size: 0.8rem;
   font-variant-numeric: tabular-nums;
   font-weight: 600;
@@ -1140,11 +1143,11 @@ p {
   width: 0;
   height: 100%;
   border-radius: inherit;
-  background: #aa98bf;
+  background: var(--outcome-color, var(--outcome-ok));
 }
 
 .phone-meter-entry[data-kind="skill"] .phone-meter-fill {
-  background: #91a8c5;
+  background: var(--outcome-color, var(--outcome-ok));
 }
 
 .phone-skills-section {
@@ -1185,21 +1188,6 @@ p {
   white-space: nowrap;
 }
 
-.phone-meter-entry[data-value-id="health"] .phone-meter-fill,
-.phone-meter-entry[data-value-id="hygiene"] .phone-meter-fill {
-  background: #79aa88;
-}
-
-.phone-meter-entry[data-value-id="energy"] .phone-meter-fill {
-  background: #c4a76f;
-}
-
-.phone-meter-entry[data-value-id="stress"] .phone-meter-fill,
-.phone-meter-entry[data-value-id="fear"] .phone-meter-fill,
-.phone-meter-entry[data-value-id="trauma"] .phone-meter-fill {
-  background: #bc7777;
-}
-
 .phone-meter-detail {
   margin: 0;
   color: #707d8d;
@@ -1207,17 +1195,6 @@ p {
   font-variant-numeric: tabular-nums;
 }
 
-.phone-body-part[data-tone="healthy"] .phone-meter-fill {
-  background: #79aa88;
-}
-
-.phone-body-part[data-tone="warning"] .phone-meter-fill {
-  background: #c4a76f;
-}
-
-.phone-body-part[data-tone="danger"] .phone-meter-fill {
-  background: #bc7777;
-}
 
 .debug-panel {
   position: sticky;

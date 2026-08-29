@@ -37,6 +37,7 @@ const WEATHER_TYPES = new Set(Object.values(WeatherType));
 const DAY_KINDS = new Set(Object.values(DayKind));
 const DAY_KEYS_SET = new Set(DAY_KEYS);
 const PLAYER_TEMPERATURES = new Set(PLAYER_TEMPERATURE_VALUES);
+const ANNOUNCEMENT_TONES = new Set(["info", "warning"]);
 
 export class SaveValidationError extends Error {
     constructor(path, message) {
@@ -1321,14 +1322,44 @@ function validateNPC(data, path, context) {
     });
 }
 
+function validateDailyAnnouncements(value, path, gameTime) {
+    const batch = record(value, path);
+    const day = string(required(batch, "day", path), `${path}.day`, { nonEmpty: true });
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) {
+        fail(`${path}.day`, "must be a UTC date in YYYY-MM-DD form");
+    }
+    same(
+        day,
+        new Date(gameTime).toISOString().slice(0, 10),
+        `${path}.day`,
+        "the current game day",
+    );
+
+    const ids = new Set();
+    array(required(batch, "items", path), `${path}.items`).forEach((itemData, index) => {
+        const itemPath = `${path}.items[${index}]`;
+        const item = record(itemData, itemPath);
+        const id = string(required(item, "id", itemPath), `${itemPath}.id`, { nonEmpty: true });
+        if (ids.has(id)) fail(`${itemPath}.id`, `duplicates announcement '${id}'`);
+        ids.add(id);
+        const tone = string(required(item, "tone", itemPath), `${itemPath}.tone`, {
+            nonEmpty: true,
+        });
+        if (!ANNOUNCEMENT_TONES.has(tone)) {
+            fail(`${itemPath}.tone`, "must be 'info' or 'warning'");
+        }
+        string(required(item, "text", itemPath), `${itemPath}.text`, { nonEmpty: true });
+    });
+}
+
 export function validateGameSave(data) {
     validateJsonValue(data, "save");
     const save = record(data, "save");
     same(
         integer(required(save, "saveVersion", "save"), "save.saveVersion"),
-        20,
+        21,
         "save.saveVersion",
-        "version 20",
+        "version 21",
     );
 
     const seed = uint32(required(save, "seed", "save"), "save.seed");
@@ -1460,6 +1491,11 @@ export function validateGameSave(data) {
 
     uniqueStrings(required(save, "flags", "save"), "save.flags");
     uniqueStrings(required(save, "dailyFlags", "save"), "save.dailyFlags", { nonEmpty: true });
+    validateDailyAnnouncements(
+        required(save, "dailyAnnouncements", "save"),
+        "save.dailyAnnouncements",
+        gameTime,
+    );
     record(required(save, "story", "save"), "save.story");
     const currentStory = validateCurrentStory(
         required(save, "currentStory", "save"),
