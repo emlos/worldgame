@@ -17,7 +17,7 @@
 The halls of {{place.name}} are open, though lessons have not begun yet. You can see groups of students move in the hallways.
 
 @choice wait-for-first-class "Wait for the first class" -> place.high-school
-  @icon ⏳
+  
   @time-until school.nextBoundaryAt
 @endchoice
 
@@ -26,7 +26,7 @@ The halls of {{place.name}} are open, though lessons have not begun yet. You can
 English class is in progress. You can still attend or keep exploring the school.
 
 @choice attend-english "Attend English class" -> school.class.english
-  @icon 📖
+  
 @endchoice
 
 @elseif school.phase == "class" and school.subjectId == "math"
@@ -34,7 +34,7 @@ English class is in progress. You can still attend or keep exploring the school.
 Mathematics class is in progress. You can still attend or keep exploring the school.
 
 @choice attend-math "Attend Mathematics class" -> school.class.math
-  @icon 🧮
+  
 @endchoice
 
 @elseif school.phase == "class" and school.subjectId == "history"
@@ -42,7 +42,7 @@ Mathematics class is in progress. You can still attend or keep exploring the sch
 History class is in progress. You can still attend or keep exploring the school.
 
 @choice attend-history "Attend History class" -> school.class.history
-  @icon 📜
+  
 @endchoice
 
 @elseif school.phase == "lunch"
@@ -50,12 +50,12 @@ History class is in progress. You can still attend or keep exploring the school.
 Lunch break is underway. The cafeteria is open until afternoon classes begin.
 
 @choice lunch-cafeteria "Go to the cafeteria" -> place.high-school
-  @icon 🍽️
+  
   @time-until school.nextBoundaryAt
 @endchoice
 
 @choice lunch-wait "Wait for the next class" -> place.high-school
-  @icon ⏳
+  
   @time-until school.nextBoundaryAt
 @endchoice
 
@@ -64,7 +64,7 @@ Lunch break is underway. The cafeteria is open until afternoon classes begin.
 Science class is in progress. You can still attend or keep exploring the school.
 
 @choice attend-science "Attend Science class" -> school.class.science
-  @icon 🔬
+  
 @endchoice
 
 @elseif school.phase == "class" and school.subjectId == "art"
@@ -72,7 +72,7 @@ Science class is in progress. You can still attend or keep exploring the school.
 Art class is in progress. You can still attend or keep exploring the school.
 
 @choice attend-art "Attend Art class" -> school.class.art
-  @icon 🎨
+  
 @endchoice
 
 @elseif school.phase == "class" and school.subjectId == "physical_education"
@@ -80,7 +80,7 @@ Art class is in progress. You can still attend or keep exploring the school.
 Physical education is in progress. You can still attend or keep exploring the school.
 
 @choice attend-physical-education "Attend Physical Education" -> school.class.physical-education
-  @icon 🏃
+  
 @endchoice
 
 @elseif school.phase == "break"
@@ -88,12 +88,12 @@ Physical education is in progress. You can still attend or keep exploring the sc
 There is a short break before the next class begins.
 
 @choice break-cafeteria "Go to the cafeteria" -> place.high-school
-  @icon 🍎
+  
   @time-until school.nextBoundaryAt
 @endchoice
 
 @choice break-wait "Wait for the next class" -> place.high-school
-  @icon ⏳
+  
   @time-until school.nextBoundaryAt
 @endchoice
 
@@ -102,7 +102,7 @@ There is a short break before the next class begins.
 Lessons are over, but {{place.name}} remains open until 17:00.
 
 @choice after-school-wait "Stay until school closes" -> place.high-school
-  @icon ⏳
+  
   @time-until school.nextBoundaryAt
 @endchoice
 
@@ -179,7 +179,7 @@ The school has closed for the day.
 
 
 @choice leave-school "Leave" -> @leave-place
-  @icon 🚪
+  
   @time 1m
 @endchoice
 
@@ -194,20 +194,20 @@ The school has closed for the day.
 The students fill the classroom and take their seats. The teacher begins the lesson, and you focus on the material.
 
 @choice english-1-taylor "Chat with Taylor" -> .segment-2
-  @icon 💬
+  
   @time-until school.nextBoundaryAt
   @event-pool school.class.english
-  @event-chance 75%
+  
   @when npc.taylor.present
   @effect attendance english 1
-  @effect relationship taylor 0.003
+  @change relationship taylor 1
 @endchoice
 
 @choice english-1-study "Study hard" -> .segment-2
-  @icon 📖
+  
   @time-until school.nextBoundaryAt
   @event-pool school.class.english
-  @event-chance 75%
+  
   @preview grade 1 "+English grade"
   @effect attendance english 1
   @effect grade english 1
@@ -215,33 +215,20 @@ The students fill the classroom and take their seats. The teacher begins the les
 
 @passage segment-2
 
-English class continues into its second segment.
-
-@random
-The lesson goes poorly—you leave more confused than before.
-@change grade english -1
-@or
-The lesson goes well—you learn a lot!
-@change grade english 1
-@or
-You don't really pay attention and get through the work normally.
-@endrandom
+The teacher continues the lesson, and you take notes diligently. The class is going well so far.
 
 @choice english-2-taylor "Chat with Taylor" -> .segment-3
-  @icon 💬
   @time-until school.nextBoundaryAt
   @event-pool school.class.english
-  @event-chance 75%
   @when npc.taylor.present
   @effect attendance english 1
-  @effect relationship taylor 0.003
+  @change relationship taylor 1
 @endchoice
 
 @choice english-2-study "Study hard" -> .segment-3
-  @icon 📖
   @time-until school.nextBoundaryAt
   @event-pool school.class.english
-  @event-chance 75%
+
   @preview grade 1 "+English grade"
   @effect attendance english 1
   @effect grade english 1
@@ -249,33 +236,22 @@ You don't really pay attention and get through the work normally.
 
 @passage segment-3
 
-The final segment of English class gets underway.
-
-@random
-The lesson goes poorly—you leave more confused than before.
-@change grade english -1
-@or
-The lesson goes well—you learn a lot!
-@change grade english 1
-@or
-You don't really pay attention and get through the work normally.
-@endrandom
+The students look bored as the teacher wraps up the lesson. You have a few minutes before the class ends.
 
 @choice english-3-taylor "Chat with Taylor" -> @exit
-  @icon 💬
+  
   @time-until school.nextBoundaryAt
   @event-pool school.class.english
-  @event-chance 75%
   @when npc.taylor.present
   @effect attendance english 1
-  @effect relationship taylor 0.003
+  @change relationship taylor 1
 @endchoice
 
 @choice english-3-study "Study hard" -> @exit
-  @icon 📖
+  
   @time-until school.nextBoundaryAt
   @event-pool school.class.english
-  @event-chance 75%
+  
   @preview grade 1 "+English grade"
   @effect attendance english 1
   @effect grade english 1
@@ -292,26 +268,18 @@ You don't really pay attention and get through the work normally.
 
 The first segment of Mathematics class begins.
 
-@random
-The lesson goes poorly—you leave more confused than before.
-@change grade math -1
-@or
-The lesson goes well—you learn a lot!
-@change grade math 1
-@or
-You don't really pay attention and get through the work normally.
-@endrandom
-
 @choice math-1-taylor "Chat with Taylor" -> .segment-2
-  @icon 💬
+  @event-pool school.class.math
+  
   @time-until school.nextBoundaryAt
   @when npc.taylor.present
   @effect attendance math 1
-  @effect relationship taylor 0.003
+  @change relationship taylor 1
 @endchoice
 
 @choice math-1-study "Study hard" -> .segment-2
-  @icon 🧮
+  @event-pool school.class.math
+  
   @time-until school.nextBoundaryAt
   @preview grade 1 "+Mathematics grade"
   @effect attendance math 1
@@ -322,26 +290,18 @@ You don't really pay attention and get through the work normally.
 
 Mathematics class continues into its second segment.
 
-@random
-The lesson goes poorly—you leave more confused than before.
-@change grade math -1
-@or
-The lesson goes well—you learn a lot!
-@change grade math 1
-@or
-You don't really pay attention and get through the work normally.
-@endrandom
-
 @choice math-2-taylor "Chat with Taylor" -> .segment-3
-  @icon 💬
+  @event-pool school.class.math
+  
   @time-until school.nextBoundaryAt
   @when npc.taylor.present
   @effect attendance math 1
-  @effect relationship taylor 0.003
+  @change relationship taylor 0.1
 @endchoice
 
 @choice math-2-study "Study hard" -> .segment-3
-  @icon 🧮
+  @event-pool school.class.math
+  
   @time-until school.nextBoundaryAt
   @preview grade 1 "+Mathematics grade"
   @effect attendance math 1
@@ -352,26 +312,17 @@ You don't really pay attention and get through the work normally.
 
 The final segment of Mathematics class gets underway.
 
-@random
-The lesson goes poorly—you leave more confused than before.
-@change grade math -1
-@or
-The lesson goes well—you learn a lot!
-@change grade math 1
-@or
-You don't really pay attention and get through the work normally.
-@endrandom
-
 @choice math-3-taylor "Chat with Taylor" -> @exit
-  @icon 💬
+  @event-pool school.class.math
+  
   @time-until school.nextBoundaryAt
   @when npc.taylor.present
   @effect attendance math 1
-  @effect relationship taylor 0.003
+  @change relationship taylor 1
 @endchoice
 
 @choice math-3-study "Study hard" -> @exit
-  @icon 🧮
+  @event-pool school.class.math
   @time-until school.nextBoundaryAt
   @preview grade 1 "+Mathematics grade"
   @effect attendance math 1
@@ -400,15 +351,15 @@ You don't really pay attention and get through the work normally.
 @endrandom
 
 @choice history-1-taylor "Chat with Taylor" -> .segment-2
-  @icon 💬
+  
   @time-until school.nextBoundaryAt
   @when npc.taylor.present
   @effect attendance history 1
-  @effect relationship taylor 0.003
+  @change relationship taylor 1
 @endchoice
 
 @choice history-1-study "Study hard" -> .segment-2
-  @icon 📜
+  
   @time-until school.nextBoundaryAt
   @preview grade 1 "+History grade"
   @effect attendance history 1
@@ -430,15 +381,15 @@ You don't really pay attention and get through the work normally.
 @endrandom
 
 @choice history-2-taylor "Chat with Taylor" -> .segment-3
-  @icon 💬
+  
   @time-until school.nextBoundaryAt
   @when npc.taylor.present
   @effect attendance history 1
-  @effect relationship taylor 0.003
+  @change relationship taylor 1
 @endchoice
 
 @choice history-2-study "Study hard" -> .segment-3
-  @icon 📜
+  
   @time-until school.nextBoundaryAt
   @preview grade 1 "+History grade"
   @effect attendance history 1
@@ -460,15 +411,15 @@ You don't really pay attention and get through the work normally.
 @endrandom
 
 @choice history-3-taylor "Chat with Taylor" -> @exit
-  @icon 💬
+  
   @time-until school.nextBoundaryAt
   @when npc.taylor.present
   @effect attendance history 1
-  @effect relationship taylor 0.003
+  @change relationship taylor 1
 @endchoice
 
 @choice history-3-study "Study hard" -> @exit
-  @icon 📜
+  
   @time-until school.nextBoundaryAt
   @preview grade 1 "+History grade"
   @effect attendance history 1
@@ -497,15 +448,15 @@ You don't really pay attention and get through the work normally.
 @endrandom
 
 @choice science-1-taylor "Chat with Taylor" -> .segment-2
-  @icon 💬
+  
   @time-until school.nextBoundaryAt
   @when npc.taylor.present
   @effect attendance science 1
-  @effect relationship taylor 0.003
+  @change relationship taylor 1
 @endchoice
 
 @choice science-1-study "Study hard" -> .segment-2
-  @icon 🔬
+  
   @time-until school.nextBoundaryAt
   @preview grade 1 "+Science grade"
   @effect attendance science 1
@@ -527,15 +478,15 @@ You don't really pay attention and get through the work normally.
 @endrandom
 
 @choice science-2-taylor "Chat with Taylor" -> .segment-3
-  @icon 💬
+  
   @time-until school.nextBoundaryAt
   @when npc.taylor.present
   @effect attendance science 1
-  @effect relationship taylor 0.003
+  @change relationship taylor 1
 @endchoice
 
 @choice science-2-study "Study hard" -> .segment-3
-  @icon 🔬
+  
   @time-until school.nextBoundaryAt
   @preview grade 1 "+Science grade"
   @effect attendance science 1
@@ -557,15 +508,15 @@ You don't really pay attention and get through the work normally.
 @endrandom
 
 @choice science-3-taylor "Chat with Taylor" -> @exit
-  @icon 💬
+  
   @time-until school.nextBoundaryAt
   @when npc.taylor.present
   @effect attendance science 1
-  @effect relationship taylor 0.003
+  @change relationship taylor 1
 @endchoice
 
 @choice science-3-study "Study hard" -> @exit
-  @icon 🔬
+  
   @time-until school.nextBoundaryAt
   @preview grade 1 "+Science grade"
   @effect attendance science 1
@@ -594,15 +545,15 @@ You don't really pay attention and get through the work normally.
 @endrandom
 
 @choice art-1-taylor "Chat with Taylor" -> .segment-2
-  @icon 💬
+  
   @time-until school.nextBoundaryAt
   @when npc.taylor.present
   @effect attendance art 1
-  @effect relationship taylor 0.003
+  @change relationship taylor 1
 @endchoice
 
 @choice art-1-study "Study hard" -> .segment-2
-  @icon 🎨
+  
   @time-until school.nextBoundaryAt
   @preview grade 1 "+Art grade"
   @effect attendance art 1
@@ -624,15 +575,15 @@ You don't really pay attention and get through the work normally.
 @endrandom
 
 @choice art-2-taylor "Chat with Taylor" -> .segment-3
-  @icon 💬
+  
   @time-until school.nextBoundaryAt
   @when npc.taylor.present
   @effect attendance art 1
-  @effect relationship taylor 0.003
+  @change relationship taylor 1
 @endchoice
 
 @choice art-2-study "Study hard" -> .segment-3
-  @icon 🎨
+  
   @time-until school.nextBoundaryAt
   @preview grade 1 "+Art grade"
   @effect attendance art 1
@@ -654,15 +605,15 @@ You don't really pay attention and get through the work normally.
 @endrandom
 
 @choice art-3-taylor "Chat with Taylor" -> @exit
-  @icon 💬
+  
   @time-until school.nextBoundaryAt
   @when npc.taylor.present
   @effect attendance art 1
-  @effect relationship taylor 0.003
+  @change relationship taylor 1
 @endchoice
 
 @choice art-3-study "Study hard" -> @exit
-  @icon 🎨
+  
   @time-until school.nextBoundaryAt
   @preview grade 1 "+Art grade"
   @effect attendance art 1
@@ -691,15 +642,15 @@ You don't really pay attention and get through the work normally.
 @endrandom
 
 @choice physical-education-1-taylor "Chat with Taylor" -> .segment-2
-  @icon 💬
+  
   @time-until school.nextBoundaryAt
   @when npc.taylor.present
   @effect attendance physical_education 1
-  @effect relationship taylor 0.003
+  @change relationship taylor 1
 @endchoice
 
 @choice physical-education-1-study "Train hard" -> .segment-2
-  @icon 🏃
+  
   @time-until school.nextBoundaryAt
   @preview grade 1 "+Physical Education grade"
   @effect attendance physical_education 1
@@ -722,15 +673,15 @@ You don't really pay attention and get through the work normally.
 @endrandom
 
 @choice physical-education-2-taylor "Chat with Taylor" -> .segment-3
-  @icon 💬
+  
   @time-until school.nextBoundaryAt
   @when npc.taylor.present
   @effect attendance physical_education 1
-  @effect relationship taylor 0.003
+  @change relationship taylor 1
 @endchoice
 
 @choice physical-education-2-study "Train hard" -> .segment-3
-  @icon 🏃
+  
   @time-until school.nextBoundaryAt
   @preview grade 1 "+Physical Education grade"
   @effect attendance physical_education 1
@@ -753,15 +704,15 @@ You don't really pay attention and get through the work normally.
 @endrandom
 
 @choice physical-education-3-taylor "Chat with Taylor" -> @exit
-  @icon 💬
+  
   @time-until school.nextBoundaryAt
   @when npc.taylor.present
   @effect attendance physical_education 1
-  @effect relationship taylor 0.003
+  @change relationship taylor 1
 @endchoice
 
 @choice physical-education-3-study "Train hard" -> @exit
-  @icon 🏃
+  
   @time-until school.nextBoundaryAt
   @preview grade 1 "+Physical Education grade"
   @effect attendance physical_education 1
@@ -781,7 +732,7 @@ The few students in the cafeteria are eating quietly. It seems kind of empty.
 @endif
 
 @choice before-school-taylor "Talk with Taylor before class" -> place.high-school.cafeteria
-  @icon 💬
+  
   @time 15m
   @when npc.taylor.present and not daily.school_before_taylor and school.phase != "class"
   @response
@@ -793,8 +744,7 @@ The few students in the cafeteria are eating quietly. It seems kind of empty.
   @response
     You and Taylor get a snack from the vending machine. It's a nice little break before class starts.
   @endresponse
-  @effect relationship taylor 0.003
-  @preview relationship 0.003 "+Relationship"
+  @change relationship taylor 2.5
   @effect daily-flag school_before_taylor true
 @endchoice
 
@@ -812,7 +762,7 @@ Everyone looks at you as you enter the classroom. The teacher is at the front of
 @endif
 
 @choice wait-for-class "Wait for class" -> school.class.english
-  @icon ⏳
+  
   @time-until school.nextClassStartsAt
   @enter-after-time
   @when school.phase != "class" and school.nextClass == "english"
@@ -834,7 +784,7 @@ Everyone looks at you as you enter the classroom. The teacher is at the front of
 @endif
 
 @choice wait-for-class "Wait for class" -> school.class.math
-  @icon ⏳
+  
   @time-until school.nextClassStartsAt
   @enter-after-time
   @when school.phase != "class" and school.nextClass == "math"
@@ -856,7 +806,7 @@ Everyone looks at you as you enter the classroom. The teacher is at the front of
 @endif
 
 @choice wait-for-class "Wait for class" -> school.class.science
-  @icon ⏳
+  
   @time-until school.nextClassStartsAt
   @enter-after-time
   @when school.phase != "class" and school.nextClass == "science"
@@ -878,7 +828,7 @@ Everyone looks at you as you enter the classroom. The teacher is at the front of
 @endif
 
 @choice wait-for-class "Wait for class" -> school.class.history
-  @icon ⏳
+  
   @time-until school.nextClassStartsAt
   @enter-after-time
   @when school.phase != "class" and school.nextClass == "history"
@@ -900,7 +850,7 @@ Everyone looks at you as you enter the classroom. The teacher is at the front of
 @endif
 
 @choice wait-for-class "Wait for class" -> school.class.art
-  @icon ⏳
+  
   @time-until school.nextClassStartsAt
   @enter-after-time
   @when school.phase != "class" and school.nextClass == "art"
@@ -922,7 +872,7 @@ Everyone looks at you as you enter the gym. The teacher is at the front of the r
 @endif
 
 @choice wait-for-class "Wait for class" -> school.class.physical-education
-  @icon ⏳
+  
   @time-until school.nextClassStartsAt
   @enter-after-time
   @when school.phase != "class" and school.nextClass == "physical_education"

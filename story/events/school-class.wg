@@ -1,4 +1,4 @@
-@# Random event sequences available after each English class segment.
+@# ------------------------------------- ENGLISH EVENTS -------------------------------------
 
 @entry school.english.event.group-discussion
   @scene school.english.event.group-discussion
@@ -30,169 +30,501 @@
   @weight 1
 @endentry
 
+@entry school.english.event.student-distraction
+  @scene school.english.event.student-distraction
+  @pool school.class.english
+  @place-key high_school
+  @when school.phase == "class"
+  @when school.subjectId == "english"
+  @priority 0
+  @weight 1
+@endentry
+
 @sequence school.english.event.group-discussion -> @return
-@heading "An Unexpected Discussion"
 @choices "How do you participate?"
 
 @passage opening
 
-The teacher closes the textbook and asks the class to discuss whether a narrator can be trustworthy while still being mistaken.
+  The teacher closes the textbook and asks the class to discuss whether a narrator can be trustworthy while still being mistaken.
 
-@if npc.taylor.present
-Taylor turns slightly in your direction, clearly waiting to hear what you think.
-@else
-The room stays awkwardly quiet while everyone avoids being the first to answer.
-@endif
+  @if npc.taylor.present
+  Taylor turns slightly in your direction, clearly waiting to hear what you think.
+  @else
+  The room stays awkwardly quiet while everyone avoids being the first to answer.
+  @endif
 
-@choice discussion-argue "Offer your own interpretation"
-  @icon 💡
-  @check grade english difficult
+  @choice discussion-argue "Offer your own interpretation"
+    @check grade english difficult
 
-  @success -> .argued
-    @effect grade english 1
-  @endsuccess
+    @success -> .argued
+    @endsuccess
 
-  @failure -> .misread
-    @effect grade english -1
-  @endfailure
-@endchoice
+    @failure -> .misread
+    @endfailure
+  @endchoice
 
-@choice discussion-listen "Listen to the other answers" -> .listened
-  @icon 👂
-@endchoice
+  @choice discussion-listen "Listen to the other answers" -> .listened
+  @endchoice
 
-@choice discussion-taylor "Compare ideas with Taylor" -> .taylor
-  @icon 💬
-  @when npc.taylor.present
-  @effect relationship taylor 0.005
-@endchoice
+  @choice discussion-taylor "Compare ideas with Taylor" -> .taylor
+    @when npc.taylor.present
+    @change relationship taylor 0.005
+  @endchoice
 
-@passage argued
+  @passage argued
 
-You explain that a narrator can report events honestly and still misunderstand what those events mean. The teacher nods and uses your answer to move the discussion forward.
+  You explain that a narrator can report events honestly and still misunderstand what those events mean. The teacher nods and uses your answer to move the discussion forward. 
+  @change grade english 1
 
-@next "Return to the lesson" -> @return
+  @next -> @return
 
-@passage misread
+  @passage misread
 
-You start confidently, but mix up the narrator's assumptions with the author's intent. The teacher corrects the distinction before moving the discussion on.
+  You start confidently, but mix up the narrator's assumptions with the author's intent. The teacher corrects the distinction before moving the discussion on.
+  @change grade english -1
 
-@next "Return to the lesson" -> @return
+  @next -> @return
 
-@passage listened
+  @passage listened
 
-You keep quiet and follow the argument as it moves around the room. A few of the answers are surprisingly convincing.
+  You keep quiet and follow the argument as it moves around the room. A few of the answers are surprisingly convincing.
 
-@next "Return to the lesson" -> @return
+  @next -> @return
 
-@passage taylor
+  @passage taylor
 
-You and Taylor quietly compare interpretations before sharing a combined answer with the class.
+  @random
+  You and Taylor quietly compare interpretations before sharing a combined answer with the class.
+  @or
+  You and Taylor disagree on the meaning of the passage, but you both learn from the other's perspective.
+  @or
+  You and Taylor find that you have similar ideas, and you feel more confident about your own interpretation.
+  @endrandom
 
-@next "Return to the lesson" -> @return
+
+  @next -> @return
 @endsequence
 
 @sequence school.english.event.reading-aloud -> @return
-@heading "Reading Aloud"
-@choices "What do you do?"
+  @choices "What do you do?"
 
-@passage opening
+  @passage opening
 
-The teacher asks for someone to read the next page aloud.
+  The teacher asks for someone to read the next page aloud. It's some 
+  @random
+    dense prose from a classic novel.
+    @or
+    poetry that is difficult to read aloud.
+    @or
+    a passage that is full of unfamiliar phrasing.
+  @endrandom
 
-@if player.education.english.grade >= 70
-The passage is dense, but you recognise the rhythm of the older prose.
-@else
-The unfamiliar phrasing makes the passage look more intimidating than it sounded a moment ago.
-@endif
+  @if player.education.english.grade >= 70
+  You're pretty sure you've read this passage before, so you know what to expect.
+  @else
+  The unfamiliar phrasing makes the passage look more intimidating than it sounded a moment ago.
+  @endif
 
-@choice reading-volunteer "Volunteer to read"
-  @icon 📖
-  @check skill resolve tricky
+  @choice reading-volunteer "Volunteer to read"
+    @check skill resolve tricky
 
-  @success -> .steady
-    @effect grade english 1
-  @endsuccess
+    @success -> .steady
+    @endsuccess
 
-  @failure -> .stumbled
-    @effect grade english -1
-  @endfailure
-@endchoice
+    @failure -> .stumbled
+    @endfailure
+  @endchoice
 
-@choice reading-follow "Follow along quietly" -> .followed
-  @icon 👀
-@endchoice
+  @choice reading-follow "Follow along quietly" -> .followed
+  @endchoice
 
-@passage steady
+  @choice reading-taylor "Draw attention to taylor" -> .taylor
+    @when npc.taylor.present
+    @change relationship taylor -0.005
+  @endchoice
 
-You keep a measured pace and land the difficult sentences cleanly. By the end, several classmates are following your rhythm instead of the page.
+  @passage steady
 
-@next "Return to the lesson" -> @return
+  You keep a measured pace and land the difficult sentences cleanly. By the end, several classmates are following your rhythm instead of the page.
+  @change grade english 1
 
-@passage stumbled
+  @next -> @return
 
-A sentence catches you halfway through. You recover, but not before the room hears the hesitation.
+  @passage stumbled
 
-@next "Return to the lesson" -> @return
+  A sentence catches you halfway through. You recover, but not before the room hears the hesitation.
+  @change grade english -1
 
-@passage followed
+  @if player.education.english.grade < 70
+  You feel embarrassed, this shouldn't have been so difficult!
+  @endif
 
-Someone else volunteers. You follow the page and make a note beside the phrases the teacher emphasises.
+  @next  -> @return
 
-@next "Return to the lesson" -> @return
+  @passage followed
+
+  Someone else volunteers. You follow the page and make a note beside the phrases the teacher emphasises.
+
+  @next -> @return
+
+  @passage taylor
+  Before Taylor can protest you grab {{npc.taylor.dependent}} arm and raise it. 
+  "W-what are you doing?!" Taylor whispers, but you ignore {{npc.taylor.dependent}} and draw the teacher's attention.
+  The teacher calls on {{npc.taylor.object}} and Taylors stammers through the passage. You feel a little guilty, but you also feel a little smug.
+  @next -> @return
+
 @endsequence
 
 @sequence school.english.event.surprise-quiz -> @return
-@heading "A Surprise Quiz"
-@choices "Choose an answer"
+  @choices "Choose an answer"
 
-@passage first-question
+  @passage first-question
 
-Without warning, the teacher hands out a short quiz. The first question asks which sentence contains a metaphor.
+  Without warning, the teacher hands out a short quiz. The first question asks which sentence contains a metaphor.
 
-@choice quiz-first-correct "The moon was a silver coin above the rooftops." -> .second-question
-  @icon ✍️
-  @change grade english 1
-@endchoice
 
-@choice quiz-first-wrong "The moon shone as brightly as a lamp." -> .second-question
-  @icon ✍️
-  @change grade english -1
-@endchoice
+  @choice quiz-first-wrong "The moon shone as brightly as a lamp." -> .second-question
+    @icon ✍️
+    @effect grade english -1
+  @endchoice
 
-@choice quiz-first-other "The moon appeared after sunset." -> .second-question
-  @icon ✍️
-  @change grade english -1
-@endchoice
+  @choice quiz-first-correct "The moon was a silver coin above the rooftops." -> .second-question
+    @icon ✍️
+    @effect grade english 1
+  @endchoice
 
-@passage second-question
+  @choice quiz-first-other "The moon appeared after sunset." -> .second-question
+    @icon ✍️
+    @effect grade english -1
+  @endchoice
 
-The second question asks which version uses the apostrophe correctly.
+  @passage second-question
 
-@choice quiz-second-correct "The students' books covered the table." -> .results
-  @icon ✍️
-  @change grade english 1
-@endchoice
+  The second question asks which version uses the apostrophe correctly.
 
-@choice quiz-second-wrong-one "The student's books covered the table." -> .results
-  @icon ✍️
-  @change grade english -1
-@endchoice
 
-@choice quiz-second-wrong-two "The students books' covered the table." -> .results
-  @icon ✍️
-  @change grade english -1
-@endchoice
 
-@passage results
+  @choice quiz-second-wrong-one "The student's books covered the table." -> .results
+    @icon ✍️
+    @effect grade english -1
+  @endchoice
 
-The teacher collects the papers almost as quickly as they were handed out.
+  @choice quiz-second-wrong-two "The students books' covered the table." -> .results
+    @icon ✍️
+    @effect grade english -1
+  @endchoice
 
-@if player.education.english.grade >= 70
-You feel reasonably confident about what you wrote.
-@else
-You are left replaying both questions in your head.
-@endif
+  @choice quiz-second-correct "The students' books covered the table." -> .results
+    @icon ✍️
+    @effect grade english 1
+  @endchoice
 
-@next "Return to the lesson" -> @return
+  @passage results
+
+  The teacher collects the papers almost as quickly as they were handed out.
+
+  @if player.education.english.grade >= 70
+  You feel reasonably confident about what you wrote.
+  @else
+  You are left replaying both questions in your head.
+  @endif
+
+  @next -> @return
 @endsequence
+
+@sequence school.english.event.student-distraction -> @return
+  @choices "What do you do?"
+
+  @passage opening
+
+  A student in the back of the room is making a racket, and the teacher is having trouble keeping the class focused.
+
+  @choice distraction-ignore "Ignore it" -> .ignored
+  @endchoice
+
+  @choice distraction-help "Tell the student to shut up"
+    @check skill resolve tricky
+
+    @success -> .helped-success
+    @endsuccess
+
+    @failure -> .helped-failure
+    @endfailure
+  @endchoice
+
+  @passage ignored
+
+  You keep your head down and focus on your work. It's very hard to focus. 
+  The teacher eventually regains control of the class.
+  @change grade english -0.01
+
+  @next -> @return
+
+  @passage helped-success
+
+  You raise your hand and politely ask the student to quiet down. The student complies, and the teacher thanks you for your help.
+  @#change relationship teacher 0.01
+
+  @next -> @return
+
+  @passage helped-failure
+
+  You try to get the student's attention, but they ignore you and continue to be disruptive. The teacher has to step in and reprimand them.
+  @#change relationship teacher -0.01
+  @change grade english -0.05
+
+  @next -> @return
+
+@endsequence
+
+@# ------------------------------------- MATH EVENTS -------------------------------------
+
+@entry school.math.event.problem-solving
+  @scene school.math.event.problem-solving
+  @pool school.class.math
+  @place-key high_school
+  @when school.phase == "class"
+  @when school.subjectId == "math"
+  @priority 0
+  @weight 1
+@endentry
+
+@entry school.math.event.group-work
+  @scene school.math.event.group-work
+  @pool school.class.math
+  @place-key high_school
+  @when school.phase == "class"
+  @when school.subjectId == "math"
+  @priority 0
+  @weight 1
+@endentry
+
+@entry school.math.event.surprise-quiz
+  @scene school.math.event.surprise-quiz
+  @pool school.class.math
+  @place-key high_school
+  @when school.phase == "class"
+  @when school.subjectId == "math"
+  @priority 0
+  @weight 1
+@endentry
+
+@entry school.math.event.called-to-answer
+  @scene school.math.event.called-to-answer
+  @pool school.class.math
+  @place-key high_school
+  @when school.phase == "class"
+  @when school.subjectId == "math"
+  @priority 0
+  @weight 1
+@endentry
+
+@sequence school.math.event.problem-solving -> @return
+  @choices "How do you approach the problem?"
+
+  @passage opening
+
+  The teacher presents a challenging problem on the board and asks the class to solve it.
+
+  @choice problem-solve "Raise your hand"
+    @check grade math tricky
+
+    @success -> .solved
+    @endsuccess
+
+    @failure -> .struggled
+    @endfailure
+  @endchoice
+
+  @choice problem-listen "Stay quiet" -> .listened
+  @endchoice
+
+  @passage solved
+  You confidently solve the problem and explain your reasoning to the class. The teacher praises your work.
+  @change grade math 0.01
+
+  @next -> @return
+
+  @passage struggled
+  You attempt to solve the problem, but you make a mistake in your calculations. The teacher corrects you and explains the right approach.
+  @change grade math -0.01
+
+  @next -> @return
+
+  @passage listened
+  You stay quiet and listen to the other students' solutions. You learn a few new techniques, but you don't get to participate in the discussion.
+  @change grade math 0.005
+  
+  @next -> @return
+@endsequence
+
+@sequence school.math.event.group-work -> @return
+  @choices "How do you contribute?"
+
+  @passage opening
+
+  The teacher divides the class into small groups to work on a set of problems together.
+
+  @choice group-contribute "Share your ideas"
+    @check skill resolve tricky
+
+    @success -> .contributed
+    @endsuccess
+
+    @failure -> .ignored
+    @endfailure
+  @endchoice
+
+  @choice group-listen "Listen to your group members" -> .listened
+  @endchoice
+
+  @passage contributed
+  You actively participate in the group discussion and help solve the problems. Your group appreciates your input.
+  @change grade math 0.01
+
+  @next -> @return
+
+  @passage ignored
+  You try to contribute, but your group members don't seem to value your input. You feel a bit left out.
+  @change grade math -0.01
+  @change stat stress -5
+
+  @next -> @return
+
+  @passage listened
+  You stay quiet and listen to your group members' ideas. You learn a lot, but you don't get to share your own thoughts.
+  @change grade math 0.005
+  
+  @next -> @return
+
+@endsequence
+
+@#TODO: make it into math minigame, randomly generate equation here. macros?
+@# this quiz framework should be generated at runtime - same framework with different 'possible question' formats for other subjects
+@# question passages/text, question order, answer order, and question content should be randomized, data driven model from smth like src/scene/mechanics/quiz.js
+@#example quiz questions below
+@# maybe something like a macro struct like #quizMacro thats resolved by javascript?
+@sequence school.math.event.surprise-quiz -> @return
+  @choices "Choose an answer"
+
+  @passage first-question
+
+  The teacher hands out a surprise quiz. There's a few questions on the first page, and you start with the first one.
+  @# maybe with a macro? smth like {{math.random_equation}} that generates a random equation, and saves it to the current passage. and the correct answer, then we can have the choices be the correct answer and some wrong answers.
+
+  @choice quiz-first-wrong "x + 5 = 10" -> .second-question
+  @# @choice quiz-first-wrong "{{math.random_equation.wrong_answer[0]}}" -> .second-question
+    @icon ✍️
+    @effect grade math -0.01
+  @endchoice
+
+  @#and more wrong answers
+
+  @choice quiz-first-correct "x = 5" -> .second-question
+    @# @choice quiz-first-wrong "{{math.random_equation.right_answer}}" -> .second-question
+    @icon ✍️
+    @effect grade math 0.01
+  @endchoice
+
+  @passage second-question
+
+  The second question asks you to calculate the area of a triangle with a base of 4 and a height of 3.
+
+  @choice quiz-second-wrong "Area = 4 * 3 / 2" -> .third-question
+    @icon ✍️
+    @effect grade math -0.01
+  @endchoice
+
+  @choice quiz-second-correct "Area = (4 * 3) / 2" -> .third-question
+    @icon ✍️
+    @effect grade math 0.01
+  @endchoice
+
+  @choice quiz-second-wrong-2 "Area = (0.5 * 3) / 4" -> .third-question
+    @icon ✍️
+    @effect grade math -0.01
+  @endchoice
+
+  @passage third-question
+  The third question asks calculate the mean value of the following numbers: 2, 4, 6, 8, 10.
+
+  @choice quiz-third-correct "15" -> .results
+    @icon ✍️
+    @effect grade math 0.01
+  @endchoice
+
+  @choice quiz-third-wrong "6" -> .results
+    @icon ✍️
+    @effect grade math -0.01
+  @endchoice
+
+  @choice quiz-third-wrong-2 "5" -> .results
+    @icon ✍️
+    @effect grade math -0.01
+  @endchoice  
+
+  @passage results
+  The teacher collects the papers and announces that the quiz is over.
+  @if player.education.math.grade >= 70
+  You feel reasonably confident about your answers.
+  @else
+  You are left replaying the questions in your head, wondering if you got them right.
+  @endif
+
+  @next -> @return
+@endsequence
+
+@sequence school.math.event.called-to-answer -> @return
+  @choices "How do you respond?"
+
+  @passage opening
+
+  The teacher calls on you to answer a question on the board.
+
+  @choice answer-correct "Answer confidently"
+    @when player.education.math.grade >= 70
+    @check grade math easy 
+    @success -> .correct
+    @endsuccess
+
+    @failure -> .incorrect
+    @endfailure
+  @endchoice
+
+  @choice answer-incorrect "Guess"
+    @check grade math difficult
+    @success -> .correct
+    @endsuccess
+
+    @failure -> .incorrect
+    @endfailure
+  @endchoice
+
+  @choice answer-ask "Stay at your seat." -> .failure
+    @change grade math -5
+  @endchoice
+
+  @passage correct
+  You confidently solve the problem and explain your reasoning. The teacher praises your work.
+  @change grade math 5
+
+  @next -> @return
+
+  @passage incorrect
+  You make a mistake in your calculations and the teacher corrects you. You feel embarrassed, but you learn from the experience.
+  @change grade math -2
+  
+  @passage failure
+  You stay at your seat, hoping the teacher will call on someone else. The teacher eventually gives up and moves on, but you feel a bit embarrassed for not participating.
+  
+
+  @next -> @return
+
+@endsequence
+
+
+
+
+
+
+
