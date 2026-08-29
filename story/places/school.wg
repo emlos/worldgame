@@ -296,7 +296,7 @@ Mathematics class continues into its second segment.
   @time-until school.nextBoundaryAt
   @when npc.taylor.present
   @effect attendance math 1
-  @change relationship taylor 0.1
+  @change relationship taylor 1
 @endchoice
 
 @choice math-2-study "Study hard" -> .segment-3
@@ -655,7 +655,7 @@ You don't really pay attention and get through the work normally.
   @preview grade 1 "+Physical Education grade"
   @effect attendance physical_education 1
   @effect grade physical_education 1
-  @effect skill strength 0.02
+  @effect skill strength 1.5
 @endchoice
 
 @passage segment-2
@@ -686,7 +686,7 @@ You don't really pay attention and get through the work normally.
   @preview grade 1 "+Physical Education grade"
   @effect attendance physical_education 1
   @effect grade physical_education 1
-  @effect skill strength 0.02
+  @effect skill strength 1.5
 @endchoice
 
 @passage segment-3
@@ -717,7 +717,7 @@ You don't really pay attention and get through the work normally.
   @preview grade 1 "+Physical Education grade"
   @effect attendance physical_education 1
   @effect grade physical_education 1
-  @effect skill strength 0.02
+  @effect skill strength 1.5
 @endchoice
 
 @endsequence

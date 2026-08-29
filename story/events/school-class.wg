@@ -26,6 +26,7 @@
   @place-key high_school
   @when school.phase == "class"
   @when school.subjectId == "english"
+  @when not daily.school_quiz_english
   @priority 0
   @weight 1
 @endentry
@@ -68,7 +69,7 @@
 
   @choice discussion-taylor "Compare ideas with Taylor" -> .taylor
     @when npc.taylor.present
-    @change relationship taylor 0.005
+    @change relationship taylor 1
   @endchoice
 
   @passage argued
@@ -140,7 +141,7 @@
 
   @choice reading-taylor "Draw attention to taylor" -> .taylor
     @when npc.taylor.present
-    @change relationship taylor -0.005
+    @change relationship taylor -1
   @endchoice
 
   @passage steady
@@ -168,8 +169,11 @@
   @next -> @return
 
   @passage taylor
+  @# TODO: support line breaks
   Before Taylor can protest you grab {{npc.taylor.dependent}} arm and raise it. 
+
   "W-what are you doing?!" Taylor whispers, but you ignore {{npc.taylor.dependent}} and draw the teacher's attention.
+
   The teacher calls on {{npc.taylor.object}} and Taylors stammers through the passage. You feel a little guilty, but you also feel a little smug.
   @next -> @return
 
@@ -178,6 +182,9 @@
 @sequence school.english.event.surprise-quiz -> @return
   @heading "Surprise English Quiz"
   @choices "Choose an answer"
+  @onenter
+    @effect daily-flag school_quiz_english true
+  @endonenter
   @system school.quiz {"bank":"english.core","questions":3}
 @endsequence
 
@@ -205,22 +212,22 @@
 
   You keep your head down and focus on your work. It's very hard to focus. 
   The teacher eventually regains control of the class.
-  @change grade english -0.01
+  @change grade english -1
 
   @next -> @return
 
   @passage helped-success
 
   You raise your hand and politely ask the student to quiet down. The student complies, and the teacher thanks you for your help.
-  @#change relationship teacher 0.01
-
+  @#change relationship teacher 1
+  @change grade english 2
   @next -> @return
 
   @passage helped-failure
 
   You try to get the student's attention, but they ignore you and continue to be disruptive. The teacher has to step in and reprimand them.
-  @#change relationship teacher -0.01
-  @change grade english -0.05
+  @#change relationship teacher -1
+  @change grade english -1
 
   @next -> @return
 
@@ -254,6 +261,7 @@
   @place-key high_school
   @when school.phase == "class"
   @when school.subjectId == "math"
+  @when not daily.school_quiz_math
   @priority 0
   @weight 1
 @endentry
@@ -290,19 +298,19 @@
 
   @passage solved
   You confidently solve the problem and explain your reasoning to the class. The teacher praises your work.
-  @change grade math 0.01
+  @change grade math 1
 
   @next -> @return
 
   @passage struggled
   You attempt to solve the problem, but you make a mistake in your calculations. The teacher corrects you and explains the right approach.
-  @change grade math -0.01
+  @change grade math -1
 
   @next -> @return
 
   @passage listened
   You stay quiet and listen to the other students' solutions. You learn a few new techniques, but you don't get to participate in the discussion.
-  @change grade math 0.005
+  @change grade math 1
   
   @next -> @return
 @endsequence
@@ -329,20 +337,20 @@
 
   @passage contributed
   You actively participate in the group discussion and help solve the problems. Your group appreciates your input.
-  @change grade math 0.01
+  @change grade math 1
 
   @next -> @return
 
   @passage ignored
   You try to contribute, but your group members don't seem to value your input. You feel a bit left out.
-  @change grade math -0.01
-  @change stat stress -5
+  @change grade math -1
+  @change stat stress 5
 
   @next -> @return
 
   @passage listened
   You stay quiet and listen to your group members' ideas. You learn a lot, but you don't get to share your own thoughts.
-  @change grade math 0.005
+  @change grade math 1
   
   @next -> @return
 
@@ -351,6 +359,9 @@
 @sequence school.math.event.surprise-quiz -> @return
   @heading "Surprise Math Quiz"
   @choices "Choose an answer"
+  @onenter
+    @effect daily-flag school_quiz_math true
+  @endonenter
   @system school.quiz {"bank":"math.core","questions":3}
 @endsequence
 
@@ -381,12 +392,12 @@
   @endchoice
 
   @choice answer-ask "Stay at your seat." -> .failure
-    @change grade math -5
+    @change grade math -1
   @endchoice
 
   @passage correct
   You confidently solve the problem and explain your reasoning. The teacher praises your work.
-  @change grade math 5
+  @change grade math 2
 
   @next -> @return
 
@@ -401,8 +412,6 @@
   @next -> @return
 
 @endsequence
-
-
 
 
 
