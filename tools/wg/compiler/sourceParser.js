@@ -679,6 +679,19 @@ class SceneBodyParser {
       if (choice.check || choice.outcomes.success || choice.outcomes.failure) {
         failWG("Direct choices cannot contain skill-check outcomes", location);
       }
+      if (choice.enterAfterTime) {
+        if (choice.target === "@leave-place") {
+          failWG("@enter-after-time cannot target @leave-place", location);
+        }
+        if (!singleFields.has("timing")) {
+          failWG("@enter-after-time requires @time or @time-until", location);
+        }
+        if (!choice.timeUntilPath && choice.durationMinutes <= 0) {
+          failWG("@enter-after-time requires a positive duration", location);
+        }
+      } else {
+        delete choice.enterAfterTime;
+      }
       if (!choice.responses.length) delete choice.responses;
       delete choice.check;
       delete choice.outcomes;
@@ -703,6 +716,7 @@ class SceneBodyParser {
     delete choice.target;
     delete choice.durationMinutes;
     delete choice.timeUntilPath;
+    delete choice.enterAfterTime;
     delete choice.energyFree;
     delete choice.previews;
     delete choice.effects;
@@ -734,6 +748,7 @@ class SceneBodyParser {
       icon: null,
       durationMinutes: 0,
       timeUntilPath: null,
+      enterAfterTime: false,
       energyFree: false,
       when: null,
       requirements: [],
@@ -771,7 +786,7 @@ class SceneBodyParser {
         continue;
       }
 
-      if (["icon", "when", "warning", "check"].includes(name)) {
+      if (["icon", "when", "warning", "check", "enter-after-time"].includes(name)) {
         if (singleFields.has(name)) failWG(`Duplicate @${name}`, location);
         singleFields.add(name);
       }
@@ -798,6 +813,11 @@ class SceneBodyParser {
           failWG("@time-until requires a dotted runtime path", location);
         }
         choice.timeUntilPath = pathText.split(".");
+      } else if (name === "enter-after-time") {
+        if (text !== "@enter-after-time") {
+          failWG("@enter-after-time does not take arguments", location);
+        }
+        choice.enterAfterTime = true;
       } else if (name === "when") {
         choice.when = parseExpression(
           directiveArgument(text, "when", location),

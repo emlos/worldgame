@@ -4,6 +4,7 @@ import { buildScene } from "./sceneEngine.js";
 import {
   advanceWGSequence,
   applyWGEffects,
+  enterWGTarget,
   exitWGStory,
   followWGChoice,
   followWGOutcome,
@@ -263,15 +264,22 @@ function performBusTravel(game, choice, minutes) {
 
 function performWG(game, choice, minutes, scene) {
   const revision = game.actionRevision;
+  const enterAfterTime = choice.action.enterAfterTime === true;
   let responseParagraphs = [];
   const result = game.runAction({
     label: choice.label,
     minutes,
     energyFree: choice.energyFree,
     apply(currentGame) {
-      followWGChoice(currentGame, choice);
+      if (enterAfterTime) applyWGEffects(currentGame, choice.action.effects || []);
+      else followWGChoice(currentGame, choice);
     },
     after(currentGame) {
+      if (enterAfterTime) {
+        enterWGTarget(currentGame, choice.action.target, {
+          sequenceId: choice.action.sequenceId || null,
+        });
+      }
       resolveActiveWGStory(currentGame);
       responseParagraphs = selectWGResponse(
         currentGame,

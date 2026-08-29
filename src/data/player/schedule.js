@@ -292,6 +292,18 @@ export function getSchoolDayState(
   const minutesIntoPeriod = periodStartsAt
     ? (at.getTime() - periodStartsAt.getTime()) / MS_PER_MINUTE
     : null;
+  const nextClassPeriod = plan.hasSchool
+    ? classPeriods.find((candidate) => candidate.startMinute > minute) || null
+    : null;
+  const nextClassStartsAt = nextClassPeriod
+    ? dateAtUtcMinute(at, nextClassPeriod.startMinute)
+    : null;
+  const nextClassEndsAt = nextClassPeriod
+    ? dateAtUtcMinute(at, nextClassPeriod.endMinute)
+    : null;
+  const minutesUntilNextClass = nextClassStartsAt
+    ? (nextClassStartsAt.getTime() - at.getTime()) / MS_PER_MINUTE
+    : null;
 
   return {
     isSchoolDay: plan.hasSchool,
@@ -301,6 +313,14 @@ export function getSchoolDayState(
     periodId: period?.id ?? null,
     periodLabel: period?.label ?? null,
     subjectId: period?.subjectId ?? null,
+    currentClass:
+      phase === SCHOOL_PHASE.class ? period?.subjectId ?? null : null,
+    nextClass: nextClassPeriod?.subjectId ?? null,
+    nextClassPeriodId: nextClassPeriod?.id ?? null,
+    nextClassLabel: nextClassPeriod?.label ?? null,
+    nextClassStartsAt: isoOrNull(nextClassStartsAt),
+    nextClassEndsAt: isoOrNull(nextClassEndsAt),
+    minutesUntilNextClass,
     segment,
     segmentCount: period?.segments ?? null,
     periodStartsAt: isoOrNull(periodStartsAt),

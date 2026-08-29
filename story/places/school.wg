@@ -809,6 +809,13 @@ The classroom is open, and students are studying and socialising.
 Everyone looks at you as you enter the classroom. The teacher is at the front of the room, and students are seated at their desks.
 @endif
 
+@choice wait-for-class "Wait for class" -> school.class.english
+  @icon ⏳
+  @time-until school.nextClassStartsAt
+  @enter-after-time
+  @when school.phase != "class" and school.nextClass == "english"
+@endchoice
+
 @choice leave "Leave" -> place.high-school
   @time 1m
 @endchoice
@@ -823,6 +830,13 @@ Everyone looks at you as you enter the classroom. The teacher is at the front of
 @else
   There's nobody here.
 @endif
+
+@choice wait-for-class "Wait for class" -> school.class.math
+  @icon ⏳
+  @time-until school.nextClassStartsAt
+  @enter-after-time
+  @when school.phase != "class" and school.nextClass == "math"
+@endchoice
 
 @choice leave "Leave" -> place.high-school
   @time 1m
@@ -839,6 +853,13 @@ Everyone looks at you as you enter the classroom. The teacher is at the front of
   There's nobody here.
 @endif
 
+@choice wait-for-class "Wait for class" -> school.class.science
+  @icon ⏳
+  @time-until school.nextClassStartsAt
+  @enter-after-time
+  @when school.phase != "class" and school.nextClass == "science"
+@endchoice
+
 @choice leave "Leave" -> place.high-school
   @time 1m
 @endchoice
@@ -853,6 +874,13 @@ Everyone looks at you as you enter the classroom. The teacher is at the front of
 @else
   There's nobody here.
 @endif
+
+@choice wait-for-class "Wait for class" -> school.class.history
+  @icon ⏳
+  @time-until school.nextClassStartsAt
+  @enter-after-time
+  @when school.phase != "class" and school.nextClass == "history"
+@endchoice
 
 @choice leave "Leave" -> place.high-school
   @time 2m
@@ -869,6 +897,13 @@ Everyone looks at you as you enter the classroom. The teacher is at the front of
   There's nobody here.
 @endif
 
+@choice wait-for-class "Wait for class" -> school.class.art
+  @icon ⏳
+  @time-until school.nextClassStartsAt
+  @enter-after-time
+  @when school.phase != "class" and school.nextClass == "art"
+@endchoice
+
 @choice leave "Leave" -> place.high-school
   @time 2m
 @endchoice
@@ -883,6 +918,13 @@ Everyone looks at you as you enter the gym. The teacher is at the front of the r
 @else
   There's a lone student here practicing basketball.
 @endif
+
+@choice wait-for-class "Wait for class" -> school.class.physical-education
+  @icon ⏳
+  @time-until school.nextClassStartsAt
+  @enter-after-time
+  @when school.phase != "class" and school.nextClass == "physical_education"
+@endchoice
 
 @choice leave "Leave" -> place.high-school
   @time 5m

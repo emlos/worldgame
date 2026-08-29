@@ -167,6 +167,7 @@ function materializeChoice(node, context, { sequenceId = null } = {}) {
           effects: node.effects || [],
           responses: node.responses || [],
           sequenceId,
+          ...(node.enterAfterTime ? { enterAfterTime: true } : {}),
         };
   }
 

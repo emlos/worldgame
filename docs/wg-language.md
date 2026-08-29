@@ -458,10 +458,14 @@ The currently exposed paths are:
 - `time.iso`, `time.hour`, `time.minute`, and
   `time.minutesSinceMidnight`, using the UTC world clock shown by the game.
 - `school.isSchoolDay`, `.noSchoolReason`, `.atSchool`, `.phase`,
-  `.periodId`, `.periodLabel`, `.subjectId`, `.segment`,
+  `.periodId`, `.periodLabel`, `.subjectId`, `.currentClass`, `.nextClass`,
+  `.nextClassPeriodId`, `.nextClassLabel`, `.nextClassStartsAt`,
+  `.nextClassEndsAt`, `.minutesUntilNextClass`, `.segment`,
   `.segmentCount`, `.periodStartsAt`, `.periodEndsAt`, `.minutesIntoPeriod`,
   `.nextBoundaryAt`, `.minutesUntilNextBoundary`, and `.closesAt`. Timestamps
   are ISO strings or `null`.
+  `currentClass` is the active class's subject ID or `null`; `nextClass` is
+  the next class that starts later on the current school day, or `null`.
 - During an active `@school-class` sequence: `school.arrival.periodId`,
   `.subjectId`, `.scheduledAt`, `.arrivedAt`, `.minutesLate`, and
   `.startingSegment`.
@@ -686,6 +690,11 @@ Choice directives are:
   the next class or closing time. It is valid only on direct choices, cannot
   be combined with `@time`, and fails if the path is missing, invalid, or not
   in the future.
+- `@enter-after-time`: delays entry into the choice target until after its
+  `@time` or `@time-until` duration has elapsed. It requires a positive direct
+  choice duration and cannot target `@leave-place`. Choice effects still apply
+  before time advances. Use this when the target is valid only in the resulting
+  world state, such as waiting in a classroom until its scheduled class begins.
 - `@when <expression>`: hides the choice when false.
 - `@require <expression> "<reason>"`: leaves the choice visible but disabled
   when false. Requirements may repeat; the first failed reason is displayed.
@@ -711,6 +720,19 @@ authored order, then a normal scene or sequence target is entered and its
 `@onenter` effects run, then `@time` advances the world. The resulting screen
 is rendered against the post-time state. If any part of the action fails, its
 state changes and log entry are rolled back.
+
+With `@enter-after-time`, the effects run first, time advances second, and the
+target and its `@onenter` effects run third.
+
+A scheduled classroom wait therefore looks like:
+
+```wg
+@choice wait-for-class "Wait for class" -> school.class.english
+  @time-until school.nextClassStartsAt
+  @enter-after-time
+  @when school.phase != "class" and school.nextClass == "english"
+@endchoice
+```
 
 A choice with no `@time`, or with a zero duration such as `0m`, does not advance
 the clock or update NPC simulation state.
@@ -941,7 +963,7 @@ not implemented.
 | Scene metadata | `@kind`, `@heading`, `@choices`, `@onenter ... @endonenter` |
 | Sequence metadata/navigation | scene metadata plus `@school-class`, `@passage`, `@next` |
 | Scene or passage body | prose, `@if` / `@elseif` / `@else` / `@endif`, `@random` / `@or` / `@endrandom`, passive `@check` / `@success` / `@failure` / `@endcheck`, `@effect`, `@change`, `@choicegroup ... @endchoicegroup`, `@choice ... @endchoice` |
-| Direct choice | `@icon`, `@time`, `@time-until`, `@when`, `@require`, `@warning`, `@response ... @endresponse`, `@preview`, `@effect`, `@change` |
+| Direct choice | `@icon`, `@time`, `@time-until`, `@enter-after-time`, `@when`, `@require`, `@warning`, `@response ... @endresponse`, `@preview`, `@effect`, `@change` |
 | Checked choice | `@icon`, `@when`, `@require`, `@warning`, `@check`, `@success ... @endsuccess`, `@failure ... @endfailure` |
 | Check outcome | `@time`, `@response ... @endresponse`, `@effect` |
 | Effect operations | `set`, `add`, `flag`, `daily-flag`, `relationship`, `money`, `skill`, `stat`, `grade`, `attendance` |

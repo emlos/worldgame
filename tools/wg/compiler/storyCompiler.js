@@ -249,7 +249,7 @@ export function compileStorySources(sources) {
   const entries = Object.fromEntries(
     [...entryMap.entries()].sort(([left], [right]) => compareText(left, right)),
   );
-  return { formatVersion: 11, scenes, sequences, entries };
+  return { formatVersion: 12, scenes, sequences, entries };
 }
 
 export { walkNodes };
