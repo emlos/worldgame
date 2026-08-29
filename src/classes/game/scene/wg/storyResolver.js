@@ -24,23 +24,22 @@ function fail(message, source) {
   throw new WGResolutionError(`${message}${sourceSuffix(source)}`);
 }
 
+function runtimeNodeId(node) {
+  if (!Number.isSafeInteger(node?.runtimeId) || node.runtimeId < 0) {
+    fail("Resolvable WG node is missing its runtime id", node?.source);
+  }
+  return node.runtimeId;
+}
+
 export function resolutionNodeKey(node) {
-  const source = node?.source || {};
-  return [
-    node?.type || "node",
-    source.file || "<wg>",
-    source.line || 1,
-    source.column || 1,
-  ].join(":");
+  return `${node.type}:${runtimeNodeId(node)}`;
 }
 
 function randomIndex(game, node, instanceKey) {
   const key = [
-    "wg-random-v1",
+    "wg-random-v2",
     instanceKey,
-    node.source?.file || "<wg>",
-    node.source?.line || 1,
-    node.source?.column || 1,
+    resolutionNodeKey(node),
   ].join(":");
   return Math.floor(keyedRandom01(game.seed, key) * node.variants.length);
 }
@@ -68,11 +67,9 @@ function passiveResult(game, node, instanceKey) {
   }
 
   const key = [
-    "wg-passive-check-v1",
+    "wg-passive-check-v2",
     instanceKey,
-    node.source?.file || "<wg>",
-    node.source?.line || 1,
-    node.source?.column || 1,
+    resolutionNodeKey(node),
   ].join(":");
   return keyedRandom01(game.seed, key) < chance ? "success" : "failure";
 }

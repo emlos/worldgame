@@ -22,6 +22,17 @@ function walkNodes(nodes, visit) {
   }
 }
 
+const RUNTIME_NODE_TYPES = new Set(["if", "random", "passive-check"]);
+
+function assignRuntimeNodeIds(nodes) {
+  let runtimeId = 0;
+  walkNodes(nodes, (node) => {
+    if (!RUNTIME_NODE_TYPES.has(node.type)) return;
+    node.runtimeId = runtimeId;
+    runtimeId += 1;
+  });
+}
+
 function atSource(source) {
   return {
     file: source?.file || "<wg>",
@@ -253,6 +264,11 @@ export function compileStorySources(sources) {
     }
   }
 
+  for (const scene of sceneMap.values()) assignRuntimeNodeIds(scene.body);
+  for (const sequence of sequenceMap.values()) {
+    for (const passage of sequence.passages) assignRuntimeNodeIds(passage.body);
+  }
+
   const scenes = Object.fromEntries(
     [...sceneMap.entries()].sort(([left], [right]) => compareText(left, right)),
   );
@@ -262,7 +278,7 @@ export function compileStorySources(sources) {
   const entries = Object.fromEntries(
     [...entryMap.entries()].sort(([left], [right]) => compareText(left, right)),
   );
-  return { formatVersion: 16, scenes, sequences, entries };
+  return { formatVersion: 17, scenes, sequences, entries };
 }
 
 export { walkNodes };

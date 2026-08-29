@@ -118,6 +118,16 @@ function materializeDuration(node, context) {
   return minutes;
 }
 
+function materializeOutcome(outcome, sequenceId) {
+  return {
+    ...outcome,
+    durationMinutes: outcome.durationMinutes ?? 0,
+    energyFree: outcome.energyFree ?? false,
+    effects: outcome.effects || [],
+    ...(sequenceId ? { sequenceId } : {}),
+  };
+}
+
 function materializeChoice(node, context, { sequenceId = null } = {}) {
   if (node.when && !Boolean(evaluateWGExpression(node.when, context))) return null;
 
@@ -158,12 +168,8 @@ function materializeChoice(node, context, { sequenceId = null } = {}) {
         difficultyId: node.check.difficultyId,
       },
       outcomes: {
-        success: sequenceId
-          ? { ...node.outcomes.success, sequenceId }
-          : node.outcomes.success,
-        failure: sequenceId
-          ? { ...node.outcomes.failure, sequenceId }
-          : node.outcomes.failure,
+        success: materializeOutcome(node.outcomes.success, sequenceId),
+        failure: materializeOutcome(node.outcomes.failure, sequenceId),
       },
       ...(eventPool ? { eventPool } : {}),
     };
@@ -285,13 +291,10 @@ function materializeNodes(nodes, context, output, options = {}) {
       if (options.resolution) {
         index = resolvedDecision(node, options);
       } else {
-        const source = node.source || {};
         const key = [
-          "wg-random-v1",
+          "wg-random-v2",
           options.storyInstanceKey,
-          source.file || "<wg>",
-          source.line || 1,
-          source.column || 1,
+          resolutionNodeKey(node),
         ].join(":");
         index = Math.floor(
           keyedRandom01(options.gameSeed, key) * node.variants.length,
