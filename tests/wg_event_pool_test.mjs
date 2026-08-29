@@ -228,15 +228,59 @@ function exerciseEventSequence(eventId, choiceIds) {
   assert.equal(game.storyContinuations.length, 0);
 }
 
+function exerciseSystemEventSequence(eventId) {
+  const game = createEnglishClassGame();
+  game.runAction({
+    label: "",
+    apply(currentGame) {
+      suspendWGContinuation(
+        currentGame,
+        { target: ".segment-2", sequenceId: "school.class.english" },
+        {
+          poolId: "school.class.english",
+          entryId: eventId,
+          choiceId: "english-1-study",
+        },
+      );
+      enterWGSequence(currentGame, eventId);
+    },
+    after(currentGame) {
+      resolveActiveWGStory(currentGame);
+    },
+  });
+
+  while (!game.currentStory.system.state.complete) {
+    const state = game.currentStory.system.state;
+    const question = state.questions[state.questionIndex];
+    const currentScene = buildScene(game);
+    const correctChoice = currentScene.sections
+      .flatMap((section) => section.choices)
+      .find(
+        (choice) =>
+          choice.action.command?.answerId === question.correctChoiceId,
+      );
+    assert.ok(correctChoice);
+    performChoice(game, {
+      sceneId: currentScene.id,
+      choiceId: correctChoice.id,
+    });
+  }
+
+  const resultsScene = buildScene(game);
+  performChoice(game, {
+    sceneId: resultsScene.id,
+    choiceId: "quiz-finish",
+  });
+  assert.equal(game.currentStory.id, "school.class.english");
+  assert.equal(game.currentStory.passageId, "segment-2");
+  assert.equal(game.storyContinuations.length, 0);
+}
+
 exerciseEventSequence("school.english.event.reading-aloud", [
   "reading-volunteer",
   "__wg_next",
 ]);
-exerciseEventSequence("school.english.event.surprise-quiz", [
-  "quiz-first-correct",
-  "quiz-second-correct",
-  "__wg_next",
-]);
+exerciseSystemEventSequence("school.english.event.surprise-quiz");
 
 const guaranteedEventGame = createEnglishClassGame();
 guaranteedEventGame.getRNG("wg-events").setState(1327);

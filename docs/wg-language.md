@@ -378,6 +378,9 @@ declared final target, including pooled-event `@return` continuations.
 WG stores only the system ID, config, and current JSON state. JavaScript
 callbacks remain in the runtime registry and are never emitted into generated
 story data or save files.
+The shared school quiz system currently resolves `math.core` and
+`english.core` through `src/data/scene/quizzes/index.js`; add new subject banks
+there without changing the runtime story system.
 
 ### Named passages and local targets
 

@@ -1,6 +1,6 @@
 import { createChoice } from "../../../classes/game/scene/choiceContract.js";
 import { SCENE_ACTION_TYPE } from "../../../data/scene/actions.js";
-import { QUIZ_BANKS } from "../../../data/scene/quizzes/math.js";
+import { QUIZ_BANKS } from "../../../data/scene/quizzes/index.js";
 import { deriveSeed, makeRNG } from "../../../shared/util/random.js";
 
 const STATE_VERSION = 1;

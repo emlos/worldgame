@@ -79,6 +79,13 @@ const definition = WG_BUNDLE.sequences["school.math.event.surprise-quiz"];
 assert.equal(definition.system.id, "school.quiz");
 assert.deepEqual(definition.system.config, { bank: "math.core", questions: 3 });
 assert.deepEqual(definition.passages, []);
+const englishDefinition = WG_BUNDLE.sequences["school.english.event.surprise-quiz"];
+assert.equal(englishDefinition.system.id, "school.quiz");
+assert.deepEqual(englishDefinition.system.config, {
+  bank: "english.core",
+  questions: 3,
+});
+assert.deepEqual(englishDefinition.passages, []);
 
 const game = new Game({
   seed: 901,
@@ -156,7 +163,7 @@ chooseAnswer(restored);
 assert.equal(restored.currentStory.system.state.complete, true);
 assert.equal(restored.currentStory.system.state.score, 2);
 assert.ok(
-  Math.abs(restored.player.getSubjectGrade("math") - (startingGrade + 0.01)) < 1e-9,
+  Math.abs(restored.player.getSubjectGrade("math") - (startingGrade + 1)) < 1e-9,
 );
 
 const resultsScene = buildScene(restored);
@@ -175,5 +182,65 @@ assert.deepEqual(restored.storyContinuations, []);
 enterWGSequence(restored, definition.id);
 resolveActiveWGStory(restored);
 assert.notEqual(restored.currentStory.system.instanceKey, firstInstanceKey);
+
+const englishGame = new Game({
+  seed: 902,
+  startDate: new Date("2026-09-02T11:00:00.000Z"),
+  playerOptions: { startPlaceId: null },
+});
+enterWGSequence(englishGame, englishDefinition.id);
+resolveActiveWGStory(englishGame);
+englishGame.storyContinuations.push({
+  target: "@exit",
+  sequenceId: null,
+  schoolClass: null,
+  poolId: "test.quiz",
+  entryId: englishDefinition.id,
+  sourceStoryId: "test.source",
+  sourcePassageId: null,
+  sourceChoiceId: "begin-quiz",
+});
+
+const englishState = englishGame.currentStory.system.state;
+assert.equal(englishState.bankId, "english.core");
+assert.equal(englishState.subjectId, "english");
+assert.equal(englishState.questions.length, 3);
+assert.equal(
+  new Set(englishState.questions.map((question) => question.id.split(":")[1])).size,
+  3,
+  "an English quiz should not repeat a question category",
+);
+for (const question of englishState.questions) {
+  assert.equal(question.choices.length, 4);
+  assert.equal(new Set(question.choices.map((choice) => choice.label)).size, 4);
+}
+
+const englishStartingGrade = englishGame.player.getSubjectGrade("english");
+const englishFirstScene = buildScene(englishGame);
+assert.deepEqual(buildScene(englishGame), englishFirstScene);
+assert.equal(JSON.stringify(englishFirstScene).includes("correctChoiceId"), false);
+chooseAnswer(englishGame);
+const savedEnglishScene = buildScene(englishGame);
+const restoredEnglish = Game.fromJSON(JSON.parse(JSON.stringify(englishGame)));
+assert.deepEqual(buildScene(restoredEnglish), savedEnglishScene);
+assert.deepEqual(
+  restoredEnglish.currentStory.system.state,
+  englishGame.currentStory.system.state,
+);
+chooseAnswer(restoredEnglish, { correct: false });
+chooseAnswer(restoredEnglish);
+assert.equal(restoredEnglish.currentStory.system.state.complete, true);
+assert.equal(restoredEnglish.currentStory.system.state.score, 2);
+assert.equal(
+  restoredEnglish.player.getSubjectGrade("english"),
+  englishStartingGrade + 1,
+);
+const englishResultsScene = buildScene(restoredEnglish);
+performChoice(restoredEnglish, {
+  sceneId: englishResultsScene.id,
+  choiceId: "quiz-finish",
+});
+assert.equal(restoredEnglish.currentStory, null);
+assert.deepEqual(restoredEnglish.storyContinuations, []);
 
 console.log("WG story system checks passed.");

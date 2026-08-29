@@ -176,60 +176,9 @@
 @endsequence
 
 @sequence school.english.event.surprise-quiz -> @return
+  @heading "Surprise English Quiz"
   @choices "Choose an answer"
-
-  @passage first-question
-
-  Without warning, the teacher hands out a short quiz. The first question asks which sentence contains a metaphor.
-
-
-  @choice quiz-first-wrong "The moon shone as brightly as a lamp." -> .second-question
-    @icon ✍️
-    @effect grade english -1
-  @endchoice
-
-  @choice quiz-first-correct "The moon was a silver coin above the rooftops." -> .second-question
-    @icon ✍️
-    @effect grade english 1
-  @endchoice
-
-  @choice quiz-first-other "The moon appeared after sunset." -> .second-question
-    @icon ✍️
-    @effect grade english -1
-  @endchoice
-
-  @passage second-question
-
-  The second question asks which version uses the apostrophe correctly.
-
-
-
-  @choice quiz-second-wrong-one "The student's books covered the table." -> .results
-    @icon ✍️
-    @effect grade english -1
-  @endchoice
-
-  @choice quiz-second-wrong-two "The students books' covered the table." -> .results
-    @icon ✍️
-    @effect grade english -1
-  @endchoice
-
-  @choice quiz-second-correct "The students' books covered the table." -> .results
-    @icon ✍️
-    @effect grade english 1
-  @endchoice
-
-  @passage results
-
-  The teacher collects the papers almost as quickly as they were handed out.
-
-  @if player.education.english.grade >= 70
-  You feel reasonably confident about what you wrote.
-  @else
-  You are left replaying both questions in your head.
-  @endif
-
-  @next -> @return
+  @system school.quiz {"bank":"english.core","questions":3}
 @endsequence
 
 @sequence school.english.event.student-distraction -> @return
@@ -452,7 +401,6 @@
   @next -> @return
 
 @endsequence
-
 
 
 

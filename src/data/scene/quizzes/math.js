@@ -105,11 +105,9 @@ export const MATH_QUIZ_QUESTION_FORMATS = Object.freeze([
   },
 ]);
 
-export const QUIZ_BANKS = Object.freeze({
-  "math.core": Object.freeze({
-    id: "math.core",
-    subjectId: "math",
-    gradeChange: 1,
-    questionFormats: MATH_QUIZ_QUESTION_FORMATS,
-  }),
+export const MATH_QUIZ_BANK = Object.freeze({
+  id: "math.core",
+  subjectId: "math",
+  gradeChange: 1,
+  questionFormats: MATH_QUIZ_QUESTION_FORMATS,
 });
