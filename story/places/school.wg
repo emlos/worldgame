@@ -340,19 +340,10 @@ The final segment of Mathematics class gets underway.
 
 The first segment of History class begins.
 
-@random
-The lesson goes poorly—you leave more confused than before.
-@change grade history -1
-@or
-The lesson goes well—you learn a lot!
-@change grade history 1
-@or
-You don't really pay attention and get through the work normally.
-@endrandom
-
 @choice history-1-taylor "Chat with Taylor" -> .segment-2
   
   @time-until school.nextBoundaryAt
+  @event-pool school.class.history
   @when npc.taylor.present
   @effect attendance history 1
   @change relationship taylor 1
@@ -361,6 +352,7 @@ You don't really pay attention and get through the work normally.
 @choice history-1-study "Study hard" -> .segment-2
   
   @time-until school.nextBoundaryAt
+  @event-pool school.class.history
   @preview grade 1 "+History grade"
   @effect attendance history 1
   @effect grade history 1
@@ -370,19 +362,10 @@ You don't really pay attention and get through the work normally.
 
 History class continues into its second segment.
 
-@random
-The lesson goes poorly—you leave more confused than before.
-@change grade history -1
-@or
-The lesson goes well—you learn a lot!
-@change grade history 1
-@or
-You don't really pay attention and get through the work normally.
-@endrandom
-
 @choice history-2-taylor "Chat with Taylor" -> .segment-3
   
   @time-until school.nextBoundaryAt
+  @event-pool school.class.history
   @when npc.taylor.present
   @effect attendance history 1
   @change relationship taylor 1
@@ -391,6 +374,7 @@ You don't really pay attention and get through the work normally.
 @choice history-2-study "Study hard" -> .segment-3
   
   @time-until school.nextBoundaryAt
+  @event-pool school.class.history
   @preview grade 1 "+History grade"
   @effect attendance history 1
   @effect grade history 1
@@ -400,19 +384,10 @@ You don't really pay attention and get through the work normally.
 
 The final segment of History class gets underway.
 
-@random
-The lesson goes poorly—you leave more confused than before.
-@change grade history -1
-@or
-The lesson goes well—you learn a lot!
-@change grade history 1
-@or
-You don't really pay attention and get through the work normally.
-@endrandom
-
 @choice history-3-taylor "Chat with Taylor" -> @exit
   
   @time-until school.nextBoundaryAt
+  @event-pool school.class.history
   @when npc.taylor.present
   @effect attendance history 1
   @change relationship taylor 1
@@ -421,6 +396,7 @@ You don't really pay attention and get through the work normally.
 @choice history-3-study "Study hard" -> @exit
   
   @time-until school.nextBoundaryAt
+  @event-pool school.class.history
   @preview grade 1 "+History grade"
   @effect attendance history 1
   @effect grade history 1
@@ -437,19 +413,10 @@ You don't really pay attention and get through the work normally.
 
 The first segment of Science class begins.
 
-@random
-The lesson goes poorly—you leave more confused than before.
-@change grade science -1
-@or
-The lesson goes well—you learn a lot!
-@change grade science 1
-@or
-You don't really pay attention and get through the work normally.
-@endrandom
-
 @choice science-1-taylor "Chat with Taylor" -> .segment-2
   
   @time-until school.nextBoundaryAt
+  @event-pool school.class.science
   @when npc.taylor.present
   @effect attendance science 1
   @change relationship taylor 1
@@ -458,6 +425,7 @@ You don't really pay attention and get through the work normally.
 @choice science-1-study "Study hard" -> .segment-2
   
   @time-until school.nextBoundaryAt
+  @event-pool school.class.science
   @preview grade 1 "+Science grade"
   @effect attendance science 1
   @effect grade science 1
@@ -467,19 +435,10 @@ You don't really pay attention and get through the work normally.
 
 Science class continues into its second segment.
 
-@random
-The lesson goes poorly—you leave more confused than before.
-@change grade science -1
-@or
-The lesson goes well—you learn a lot!
-@change grade science 1
-@or
-You don't really pay attention and get through the work normally.
-@endrandom
-
 @choice science-2-taylor "Chat with Taylor" -> .segment-3
   
   @time-until school.nextBoundaryAt
+  @event-pool school.class.science
   @when npc.taylor.present
   @effect attendance science 1
   @change relationship taylor 1
@@ -488,6 +447,7 @@ You don't really pay attention and get through the work normally.
 @choice science-2-study "Study hard" -> .segment-3
   
   @time-until school.nextBoundaryAt
+  @event-pool school.class.science
   @preview grade 1 "+Science grade"
   @effect attendance science 1
   @effect grade science 1
@@ -497,19 +457,10 @@ You don't really pay attention and get through the work normally.
 
 The final segment of Science class gets underway.
 
-@random
-The lesson goes poorly—you leave more confused than before.
-@change grade science -1
-@or
-The lesson goes well—you learn a lot!
-@change grade science 1
-@or
-You don't really pay attention and get through the work normally.
-@endrandom
-
 @choice science-3-taylor "Chat with Taylor" -> @exit
   
   @time-until school.nextBoundaryAt
+  @event-pool school.class.science
   @when npc.taylor.present
   @effect attendance science 1
   @change relationship taylor 1
@@ -518,6 +469,7 @@ You don't really pay attention and get through the work normally.
 @choice science-3-study "Study hard" -> @exit
   
   @time-until school.nextBoundaryAt
+  @event-pool school.class.science
   @preview grade 1 "+Science grade"
   @effect attendance science 1
   @effect grade science 1
@@ -534,19 +486,10 @@ You don't really pay attention and get through the work normally.
 
 The first segment of Art class begins.
 
-@random
-The lesson goes poorly—you leave more confused than before.
-@change grade art -1
-@or
-The lesson goes well—you learn a lot!
-@change grade art 1
-@or
-You don't really pay attention and get through the work normally.
-@endrandom
-
 @choice art-1-taylor "Chat with Taylor" -> .segment-2
   
   @time-until school.nextBoundaryAt
+  @event-pool school.class.art
   @when npc.taylor.present
   @effect attendance art 1
   @change relationship taylor 1
@@ -555,6 +498,7 @@ You don't really pay attention and get through the work normally.
 @choice art-1-study "Study hard" -> .segment-2
   
   @time-until school.nextBoundaryAt
+  @event-pool school.class.art
   @preview grade 1 "+Art grade"
   @effect attendance art 1
   @effect grade art 1
@@ -564,19 +508,10 @@ You don't really pay attention and get through the work normally.
 
 Art class continues into its second segment.
 
-@random
-The lesson goes poorly—you leave more confused than before.
-@change grade art -1
-@or
-The lesson goes well—you learn a lot!
-@change grade art 1
-@or
-You don't really pay attention and get through the work normally.
-@endrandom
-
 @choice art-2-taylor "Chat with Taylor" -> .segment-3
   
   @time-until school.nextBoundaryAt
+  @event-pool school.class.art
   @when npc.taylor.present
   @effect attendance art 1
   @change relationship taylor 1
@@ -585,6 +520,7 @@ You don't really pay attention and get through the work normally.
 @choice art-2-study "Study hard" -> .segment-3
   
   @time-until school.nextBoundaryAt
+  @event-pool school.class.art
   @preview grade 1 "+Art grade"
   @effect attendance art 1
   @effect grade art 1
@@ -594,19 +530,11 @@ You don't really pay attention and get through the work normally.
 
 The final segment of Art class gets underway.
 
-@random
-The lesson goes poorly—you leave more confused than before.
-@change grade art -1
-@or
-The lesson goes well—you learn a lot!
-@change grade art 1
-@or
-You don't really pay attention and get through the work normally.
-@endrandom
 
 @choice art-3-taylor "Chat with Taylor" -> @exit
   
   @time-until school.nextBoundaryAt
+  @event-pool school.class.art
   @when npc.taylor.present
   @effect attendance art 1
   @change relationship taylor 1
@@ -615,6 +543,7 @@ You don't really pay attention and get through the work normally.
 @choice art-3-study "Study hard" -> @exit
   
   @time-until school.nextBoundaryAt
+  @event-pool school.class.art
   @preview grade 1 "+Art grade"
   @effect attendance art 1
   @effect grade art 1
@@ -631,19 +560,11 @@ You don't really pay attention and get through the work normally.
 
 The first segment of Physical Education begins.
 
-@random
-The lesson goes poorly—you leave more confused than before.
-@change grade physical_education -1
-@or
-The lesson goes well—you learn a lot!
-@change grade physical_education 1
-@or
-You don't really pay attention and get through the work normally.
-@endrandom
 
 @choice physical-education-1-taylor "Chat with Taylor" -> .segment-2
   
   @time-until school.nextBoundaryAt
+  @event-pool school.class.physical-education
   @when npc.taylor.present
   @effect attendance physical_education 1
   @change relationship taylor 1
@@ -652,6 +573,7 @@ You don't really pay attention and get through the work normally.
 @choice physical-education-1-study "Train hard" -> .segment-2
   
   @time-until school.nextBoundaryAt
+  @event-pool school.class.physical-education
   @preview grade 1 "+Physical Education grade"
   @effect attendance physical_education 1
   @effect grade physical_education 1
@@ -662,19 +584,10 @@ You don't really pay attention and get through the work normally.
 
 Physical Education continues into its second segment.
 
-@random
-The lesson goes poorly—you leave more confused than before.
-@change grade physical_education -1
-@or
-The lesson goes well—you learn a lot!
-@change grade physical_education 1
-@or
-You don't really pay attention and get through the work normally.
-@endrandom
-
 @choice physical-education-2-taylor "Chat with Taylor" -> .segment-3
   
   @time-until school.nextBoundaryAt
+  @event-pool school.class.physical-education
   @when npc.taylor.present
   @effect attendance physical_education 1
   @change relationship taylor 1
@@ -683,6 +596,7 @@ You don't really pay attention and get through the work normally.
 @choice physical-education-2-study "Train hard" -> .segment-3
   
   @time-until school.nextBoundaryAt
+  @event-pool school.class.physical-education
   @preview grade 1 "+Physical Education grade"
   @effect attendance physical_education 1
   @effect grade physical_education 1
@@ -693,19 +607,10 @@ You don't really pay attention and get through the work normally.
 
 The final segment of Physical Education gets underway.
 
-@random
-The lesson goes poorly—you leave more confused than before.
-@change grade physical_education -1
-@or
-The lesson goes well—you learn a lot!
-@change grade physical_education 1
-@or
-You don't really pay attention and get through the work normally.
-@endrandom
-
 @choice physical-education-3-taylor "Chat with Taylor" -> @exit
   
   @time-until school.nextBoundaryAt
+  @event-pool school.class.physical-education
   @when npc.taylor.present
   @effect attendance physical_education 1
   @change relationship taylor 1
@@ -714,6 +619,7 @@ You don't really pay attention and get through the work normally.
 @choice physical-education-3-study "Train hard" -> @exit
   
   @time-until school.nextBoundaryAt
+  @event-pool school.class.physical-education
   @preview grade 1 "+Physical Education grade"
   @effect attendance physical_education 1
   @effect grade physical_education 1

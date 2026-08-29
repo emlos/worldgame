@@ -5557,14 +5557,14 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 845,
+                    "line": 751,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 844,
+                "line": 750,
                 "column": 1
               }
             },
@@ -5595,14 +5595,14 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 847,
+                    "line": 753,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 846,
+                "line": 752,
                 "column": 1
               }
             }
@@ -5618,14 +5618,14 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 849,
+                "line": 755,
                 "column": 1
               }
             }
           ],
           "source": {
             "file": "story/places/school.wg",
-            "line": 844,
+            "line": 750,
             "column": 1
           }
         },
@@ -5682,7 +5682,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/school.wg",
-            "line": 852,
+            "line": 758,
             "column": 1
           }
         },
@@ -5702,14 +5702,14 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/school.wg",
-            "line": 859,
+            "line": 765,
             "column": 1
           }
         }
       ],
       "source": {
         "file": "story/places/school.wg",
-        "line": 841,
+        "line": 747,
         "column": 1
       }
     },
@@ -5770,14 +5770,14 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 729,
+                    "line": 635,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 728,
+                "line": 634,
                 "column": 1
               }
             }
@@ -5793,14 +5793,14 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 731,
+                "line": 637,
                 "column": 1
               }
             }
           ],
           "source": {
             "file": "story/places/school.wg",
-            "line": 728,
+            "line": 634,
             "column": 1
           }
         },
@@ -5870,14 +5870,14 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 739,
+                    "line": 645,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 738,
+                "line": 644,
                 "column": 1
               }
             },
@@ -5906,14 +5906,14 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 742,
+                    "line": 648,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 741,
+                "line": 647,
                 "column": 1
               }
             },
@@ -5929,14 +5929,14 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 745,
+                    "line": 651,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 744,
+                "line": 650,
                 "column": 1
               }
             }
@@ -5949,7 +5949,7 @@ export const WG_BUNDLE = {
               "amount": 2.5,
               "source": {
                 "file": "story/places/school.wg",
-                "line": 747,
+                "line": 653,
                 "column": 1
               },
               "feedback": {
@@ -5965,14 +5965,14 @@ export const WG_BUNDLE = {
               "value": true,
               "source": {
                 "file": "story/places/school.wg",
-                "line": 748,
+                "line": 654,
                 "column": 1
               }
             }
           ],
           "source": {
             "file": "story/places/school.wg",
-            "line": 734,
+            "line": 640,
             "column": 1
           }
         },
@@ -5992,14 +5992,14 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/school.wg",
-            "line": 751,
+            "line": 657,
             "column": 1
           }
         }
       ],
       "source": {
         "file": "story/places/school.wg",
-        "line": 725,
+        "line": 631,
         "column": 1
       }
     },
@@ -6060,14 +6060,14 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 759,
+                    "line": 665,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 758,
+                "line": 664,
                 "column": 1
               }
             },
@@ -6098,14 +6098,14 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 761,
+                    "line": 667,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 760,
+                "line": 666,
                 "column": 1
               }
             }
@@ -6113,7 +6113,7 @@ export const WG_BUNDLE = {
           "elseNodes": null,
           "source": {
             "file": "story/places/school.wg",
-            "line": 758,
+            "line": 664,
             "column": 1
           }
         },
@@ -6170,7 +6170,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/school.wg",
-            "line": 764,
+            "line": 670,
             "column": 1
           }
         },
@@ -6190,14 +6190,14 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/school.wg",
-            "line": 771,
+            "line": 677,
             "column": 1
           }
         }
       ],
       "source": {
         "file": "story/places/school.wg",
-        "line": 755,
+        "line": 661,
         "column": 1
       }
     },
@@ -6258,14 +6258,14 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 867,
+                    "line": 773,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 866,
+                "line": 772,
                 "column": 1
               }
             },
@@ -6296,14 +6296,14 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 869,
+                    "line": 775,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 868,
+                "line": 774,
                 "column": 1
               }
             }
@@ -6319,14 +6319,14 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 871,
+                "line": 777,
                 "column": 1
               }
             }
           ],
           "source": {
             "file": "story/places/school.wg",
-            "line": 866,
+            "line": 772,
             "column": 1
           }
         },
@@ -6383,7 +6383,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/school.wg",
-            "line": 874,
+            "line": 780,
             "column": 1
           }
         },
@@ -6403,14 +6403,14 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/school.wg",
-            "line": 881,
+            "line": 787,
             "column": 1
           }
         }
       ],
       "source": {
         "file": "story/places/school.wg",
-        "line": 863,
+        "line": 769,
         "column": 1
       }
     },
@@ -6471,14 +6471,14 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 823,
+                    "line": 729,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 822,
+                "line": 728,
                 "column": 1
               }
             },
@@ -6509,14 +6509,14 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 825,
+                    "line": 731,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 824,
+                "line": 730,
                 "column": 1
               }
             }
@@ -6532,14 +6532,14 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 827,
+                "line": 733,
                 "column": 1
               }
             }
           ],
           "source": {
             "file": "story/places/school.wg",
-            "line": 822,
+            "line": 728,
             "column": 1
           }
         },
@@ -6596,7 +6596,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/school.wg",
-            "line": 830,
+            "line": 736,
             "column": 1
           }
         },
@@ -6616,14 +6616,14 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/school.wg",
-            "line": 837,
+            "line": 743,
             "column": 1
           }
         }
       ],
       "source": {
         "file": "story/places/school.wg",
-        "line": 819,
+        "line": 725,
         "column": 1
       }
     },
@@ -6684,14 +6684,14 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 779,
+                    "line": 685,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 778,
+                "line": 684,
                 "column": 1
               }
             },
@@ -6722,14 +6722,14 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 781,
+                    "line": 687,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 780,
+                "line": 686,
                 "column": 1
               }
             }
@@ -6745,14 +6745,14 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 783,
+                "line": 689,
                 "column": 1
               }
             }
           ],
           "source": {
             "file": "story/places/school.wg",
-            "line": 778,
+            "line": 684,
             "column": 1
           }
         },
@@ -6809,7 +6809,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/school.wg",
-            "line": 786,
+            "line": 692,
             "column": 1
           }
         },
@@ -6829,14 +6829,14 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/school.wg",
-            "line": 793,
+            "line": 699,
             "column": 1
           }
         }
       ],
       "source": {
         "file": "story/places/school.wg",
-        "line": 775,
+        "line": 681,
         "column": 1
       }
     },
@@ -6891,14 +6891,14 @@ export const WG_BUNDLE = {
                           ],
                           "source": {
                             "file": "story/places/school.wg",
-                            "line": 905,
+                            "line": 811,
                             "column": 1
                           }
                         }
                       ],
                       "source": {
                         "file": "story/places/school.wg",
-                        "line": 904,
+                        "line": 810,
                         "column": 1
                       }
                     }
@@ -6927,21 +6927,21 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/places/school.wg",
-                        "line": 907,
+                        "line": 813,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 904,
+                    "line": 810,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 903,
+                "line": 809,
                 "column": 1
               }
             }
@@ -6957,14 +6957,14 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 910,
+                "line": 816,
                 "column": 1
               }
             }
           ],
           "source": {
             "file": "story/places/school.wg",
-            "line": 903,
+            "line": 809,
             "column": 1
           }
         },
@@ -7032,14 +7032,14 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 918,
+                    "line": 824,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 917,
+                "line": 823,
                 "column": 1
               }
             }
@@ -7048,7 +7048,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/school.wg",
-            "line": 914,
+            "line": 820,
             "column": 1
           }
         },
@@ -7068,14 +7068,14 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/school.wg",
-            "line": 922,
+            "line": 828,
             "column": 1
           }
         }
       ],
       "source": {
         "file": "story/places/school.wg",
-        "line": 900,
+        "line": 806,
         "column": 1
       }
     },
@@ -7136,14 +7136,14 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 801,
+                    "line": 707,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 800,
+                "line": 706,
                 "column": 1
               }
             },
@@ -7174,14 +7174,14 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 803,
+                    "line": 709,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 802,
+                "line": 708,
                 "column": 1
               }
             }
@@ -7197,14 +7197,14 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 805,
+                "line": 711,
                 "column": 1
               }
             }
           ],
           "source": {
             "file": "story/places/school.wg",
-            "line": 800,
+            "line": 706,
             "column": 1
           }
         },
@@ -7261,7 +7261,7 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/school.wg",
-            "line": 808,
+            "line": 714,
             "column": 1
           }
         },
@@ -7281,14 +7281,14 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/school.wg",
-            "line": 815,
+            "line": 721,
             "column": 1
           }
         }
       ],
       "source": {
         "file": "story/places/school.wg",
-        "line": 797,
+        "line": 703,
         "column": 1
       }
     },
@@ -7330,14 +7330,14 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 889,
+                    "line": 795,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 888,
+                "line": 794,
                 "column": 1
               }
             },
@@ -7368,14 +7368,14 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 891,
+                    "line": 797,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 890,
+                "line": 796,
                 "column": 1
               }
             }
@@ -7391,14 +7391,14 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 893,
+                "line": 799,
                 "column": 1
               }
             }
           ],
           "source": {
             "file": "story/places/school.wg",
-            "line": 888,
+            "line": 794,
             "column": 1
           }
         },
@@ -7418,14 +7418,14 @@ export const WG_BUNDLE = {
           "effects": [],
           "source": {
             "file": "story/places/school.wg",
-            "line": 896,
+            "line": 802,
             "column": 1
           }
         }
       ],
       "source": {
         "file": "story/places/school.wg",
-        "line": 885,
+        "line": 791,
         "column": 1
       }
     },
@@ -13251,6 +13251,2983 @@ export const WG_BUNDLE = {
         "column": 1
       }
     },
+    "school.art.event.critique-circle": {
+      "id": "school.art.event.critique-circle",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Respond to the critique",
+      "schoolClass": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "opening",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Your latest piece is pinned to the board for a class critique. The first comments are polite, but one student calls the composition confused."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1236,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "critique-explain",
+              "label": "Explain what you intended",
+              "check": {
+                "targetType": "skill",
+                "targetId": "speech",
+                "difficultyId": "tricky",
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1239,
+                  "column": 1
+                }
+              },
+              "outcomes": {
+                "success": {
+                  "target": ".critique-explained",
+                  "durationMinutes": 0,
+                  "energyFree": false,
+                  "effects": [],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 1240,
+                    "column": 1
+                  }
+                },
+                "failure": {
+                  "target": ".critique-defensive",
+                  "durationMinutes": 0,
+                  "energyFree": false,
+                  "effects": [],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 1242,
+                    "column": 1
+                  }
+                }
+              },
+              "icon": null,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1238,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "critique-listen",
+              "label": "Listen without defending it",
+              "target": ".critique-listened",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1246,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "critique-taylor",
+              "label": "Ask Taylor for an honest opinion",
+              "target": ".critique-taylor",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": {
+                "type": "path",
+                "value": [
+                  "npc",
+                  "taylor",
+                  "present"
+                ]
+              },
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1249,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1234,
+            "column": 1
+          }
+        },
+        {
+          "id": "critique-explained",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You explain the visual path you wanted the viewer to follow. Once you name it, the class offers practical ways to make that path clearer."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1255,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "art",
+                "amount": 2,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1256,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 2,
+                  "label": "+Art grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1256,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "skill",
+                "id": "speech",
+                "amount": 0.1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1257,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "skill",
+                  "amount": 0.1,
+                  "label": "+Speech",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1257,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1259,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1253,
+            "column": 1
+          }
+        },
+        {
+          "id": "critique-defensive",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Your explanation turns into an argument about why the class misunderstood you. The teacher reminds you that confusion is itself useful feedback."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1263,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "art",
+                "amount": -1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1264,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": -1,
+                  "label": "-Art grade",
+                  "direction": "decrease"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1264,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "stat",
+                "id": "stress",
+                "amount": 3,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1265,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "stat",
+                  "amount": 3,
+                  "label": "+Stress",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1265,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "critique-apologize",
+              "label": "Back down and ask for specific advice",
+              "target": ".critique-recovered",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1267,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "critique-double-down",
+              "label": "Insist that nothing needs changing",
+              "target": ".critique-stubborn",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1270,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1261,
+            "column": 1
+          }
+        },
+        {
+          "id": "critique-listened",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You write down the comments instead of answering them. Some criticism feels unfair, but several people identify the same weak area."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1275,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "art",
+                "amount": 1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1276,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+Art grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1276,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "skill",
+                "id": "resolve",
+                "amount": 0.1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1277,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "skill",
+                  "amount": 0.1,
+                  "label": "+Resolve",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1277,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1279,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1273,
+            "column": 1
+          }
+        },
+        {
+          "id": "critique-taylor",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Taylor hesitates, then points to the strongest part of the piece and explains why the rest distracts from it."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1283,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "critique-thank-taylor",
+              "label": "Thank Taylor for being direct",
+              "target": ".critique-taylor-thanks",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1285,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "critique-dismiss-taylor",
+              "label": "Dismiss Taylor's criticism",
+              "target": ".critique-taylor-dismissed",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1288,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1281,
+            "column": 1
+          }
+        },
+        {
+          "id": "critique-recovered",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You take a breath and ask the class where their eyes go first. The answers give you a clear revision plan."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1293,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "art",
+                "amount": 1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1294,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+Art grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1294,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "skill",
+                "id": "resolve",
+                "amount": 0.1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1295,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "skill",
+                  "amount": 0.1,
+                  "label": "+Resolve",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1295,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1297,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1291,
+            "column": 1
+          }
+        },
+        {
+          "id": "critique-stubborn",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The discussion ends awkwardly. Your work remains unchanged, along with the problem everyone noticed."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1301,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "art",
+                "amount": -1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1302,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": -1,
+                  "label": "-Art grade",
+                  "direction": "decrease"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1302,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1304,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1299,
+            "column": 1
+          }
+        },
+        {
+          "id": "critique-taylor-thanks",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You mark Taylor's suggestion beside your sketch. "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "npc",
+                    "taylor",
+                    "subject"
+                  ],
+                  "filters": [
+                    "cap"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "value": " looks relieved that you took the honesty well."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1308,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "relationship",
+                "npcId": "taylor",
+                "amount": 2,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1309,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "relationship",
+                  "amount": 2,
+                  "label": "+Relationship",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1309,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "art",
+                "amount": 1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1310,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+Art grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1310,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1312,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1306,
+            "column": 1
+          }
+        },
+        {
+          "id": "critique-taylor-dismissed",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Taylor shrugs and stops offering suggestions. A few minutes later, the teacher identifies the same problem."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1316,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "relationship",
+                "npcId": "taylor",
+                "amount": -2,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1317,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "relationship",
+                  "amount": -2,
+                  "label": "-Relationship",
+                  "direction": "decrease"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1317,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "art",
+                "amount": -1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1318,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": -1,
+                  "label": "-Art grade",
+                  "direction": "decrease"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1318,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1320,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1314,
+            "column": 1
+          }
+        }
+      ],
+      "source": {
+        "file": "story/events/school-class.wg",
+        "line": 1231,
+        "column": 1
+      }
+    },
+    "school.art.event.partner-portrait": {
+      "id": "school.art.event.partner-portrait",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Choose your approach",
+      "schoolClass": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "opening",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The teacher pairs students for quick portraits. You must capture an expression rather than simply copy a face."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1134,
+                "column": 1
+              }
+            },
+            {
+              "type": "if",
+              "branches": [
+                {
+                  "test": {
+                    "type": "path",
+                    "value": [
+                      "npc",
+                      "taylor",
+                      "present"
+                    ]
+                  },
+                  "nodes": [
+                    {
+                      "type": "paragraph",
+                      "parts": [
+                        {
+                          "type": "text",
+                          "value": "Taylor takes the seat opposite you and tries to hold a serious pose, though the corners of "
+                        },
+                        {
+                          "type": "interpolation",
+                          "path": [
+                            "npc",
+                            "taylor",
+                            "dependent"
+                          ],
+                          "filters": []
+                        },
+                        {
+                          "type": "text",
+                          "value": " mouth keep twitching."
+                        }
+                      ],
+                      "source": {
+                        "file": "story/events/school-class.wg",
+                        "line": 1137,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 1136,
+                    "column": 1
+                  }
+                }
+              ],
+              "elseNodes": [
+                {
+                  "type": "paragraph",
+                  "parts": [
+                    {
+                      "type": "text",
+                      "value": "A student from the next table sits opposite you and stares past your shoulder with determined stillness."
+                    }
+                  ],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 1139,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1136,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "portrait-observe",
+              "label": "Study the details before drawing",
+              "check": {
+                "targetType": "skill",
+                "targetId": "perception",
+                "difficultyId": "tricky",
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1143,
+                  "column": 1
+                }
+              },
+              "outcomes": {
+                "success": {
+                  "target": ".portrait-honest",
+                  "durationMinutes": 0,
+                  "energyFree": false,
+                  "effects": [],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 1144,
+                    "column": 1
+                  }
+                },
+                "failure": {
+                  "target": ".portrait-stiff",
+                  "durationMinutes": 0,
+                  "energyFree": false,
+                  "effects": [],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 1146,
+                    "column": 1
+                  }
+                }
+              },
+              "icon": null,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1142,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "portrait-flatter",
+              "label": "Make the portrait deliberately flattering",
+              "target": ".portrait-flattering",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1150,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "portrait-caricature",
+              "label": "Draw a playful caricature",
+              "target": ".portrait-caricature",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": {
+                "type": "path",
+                "value": [
+                  "npc",
+                  "taylor",
+                  "present"
+                ]
+              },
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1153,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1132,
+            "column": 1
+          }
+        },
+        {
+          "id": "portrait-honest",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You stop thinking in terms of individual features and capture the expression holding them together. The portrait feels recognizably alive."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1159,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "art",
+                "amount": 2,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1160,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 2,
+                  "label": "+Art grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1160,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "skill",
+                "id": "perception",
+                "amount": 0.1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1161,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "skill",
+                  "amount": 0.1,
+                  "label": "+Perception",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1161,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "portrait-show-private",
+              "label": "Show Taylor privately first",
+              "target": ".portrait-private",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": {
+                "type": "path",
+                "value": [
+                  "npc",
+                  "taylor",
+                  "present"
+                ]
+              },
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1163,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "portrait-display",
+              "label": "Place it on the class display",
+              "target": ".portrait-display",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1167,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1157,
+            "column": 1
+          }
+        },
+        {
+          "id": "portrait-stiff",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Every feature is technically present, yet the face looks posed and distant. The teacher suggests drawing the movement of the expression instead of its outline."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1172,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "art",
+                "amount": -1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1173,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": -1,
+                  "label": "-Art grade",
+                  "direction": "decrease"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1173,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1175,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1170,
+            "column": 1
+          }
+        },
+        {
+          "id": "portrait-flattering",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You smooth every awkward line and exaggerate the most appealing features. The result is attractive, although it resembles an advertisement more than a person."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1179,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "art",
+                "amount": 1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1180,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+Art grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1180,
+                "column": 1
+              }
+            },
+            {
+              "type": "if",
+              "branches": [
+                {
+                  "test": {
+                    "type": "path",
+                    "value": [
+                      "npc",
+                      "taylor",
+                      "present"
+                    ]
+                  },
+                  "nodes": [
+                    {
+                      "type": "paragraph",
+                      "parts": [
+                        {
+                          "type": "text",
+                          "value": "Taylor seems pleased at first, then studies the drawing as if wondering what you chose not to include."
+                        }
+                      ],
+                      "source": {
+                        "file": "story/events/school-class.wg",
+                        "line": 1183,
+                        "column": 1
+                      }
+                    },
+                    {
+                      "type": "effect",
+                      "effect": {
+                        "op": "relationship",
+                        "npcId": "taylor",
+                        "amount": 1,
+                        "source": {
+                          "file": "story/events/school-class.wg",
+                          "line": 1184,
+                          "column": 1
+                        },
+                        "feedback": {
+                          "type": "relationship",
+                          "amount": 1,
+                          "label": "+Relationship",
+                          "direction": "increase"
+                        }
+                      },
+                      "source": {
+                        "file": "story/events/school-class.wg",
+                        "line": 1184,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 1182,
+                    "column": 1
+                  }
+                }
+              ],
+              "elseNodes": null,
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1182,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1187,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1177,
+            "column": 1
+          }
+        },
+        {
+          "id": "portrait-caricature",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You exaggerate Taylor's barely contained grin until it takes over the entire page."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1191,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "portrait-reveal-joke",
+              "label": "Reveal it as a joke",
+              "target": ".caricature-reveal",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1193,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "portrait-hide-joke",
+              "label": "Hide it and start over",
+              "target": ".caricature-hidden",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1196,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1189,
+            "column": 1
+          }
+        },
+        {
+          "id": "portrait-private",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Taylor studies the portrait quietly before smiling. \"You make me look like I'm thinking something clever,\" "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "npc",
+                    "taylor",
+                    "subject"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": " says."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1201,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "relationship",
+                "npcId": "taylor",
+                "amount": 2,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1202,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "relationship",
+                  "amount": 2,
+                  "label": "+Relationship",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1202,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1204,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1199,
+            "column": 1
+          }
+        },
+        {
+          "id": "portrait-display",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The teacher points out your use of expression and asks the class what story they imagine behind it."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1208,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "art",
+                "amount": 1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1209,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+Art grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1209,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "stat",
+                "id": "stress",
+                "amount": 1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1210,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "stat",
+                  "amount": 1,
+                  "label": "+Stress",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1210,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1212,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1206,
+            "column": 1
+          }
+        },
+        {
+          "id": "caricature-reveal",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Taylor stares at the enormous grin, then breaks the pose by laughing. The teacher calls it expressive, if not especially subtle."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1216,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "relationship",
+                "npcId": "taylor",
+                "amount": 2,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1217,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "relationship",
+                  "amount": 2,
+                  "label": "+Relationship",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1217,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "art",
+                "amount": 1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1218,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+Art grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1218,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1220,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1214,
+            "column": 1
+          }
+        },
+        {
+          "id": "caricature-hidden",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Taylor catches a glimpse before you cover the page. "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "npc",
+                    "taylor",
+                    "subject"
+                  ],
+                  "filters": [
+                    "cap"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "value": " spends the rest of the exercise trying to see what you drew."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1224,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "relationship",
+                "npcId": "taylor",
+                "amount": -1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1225,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "relationship",
+                  "amount": -1,
+                  "label": "-Relationship",
+                  "direction": "decrease"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1225,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "stat",
+                "id": "stress",
+                "amount": 2,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1226,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "stat",
+                  "amount": 2,
+                  "label": "+Stress",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1226,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1228,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1222,
+            "column": 1
+          }
+        }
+      ],
+      "source": {
+        "file": "story/events/school-class.wg",
+        "line": 1129,
+        "column": 1
+      }
+    },
+    "school.art.event.ruined-artwork": {
+      "id": "school.art.event.ruined-artwork",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "React to the accident",
+      "schoolClass": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "opening",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "A jar of cloudy paint water tips across a nearly finished drawing. Dark streams spread through the paper before anyone can lift it from the table."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1402,
+                "column": 1
+              }
+            },
+            {
+              "type": "if",
+              "branches": [
+                {
+                  "test": {
+                    "type": "path",
+                    "value": [
+                      "npc",
+                      "taylor",
+                      "present"
+                    ]
+                  },
+                  "nodes": [
+                    {
+                      "type": "paragraph",
+                      "parts": [
+                        {
+                          "type": "text",
+                          "value": "It is Taylor's drawing, and "
+                        },
+                        {
+                          "type": "interpolation",
+                          "path": [
+                            "npc",
+                            "taylor",
+                            "subject"
+                          ],
+                          "filters": []
+                        },
+                        {
+                          "type": "text",
+                          "value": " stares at the spreading stain in horror."
+                        }
+                      ],
+                      "source": {
+                        "file": "story/events/school-class.wg",
+                        "line": 1405,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 1404,
+                    "column": 1
+                  }
+                }
+              ],
+              "elseNodes": [
+                {
+                  "type": "paragraph",
+                  "parts": [
+                    {
+                      "type": "text",
+                      "value": "The student beside you stares at the spreading stain in horror."
+                    }
+                  ],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 1407,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1404,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "ruined-salvage",
+              "label": "Try to turn the stain into part of the piece",
+              "check": {
+                "targetType": "grade",
+                "targetId": "art",
+                "difficultyId": "difficult",
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1411,
+                  "column": 1
+                }
+              },
+              "outcomes": {
+                "success": {
+                  "target": ".ruined-transformed",
+                  "durationMinutes": 0,
+                  "energyFree": false,
+                  "effects": [],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 1412,
+                    "column": 1
+                  }
+                },
+                "failure": {
+                  "target": ".ruined-worse",
+                  "durationMinutes": 0,
+                  "energyFree": false,
+                  "effects": [],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 1414,
+                    "column": 1
+                  }
+                }
+              },
+              "icon": null,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1410,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "ruined-blot",
+              "label": "Blot the water before it spreads",
+              "target": ".ruined-contained",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1418,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "ruined-comfort",
+              "label": "Reassure Taylor and offer your materials",
+              "target": ".ruined-taylor",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": {
+                "type": "path",
+                "value": [
+                  "npc",
+                  "taylor",
+                  "present"
+                ]
+              },
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1421,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1400,
+            "column": 1
+          }
+        },
+        {
+          "id": "ruined-transformed",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You tilt the paper and guide the stain through the background. What looked like damage becomes a storm behind the original subject."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1427,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "art",
+                "amount": 2,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1428,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 2,
+                  "label": "+Art grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1428,
+                "column": 1
+              }
+            },
+            {
+              "type": "if",
+              "branches": [
+                {
+                  "test": {
+                    "type": "path",
+                    "value": [
+                      "npc",
+                      "taylor",
+                      "present"
+                    ]
+                  },
+                  "nodes": [
+                    {
+                      "type": "paragraph",
+                      "parts": [
+                        {
+                          "type": "text",
+                          "value": "Taylor looks from the altered drawing to you with astonished relief."
+                        }
+                      ],
+                      "source": {
+                        "file": "story/events/school-class.wg",
+                        "line": 1431,
+                        "column": 1
+                      }
+                    },
+                    {
+                      "type": "effect",
+                      "effect": {
+                        "op": "relationship",
+                        "npcId": "taylor",
+                        "amount": 2,
+                        "source": {
+                          "file": "story/events/school-class.wg",
+                          "line": 1432,
+                          "column": 1
+                        },
+                        "feedback": {
+                          "type": "relationship",
+                          "amount": 2,
+                          "label": "+Relationship",
+                          "direction": "increase"
+                        }
+                      },
+                      "source": {
+                        "file": "story/events/school-class.wg",
+                        "line": 1432,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 1430,
+                    "column": 1
+                  }
+                }
+              ],
+              "elseNodes": null,
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1430,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1435,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1425,
+            "column": 1
+          }
+        },
+        {
+          "id": "ruined-worse",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Your added marks muddy the remaining clean areas. The teacher finally separates the soaked page from the table and suggests starting again."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1439,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "art",
+                "amount": -1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1440,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": -1,
+                  "label": "-Art grade",
+                  "direction": "decrease"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1440,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "stat",
+                "id": "stress",
+                "amount": 3,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1441,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "stat",
+                  "amount": 3,
+                  "label": "+Stress",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1441,
+                "column": 1
+              }
+            },
+            {
+              "type": "if",
+              "branches": [
+                {
+                  "test": {
+                    "type": "path",
+                    "value": [
+                      "npc",
+                      "taylor",
+                      "present"
+                    ]
+                  },
+                  "nodes": [
+                    {
+                      "type": "paragraph",
+                      "parts": [
+                        {
+                          "type": "text",
+                          "value": "Taylor tries not to look annoyed, without much success."
+                        }
+                      ],
+                      "source": {
+                        "file": "story/events/school-class.wg",
+                        "line": 1444,
+                        "column": 1
+                      }
+                    },
+                    {
+                      "type": "effect",
+                      "effect": {
+                        "op": "relationship",
+                        "npcId": "taylor",
+                        "amount": -1,
+                        "source": {
+                          "file": "story/events/school-class.wg",
+                          "line": 1445,
+                          "column": 1
+                        },
+                        "feedback": {
+                          "type": "relationship",
+                          "amount": -1,
+                          "label": "-Relationship",
+                          "direction": "decrease"
+                        }
+                      },
+                      "source": {
+                        "file": "story/events/school-class.wg",
+                        "line": 1445,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 1443,
+                    "column": 1
+                  }
+                }
+              ],
+              "elseNodes": null,
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1443,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1448,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1437,
+            "column": 1
+          }
+        },
+        {
+          "id": "ruined-contained",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You sacrifice a stack of paper towels to stop the water. The drawing is scarred along one edge, but most of it survives."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1452,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "skill",
+                "id": "perception",
+                "amount": 0.1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1453,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "skill",
+                  "amount": 0.1,
+                  "label": "+Perception",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1453,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "art",
+                "amount": 1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1454,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+Art grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1454,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1456,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1450,
+            "column": 1
+          }
+        },
+        {
+          "id": "ruined-taylor",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You give Taylor your clean paper and help reconstruct the composition from memory. "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "npc",
+                    "taylor",
+                    "subject"
+                  ],
+                  "filters": [
+                    "cap"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "value": " relaxes once the new version begins taking shape."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1460,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "relationship",
+                "npcId": "taylor",
+                "amount": 2,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1461,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "relationship",
+                  "amount": 2,
+                  "label": "+Relationship",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1461,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "art",
+                "amount": 1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1462,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+Art grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1462,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1464,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1458,
+            "column": 1
+          }
+        }
+      ],
+      "source": {
+        "file": "story/events/school-class.wg",
+        "line": 1397,
+        "column": 1
+      }
+    },
+    "school.art.event.shared-mural": {
+      "id": "school.art.event.shared-mural",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Contribute to the mural",
+      "schoolClass": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "opening",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The class must turn a blank paper wall into one connected cityscape. Every table has a different idea about where its section should lead."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1328,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "mural-coordinate",
+              "label": "Coordinate the competing designs",
+              "check": {
+                "targetType": "skill",
+                "targetId": "speech",
+                "difficultyId": "difficult",
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1331,
+                  "column": 1
+                }
+              },
+              "outcomes": {
+                "success": {
+                  "target": ".mural-unified",
+                  "durationMinutes": 0,
+                  "energyFree": false,
+                  "effects": [],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 1332,
+                    "column": 1
+                  }
+                },
+                "failure": {
+                  "target": ".mural-argument",
+                  "durationMinutes": 0,
+                  "energyFree": false,
+                  "effects": [],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 1334,
+                    "column": 1
+                  }
+                }
+              },
+              "icon": null,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1330,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "mural-own-section",
+              "label": "Focus entirely on your own section",
+              "target": ".mural-independent",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1338,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "mural-taylor",
+              "label": "Develop Taylor's idea together",
+              "target": ".mural-taylor",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": {
+                "type": "path",
+                "value": [
+                  "npc",
+                  "taylor",
+                  "present"
+                ]
+              },
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1341,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1326,
+            "column": 1
+          }
+        },
+        {
+          "id": "mural-unified",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You persuade each table to repeat one colour and one horizon line. The wildly different neighborhoods begin to look like parts of the same city."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1347,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "art",
+                "amount": 2,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1348,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 2,
+                  "label": "+Art grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1348,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "skill",
+                "id": "speech",
+                "amount": 0.1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1349,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "skill",
+                  "amount": 0.1,
+                  "label": "+Speech",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1349,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1351,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1345,
+            "column": 1
+          }
+        },
+        {
+          "id": "mural-argument",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Everyone agrees that the mural needs a plan, but nobody agrees that yours should be it. The discussion consumes most of the painting time."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1355,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "stat",
+                "id": "stress",
+                "amount": 3,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1356,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "stat",
+                  "amount": 3,
+                  "label": "+Stress",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1356,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "art",
+                "amount": -1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1357,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": -1,
+                  "label": "-Art grade",
+                  "direction": "decrease"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1357,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "mural-compromise",
+              "label": "Abandon your plan and find a compromise",
+              "target": ".mural-compromise",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1359,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "mural-take-over",
+              "label": "Paint over the disputed boundary yourself",
+              "target": ".mural-takeover",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1362,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1353,
+            "column": 1
+          }
+        },
+        {
+          "id": "mural-independent",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Your section is carefully rendered and visually strong, but it meets the neighboring sections in abrupt walls of mismatched colour."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1367,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "art",
+                "amount": 1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1368,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+Art grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1368,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1370,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1365,
+            "column": 1
+          }
+        },
+        {
+          "id": "mural-taylor",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Taylor proposes turning the mismatched borders into a river winding through the city. You extend the idea across both sections."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1374,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "relationship",
+                "npcId": "taylor",
+                "amount": 2,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1375,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "relationship",
+                  "amount": 2,
+                  "label": "+Relationship",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1375,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "art",
+                "amount": 1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1376,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+Art grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1376,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1378,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1372,
+            "column": 1
+          }
+        },
+        {
+          "id": "mural-compromise",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You reduce the plan to a shared horizon and let every table interpret the details. It is enough to hold the mural together."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1382,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "art",
+                "amount": 1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1383,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+Art grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1383,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "skill",
+                "id": "resolve",
+                "amount": 0.1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1384,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "skill",
+                  "amount": 0.1,
+                  "label": "+Resolve",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1384,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1386,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1380,
+            "column": 1
+          }
+        },
+        {
+          "id": "mural-takeover",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The boundary looks cleaner after you repaint it, but the neighboring group is furious that part of its work disappeared."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1390,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "art",
+                "amount": -1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1391,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": -1,
+                  "label": "-Art grade",
+                  "direction": "decrease"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1391,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "stat",
+                "id": "stress",
+                "amount": 2,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1392,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "stat",
+                  "amount": 2,
+                  "label": "+Stress",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1392,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1394,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1388,
+            "column": 1
+          }
+        }
+      ],
+      "source": {
+        "file": "story/events/school-class.wg",
+        "line": 1323,
+        "column": 1
+      }
+    },
     "school.class.art": {
       "id": "school.class.art",
       "finalTarget": "@exit",
@@ -13261,7 +16238,7 @@ export const WG_BUNDLE = {
         "subjectId": "art",
         "source": {
           "file": "story/places/school.wg",
-          "line": 529,
+          "line": 481,
           "column": 1
         }
       },
@@ -13281,113 +16258,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 535,
-                "column": 1
-              }
-            },
-            {
-              "type": "random",
-              "variants": [
-                [
-                  {
-                    "type": "paragraph",
-                    "parts": [
-                      {
-                        "type": "text",
-                        "value": "The lesson goes poorly—you leave more confused than before."
-                      }
-                    ],
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 538,
-                      "column": 1
-                    }
-                  },
-                  {
-                    "type": "effect",
-                    "effect": {
-                      "op": "grade",
-                      "id": "art",
-                      "amount": -1,
-                      "source": {
-                        "file": "story/places/school.wg",
-                        "line": 539,
-                        "column": 1
-                      },
-                      "feedback": {
-                        "type": "grade",
-                        "amount": -1,
-                        "label": "-Art grade",
-                        "direction": "decrease"
-                      }
-                    },
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 539,
-                      "column": 1
-                    }
-                  }
-                ],
-                [
-                  {
-                    "type": "paragraph",
-                    "parts": [
-                      {
-                        "type": "text",
-                        "value": "The lesson goes well—you learn a lot!"
-                      }
-                    ],
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 541,
-                      "column": 1
-                    }
-                  },
-                  {
-                    "type": "effect",
-                    "effect": {
-                      "op": "grade",
-                      "id": "art",
-                      "amount": 1,
-                      "source": {
-                        "file": "story/places/school.wg",
-                        "line": 542,
-                        "column": 1
-                      },
-                      "feedback": {
-                        "type": "grade",
-                        "amount": 1,
-                        "label": "+Art grade",
-                        "direction": "increase"
-                      }
-                    },
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 542,
-                      "column": 1
-                    }
-                  }
-                ],
-                [
-                  {
-                    "type": "paragraph",
-                    "parts": [
-                      {
-                        "type": "text",
-                        "value": "You don't really pay attention and get through the work normally."
-                      }
-                    ],
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 544,
-                      "column": 1
-                    }
-                  }
-                ]
-              ],
-              "source": {
-                "file": "story/places/school.wg",
-                "line": 537,
+                "line": 487,
                 "column": 1
               }
             },
@@ -13413,6 +16284,8 @@ export const WG_BUNDLE = {
               },
               "requirements": [],
               "warning": null,
+              "eventPool": "school.class.art",
+              "eventChance": 1,
               "previews": [],
               "effects": [
                 {
@@ -13421,7 +16294,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 551,
+                    "line": 494,
                     "column": 1
                   }
                 },
@@ -13431,7 +16304,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 552,
+                    "line": 495,
                     "column": 1
                   },
                   "feedback": {
@@ -13444,7 +16317,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 547,
+                "line": 489,
                 "column": 1
               }
             },
@@ -13463,6 +16336,8 @@ export const WG_BUNDLE = {
               "when": null,
               "requirements": [],
               "warning": null,
+              "eventPool": "school.class.art",
+              "eventChance": 1,
               "previews": [
                 {
                   "type": "grade",
@@ -13470,7 +16345,7 @@ export const WG_BUNDLE = {
                   "label": "+Art grade",
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 558,
+                    "line": 502,
                     "column": 1
                   }
                 }
@@ -13482,7 +16357,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 559,
+                    "line": 503,
                     "column": 1
                   }
                 },
@@ -13492,14 +16367,14 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 560,
+                    "line": 504,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 555,
+                "line": 498,
                 "column": 1
               }
             }
@@ -13507,7 +16382,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/places/school.wg",
-            "line": 533,
+            "line": 485,
             "column": 1
           }
         },
@@ -13524,113 +16399,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 565,
-                "column": 1
-              }
-            },
-            {
-              "type": "random",
-              "variants": [
-                [
-                  {
-                    "type": "paragraph",
-                    "parts": [
-                      {
-                        "type": "text",
-                        "value": "The lesson goes poorly—you leave more confused than before."
-                      }
-                    ],
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 568,
-                      "column": 1
-                    }
-                  },
-                  {
-                    "type": "effect",
-                    "effect": {
-                      "op": "grade",
-                      "id": "art",
-                      "amount": -1,
-                      "source": {
-                        "file": "story/places/school.wg",
-                        "line": 569,
-                        "column": 1
-                      },
-                      "feedback": {
-                        "type": "grade",
-                        "amount": -1,
-                        "label": "-Art grade",
-                        "direction": "decrease"
-                      }
-                    },
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 569,
-                      "column": 1
-                    }
-                  }
-                ],
-                [
-                  {
-                    "type": "paragraph",
-                    "parts": [
-                      {
-                        "type": "text",
-                        "value": "The lesson goes well—you learn a lot!"
-                      }
-                    ],
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 571,
-                      "column": 1
-                    }
-                  },
-                  {
-                    "type": "effect",
-                    "effect": {
-                      "op": "grade",
-                      "id": "art",
-                      "amount": 1,
-                      "source": {
-                        "file": "story/places/school.wg",
-                        "line": 572,
-                        "column": 1
-                      },
-                      "feedback": {
-                        "type": "grade",
-                        "amount": 1,
-                        "label": "+Art grade",
-                        "direction": "increase"
-                      }
-                    },
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 572,
-                      "column": 1
-                    }
-                  }
-                ],
-                [
-                  {
-                    "type": "paragraph",
-                    "parts": [
-                      {
-                        "type": "text",
-                        "value": "You don't really pay attention and get through the work normally."
-                      }
-                    ],
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 574,
-                      "column": 1
-                    }
-                  }
-                ]
-              ],
-              "source": {
-                "file": "story/places/school.wg",
-                "line": 567,
+                "line": 509,
                 "column": 1
               }
             },
@@ -13656,6 +16425,8 @@ export const WG_BUNDLE = {
               },
               "requirements": [],
               "warning": null,
+              "eventPool": "school.class.art",
+              "eventChance": 1,
               "previews": [],
               "effects": [
                 {
@@ -13664,7 +16435,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 581,
+                    "line": 516,
                     "column": 1
                   }
                 },
@@ -13674,7 +16445,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 582,
+                    "line": 517,
                     "column": 1
                   },
                   "feedback": {
@@ -13687,7 +16458,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 577,
+                "line": 511,
                 "column": 1
               }
             },
@@ -13706,6 +16477,8 @@ export const WG_BUNDLE = {
               "when": null,
               "requirements": [],
               "warning": null,
+              "eventPool": "school.class.art",
+              "eventChance": 1,
               "previews": [
                 {
                   "type": "grade",
@@ -13713,7 +16486,7 @@ export const WG_BUNDLE = {
                   "label": "+Art grade",
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 588,
+                    "line": 524,
                     "column": 1
                   }
                 }
@@ -13725,7 +16498,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 589,
+                    "line": 525,
                     "column": 1
                   }
                 },
@@ -13735,14 +16508,14 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 590,
+                    "line": 526,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 585,
+                "line": 520,
                 "column": 1
               }
             }
@@ -13750,7 +16523,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/places/school.wg",
-            "line": 563,
+            "line": 507,
             "column": 1
           }
         },
@@ -13767,113 +16540,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 595,
-                "column": 1
-              }
-            },
-            {
-              "type": "random",
-              "variants": [
-                [
-                  {
-                    "type": "paragraph",
-                    "parts": [
-                      {
-                        "type": "text",
-                        "value": "The lesson goes poorly—you leave more confused than before."
-                      }
-                    ],
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 598,
-                      "column": 1
-                    }
-                  },
-                  {
-                    "type": "effect",
-                    "effect": {
-                      "op": "grade",
-                      "id": "art",
-                      "amount": -1,
-                      "source": {
-                        "file": "story/places/school.wg",
-                        "line": 599,
-                        "column": 1
-                      },
-                      "feedback": {
-                        "type": "grade",
-                        "amount": -1,
-                        "label": "-Art grade",
-                        "direction": "decrease"
-                      }
-                    },
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 599,
-                      "column": 1
-                    }
-                  }
-                ],
-                [
-                  {
-                    "type": "paragraph",
-                    "parts": [
-                      {
-                        "type": "text",
-                        "value": "The lesson goes well—you learn a lot!"
-                      }
-                    ],
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 601,
-                      "column": 1
-                    }
-                  },
-                  {
-                    "type": "effect",
-                    "effect": {
-                      "op": "grade",
-                      "id": "art",
-                      "amount": 1,
-                      "source": {
-                        "file": "story/places/school.wg",
-                        "line": 602,
-                        "column": 1
-                      },
-                      "feedback": {
-                        "type": "grade",
-                        "amount": 1,
-                        "label": "+Art grade",
-                        "direction": "increase"
-                      }
-                    },
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 602,
-                      "column": 1
-                    }
-                  }
-                ],
-                [
-                  {
-                    "type": "paragraph",
-                    "parts": [
-                      {
-                        "type": "text",
-                        "value": "You don't really pay attention and get through the work normally."
-                      }
-                    ],
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 604,
-                      "column": 1
-                    }
-                  }
-                ]
-              ],
-              "source": {
-                "file": "story/places/school.wg",
-                "line": 597,
+                "line": 531,
                 "column": 1
               }
             },
@@ -13899,6 +16566,8 @@ export const WG_BUNDLE = {
               },
               "requirements": [],
               "warning": null,
+              "eventPool": "school.class.art",
+              "eventChance": 1,
               "previews": [],
               "effects": [
                 {
@@ -13907,7 +16576,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 611,
+                    "line": 539,
                     "column": 1
                   }
                 },
@@ -13917,7 +16586,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 612,
+                    "line": 540,
                     "column": 1
                   },
                   "feedback": {
@@ -13930,7 +16599,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 607,
+                "line": 534,
                 "column": 1
               }
             },
@@ -13949,6 +16618,8 @@ export const WG_BUNDLE = {
               "when": null,
               "requirements": [],
               "warning": null,
+              "eventPool": "school.class.art",
+              "eventChance": 1,
               "previews": [
                 {
                   "type": "grade",
@@ -13956,7 +16627,7 @@ export const WG_BUNDLE = {
                   "label": "+Art grade",
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 618,
+                    "line": 547,
                     "column": 1
                   }
                 }
@@ -13968,7 +16639,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 619,
+                    "line": 548,
                     "column": 1
                   }
                 },
@@ -13978,14 +16649,14 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 620,
+                    "line": 549,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 615,
+                "line": 543,
                 "column": 1
               }
             }
@@ -13993,14 +16664,14 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/places/school.wg",
-            "line": 593,
+            "line": 529,
             "column": 1
           }
         }
       ],
       "source": {
         "file": "story/places/school.wg",
-        "line": 528,
+        "line": 480,
         "column": 1
       }
     },
@@ -14486,112 +17157,6 @@ export const WG_BUNDLE = {
               }
             },
             {
-              "type": "random",
-              "variants": [
-                [
-                  {
-                    "type": "paragraph",
-                    "parts": [
-                      {
-                        "type": "text",
-                        "value": "The lesson goes poorly—you leave more confused than before."
-                      }
-                    ],
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 344,
-                      "column": 1
-                    }
-                  },
-                  {
-                    "type": "effect",
-                    "effect": {
-                      "op": "grade",
-                      "id": "history",
-                      "amount": -1,
-                      "source": {
-                        "file": "story/places/school.wg",
-                        "line": 345,
-                        "column": 1
-                      },
-                      "feedback": {
-                        "type": "grade",
-                        "amount": -1,
-                        "label": "-History grade",
-                        "direction": "decrease"
-                      }
-                    },
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 345,
-                      "column": 1
-                    }
-                  }
-                ],
-                [
-                  {
-                    "type": "paragraph",
-                    "parts": [
-                      {
-                        "type": "text",
-                        "value": "The lesson goes well—you learn a lot!"
-                      }
-                    ],
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 347,
-                      "column": 1
-                    }
-                  },
-                  {
-                    "type": "effect",
-                    "effect": {
-                      "op": "grade",
-                      "id": "history",
-                      "amount": 1,
-                      "source": {
-                        "file": "story/places/school.wg",
-                        "line": 348,
-                        "column": 1
-                      },
-                      "feedback": {
-                        "type": "grade",
-                        "amount": 1,
-                        "label": "+History grade",
-                        "direction": "increase"
-                      }
-                    },
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 348,
-                      "column": 1
-                    }
-                  }
-                ],
-                [
-                  {
-                    "type": "paragraph",
-                    "parts": [
-                      {
-                        "type": "text",
-                        "value": "You don't really pay attention and get through the work normally."
-                      }
-                    ],
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 350,
-                      "column": 1
-                    }
-                  }
-                ]
-              ],
-              "source": {
-                "file": "story/places/school.wg",
-                "line": 343,
-                "column": 1
-              }
-            },
-            {
               "type": "choice",
               "id": "history-1-taylor",
               "label": "Chat with Taylor",
@@ -14613,6 +17178,8 @@ export const WG_BUNDLE = {
               },
               "requirements": [],
               "warning": null,
+              "eventPool": "school.class.history",
+              "eventChance": 1,
               "previews": [],
               "effects": [
                 {
@@ -14621,7 +17188,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 357,
+                    "line": 348,
                     "column": 1
                   }
                 },
@@ -14631,7 +17198,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 358,
+                    "line": 349,
                     "column": 1
                   },
                   "feedback": {
@@ -14644,7 +17211,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 353,
+                "line": 343,
                 "column": 1
               }
             },
@@ -14663,6 +17230,8 @@ export const WG_BUNDLE = {
               "when": null,
               "requirements": [],
               "warning": null,
+              "eventPool": "school.class.history",
+              "eventChance": 1,
               "previews": [
                 {
                   "type": "grade",
@@ -14670,7 +17239,7 @@ export const WG_BUNDLE = {
                   "label": "+History grade",
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 364,
+                    "line": 356,
                     "column": 1
                   }
                 }
@@ -14682,7 +17251,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 365,
+                    "line": 357,
                     "column": 1
                   }
                 },
@@ -14692,14 +17261,14 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 366,
+                    "line": 358,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 361,
+                "line": 352,
                 "column": 1
               }
             }
@@ -14724,113 +17293,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 371,
-                "column": 1
-              }
-            },
-            {
-              "type": "random",
-              "variants": [
-                [
-                  {
-                    "type": "paragraph",
-                    "parts": [
-                      {
-                        "type": "text",
-                        "value": "The lesson goes poorly—you leave more confused than before."
-                      }
-                    ],
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 374,
-                      "column": 1
-                    }
-                  },
-                  {
-                    "type": "effect",
-                    "effect": {
-                      "op": "grade",
-                      "id": "history",
-                      "amount": -1,
-                      "source": {
-                        "file": "story/places/school.wg",
-                        "line": 375,
-                        "column": 1
-                      },
-                      "feedback": {
-                        "type": "grade",
-                        "amount": -1,
-                        "label": "-History grade",
-                        "direction": "decrease"
-                      }
-                    },
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 375,
-                      "column": 1
-                    }
-                  }
-                ],
-                [
-                  {
-                    "type": "paragraph",
-                    "parts": [
-                      {
-                        "type": "text",
-                        "value": "The lesson goes well—you learn a lot!"
-                      }
-                    ],
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 377,
-                      "column": 1
-                    }
-                  },
-                  {
-                    "type": "effect",
-                    "effect": {
-                      "op": "grade",
-                      "id": "history",
-                      "amount": 1,
-                      "source": {
-                        "file": "story/places/school.wg",
-                        "line": 378,
-                        "column": 1
-                      },
-                      "feedback": {
-                        "type": "grade",
-                        "amount": 1,
-                        "label": "+History grade",
-                        "direction": "increase"
-                      }
-                    },
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 378,
-                      "column": 1
-                    }
-                  }
-                ],
-                [
-                  {
-                    "type": "paragraph",
-                    "parts": [
-                      {
-                        "type": "text",
-                        "value": "You don't really pay attention and get through the work normally."
-                      }
-                    ],
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 380,
-                      "column": 1
-                    }
-                  }
-                ]
-              ],
-              "source": {
-                "file": "story/places/school.wg",
-                "line": 373,
+                "line": 363,
                 "column": 1
               }
             },
@@ -14856,6 +17319,8 @@ export const WG_BUNDLE = {
               },
               "requirements": [],
               "warning": null,
+              "eventPool": "school.class.history",
+              "eventChance": 1,
               "previews": [],
               "effects": [
                 {
@@ -14864,7 +17329,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 387,
+                    "line": 370,
                     "column": 1
                   }
                 },
@@ -14874,7 +17339,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 388,
+                    "line": 371,
                     "column": 1
                   },
                   "feedback": {
@@ -14887,7 +17352,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 383,
+                "line": 365,
                 "column": 1
               }
             },
@@ -14906,6 +17371,8 @@ export const WG_BUNDLE = {
               "when": null,
               "requirements": [],
               "warning": null,
+              "eventPool": "school.class.history",
+              "eventChance": 1,
               "previews": [
                 {
                   "type": "grade",
@@ -14913,7 +17380,7 @@ export const WG_BUNDLE = {
                   "label": "+History grade",
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 394,
+                    "line": 378,
                     "column": 1
                   }
                 }
@@ -14925,7 +17392,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 395,
+                    "line": 379,
                     "column": 1
                   }
                 },
@@ -14935,14 +17402,14 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 396,
+                    "line": 380,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 391,
+                "line": 374,
                 "column": 1
               }
             }
@@ -14950,7 +17417,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/places/school.wg",
-            "line": 369,
+            "line": 361,
             "column": 1
           }
         },
@@ -14967,113 +17434,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 401,
-                "column": 1
-              }
-            },
-            {
-              "type": "random",
-              "variants": [
-                [
-                  {
-                    "type": "paragraph",
-                    "parts": [
-                      {
-                        "type": "text",
-                        "value": "The lesson goes poorly—you leave more confused than before."
-                      }
-                    ],
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 404,
-                      "column": 1
-                    }
-                  },
-                  {
-                    "type": "effect",
-                    "effect": {
-                      "op": "grade",
-                      "id": "history",
-                      "amount": -1,
-                      "source": {
-                        "file": "story/places/school.wg",
-                        "line": 405,
-                        "column": 1
-                      },
-                      "feedback": {
-                        "type": "grade",
-                        "amount": -1,
-                        "label": "-History grade",
-                        "direction": "decrease"
-                      }
-                    },
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 405,
-                      "column": 1
-                    }
-                  }
-                ],
-                [
-                  {
-                    "type": "paragraph",
-                    "parts": [
-                      {
-                        "type": "text",
-                        "value": "The lesson goes well—you learn a lot!"
-                      }
-                    ],
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 407,
-                      "column": 1
-                    }
-                  },
-                  {
-                    "type": "effect",
-                    "effect": {
-                      "op": "grade",
-                      "id": "history",
-                      "amount": 1,
-                      "source": {
-                        "file": "story/places/school.wg",
-                        "line": 408,
-                        "column": 1
-                      },
-                      "feedback": {
-                        "type": "grade",
-                        "amount": 1,
-                        "label": "+History grade",
-                        "direction": "increase"
-                      }
-                    },
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 408,
-                      "column": 1
-                    }
-                  }
-                ],
-                [
-                  {
-                    "type": "paragraph",
-                    "parts": [
-                      {
-                        "type": "text",
-                        "value": "You don't really pay attention and get through the work normally."
-                      }
-                    ],
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 410,
-                      "column": 1
-                    }
-                  }
-                ]
-              ],
-              "source": {
-                "file": "story/places/school.wg",
-                "line": 403,
+                "line": 385,
                 "column": 1
               }
             },
@@ -15099,6 +17460,8 @@ export const WG_BUNDLE = {
               },
               "requirements": [],
               "warning": null,
+              "eventPool": "school.class.history",
+              "eventChance": 1,
               "previews": [],
               "effects": [
                 {
@@ -15107,7 +17470,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 417,
+                    "line": 392,
                     "column": 1
                   }
                 },
@@ -15117,7 +17480,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 418,
+                    "line": 393,
                     "column": 1
                   },
                   "feedback": {
@@ -15130,7 +17493,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 413,
+                "line": 387,
                 "column": 1
               }
             },
@@ -15149,6 +17512,8 @@ export const WG_BUNDLE = {
               "when": null,
               "requirements": [],
               "warning": null,
+              "eventPool": "school.class.history",
+              "eventChance": 1,
               "previews": [
                 {
                   "type": "grade",
@@ -15156,7 +17521,7 @@ export const WG_BUNDLE = {
                   "label": "+History grade",
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 424,
+                    "line": 400,
                     "column": 1
                   }
                 }
@@ -15168,7 +17533,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 425,
+                    "line": 401,
                     "column": 1
                   }
                 },
@@ -15178,14 +17543,14 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 426,
+                    "line": 402,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 421,
+                "line": 396,
                 "column": 1
               }
             }
@@ -15193,7 +17558,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/places/school.wg",
-            "line": 399,
+            "line": 383,
             "column": 1
           }
         }
@@ -15661,7 +18026,7 @@ export const WG_BUNDLE = {
         "subjectId": "physical_education",
         "source": {
           "file": "story/places/school.wg",
-          "line": 626,
+          "line": 555,
           "column": 1
         }
       },
@@ -15681,113 +18046,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 632,
-                "column": 1
-              }
-            },
-            {
-              "type": "random",
-              "variants": [
-                [
-                  {
-                    "type": "paragraph",
-                    "parts": [
-                      {
-                        "type": "text",
-                        "value": "The lesson goes poorly—you leave more confused than before."
-                      }
-                    ],
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 635,
-                      "column": 1
-                    }
-                  },
-                  {
-                    "type": "effect",
-                    "effect": {
-                      "op": "grade",
-                      "id": "physical_education",
-                      "amount": -1,
-                      "source": {
-                        "file": "story/places/school.wg",
-                        "line": 636,
-                        "column": 1
-                      },
-                      "feedback": {
-                        "type": "grade",
-                        "amount": -1,
-                        "label": "-Physical Education grade",
-                        "direction": "decrease"
-                      }
-                    },
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 636,
-                      "column": 1
-                    }
-                  }
-                ],
-                [
-                  {
-                    "type": "paragraph",
-                    "parts": [
-                      {
-                        "type": "text",
-                        "value": "The lesson goes well—you learn a lot!"
-                      }
-                    ],
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 638,
-                      "column": 1
-                    }
-                  },
-                  {
-                    "type": "effect",
-                    "effect": {
-                      "op": "grade",
-                      "id": "physical_education",
-                      "amount": 1,
-                      "source": {
-                        "file": "story/places/school.wg",
-                        "line": 639,
-                        "column": 1
-                      },
-                      "feedback": {
-                        "type": "grade",
-                        "amount": 1,
-                        "label": "+Physical Education grade",
-                        "direction": "increase"
-                      }
-                    },
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 639,
-                      "column": 1
-                    }
-                  }
-                ],
-                [
-                  {
-                    "type": "paragraph",
-                    "parts": [
-                      {
-                        "type": "text",
-                        "value": "You don't really pay attention and get through the work normally."
-                      }
-                    ],
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 641,
-                      "column": 1
-                    }
-                  }
-                ]
-              ],
-              "source": {
-                "file": "story/places/school.wg",
-                "line": 634,
+                "line": 561,
                 "column": 1
               }
             },
@@ -15813,6 +18072,8 @@ export const WG_BUNDLE = {
               },
               "requirements": [],
               "warning": null,
+              "eventPool": "school.class.physical-education",
+              "eventChance": 1,
               "previews": [],
               "effects": [
                 {
@@ -15821,7 +18082,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 648,
+                    "line": 569,
                     "column": 1
                   }
                 },
@@ -15831,7 +18092,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 649,
+                    "line": 570,
                     "column": 1
                   },
                   "feedback": {
@@ -15844,7 +18105,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 644,
+                "line": 564,
                 "column": 1
               }
             },
@@ -15863,6 +18124,8 @@ export const WG_BUNDLE = {
               "when": null,
               "requirements": [],
               "warning": null,
+              "eventPool": "school.class.physical-education",
+              "eventChance": 1,
               "previews": [
                 {
                   "type": "grade",
@@ -15870,7 +18133,7 @@ export const WG_BUNDLE = {
                   "label": "+Physical Education grade",
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 655,
+                    "line": 577,
                     "column": 1
                   }
                 }
@@ -15882,7 +18145,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 656,
+                    "line": 578,
                     "column": 1
                   }
                 },
@@ -15892,7 +18155,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 657,
+                    "line": 579,
                     "column": 1
                   }
                 },
@@ -15902,14 +18165,14 @@ export const WG_BUNDLE = {
                   "amount": 1.5,
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 658,
+                    "line": 580,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 652,
+                "line": 573,
                 "column": 1
               }
             }
@@ -15917,7 +18180,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/places/school.wg",
-            "line": 630,
+            "line": 559,
             "column": 1
           }
         },
@@ -15934,113 +18197,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 663,
-                "column": 1
-              }
-            },
-            {
-              "type": "random",
-              "variants": [
-                [
-                  {
-                    "type": "paragraph",
-                    "parts": [
-                      {
-                        "type": "text",
-                        "value": "The lesson goes poorly—you leave more confused than before."
-                      }
-                    ],
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 666,
-                      "column": 1
-                    }
-                  },
-                  {
-                    "type": "effect",
-                    "effect": {
-                      "op": "grade",
-                      "id": "physical_education",
-                      "amount": -1,
-                      "source": {
-                        "file": "story/places/school.wg",
-                        "line": 667,
-                        "column": 1
-                      },
-                      "feedback": {
-                        "type": "grade",
-                        "amount": -1,
-                        "label": "-Physical Education grade",
-                        "direction": "decrease"
-                      }
-                    },
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 667,
-                      "column": 1
-                    }
-                  }
-                ],
-                [
-                  {
-                    "type": "paragraph",
-                    "parts": [
-                      {
-                        "type": "text",
-                        "value": "The lesson goes well—you learn a lot!"
-                      }
-                    ],
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 669,
-                      "column": 1
-                    }
-                  },
-                  {
-                    "type": "effect",
-                    "effect": {
-                      "op": "grade",
-                      "id": "physical_education",
-                      "amount": 1,
-                      "source": {
-                        "file": "story/places/school.wg",
-                        "line": 670,
-                        "column": 1
-                      },
-                      "feedback": {
-                        "type": "grade",
-                        "amount": 1,
-                        "label": "+Physical Education grade",
-                        "direction": "increase"
-                      }
-                    },
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 670,
-                      "column": 1
-                    }
-                  }
-                ],
-                [
-                  {
-                    "type": "paragraph",
-                    "parts": [
-                      {
-                        "type": "text",
-                        "value": "You don't really pay attention and get through the work normally."
-                      }
-                    ],
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 672,
-                      "column": 1
-                    }
-                  }
-                ]
-              ],
-              "source": {
-                "file": "story/places/school.wg",
-                "line": 665,
+                "line": 585,
                 "column": 1
               }
             },
@@ -16066,6 +18223,8 @@ export const WG_BUNDLE = {
               },
               "requirements": [],
               "warning": null,
+              "eventPool": "school.class.physical-education",
+              "eventChance": 1,
               "previews": [],
               "effects": [
                 {
@@ -16074,7 +18233,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 679,
+                    "line": 592,
                     "column": 1
                   }
                 },
@@ -16084,7 +18243,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 680,
+                    "line": 593,
                     "column": 1
                   },
                   "feedback": {
@@ -16097,7 +18256,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 675,
+                "line": 587,
                 "column": 1
               }
             },
@@ -16116,6 +18275,8 @@ export const WG_BUNDLE = {
               "when": null,
               "requirements": [],
               "warning": null,
+              "eventPool": "school.class.physical-education",
+              "eventChance": 1,
               "previews": [
                 {
                   "type": "grade",
@@ -16123,7 +18284,7 @@ export const WG_BUNDLE = {
                   "label": "+Physical Education grade",
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 686,
+                    "line": 600,
                     "column": 1
                   }
                 }
@@ -16135,7 +18296,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 687,
+                    "line": 601,
                     "column": 1
                   }
                 },
@@ -16145,7 +18306,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 688,
+                    "line": 602,
                     "column": 1
                   }
                 },
@@ -16155,14 +18316,14 @@ export const WG_BUNDLE = {
                   "amount": 1.5,
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 689,
+                    "line": 603,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 683,
+                "line": 596,
                 "column": 1
               }
             }
@@ -16170,7 +18331,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/places/school.wg",
-            "line": 661,
+            "line": 583,
             "column": 1
           }
         },
@@ -16187,113 +18348,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 694,
-                "column": 1
-              }
-            },
-            {
-              "type": "random",
-              "variants": [
-                [
-                  {
-                    "type": "paragraph",
-                    "parts": [
-                      {
-                        "type": "text",
-                        "value": "The lesson goes poorly—you leave more confused than before."
-                      }
-                    ],
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 697,
-                      "column": 1
-                    }
-                  },
-                  {
-                    "type": "effect",
-                    "effect": {
-                      "op": "grade",
-                      "id": "physical_education",
-                      "amount": -1,
-                      "source": {
-                        "file": "story/places/school.wg",
-                        "line": 698,
-                        "column": 1
-                      },
-                      "feedback": {
-                        "type": "grade",
-                        "amount": -1,
-                        "label": "-Physical Education grade",
-                        "direction": "decrease"
-                      }
-                    },
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 698,
-                      "column": 1
-                    }
-                  }
-                ],
-                [
-                  {
-                    "type": "paragraph",
-                    "parts": [
-                      {
-                        "type": "text",
-                        "value": "The lesson goes well—you learn a lot!"
-                      }
-                    ],
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 700,
-                      "column": 1
-                    }
-                  },
-                  {
-                    "type": "effect",
-                    "effect": {
-                      "op": "grade",
-                      "id": "physical_education",
-                      "amount": 1,
-                      "source": {
-                        "file": "story/places/school.wg",
-                        "line": 701,
-                        "column": 1
-                      },
-                      "feedback": {
-                        "type": "grade",
-                        "amount": 1,
-                        "label": "+Physical Education grade",
-                        "direction": "increase"
-                      }
-                    },
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 701,
-                      "column": 1
-                    }
-                  }
-                ],
-                [
-                  {
-                    "type": "paragraph",
-                    "parts": [
-                      {
-                        "type": "text",
-                        "value": "You don't really pay attention and get through the work normally."
-                      }
-                    ],
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 703,
-                      "column": 1
-                    }
-                  }
-                ]
-              ],
-              "source": {
-                "file": "story/places/school.wg",
-                "line": 696,
+                "line": 608,
                 "column": 1
               }
             },
@@ -16319,6 +18374,8 @@ export const WG_BUNDLE = {
               },
               "requirements": [],
               "warning": null,
+              "eventPool": "school.class.physical-education",
+              "eventChance": 1,
               "previews": [],
               "effects": [
                 {
@@ -16327,7 +18384,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 710,
+                    "line": 615,
                     "column": 1
                   }
                 },
@@ -16337,7 +18394,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 711,
+                    "line": 616,
                     "column": 1
                   },
                   "feedback": {
@@ -16350,7 +18407,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 706,
+                "line": 610,
                 "column": 1
               }
             },
@@ -16369,6 +18426,8 @@ export const WG_BUNDLE = {
               "when": null,
               "requirements": [],
               "warning": null,
+              "eventPool": "school.class.physical-education",
+              "eventChance": 1,
               "previews": [
                 {
                   "type": "grade",
@@ -16376,7 +18435,7 @@ export const WG_BUNDLE = {
                   "label": "+Physical Education grade",
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 717,
+                    "line": 623,
                     "column": 1
                   }
                 }
@@ -16388,7 +18447,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 718,
+                    "line": 624,
                     "column": 1
                   }
                 },
@@ -16398,7 +18457,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 719,
+                    "line": 625,
                     "column": 1
                   }
                 },
@@ -16408,14 +18467,14 @@ export const WG_BUNDLE = {
                   "amount": 1.5,
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 720,
+                    "line": 626,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 714,
+                "line": 619,
                 "column": 1
               }
             }
@@ -16423,14 +18482,14 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/places/school.wg",
-            "line": 692,
+            "line": 606,
             "column": 1
           }
         }
       ],
       "source": {
         "file": "story/places/school.wg",
-        "line": 625,
+        "line": 554,
         "column": 1
       }
     },
@@ -16444,7 +18503,7 @@ export const WG_BUNDLE = {
         "subjectId": "science",
         "source": {
           "file": "story/places/school.wg",
-          "line": 432,
+          "line": 408,
           "column": 1
         }
       },
@@ -16464,113 +18523,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 438,
-                "column": 1
-              }
-            },
-            {
-              "type": "random",
-              "variants": [
-                [
-                  {
-                    "type": "paragraph",
-                    "parts": [
-                      {
-                        "type": "text",
-                        "value": "The lesson goes poorly—you leave more confused than before."
-                      }
-                    ],
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 441,
-                      "column": 1
-                    }
-                  },
-                  {
-                    "type": "effect",
-                    "effect": {
-                      "op": "grade",
-                      "id": "science",
-                      "amount": -1,
-                      "source": {
-                        "file": "story/places/school.wg",
-                        "line": 442,
-                        "column": 1
-                      },
-                      "feedback": {
-                        "type": "grade",
-                        "amount": -1,
-                        "label": "-Science grade",
-                        "direction": "decrease"
-                      }
-                    },
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 442,
-                      "column": 1
-                    }
-                  }
-                ],
-                [
-                  {
-                    "type": "paragraph",
-                    "parts": [
-                      {
-                        "type": "text",
-                        "value": "The lesson goes well—you learn a lot!"
-                      }
-                    ],
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 444,
-                      "column": 1
-                    }
-                  },
-                  {
-                    "type": "effect",
-                    "effect": {
-                      "op": "grade",
-                      "id": "science",
-                      "amount": 1,
-                      "source": {
-                        "file": "story/places/school.wg",
-                        "line": 445,
-                        "column": 1
-                      },
-                      "feedback": {
-                        "type": "grade",
-                        "amount": 1,
-                        "label": "+Science grade",
-                        "direction": "increase"
-                      }
-                    },
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 445,
-                      "column": 1
-                    }
-                  }
-                ],
-                [
-                  {
-                    "type": "paragraph",
-                    "parts": [
-                      {
-                        "type": "text",
-                        "value": "You don't really pay attention and get through the work normally."
-                      }
-                    ],
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 447,
-                      "column": 1
-                    }
-                  }
-                ]
-              ],
-              "source": {
-                "file": "story/places/school.wg",
-                "line": 440,
+                "line": 414,
                 "column": 1
               }
             },
@@ -16596,6 +18549,8 @@ export const WG_BUNDLE = {
               },
               "requirements": [],
               "warning": null,
+              "eventPool": "school.class.science",
+              "eventChance": 1,
               "previews": [],
               "effects": [
                 {
@@ -16604,7 +18559,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 454,
+                    "line": 421,
                     "column": 1
                   }
                 },
@@ -16614,7 +18569,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 455,
+                    "line": 422,
                     "column": 1
                   },
                   "feedback": {
@@ -16627,7 +18582,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 450,
+                "line": 416,
                 "column": 1
               }
             },
@@ -16646,6 +18601,8 @@ export const WG_BUNDLE = {
               "when": null,
               "requirements": [],
               "warning": null,
+              "eventPool": "school.class.science",
+              "eventChance": 1,
               "previews": [
                 {
                   "type": "grade",
@@ -16653,7 +18610,7 @@ export const WG_BUNDLE = {
                   "label": "+Science grade",
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 461,
+                    "line": 429,
                     "column": 1
                   }
                 }
@@ -16665,7 +18622,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 462,
+                    "line": 430,
                     "column": 1
                   }
                 },
@@ -16675,14 +18632,14 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 463,
+                    "line": 431,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 458,
+                "line": 425,
                 "column": 1
               }
             }
@@ -16690,7 +18647,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/places/school.wg",
-            "line": 436,
+            "line": 412,
             "column": 1
           }
         },
@@ -16707,113 +18664,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 468,
-                "column": 1
-              }
-            },
-            {
-              "type": "random",
-              "variants": [
-                [
-                  {
-                    "type": "paragraph",
-                    "parts": [
-                      {
-                        "type": "text",
-                        "value": "The lesson goes poorly—you leave more confused than before."
-                      }
-                    ],
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 471,
-                      "column": 1
-                    }
-                  },
-                  {
-                    "type": "effect",
-                    "effect": {
-                      "op": "grade",
-                      "id": "science",
-                      "amount": -1,
-                      "source": {
-                        "file": "story/places/school.wg",
-                        "line": 472,
-                        "column": 1
-                      },
-                      "feedback": {
-                        "type": "grade",
-                        "amount": -1,
-                        "label": "-Science grade",
-                        "direction": "decrease"
-                      }
-                    },
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 472,
-                      "column": 1
-                    }
-                  }
-                ],
-                [
-                  {
-                    "type": "paragraph",
-                    "parts": [
-                      {
-                        "type": "text",
-                        "value": "The lesson goes well—you learn a lot!"
-                      }
-                    ],
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 474,
-                      "column": 1
-                    }
-                  },
-                  {
-                    "type": "effect",
-                    "effect": {
-                      "op": "grade",
-                      "id": "science",
-                      "amount": 1,
-                      "source": {
-                        "file": "story/places/school.wg",
-                        "line": 475,
-                        "column": 1
-                      },
-                      "feedback": {
-                        "type": "grade",
-                        "amount": 1,
-                        "label": "+Science grade",
-                        "direction": "increase"
-                      }
-                    },
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 475,
-                      "column": 1
-                    }
-                  }
-                ],
-                [
-                  {
-                    "type": "paragraph",
-                    "parts": [
-                      {
-                        "type": "text",
-                        "value": "You don't really pay attention and get through the work normally."
-                      }
-                    ],
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 477,
-                      "column": 1
-                    }
-                  }
-                ]
-              ],
-              "source": {
-                "file": "story/places/school.wg",
-                "line": 470,
+                "line": 436,
                 "column": 1
               }
             },
@@ -16839,6 +18690,8 @@ export const WG_BUNDLE = {
               },
               "requirements": [],
               "warning": null,
+              "eventPool": "school.class.science",
+              "eventChance": 1,
               "previews": [],
               "effects": [
                 {
@@ -16847,7 +18700,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 484,
+                    "line": 443,
                     "column": 1
                   }
                 },
@@ -16857,7 +18710,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 485,
+                    "line": 444,
                     "column": 1
                   },
                   "feedback": {
@@ -16870,7 +18723,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 480,
+                "line": 438,
                 "column": 1
               }
             },
@@ -16889,6 +18742,8 @@ export const WG_BUNDLE = {
               "when": null,
               "requirements": [],
               "warning": null,
+              "eventPool": "school.class.science",
+              "eventChance": 1,
               "previews": [
                 {
                   "type": "grade",
@@ -16896,7 +18751,7 @@ export const WG_BUNDLE = {
                   "label": "+Science grade",
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 491,
+                    "line": 451,
                     "column": 1
                   }
                 }
@@ -16908,7 +18763,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 492,
+                    "line": 452,
                     "column": 1
                   }
                 },
@@ -16918,14 +18773,14 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 493,
+                    "line": 453,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 488,
+                "line": 447,
                 "column": 1
               }
             }
@@ -16933,7 +18788,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/places/school.wg",
-            "line": 466,
+            "line": 434,
             "column": 1
           }
         },
@@ -16950,113 +18805,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 498,
-                "column": 1
-              }
-            },
-            {
-              "type": "random",
-              "variants": [
-                [
-                  {
-                    "type": "paragraph",
-                    "parts": [
-                      {
-                        "type": "text",
-                        "value": "The lesson goes poorly—you leave more confused than before."
-                      }
-                    ],
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 501,
-                      "column": 1
-                    }
-                  },
-                  {
-                    "type": "effect",
-                    "effect": {
-                      "op": "grade",
-                      "id": "science",
-                      "amount": -1,
-                      "source": {
-                        "file": "story/places/school.wg",
-                        "line": 502,
-                        "column": 1
-                      },
-                      "feedback": {
-                        "type": "grade",
-                        "amount": -1,
-                        "label": "-Science grade",
-                        "direction": "decrease"
-                      }
-                    },
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 502,
-                      "column": 1
-                    }
-                  }
-                ],
-                [
-                  {
-                    "type": "paragraph",
-                    "parts": [
-                      {
-                        "type": "text",
-                        "value": "The lesson goes well—you learn a lot!"
-                      }
-                    ],
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 504,
-                      "column": 1
-                    }
-                  },
-                  {
-                    "type": "effect",
-                    "effect": {
-                      "op": "grade",
-                      "id": "science",
-                      "amount": 1,
-                      "source": {
-                        "file": "story/places/school.wg",
-                        "line": 505,
-                        "column": 1
-                      },
-                      "feedback": {
-                        "type": "grade",
-                        "amount": 1,
-                        "label": "+Science grade",
-                        "direction": "increase"
-                      }
-                    },
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 505,
-                      "column": 1
-                    }
-                  }
-                ],
-                [
-                  {
-                    "type": "paragraph",
-                    "parts": [
-                      {
-                        "type": "text",
-                        "value": "You don't really pay attention and get through the work normally."
-                      }
-                    ],
-                    "source": {
-                      "file": "story/places/school.wg",
-                      "line": 507,
-                      "column": 1
-                    }
-                  }
-                ]
-              ],
-              "source": {
-                "file": "story/places/school.wg",
-                "line": 500,
+                "line": 458,
                 "column": 1
               }
             },
@@ -17082,6 +18831,8 @@ export const WG_BUNDLE = {
               },
               "requirements": [],
               "warning": null,
+              "eventPool": "school.class.science",
+              "eventChance": 1,
               "previews": [],
               "effects": [
                 {
@@ -17090,7 +18841,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 514,
+                    "line": 465,
                     "column": 1
                   }
                 },
@@ -17100,7 +18851,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 515,
+                    "line": 466,
                     "column": 1
                   },
                   "feedback": {
@@ -17113,7 +18864,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 510,
+                "line": 460,
                 "column": 1
               }
             },
@@ -17132,6 +18883,8 @@ export const WG_BUNDLE = {
               "when": null,
               "requirements": [],
               "warning": null,
+              "eventPool": "school.class.science",
+              "eventChance": 1,
               "previews": [
                 {
                   "type": "grade",
@@ -17139,7 +18892,7 @@ export const WG_BUNDLE = {
                   "label": "+Science grade",
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 521,
+                    "line": 473,
                     "column": 1
                   }
                 }
@@ -17151,7 +18904,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 522,
+                    "line": 474,
                     "column": 1
                   }
                 },
@@ -17161,14 +18914,14 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/places/school.wg",
-                    "line": 523,
+                    "line": 475,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/school.wg",
-                "line": 518,
+                "line": 469,
                 "column": 1
               }
             }
@@ -17176,14 +18929,14 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/places/school.wg",
-            "line": 496,
+            "line": 456,
             "column": 1
           }
         }
       ],
       "source": {
         "file": "story/places/school.wg",
-        "line": 431,
+        "line": 407,
         "column": 1
       }
     },
@@ -18517,6 +20270,2512 @@ export const WG_BUNDLE = {
         "column": 1
       }
     },
+    "school.history.event.crisis-cabinet": {
+      "id": "school.history.event.crisis-cabinet",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Advise the cabinet",
+      "schoolClass": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "opening",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The class role-plays a government facing a blockade. Every group has limited food, an unreliable ally, and only minutes to recommend a response."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 653,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "cabinet-negotiate",
+              "label": "Recommend immediate negotiations",
+              "check": {
+                "targetType": "skill",
+                "targetId": "speech",
+                "difficultyId": "difficult",
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 656,
+                  "column": 1
+                }
+              },
+              "outcomes": {
+                "success": {
+                  "target": ".negotiation-success",
+                  "durationMinutes": 0,
+                  "energyFree": false,
+                  "effects": [],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 657,
+                    "column": 1
+                  }
+                },
+                "failure": {
+                  "target": ".negotiation-failure",
+                  "durationMinutes": 0,
+                  "energyFree": false,
+                  "effects": [],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 659,
+                    "column": 1
+                  }
+                }
+              },
+              "icon": null,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 655,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "cabinet-prepare",
+              "label": "Prepare defenses while gathering information",
+              "target": ".cautious",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 663,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "cabinet-support-taylor",
+              "label": "Support Taylor's risky proposal",
+              "target": ".taylor-plan",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": {
+                "type": "path",
+                "value": [
+                  "npc",
+                  "taylor",
+                  "present"
+                ]
+              },
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 666,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 651,
+            "column": 1
+          }
+        },
+        {
+          "id": "negotiation-success",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You frame negotiation as a way to divide the opposing alliance rather than surrender. Several undecided students switch to your side."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 672,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "history",
+                "amount": 2,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 673,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 2,
+                  "label": "+History grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 673,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "skill",
+                "id": "speech",
+                "amount": 0.1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 674,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "skill",
+                  "amount": 0.1,
+                  "label": "+Speech",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 674,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": ".consequences",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 676,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 670,
+            "column": 1
+          }
+        },
+        {
+          "id": "negotiation-failure",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Your proposal sounds reasonable, but you cannot answer what happens if the blockade continues during the talks."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 680,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "history",
+                "amount": -1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 681,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": -1,
+                  "label": "-History grade",
+                  "direction": "decrease"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 681,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "stat",
+                "id": "stress",
+                "amount": 2,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 682,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "stat",
+                  "amount": 2,
+                  "label": "+Stress",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 682,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": ".consequences",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 684,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 678,
+            "column": 1
+          }
+        },
+        {
+          "id": "cautious",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You refuse to commit until the group verifies its reports. The decision costs time, but it prevents the class from acting on false information."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 688,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "history",
+                "amount": 1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 689,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+History grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 689,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "skill",
+                "id": "resolve",
+                "amount": 0.1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 690,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "skill",
+                  "amount": 0.1,
+                  "label": "+Resolve",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 690,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": ".consequences",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 692,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 686,
+            "column": 1
+          }
+        },
+        {
+          "id": "taylor-plan",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Taylor proposes sending a secret convoy through the blockade. You help "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "npc",
+                    "taylor",
+                    "object"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": " answer the group's objections and refine the route."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 696,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "relationship",
+                "npcId": "taylor",
+                "amount": 2,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 697,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "relationship",
+                  "amount": 2,
+                  "label": "+Relationship",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 697,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": ".consequences",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 699,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 694,
+            "column": 1
+          }
+        },
+        {
+          "id": "consequences",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The teacher reveals the historical outcome. Every available option carried a cost, and the class spends the final minutes comparing those costs with its own decisions."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 703,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "stat",
+                "id": "mind",
+                "amount": 1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 704,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "stat",
+                  "amount": 1,
+                  "label": "+Mind",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 704,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 706,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 701,
+            "column": 1
+          }
+        }
+      ],
+      "source": {
+        "file": "story/events/school-class.wg",
+        "line": 648,
+        "column": 1
+      }
+    },
+    "school.history.event.disputed-map": {
+      "id": "school.history.event.disputed-map",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Interpret the map",
+      "schoolClass": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "opening",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "A faded map on the projector shows three borders for the same territory, each drawn by a different government."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 714,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "map-date",
+              "label": "Work out which border was drawn first",
+              "check": {
+                "targetType": "grade",
+                "targetId": "history",
+                "difficultyId": "tricky",
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 717,
+                  "column": 1
+                }
+              },
+              "outcomes": {
+                "success": {
+                  "target": ".map-solved",
+                  "durationMinutes": 0,
+                  "energyFree": false,
+                  "effects": [],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 718,
+                    "column": 1
+                  }
+                },
+                "failure": {
+                  "target": ".map-confused",
+                  "durationMinutes": 0,
+                  "energyFree": false,
+                  "effects": [],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 720,
+                    "column": 1
+                  }
+                }
+              },
+              "icon": null,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 716,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "map-question",
+              "label": "Question whether any border is neutral",
+              "target": ".map-critical",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 724,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "map-taylor",
+              "label": "Ask Taylor to trace the border changes with you",
+              "target": ".map-taylor",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": {
+                "type": "path",
+                "value": [
+                  "npc",
+                  "taylor",
+                  "present"
+                ]
+              },
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 727,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 712,
+            "column": 1
+          }
+        },
+        {
+          "id": "map-solved",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You match the place names to the period when each language was used. The layers suddenly form a clear chronology."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 733,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "history",
+                "amount": 2,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 734,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 2,
+                  "label": "+History grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 734,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "skill",
+                "id": "perception",
+                "amount": 0.1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 735,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "skill",
+                  "amount": 0.1,
+                  "label": "+Perception",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 735,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 737,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 731,
+            "column": 1
+          }
+        },
+        {
+          "id": "map-confused",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You mistake a later occupation line for the original border. The teacher corrects the sequence and explains why the map was designed to encourage that reading."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 741,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "history",
+                "amount": -1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 742,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": -1,
+                  "label": "-History grade",
+                  "direction": "decrease"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 742,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 744,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 739,
+            "column": 1
+          }
+        },
+        {
+          "id": "map-critical",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You point out that every version places its preferred border in the strongest colour. The teacher uses your observation to discuss maps as political arguments."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 748,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "history",
+                "amount": 1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 749,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+History grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 749,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "stat",
+                "id": "mind",
+                "amount": 1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 750,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "stat",
+                  "amount": 1,
+                  "label": "+Mind",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 750,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 752,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 746,
+            "column": 1
+          }
+        },
+        {
+          "id": "map-taylor",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You trace the borders while Taylor reads the legend. When your interpretations differ, you combine them into a stronger explanation."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 756,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "relationship",
+                "npcId": "taylor",
+                "amount": 1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 757,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "relationship",
+                  "amount": 1,
+                  "label": "+Relationship",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 757,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "history",
+                "amount": 1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 758,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+History grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 758,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 760,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 754,
+            "column": 1
+          }
+        }
+      ],
+      "source": {
+        "file": "story/events/school-class.wg",
+        "line": 709,
+        "column": 1
+      }
+    },
+    "school.history.event.mock-trial": {
+      "id": "school.history.event.mock-trial",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Choose your role",
+      "schoolClass": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "opening",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The teacher turns the classroom into a mock tribunal. Your group must judge whether a ruler should be remembered as a reformer or a tyrant."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 462,
+                "column": 1
+              }
+            },
+            {
+              "type": "if",
+              "branches": [
+                {
+                  "test": {
+                    "type": "path",
+                    "value": [
+                      "npc",
+                      "taylor",
+                      "present"
+                    ]
+                  },
+                  "nodes": [
+                    {
+                      "type": "paragraph",
+                      "parts": [
+                        {
+                          "type": "text",
+                          "value": "Taylor gathers the group's notes and asks which side you want to argue."
+                        }
+                      ],
+                      "source": {
+                        "file": "story/events/school-class.wg",
+                        "line": 465,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 464,
+                    "column": 1
+                  }
+                }
+              ],
+              "elseNodes": null,
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 464,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "trial-defend",
+              "label": "Argue that the ruler was a reformer",
+              "check": {
+                "targetType": "grade",
+                "targetId": "history",
+                "difficultyId": "tricky",
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 469,
+                  "column": 1
+                }
+              },
+              "outcomes": {
+                "success": {
+                  "target": ".defense-strong",
+                  "durationMinutes": 0,
+                  "energyFree": false,
+                  "effects": [],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 470,
+                    "column": 1
+                  }
+                },
+                "failure": {
+                  "target": ".defense-weak",
+                  "durationMinutes": 0,
+                  "energyFree": false,
+                  "effects": [],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 472,
+                    "column": 1
+                  }
+                }
+              },
+              "icon": null,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 468,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "trial-prosecute",
+              "label": "Argue that the ruler was a tyrant",
+              "check": {
+                "targetType": "skill",
+                "targetId": "speech",
+                "difficultyId": "tricky",
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 477,
+                  "column": 1
+                }
+              },
+              "outcomes": {
+                "success": {
+                  "target": ".prosecution-strong",
+                  "durationMinutes": 0,
+                  "energyFree": false,
+                  "effects": [],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 478,
+                    "column": 1
+                  }
+                },
+                "failure": {
+                  "target": ".prosecution-weak",
+                  "durationMinutes": 0,
+                  "energyFree": false,
+                  "effects": [],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 480,
+                    "column": 1
+                  }
+                }
+              },
+              "icon": null,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 476,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "trial-partner",
+              "label": "Build the case with Taylor",
+              "target": ".partner",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": {
+                "type": "path",
+                "value": [
+                  "npc",
+                  "taylor",
+                  "present"
+                ]
+              },
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 484,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 460,
+            "column": 1
+          }
+        },
+        {
+          "id": "defense-strong",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You connect the ruler's reforms to conditions people actually faced at the time. Even the opposing side has trouble finding a clean rebuttal."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 490,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "history",
+                "amount": 2,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 491,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 2,
+                  "label": "+History grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 491,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "trial-share-credit",
+              "label": "Share the closing argument with Taylor",
+              "target": ".shared-verdict",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": {
+                "type": "path",
+                "value": [
+                  "npc",
+                  "taylor",
+                  "present"
+                ]
+              },
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 493,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "trial-close-alone",
+              "label": "Deliver the closing argument yourself",
+              "target": ".solo-verdict",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 497,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 488,
+            "column": 1
+          }
+        },
+        {
+          "id": "defense-weak",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You lean too heavily on one reform and overlook the people harmed by it. The opposing side immediately points out the gap."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 502,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "history",
+                "amount": -1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 503,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": -1,
+                  "label": "-History grade",
+                  "direction": "decrease"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 503,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "stat",
+                "id": "stress",
+                "amount": 2,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 504,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "stat",
+                  "amount": 2,
+                  "label": "+Stress",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 504,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "trial-admit-gap",
+              "label": "Acknowledge the flaw and revise your argument",
+              "target": ".honest-recovery",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 506,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "trial-bluff",
+              "label": "Bluff your way through the objection",
+              "check": {
+                "targetType": "skill",
+                "targetId": "resolve",
+                "difficultyId": "difficult",
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 510,
+                  "column": 1
+                }
+              },
+              "outcomes": {
+                "success": {
+                  "target": ".solo-verdict",
+                  "durationMinutes": 0,
+                  "energyFree": false,
+                  "effects": [],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 511,
+                    "column": 1
+                  }
+                },
+                "failure": {
+                  "target": ".failed-verdict",
+                  "durationMinutes": 0,
+                  "energyFree": false,
+                  "effects": [],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 513,
+                    "column": 1
+                  }
+                }
+              },
+              "icon": null,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 509,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 500,
+            "column": 1
+          }
+        },
+        {
+          "id": "prosecution-strong",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You arrange the evidence into a sharp argument about power, fear, and the cost of the ruler's victories. The room goes quiet during your conclusion."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 519,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "history",
+                "amount": 2,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 520,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 2,
+                  "label": "+History grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 520,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "skill",
+                "id": "speech",
+                "amount": 0.1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 521,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "skill",
+                  "amount": 0.1,
+                  "label": "+Speech",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 521,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": ".solo-verdict",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 523,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 517,
+            "column": 1
+          }
+        },
+        {
+          "id": "prosecution-weak",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Your accusation sounds forceful, but the chronology does not support it. The teacher stops you to correct two of the dates."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 527,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "history",
+                "amount": -1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 528,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": -1,
+                  "label": "-History grade",
+                  "direction": "decrease"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 528,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "stat",
+                "id": "stress",
+                "amount": 2,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 529,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "stat",
+                  "amount": 2,
+                  "label": "+Stress",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 529,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": ".failed-verdict",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 531,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 525,
+            "column": 1
+          }
+        },
+        {
+          "id": "partner",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You and Taylor divide the evidence. Taylor spots a contradiction in a witness account while you connect it to the wider political situation."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 535,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "trial-follow-taylor",
+              "label": "Let Taylor present the contradiction",
+              "target": ".shared-verdict",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [
+                {
+                  "op": "relationship",
+                  "npcId": "taylor",
+                  "amount": 2,
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 538,
+                    "column": 1
+                  },
+                  "feedback": {
+                    "type": "relationship",
+                    "amount": 2,
+                    "label": "+Relationship",
+                    "direction": "increase"
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 537,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "trial-take-point",
+              "label": "Use Taylor's discovery in your own argument",
+              "target": ".solo-verdict",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [
+                {
+                  "op": "relationship",
+                  "npcId": "taylor",
+                  "amount": -1,
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 542,
+                    "column": 1
+                  },
+                  "feedback": {
+                    "type": "relationship",
+                    "amount": -1,
+                    "label": "-Relationship",
+                    "direction": "decrease"
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 541,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 533,
+            "column": 1
+          }
+        },
+        {
+          "id": "honest-recovery",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You concede the weak point and rebuild the argument around stronger evidence. The teacher praises the correction more than the original claim."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 547,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "history",
+                "amount": 1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 548,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+History grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 548,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "skill",
+                "id": "resolve",
+                "amount": 0.1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 549,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "skill",
+                  "amount": 0.1,
+                  "label": "+Resolve",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 549,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 551,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 545,
+            "column": 1
+          }
+        },
+        {
+          "id": "shared-verdict",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You and Taylor deliver the conclusion together. Your case does not answer every question, but it is balanced and convincing."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 555,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "history",
+                "amount": 1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 556,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+History grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 556,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "relationship",
+                "npcId": "taylor",
+                "amount": 1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 557,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "relationship",
+                  "amount": 1,
+                  "label": "+Relationship",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 557,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 559,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 553,
+            "column": 1
+          }
+        },
+        {
+          "id": "solo-verdict",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You deliver the final argument yourself. The teacher nods at the structure of your case before announcing the class verdict."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 563,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "skill",
+                "id": "speech",
+                "amount": 0.1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 564,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "skill",
+                  "amount": 0.1,
+                  "label": "+Speech",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 564,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 566,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 561,
+            "column": 1
+          }
+        },
+        {
+          "id": "failed-verdict",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The argument falls apart under questioning. You return to your seat with a much clearer idea of which evidence you should have used."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 570,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "history",
+                "amount": -1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 571,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": -1,
+                  "label": "-History grade",
+                  "direction": "decrease"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 571,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 573,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 568,
+            "column": 1
+          }
+        }
+      ],
+      "source": {
+        "file": "story/events/school-class.wg",
+        "line": 457,
+        "column": 1
+      }
+    },
+    "school.history.event.primary-source": {
+      "id": "school.history.event.primary-source",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Which account do you trust?",
+      "schoolClass": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "opening",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The teacher distributes two accounts of the same protest: an official report calling it a riot and a private diary describing a peaceful march."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 581,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "source-inspect",
+              "label": "Inspect both accounts for inconsistencies",
+              "check": {
+                "targetType": "skill",
+                "targetId": "perception",
+                "difficultyId": "tricky",
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 584,
+                  "column": 1
+                }
+              },
+              "outcomes": {
+                "success": {
+                  "target": ".clue-found",
+                  "durationMinutes": 0,
+                  "energyFree": false,
+                  "effects": [],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 585,
+                    "column": 1
+                  }
+                },
+                "failure": {
+                  "target": ".clue-missed",
+                  "durationMinutes": 0,
+                  "energyFree": false,
+                  "effects": [],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 587,
+                    "column": 1
+                  }
+                }
+              },
+              "icon": null,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 583,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "source-official",
+              "label": "Trust the official report",
+              "target": ".official",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 591,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "source-taylor",
+              "label": "Compare notes with Taylor",
+              "target": ".taylor-notes",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": {
+                "type": "path",
+                "value": [
+                  "npc",
+                  "taylor",
+                  "present"
+                ]
+              },
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 594,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 579,
+            "column": 1
+          }
+        },
+        {
+          "id": "clue-found",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You notice that the report was filed before the time it claims the protest ended. Someone completed the paperwork before events had finished."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 600,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "skill",
+                "id": "perception",
+                "amount": 0.1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 601,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "skill",
+                  "amount": 0.1,
+                  "label": "+Perception",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 601,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "source-expose",
+              "label": "Explain why the report is unreliable",
+              "target": ".exposed",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 603,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "source-ask-taylor",
+              "label": "Quietly show the timestamp to Taylor",
+              "target": ".shared-clue",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": {
+                "type": "path",
+                "value": [
+                  "npc",
+                  "taylor",
+                  "present"
+                ]
+              },
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 606,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 598,
+            "column": 1
+          }
+        },
+        {
+          "id": "clue-missed",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The accounts contradict one another, but you cannot find enough context to decide why."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 612,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "history",
+                "amount": -1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 613,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": -1,
+                  "label": "-History grade",
+                  "direction": "decrease"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 613,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 615,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 610,
+            "column": 1
+          }
+        },
+        {
+          "id": "official",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You argue that the official document is more dependable because it was written for the public record. The teacher asks who controlled that record and why."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 619,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "stat",
+                "id": "mind",
+                "amount": 1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 620,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "stat",
+                  "amount": 1,
+                  "label": "+Mind",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 620,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 622,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 617,
+            "column": 1
+          }
+        },
+        {
+          "id": "taylor-notes",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Taylor points to the language each author uses. Together, you separate what both accounts agree happened from the motives each one assigns."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 626,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "relationship",
+                "npcId": "taylor",
+                "amount": 1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 627,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "relationship",
+                  "amount": 1,
+                  "label": "+Relationship",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 627,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "history",
+                "amount": 1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 628,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+History grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 628,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 630,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 624,
+            "column": 1
+          }
+        },
+        {
+          "id": "exposed",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You present the timestamp and explain that neither account can be accepted without checking when and why it was produced."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 634,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "history",
+                "amount": 2,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 635,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 2,
+                  "label": "+History grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 635,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 637,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 632,
+            "column": 1
+          }
+        },
+        {
+          "id": "shared-clue",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Taylor's eyes widen when she sees the timestamp. "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "npc",
+                    "taylor",
+                    "subject"
+                  ],
+                  "filters": [
+                    "cap"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "value": " encourages you to present it, then backs up your explanation when the teacher questions it."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 641,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "relationship",
+                "npcId": "taylor",
+                "amount": 2,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 642,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "relationship",
+                  "amount": 2,
+                  "label": "+Relationship",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 642,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "history",
+                "amount": 1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 643,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+History grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 643,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 645,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 639,
+            "column": 1
+          }
+        }
+      ],
+      "source": {
+        "file": "story/events/school-class.wg",
+        "line": 576,
+        "column": 1
+      }
+    },
     "school.math.event.called-to-answer": {
       "id": "school.math.event.called-to-answer",
       "finalTarget": "@return",
@@ -19468,6 +23727,6197 @@ export const WG_BUNDLE = {
       "source": {
         "file": "story/events/school-class.wg",
         "line": 358,
+        "column": 1
+      }
+    },
+    "school.physical-education.event.dangerous-player": {
+      "id": "school.physical-education.event.dangerous-player",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Handle the rough play",
+      "schoolClass": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "opening",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "During a small team game, one student keeps making reckless challenges long after the teacher warns everyone to calm down."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1852,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "rough-confront",
+              "label": "Confront the student directly",
+              "check": {
+                "targetType": "skill",
+                "targetId": "resolve",
+                "difficultyId": "difficult",
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1855,
+                  "column": 1
+                }
+              },
+              "outcomes": {
+                "success": {
+                  "target": ".rough-backed-down",
+                  "durationMinutes": 0,
+                  "energyFree": false,
+                  "effects": [],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 1856,
+                    "column": 1
+                  }
+                },
+                "failure": {
+                  "target": ".rough-escalates",
+                  "durationMinutes": 0,
+                  "energyFree": false,
+                  "effects": [],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 1858,
+                    "column": 1
+                  }
+                }
+              },
+              "icon": null,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1854,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "rough-teacher",
+              "label": "Call the teacher's attention to it",
+              "target": ".rough-reported",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1862,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "rough-protect-taylor",
+              "label": "Stay close enough to protect Taylor",
+              "target": ".rough-taylor",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": {
+                "type": "path",
+                "value": [
+                  "npc",
+                  "taylor",
+                  "present"
+                ]
+              },
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1865,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "rough-retaliate",
+              "label": "Beat the student at the same game",
+              "check": {
+                "targetType": "skill",
+                "targetId": "strength",
+                "difficultyId": "difficult",
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1870,
+                  "column": 1
+                }
+              },
+              "outcomes": {
+                "success": {
+                  "target": ".rough-retaliation-success",
+                  "durationMinutes": 0,
+                  "energyFree": false,
+                  "effects": [],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 1871,
+                    "column": 1
+                  }
+                },
+                "failure": {
+                  "target": ".rough-retaliation-failure",
+                  "durationMinutes": 0,
+                  "energyFree": false,
+                  "effects": [],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 1873,
+                    "column": 1
+                  }
+                }
+              },
+              "icon": null,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1869,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1850,
+            "column": 1
+          }
+        },
+        {
+          "id": "rough-backed-down",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You tell the student plainly that the next reckless challenge will stop the game. The rest of the team supports you, and the behavior finally ends."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1879,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "physical_education",
+                "amount": 1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1880,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+Physical Education grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1880,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "skill",
+                "id": "resolve",
+                "amount": 0.1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1881,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "skill",
+                  "amount": 0.1,
+                  "label": "+Resolve",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1881,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1883,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1877,
+            "column": 1
+          }
+        },
+        {
+          "id": "rough-escalates",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The student laughs off the warning and shoulders past you on the next play. The teacher stops the game before the argument becomes a fight."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1887,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "stat",
+                "id": "stress",
+                "amount": 3,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1888,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "stat",
+                  "amount": 3,
+                  "label": "+Stress",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1888,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "physical_education",
+                "amount": -1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1889,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": -1,
+                  "label": "-Physical Education grade",
+                  "direction": "decrease"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1889,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1891,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1885,
+            "column": 1
+          }
+        },
+        {
+          "id": "rough-reported",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The teacher watches the next play closely and removes the student after another dangerous challenge. The game becomes noticeably calmer."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1895,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "physical_education",
+                "amount": 1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1896,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+Physical Education grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1896,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1898,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1893,
+            "column": 1
+          }
+        },
+        {
+          "id": "rough-taylor",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You warn Taylor whenever the student approaches and position yourself between them during contested plays."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1902,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "rough-check-taylor",
+              "label": "Ask whether Taylor wants to leave the game",
+              "target": ".rough-taylor-cared",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1904,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "rough-challenge-player",
+              "label": "Challenge the student away from Taylor",
+              "target": ".rough-taylor-risk",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1907,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1900,
+            "column": 1
+          }
+        },
+        {
+          "id": "rough-retaliation-success",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You meet the student's next challenge and hold your ground. The point is made, but the teacher penalizes both of you."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1912,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "skill",
+                "id": "strength",
+                "amount": 0.1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1913,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "skill",
+                  "amount": 0.1,
+                  "label": "+Strength",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1913,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "physical_education",
+                "amount": -1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1914,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": -1,
+                  "label": "-Physical Education grade",
+                  "direction": "decrease"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1914,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "stat",
+                "id": "health",
+                "amount": -1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1915,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "stat",
+                  "amount": -1,
+                  "label": "-Health",
+                  "direction": "decrease"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1915,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1917,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1910,
+            "column": 1
+          }
+        },
+        {
+          "id": "rough-retaliation-failure",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You charge in too hard, lose your footing, and hit the floor. The teacher removes both players from the game."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1921,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "stat",
+                "id": "health",
+                "amount": -3,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1922,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "stat",
+                  "amount": -3,
+                  "label": "-Health",
+                  "direction": "decrease"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1922,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "stat",
+                "id": "stress",
+                "amount": 3,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1923,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "stat",
+                  "amount": 3,
+                  "label": "+Stress",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1923,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "physical_education",
+                "amount": -2,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1924,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": -2,
+                  "label": "-Physical Education grade",
+                  "direction": "decrease"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1924,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1926,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1919,
+            "column": 1
+          }
+        },
+        {
+          "id": "rough-taylor-cared",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Taylor admits "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "npc",
+                    "taylor",
+                    "subject"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": " would rather sit out than risk getting hurt. You walk to the sideline together."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1930,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "relationship",
+                "npcId": "taylor",
+                "amount": 2,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1931,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "relationship",
+                  "amount": 2,
+                  "label": "+Relationship",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1931,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "skill",
+                "id": "resolve",
+                "amount": 0.1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1932,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "skill",
+                  "amount": 0.1,
+                  "label": "+Resolve",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1932,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1934,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1928,
+            "column": 1
+          }
+        },
+        {
+          "id": "rough-taylor-risk",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You draw the student's attention and spend the next play fending off an unnecessarily hard challenge."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1938,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "relationship",
+                "npcId": "taylor",
+                "amount": 1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1939,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "relationship",
+                  "amount": 1,
+                  "label": "+Relationship",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1939,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "stat",
+                "id": "health",
+                "amount": -1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1940,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "stat",
+                  "amount": -1,
+                  "label": "-Health",
+                  "direction": "decrease"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1940,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "physical_education",
+                "amount": 1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1941,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+Physical Education grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1941,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1943,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1936,
+            "column": 1
+          }
+        }
+      ],
+      "source": {
+        "file": "story/events/school-class.wg",
+        "line": 1847,
+        "column": 1
+      }
+    },
+    "school.physical-education.event.dodgeball": {
+      "id": "school.physical-education.event.dodgeball",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Play the round",
+      "schoolClass": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "opening",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The teacher divides the class for dodgeball. The opening whistle turns the gym into a storm of bouncing balls and shouted warnings."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1514,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "dodgeball-aggressive",
+              "label": "Push forward and play aggressively",
+              "check": {
+                "targetType": "skill",
+                "targetId": "fitness",
+                "difficultyId": "tricky",
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1517,
+                  "column": 1
+                }
+              },
+              "outcomes": {
+                "success": {
+                  "target": ".dodgeball-dominant",
+                  "durationMinutes": 0,
+                  "energyFree": false,
+                  "effects": [],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 1518,
+                    "column": 1
+                  }
+                },
+                "failure": {
+                  "target": ".dodgeball-out",
+                  "durationMinutes": 0,
+                  "energyFree": false,
+                  "effects": [],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 1520,
+                    "column": 1
+                  }
+                }
+              },
+              "icon": null,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1516,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "dodgeball-defensive",
+              "label": "Stay back and watch for openings",
+              "check": {
+                "targetType": "skill",
+                "targetId": "perception",
+                "difficultyId": "tricky",
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1525,
+                  "column": 1
+                }
+              },
+              "outcomes": {
+                "success": {
+                  "target": ".dodgeball-catch",
+                  "durationMinutes": 0,
+                  "energyFree": false,
+                  "effects": [],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 1526,
+                    "column": 1
+                  }
+                },
+                "failure": {
+                  "target": ".dodgeball-out",
+                  "durationMinutes": 0,
+                  "energyFree": false,
+                  "effects": [],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 1528,
+                    "column": 1
+                  }
+                }
+              },
+              "icon": null,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1524,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "dodgeball-cover-taylor",
+              "label": "Keep Taylor out of the crossfire",
+              "target": ".dodgeball-taylor",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": {
+                "type": "path",
+                "value": [
+                  "npc",
+                  "taylor",
+                  "present"
+                ]
+              },
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1532,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1512,
+            "column": 1
+          }
+        },
+        {
+          "id": "dodgeball-dominant",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You dodge the first throw, recover the loose ball, and eliminate two opponents before they can retreat."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1538,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "physical_education",
+                "amount": 2,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1539,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 2,
+                  "label": "+Physical Education grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1539,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "skill",
+                "id": "fitness",
+                "amount": 0.1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1540,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "skill",
+                  "amount": 0.1,
+                  "label": "+Fitness",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1540,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "stat",
+                "id": "energy",
+                "amount": -2,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1541,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "stat",
+                  "amount": -2,
+                  "label": "-Energy",
+                  "direction": "decrease"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1541,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "dodgeball-finish",
+              "label": "Take the difficult final shot",
+              "check": {
+                "targetType": "skill",
+                "targetId": "perception",
+                "difficultyId": "difficult",
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1544,
+                  "column": 1
+                }
+              },
+              "outcomes": {
+                "success": {
+                  "target": ".dodgeball-win",
+                  "durationMinutes": 0,
+                  "energyFree": false,
+                  "effects": [],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 1545,
+                    "column": 1
+                  }
+                },
+                "failure": {
+                  "target": ".dodgeball-overreach",
+                  "durationMinutes": 0,
+                  "energyFree": false,
+                  "effects": [],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 1547,
+                    "column": 1
+                  }
+                }
+              },
+              "icon": null,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1543,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "dodgeball-pass",
+              "label": "Pass to a better-positioned teammate",
+              "target": ".dodgeball-team-win",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1551,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1536,
+            "column": 1
+          }
+        },
+        {
+          "id": "dodgeball-catch",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You read a throw early and catch it cleanly, bringing one of your teammates back into the game."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1556,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "physical_education",
+                "amount": 1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1557,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+Physical Education grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1557,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "skill",
+                "id": "perception",
+                "amount": 0.1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1558,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "skill",
+                  "amount": 0.1,
+                  "label": "+Perception",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1558,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1560,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1554,
+            "column": 1
+          }
+        },
+        {
+          "id": "dodgeball-out",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You react a moment too late. The ball clips your leg, and you join the eliminated players against the wall."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1564,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "physical_education",
+                "amount": -1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1565,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": -1,
+                  "label": "-Physical Education grade",
+                  "direction": "decrease"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1565,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "stat",
+                "id": "stress",
+                "amount": 1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1566,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "stat",
+                  "amount": 1,
+                  "label": "+Stress",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1566,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1568,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1562,
+            "column": 1
+          }
+        },
+        {
+          "id": "dodgeball-taylor",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You call out incoming throws and pull Taylor behind cover at the right moments. "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "npc",
+                    "taylor",
+                    "subject"
+                  ],
+                  "filters": [
+                    "cap"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "value": " survives the round much longer than expected."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1572,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "dodgeball-taylor-sacrifice",
+              "label": "Take a hit meant for Taylor",
+              "target": ".dodgeball-sacrifice",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1574,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "dodgeball-taylor-push",
+              "label": "Push Taylor to make the winning throw",
+              "target": ".dodgeball-taylor-shot",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1577,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1570,
+            "column": 1
+          }
+        },
+        {
+          "id": "dodgeball-win",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Your final throw catches the last opponent moving the wrong way. Your team erupts in celebration."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1582,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "physical_education",
+                "amount": 1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1583,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+Physical Education grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1583,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1585,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1580,
+            "column": 1
+          }
+        },
+        {
+          "id": "dodgeball-overreach",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You throw before setting your feet. The ball sails wide, and the return throw catches you immediately."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1589,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "stat",
+                "id": "stress",
+                "amount": 2,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1590,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "stat",
+                  "amount": 2,
+                  "label": "+Stress",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1590,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1592,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1587,
+            "column": 1
+          }
+        },
+        {
+          "id": "dodgeball-team-win",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Your teammate lands the easier shot. You do not get the dramatic finish, but the team wins because you passed."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1596,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "physical_education",
+                "amount": 1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1597,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+Physical Education grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1597,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "skill",
+                "id": "resolve",
+                "amount": 0.1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1598,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "skill",
+                  "amount": 0.1,
+                  "label": "+Resolve",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1598,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1600,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1594,
+            "column": 1
+          }
+        },
+        {
+          "id": "dodgeball-sacrifice",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The ball strikes your shoulder instead of Taylor. "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "npc",
+                    "taylor",
+                    "subject"
+                  ],
+                  "filters": [
+                    "cap"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "value": " looks guilty until you point out that "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "npc",
+                    "taylor",
+                    "subject"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": " is still in the game."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1604,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "relationship",
+                "npcId": "taylor",
+                "amount": 2,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1605,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "relationship",
+                  "amount": 2,
+                  "label": "+Relationship",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1605,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "stat",
+                "id": "health",
+                "amount": -1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1606,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "stat",
+                  "amount": -1,
+                  "label": "-Health",
+                  "direction": "decrease"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1606,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1608,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1602,
+            "column": 1
+          }
+        },
+        {
+          "id": "dodgeball-taylor-shot",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Taylor hesitates, throws, and catches the final opponent on the ankle. "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "npc",
+                    "taylor",
+                    "subject"
+                  ],
+                  "filters": [
+                    "cap"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "value": " turns to you in delighted disbelief."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1612,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "relationship",
+                "npcId": "taylor",
+                "amount": 2,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1613,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "relationship",
+                  "amount": 2,
+                  "label": "+Relationship",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1613,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "physical_education",
+                "amount": 1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1614,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+Physical Education grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1614,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1616,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1610,
+            "column": 1
+          }
+        }
+      ],
+      "source": {
+        "file": "story/events/school-class.wg",
+        "line": 1509,
+        "column": 1
+      }
+    },
+    "school.physical-education.event.obstacle-course": {
+      "id": "school.physical-education.event.obstacle-course",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Approach the course",
+      "schoolClass": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "opening",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Cones, vaulting boxes, ropes, and balance benches form a timed obstacle course across the gym."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1624,
+                "column": 1
+              }
+            },
+            {
+              "type": "if",
+              "branches": [
+                {
+                  "test": {
+                    "type": "path",
+                    "value": [
+                      "npc",
+                      "taylor",
+                      "present"
+                    ]
+                  },
+                  "nodes": [
+                    {
+                      "type": "paragraph",
+                      "parts": [
+                        {
+                          "type": "text",
+                          "value": "You and Taylor are assigned as a pair. Your time only counts once both of you cross the line."
+                        }
+                      ],
+                      "source": {
+                        "file": "story/events/school-class.wg",
+                        "line": 1627,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 1626,
+                    "column": 1
+                  }
+                }
+              ],
+              "elseNodes": [
+                {
+                  "type": "paragraph",
+                  "parts": [
+                    {
+                      "type": "text",
+                      "value": "You are paired with another student, and your time only counts once both of you cross the line."
+                    }
+                  ],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 1629,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1626,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "obstacle-sprint",
+              "label": "Set a fast pace from the start",
+              "check": {
+                "targetType": "skill",
+                "targetId": "endurance",
+                "difficultyId": "difficult",
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1633,
+                  "column": 1
+                }
+              },
+              "outcomes": {
+                "success": {
+                  "target": ".obstacle-fast",
+                  "durationMinutes": 0,
+                  "energyFree": false,
+                  "effects": [],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 1634,
+                    "column": 1
+                  }
+                },
+                "failure": {
+                  "target": ".obstacle-exhausted",
+                  "durationMinutes": 0,
+                  "energyFree": false,
+                  "effects": [],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 1636,
+                    "column": 1
+                  }
+                }
+              },
+              "icon": null,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1632,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "obstacle-steady",
+              "label": "Use a steady, controlled pace",
+              "target": ".obstacle-steady",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1640,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "obstacle-taylor",
+              "label": "Let Taylor set the pace",
+              "target": ".obstacle-taylor",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": {
+                "type": "path",
+                "value": [
+                  "npc",
+                  "taylor",
+                  "present"
+                ]
+              },
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1643,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1622,
+            "column": 1
+          }
+        },
+        {
+          "id": "obstacle-fast",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You clear the opening barriers without breaking stride and reach the rope with time to spare."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1649,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "physical_education",
+                "amount": 2,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1650,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 2,
+                  "label": "+Physical Education grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1650,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "skill",
+                "id": "endurance",
+                "amount": 0.1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1651,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "skill",
+                  "amount": 0.1,
+                  "label": "+Endurance",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1651,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "stat",
+                "id": "energy",
+                "amount": -3,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1652,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "stat",
+                  "amount": -3,
+                  "label": "-Energy",
+                  "direction": "decrease"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1652,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": ".obstacle-final",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1654,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1647,
+            "column": 1
+          }
+        },
+        {
+          "id": "obstacle-exhausted",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You attack the first obstacles too quickly. By the rope climb, your arms are shaking and your partner has caught up with you."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1658,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "stat",
+                "id": "energy",
+                "amount": -5,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1659,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "stat",
+                  "amount": -5,
+                  "label": "-Energy",
+                  "direction": "decrease"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1659,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "physical_education",
+                "amount": -1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1660,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": -1,
+                  "label": "-Physical Education grade",
+                  "direction": "decrease"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1660,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "obstacle-force",
+              "label": "Force yourself through the final obstacles",
+              "check": {
+                "targetType": "skill",
+                "targetId": "resolve",
+                "difficultyId": "tricky",
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1663,
+                  "column": 1
+                }
+              },
+              "outcomes": {
+                "success": {
+                  "target": ".obstacle-recovered",
+                  "durationMinutes": 0,
+                  "energyFree": false,
+                  "effects": [],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 1664,
+                    "column": 1
+                  }
+                },
+                "failure": {
+                  "target": ".obstacle-finished-late",
+                  "durationMinutes": 0,
+                  "energyFree": false,
+                  "effects": [],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 1666,
+                    "column": 1
+                  }
+                }
+              },
+              "icon": null,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1662,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "obstacle-slow",
+              "label": "Slow down and finish safely",
+              "target": ".obstacle-finished-late",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1670,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1656,
+            "column": 1
+          }
+        },
+        {
+          "id": "obstacle-steady",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You sacrifice a few seconds to place every step securely. Neither you nor your partner needs to repeat an obstacle."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1675,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "physical_education",
+                "amount": 1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1676,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+Physical Education grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1676,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "skill",
+                "id": "fitness",
+                "amount": 0.1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1677,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "skill",
+                  "amount": 0.1,
+                  "label": "+Fitness",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1677,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": ".obstacle-final",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1679,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1673,
+            "column": 1
+          }
+        },
+        {
+          "id": "obstacle-taylor",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Taylor starts cautiously, then gains confidence when you match "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "npc",
+                    "taylor",
+                    "dependent"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": " rhythm instead of rushing ahead."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1683,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "relationship",
+                "npcId": "taylor",
+                "amount": 2,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1684,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "relationship",
+                  "amount": 2,
+                  "label": "+Relationship",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1684,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": ".obstacle-final",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1686,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1681,
+            "column": 1
+          }
+        },
+        {
+          "id": "obstacle-final",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "At the final balance bench, your partner slips and catches the edge with one foot."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1690,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "obstacle-help",
+              "label": "Stop and help your partner regain balance",
+              "target": ".obstacle-helped",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1692,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "obstacle-finish",
+              "label": "Cross the line and call encouragement",
+              "target": ".obstacle-solo-finish",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1695,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1688,
+            "column": 1
+          }
+        },
+        {
+          "id": "obstacle-recovered",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You find enough strength to complete the course without skipping an obstacle. The time is mediocre, but the recovery impresses the teacher."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1700,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "skill",
+                "id": "resolve",
+                "amount": 0.1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1701,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "skill",
+                  "amount": 0.1,
+                  "label": "+Resolve",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1701,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "physical_education",
+                "amount": 1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1702,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+Physical Education grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1702,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1704,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1698,
+            "column": 1
+          }
+        },
+        {
+          "id": "obstacle-finished-late",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You finish well outside the target time, exhausted but uninjured."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1708,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "stat",
+                "id": "stress",
+                "amount": 1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1709,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "stat",
+                  "amount": 1,
+                  "label": "+Stress",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1709,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1711,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1706,
+            "column": 1
+          }
+        },
+        {
+          "id": "obstacle-helped",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You step back onto the bench and offer a hand. Both of you cross together a few seconds later."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1715,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "physical_education",
+                "amount": 1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1716,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+Physical Education grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1716,
+                "column": 1
+              }
+            },
+            {
+              "type": "if",
+              "branches": [
+                {
+                  "test": {
+                    "type": "path",
+                    "value": [
+                      "npc",
+                      "taylor",
+                      "present"
+                    ]
+                  },
+                  "nodes": [
+                    {
+                      "type": "paragraph",
+                      "parts": [
+                        {
+                          "type": "text",
+                          "value": "Taylor squeezes your hand before letting go."
+                        }
+                      ],
+                      "source": {
+                        "file": "story/events/school-class.wg",
+                        "line": 1719,
+                        "column": 1
+                      }
+                    },
+                    {
+                      "type": "effect",
+                      "effect": {
+                        "op": "relationship",
+                        "npcId": "taylor",
+                        "amount": 2,
+                        "source": {
+                          "file": "story/events/school-class.wg",
+                          "line": 1720,
+                          "column": 1
+                        },
+                        "feedback": {
+                          "type": "relationship",
+                          "amount": 2,
+                          "label": "+Relationship",
+                          "direction": "increase"
+                        }
+                      },
+                      "source": {
+                        "file": "story/events/school-class.wg",
+                        "line": 1720,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 1718,
+                    "column": 1
+                  }
+                }
+              ],
+              "elseNodes": null,
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1718,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1723,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1713,
+            "column": 1
+          }
+        },
+        {
+          "id": "obstacle-solo-finish",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You preserve your own time, but your pair's result does not count until your partner finishes."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1727,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "physical_education",
+                "amount": -1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1728,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": -1,
+                  "label": "-Physical Education grade",
+                  "direction": "decrease"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1728,
+                "column": 1
+              }
+            },
+            {
+              "type": "if",
+              "branches": [
+                {
+                  "test": {
+                    "type": "path",
+                    "value": [
+                      "npc",
+                      "taylor",
+                      "present"
+                    ]
+                  },
+                  "nodes": [
+                    {
+                      "type": "paragraph",
+                      "parts": [
+                        {
+                          "type": "text",
+                          "value": "Taylor crosses without looking at you."
+                        }
+                      ],
+                      "source": {
+                        "file": "story/events/school-class.wg",
+                        "line": 1731,
+                        "column": 1
+                      }
+                    },
+                    {
+                      "type": "effect",
+                      "effect": {
+                        "op": "relationship",
+                        "npcId": "taylor",
+                        "amount": -1,
+                        "source": {
+                          "file": "story/events/school-class.wg",
+                          "line": 1732,
+                          "column": 1
+                        },
+                        "feedback": {
+                          "type": "relationship",
+                          "amount": -1,
+                          "label": "-Relationship",
+                          "direction": "decrease"
+                        }
+                      },
+                      "source": {
+                        "file": "story/events/school-class.wg",
+                        "line": 1732,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 1730,
+                    "column": 1
+                  }
+                }
+              ],
+              "elseNodes": null,
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1730,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1735,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1725,
+            "column": 1
+          }
+        }
+      ],
+      "source": {
+        "file": "story/events/school-class.wg",
+        "line": 1619,
+        "column": 1
+      }
+    },
+    "school.physical-education.event.relay-race": {
+      "id": "school.physical-education.event.relay-race",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Run your relay leg",
+      "schoolClass": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "opening",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The class lines up for a relay. You are running the final leg, where a clean handoff matters as much as raw speed."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1743,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "relay-safe",
+              "label": "Prioritize a clean handoff",
+              "check": {
+                "targetType": "skill",
+                "targetId": "perception",
+                "difficultyId": "tricky",
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1746,
+                  "column": 1
+                }
+              },
+              "outcomes": {
+                "success": {
+                  "target": ".relay-clean",
+                  "durationMinutes": 0,
+                  "energyFree": false,
+                  "effects": [],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 1747,
+                    "column": 1
+                  }
+                },
+                "failure": {
+                  "target": ".relay-dropped",
+                  "durationMinutes": 0,
+                  "energyFree": false,
+                  "effects": [],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 1749,
+                    "column": 1
+                  }
+                }
+              },
+              "icon": null,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1745,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "relay-sprint",
+              "label": "Start accelerating before the baton arrives",
+              "check": {
+                "targetType": "skill",
+                "targetId": "fitness",
+                "difficultyId": "difficult",
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1754,
+                  "column": 1
+                }
+              },
+              "outcomes": {
+                "success": {
+                  "target": ".relay-flying",
+                  "durationMinutes": 0,
+                  "energyFree": false,
+                  "effects": [],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 1755,
+                    "column": 1
+                  }
+                },
+                "failure": {
+                  "target": ".relay-dropped",
+                  "durationMinutes": 0,
+                  "energyFree": false,
+                  "effects": [],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 1757,
+                    "column": 1
+                  }
+                }
+              },
+              "icon": null,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1753,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "relay-taylor",
+              "label": "Coordinate the handoff with Taylor",
+              "target": ".relay-taylor",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": {
+                "type": "path",
+                "value": [
+                  "npc",
+                  "taylor",
+                  "present"
+                ]
+              },
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1761,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1741,
+            "column": 1
+          }
+        },
+        {
+          "id": "relay-clean",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The baton lands firmly in your palm. You enter the final straight close behind the leading runner."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1767,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "skill",
+                "id": "perception",
+                "amount": 0.1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1768,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "skill",
+                  "amount": 0.1,
+                  "label": "+Perception",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1768,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "relay-chase",
+              "label": "Spend everything trying to overtake",
+              "check": {
+                "targetType": "skill",
+                "targetId": "endurance",
+                "difficultyId": "tricky",
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1771,
+                  "column": 1
+                }
+              },
+              "outcomes": {
+                "success": {
+                  "target": ".relay-win",
+                  "durationMinutes": 0,
+                  "energyFree": false,
+                  "effects": [],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 1772,
+                    "column": 1
+                  }
+                },
+                "failure": {
+                  "target": ".relay-second",
+                  "durationMinutes": 0,
+                  "energyFree": false,
+                  "effects": [],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 1774,
+                    "column": 1
+                  }
+                }
+              },
+              "icon": null,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1770,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "relay-hold",
+              "label": "Protect your position",
+              "target": ".relay-second",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1778,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1765,
+            "column": 1
+          }
+        },
+        {
+          "id": "relay-flying",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You match the baton perfectly while already at speed. The other teams are still completing their handoffs when you hit the straight."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1783,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "physical_education",
+                "amount": 2,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1784,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 2,
+                  "label": "+Physical Education grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1784,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "skill",
+                "id": "fitness",
+                "amount": 0.1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1785,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "skill",
+                  "amount": 0.1,
+                  "label": "+Fitness",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1785,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": ".relay-win",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1787,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1781,
+            "column": 1
+          }
+        },
+        {
+          "id": "relay-dropped",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The baton strikes your fingertips and bounces onto the floor. Several teams pass while you turn back for it."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1791,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "physical_education",
+                "amount": -1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1792,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": -1,
+                  "label": "-Physical Education grade",
+                  "direction": "decrease"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1792,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "stat",
+                "id": "stress",
+                "amount": 3,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1793,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "stat",
+                  "amount": 3,
+                  "label": "+Stress",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1793,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "relay-recover",
+              "label": "Recover the baton and finish the race",
+              "target": ".relay-recovery",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1795,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "relay-blame",
+              "label": "Blame the incoming runner",
+              "target": ".relay-blame",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1798,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1789,
+            "column": 1
+          }
+        },
+        {
+          "id": "relay-taylor",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You and Taylor rehearse the signal under your breath. When "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "npc",
+                    "taylor",
+                    "subject"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": " calls it, the handoff feels effortless."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1803,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "relationship",
+                "npcId": "taylor",
+                "amount": 2,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1804,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "relationship",
+                  "amount": 2,
+                  "label": "+Relationship",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1804,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "physical_education",
+                "amount": 1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1805,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+Physical Education grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1805,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": ".relay-clean",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1807,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1801,
+            "column": 1
+          }
+        },
+        {
+          "id": "relay-win",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You lean through the finish just ahead of the nearest runner. Your legs burn, but your team wins."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1811,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "physical_education",
+                "amount": 1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1812,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+Physical Education grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1812,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "skill",
+                "id": "endurance",
+                "amount": 0.1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1813,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "skill",
+                  "amount": 0.1,
+                  "label": "+Endurance",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1813,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "stat",
+                "id": "energy",
+                "amount": -4,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1814,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "stat",
+                  "amount": -4,
+                  "label": "-Energy",
+                  "direction": "decrease"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1814,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1816,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1809,
+            "column": 1
+          }
+        },
+        {
+          "id": "relay-second",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You hold your form to the line and secure second place without fading at the end."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1820,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "physical_education",
+                "amount": 1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1821,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+Physical Education grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1821,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "stat",
+                "id": "energy",
+                "amount": -2,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1822,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "stat",
+                  "amount": -2,
+                  "label": "-Energy",
+                  "direction": "decrease"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1822,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1824,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1818,
+            "column": 1
+          }
+        },
+        {
+          "id": "relay-recovery",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You grab the baton and finish despite having no chance to win. The teacher praises you for completing the race."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1828,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "skill",
+                "id": "resolve",
+                "amount": 0.1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1829,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "skill",
+                  "amount": 0.1,
+                  "label": "+Resolve",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1829,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1831,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1826,
+            "column": 1
+          }
+        },
+        {
+          "id": "relay-blame",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The argument continues after the race. The teacher makes both of you repeat handoff drills while everyone else rests."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1835,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "stat",
+                "id": "stress",
+                "amount": 2,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1836,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "stat",
+                  "amount": 2,
+                  "label": "+Stress",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1836,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "physical_education",
+                "amount": -1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1837,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": -1,
+                  "label": "-Physical Education grade",
+                  "direction": "decrease"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1837,
+                "column": 1
+              }
+            },
+            {
+              "type": "if",
+              "branches": [
+                {
+                  "test": {
+                    "type": "path",
+                    "value": [
+                      "npc",
+                      "taylor",
+                      "present"
+                    ]
+                  },
+                  "nodes": [
+                    {
+                      "type": "paragraph",
+                      "parts": [
+                        {
+                          "type": "text",
+                          "value": "Taylor is unimpressed by how quickly you assigned blame."
+                        }
+                      ],
+                      "source": {
+                        "file": "story/events/school-class.wg",
+                        "line": 1840,
+                        "column": 1
+                      }
+                    },
+                    {
+                      "type": "effect",
+                      "effect": {
+                        "op": "relationship",
+                        "npcId": "taylor",
+                        "amount": -1,
+                        "source": {
+                          "file": "story/events/school-class.wg",
+                          "line": 1841,
+                          "column": 1
+                        },
+                        "feedback": {
+                          "type": "relationship",
+                          "amount": -1,
+                          "label": "-Relationship",
+                          "direction": "decrease"
+                        }
+                      },
+                      "source": {
+                        "file": "story/events/school-class.wg",
+                        "line": 1841,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 1839,
+                    "column": 1
+                  }
+                }
+              ],
+              "elseNodes": null,
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1839,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1844,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1833,
+            "column": 1
+          }
+        }
+      ],
+      "source": {
+        "file": "story/events/school-class.wg",
+        "line": 1738,
+        "column": 1
+      }
+    },
+    "school.science.event.bridge-challenge": {
+      "id": "school.science.event.bridge-challenge",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Build the bridge",
+      "schoolClass": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "opening",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The teacher gives every group paper, tape, and ten minutes to build a bridge capable of holding a stack of textbooks."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 960,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "bridge-design",
+              "label": "Design a folded support structure",
+              "check": {
+                "targetType": "grade",
+                "targetId": "science",
+                "difficultyId": "difficult",
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 963,
+                  "column": 1
+                }
+              },
+              "outcomes": {
+                "success": {
+                  "target": ".bridge-strong",
+                  "durationMinutes": 0,
+                  "energyFree": false,
+                  "effects": [],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 964,
+                    "column": 1
+                  }
+                },
+                "failure": {
+                  "target": ".bridge-flawed",
+                  "durationMinutes": 0,
+                  "energyFree": false,
+                  "effects": [],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 966,
+                    "column": 1
+                  }
+                }
+              },
+              "icon": null,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 962,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "bridge-prototype",
+              "label": "Build and test small prototypes",
+              "target": ".bridge-tested",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 970,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "bridge-taylor",
+              "label": "Let Taylor design while you assemble",
+              "target": ".bridge-taylor",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": {
+                "type": "path",
+                "value": [
+                  "npc",
+                  "taylor",
+                  "present"
+                ]
+              },
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 973,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 958,
+            "column": 1
+          }
+        },
+        {
+          "id": "bridge-strong",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Your triangular folds distribute the load across the entire span. The bridge survives every textbook the teacher places on it."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 979,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "science",
+                "amount": 2,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 980,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 2,
+                  "label": "+Science grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 980,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 982,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 977,
+            "column": 1
+          }
+        },
+        {
+          "id": "bridge-flawed",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The centre support bends sideways under the second book. Once you see the failure, the missing brace is painfully obvious."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 986,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "science",
+                "amount": -1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 987,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": -1,
+                  "label": "-Science grade",
+                  "direction": "decrease"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 987,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "stat",
+                "id": "stress",
+                "amount": 2,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 988,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "stat",
+                  "amount": 2,
+                  "label": "+Stress",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 988,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "bridge-salvage",
+              "label": "Reinforce the weak side before the final test",
+              "check": {
+                "targetType": "skill",
+                "targetId": "resolve",
+                "difficultyId": "tricky",
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 991,
+                  "column": 1
+                }
+              },
+              "outcomes": {
+                "success": {
+                  "target": ".bridge-salvaged",
+                  "durationMinutes": 0,
+                  "energyFree": false,
+                  "effects": [],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 992,
+                    "column": 1
+                  }
+                },
+                "failure": {
+                  "target": ".bridge-collapsed",
+                  "durationMinutes": 0,
+                  "energyFree": false,
+                  "effects": [],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 994,
+                    "column": 1
+                  }
+                }
+              },
+              "icon": null,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 990,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "bridge-accept",
+              "label": "Accept the failed design",
+              "target": ".bridge-collapsed",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 998,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 984,
+            "column": 1
+          }
+        },
+        {
+          "id": "bridge-tested",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Several ugly prototypes fail, but each teaches you where the paper bends. Your final bridge is inelegant and remarkably strong."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1003,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "science",
+                "amount": 1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1004,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+Science grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1004,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "skill",
+                "id": "perception",
+                "amount": 0.1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1005,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "skill",
+                  "amount": 0.1,
+                  "label": "+Perception",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1005,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1007,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1001,
+            "column": 1
+          }
+        },
+        {
+          "id": "bridge-taylor",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Taylor sketches a daring arch while you translate it into careful folds. The finished bridge sways under load but holds."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1011,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "relationship",
+                "npcId": "taylor",
+                "amount": 2,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1012,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "relationship",
+                  "amount": 2,
+                  "label": "+Relationship",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1012,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "science",
+                "amount": 1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1013,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+Science grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1013,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1015,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1009,
+            "column": 1
+          }
+        },
+        {
+          "id": "bridge-salvaged",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You add a diagonal brace seconds before testing. The repaired bridge holds long enough to earn a passing result."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1019,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "science",
+                "amount": 1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1020,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+Science grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1020,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "skill",
+                "id": "resolve",
+                "amount": 0.1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1021,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "skill",
+                  "amount": 0.1,
+                  "label": "+Resolve",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1021,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1023,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1017,
+            "column": 1
+          }
+        },
+        {
+          "id": "bridge-collapsed",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The bridge folds flat beneath the books. At least the collapse demonstrates exactly where the forces were concentrated."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1027,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1029,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1025,
+            "column": 1
+          }
+        }
+      ],
+      "source": {
+        "file": "story/events/school-class.wg",
+        "line": 955,
+        "column": 1
+      }
+    },
+    "school.science.event.impossible-result": {
+      "id": "school.science.event.impossible-result",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Handle the result",
+      "schoolClass": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "opening",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Your measurements imply that the test object gained mass during a closed experiment. The result contradicts both the lesson and common sense."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1037,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "result-repeat",
+              "label": "Repeat the experiment from the beginning",
+              "check": {
+                "targetType": "grade",
+                "targetId": "science",
+                "difficultyId": "tricky",
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1040,
+                  "column": 1
+                }
+              },
+              "outcomes": {
+                "success": {
+                  "target": ".result-explained",
+                  "durationMinutes": 0,
+                  "energyFree": false,
+                  "effects": [],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 1041,
+                    "column": 1
+                  }
+                },
+                "failure": {
+                  "target": ".result-persists",
+                  "durationMinutes": 0,
+                  "energyFree": false,
+                  "effects": [],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 1043,
+                    "column": 1
+                  }
+                }
+              },
+              "icon": null,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1039,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "result-adjust",
+              "label": "Adjust the suspicious measurement",
+              "target": ".result-fudged",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1047,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "result-taylor",
+              "label": "Ask Taylor to audit your notes",
+              "target": ".result-taylor",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": {
+                "type": "path",
+                "value": [
+                  "npc",
+                  "taylor",
+                  "present"
+                ]
+              },
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1050,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1035,
+            "column": 1
+          }
+        },
+        {
+          "id": "result-explained",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "On the second run, you notice condensation collecting beneath the lid before weighing. The supposedly closed experiment was trapping water from the air."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1056,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "science",
+                "amount": 2,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1057,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 2,
+                  "label": "+Science grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1057,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "stat",
+                "id": "mind",
+                "amount": 1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1058,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "stat",
+                  "amount": 1,
+                  "label": "+Mind",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1058,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1060,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1054,
+            "column": 1
+          }
+        },
+        {
+          "id": "result-persists",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The strange result appears again. You document every step and submit it without pretending you understand the cause."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1064,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "science",
+                "amount": 1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1065,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+Science grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1065,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "stat",
+                "id": "stress",
+                "amount": 2,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1066,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "stat",
+                  "amount": 2,
+                  "label": "+Stress",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1066,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1068,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1062,
+            "column": 1
+          }
+        },
+        {
+          "id": "result-fudged",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You alter the number until it resembles the expected result. The teacher spots that your raw notes and graph no longer match."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1072,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "science",
+                "amount": -2,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1073,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": -2,
+                  "label": "-Science grade",
+                  "direction": "decrease"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1073,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "stat",
+                "id": "stress",
+                "amount": 3,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1074,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "stat",
+                  "amount": 3,
+                  "label": "+Stress",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1074,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1076,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1070,
+            "column": 1
+          }
+        },
+        {
+          "id": "result-taylor",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Taylor finds a unit conversion copied incorrectly from the board. Correcting it makes every measurement fall into place."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1080,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "relationship",
+                "npcId": "taylor",
+                "amount": 2,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1081,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "relationship",
+                  "amount": 2,
+                  "label": "+Relationship",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1081,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "science",
+                "amount": 1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 1082,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+Science grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 1082,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 1084,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 1078,
+            "column": 1
+          }
+        }
+      ],
+      "source": {
+        "file": "story/events/school-class.wg",
+        "line": 1032,
+        "column": 1
+      }
+    },
+    "school.science.event.mystery-sample": {
+      "id": "school.science.event.mystery-sample",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Examine the sample",
+      "schoolClass": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "opening",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Each table receives an unlabeled mineral sample. The class must identify it without damaging it or asking the teacher for clues."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 889,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "sample-observe",
+              "label": "Study its colour, texture, and fracture lines",
+              "check": {
+                "targetType": "skill",
+                "targetId": "perception",
+                "difficultyId": "tricky",
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 892,
+                  "column": 1
+                }
+              },
+              "outcomes": {
+                "success": {
+                  "target": ".sample-clues",
+                  "durationMinutes": 0,
+                  "energyFree": false,
+                  "effects": [],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 893,
+                    "column": 1
+                  }
+                },
+                "failure": {
+                  "target": ".sample-misread",
+                  "durationMinutes": 0,
+                  "energyFree": false,
+                  "effects": [],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 895,
+                    "column": 1
+                  }
+                }
+              },
+              "icon": null,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 891,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "sample-test",
+              "label": "Perform every permitted test",
+              "target": ".sample-methodical",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 899,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "sample-taylor",
+              "label": "Divide the tests with Taylor",
+              "target": ".sample-taylor",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": {
+                "type": "path",
+                "value": [
+                  "npc",
+                  "taylor",
+                  "present"
+                ]
+              },
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 902,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 887,
+            "column": 1
+          }
+        },
+        {
+          "id": "sample-clues",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Tiny cubic breaks along one edge narrow the possibilities to two minerals. One final hardness test will settle it."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 908,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "skill",
+                "id": "perception",
+                "amount": 0.1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 909,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "skill",
+                  "amount": 0.1,
+                  "label": "+Perception",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 909,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "sample-careful-test",
+              "label": "Perform a careful hardness test",
+              "target": ".sample-correct",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 911,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "sample-guess",
+              "label": "Trust your first impression",
+              "target": ".sample-guess",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 914,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 906,
+            "column": 1
+          }
+        },
+        {
+          "id": "sample-misread",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Reflected light makes the sample seem metallic. You identify it confidently, only to learn that you were looking at residue from its container."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 919,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "science",
+                "amount": -1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 920,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": -1,
+                  "label": "-Science grade",
+                  "direction": "decrease"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 920,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 922,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 917,
+            "column": 1
+          }
+        },
+        {
+          "id": "sample-methodical",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You work through the test sheet in order and eliminate each alternative. It takes longer, but your conclusion is difficult to dispute."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 926,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "science",
+                "amount": 2,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 927,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 2,
+                  "label": "+Science grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 927,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "stat",
+                "id": "mind",
+                "amount": 1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 928,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "stat",
+                  "amount": 1,
+                  "label": "+Mind",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 928,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 930,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 924,
+            "column": 1
+          }
+        },
+        {
+          "id": "sample-taylor",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Taylor records density while you test hardness. Your independent results point to the same mineral."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 934,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "relationship",
+                "npcId": "taylor",
+                "amount": 1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 935,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "relationship",
+                  "amount": 1,
+                  "label": "+Relationship",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 935,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "science",
+                "amount": 1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 936,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+Science grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 936,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 938,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 932,
+            "column": 1
+          }
+        },
+        {
+          "id": "sample-correct",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The sample scratches the reference plate exactly as predicted. Your identification is correct."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 942,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "science",
+                "amount": 2,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 943,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 2,
+                  "label": "+Science grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 943,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 945,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 940,
+            "column": 1
+          }
+        },
+        {
+          "id": "sample-guess",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Your first impression was close, but the teacher reveals a similar-looking mineral with a different hardness."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 949,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "science",
+                "amount": -1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 950,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": -1,
+                  "label": "-Science grade",
+                  "direction": "decrease"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 950,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 952,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 947,
+            "column": 1
+          }
+        }
+      ],
+      "source": {
+        "file": "story/events/school-class.wg",
+        "line": 884,
+        "column": 1
+      }
+    },
+    "school.science.event.runaway-reaction": {
+      "id": "school.science.event.runaway-reaction",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Respond to the reaction",
+      "schoolClass": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "opening",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Halfway through a reaction, the liquid in your beaker changes colour too quickly. Foam climbs toward the rim while the instructions insist nothing should happen yet."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 810,
+                "column": 1
+              }
+            },
+            {
+              "type": "if",
+              "branches": [
+                {
+                  "test": {
+                    "type": "path",
+                    "value": [
+                      "npc",
+                      "taylor",
+                      "present"
+                    ]
+                  },
+                  "nodes": [
+                    {
+                      "type": "paragraph",
+                      "parts": [
+                        {
+                          "type": "text",
+                          "value": "Taylor freezes with the next reagent still in "
+                        },
+                        {
+                          "type": "interpolation",
+                          "path": [
+                            "npc",
+                            "taylor",
+                            "dependent"
+                          ],
+                          "filters": []
+                        },
+                        {
+                          "type": "text",
+                          "value": " hand."
+                        }
+                      ],
+                      "source": {
+                        "file": "story/events/school-class.wg",
+                        "line": 813,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 812,
+                    "column": 1
+                  }
+                }
+              ],
+              "elseNodes": null,
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 812,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "reaction-shut-down",
+              "label": "Shut the experiment down immediately",
+              "check": {
+                "targetType": "skill",
+                "targetId": "perception",
+                "difficultyId": "tricky",
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 817,
+                  "column": 1
+                }
+              },
+              "outcomes": {
+                "success": {
+                  "target": ".contained",
+                  "durationMinutes": 0,
+                  "energyFree": false,
+                  "effects": [],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 818,
+                    "column": 1
+                  }
+                },
+                "failure": {
+                  "target": ".spill",
+                  "durationMinutes": 0,
+                  "energyFree": false,
+                  "effects": [],
+                  "source": {
+                    "file": "story/events/school-class.wg",
+                    "line": 820,
+                    "column": 1
+                  }
+                }
+              },
+              "icon": null,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 816,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "reaction-call-teacher",
+              "label": "Call the teacher over",
+              "target": ".reported",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 824,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "reaction-taylor",
+              "label": "Tell Taylor how to stabilize it",
+              "target": ".taylor-stabilizes",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": {
+                "type": "path",
+                "value": [
+                  "npc",
+                  "taylor",
+                  "present"
+                ]
+              },
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 827,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 808,
+            "column": 1
+          }
+        },
+        {
+          "id": "contained",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You remove the heat and slide the beaker into the safety tray before the foam reaches the top. A mislabeled measuring spoon turns out to be the cause."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 833,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "science",
+                "amount": 2,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 834,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 2,
+                  "label": "+Science grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 834,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "skill",
+                "id": "perception",
+                "amount": 0.1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 835,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "skill",
+                  "amount": 0.1,
+                  "label": "+Perception",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 835,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "reaction-report-cause",
+              "label": "Show the mislabeled spoon to the teacher",
+              "target": ".commended",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 837,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "reaction-hide-cause",
+              "label": "Quietly replace the spoon",
+              "target": ".hidden",
+              "icon": null,
+              "durationMinutes": 0,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": [],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 840,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 831,
+            "column": 1
+          }
+        },
+        {
+          "id": "spill",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You grab the wrong clamp. The beaker tips, covering the bench in harmless but foul-smelling foam."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 845,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "science",
+                "amount": -1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 846,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": -1,
+                  "label": "-Science grade",
+                  "direction": "decrease"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 846,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "stat",
+                "id": "hygiene",
+                "amount": -5,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 847,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "stat",
+                  "amount": -5,
+                  "label": "-Hygiene",
+                  "direction": "decrease"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 847,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "stat",
+                "id": "stress",
+                "amount": 3,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 848,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "stat",
+                  "amount": 3,
+                  "label": "+Stress",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 848,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 850,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 843,
+            "column": 1
+          }
+        },
+        {
+          "id": "reported",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The teacher cuts the heat and contains the reaction. You lose the experiment, but your quick report prevents the rest of the table from being splashed."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 854,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "science",
+                "amount": 1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 855,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+Science grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 855,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "skill",
+                "id": "resolve",
+                "amount": 0.1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 856,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "skill",
+                  "amount": 0.1,
+                  "label": "+Resolve",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 856,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 858,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 852,
+            "column": 1
+          }
+        },
+        {
+          "id": "taylor-stabilizes",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Taylor follows your instructions while you monitor the foam. Together you bring the reaction under control just before it spills."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 862,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "relationship",
+                "npcId": "taylor",
+                "amount": 2,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 863,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "relationship",
+                  "amount": 2,
+                  "label": "+Relationship",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 863,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "science",
+                "amount": 1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 864,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+Science grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 864,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 866,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 860,
+            "column": 1
+          }
+        },
+        {
+          "id": "commended",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The teacher thanks you for identifying an equipment problem and replaces the entire set before another group uses it."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 870,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "science",
+                "amount": 1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 871,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": 1,
+                  "label": "+Science grade",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 871,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 873,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 868,
+            "column": 1
+          }
+        },
+        {
+          "id": "hidden",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Nobody notices the substitution, but you spend the rest of the lesson wondering whether another group received faulty equipment too."
+                }
+              ],
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 877,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "stat",
+                "id": "stress",
+                "amount": 2,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 878,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "stat",
+                  "amount": 2,
+                  "label": "+Stress",
+                  "direction": "increase"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 878,
+                "column": 1
+              }
+            },
+            {
+              "type": "effect",
+              "effect": {
+                "op": "grade",
+                "id": "science",
+                "amount": -1,
+                "source": {
+                  "file": "story/events/school-class.wg",
+                  "line": 879,
+                  "column": 1
+                },
+                "feedback": {
+                  "type": "grade",
+                  "amount": -1,
+                  "label": "-Science grade",
+                  "direction": "decrease"
+                }
+              },
+              "source": {
+                "file": "story/events/school-class.wg",
+                "line": 879,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": "Next",
+            "target": "@return",
+            "source": {
+              "file": "story/events/school-class.wg",
+              "line": 881,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/events/school-class.wg",
+            "line": 875,
+            "column": 1
+          }
+        }
+      ],
+      "source": {
+        "file": "story/events/school-class.wg",
+        "line": 805,
         "column": 1
       }
     }
@@ -22043,6 +32493,238 @@ export const WG_BUNDLE = {
         "column": 1
       }
     },
+    "school.art.event.critique-circle": {
+      "id": "school.art.event.critique-circle",
+      "sceneId": "school.art.event.critique-circle",
+      "placeKeys": [
+        "high_school"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "school.class.art"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "school",
+              "phase"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "class"
+          }
+        },
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "school",
+              "subjectId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "art"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/events/school-class.wg",
+        "line": 1099,
+        "column": 1
+      }
+    },
+    "school.art.event.partner-portrait": {
+      "id": "school.art.event.partner-portrait",
+      "sceneId": "school.art.event.partner-portrait",
+      "placeKeys": [
+        "high_school"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "school.class.art"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "school",
+              "phase"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "class"
+          }
+        },
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "school",
+              "subjectId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "art"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/events/school-class.wg",
+        "line": 1089,
+        "column": 1
+      }
+    },
+    "school.art.event.ruined-artwork": {
+      "id": "school.art.event.ruined-artwork",
+      "sceneId": "school.art.event.ruined-artwork",
+      "placeKeys": [
+        "high_school"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "school.class.art"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "school",
+              "phase"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "class"
+          }
+        },
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "school",
+              "subjectId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "art"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/events/school-class.wg",
+        "line": 1119,
+        "column": 1
+      }
+    },
+    "school.art.event.shared-mural": {
+      "id": "school.art.event.shared-mural",
+      "sceneId": "school.art.event.shared-mural",
+      "placeKeys": [
+        "high_school"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "school.class.art"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "school",
+              "phase"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "class"
+          }
+        },
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "school",
+              "subjectId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "art"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/events/school-class.wg",
+        "line": 1109,
+        "column": 1
+      }
+    },
     "school.english.event.group-discussion": {
       "id": "school.english.event.group-discussion",
       "sceneId": "school.english.event.group-discussion",
@@ -22286,6 +32968,238 @@ export const WG_BUNDLE = {
         "column": 1
       }
     },
+    "school.history.event.crisis-cabinet": {
+      "id": "school.history.event.crisis-cabinet",
+      "sceneId": "school.history.event.crisis-cabinet",
+      "placeKeys": [
+        "high_school"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "school.class.history"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "school",
+              "phase"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "class"
+          }
+        },
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "school",
+              "subjectId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "history"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/events/school-class.wg",
+        "line": 437,
+        "column": 1
+      }
+    },
+    "school.history.event.disputed-map": {
+      "id": "school.history.event.disputed-map",
+      "sceneId": "school.history.event.disputed-map",
+      "placeKeys": [
+        "high_school"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "school.class.history"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "school",
+              "phase"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "class"
+          }
+        },
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "school",
+              "subjectId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "history"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/events/school-class.wg",
+        "line": 447,
+        "column": 1
+      }
+    },
+    "school.history.event.mock-trial": {
+      "id": "school.history.event.mock-trial",
+      "sceneId": "school.history.event.mock-trial",
+      "placeKeys": [
+        "high_school"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "school.class.history"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "school",
+              "phase"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "class"
+          }
+        },
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "school",
+              "subjectId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "history"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/events/school-class.wg",
+        "line": 417,
+        "column": 1
+      }
+    },
+    "school.history.event.primary-source": {
+      "id": "school.history.event.primary-source",
+      "sceneId": "school.history.event.primary-source",
+      "placeKeys": [
+        "high_school"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "school.class.history"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "school",
+              "phase"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "class"
+          }
+        },
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "school",
+              "subjectId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "history"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/events/school-class.wg",
+        "line": 427,
+        "column": 1
+      }
+    },
     "school.math.event.called-to-answer": {
       "id": "school.math.event.called-to-answer",
       "sceneId": "school.math.event.called-to-answer",
@@ -22526,6 +33440,470 @@ export const WG_BUNDLE = {
       "source": {
         "file": "story/events/school-class.wg",
         "line": 257,
+        "column": 1
+      }
+    },
+    "school.physical-education.event.dangerous-player": {
+      "id": "school.physical-education.event.dangerous-player",
+      "sceneId": "school.physical-education.event.dangerous-player",
+      "placeKeys": [
+        "high_school"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "school.class.physical-education"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "school",
+              "phase"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "class"
+          }
+        },
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "school",
+              "subjectId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "physical_education"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/events/school-class.wg",
+        "line": 1499,
+        "column": 1
+      }
+    },
+    "school.physical-education.event.dodgeball": {
+      "id": "school.physical-education.event.dodgeball",
+      "sceneId": "school.physical-education.event.dodgeball",
+      "placeKeys": [
+        "high_school"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "school.class.physical-education"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "school",
+              "phase"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "class"
+          }
+        },
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "school",
+              "subjectId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "physical_education"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/events/school-class.wg",
+        "line": 1469,
+        "column": 1
+      }
+    },
+    "school.physical-education.event.obstacle-course": {
+      "id": "school.physical-education.event.obstacle-course",
+      "sceneId": "school.physical-education.event.obstacle-course",
+      "placeKeys": [
+        "high_school"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "school.class.physical-education"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "school",
+              "phase"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "class"
+          }
+        },
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "school",
+              "subjectId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "physical_education"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/events/school-class.wg",
+        "line": 1479,
+        "column": 1
+      }
+    },
+    "school.physical-education.event.relay-race": {
+      "id": "school.physical-education.event.relay-race",
+      "sceneId": "school.physical-education.event.relay-race",
+      "placeKeys": [
+        "high_school"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "school.class.physical-education"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "school",
+              "phase"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "class"
+          }
+        },
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "school",
+              "subjectId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "physical_education"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/events/school-class.wg",
+        "line": 1489,
+        "column": 1
+      }
+    },
+    "school.science.event.bridge-challenge": {
+      "id": "school.science.event.bridge-challenge",
+      "sceneId": "school.science.event.bridge-challenge",
+      "placeKeys": [
+        "high_school"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "school.class.science"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "school",
+              "phase"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "class"
+          }
+        },
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "school",
+              "subjectId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "science"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/events/school-class.wg",
+        "line": 785,
+        "column": 1
+      }
+    },
+    "school.science.event.impossible-result": {
+      "id": "school.science.event.impossible-result",
+      "sceneId": "school.science.event.impossible-result",
+      "placeKeys": [
+        "high_school"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "school.class.science"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "school",
+              "phase"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "class"
+          }
+        },
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "school",
+              "subjectId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "science"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/events/school-class.wg",
+        "line": 795,
+        "column": 1
+      }
+    },
+    "school.science.event.mystery-sample": {
+      "id": "school.science.event.mystery-sample",
+      "sceneId": "school.science.event.mystery-sample",
+      "placeKeys": [
+        "high_school"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "school.class.science"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "school",
+              "phase"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "class"
+          }
+        },
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "school",
+              "subjectId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "science"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/events/school-class.wg",
+        "line": 775,
+        "column": 1
+      }
+    },
+    "school.science.event.runaway-reaction": {
+      "id": "school.science.event.runaway-reaction",
+      "sceneId": "school.science.event.runaway-reaction",
+      "placeKeys": [
+        "high_school"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "school.class.science"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "school",
+              "phase"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "class"
+          }
+        },
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "school",
+              "subjectId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "science"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/events/school-class.wg",
+        "line": 765,
         "column": 1
       }
     }
