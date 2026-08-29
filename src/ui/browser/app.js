@@ -898,9 +898,11 @@ function render(preludeParagraphs = []) {
   renderPlayerPanel();
   sceneElement.replaceChildren();
 
-  const heading = document.createElement("h1");
-  heading.textContent = currentScene.heading;
-  sceneElement.append(heading);
+  if (currentScene.heading !== null) {
+    const heading = document.createElement("h1");
+    heading.textContent = currentScene.heading;
+    sceneElement.append(heading);
+  }
 
   for (const alert of currentScene.alerts) {
     const alertElement = document.createElement("p");

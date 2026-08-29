@@ -1043,10 +1043,6 @@ function parseSceneChunk(file, chunk) {
     }
   }
 
-  if (heading === null) {
-    failWG("Scene requires @heading", lineLocation(file, chunk.headerLine));
-  }
-
   const bodyParser = new SceneBodyParser(file, chunk.lines, index);
   const body = bodyParser.parseNodes();
   return {
@@ -1156,10 +1152,6 @@ function parseSequenceBlock(file, lines, startIndex) {
       sequence.onEnter = parsed.effects;
       index = parsed.nextIndex;
     }
-  }
-
-  if (sequence.heading === null) {
-    failWG("Sequence requires @heading", lineLocation(file, opening.line));
   }
 
   const nextAnonymousId = () => {

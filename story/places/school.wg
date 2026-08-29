@@ -191,19 +191,9 @@ The school has closed for the day.
 
 @passage segment-1
 
-The first segment of English class begins.
+The students fill the classroom and take their seats. The teacher begins the lesson, and you focus on the material.
 
-@random
-The lesson goes poorly—you leave more confused than before.
-@change grade english -1
-@or
-The lesson goes well—you learn a lot!
-@change grade english 1
-@or
-You don't really pay attention and get through the work normally.
-@endrandom
-
-@choice english-1-taylor "Interact with Taylor" -> .segment-2
+@choice english-1-taylor "Chat with Taylor" -> .segment-2
   @icon 💬
   @time-until school.nextBoundaryAt
   @event-pool school.class.english
@@ -237,7 +227,7 @@ The lesson goes well—you learn a lot!
 You don't really pay attention and get through the work normally.
 @endrandom
 
-@choice english-2-taylor "Interact with Taylor" -> .segment-3
+@choice english-2-taylor "Chat with Taylor" -> .segment-3
   @icon 💬
   @time-until school.nextBoundaryAt
   @event-pool school.class.english
@@ -271,7 +261,7 @@ The lesson goes well—you learn a lot!
 You don't really pay attention and get through the work normally.
 @endrandom
 
-@choice english-3-taylor "Interact with Taylor" -> @exit
+@choice english-3-taylor "Chat with Taylor" -> @exit
   @icon 💬
   @time-until school.nextBoundaryAt
   @event-pool school.class.english
@@ -312,7 +302,7 @@ The lesson goes well—you learn a lot!
 You don't really pay attention and get through the work normally.
 @endrandom
 
-@choice math-1-taylor "Interact with Taylor" -> .segment-2
+@choice math-1-taylor "Chat with Taylor" -> .segment-2
   @icon 💬
   @time-until school.nextBoundaryAt
   @when npc.taylor.present
@@ -342,7 +332,7 @@ The lesson goes well—you learn a lot!
 You don't really pay attention and get through the work normally.
 @endrandom
 
-@choice math-2-taylor "Interact with Taylor" -> .segment-3
+@choice math-2-taylor "Chat with Taylor" -> .segment-3
   @icon 💬
   @time-until school.nextBoundaryAt
   @when npc.taylor.present
@@ -372,7 +362,7 @@ The lesson goes well—you learn a lot!
 You don't really pay attention and get through the work normally.
 @endrandom
 
-@choice math-3-taylor "Interact with Taylor" -> @exit
+@choice math-3-taylor "Chat with Taylor" -> @exit
   @icon 💬
   @time-until school.nextBoundaryAt
   @when npc.taylor.present
@@ -409,7 +399,7 @@ The lesson goes well—you learn a lot!
 You don't really pay attention and get through the work normally.
 @endrandom
 
-@choice history-1-taylor "Interact with Taylor" -> .segment-2
+@choice history-1-taylor "Chat with Taylor" -> .segment-2
   @icon 💬
   @time-until school.nextBoundaryAt
   @when npc.taylor.present
@@ -439,7 +429,7 @@ The lesson goes well—you learn a lot!
 You don't really pay attention and get through the work normally.
 @endrandom
 
-@choice history-2-taylor "Interact with Taylor" -> .segment-3
+@choice history-2-taylor "Chat with Taylor" -> .segment-3
   @icon 💬
   @time-until school.nextBoundaryAt
   @when npc.taylor.present
@@ -469,7 +459,7 @@ The lesson goes well—you learn a lot!
 You don't really pay attention and get through the work normally.
 @endrandom
 
-@choice history-3-taylor "Interact with Taylor" -> @exit
+@choice history-3-taylor "Chat with Taylor" -> @exit
   @icon 💬
   @time-until school.nextBoundaryAt
   @when npc.taylor.present
@@ -506,7 +496,7 @@ The lesson goes well—you learn a lot!
 You don't really pay attention and get through the work normally.
 @endrandom
 
-@choice science-1-taylor "Interact with Taylor" -> .segment-2
+@choice science-1-taylor "Chat with Taylor" -> .segment-2
   @icon 💬
   @time-until school.nextBoundaryAt
   @when npc.taylor.present
@@ -536,7 +526,7 @@ The lesson goes well—you learn a lot!
 You don't really pay attention and get through the work normally.
 @endrandom
 
-@choice science-2-taylor "Interact with Taylor" -> .segment-3
+@choice science-2-taylor "Chat with Taylor" -> .segment-3
   @icon 💬
   @time-until school.nextBoundaryAt
   @when npc.taylor.present
@@ -566,7 +556,7 @@ The lesson goes well—you learn a lot!
 You don't really pay attention and get through the work normally.
 @endrandom
 
-@choice science-3-taylor "Interact with Taylor" -> @exit
+@choice science-3-taylor "Chat with Taylor" -> @exit
   @icon 💬
   @time-until school.nextBoundaryAt
   @when npc.taylor.present
@@ -603,7 +593,7 @@ The lesson goes well—you learn a lot!
 You don't really pay attention and get through the work normally.
 @endrandom
 
-@choice art-1-taylor "Interact with Taylor" -> .segment-2
+@choice art-1-taylor "Chat with Taylor" -> .segment-2
   @icon 💬
   @time-until school.nextBoundaryAt
   @when npc.taylor.present
@@ -633,7 +623,7 @@ The lesson goes well—you learn a lot!
 You don't really pay attention and get through the work normally.
 @endrandom
 
-@choice art-2-taylor "Interact with Taylor" -> .segment-3
+@choice art-2-taylor "Chat with Taylor" -> .segment-3
   @icon 💬
   @time-until school.nextBoundaryAt
   @when npc.taylor.present
@@ -663,7 +653,7 @@ The lesson goes well—you learn a lot!
 You don't really pay attention and get through the work normally.
 @endrandom
 
-@choice art-3-taylor "Interact with Taylor" -> @exit
+@choice art-3-taylor "Chat with Taylor" -> @exit
   @icon 💬
   @time-until school.nextBoundaryAt
   @when npc.taylor.present
@@ -700,7 +690,7 @@ The lesson goes well—you learn a lot!
 You don't really pay attention and get through the work normally.
 @endrandom
 
-@choice physical-education-1-taylor "Interact with Taylor" -> .segment-2
+@choice physical-education-1-taylor "Chat with Taylor" -> .segment-2
   @icon 💬
   @time-until school.nextBoundaryAt
   @when npc.taylor.present
@@ -731,7 +721,7 @@ The lesson goes well—you learn a lot!
 You don't really pay attention and get through the work normally.
 @endrandom
 
-@choice physical-education-2-taylor "Interact with Taylor" -> .segment-3
+@choice physical-education-2-taylor "Chat with Taylor" -> .segment-3
   @icon 💬
   @time-until school.nextBoundaryAt
   @when npc.taylor.present
@@ -762,7 +752,7 @@ The lesson goes well—you learn a lot!
 You don't really pay attention and get through the work normally.
 @endrandom
 
-@choice physical-education-3-taylor "Interact with Taylor" -> @exit
+@choice physical-education-3-taylor "Chat with Taylor" -> @exit
   @icon 💬
   @time-until school.nextBoundaryAt
   @when npc.taylor.present

@@ -121,9 +121,9 @@ two hubs that explicitly name the same place key; overlapping tag-based hubs
 are detected only when the place scene is built. A hub should therefore use
 selectors and conditions that always leave one unambiguous match.
 
-The generated place name replaces the authored `@heading` while a scene is
-being used as a place hub. The hub still needs `@heading`, and its prose,
-choice heading, conditional content, and authored choices are used normally.
+The generated place name replaces any authored `@heading` while a scene is
+being used as a place hub. Its prose, choice heading, conditional content, and
+authored choices are used normally.
 
 ### Offered entries
 
@@ -243,12 +243,13 @@ Taylor looks up from the textbook.
   `-`. Duplicate tags on one header are collapsed. Tags are emitted into the
   compiled data but are not currently used by the runtime.
 - `@kind` supports `event`, `place`, or `location` and defaults to `event`.
-- `@heading "..."` is required.
+- `@heading "..."` optionally sets the page heading. If it is omitted, the
+  scene renders without an `<h1>` heading.
 - `@choices "..."` labels the default section for ungrouped choices and
   defaults to `"Choices"`.
 - `@kind`, `@heading`, `@choices`, and `@onenter` are optional scene metadata
-  directives, except for the required heading. They must all appear before
-  prose, conditionals, or choices, and each may appear at most once.
+  directives. They must all appear before prose, conditionals, or choices, and
+  each may appear at most once.
 
 WG materialization does not create map data: authored scenes of any kind have
 `map: null`. The ordinary generated outdoor location screen still supplies the
@@ -323,10 +324,10 @@ A sequence starts with `@sequence <id> -> <final-target>` and ends with
 `@endsequence`. Its ID shares the global namespace used by scene IDs. The
 final target may be `@exit`, `@return`, a scene ID, or another sequence ID.
 `@return` is valid at runtime only while a pooled event continuation is
-active. `@heading` is required; `@kind`, `@choices`, and `@onenter` have the
-same metadata placement rules and defaults as scenes. `@school-class` is the one additional sequence
-metadata directive. Choice groups work inside sequence passages as they do in
-ordinary scenes.
+active. `@heading`, `@kind`, `@choices`, and `@onenter` are optional and have
+the same metadata placement rules and defaults as scenes. `@school-class` is
+the one additional sequence metadata directive. Choice groups work inside
+sequence passages as they do in ordinary scenes.
 
 Every sequence must contain at least one non-empty passage. Prose before the
 first `@passage` or between `@next` directives creates anonymous passages named

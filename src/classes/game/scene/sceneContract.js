@@ -29,6 +29,11 @@ function requireText(value, path) {
   }
 }
 
+function validateOptionalText(value, path) {
+  if (value === null || value === undefined) return;
+  requireText(value, path);
+}
+
 function validateStatus(status) {
   requireRecord(status, "scene.status");
   requireText(status.now, "scene.status.now");
@@ -108,7 +113,7 @@ export function validateScene(scene) {
   if (!SCENE_KINDS.has(scene.kind)) {
     fail(`scene.kind must be one of: ${[...SCENE_KINDS].join(", ")}`);
   }
-  requireText(scene.heading, "scene.heading");
+  validateOptionalText(scene.heading, "scene.heading");
   validateStatus(scene.status);
   validateMap(scene.map);
   validateAlerts(scene.alerts);
@@ -149,6 +154,7 @@ export function createScene(input) {
   requireRecord(input, "scene");
   const scene = {
     ...input,
+    heading: input.heading === undefined ? null : input.heading,
     map: input.map === undefined ? null : input.map,
     alerts: input.alerts === undefined ? [] : input.alerts,
   };
