@@ -72,7 +72,6 @@ export const BodyPartId = Object.freeze({
  * You can stack these on a part (e.g. bruised + wounded).
  */
 
-//TODO: add blood + bloodloss conditions (separate from injury conditions?)
 export const InjuryCondition = Object.freeze({
     BRUISED: "bruised",
     WOUNDED: "wounded", // cuts, open wounds, deeper damage
@@ -80,8 +79,7 @@ export const InjuryCondition = Object.freeze({
 });
 
 /**
- * Optional damage “flavor”, useful if you later want different rules
- * for blunt vs sharp vs fire, etc.
+ * Damage categories used to distinguish blunt, sharp, and impact injuries.
  */
 export const DamageType = Object.freeze({
     BLUNT: "blunt", // punches, falls
@@ -94,7 +92,6 @@ export const DamageType = Object.freeze({
  * This is immutable and used to initialize per-instance state.
  */
 
-//TODO: add dog body template
 export const HUMAN_BODY_TEMPLATE = deepFreeze([
     // Head / face ------------------------------------------------
     {
@@ -385,7 +382,6 @@ export class BodyPartState {
  * Body: collection of BodyPartState with helpers to apply damage, heal,
  * and query overall pain / injury.
  */
-//TODO: expand damage system? how to make it more realistic?
 export class Body {
     constructor(template = HUMAN_BODY_TEMPLATE) {
         this.parts = new Map(); // id -> BodyPartState
@@ -493,7 +489,7 @@ export class Body {
      * Apply damage to a specific body part.
      * - amount: numeric damage
      * - partId: BodyPartId.*
-     * - damageType: DamageType.* (for future expansion)
+     * - damageType: DamageType.*
      */
     applyDamage({ partId, amount, damageType = DamageType.BLUNT }) {
         amount = finiteNumber(amount, "Damage");

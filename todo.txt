@@ -1,15 +1,102 @@
 SCHOOL CLASS MINIGAME IDEAS
 
-Science: A generated lab practical. Choose a hypothesis, identify variables and controls, select equipment, interpret observations, and draw a conclusion. A small lab-bench diagram, gauge, or apparatus display could show the experiment state.
+- Science: A generated lab practical. Choose a hypothesis, identify variables and controls, select equipment, interpret observations, and draw a conclusion. A small lab-bench diagram, gauge, or apparatus display could show the experiment state.
+- Physical education: A short turn-based tactical challenge. Choose positioning, pace, movement, teamwork, or risk while managing stamina. A simple court, track, or position diagram could update between choices.
+- Art: A composition challenge based on a generated brief. Choose a subject, composition, palette, and technique. Grade several qualities such as meeting the brief, balance, contrast, and originality instead of using one strictly correct answer. A small SVG or canvas preview could reflect the choices.
+- History: A source-analysis or reconstruction activity once more world lore exists. Examine short accounts, evidence cards, dates, and possible biases, then order events or decide which explanation is best supported. A timeline or evidence-board display could accompany the passages.
+- Shared visual framework: Allow a system-generated scene to optionally provide a lightweight activity renderer and serializable model. Possible renderers include timeline, evidence board, lab bench, meter panel, art preview, court, and track. The visual should be derived from saved activity state while normal scene choices remain the authoritative controls.
+- Design principle: Give each class a different core action instead of turning every subject into a quiz: investigate for history, experiment for science, compose for art, and make tactical decisions for physical education.
+- Suggested implementation order: science, physical education, art, then history after the setting lore is developed.
 
-Physical education: A short turn-based tactical challenge. Choose positioning, pace, movement, teamwork, or risk while managing stamina. A simple court, track, or position diagram could update between choices.
 
-Art: A composition challenge based on a generated brief. Choose a subject, composition, palette, and technique. Grade several qualities such as meeting the brief, balance, contrast, and originality instead of using one strictly correct answer. A small SVG or canvas preview could reflect the choices.
+ui:
+- stress, -fear, -trauma should be displayed as green when used with @change or @preview, + these stats should be renderer
+- same with player stat bars - for these three - low bar good - high bar based
+- hide npc's from the player relationship overview in the phone menu if there's no met flag
+- very quick twine like fade out/in when scene is rendered
 
-History: A source-analysis or reconstruction activity once more world lore exists. Examine short accounts, evidence cards, dates, and possible biases, then order events or decide which explanation is best supported. A timeline or evidence-board display could accompany the passages.
+- remove flavor text rendered above heading completely - unnecessary
+ex: You enter {place name}, various "Continue;s" etc
+- hotkeys for phone apps
+- numberic shortcuts with choices work fine up to 10 - introduce shift + 1, 2 etc for >9 actions per scene
 
-Shared visual framework: Allow a system-generated scene to optionally provide a lightweight activity renderer and serializable model. Possible renderers include timeline, evidence board, lab bench, meter panel, art preview, court, and track. The visual should be derived from saved activity state while normal scene choices remain the authoritative controls.
 
-Design principle: Give each class a different core action instead of turning every subject into a quiz: investigate for history, experiment for science, compose for art, and make tactical decisions for physical education.
+wg script:
 
-Suggested implementation order: science, physical education, art, then history after the setting lore is developed.
+- @next nodes should NOT display a heading for the choices
+- @change in side the displayed txt in passages should be possible on the same line ex:
+  You give Taylor a pep talk @change Relationship taylor 1
+  resulting in:
+  You give Taylor a pep talk | +Relationship
+- allow for line breaks in rendered text, see school-class.wg for todo and example
+- scene interrupt system - special events that override the next scheduled event UNLESS th eplayer is in a sequence
+    ex: passing out from energy hitting 0
+- @unlock directive for locations
+
+
+game systems:
+    player stats:
+    - basic energy drain implemented - other stats should change
+    - stats subject to being reworked
+    - stat descriptions:
+        stress: raised when effort is required, embarrassing uncomfortable situations, combat
+        health: damage to the body, calculated based on body parts
+        mind: calmness in stressful situations, stress recovery?
+        energy: expended throughout the day, stat forcing the player to rest and consume timeline
+        trauma: stress^2 - combat, graphic events, maybe turn it into a special stage-based stat?
+        hygiene: lowered throughout the day/by unsanitary/sweat inducing/outdoor actions
+        fear: raised at night, dynamic stat, maybe fear points -> influencing persistent fears that add traits/add flags
+    - arousal? -> sex scenes eventually as romance culmination? sex as a general mechanic
+    - stats should influence each other (example): 
+        - low energy slowly raises stress over time [how low?]
+        - high stress increases trauma gain
+        - low hygiene raising stress over time
+        - high stress lowers mind over time?
+        - high stress increses energy loss from sctions taken by the player
+        - high fear increases energy gains + increases stress over time
+        - high trauma increases stress gains, fear gains
+        - low health increases stress over time, increses hygiene losses
+        - very low health increses trauma over time
+    - i was putting in stats at random - which ones are actually necessary?
+
+    inventory system
+
+    school:
+    - midterms/finals mechanic -> skill improvement/reward for player, passing a midterm/final automatically improves grade
+    - currently grades are a plains core -> when score reches 100 their overall grade in subject improves:
+      grades: A, B, C, D - starts at D
+      consequently, ui should now longer show +English grade, but just +English on improvement after the above is implemented
+    - some sort of school popularity system (status? it feels too similar to what degrees of lewdity implements...)
+    - missed classes/bad behavior penalty + detention
+
+    npcs:
+    - npcs should have their own stats instead of the generic relationship - taylor could have love for example
+    - pathfinding: allow bus/car travel for select npcs + travel preferences
+    - luce - needs player-follow behavior definition
+
+    player mechanics:
+    - smoking/drinking mechanic + addiction? stat penalty?
+
+    - combat system
+    - better injury system
+    
+content:
+- add events/interactions/utility on all unlocked places
+- jobs (+schedules, minigames?) + money making opportunities + expenses
+- specific npc storylines for romance
+- first time place/class visit events to tutorialise the player + npc first meeting events
+- npc archetypes: gossip, delinquent, doctor, homeless character, mayor, teacher, mafia, urban explorer, divorced parent, religious character, stoner, jaded stripper, and band
+
+design [important]:
+- what drives the gameplay loop? in Degrees of Lewdity it's rent payments, or the player is sent to a location thats hard to get out of - soft bad ends. id like to avoid that
+- npc characterisation + purpose needs to be decided
+- animal content - do animals need body templates? od i want animals? no probably not
+- how should the clothing system work?
+- world lore: theres ghosts, religion, school systems, how does that interplay? whats the history of this place? -> ties into the history lessons at school
+
+code:
+- simplify constructors for single instanced clases like player, game etc. 
+
+other:
+- expand random/special prose into tag-specific location pools, tag-specific place pools, and condition/flag/item/moon-dependent text
+- postpone: localisation

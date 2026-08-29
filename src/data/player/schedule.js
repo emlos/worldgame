@@ -339,6 +339,3 @@ const defaultPeriods = schoolPeriods(defaultHighSchool()).filter(
 
 export const SCHOOL_DAY_START = defaultPeriods[0]?.start ?? null;
 export const SCHOOL_DAY_END = defaultPeriods.at(-1)?.end ?? null;
-
-// Future obligations such as work and appointments can join this module once
-// the player schedule becomes save-backed state.

@@ -9,7 +9,6 @@ export const Gender = Object.freeze({
 });
 
 /** Common pronoun sets; can be extended or replaced per player. */
-//TODO: for future localisation add more grammatical cases (e.g. dative, accusative, genitive, etc.) (ex polish: jego/jemu etc)
 export const PronounSets = Object.freeze({
   SHE_HER: {
     subject: "she",
@@ -34,7 +33,6 @@ export const PronounSets = Object.freeze({
   },
 });
 
-//split into Nouns.F: {}, Nouns.M: {}, Nouns.NB: {}, that include age terms of endearment honrifics etc. and also include relationship terms (e.g. boyfriend, girlfriend, partner, spouse, etc. per gender)
 export const Nouns = Object.freeze({
   M: ["male", "man", "guy", "boy"],
   F: ["female", "woman", "girl"],

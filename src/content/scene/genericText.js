@@ -1,11 +1,3 @@
-//TODO: locationText.js -> generic random lines to show per location tag/for specific locations
-//-> if a location fits both a tag AND it has a specifically defined pool of lines, then join all the eligible lines for a location in a single pool and pick from that pool
-
-//TODO: placeText.js -> generic random lines to show per place tag/for specific places
-//-> if a place fits both a tag AND it has a specifically defined pool of lines, then join all the eligible lines for a place in a single pool and pick from that pool
-
-//TODO: specialText.js -> random lines to show when certain flags are true, or when certain conditions are met (e.g. player has a certain item, or has completed a certain quest, there is a full moon, etc..)
-
 export const LOCATION_DESCRIPTIONS = Object.freeze([
   "People pass through at an unhurried pace, each occupied with their own destination.",
   "The surrounding streets carry the low, constant noise of the town.",

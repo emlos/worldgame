@@ -169,7 +169,6 @@
   @next -> @return
 
   @passage taylor
-  @# TODO: support line breaks
   Before Taylor can protest you grab {{npc.taylor.dependent}} arm and raise it. 
 
   "W-what are you doing?!" Taylor whispers, but you ignore {{npc.taylor.dependent}} and draw the teacher's attention.

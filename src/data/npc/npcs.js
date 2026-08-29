@@ -7,7 +7,6 @@ import { PLACE_TAGS } from "../world/place.js";
 import { LOCATION_TAGS } from "../world/location.js";
 import { GOAL_TYPE, TARGET_TYPE } from "./behavior.js";
 
-//TODO: bus/car/walk on foot preference
 export const NPC_REGISTRY = [
     // student type
     {
@@ -321,10 +320,9 @@ export const NPC_REGISTRY = [
     //     },
     //     tags: ["ghost", "supernatural", "romance"],
 
-    //     // If you don't have a ghost body template, just reuse HUMAN_BODY_TEMPLATE for now.
-    //     bodyTemplate: HUMAN_BODY_TEMPLATE, //GHOST_BODY_TEMPLATE,
+    //     bodyTemplate: HUMAN_BODY_TEMPLATE,
 
-    //     behavior: null, // TODO: chase behavior for luce: during certain hours of the night/special dates she actively follows the player?
+    //     behavior: null,
     // },
 
     //cop type
@@ -1062,5 +1060,4 @@ export const NPC_REGISTRY = [
             ],
         },
     },
-    //TODO: gossip type, deliquent type, doctor type, homeless guy type, mayor type, teacher type, mafia type, urban explorer type, dicorced parent type, religious type, stoner type, jaded stripper type, band type
 ];

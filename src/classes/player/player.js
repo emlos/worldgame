@@ -53,7 +53,6 @@ function normalizedSkillValue(value, definition, label) {
 // --------------------------
 // Player
 // --------------------------
-//TODO: most of the constructor parameters are unneccesary - theres only one player and the default values are already set in the class. We can remove them and just use the defaults.
 export class Player {
     /**
      * @param {object} opts
@@ -222,7 +221,6 @@ export class Player {
     getStatValue(name) {
         if (name === "health") return this.getStatBase(name);
         const evaluated = (this.stats[name] || new Stat(0)).clone();
-        // clothing / other systems could hook here later
         return evaluated.value;
     }
 
@@ -313,7 +311,7 @@ export class Player {
     // --- Perceived gender ---
     /**
      * Returns { score: -1..+1, label: 'm'|'f'|'nb' }
-     * Heuristic based on currently equipped clothing; can be extended later.
+     * Heuristic based on currently equipped clothing.
      */
     get perceivedGender() {
         let score = 0;

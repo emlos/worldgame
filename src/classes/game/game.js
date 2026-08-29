@@ -701,7 +701,6 @@ export class Game {
 
   /**
    * Wrapper for player actions: do stuff, spend time, log it.
-   * This is a good fit for your “choices” later.
    */
   runAction({ label, minutes = 0, energyFree = false, apply, after }) {
     let amount = 0;

@@ -65,7 +65,6 @@ export const PLACE_TAGS = {
 // `unlocked` controls player visibility only. Locked places are still generated
 // and remain available to NPC simulation. Runtime unlocking is irreversible and
 // persists in save data.
-// TODO: add an `@unlock <place-key>` WG directive.
 export const PLACE_REGISTRY = [
   {
     key: "player_home",
