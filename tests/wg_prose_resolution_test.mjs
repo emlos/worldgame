@@ -132,7 +132,7 @@ assert.equal(visibleChoice.action.effects[0].op, "grade");
 const restored = Game.fromJSON(JSON.parse(JSON.stringify(game)));
 assert.deepEqual(buildScene(restored).content, firstScene.content);
 assert.equal(restored.player.getSubjectGrade("english"), startingGrade + randomDelta + 1);
-assert.equal(restored.toJSON().saveVersion, 21);
+assert.equal(restored.toJSON().saveVersion, 22);
 
 const rollbackGame = new Game({
   seed: 722,
@@ -217,6 +217,7 @@ assert.ok([-1, 0, 1].includes(
 ));
 
 const firstClassScene = buildScene(classGame);
+classGame.getRNG("wg-events").setState(1327);
 performChoice(classGame, {
   sceneId: firstClassScene.id,
   choiceId: "english-1-study",

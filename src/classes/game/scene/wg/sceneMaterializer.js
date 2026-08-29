@@ -128,6 +128,9 @@ function materializeChoice(node, context, { sequenceId = null } = {}) {
 
   let action;
   let skillCheck = null;
+  const eventPool = node.eventPool
+    ? { id: node.eventPool, chance: node.eventChance }
+    : null;
   if (node.check) {
     const skill = SKILLS[node.check.skillId];
     const difficulty = getSkillCheckDifficulty(node.check.difficultyId);
@@ -152,6 +155,7 @@ function materializeChoice(node, context, { sequenceId = null } = {}) {
           ? { ...node.outcomes.failure, sequenceId }
           : node.outcomes.failure,
       },
+      ...(eventPool ? { eventPool } : {}),
     };
   } else {
     action = node.target === "@leave-place"
@@ -167,6 +171,7 @@ function materializeChoice(node, context, { sequenceId = null } = {}) {
           effects: node.effects || [],
           responses: node.responses || [],
           sequenceId,
+          ...(eventPool ? { eventPool } : {}),
           ...(node.enterAfterTime ? { enterAfterTime: true } : {}),
         };
   }

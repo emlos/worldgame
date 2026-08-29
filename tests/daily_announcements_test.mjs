@@ -76,7 +76,7 @@ assert.deepEqual(buildScene(openingGame).alerts, openingGame.dailyAnnouncements.
 const openingSave = JSON.parse(JSON.stringify(openingGame));
 const openingRestored = Game.fromJSON(openingSave);
 assert.deepEqual(openingRestored.dailyAnnouncements, openingGame.dailyAnnouncements);
-assert.equal(openingRestored.toJSON().saveVersion, 21);
+assert.equal(openingRestored.toJSON().saveVersion, 22);
 
 const rollbackBatch = JSON.parse(JSON.stringify(openingGame.dailyAnnouncements));
 assert.throws(

@@ -65,6 +65,7 @@ export class Game {
     this.dailyFlags = new Set();
     this.story = {};
     this.currentStory = null;
+    this.storyContinuations = [];
     this.storyRevision = 0;
     this.actionRevision = 0;
 
@@ -360,6 +361,7 @@ export class Game {
         this.currentStory === null
           ? null
           : JSON.parse(JSON.stringify(this.currentStory)),
+      storyContinuations: JSON.parse(JSON.stringify(this.storyContinuations)),
       storyRevision: this.storyRevision,
       npcs: this.npcsArray.map((npc) => ({
         npc,
@@ -380,6 +382,7 @@ export class Game {
     this.currentPlaceId = snapshot.currentPlaceId;
     this.currentPlaceKey = snapshot.currentPlaceKey;
     this.currentStory = snapshot.currentStory;
+    this.storyContinuations = snapshot.storyContinuations;
     this.storyRevision = snapshot.storyRevision;
     this.dailyFlags.clear();
     for (const flag of snapshot.dailyFlags) this.dailyFlags.add(flag);
@@ -454,8 +457,9 @@ export class Game {
   }
 
   _clearStory() {
-    if (this.currentStory === null) return;
+    if (this.currentStory === null && this.storyContinuations.length === 0) return;
     this.currentStory = null;
+    this.storyContinuations.length = 0;
     this.storyRevision += 1;
   }
 
@@ -834,7 +838,7 @@ export class Game {
   // --------------------------
   toJSON() {
     return {
-      saveVersion: 21,
+      saveVersion: 22,
       seed: this.seed,
       random: this.random.toJSON(),
       time: this.now.toISOString(),
@@ -855,6 +859,7 @@ export class Game {
         this.currentStory === null
           ? null
           : JSON.parse(JSON.stringify(this.currentStory)),
+      storyContinuations: JSON.parse(JSON.stringify(this.storyContinuations)),
       storyRevision: this.storyRevision,
       actionRevision: this.actionRevision,
       log: this.log.map((entry) => ({ ...entry })),
@@ -904,6 +909,7 @@ export class Game {
       data.currentStory === null
         ? null
         : JSON.parse(JSON.stringify(data.currentStory));
+    game.storyContinuations = JSON.parse(JSON.stringify(data.storyContinuations));
     game.storyRevision = data.storyRevision;
     game.actionRevision = data.actionRevision;
     game.log = data.log.map((entry) => ({ ...entry }));

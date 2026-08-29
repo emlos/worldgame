@@ -144,12 +144,78 @@ export function getEligibleWGAutomaticEntries(
   );
 }
 
+export function getEligibleWGPoolEntries(
+  game,
+  poolId,
+  { entries = undefined } = {},
+) {
+  const id = String(poolId || "");
+  if (!id) fail("WG event pools require a pool id");
+
+  const context = createWGRuntimeContext(game);
+  return entryList(entries).filter(
+    (entry) =>
+      entry.pools?.includes(id) &&
+      matchesPosition(entry, game) &&
+      conditionsPass(entry, context),
+  );
+}
+
 function randomSample(random) {
   const value = Number(random());
   if (!Number.isFinite(value) || value < 0 || value >= 1) {
     fail("WG entry random source must return values from 0 up to but excluding 1");
   }
   return value;
+}
+
+export function selectWGPoolEntry(entries, random) {
+  if (!Array.isArray(entries)) fail("WG event-pool candidates must be an array");
+  if (typeof random !== "function") fail("WG event-pool selection requires random");
+
+  const candidates = entryList(entries);
+  if (!candidates.length) return null;
+  const highestPriority = Math.max(
+    ...candidates.map((entry) => Number(entry.priority ?? 0)),
+  );
+  if (!Number.isFinite(highestPriority)) {
+    fail("WG event-pool priorities must be finite numbers");
+  }
+  const prioritized = candidates.filter(
+    (entry) => Number(entry.priority ?? 0) === highestPriority,
+  );
+  const totalWeight = prioritized.reduce((total, entry) => {
+    const weight = Number(entry.weight ?? 1);
+    if (!Number.isFinite(weight) || weight <= 0) {
+      fail(`WG entry '${entry.id}' has an invalid weight`);
+    }
+    return total + weight;
+  }, 0);
+  const roll = randomSample(random) * totalWeight;
+  let cursor = 0;
+  for (const entry of prioritized) {
+    cursor += Number(entry.weight ?? 1);
+    if (roll < cursor) return entry;
+  }
+  return prioritized.at(-1);
+}
+
+export function resolveWGPoolEntry(
+  game,
+  poolId,
+  chance = 1,
+  { entries = undefined, random = undefined } = {},
+) {
+  const probability = Number(chance);
+  if (!Number.isFinite(probability) || probability < 0 || probability > 1) {
+    fail("WG event-pool chance must be between 0 and 1");
+  }
+  const candidates = getEligibleWGPoolEntries(game, poolId, { entries });
+  if (!candidates.length) return null;
+
+  const source = random ?? game.getRNG("wg-events");
+  if (randomSample(source) >= probability) return null;
+  return selectWGPoolEntry(candidates, source);
 }
 
 export function selectWGAutomaticEntry(entries, random) {

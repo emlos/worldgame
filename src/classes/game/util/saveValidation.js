@@ -385,6 +385,78 @@ function validateCurrentStory(value, path, gameTime) {
     return frame;
 }
 
+function validateStoryContinuations(value, path, gameTime) {
+    return array(value, path).map((itemData, index) => {
+        const itemPath = `${path}[${index}]`;
+        const item = record(itemData, itemPath);
+        const target = string(required(item, "target", itemPath), `${itemPath}.target`, {
+            nonEmpty: true,
+        });
+        const sequenceId = optionalNullableString(
+            required(item, "sequenceId", itemPath),
+            `${itemPath}.sequenceId`,
+        );
+        const sourcePassageId = optionalNullableString(
+            required(item, "sourcePassageId", itemPath),
+            `${itemPath}.sourcePassageId`,
+        );
+        string(required(item, "poolId", itemPath), `${itemPath}.poolId`, { nonEmpty: true });
+        string(required(item, "entryId", itemPath), `${itemPath}.entryId`, { nonEmpty: true });
+        string(required(item, "sourceStoryId", itemPath), `${itemPath}.sourceStoryId`, {
+            nonEmpty: true,
+        });
+        string(required(item, "sourceChoiceId", itemPath), `${itemPath}.sourceChoiceId`, {
+            nonEmpty: true,
+        });
+
+        if (target.startsWith(".") && (!sequenceId || !sourcePassageId)) {
+            fail(itemPath, "local continuation targets require sequence and source passage ids");
+        }
+
+        const schoolClassValue = required(item, "schoolClass", itemPath);
+        if (schoolClassValue !== null) {
+            const schoolPath = `${itemPath}.schoolClass`;
+            const schoolClass = record(schoolClassValue, schoolPath);
+            string(required(schoolClass, "periodId", schoolPath), `${schoolPath}.periodId`, {
+                nonEmpty: true,
+            });
+            const subjectId = string(
+                required(schoolClass, "subjectId", schoolPath),
+                `${schoolPath}.subjectId`,
+                { nonEmpty: true },
+            );
+            if (!SCHOOL_SUBJECTS[subjectId]) {
+                fail(`${schoolPath}.subjectId`, `references unknown school subject '${subjectId}'`);
+            }
+            const scheduledAt = dateMilliseconds(
+                required(schoolClass, "scheduledAt", schoolPath),
+                `${schoolPath}.scheduledAt`,
+            );
+            const arrivedAt = dateMilliseconds(
+                required(schoolClass, "arrivedAt", schoolPath),
+                `${schoolPath}.arrivedAt`,
+            );
+            if (scheduledAt > arrivedAt) {
+                fail(`${schoolPath}.scheduledAt`, "must not be later than arrival time");
+            }
+            if (arrivedAt > gameTime) {
+                fail(`${schoolPath}.arrivedAt`, "must not be later than the game clock");
+            }
+            finiteNumber(
+                required(schoolClass, "minutesLate", schoolPath),
+                `${schoolPath}.minutesLate`,
+                { min: 0 },
+            );
+            integer(
+                required(schoolClass, "startingSegment", schoolPath),
+                `${schoolPath}.startingSegment`,
+                { min: 1 },
+            );
+        }
+        return item;
+    });
+}
+
 function validatePlayer(data, path, npcIds, gameTime) {
     const player = record(data, path);
     validateCharacterCore(player, path);
@@ -1357,9 +1429,9 @@ export function validateGameSave(data) {
     const save = record(data, "save");
     same(
         integer(required(save, "saveVersion", "save"), "save.saveVersion"),
-        21,
+        22,
         "save.saveVersion",
-        "version 21",
+        "version 22",
     );
 
     const seed = uint32(required(save, "seed", "save"), "save.seed");
@@ -1502,6 +1574,14 @@ export function validateGameSave(data) {
         "save.currentStory",
         gameTime,
     );
+    const storyContinuations = validateStoryContinuations(
+        required(save, "storyContinuations", "save"),
+        "save.storyContinuations",
+        gameTime,
+    );
+    if (storyContinuations.length && currentStory === null) {
+        fail("save.storyContinuations", "requires an active current story");
+    }
     const storyRevision = integer(required(save, "storyRevision", "save"), "save.storyRevision", {
         min: 0,
     });

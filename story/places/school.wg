@@ -206,6 +206,8 @@ You don't really pay attention and get through the work normally.
 @choice english-1-taylor "Interact with Taylor" -> .segment-2
   @icon 💬
   @time-until school.nextBoundaryAt
+  @event-pool school.class.english
+  @event-chance 75%
   @when npc.taylor.present
   @effect attendance english 1
   @effect relationship taylor 0.003
@@ -214,6 +216,8 @@ You don't really pay attention and get through the work normally.
 @choice english-1-study "Study hard" -> .segment-2
   @icon 📖
   @time-until school.nextBoundaryAt
+  @event-pool school.class.english
+  @event-chance 75%
   @preview grade 1 "+English grade"
   @effect attendance english 1
   @effect grade english 1
@@ -236,6 +240,8 @@ You don't really pay attention and get through the work normally.
 @choice english-2-taylor "Interact with Taylor" -> .segment-3
   @icon 💬
   @time-until school.nextBoundaryAt
+  @event-pool school.class.english
+  @event-chance 75%
   @when npc.taylor.present
   @effect attendance english 1
   @effect relationship taylor 0.003
@@ -244,6 +250,8 @@ You don't really pay attention and get through the work normally.
 @choice english-2-study "Study hard" -> .segment-3
   @icon 📖
   @time-until school.nextBoundaryAt
+  @event-pool school.class.english
+  @event-chance 75%
   @preview grade 1 "+English grade"
   @effect attendance english 1
   @effect grade english 1
@@ -266,6 +274,8 @@ You don't really pay attention and get through the work normally.
 @choice english-3-taylor "Interact with Taylor" -> @exit
   @icon 💬
   @time-until school.nextBoundaryAt
+  @event-pool school.class.english
+  @event-chance 75%
   @when npc.taylor.present
   @effect attendance english 1
   @effect relationship taylor 0.003
@@ -274,6 +284,8 @@ You don't really pay attention and get through the work normally.
 @choice english-3-study "Study hard" -> @exit
   @icon 📖
   @time-until school.nextBoundaryAt
+  @event-pool school.class.english
+  @event-chance 75%
   @preview grade 1 "+English grade"
   @effect attendance english 1
   @effect grade english 1

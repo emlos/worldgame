@@ -92,7 +92,7 @@ export function compileStorySources(sources) {
 
   const hasGlobalTarget = (target) => sceneMap.has(target) || sequenceMap.has(target);
   const validateTarget = (target, source, { sequence = null, choiceId = null } = {}) => {
-    if (["@exit", "@leave-place"].includes(target)) return;
+    if (["@exit", "@return", "@leave-place"].includes(target)) return;
     if (target?.startsWith(".")) {
       const passageId = target.slice(1);
       if (!sequence) {
@@ -109,6 +109,17 @@ export function compileStorySources(sources) {
     if (!hasGlobalTarget(target)) {
       const owner = choiceId ? ` from choice '${choiceId}'` : "";
       failWG(`Unknown story target '${target}'${owner}`, atSource(source));
+    }
+  };
+  const poolIds = new Set(
+    [...entryMap.values()].flatMap((entry) => entry.pools || []),
+  );
+  const validateChoicePool = (node) => {
+    if (node.eventPool && !poolIds.has(node.eventPool)) {
+      failWG(
+        `Unknown event pool '${node.eventPool}' from choice '${node.id}'`,
+        atSource(node.source),
+      );
     }
   };
 
@@ -146,6 +157,7 @@ export function compileStorySources(sources) {
         );
       }
       choiceIds.set(node.id, node.source);
+      validateChoicePool(node);
 
       const targets = node.check
         ? [node.outcomes?.success, node.outcomes?.failure].map((outcome) => outcome?.target)
@@ -195,6 +207,7 @@ export function compileStorySources(sources) {
           );
         }
         choiceIds.set(node.id, node.source);
+        validateChoicePool(node);
         const targets = node.check
           ? [node.outcomes?.success, node.outcomes?.failure].map((outcome) => outcome?.target)
           : [node.target];
@@ -249,7 +262,7 @@ export function compileStorySources(sources) {
   const entries = Object.fromEntries(
     [...entryMap.entries()].sort(([left], [right]) => compareText(left, right)),
   );
-  return { formatVersion: 12, scenes, sequences, entries };
+  return { formatVersion: 13, scenes, sequences, entries };
 }
 
 export { walkNodes };

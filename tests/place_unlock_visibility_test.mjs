@@ -95,7 +95,7 @@ const restoredPlace = allPlaced(restored).find(
   ({ place }) => place.id === locked.place.id,
 )?.place;
 assert.equal(restoredPlace?.unlocked, true, "unlocked state must survive save/load");
-assert.equal(restored.toJSON().saveVersion, 21);
+assert.equal(restored.toJSON().saveVersion, 22);
 
 const invalidSave = JSON.parse(JSON.stringify(game));
 const initiallyUnlocked = allPlaced(game).find(

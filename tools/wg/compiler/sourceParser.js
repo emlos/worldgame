@@ -7,7 +7,7 @@ import { SKILL_CHECK_DIFFICULTIES } from "../../../src/data/scene/skillChecks.js
 const ID_PATTERN = "[a-z][a-z0-9_.-]*";
 const ID_REGEX = new RegExp(`^${ID_PATTERN}$`);
 const PASSAGE_ID_PATTERN = "[a-z][a-z0-9_-]*";
-const STORY_TARGET_PATTERN = `(?:@exit|@leave-place|\\.${PASSAGE_ID_PATTERN}|${ID_PATTERN})`;
+const STORY_TARGET_PATTERN = `(?:@exit|@return|@leave-place|\\.${PASSAGE_ID_PATTERN}|${ID_PATTERN})`;
 const TAG_REGEX = /^[a-z][a-z0-9_-]*$/;
 const PATH_REGEX = /^[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)+$/;
 const QUOTED_PATTERN = '"(?:\\\\.|[^"\\\\])*"';
@@ -139,6 +139,20 @@ function parseTime(value, location) {
     durationMinutes: parseDuration(durationText, location),
     energyFree: Boolean(freeMatch),
   };
+}
+
+function parseProbability(value, location, directive) {
+  const text = String(value).trim();
+  const percent = text.match(/^(\d+(?:\.\d+)?)%$/);
+  const decimal = text.match(/^(?:0(?:\.\d+)?|1(?:\.0+)?)$/);
+  if (!percent && !decimal) {
+    failWG(`@${directive} must be between 0 and 1 or a percentage`, location);
+  }
+  const probability = percent ? Number(percent[1]) / 100 : Number(text);
+  if (probability < 0 || probability > 1) {
+    failWG(`@${directive} must be between 0 and 1 or a percentage`, location);
+  }
+  return probability;
 }
 
 function parseEffect(text, file, line) {
@@ -675,6 +689,9 @@ class SceneBodyParser {
   }
 
   finishChoice(choice, singleFields, location) {
+    if (singleFields.has("event-chance") && !choice.eventPool) {
+      failWG("@event-chance requires @event-pool", location);
+    }
     if (choice.target !== null) {
       if (choice.check || choice.outcomes.success || choice.outcomes.failure) {
         failWG("Direct choices cannot contain skill-check outcomes", location);
@@ -692,7 +709,14 @@ class SceneBodyParser {
       } else {
         delete choice.enterAfterTime;
       }
+      if (choice.eventPool && choice.target === "@leave-place") {
+        failWG("@event-pool cannot be used with @leave-place", location);
+      }
       if (!choice.responses.length) delete choice.responses;
+      if (!choice.eventPool) {
+        delete choice.eventPool;
+        delete choice.eventChance;
+      }
       delete choice.check;
       delete choice.outcomes;
       return choice;
@@ -712,6 +736,18 @@ class SceneBodyParser {
         "Checked choices keep @time, @response, and @effect inside outcome blocks and cannot use @change or @preview",
         location,
       );
+    }
+    if (
+      choice.eventPool &&
+      [choice.outcomes.success, choice.outcomes.failure].some(
+        (outcome) => outcome?.target === "@leave-place",
+      )
+    ) {
+      failWG("@event-pool cannot be used with a @leave-place outcome", location);
+    }
+    if (!choice.eventPool) {
+      delete choice.eventPool;
+      delete choice.eventChance;
     }
     delete choice.target;
     delete choice.durationMinutes;
@@ -753,6 +789,8 @@ class SceneBodyParser {
       when: null,
       requirements: [],
       warning: null,
+      eventPool: null,
+      eventChance: 1,
       responses: [],
       previews: [],
       effects: [],
@@ -786,7 +824,17 @@ class SceneBodyParser {
         continue;
       }
 
-      if (["icon", "when", "warning", "check", "enter-after-time"].includes(name)) {
+      if (
+        [
+          "icon",
+          "when",
+          "warning",
+          "check",
+          "enter-after-time",
+          "event-pool",
+          "event-chance",
+        ].includes(name)
+      ) {
         if (singleFields.has(name)) failWG(`Duplicate @${name}`, location);
         singleFields.add(name);
       }
@@ -818,6 +866,16 @@ class SceneBodyParser {
           failWG("@enter-after-time does not take arguments", location);
         }
         choice.enterAfterTime = true;
+      } else if (name === "event-pool") {
+        const poolId = directiveArgument(text, "event-pool", location);
+        if (!ID_REGEX.test(poolId)) failWG("@event-pool requires a pool id", location);
+        choice.eventPool = poolId;
+      } else if (name === "event-chance") {
+        choice.eventChance = parseProbability(
+          directiveArgument(text, "event-chance", location),
+          location,
+          "event-chance",
+        );
       } else if (name === "when") {
         choice.when = parseExpression(
           directiveArgument(text, "when", location),
@@ -1021,7 +1079,7 @@ function parseNext(text, file, line) {
 function parseSequenceBlock(file, lines, startIndex) {
   const opening = lines[startIndex];
   const header = opening.text.trim().match(
-    new RegExp(`^@sequence\\s+(${ID_PATTERN})\\s+->\\s+(@exit|${ID_PATTERN})\\s*$`),
+    new RegExp(`^@sequence\\s+(${ID_PATTERN})\\s+->\\s+(@exit|@return|${ID_PATTERN})\\s*$`),
   );
   if (!header) failWG("Malformed @sequence header", lineLocation(file, opening.line));
 
@@ -1203,6 +1261,7 @@ function parseEntryBlock(file, lines, startIndex) {
     hub: null,
     offer: null,
     automaticTriggers: [],
+    pools: [],
     conditions: [],
     label: null,
     icon: null,
@@ -1226,11 +1285,16 @@ function parseEntryBlock(file, lines, startIndex) {
     }
     if (text === "@endentry") {
       if (entry.sceneId === null) failWG("Entry requires @scene", location);
-      if (entry.hub === null && entry.offer === null && entry.automaticTriggers.length === 0) {
-        failWG("Entry requires @hub, @offer, or @auto", location);
+      if (
+        entry.hub === null &&
+        entry.offer === null &&
+        entry.automaticTriggers.length === 0 &&
+        entry.pools.length === 0
+      ) {
+        failWG("Entry requires @hub, @offer, @auto, or @pool", location);
       }
-      if (entry.hub && (entry.offer || entry.automaticTriggers.length)) {
-        failWG("Hub entries cannot also use @offer or @auto", location);
+      if (entry.hub && (entry.offer || entry.automaticTriggers.length || entry.pools.length)) {
+        failWG("Hub entries cannot also use @offer, @auto, or @pool", location);
       }
       if (entry.hub?.type === "place" && !entry.placeKeys.length && !entry.placeTags.length) {
         failWG("Place hub entries require @place-key or @place-tag", location);
@@ -1293,6 +1357,11 @@ function parseEntryBlock(file, lines, startIndex) {
         failWG(`Duplicate @auto '${trigger}'`, location);
       }
       entry.automaticTriggers.push(trigger);
+    } else if (name === "pool") {
+      const poolId = directiveArgument(text, "pool", location);
+      if (!ID_REGEX.test(poolId)) failWG("@pool requires a pool id", location);
+      if (entry.pools.includes(poolId)) failWG(`Duplicate @pool '${poolId}'`, location);
+      entry.pools.push(poolId);
     } else if (name === "when") {
       entry.conditions.push(
         parseExpression(directiveArgument(text, "when", location), location),
@@ -1321,16 +1390,11 @@ function parseEntryBlock(file, lines, startIndex) {
       }
       entry.priority = Number(value);
     } else if (name === "chance") {
-      const value = directiveArgument(text, "chance", location);
-      const percent = value.match(/^(\d+(?:\.\d+)?)%$/);
-      const decimal = value.match(/^(?:0(?:\.\d+)?|1(?:\.0+)?)$/);
-      if (!percent && !decimal) {
-        failWG("@chance must be between 0 and 1 or a percentage", location);
-      }
-      entry.chance = percent ? Number(percent[1]) / 100 : Number(value);
-      if (entry.chance < 0 || entry.chance > 1) {
-        failWG("@chance must be between 0 and 1 or a percentage", location);
-      }
+      entry.chance = parseProbability(
+        directiveArgument(text, "chance", location),
+        location,
+        "chance",
+      );
     } else if (name === "weight") {
       const value = Number(directiveArgument(text, "weight", location));
       if (!Number.isFinite(value) || value <= 0) {

@@ -940,7 +940,7 @@ export const PLACE_REGISTRY = [
           end: "11:45",
           segments: 3,
         },
-        { id: "lunch", kind: "lunch", start: "12:00", end: "13:00" },
+        { id: "lunch", kind: "lunch", start: "11:45", end: "13:00" },
         {
           id: "science",
           kind: "class",

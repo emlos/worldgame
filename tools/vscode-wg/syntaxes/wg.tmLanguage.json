@@ -67,7 +67,7 @@
       "patterns": [
         {
           "name": "meta.sequence.header.wg",
-          "match": "^(\\s*)(@sequence)\\s+([a-z][a-z0-9_.-]*)\\s+(->)\\s+(@exit|[a-z][a-z0-9_.-]*)\\s*$",
+          "match": "^(\\s*)(@sequence)\\s+([a-z][a-z0-9_.-]*)\\s+(->)\\s+(@exit|@return|[a-z][a-z0-9_.-]*)\\s*$",
           "captures": {
             "2": { "name": "keyword.control.block.begin.wg" },
             "3": { "name": "entity.name.type.sequence.wg" },
@@ -93,7 +93,7 @@
       "patterns": [
         {
           "name": "meta.next.directive.wg",
-          "match": "^(\\s*)(@next)(?:\\s+(\"(?:\\\\.|[^\"\\\\])*\"))?(?:\\s+(->)\\s+(@exit|\\.[a-z][a-z0-9_-]*|[a-z][a-z0-9_.-]*))?\\s*$",
+          "match": "^(\\s*)(@next)(?:\\s+(\"(?:\\\\.|[^\"\\\\])*\"))?(?:\\s+(->)\\s+(@exit|@return|\\.[a-z][a-z0-9_-]*|[a-z][a-z0-9_.-]*))?\\s*$",
           "captures": {
             "2": { "name": "keyword.control.flow.wg" },
             "3": { "name": "string.quoted.double.wg" },
@@ -107,7 +107,7 @@
       "patterns": [
         {
           "name": "meta.choice.header.wg",
-          "match": "^(\\s*)(@choice)\\s+([a-z0-9_][a-z0-9_.-]*)\\s+(\"(?:\\\\.|[^\"\\\\])*\")(?:\\s+(->)\\s+(@exit|@leave-place|\\.[a-z][a-z0-9_-]*|[a-z0-9_][a-z0-9_.-]*))?\\s*$",
+          "match": "^(\\s*)(@choice)\\s+([a-z0-9_][a-z0-9_.-]*)\\s+(\"(?:\\\\.|[^\"\\\\])*\")(?:\\s+(->)\\s+(@exit|@return|@leave-place|\\.[a-z][a-z0-9_-]*|[a-z0-9_][a-z0-9_.-]*))?\\s*$",
           "captures": {
             "2": { "name": "keyword.control.block.begin.wg" },
             "3": { "name": "entity.name.function.choice.wg" },
@@ -135,7 +135,7 @@
       "patterns": [
         {
           "name": "meta.choice.outcome.header.wg",
-          "match": "^(\\s*)(@(success|failure))\\s+(->)\\s+(@exit|@leave-place|\\.[a-z][a-z0-9_-]*|[a-z0-9_][a-z0-9_.-]*)\\s*$",
+          "match": "^(\\s*)(@(success|failure))\\s+(->)\\s+(@exit|@return|@leave-place|\\.[a-z][a-z0-9_-]*|[a-z0-9_][a-z0-9_.-]*)\\s*$",
           "captures": {
             "2": { "name": "keyword.control.block.begin.wg" },
             "4": { "name": "keyword.operator.arrow.wg" },
@@ -192,7 +192,7 @@
       "patterns": [
         {
           "name": "meta.property.directive.wg",
-          "begin": "^(\\s*)(@(kind|heading|choices|school-class|scene|place-key|place-tag|location-tag|hub|offer|label|icon|hub-text|auto|priority|chance|weight|time|time-until|enter-after-time|warning|preview|check))\\b",
+          "begin": "^(\\s*)(@(kind|heading|choices|school-class|scene|place-key|place-tag|location-tag|hub|offer|label|icon|hub-text|auto|pool|priority|chance|weight|time|time-until|enter-after-time|event-pool|event-chance|warning|preview|check))\\b",
           "beginCaptures": { "2": { "name": "keyword.other.directive.wg" } },
           "end": "$",
           "patterns": [{ "include": "#expression" }]

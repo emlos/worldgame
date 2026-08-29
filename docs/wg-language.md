@@ -81,13 +81,13 @@ must be unique across all WG files.
 Every entry requires:
 
 - exactly one `@scene <story-id>` pointing to a compiled scene or sequence; and
-- at least one exposure directive: `@hub`, `@offer`, or `@auto`.
+- at least one exposure directive: `@hub`, `@offer`, `@auto`, or `@pool`.
 
 The following entry fields may appear once: `@scene`, `@hub`, `@offer`,
 `@label`, `@icon`, `@hub-text`, `@priority`, `@chance`, and `@weight`.
-`@place-key`, `@place-tag`, `@location-tag`, and `@when` may repeat. `@auto`
-may repeat once per distinct trigger. An offered entry may also be automatic;
-only `@hub` is exclusive with the other exposure types.
+`@place-key`, `@place-tag`, `@location-tag`, `@when`, and `@pool` may repeat.
+`@auto` may repeat once per distinct trigger. An offered entry may also be
+automatic or pooled; only `@hub` is exclusive with the other exposure types.
 
 ### Place hubs
 
@@ -111,10 +111,10 @@ Rows of bookshelves divide the quiet room.
 
 `@hub place` makes a `@kind place` scene the ordinary hub for every matching
 place. It requires at least one `@place-key` or `@place-tag`, and a hub entry
-cannot also contain `@offer` or `@auto`.
+cannot also contain `@offer`, `@auto`, or `@pool`.
 
-Place hubs must target scenes rather than sequences. Offered and automatic
-entries may target either kind of authored story block.
+Place hubs must target scenes rather than sequences. Offered, automatic, and
+pooled entries may target either kind of authored story block.
 
 At runtime exactly one hub must match the current place. The compiler rejects
 two hubs that explicitly name the same place key; overlapping tag-based hubs
@@ -169,6 +169,27 @@ and the weighted pick therefore advance that stream only when automatic
 candidates are actually resolved. A selected target is authoritatively entered
 and runs its `@onenter` effects.
 
+### Event-pool entries
+
+`@pool <id>` registers an entry as a candidate in a named event pool. A choice
+invokes that pool with `@event-pool <id>` and may set the overall trigger
+frequency with `@event-chance`. Pool IDs are validated across the whole WG
+project and an entry may belong to more than one pool.
+
+When a pool is invoked, position selectors and every `@when` condition first
+filter its members. Only entries at the highest remaining `@priority` are
+considered, and one is selected by relative `@weight`. The entry-level
+`@chance` belongs to automatic-entry resolution and is ignored by pool
+selection; `@event-chance` controls whether the pool triggers at all. This
+keeps the overall event frequency stable as more members are added.
+
+A selected event temporarily suspends the choice's ordinary target. The event
+may be a scene or sequence and can navigate normally. Target `@return` to
+resume the suspended target. Targeting `@exit` instead abandons all suspended
+continuations and returns to the world hub. The continuation stack, selected
+event, and inherited school arrival snapshot are saved, so save/load cannot
+reroll or lose an interrupted class.
+
 ### Position selectors and conditions
 
 Entries may repeat these selectors:
@@ -183,7 +204,7 @@ both the place's category and its explicit tags. A required place key or tag
 cannot match while the player is outdoors.
 
 Every repeated `@when <expression>` must pass. Conditions apply to hubs,
-offers, and automatic entries before those entries are used.
+offers, automatic entries, and pool entries before those entries are used.
 
 ### Locked generated places
 
@@ -300,9 +321,10 @@ Nothing else catches your attention.
 
 A sequence starts with `@sequence <id> -> <final-target>` and ends with
 `@endsequence`. Its ID shares the global namespace used by scene IDs. The
-final target may be `@exit`, a scene ID, or another sequence ID. `@heading` is
-required; `@kind`, `@choices`, and `@onenter` have the same metadata placement
-rules and defaults as scenes. `@school-class` is the one additional sequence
+final target may be `@exit`, `@return`, a scene ID, or another sequence ID.
+`@return` is valid at runtime only while a pooled event continuation is
+active. `@heading` is required; `@kind`, `@choices`, and `@onenter` have the
+same metadata placement rules and defaults as scenes. `@school-class` is the one additional sequence
 metadata directive. Choice groups work inside sequence passages as they do in
 ordinary scenes.
 
@@ -362,9 +384,9 @@ You return your attention to your notes.
 ```
 
 `@next -> <target>` and `@next "<label>" -> <target>` override the normal
-source-order target. They may point to a local passage, `@exit`, a scene, or a
-sequence. `@next` cannot perform `@leave-place`; use an ordinary choice for an
-authoritative place exit.
+source-order target. They may point to a local passage, `@exit`, `@return`, a
+scene, or a sequence. `@next` cannot perform `@leave-place`; use an ordinary
+choice for an authoritative place exit.
 
 Ordinary choices inside passages keep their normal effects, duration, skill
 checks, requirements, and atomic rollback behavior. Choice IDs must be unique
@@ -402,9 +424,10 @@ the end of class.
 
 Entry also records an immutable arrival snapshot on the active story frame.
 It is available to class prose and expressions as `school.arrival.*`, survives
-local passage transitions and save/load, and is cleared when the sequence
-ends. This is intended as the input for later lateness penalties or detention
-rules; those consequences are not applied automatically.
+local passage transitions, pooled event interruptions, and save/load, and is
+cleared when the sequence ends. This is intended as the input for later
+lateness penalties or detention rules; those consequences are not applied
+automatically.
 
 ## Prose and interpolation
 
@@ -481,7 +504,11 @@ The currently exposed paths are:
   the next class that starts later on the current school day, or `null`.
 - During an active `@school-class` sequence: `school.arrival.periodId`,
   `.subjectId`, `.scheduledAt`, `.arrivedAt`, `.minutesLate`, and
-  `.startingSegment`.
+  `.startingSegment`. These remain available inside an interrupting pooled
+  event.
+- During an active pooled event: `event.poolId`, `event.entryId`,
+  `event.source.storyId`, `.passageId`, and `.choiceId`. `event` is `null`
+  outside a pooled event.
 - `location.id`, `location.name`, and `location.tags` for the containing
   location.
 - `place.id`, `place.key`, `place.name`, and `place.tags` while indoors.
@@ -677,6 +704,8 @@ The target may be:
 
 - another compiled scene or sequence ID;
 - a local `.passage-id` while authoring inside a sequence;
+- `@return`, which resumes the target suspended by a pooled event and fails if
+  there is no active continuation;
 - `@exit`, which closes the authored story and returns to the current place hub
   indoors or the ordinary location scene outdoors; or
 - `@leave-place`, which performs the authoritative place-exit action and
@@ -708,6 +737,14 @@ Choice directives are:
   choice duration and cannot target `@leave-place`. Choice effects still apply
   before time advances. Use this when the target is valid only in the resulting
   world state, such as waiting in a classroom until its scheduled class begins.
+- `@event-pool <id>`: after the choice's effects, try to enter one eligible
+  member of the named pool while suspending the ordinary choice target.
+  It is valid on direct and checked choices, but not when a direct target or
+  either checked outcome is `@leave-place`.
+- `@event-chance <probability>`: optional overall trigger chance for
+  `@event-pool`, written from `0` to `1` or `0%` to `100%`; it defaults to
+  `100%`. If the roll fails or the pool has no eligible members, the ordinary
+  target is entered immediately.
 - `@when <expression>`: hides the choice when false.
 - `@require <expression> "<reason>"`: leaves the choice visible but disabled
   when false. Requirements may repeat; the first failed reason is displayed.
@@ -729,13 +766,15 @@ Choice directives are:
 
 Before an action runs, the game rebuilds the current scene and rechecks that
 the choice still exists and is enabled. Direct-choice effects run in their
-authored order, then a normal scene or sequence target is entered and its
+authored order, then an event pool is resolved when present. A selected event
+is entered in place of the normal target and that target becomes its saved
+continuation; otherwise the normal target is entered. The entered target's
 `@onenter` effects run, then `@time` advances the world. The resulting screen
 is rendered against the post-time state. If any part of the action fails, its
 state changes and log entry are rolled back.
 
 With `@enter-after-time`, the effects run first, time advances second, and the
-target and its `@onenter` effects run third.
+pool or ordinary target and its `@onenter` effects run third.
 
 A scheduled classroom wait therefore looks like:
 
@@ -979,15 +1018,15 @@ not implemented.
 | Context | Directives |
 | --- | --- |
 | Top level | `:: <scene-id> [tags...]`, `@entry ... @endentry`, `@sequence ... @endsequence`, `@#` |
-| Entry | `@scene`, `@hub`, `@offer`, `@auto`, `@place-key`, `@place-tag`, `@location-tag`, `@when`, `@label`, `@icon`, `@hub-text`, `@priority`, `@chance`, `@weight` |
+| Entry | `@scene`, `@hub`, `@offer`, `@auto`, `@pool`, `@place-key`, `@place-tag`, `@location-tag`, `@when`, `@label`, `@icon`, `@hub-text`, `@priority`, `@chance`, `@weight` |
 | Scene metadata | `@kind`, `@heading`, `@choices`, `@onenter ... @endonenter` |
 | Sequence metadata/navigation | scene metadata plus `@school-class`, `@passage`, `@next` |
 | Scene or passage body | prose, `@if` / `@elseif` / `@else` / `@endif`, `@random` / `@or` / `@endrandom`, passive `@check` / `@success` / `@failure` / `@endcheck`, `@effect`, `@change`, `@choicegroup ... @endchoicegroup`, `@choice ... @endchoice` |
-| Direct choice | `@icon`, `@time`, `@time-until`, `@enter-after-time`, `@when`, `@require`, `@warning`, `@response ... @endresponse`, `@preview`, `@effect`, `@change` |
-| Checked choice | `@icon`, `@when`, `@require`, `@warning`, `@check`, `@success ... @endsuccess`, `@failure ... @endfailure` |
+| Direct choice | `@icon`, `@time`, `@time-until`, `@enter-after-time`, `@event-pool`, `@event-chance`, `@when`, `@require`, `@warning`, `@response ... @endresponse`, `@preview`, `@effect`, `@change` |
+| Checked choice | `@icon`, `@event-pool`, `@event-chance`, `@when`, `@require`, `@warning`, `@check`, `@success ... @endsuccess`, `@failure ... @endfailure` |
 | Check outcome | `@time`, `@response ... @endresponse`, `@effect` |
 | Effect operations | `set`, `add`, `flag`, `daily-flag`, `relationship`, `money`, `skill`, `stat`, `grade`, `attendance` |
-| Story targets | global scene/sequence ID, local `.passage`, `@exit`, `@leave-place` (`@next` and sequence final targets have the narrower rules documented above) |
+| Story targets | global scene/sequence ID, local `.passage`, `@return`, `@exit`, `@leave-place` (`@next` and sequence final targets have the narrower rules documented above) |
 
 ## Not supported by WG
 

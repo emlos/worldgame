@@ -155,8 +155,56 @@ export function enterWGSequence(game, sequenceId, passageId = null, { runOnEnter
   if (runOnEnter) applyWGEffects(game, definition.onEnter || []);
 }
 
+export function suspendWGContinuation(
+  game,
+  outcome,
+  { poolId, entryId, choiceId } = {},
+) {
+  const frame = game.currentStory;
+  if (!frame) fail("WG event pools require an active source story");
+  const target = outcome?.target;
+  if (typeof target !== "string" || !target) {
+    fail("WG event-pool continuations require a target");
+  }
+
+  game.storyContinuations.push({
+    target,
+    sequenceId: outcome.sequenceId || null,
+    schoolClass: frame.schoolClass ? { ...frame.schoolClass } : null,
+    poolId: String(poolId),
+    entryId: String(entryId),
+    sourceStoryId: String(frame.id),
+    sourcePassageId:
+      frame.type === "sequence" ? String(frame.passageId) : null,
+    sourceChoiceId: String(choiceId),
+  });
+}
+
+export function returnWGStory(game) {
+  const continuation = game.storyContinuations.pop();
+  if (!continuation) fail("@return requires an active WG event continuation");
+
+  if (continuation.target.startsWith(".")) {
+    if (!continuation.sequenceId) {
+      fail("Local WG event continuation has no owning sequence");
+    }
+    game.currentStory = {
+      type: "sequence",
+      id: continuation.sequenceId,
+      passageId: continuation.sourcePassageId,
+      ...(continuation.schoolClass
+        ? { schoolClass: { ...continuation.schoolClass } }
+        : {}),
+    };
+  }
+  enterWGTarget(game, continuation.target, {
+    sequenceId: continuation.sequenceId,
+  });
+}
+
 export function exitWGStory(game) {
   game.currentStory = null;
+  game.storyContinuations.length = 0;
   game.storyRevision += 1;
 }
 
@@ -165,6 +213,10 @@ export function enterWGTarget(
   target,
   { sequenceId = null, runOnEnter = true } = {},
 ) {
+  if (target === "@return") {
+    returnWGStory(game);
+    return;
+  }
   if (target === "@exit") {
     exitWGStory(game);
     return;

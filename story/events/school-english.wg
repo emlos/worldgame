@@ -1,0 +1,184 @@
+@# Random event sequences available after each English class segment.
+
+@entry school.english.event.group-discussion
+  @scene school.english.event.group-discussion
+  @pool school.class.english
+  @place-key high_school
+  @when school.phase == "class"
+  @when school.subjectId == "english"
+  @priority 0
+  @weight 1
+@endentry
+
+@entry school.english.event.reading-aloud
+  @scene school.english.event.reading-aloud
+  @pool school.class.english
+  @place-key high_school
+  @when school.phase == "class"
+  @when school.subjectId == "english"
+  @priority 0
+  @weight 1
+@endentry
+
+@entry school.english.event.surprise-quiz
+  @scene school.english.event.surprise-quiz
+  @pool school.class.english
+  @place-key high_school
+  @when school.phase == "class"
+  @when school.subjectId == "english"
+  @priority 0
+  @weight 1
+@endentry
+
+@sequence school.english.event.group-discussion -> @return
+@heading "An Unexpected Discussion"
+@choices "How do you participate?"
+
+@passage opening
+
+The teacher closes the textbook and asks the class to discuss whether a narrator can be trustworthy while still being mistaken.
+
+@if npc.taylor.present
+Taylor turns slightly in your direction, clearly waiting to hear what you think.
+@else
+The room stays awkwardly quiet while everyone avoids being the first to answer.
+@endif
+
+@choice discussion-argue "Offer your own interpretation" -> .argued
+  @icon 💡
+  @change grade english 1
+@endchoice
+
+@choice discussion-listen "Listen to the other answers" -> .listened
+  @icon 👂
+@endchoice
+
+@choice discussion-taylor "Compare ideas with Taylor" -> .taylor
+  @icon 💬
+  @when npc.taylor.present
+  @effect relationship taylor 0.005
+@endchoice
+
+@passage argued
+
+You explain that a narrator can report events honestly and still misunderstand what those events mean. The teacher nods and uses your answer to move the discussion forward.
+
+@next "Return to the lesson" -> @return
+
+@passage listened
+
+You keep quiet and follow the argument as it moves around the room. A few of the answers are surprisingly convincing.
+
+@next "Return to the lesson" -> @return
+
+@passage taylor
+
+You and Taylor quietly compare interpretations before sharing a combined answer with the class.
+
+@next "Return to the lesson" -> @return
+@endsequence
+
+@sequence school.english.event.reading-aloud -> @return
+@heading "Reading Aloud"
+@choices "What do you do?"
+
+@passage opening
+
+The teacher asks for someone to read the next page aloud.
+
+@if player.education.english.grade >= 70
+The passage is dense, but you recognise the rhythm of the older prose.
+@else
+The unfamiliar phrasing makes the passage look more intimidating than it sounded a moment ago.
+@endif
+
+@choice reading-volunteer "Volunteer to read"
+  @icon 📖
+  @check resolve tricky
+
+  @success -> .steady
+    @effect grade english 1
+  @endsuccess
+
+  @failure -> .stumbled
+    @effect grade english -1
+  @endfailure
+@endchoice
+
+@choice reading-follow "Follow along quietly" -> .followed
+  @icon 👀
+@endchoice
+
+@passage steady
+
+You keep a measured pace and land the difficult sentences cleanly. By the end, several classmates are following your rhythm instead of the page.
+
+@next "Return to the lesson" -> @return
+
+@passage stumbled
+
+A sentence catches you halfway through. You recover, but not before the room hears the hesitation.
+
+@next "Return to the lesson" -> @return
+
+@passage followed
+
+Someone else volunteers. You follow the page and make a note beside the phrases the teacher emphasises.
+
+@next "Return to the lesson" -> @return
+@endsequence
+
+@sequence school.english.event.surprise-quiz -> @return
+@heading "A Surprise Quiz"
+@choices "Choose an answer"
+
+@passage first-question
+
+Without warning, the teacher hands out a short quiz. The first question asks which sentence contains a metaphor.
+
+@choice quiz-first-correct "The moon was a silver coin above the rooftops." -> .second-question
+  @icon ✍️
+  @change grade english 1
+@endchoice
+
+@choice quiz-first-wrong "The moon shone as brightly as a lamp." -> .second-question
+  @icon ✍️
+  @change grade english -1
+@endchoice
+
+@choice quiz-first-other "The moon appeared after sunset." -> .second-question
+  @icon ✍️
+  @change grade english -1
+@endchoice
+
+@passage second-question
+
+The second question asks which version uses the apostrophe correctly.
+
+@choice quiz-second-correct "The students' books covered the table." -> .results
+  @icon ✍️
+  @change grade english 1
+@endchoice
+
+@choice quiz-second-wrong-one "The student's books covered the table." -> .results
+  @icon ✍️
+  @change grade english -1
+@endchoice
+
+@choice quiz-second-wrong-two "The students books' covered the table." -> .results
+  @icon ✍️
+  @change grade english -1
+@endchoice
+
+@passage results
+
+The teacher collects the papers almost as quickly as they were handed out.
+
+@if player.education.english.grade >= 70
+You feel reasonably confident about what you wrote.
+@else
+You are left replaying both questions in your head.
+@endif
+
+@next "Return to the lesson" -> @return
+@endsequence

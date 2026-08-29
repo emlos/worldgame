@@ -6,13 +6,13 @@ import {
   applyWGEffects,
   enterWGTarget,
   exitWGStory,
-  followWGChoice,
-  followWGOutcome,
   resolveActiveWGStory,
+  suspendWGContinuation,
 } from "./wg/storyRuntime.js";
 import { materializeWGResponse } from "./wg/sceneMaterializer.js";
 import {
   resolveWGAutomaticEntry,
+  resolveWGPoolEntry,
   WG_AUTO_TRIGGER,
 } from "./wg/entryResolver.js";
 import { calculateSkillCheckChance } from "../../../data/scene/skillChecks.js";
@@ -262,6 +262,26 @@ function performBusTravel(game, choice, minutes) {
   );
 }
 
+function enterWGOutcome(game, outcome, eventPool, choiceId) {
+  const selected = eventPool
+    ? resolveWGPoolEntry(game, eventPool.id, eventPool.chance)
+    : null;
+  if (!selected) {
+    enterWGTarget(game, outcome.target, {
+      sequenceId: outcome.sequenceId || null,
+    });
+    return null;
+  }
+
+  suspendWGContinuation(game, outcome, {
+    poolId: eventPool.id,
+    entryId: selected.id,
+    choiceId,
+  });
+  enterWGTarget(game, selected.sceneId);
+  return selected;
+}
+
 function performWG(game, choice, minutes, scene) {
   const revision = game.actionRevision;
   const enterAfterTime = choice.action.enterAfterTime === true;
@@ -271,14 +291,24 @@ function performWG(game, choice, minutes, scene) {
     minutes,
     energyFree: choice.energyFree,
     apply(currentGame) {
-      if (enterAfterTime) applyWGEffects(currentGame, choice.action.effects || []);
-      else followWGChoice(currentGame, choice);
+      applyWGEffects(currentGame, choice.action.effects || []);
+      if (!enterAfterTime) {
+        enterWGOutcome(
+          currentGame,
+          choice.action,
+          choice.action.eventPool,
+          choice.id,
+        );
+      }
     },
     after(currentGame) {
       if (enterAfterTime) {
-        enterWGTarget(currentGame, choice.action.target, {
-          sequenceId: choice.action.sequenceId || null,
-        });
+        enterWGOutcome(
+          currentGame,
+          choice.action,
+          choice.action.eventPool,
+          choice.id,
+        );
       }
       resolveActiveWGStory(currentGame);
       responseParagraphs = selectWGResponse(
@@ -393,7 +423,13 @@ function performSkillCheck(game, choice, _minutes, scene) {
     minutes,
     energyFree: outcome.energyFree,
     apply(currentGame) {
-      followWGOutcome(currentGame, outcome);
+      applyWGEffects(currentGame, outcome.effects || []);
+      enterWGOutcome(
+        currentGame,
+        outcome,
+        choice.action.eventPool,
+        choice.id,
+      );
     },
     after(currentGame) {
       resolveActiveWGStory(currentGame);
