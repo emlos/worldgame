@@ -36,7 +36,7 @@ The event runs.
 @endchoice
 `,
 }]);
-assert.equal(fixture.formatVersion, 15);
+assert.equal(fixture.formatVersion, 16);
 assert.deepEqual(fixture.entries["test.event"].pools, ["test.pool"]);
 assert.equal(fixture.sequences["test.event"].finalTarget, "@return");
 const fixtureChoice = fixture.scenes["test.source"].body.find(
@@ -147,11 +147,20 @@ assert.equal(
     0.75,
     { random: randomValues(0.1, 0.67) },
   )?.id,
+  "school.english.event.student-distraction",
+);
+assert.equal(
+  resolveWGPoolEntry(
+    selectionGame,
+    "school.class.english",
+    0.75,
+    { random: randomValues(0.1, 0.76) },
+  )?.id,
   "school.english.event.surprise-quiz",
 );
 
 const eventGame = createEnglishClassGame();
-eventGame.getRNG("wg-events").setState(0);
+eventGame.getRNG("wg-events").setState(8);
 let scene = buildScene(eventGame);
 performChoice(eventGame, {
   sceneId: scene.id,
@@ -229,15 +238,29 @@ exerciseEventSequence("school.english.event.surprise-quiz", [
   "__wg_next",
 ]);
 
-const noEventGame = createEnglishClassGame();
-noEventGame.getRNG("wg-events").setState(1327);
-scene = buildScene(noEventGame);
-performChoice(noEventGame, {
+const guaranteedEventGame = createEnglishClassGame();
+guaranteedEventGame.getRNG("wg-events").setState(1327);
+scene = buildScene(guaranteedEventGame);
+performChoice(guaranteedEventGame, {
   sceneId: scene.id,
   choiceId: "english-1-study",
 });
-assert.equal(noEventGame.currentStory.id, "school.class.english");
-assert.equal(noEventGame.currentStory.passageId, "segment-2");
-assert.equal(noEventGame.storyContinuations.length, 0);
+assert.equal(
+  guaranteedEventGame.currentStory.id,
+  "school.english.event.student-distraction",
+);
+scene = buildScene(guaranteedEventGame);
+performChoice(guaranteedEventGame, {
+  sceneId: scene.id,
+  choiceId: "distraction-ignore",
+});
+scene = buildScene(guaranteedEventGame);
+performChoice(guaranteedEventGame, {
+  sceneId: scene.id,
+  choiceId: "__wg_next",
+});
+assert.equal(guaranteedEventGame.currentStory.id, "school.class.english");
+assert.equal(guaranteedEventGame.currentStory.passageId, "segment-2");
+assert.equal(guaranteedEventGame.storyContinuations.length, 0);
 
 console.log("WG event-pool checks passed.");

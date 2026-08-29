@@ -20,6 +20,7 @@ import {
   materializeWGScene,
   materializeWGSequence,
 } from "./wg/sceneMaterializer.js";
+import { materializeWGSystem } from "./wg/storySystemMaterializer.js";
 import { getWGScene, getWGSequence } from "./wg/storyRuntime.js";
 import {
   BUS_BOARDING_SCENE_ID,
@@ -353,7 +354,9 @@ export function buildScene(game) {
     if (!definition) {
       throw new Error(`Unknown active WG sequence: ${game.currentStory.id}`);
     }
-    scene = materializeWGSequence(game, definition, game.currentStory.passageId);
+    scene = definition.system
+      ? materializeWGSystem(game, definition)
+      : materializeWGSequence(game, definition, game.currentStory.passageId);
   } else if (game.currentStory !== null) {
     throw new Error(`Unknown active WG story type: ${String(game.currentStory?.type)}`);
   } else {

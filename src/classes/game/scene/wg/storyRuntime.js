@@ -1,6 +1,7 @@
 import { WG_BUNDLE } from "../../../../generated/wg/scenes.js";
 import { applyWGEffects } from "./effectRuntime.js";
 import { resolveWGBody } from "./storyResolver.js";
+import { createWGSystemState } from "./storySystemRegistry.js";
 import {
   getSchoolDayState,
   SCHOOL_PHASE,
@@ -71,6 +72,23 @@ function activeStoryBody(game) {
 export function resolveActiveWGStory(game) {
   const frame = game.currentStory;
   if (!frame) return null;
+  if (frame.type === "sequence") {
+    const definition = getWGSequence(frame.id);
+    if (!definition) fail(`Unknown active WG sequence '${String(frame.id)}'`);
+    if (definition.system) {
+      if (!frame.system || frame.system.id !== definition.system.id) {
+        fail(`Active WG system state does not match sequence '${definition.id}'`);
+      }
+      if (!Object.prototype.hasOwnProperty.call(frame.system, "state")) {
+        frame.system.state = createWGSystemState(
+          game,
+          definition,
+          frame.system.instanceKey,
+        );
+      }
+      return frame.system;
+    }
+  }
   if (frame.resolution) {
     if (frame.resolution.revision !== game.storyRevision) {
       fail("Active WG story resolution does not match the story revision");
@@ -99,6 +117,31 @@ export function enterWGScene(game, sceneId, { runOnEnter = true } = {}) {
 export function enterWGSequence(game, sequenceId, passageId = null, { runOnEnter = true } = {}) {
   const definition = getWGSequence(sequenceId);
   if (!definition) fail(`Unknown WG sequence '${String(sequenceId)}'`);
+
+  if (definition.system) {
+    if (passageId !== null) {
+      fail(`WG system sequence '${definition.id}' does not have passages`);
+    }
+    const revision = game.storyRevision + 1;
+    game.currentStory = {
+      type: "sequence",
+      id: definition.id,
+      system: {
+        id: definition.system.id,
+        instanceKey: [
+          "wg-system-v1",
+          definition.id,
+          revision,
+          game.actionRevision,
+          game.now.toISOString(),
+        ].join(":"),
+        revision: 0,
+      },
+    };
+    game.storyRevision = revision;
+    if (runOnEnter) applyWGEffects(game, definition.onEnter || []);
+    return;
+  }
 
   let resolvedPassageId = passageId ?? definition.passages?.[0]?.id;
   let schoolClass = null;

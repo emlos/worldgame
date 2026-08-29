@@ -325,11 +325,11 @@ A sequence starts with `@sequence <id> -> <final-target>` and ends with
 final target may be `@exit`, `@return`, a scene ID, or another sequence ID.
 `@return` is valid at runtime only while a pooled event continuation is
 active. `@heading`, `@kind`, `@choices`, and `@onenter` are optional and have
-the same metadata placement rules and defaults as scenes. `@school-class` is
-the one additional sequence metadata directive. Choice groups work inside
-sequence passages as they do in ordinary scenes.
+the same metadata placement rules and defaults as scenes. `@school-class` and
+`@system` are the additional sequence metadata directives. Choice groups work
+inside authored sequence passages as they do in ordinary scenes.
 
-Every sequence must contain at least one non-empty passage. Prose before the
+Every authored sequence must contain at least one non-empty passage. Prose before the
 first `@passage` or between `@next` directives creates anonymous passages named
 `p1`, `p2`, and so on, skipping any ID already explicitly declared. Those
 generated names may be targeted just like named passages, but explicit names
@@ -350,8 +350,34 @@ an atomic zero-time transition: entering its target resolves that passage's
 prose effects and passive checks and advances the gameplay action revision.
 Use an ordinary choice when the transition itself needs authored choice
 effects or a duration.
-The active sequence and passage are included in save data, so loading resumes
-on the same screen.
+The active authored sequence and passage, or a runtime system's JSON state,
+are included in save data, so loading resumes on the same screen.
+
+### Runtime story systems
+
+Use `@system <system-id> [config]` to delegate a whole sequence to a registered
+JavaScript story system. The optional config is a JSON object emitted into the
+WG bundle as ordinary data:
+
+```wg
+@sequence school.math.event.surprise-quiz -> @return
+@heading "Surprise Math Quiz"
+@choices "Choose an answer"
+@system school.quiz {"bank":"math.core","questions":3}
+@endsequence
+```
+
+System-backed sequences cannot contain authored passages or use
+`@school-class`. Their registered system creates serializable instance state
+once on entry, renders ordinary scene and choice contracts from that state,
+and handles JSON command objects from its choices. Rendering must be pure:
+random selection belongs in system creation so repeated renders and save/load
+cannot reroll active content. Completing the system follows the sequence's
+declared final target, including pooled-event `@return` continuations.
+
+WG stores only the system ID, config, and current JSON state. JavaScript
+callbacks remain in the runtime registry and are never emitted into generated
+story data or save files.
 
 ### Named passages and local targets
 
@@ -1029,7 +1055,7 @@ not implemented.
 | Top level | `:: <scene-id> [tags...]`, `@entry ... @endentry`, `@sequence ... @endsequence`, `@#` |
 | Entry | `@scene`, `@hub`, `@offer`, `@auto`, `@pool`, `@place-key`, `@place-tag`, `@location-tag`, `@when`, `@label`, `@icon`, `@hub-text`, `@priority`, `@chance`, `@weight` |
 | Scene metadata | `@kind`, `@heading`, `@choices`, `@onenter ... @endonenter` |
-| Sequence metadata/navigation | scene metadata plus `@school-class`, `@passage`, `@next` |
+| Sequence metadata/navigation | scene metadata plus `@school-class`, `@system`, `@passage`, `@next` |
 | Scene or passage body | prose, `@if` / `@elseif` / `@else` / `@endif`, `@random` / `@or` / `@endrandom`, passive `@check` / `@success` / `@failure` / `@endcheck`, `@effect`, `@change`, `@choicegroup ... @endchoicegroup`, `@choice ... @endchoice` |
 | Direct choice | `@icon`, `@time`, `@time-until`, `@enter-after-time`, `@event-pool`, `@event-chance`, `@when`, `@require`, `@warning`, `@response ... @endresponse`, `@preview`, `@effect`, `@change` |
 | Checked choice | `@icon`, `@event-pool`, `@event-chance`, `@when`, `@require`, `@warning`, `@check`, `@success ... @endsuccess`, `@failure ... @endfailure` |
@@ -1039,6 +1065,6 @@ not implemented.
 
 ## Not supported by WG
 
-WG currently has no arbitrary JavaScript, Twine widgets, HTML rendering,
-loops, includes, user-defined macros, localization, automatic resource costs,
+WG currently has no inline arbitrary JavaScript, Twine widgets, HTML rendering,
+loops, includes, user-defined WG macros, localization, automatic resource costs,
 place-unlock directive/effect, undo/history, or hot reloading.

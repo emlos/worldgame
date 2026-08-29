@@ -1,4 +1,5 @@
 import { deriveSeed } from "../../../shared/util/random.js";
+import { validateWGSystemState } from "../scene/wg/storySystemRegistry.js";
 import {
     GOAL_TYPE,
     NPC_ACTION_TYPE,
@@ -315,34 +316,66 @@ function validateCurrentStory(value, path, gameTime) {
         fail(`${path}.type`, "must be 'scene' or 'sequence'");
     }
     string(required(frame, "id", path), `${path}.id`, { nonEmpty: true });
-    if (type === "sequence") {
+    const hasSystem = Object.prototype.hasOwnProperty.call(frame, "system");
+    if (hasSystem && type !== "sequence") {
+        fail(`${path}.system`, "is only valid for sequence story state");
+    }
+    if (type === "sequence" && hasSystem) {
+        if (Object.prototype.hasOwnProperty.call(frame, "passageId")) {
+            fail(`${path}.passageId`, "is not valid for system-backed sequence state");
+        }
+        if (Object.prototype.hasOwnProperty.call(frame, "resolution")) {
+            fail(`${path}.resolution`, "is not valid for system-backed sequence state");
+        }
+        const systemPath = `${path}.system`;
+        const system = record(frame.system, systemPath);
+        const systemId = string(required(system, "id", systemPath), `${systemPath}.id`, {
+            nonEmpty: true,
+        });
+        string(required(system, "instanceKey", systemPath), `${systemPath}.instanceKey`, {
+            nonEmpty: true,
+        });
+        integer(required(system, "revision", systemPath), `${systemPath}.revision`, { min: 0 });
+        const state = required(system, "state", systemPath);
+        validateJsonValue(state, `${systemPath}.state`);
+        try {
+            validateWGSystemState(systemId, state);
+        } catch (error) {
+            fail(`${systemPath}.state`, error.message);
+        }
+    } else if (type === "sequence") {
         string(required(frame, "passageId", path), `${path}.passageId`, { nonEmpty: true });
     } else if (Object.prototype.hasOwnProperty.call(frame, "passageId")) {
         fail(`${path}.passageId`, "is only valid for sequence story state");
     }
-    const resolutionPath = `${path}.resolution`;
-    const resolution = record(required(frame, "resolution", path), resolutionPath);
-    integer(required(resolution, "revision", resolutionPath), `${resolutionPath}.revision`, {
-        min: 0,
-    });
-    const decisions = record(
-        required(resolution, "decisions", resolutionPath),
-        `${resolutionPath}.decisions`,
-    );
-    for (const [key, decision] of Object.entries(decisions)) {
-        string(key, `${resolutionPath}.decisions key`, { nonEmpty: true });
-        if (typeof decision === "number") {
-            integer(decision, `${resolutionPath}.decisions.${key}`, { min: -1 });
-        } else if (decision !== "success" && decision !== "failure") {
-            fail(
-                `${resolutionPath}.decisions.${key}`,
-                "must be a branch index, 'success', or 'failure'",
-            );
+    if (!hasSystem) {
+        const resolutionPath = `${path}.resolution`;
+        const resolution = record(required(frame, "resolution", path), resolutionPath);
+        integer(required(resolution, "revision", resolutionPath), `${resolutionPath}.revision`, {
+            min: 0,
+        });
+        const decisions = record(
+            required(resolution, "decisions", resolutionPath),
+            `${resolutionPath}.decisions`,
+        );
+        for (const [key, decision] of Object.entries(decisions)) {
+            string(key, `${resolutionPath}.decisions key`, { nonEmpty: true });
+            if (typeof decision === "number") {
+                integer(decision, `${resolutionPath}.decisions.${key}`, { min: -1 });
+            } else if (decision !== "success" && decision !== "failure") {
+                fail(
+                    `${resolutionPath}.decisions.${key}`,
+                    "must be a branch index, 'success', or 'failure'",
+                );
+            }
         }
     }
     if (Object.prototype.hasOwnProperty.call(frame, "schoolClass")) {
         if (type !== "sequence") {
             fail(`${path}.schoolClass`, "is only valid for sequence story state");
+        }
+        if (hasSystem) {
+            fail(`${path}.schoolClass`, "is not valid for system-backed sequence state");
         }
         const schoolClassPath = `${path}.schoolClass`;
         const schoolClass = record(frame.schoolClass, schoolClassPath);
@@ -1585,7 +1618,7 @@ export function validateGameSave(data) {
     const storyRevision = integer(required(save, "storyRevision", "save"), "save.storyRevision", {
         min: 0,
     });
-    if (currentStory !== null) {
+    if (currentStory?.resolution) {
         same(
             currentStory.resolution.revision,
             storyRevision,

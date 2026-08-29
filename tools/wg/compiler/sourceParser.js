@@ -39,6 +39,32 @@ function parseQuotedString(value, location, label) {
   return parsed;
 }
 
+function parseSystemMetadata(text, file, line) {
+  const location = lineLocation(file, line);
+  const match = text.match(
+    new RegExp(`^@system\\s+(${ID_PATTERN})(?:\\s+(.+))?\\s*$`),
+  );
+  if (!match) failWG("Malformed @system", location);
+
+  let config = {};
+  if (match[2]) {
+    try {
+      config = JSON.parse(match[2]);
+    } catch {
+      failWG("@system config must be valid JSON", location);
+    }
+    if (!config || typeof config !== "object" || Array.isArray(config)) {
+      failWG("@system config must be a JSON object", location);
+    }
+  }
+
+  return {
+    id: match[1],
+    config,
+    source: nodeSource(file, line),
+  };
+}
+
 function directiveArgument(text, directive, location) {
   const prefix = `@${directive}`;
   const argument = text.slice(prefix.length).trim();
@@ -1094,6 +1120,7 @@ function parseSequenceBlock(file, lines, startIndex) {
     heading: null,
     choiceHeading: "Choices",
     schoolClass: null,
+    system: null,
     onEnter: [],
     passages: [],
     source: nodeSource(file, opening.line),
@@ -1111,7 +1138,16 @@ function parseSequenceBlock(file, lines, startIndex) {
       continue;
     }
     const name = directiveName(text);
-    if (!["kind", "heading", "choices", "school-class", "onenter"].includes(name)) break;
+    if (
+      ![
+        "kind",
+        "heading",
+        "choices",
+        "school-class",
+        "system",
+        "onenter",
+      ].includes(name)
+    ) break;
     if (seenMetadata.has(name)) failWG(`Duplicate @${name}`, lineLocation(file, line.line));
     seenMetadata.add(name);
 
@@ -1151,6 +1187,9 @@ function parseSequenceBlock(file, lines, startIndex) {
         subjectId,
         source: nodeSource(file, line.line),
       };
+      index += 1;
+    } else if (name === "system") {
+      sequence.system = parseSystemMetadata(text, file, line.line);
       index += 1;
     } else {
       if (text !== "@onenter") {
@@ -1193,7 +1232,19 @@ function parseSequenceBlock(file, lines, startIndex) {
       continue;
     }
     if (text === "@endsequence") {
-      if (!sequence.passages.length) {
+      if (sequence.system && sequence.schoolClass) {
+        failWG(
+          "@system and @school-class cannot be used on the same sequence",
+          lineLocation(file, opening.line),
+        );
+      }
+      if (sequence.system && sequence.passages.length) {
+        failWG(
+          "System-backed sequences cannot contain authored passages",
+          lineLocation(file, sequence.passages[0].source.line),
+        );
+      }
+      if (!sequence.system && !sequence.passages.length) {
         failWG("Sequence requires at least one passage", lineLocation(file, opening.line));
       }
       for (let passageIndex = 0; passageIndex < sequence.passages.length; passageIndex += 1) {

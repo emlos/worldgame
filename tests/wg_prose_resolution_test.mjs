@@ -168,6 +168,11 @@ const classDefinitions = {
 };
 const classPassagesWithoutRandomOutcomes = new Set([
   "school.class.english.segment-1",
+  "school.class.english.segment-2",
+  "school.class.english.segment-3",
+  "school.class.math.segment-1",
+  "school.class.math.segment-2",
+  "school.class.math.segment-3",
 ]);
 for (const [subjectId, sequenceId] of Object.entries(classDefinitions)) {
   const sequence = WG_BUNDLE.sequences[sequenceId];
@@ -229,6 +234,17 @@ classGame.getRNG("wg-events").setState(1327);
 performChoice(classGame, {
   sceneId: firstClassScene.id,
   choiceId: "english-1-study",
+});
+assert.equal(classGame.currentStory.id, "school.english.event.student-distraction");
+let eventScene = buildScene(classGame);
+performChoice(classGame, {
+  sceneId: eventScene.id,
+  choiceId: "distraction-ignore",
+});
+eventScene = buildScene(classGame);
+performChoice(classGame, {
+  sceneId: eventScene.id,
+  choiceId: "__wg_next",
 });
 assert.equal(classGame.currentStory.passageId, "segment-2");
 assert.equal(classGame.now.toISOString(), "2026-09-02T09:15:00.000Z");

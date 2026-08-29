@@ -35,7 +35,7 @@ You misunderstand the material.
 `,
 }]);
 
-assert.equal(compiled.formatVersion, 15);
+assert.equal(compiled.formatVersion, 16);
 const passiveCheck = compiled.scenes["test.passive-grade-check"].body[0].check;
 assert.equal(passiveCheck.targetType, "grade");
 assert.equal(passiveCheck.targetId, "english");

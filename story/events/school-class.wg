@@ -399,79 +399,10 @@
 
 @endsequence
 
-@#TODO: make it into math minigame, randomly generate equation here. macros?
-@# this quiz framework should be generated at runtime - same framework with different 'possible question' formats for other subjects
-@# question passages/text, question order, answer order, and question content should be randomized, data driven model from smth like src/scene/mechanics/quiz.js
-@#example quiz questions below
-@# maybe something like a macro struct like #quizMacro thats resolved by javascript?
 @sequence school.math.event.surprise-quiz -> @return
+  @heading "Surprise Math Quiz"
   @choices "Choose an answer"
-
-  @passage first-question
-
-  The teacher hands out a surprise quiz. There's a few questions on the first page, and you start with the first one.
-  @# maybe with a macro? smth like {{math.random_equation}} that generates a random equation, and saves it to the current passage. and the correct answer, then we can have the choices be the correct answer and some wrong answers.
-
-  @choice quiz-first-wrong "x + 5 = 10" -> .second-question
-  @# @choice quiz-first-wrong "{{math.random_equation.wrong_answer[0]}}" -> .second-question
-    @icon ✍️
-    @effect grade math -0.01
-  @endchoice
-
-  @#and more wrong answers
-
-  @choice quiz-first-correct "x = 5" -> .second-question
-    @# @choice quiz-first-wrong "{{math.random_equation.right_answer}}" -> .second-question
-    @icon ✍️
-    @effect grade math 0.01
-  @endchoice
-
-  @passage second-question
-
-  The second question asks you to calculate the area of a triangle with a base of 4 and a height of 3.
-
-  @choice quiz-second-wrong "Area = 4 * 3 / 2" -> .third-question
-    @icon ✍️
-    @effect grade math -0.01
-  @endchoice
-
-  @choice quiz-second-correct "Area = (4 * 3) / 2" -> .third-question
-    @icon ✍️
-    @effect grade math 0.01
-  @endchoice
-
-  @choice quiz-second-wrong-2 "Area = (0.5 * 3) / 4" -> .third-question
-    @icon ✍️
-    @effect grade math -0.01
-  @endchoice
-
-  @passage third-question
-  The third question asks calculate the mean value of the following numbers: 2, 4, 6, 8, 10.
-
-  @choice quiz-third-correct "15" -> .results
-    @icon ✍️
-    @effect grade math 0.01
-  @endchoice
-
-  @choice quiz-third-wrong "6" -> .results
-    @icon ✍️
-    @effect grade math -0.01
-  @endchoice
-
-  @choice quiz-third-wrong-2 "5" -> .results
-    @icon ✍️
-    @effect grade math -0.01
-  @endchoice  
-
-  @passage results
-  The teacher collects the papers and announces that the quiz is over.
-  @if player.education.math.grade >= 70
-  You feel reasonably confident about your answers.
-  @else
-  You are left replaying the questions in your head, wondering if you got them right.
-  @endif
-
-  @next -> @return
+  @system school.quiz {"bank":"math.core","questions":3}
 @endsequence
 
 @sequence school.math.event.called-to-answer -> @return
@@ -521,7 +452,6 @@
   @next -> @return
 
 @endsequence
-
 
 
 

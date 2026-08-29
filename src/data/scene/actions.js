@@ -6,6 +6,7 @@ export const SCENE_ACTION_TYPE = Object.freeze({
   loiter: "loiter",
   wg: "wg",
   wgNext: "wg-next",
+  wgSystem: "wg-system",
   skillCheck: "skill-check",
 });
 
