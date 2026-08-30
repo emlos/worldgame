@@ -1,4 +1,11 @@
 import { getSchoolDayState } from "../../../../data/player/schedule.js";
+import { isPlaceUnlocked } from "../../../world/util/place.js";
+
+function placeKeys(places) {
+  const keys = places.map((place) => place.key)
+    .filter((key) => typeof key === "string" && key);
+  return [...new Set(keys)].sort();
+}
 
 function evaluatedStats(character) {
   const values = {};
@@ -118,6 +125,8 @@ export function createWGRuntimeContext(game) {
           name: game.location.name,
           type: game.location.type,
           tags: [...(game.location.tags || [])],
+          placeKeys: placeKeys(game.location.places),
+          visiblePlaceKeys: placeKeys(game.location.places.filter(isPlaceUnlocked)),
         }
       : null,
     place: game.currentPlace

@@ -7,6 +7,7 @@
     { "include": "#escaped-markers" },
     { "include": "#scene-header" },
     { "include": "#entry-header" },
+    { "include": "#location-header" },
     { "include": "#sequence-header" },
     { "include": "#passage-header" },
     { "include": "#next-directive" },
@@ -66,6 +67,18 @@
           "captures": {
             "2": { "name": "keyword.control.block.begin.wg" },
             "3": { "name": "entity.name.type.entry.wg" }
+          }
+        }
+      ]
+    },
+    "location-header": {
+      "patterns": [
+        {
+          "name": "meta.location.header.wg",
+          "match": "^(\\s*)(@location)\\s+([a-z][a-z0-9_.-]*)\\s*$",
+          "captures": {
+            "2": { "name": "keyword.control.block.begin.wg" },
+            "3": { "name": "entity.name.type.location.wg" }
           }
         }
       ]
@@ -246,7 +259,7 @@
       "patterns": [
         {
           "name": "keyword.control.block.wg",
-          "match": "^\\s*(@(?:else|endif|endentry|endchoice|endchoicegroup|endsequence|success|endsuccess|failure|endfailure|endcheck|response|endresponse|endrandom|onenter|endonenter))\\s*$"
+          "match": "^\\s*(@(?:else|endif|endentry|endlocation|endchoice|endchoicegroup|endsequence|success|endsuccess|failure|endfailure|endcheck|response|endresponse|endrandom|onenter|endonenter))\\s*$"
         }
       ]
     },

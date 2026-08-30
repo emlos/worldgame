@@ -41,6 +41,11 @@ function atSource(source) {
   };
 }
 
+function hasPersistentProseMutation(node) {
+  return node.type === "effect" || node.type === "passive-check" ||
+    (node.type === "paragraph" && node.parts.some((part) => part.type === "change"));
+}
+
 export function compileStorySources(sources) {
   if (!Array.isArray(sources) || sources.length === 0) {
     failWG("No WG source files were found", { file: "story", line: 1, column: 1 });
@@ -52,6 +57,7 @@ export function compileStorySources(sources) {
   const sceneMap = new Map();
   const sequenceMap = new Map();
   const entryMap = new Map();
+  const locationMap = new Map();
 
   for (const source of orderedSources) {
     const document = parseWGDocument(source);
@@ -85,10 +91,20 @@ export function compileStorySources(sources) {
       }
       entryMap.set(entry.id, entry);
     }
+    for (const contribution of document.locationContributions) {
+      const previous = locationMap.get(contribution.id);
+      if (previous) {
+        failWG(
+          `Duplicate location contribution id '${contribution.id}' (first declared at ${previous.source.file}:${previous.source.line})`,
+          atSource(contribution.source),
+        );
+      }
+      locationMap.set(contribution.id, contribution);
+    }
   }
 
-  if (sceneMap.size === 0 && sequenceMap.size === 0) {
-    failWG("No WG scenes or sequences were found", { file: "story", line: 1, column: 1 });
+  if (sceneMap.size === 0 && sequenceMap.size === 0 && locationMap.size === 0) {
+    failWG("No WG scenes, sequences, or location contributions were found", { file: "story", line: 1, column: 1 });
   }
 
   for (const scene of sceneMap.values()) {
@@ -140,8 +156,7 @@ export function compileStorySources(sources) {
     walkNodes(scene.body, (node) => {
       if (
         scene.kind === "place" &&
-        (node.type === "effect" || node.type === "passive-check" ||
-          (node.type === "paragraph" && node.parts.some((part) => part.type === "change")))
+        hasPersistentProseMutation(node)
       ) {
         failWG(
           "Persistent place hubs cannot contain prose effects or passive checks",
@@ -233,6 +248,38 @@ export function compileStorySources(sources) {
     }
   }
 
+  for (const contribution of locationMap.values()) {
+    const choiceIds = new Map();
+    const groupIds = new Map();
+    walkNodes(contribution.body, (node) => {
+      if (hasPersistentProseMutation(node)) {
+        failWG("Location contributions cannot contain prose effects or passive checks; put effects inside choices", atSource(node.source));
+      }
+      if (node.type === "choice-group" || node.type === "choice") {
+        const ids = node.type === "choice" ? choiceIds : groupIds;
+        const previous = ids.get(node.id);
+        if (previous) {
+          failWG(
+            `Duplicate ${node.type} id '${node.id}' in location contribution '${contribution.id}' (first declared at ${previous.file}:${previous.line})`,
+            atSource(node.source),
+          );
+        }
+        ids.set(node.id, node.source);
+      }
+      if (node.type !== "choice") return;
+      if (node.eventPool) {
+        failWG("Location contribution choices cannot use @event-pool; enter a scene or sequence first", atSource(node.source));
+      }
+      const outcomes = node.check ? [node.outcomes.success, node.outcomes.failure] : [node];
+      for (const outcome of outcomes) {
+        if (["@return", "@leave-place"].includes(outcome.target) || outcome.target.startsWith(".")) {
+          failWG("Location contribution choices must target @exit or a global scene/sequence", atSource(outcome.source));
+        }
+        validateTarget(outcome.target, outcome.source, { choiceId: node.id });
+      }
+    });
+  }
+
   for (const entry of entryMap.values()) {
     if (!hasGlobalTarget(entry.sceneId)) {
       failWG(
@@ -266,6 +313,7 @@ export function compileStorySources(sources) {
   }
 
   for (const scene of sceneMap.values()) assignRuntimeNodeIds(scene.body);
+  for (const contribution of locationMap.values()) assignRuntimeNodeIds(contribution.body);
   for (const sequence of sequenceMap.values()) {
     for (const passage of sequence.passages) assignRuntimeNodeIds(passage.body);
   }
@@ -279,7 +327,10 @@ export function compileStorySources(sources) {
   const entries = Object.fromEntries(
     [...entryMap.entries()].sort(([left], [right]) => compareText(left, right)),
   );
-  return { formatVersion: 19, scenes, sequences, entries };
+  const locationContributions = Object.fromEntries(
+    [...locationMap.entries()].sort(([left], [right]) => compareText(left, right)),
+  );
+  return { formatVersion: 20, scenes, sequences, entries, locationContributions };
 }
 
 export { walkNodes };

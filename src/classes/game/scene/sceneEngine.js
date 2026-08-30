@@ -22,6 +22,7 @@ import {
 } from "./wg/sceneMaterializer.js";
 import { materializeWGSystem } from "./wg/storySystemMaterializer.js";
 import { getWGScene, getWGSequence } from "./wg/storyRuntime.js";
+import { materializeWGLocationContributions } from "./wg/locationContributions.js";
 import {
   BUS_BOARDING_SCENE_ID,
   BUS_STOP_KEY,
@@ -199,6 +200,7 @@ function personChoices(game, npc) {
 
 function buildLocationScene(game) {
   const location = game.location;
+  const authored = materializeWGLocationContributions(game);
   const connections = [...location.neighbors.entries()];
   const streetNames = [
     ...new Set(connections.map(([, edge]) => edge.streetName).filter(Boolean)),
@@ -250,8 +252,10 @@ function buildLocationScene(game) {
     content: [
       paragraphBlock(SCENE_TEXT.locationIntroduction(nearbyStreet, location.name)),
       paragraphBlock(stablePick(LOCATION_DESCRIPTIONS, game, `location:${location.id}`)),
+      ...authored.content,
     ],
     sections: [
+      ...authored.sections,
       {
         id: "places",
         heading: SCENE_TEXT.sectionHeading.places,

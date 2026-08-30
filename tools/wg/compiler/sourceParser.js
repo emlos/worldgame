@@ -1368,7 +1368,7 @@ function parseSequenceBlock(file, lines, startIndex) {
       }
       return { sequence, nextIndex: index + 1 };
     }
-    if (text.startsWith("@sequence") || text.startsWith("@entry") || text.startsWith("::")) {
+    if (text.startsWith("@sequence") || text.startsWith("@entry") || text.startsWith("@location") || text.startsWith("::")) {
       failWG("Unclosed @sequence block", lineLocation(file, opening.line));
     }
 
@@ -1460,7 +1460,7 @@ function parseEntryBlock(file, lines, startIndex) {
       }
       return { entry, nextIndex: index + 1 };
     }
-    if (text.startsWith("::") || text.startsWith("@entry")) {
+    if (text.startsWith("::") || text.startsWith("@entry") || text.startsWith("@location")) {
       failWG("Unclosed @entry block", lineLocation(file, opening.line));
     }
 
@@ -1567,6 +1567,49 @@ function parseEntryBlock(file, lines, startIndex) {
   failWG("Unclosed @entry block", lineLocation(file, opening.line));
 }
 
+function parseLocationBlock(file, lines, startIndex) {
+  const opening = lines[startIndex];
+  const header = opening.text.trim().match(new RegExp(`^@location\\s+(${ID_PATTERN})\\s*$`));
+  if (!header) failWG("Malformed @location header", lineLocation(file, opening.line));
+
+  const conditions = [];
+  let index = startIndex + 1;
+  while (index < lines.length) {
+    const line = lines[index];
+    const text = line.text.trim();
+    if (!text || isComment(text)) {
+      index += 1;
+      continue;
+    }
+    if (directiveName(text) !== "when") break;
+    conditions.push(parseExpression(
+      directiveArgument(text, "when", lineLocation(file, line.line)),
+      lineLocation(file, line.line),
+    ));
+    index += 1;
+  }
+
+  const bodyStart = index;
+  while (index < lines.length) {
+    const text = lines[index].text.trim();
+    if (text === "@endlocation") {
+      const body = new SceneBodyParser(file, lines.slice(bodyStart, index)).parseNodes();
+      if (!body.length) {
+        failWG("Location contribution requires prose or choices", lineLocation(file, opening.line));
+      }
+      return {
+        contribution: { id: header[1], conditions, body, source: nodeSource(file, opening.line) },
+        nextIndex: index + 1,
+      };
+    }
+    if (text.startsWith("::") || ["entry", "sequence", "location"].includes(directiveName(text))) {
+      break;
+    }
+    index += 1;
+  }
+  failWG("Unclosed @location block", lineLocation(file, opening.line));
+}
+
 export function parseWGDocument({ file = "<wg>", source }) {
   if (typeof source !== "string") {
     failWG("WG source must be text", lineLocation(normalizeFile(file), 1));
@@ -1577,6 +1620,7 @@ export function parseWGDocument({ file = "<wg>", source }) {
   const chunks = [];
   const entries = [];
   const sequences = [];
+  const locationContributions = [];
   let currentChunk = null;
   let index = 0;
 
@@ -1595,6 +1639,13 @@ export function parseWGDocument({ file = "<wg>", source }) {
       currentChunk = null;
       const parsed = parseSequenceBlock(normalizedFile, lines, index);
       sequences.push(parsed.sequence);
+      index = parsed.nextIndex;
+      continue;
+    }
+    if (trimmed.startsWith("@location")) {
+      currentChunk = null;
+      const parsed = parseLocationBlock(normalizedFile, lines, index);
+      locationContributions.push(parsed.contribution);
       index = parsed.nextIndex;
       continue;
     }
@@ -1629,7 +1680,7 @@ export function parseWGDocument({ file = "<wg>", source }) {
         index += 1;
         continue;
       }
-      failWG("Content appears outside a scene or entry", lineLocation(normalizedFile, line.line));
+      failWG("Content appears outside a scene, entry, sequence, or location block", lineLocation(normalizedFile, line.line));
     }
     currentChunk.lines.push(line);
     index += 1;
@@ -1639,6 +1690,7 @@ export function parseWGDocument({ file = "<wg>", source }) {
     scenes: chunks.map((chunk) => parseSceneChunk(normalizedFile, chunk)),
     sequences,
     entries,
+    locationContributions,
   };
 }
 

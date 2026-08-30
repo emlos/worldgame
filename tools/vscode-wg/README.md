@@ -2,8 +2,7 @@
 
 This zero-build extension associates `*.wg` files with the Worldgame WG
 language and provides syntax highlighting, comments, indentation, bracket
-pairing, and block folding. Inline `@change` feedback, `@br` line breaks,
-`@unlock place <place-key>`, and escaped prose markers are highlighted as well.
+pairing, and block folding.
 
 Install or update it for the current Windows user from the repository root:
 

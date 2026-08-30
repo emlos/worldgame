@@ -142,7 +142,7 @@ function materializeOutcome(outcome, sequenceId) {
   };
 }
 
-function materializeChoice(node, context, { sequenceId = null } = {}) {
+function materializeChoice(node, context, { sequenceId = null, idPrefix = "" } = {}) {
   if (node.when && !Boolean(evaluateWGExpression(node.when, context))) return null;
 
   let disabledReason = null;
@@ -207,7 +207,7 @@ function materializeChoice(node, context, { sequenceId = null } = {}) {
   }
 
   return createChoice({
-    id: node.id,
+    id: `${idPrefix}${node.id}`,
     icon: node.icon,
     label: node.label,
     durationMinutes: node.check ? 0 : materializeDuration(node, context),
@@ -261,7 +261,7 @@ function resolvedDecision(node, options) {
 
 function materializeNodes(nodes, context, output, options = {}) {
   if (!Array.isArray(nodes)) fail("Scene body must be an array");
-  const sectionId = options.choiceSectionId || "choices";
+  const sectionId = options.choiceSectionId || `${options.idPrefix || ""}choices`;
   const sectionHeading = options.choiceSectionHeading === ""
     ? null
     : options.choiceSectionHeading || "Choices";
@@ -343,13 +343,19 @@ function materializeNodes(nodes, context, output, options = {}) {
       materializeNodes(node.nodes, context, output, {
         ...options,
         inChoiceGroup: true,
-        choiceSectionId: `choices:${node.id}`,
+        choiceSectionId: `${options.idPrefix || ""}choices:${node.id}`,
         choiceSectionHeading: node.heading,
       });
       continue;
     }
     fail(`Unknown scene node '${String(node?.type)}'`, node?.source);
   }
+}
+
+export function materializeWGBody(nodes, context, options = {}) {
+  const output = { content: [], sections: [] };
+  materializeNodes(nodes, context, output, options);
+  return output;
 }
 
 function activeResolution(game, type, id, passageId = null) {
@@ -372,8 +378,7 @@ export function materializeWGScene(game, definition) {
   if (!resolution && definition.kind !== "place") {
     fail("Entered WG scenes must resolve before materialization", definition.source);
   }
-  const output = { content: [], sections: [] };
-  materializeNodes(definition.body, context, output, {
+  const output = materializeWGBody(definition.body, context, {
     choiceSectionHeading: definition.choiceHeading,
     gameSeed: game.seed,
     resolution,
@@ -413,8 +418,7 @@ export function materializeWGSequence(game, definition, passageId) {
   if (!resolution) {
     fail("Entered WG sequence passages must resolve before materialization", passage.source);
   }
-  const output = { content: [], sections: [] };
-  materializeNodes(passage.body, context, output, {
+  const output = materializeWGBody(passage.body, context, {
     sequenceId: definition.id,
     choiceSectionHeading: definition.choiceHeading,
     gameSeed: game.seed,

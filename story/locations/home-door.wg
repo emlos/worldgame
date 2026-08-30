@@ -1,0 +1,19 @@
+@location home-door
+  @when "player_home" in location.visiblePlaceKeys
+
+You live at this juncture.
+
+@choicegroup notices ""
+  @choice read "Check the notice on the door" -> @exit
+    @when not flags.home_notice_read
+    @time 1m
+    @effect flag home_notice_read true
+    @response
+      A notice has been pinned to your front door.
+      Someone is asking you to contact the civil office.
+      You should probably go there as soon as possible.
+    @endresponse
+  @endchoice
+@endchoicegroup
+
+@endlocation

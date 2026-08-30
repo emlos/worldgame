@@ -41,8 +41,8 @@ Taylor looks up from the textbook.
 @endchoice
 ```
 
-Files are UTF-8 and may contain any number of top-level entry, scene, and
-sequence blocks.
+Files are UTF-8 and may contain any number of top-level entry, scene,
+sequence, and location-contribution blocks.
 
 ## Core syntax and identifiers
 
@@ -51,7 +51,7 @@ directive is recognized, so indentation is for readability. Directives occupy
 their own logical lines, except for prose `@br` markers and a trailing inline
 `@change`, described below.
 
-- Story, scene, sequence, entry, choice, and choice-group IDs start with a
+- Story, scene, sequence, entry, location-contribution, choice, and choice-group IDs start with a
   lowercase letter and may then contain lowercase letters, numbers, `_`, `-`,
   or `.`.
 - Passage IDs and scene tags use the same rules but do not allow `.`. A local
@@ -67,8 +67,8 @@ their own logical lines, except for prose `@br` markers and a trailing inline
 - `@icon` accepts either a quoted string or the non-empty remainder of its line,
   which makes a bare emoji convenient.
 
-Only blank lines, comments, and top-level `@entry`, `@sequence`, or `::` scene
-declarations may appear outside a block. Entries and sequences have explicit
+Only blank lines, comments, and top-level `@entry`, `@sequence`, `@location`, or `::` scene
+declarations may appear outside a block. Entries, sequences, and location contributions have explicit
 closing directives. A scene ends at the next top-level declaration or at the
 end of its file. Source files and emitted object keys are sorted
 deterministically, so compiling unchanged sources produces an unchanged
@@ -229,10 +229,88 @@ The key must come from `PLACE_REGISTRY`; it is not a generated instance ID or
 an outdoor location/district ID. WG does not currently expose `place.unlocked`
 or a per-key unlock-state query. See **Unlocking places** below for effect rules.
 
+## Outdoor location contributions
+
+Use `@location <id> ... @endlocation` to add prose and ordinary choices to a
+generated outdoor hub, without entering a story or replacing its map, places,
+people, or travel choices. The ID names the contribution, not a map location.
+Multiple contributions may match the same hub. Their IDs are unique across WG
+files in a separate namespace and are not valid scene/sequence targets.
+
+```wg
+@location home-door
+  @when "player_home" in location.visiblePlaceKeys
+
+You live at this juncture.
+
+@choicegroup notices ""
+  @choice read "Check the notice on the door" -> @exit
+    @when not flags.home_notice_read
+    @time 1m
+    @effect flag home_notice_read true
+    @response
+      A notice has been pinned to your front door.
+      Someone is asking you to contact the civil office.
+    @endresponse
+  @endchoice
+@endchoicegroup
+@endlocation
+```
+
+Every block-level `@when` must pass. These conditions are optional, repeatable,
+and must precede all body content. Without conditions the contribution matches
+every outdoor hub. Use the normal expression language, including `and`, `or`,
+`in`, `flags.*`, `daily.*`, `player.*`, `npc.*`, and `time.*`. Contributions
+never appear indoors or while an authored scene or sequence is active.
+
+Two location lists support containment conditions in any WG expression:
+
+- `location.placeKeys`: sorted, unique, non-empty keys of all generated places
+  in the current location, including locked places.
+- `location.visiblePlaceKeys`: the same, limited to unlocked places. Opening
+  hours and access requirements do not affect this list; a closed building
+  still exists outside. Prefer this list for player-visible opportunities.
+
+Use registry keys such as `player_home` and `civil_office`, not scene IDs or
+generated place IDs. `place` continues to mean the building the player is
+inside and remains `null` outdoors. A containment test does not select a
+building or change `place`. Unknown keys in expressions are not compiler errors;
+a membership test simply returns false. These lists are derived from the
+current world each time, so unlocking a place updates conditions immediately.
+
+Matching contributions are ordered by ID. Their prose is appended after the
+ordinary outdoor introduction; their sections precede **Places of interest**.
+All prose still renders before all choice sections, as in scenes. Within each
+contribution, sections follow the source order of their first visible choice.
+Ungrouped choices have no heading; use `@choicegroup <id> "Heading"` for a
+title or `""` for a separate heading-free group. Empty visible groups disappear,
+but independent prose remains. Runtime choice and section IDs are prefixed
+with `location:<contribution-id>:` so separate contributions can reuse local IDs.
+
+The body supports prose, interpolation, `@br`, conditionals, deterministic
+`@random` variants, choice groups, and ordinary or checked choices. Rendering
+and choice revalidation are pure: no state changes or random-stream advancement.
+Choice effects, skill checks, requirements, time, previews, unlocks, and responses
+use the same action transaction and rollback behavior as other WG choices.
+A successful `@exit` choice stays at the outdoor hub; a global scene/sequence
+target enters that story. Responses use the completed post-action state and
+are displayed only for the immediate result. Flags persist through save/load.
+
+Location contributions require a non-empty body, but prose-only blocks are
+allowed. They do not support entry metadata such as `@offer`, `@hub`, or
+`@scene`, scene metadata such as `@kind`, `@heading`, or `@choices`, or sequence
+directives such as `@passage` and `@next`. Put effects and changes inside
+choices, not persistent hub prose; body effects, inline changes, passive checks,
+and `@onenter` are rejected even inside unreachable branches. Local passage
+targets, `@leave-place`, and `@return` are rejected in direct choices and check
+outcomes. `@event-pool` is also rejected: enter a scene/sequence first if a
+choice needs a pooled continuation. No location contribution is stored as an
+active story frame or saved separately.
+
 ## Scenes
 
 A scene starts with a header and continues until the next top-level scene,
-entry, or sequence declaration:
+entry, sequence, or location-contribution declaration:
 
 ```wg
 :: taylor.study.peek [event taylor study]
@@ -582,8 +660,9 @@ The currently exposed paths are:
 - During an active pooled event: `event.poolId`, `event.entryId`,
   `event.source.storyId`, `.passageId`, and `.choiceId`. `event` is `null`
   outside a pooled event.
-- `location.id`, `location.name`, and `location.tags` for the containing
-  location.
+- `location.id`, `location.name`, `location.tags`, `location.placeKeys`, and
+  `location.visiblePlaceKeys` for the containing location. The two key lists
+  are described under **Outdoor location contributions**.
 - `place.id`, `place.key`, `place.name`, and `place.tags` while indoors.
   `place` is `null` outdoors.
 
@@ -1135,8 +1214,8 @@ Within prose, `\@` also escapes inline markers such as `\@br` and `\@change`.
 ## Validation and editor support
 
 The compiler rejects malformed directives, duplicate single-value fields,
-unclosed blocks, duplicate scene, sequence, passage, entry, choice, or
-choice-group IDs,
+unclosed blocks, duplicate scene, sequence, passage, entry, location-contribution,
+choice, or choice-group IDs,
 invalid expressions and durations, unknown global and local targets, unknown
 skill-check target types, target IDs, and difficulties, unknown registered
 skill/stat/school-subject effect IDs, missing entry targets, and direct
@@ -1148,6 +1227,8 @@ hub selectors.
 
 Compilation is whole-project rather than file-local. Scene and sequence IDs
 share one global namespace; entry IDs have a separate global namespace.
+Location-contribution IDs have their own global namespace. Their local choice
+and choice-group IDs are validated across all conditional and random branches.
 Choice and choice-group IDs are checked across all conditional and random
 branches in their scene, or separately within each sequence passage. Passage
 IDs are local to one sequence. The compiler validates all global and local
@@ -1171,7 +1252,8 @@ not implemented.
 
 | Context | Directives |
 | --- | --- |
-| Top level | `:: <scene-id> [tags...]`, `@entry ... @endentry`, `@sequence ... @endsequence`, `@#` |
+| Top level | `:: <scene-id> [tags...]`, `@entry ... @endentry`, `@sequence ... @endsequence`, `@location ... @endlocation`, `@#` |
+| Location contribution | leading `@when` conditions, prose, interpolation, `@br`, conditionals, `@random` / `@or` / `@endrandom`, `@choicegroup ... @endchoicegroup`, `@choice ... @endchoice`; choices use the restrictions above |
 | Entry | `@scene`, `@hub`, `@offer`, `@auto`, `@pool`, `@place-key`, `@place-tag`, `@location-tag`, `@when`, `@label`, `@icon`, `@hub-text`, `@priority`, `@chance`, `@weight` |
 | Scene metadata | `@kind`, `@heading`, `@choices`, `@onenter ... @endonenter` |
 | Sequence metadata/navigation | scene metadata plus `@school-class`, `@system`, `@passage`, `@next` |
