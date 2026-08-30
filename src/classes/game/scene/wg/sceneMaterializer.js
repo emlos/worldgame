@@ -91,10 +91,18 @@ function materializeSkillChanges(effects) {
     }));
 }
 
+function materializeChangeFeedback(effect) {
+  if (!effect?.feedback) return null;
+  return {
+    ...effect.feedback,
+    ...(effect.op === "stat" ? { statId: effect.id } : {}),
+  };
+}
+
 function materializeVisibleEffects(effects) {
   return (effects || [])
     .filter((effect) => effect?.feedback)
-    .map((effect) => ({ ...effect.feedback }));
+    .map(materializeChangeFeedback);
 }
 
 function materializeDuration(node, context) {
@@ -258,7 +266,7 @@ function materializeNodes(nodes, context, output, options = {}) {
       if (!options.resolution) {
         fail("Prose effects require a resolved story instance", node.source);
       }
-      appendChange(output, node.effect?.feedback);
+      appendChange(output, materializeChangeFeedback(node.effect));
       continue;
     }
     if (node?.type === "choice") {

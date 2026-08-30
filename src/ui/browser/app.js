@@ -17,6 +17,7 @@ import { STATS } from "../../data/player/stats.js";
 import { renderMap as renderGraphMap } from "./renderMap.js";
 import {
   OUTCOME,
+  outcomeForChange,
   outcomeForRange,
   outcomeForRelationship,
   setOutcomeText,
@@ -239,15 +240,9 @@ function makeChoiceButton(sceneId, choice, number) {
     );
   }
   for (const effect of choice.effectsPreview) {
-    const className =
-      effect.direction === "decrease" || effect.amount < 0
-        ? "choice-change-decrease"
-        : effect.direction === "neutral" || effect.amount === 0
-          ? "choice-effect-neutral"
-        : "choice-effect";
-    details.append(
-      makeChoiceDetail(className, formatDescriptor(effect, "effect")),
-    );
+    const detail = makeChoiceDetail("choice-effect", formatDescriptor(effect, "effect"));
+    detail.dataset.outcome = outcomeForChange(effect);
+    details.append(detail);
   }
   for (const change of choice.skillChanges) {
     const className =
@@ -931,7 +926,8 @@ function render(preludeParagraphs = []) {
       changes.className = "scene-changes";
       for (const change of block.items) {
         const item = document.createElement("span");
-        item.className = `scene-change scene-change--${change.direction}`;
+        item.className = "scene-change";
+        item.dataset.outcome = outcomeForChange(change);
         item.textContent = change.label;
         changes.append(item);
       }

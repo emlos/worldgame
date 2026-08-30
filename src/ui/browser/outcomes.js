@@ -1,3 +1,5 @@
+import { STATS } from "../../data/player/stats.js";
+
 export const OUTCOME = Object.freeze({
   VERY_GOOD: "very-good",
   OK: "ok",
@@ -52,6 +54,16 @@ export function outcomeForRelationship(score) {
   if (value > -0.35) return OUTCOME.WARNING;
   if (value > -0.7) return OUTCOME.BAD;
   return OUTCOME.DIRE;
+}
+
+/** Colour feedback by whether a change helps, independently of its label. */
+export function outcomeForChange({ type, statId, amount }) {
+  if (!Number.isFinite(amount) || amount === 0) return OUTCOME.OK;
+
+  // @change identifies its stat separately; @preview uses the stat as its type.
+  const definition = STATS[type === "stat" ? statId : type];
+  const beneficial = definition?.higherIsBetter === false ? amount < 0 : amount > 0;
+  return beneficial ? OUTCOME.VERY_GOOD : OUTCOME.BAD;
 }
 
 /**

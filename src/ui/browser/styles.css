@@ -348,16 +348,9 @@ p {
   color: var(--outcome-warning);
 }
 
-.choice-effect {
-  color: var(--outcome-very-good);
-}
-
-.choice-effect-neutral {
-  color: var(--outcome-ok);
-}
-
-.choice-change-decrease {
-  color: var(--outcome-bad);
+.choice-effect,
+.scene-change {
+  color: var(--outcome-color);
 }
 
 .choice-skill-increase {
@@ -378,18 +371,6 @@ p {
   gap: 0.35rem 0.75rem;
   margin: -0.45rem 0 1rem;
   font-size: 0.9rem;
-}
-
-.scene-change--increase {
-  color: var(--outcome-very-good);
-}
-
-.scene-change--decrease {
-  color: var(--outcome-bad);
-}
-
-.scene-change--neutral {
-  color: var(--outcome-ok);
 }
 
 .choice-warning {

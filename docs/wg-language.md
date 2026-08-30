@@ -680,6 +680,10 @@ registered data. Add an optional quoted label to override that text:
 @change relationship taylor 0.02 "+Taylor relationship"
 ```
 
+Stat feedback follows the stat's `higherIsBetter` definition, including when
+the label is overridden: reducing stress, fear, or trauma is green; increasing
+them uses the bad-outcome colour. Zero changes are neutral.
+
 Directives must occupy their own lines. A body-level `@preview` is invalid:
 previews describe an uncommitted choice, while a prose change has already been
 committed.
@@ -789,7 +793,8 @@ Choice directives are:
   is evaluated against the completed post-effect, post-transition, and
   post-time state.
 - `@preview <type> <signed-number> "<label>"`: repeatable display-only effect
-  preview. A preview never applies or validates a real effect.
+  preview. Use the stat ID as the type for stat-aware colours, for example
+  `@preview stress -2 "-Stress"`. A preview never applies or validates a real effect.
 - `@effect ...`: repeatable authoritative effect, described below.
 - `@change ... ["<label>"]`: an authoritative effect with a derived or custom
   preview. It is valid in direct choices for the same player-facing operations

@@ -10,7 +10,6 @@ SCHOOL CLASS MINIGAME IDEAS
 
 
 ui:
-- stress, -fear, -trauma should be displayed as green when used with @change or @preview, + these stats should be renderer
 - same with player stat bars - for these three - low bar good - high bar based
 - hide npc's from the player relationship overview in the phone menu if there's no met flag
 - very quick twine like fade out/in when scene is rendered
