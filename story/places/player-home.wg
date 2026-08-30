@@ -7,65 +7,115 @@
 
 :: place.player-home [place hub]
 @kind place
-@heading "Home"
-@choices "Activities"
 
-You are back in the privacy of {{place.name}}.
+You are back in the privacy of your four walls.
 
-@choice rest "Go to Bed" -> place.player-home
-  @icon 🛏️
-  @time 8h free
-  @effect stat energy +75
-@endchoice
+@choicegroup bedroom-menu "Bedroom"
 
-@choice chores "Do some chores" -> place.player-home
-  @icon 🧹
-  @time 30m
-  @effect stat energy -10
-  @effect stat hygiene 10
-  
-@endchoice
+  @choice rest "Go to Bed" -> menu.player.home.rest
+    @preview energy 1 "++Energy"
+  @endchoice
 
+@endchoicegroup
+
+@choicegroup activity-menu "Activities"
 @choice lift-weights "Lift weights" -> place.player-home
-  @icon 🏋️
   @time 5m
   @when not daily.home_weightlifting
-  @effect skill strength 0.1
+  @change skill strength 0.1
   @effect daily-flag home_weightlifting true
 @endchoice
+@endchoicegroup
 
-@choice open-jar "Open a stubborn jar"
-  @icon 🫙
-  @check skill strength tricky
+@choicegroup bathroom-menu "Bathroom"
 
-  @success -> home.jar-opened
-    @time 1m
-    @effect flag jar_opened true
-  @endsuccess
-
-  @failure -> home.jar-stuck
-    @time 1m
-    @effect flag jar_opened false
-  @endfailure
+@choice shower "Take a shower" -> place.player-home
+  @time 15m
+  @change stat hygiene +50
+  @change stat energy -5
 @endchoice
 
+@endchoicegroup
+
+@choicegroup navigation ""
 @choice leave "Leave" -> @leave-place
-  @icon 🚪
   @time 1m
 @endchoice
+@endchoicegroup
 
-:: home.jar-opened [event home skill-check]
-@heading "The stubborn jar"
+@sequence menu.player.home.rest -> @exit
 
-The lid gives way with a sharp pop. You set the opened jar down with quiet satisfaction.
+  @passage rest-menu
+  @choicegroup sleep-menu "Set your alarm to:"
 
-@choice back "Put the jar away" -> place.player-home
+You set your alarm and climb into bed. The soft sheets and warm blankets are a welcome comfort.
+How long will you sleep for?
+
+@choice sleep-8h "8 hours" -> .wake-up
+  @time 8h free
+  @effect stat energy +80
+  @effect stat hygiene -5
 @endchoice
 
-:: home.jar-stuck [event home skill-check]
-@heading "The stubborn jar"
-
-You twist until your palm aches, but the lid refuses to move.
-
-@choice back "Put the jar back" -> place.player-home
+@choice sleep-7h "7 hours" -> .wake-up
+  @time 7h free
+  @effect stat energy +70
+  @effect stat hygiene -4.5
 @endchoice
+
+@choice sleep-6h "6 hours" -> .wake-up
+  @time 6h free
+  @effect stat energy +60
+  @effect stat hygiene -4
+@endchoice
+
+@choice sleep-5h "5 hours" -> .wake-up
+  @time 5h free
+  @effect stat energy +50
+  @effect stat hygiene -3.5
+@endchoice
+
+@choice sleep-4h "4 hours" -> .wake-up
+  @time 4h free
+  @effect stat energy +40
+  @effect stat hygiene -3
+@endchoice
+
+@choice sleep-3h "3 hours" -> .wake-up
+  @time 3h free
+  @effect stat energy +30
+  @effect stat hygiene -2.5
+@endchoice
+
+@choice sleep-2h "2 hours" -> .wake-up
+  @time 2h free
+  @effect stat energy +20
+  @effect stat hygiene -2
+@endchoice
+
+@choice sleep-1h "1 hour" -> .wake-up
+  @time 1h free
+  @effect stat energy +10
+  @effect stat hygiene -1.5
+@endchoice
+
+@endchoicegroup
+
+@next "Leave" -> @exit
+
+
+
+@passage wake-up
+
+Your alarm goes off.
+@if player.energy >= 80
+  You feel well-rested, and you quickly shake off the last remnants of sleepiness.
+@elseif player.energy >= 50
+  You feel a little groggy, but you manage to get out of bed.
+@else
+  You feel exhausted, and you wish you'd slept longer. You drag yourself out of bed and get ready for the day.
+@endif
+
+@next -> @exit
+
+@endsequence
