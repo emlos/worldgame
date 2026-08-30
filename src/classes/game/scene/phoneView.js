@@ -7,9 +7,10 @@ import {
 import { WearSlot } from "../../../shared/classes/clothing.js";
 import { listNavigationDestinations } from "../navigation.js";
 
-/** Build the read-only list shown by the phone's Relationships app. */
+/** Build the read-only list of met NPCs shown by the phone's Relationships app. */
 export function buildPhoneRelationshipsView(game) {
   return [...game.npcs.values()]
+    .filter((npc) => game.player.getRelationship(npc.id).met)
     .map((npc) => ({
       id: npc.id,
       name: npc.name,

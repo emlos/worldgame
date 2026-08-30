@@ -935,7 +935,8 @@ p {
   font-size: 0.72rem;
 }
 
-.phone-gps-empty {
+.phone-gps-empty,
+.phone-relationships-empty {
   padding: 18px 8px;
   color: #8996a6;
   font-size: 0.82rem;

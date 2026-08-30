@@ -839,9 +839,17 @@ function showPhoneRelationshipsScreen() {
   playerPhoneHeading.textContent = "Relationships";
   phoneBackButton.hidden = false;
   showOnlyPhoneScreen(phoneRelationshipsScreen);
-  phoneRelationshipsList.replaceChildren(
-    ...buildPhoneRelationshipsView(game).map(makePhoneRelationshipEntry),
-  );
+  const relationships = buildPhoneRelationshipsView(game);
+  if (relationships.length) {
+    phoneRelationshipsList.replaceChildren(
+      ...relationships.map(makePhoneRelationshipEntry),
+    );
+  } else {
+    const empty = document.createElement("li");
+    empty.className = "phone-relationships-empty";
+    empty.textContent = "You haven't met anyone yet.";
+    phoneRelationshipsList.replaceChildren(empty);
+  }
   phoneRelationshipsScreen.scrollTop = 0;
 }
 
