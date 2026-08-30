@@ -349,6 +349,75 @@ function parseChange(text, file, line) {
   };
 }
 
+function parseInlineChanges(text, file, line) {
+  const parts = [];
+  let start = 0;
+  let quoted = false;
+
+  // Only unquoted, whitespace-separated markers delimit changes. Escaped
+  // quotes and directive-like text inside a custom label stay in that label.
+  for (let index = 0; index <= text.length; index += 1) {
+    const character = text[index];
+    if (quoted) {
+      if (character === "\\") index += 1;
+      else if (character === '"') quoted = false;
+      continue;
+    }
+    if (character === '"') {
+      quoted = true;
+      continue;
+    }
+    const nextChange =
+      index > 0 &&
+      /\s/.test(text[index - 1]) &&
+      text.startsWith("@change", index) &&
+      (index + 7 === text.length || /\s/.test(text[index + 7]));
+    if (index === text.length || nextChange) {
+      parts.push({
+        type: "change",
+        effect: parseChange(text.slice(start, index).trimEnd(), file, line),
+      });
+      start = index;
+    }
+  }
+  if (quoted) {
+    failWG("Unclosed quoted label in inline @change", lineLocation(file, line));
+  }
+  return parts;
+}
+
+function parseProseLine(text, file, line) {
+  const parts = [];
+  let cursor = 0;
+  const appendText = (value, column) => {
+    if (value) parts.push(...parseInterpolationParts(value, lineLocation(file, line, column)));
+  };
+
+  // A trailing chain consumes the rest of the source line. Its parser keeps
+  // directive-like text inside quoted labels out of the prose scanner.
+  for (const match of text.matchAll(/\\@|@(br|change)(?=\s|$)/g)) {
+    let preceding = text.slice(cursor, match.index);
+    if (match[1]) preceding = preceding.trimEnd();
+    appendText(preceding, cursor + 1);
+    if (match[0] === "\\@") {
+      parts.push({ type: "text", value: "@" });
+      cursor = match.index + match[0].length;
+    } else if (match[1] === "br") {
+      parts.push({ type: "break" });
+      cursor = match.index + match[0].length;
+      while (cursor < text.length && /\s/.test(text[cursor])) cursor += 1;
+    } else {
+      if (!parts.some((part) => part.type === "interpolation" || part.value?.trim())) {
+        failWG("Inline @change requires preceding prose", lineLocation(file, line));
+      }
+      parts.push(...parseInlineChanges(text.slice(match.index), file, line));
+      return parts;
+    }
+  }
+  appendText(text.slice(cursor), cursor + 1);
+  return parts;
+}
+
 class SceneBodyParser {
   constructor(file, lines, startIndex = 0) {
     this.file = file;
@@ -367,13 +436,22 @@ class SceneBodyParser {
     const flushParagraph = () => {
       if (!paragraphLines.length) return;
       const firstLine = paragraphLines[0];
-      const text = paragraphLines.map((line) => line.text.trim()).join(" ");
+      const parts = [];
+      for (const line of paragraphLines) {
+        const lineParts = line.break
+          ? [{ type: "break" }]
+          : parseProseLine(line.text, this.file, line.line);
+        if (parts.length && parts.at(-1).type !== "break" && lineParts[0]?.type !== "break") {
+          parts.push({ type: "text", value: " " });
+        }
+        parts.push(...lineParts);
+      }
+      if (!parts.some((part) => part.type === "interpolation" || part.value?.trim())) {
+        failWG("@br must be inside a prose paragraph", lineLocation(this.file, firstLine.line));
+      }
       nodes.push({
         type: "paragraph",
-        parts: parseInterpolationParts(
-          text,
-          lineLocation(this.file, firstLine.line),
-        ),
+        parts,
         source: nodeSource(this.file, firstLine.line),
       });
       paragraphLines = [];
@@ -389,6 +467,12 @@ class SceneBodyParser {
         continue;
       }
       if (isComment(trimmed)) {
+        this.index += 1;
+        continue;
+      }
+
+      if (trimmed === "@br") {
+        paragraphLines.push({ break: true, line: line.line });
         this.index += 1;
         continue;
       }
@@ -446,7 +530,7 @@ class SceneBodyParser {
         failWG("Malformed or unknown directive", lineLocation(this.file, line.line));
       }
 
-      const unescaped = trimmed.startsWith("\\@") || trimmed.startsWith("\\::")
+      const unescaped = trimmed.startsWith("\\::")
         ? trimmed.slice(1)
         : trimmed;
       paragraphLines.push({ text: unescaped, line: line.line });
@@ -988,9 +1072,11 @@ class SceneBodyParser {
     if (!closing || closing.text.trim() !== "@endresponse") {
       failWG("Unclosed @response block", lineLocation(this.file, opening.line));
     }
-    if (!paragraphs.length || paragraphs.some((node) => node.type !== "paragraph")) {
+    if (!paragraphs.length || paragraphs.some((node) =>
+      node.type !== "paragraph" || node.parts.some((part) => part.type === "change")
+    )) {
       failWG(
-        "@response requires one or more prose paragraphs",
+        "@response requires prose paragraphs without effects or inline changes",
         lineLocation(this.file, opening.line),
       );
     }

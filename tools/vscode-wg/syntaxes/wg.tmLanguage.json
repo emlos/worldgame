@@ -20,6 +20,8 @@
     { "include": "#property-directives" },
     { "include": "#block-directives" },
     { "include": "#interpolation" },
+    { "include": "#inline-change" },
+    { "include": "#prose-break" },
     { "include": "#unknown-directives" }
   ],
   "repository": {
@@ -33,6 +35,10 @@
         {
           "match": "^(\\s*)(\\\\)(?=@|::)",
           "captures": { "2": { "name": "constant.character.escape.wg" } }
+        },
+        {
+          "name": "constant.character.escape.wg",
+          "match": "\\\\@"
         }
       ]
     },
@@ -185,6 +191,29 @@
             { "name": "storage.type.effect.wg", "match": "\\b(?:set|add|flag|daily-flag|relationship|money|skill|stat|grade|attendance)\\b" },
             { "include": "#expression" }
           ]
+        }
+      ]
+    },
+    "inline-change": {
+      "patterns": [
+        {
+          "name": "meta.effect.inline.wg",
+          "begin": "(?<!\\\\)(@change)(?=\\s|$)",
+          "beginCaptures": { "1": { "name": "keyword.control.effect.wg" } },
+          "end": "$",
+          "patterns": [
+            { "name": "keyword.control.effect.wg", "match": "@change(?=\\s|$)" },
+            { "name": "storage.type.effect.wg", "match": "\\b(?:relationship|money|skill|stat|grade|attendance)\\b" },
+            { "include": "#expression" }
+          ]
+        }
+      ]
+    },
+    "prose-break": {
+      "patterns": [
+        {
+          "name": "keyword.control.prose-break.wg",
+          "match": "(?<!\\\\)@br(?=\\s|$)"
         }
       ]
     },

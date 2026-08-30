@@ -100,14 +100,18 @@ export function setOutcomeText(element, value) {
     throw new TypeError("setOutcomeText requires a DOM element");
   }
 
-  const nodes = parseOutcomeText(value).map((segment) => {
+  const textNodes = (text) => text.split("\n").flatMap((line, index) => [
+    ...(index ? [element.ownerDocument.createElement("br")] : []),
+    element.ownerDocument.createTextNode(line),
+  ]);
+  const nodes = parseOutcomeText(value).flatMap((segment) => {
     if (!segment.outcome) {
-      return element.ownerDocument.createTextNode(segment.text);
+      return textNodes(segment.text);
     }
     const span = element.ownerDocument.createElement("span");
     span.className = "outcome-text";
     span.dataset.outcome = segment.outcome;
-    span.textContent = segment.text;
+    span.append(...textNodes(segment.text));
     return span;
   });
   element.replaceChildren(...nodes);

@@ -72,6 +72,18 @@ function validateAlerts(alerts) {
   });
 }
 
+function validateChange(change, path) {
+  requireRecord(change, path);
+  requireText(change.type, `${path}.type`);
+  requireText(change.label, `${path}.label`);
+  if (!Number.isFinite(change.amount)) {
+    fail(`${path}.amount must be a finite number`);
+  }
+  if (!CHANGE_DIRECTIONS.has(change.direction)) {
+    fail(`${path}.direction must be one of: ${[...CHANGE_DIRECTIONS].join(", ")}`);
+  }
+}
+
 function validateContent(content) {
   if (!Array.isArray(content)) fail("scene.content must be an array");
   content.forEach((block, index) => {
@@ -79,7 +91,28 @@ function validateContent(content) {
     requireRecord(block, path);
     requireText(block.type, `${path}.type`);
     if (block.type === "paragraph") {
-      requireText(block.text, `${path}.text`);
+      if (block.parts === undefined) {
+        requireText(block.text, `${path}.text`);
+        return;
+      }
+      if (block.text !== undefined) fail(`${path} cannot contain both text and parts`);
+      if (!Array.isArray(block.parts) || !block.parts.length) {
+        fail(`${path}.parts must be a non-empty array`);
+      }
+      let hasText = false;
+      block.parts.forEach((part, partIndex) => {
+        const partPath = `${path}.parts[${partIndex}]`;
+        requireRecord(part, partPath);
+        if (part.type === "text") {
+          if (typeof part.text !== "string") fail(`${partPath}.text must be a string`);
+          hasText ||= Boolean(part.text.trim());
+        } else if (part.type === "change") {
+          validateChange(part.change, `${partPath}.change`);
+        } else if (part.type !== "break") {
+          fail(`${partPath}.type must be 'text', 'break', or 'change'`);
+        }
+      });
+      if (!hasText) fail(`${path}.parts must contain non-empty prose`);
       return;
     }
     if (block.type === "changes") {
@@ -88,17 +121,7 @@ function validateContent(content) {
       }
       block.items.forEach((change, changeIndex) => {
         const changePath = `${path}.items[${changeIndex}]`;
-        requireRecord(change, changePath);
-        requireText(change.type, `${changePath}.type`);
-        requireText(change.label, `${changePath}.label`);
-        if (!Number.isFinite(change.amount)) {
-          fail(`${changePath}.amount must be a finite number`);
-        }
-        if (!CHANGE_DIRECTIONS.has(change.direction)) {
-          fail(
-            `${changePath}.direction must be one of: ${[...CHANGE_DIRECTIONS].join(", ")}`,
-          );
-        }
+        validateChange(change, changePath);
       });
       return;
     }
@@ -128,7 +151,7 @@ export function validateScene(scene) {
     const sectionPath = `scene.sections[${sectionIndex}]`;
     requireRecord(section, sectionPath);
     requireText(section.id, `${sectionPath}.id`);
-    requireText(section.heading, `${sectionPath}.heading`);
+    if (section.heading !== null) requireText(section.heading, `${sectionPath}.heading`);
     if (sectionIds.has(section.id)) {
       fail(`Duplicate scene section id '${section.id}'`);
     }

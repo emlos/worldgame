@@ -74,15 +74,13 @@
 
   @passage argued
 
-  You explain that a narrator can report events honestly and still misunderstand what those events mean. The teacher nods and uses your answer to move the discussion forward. 
-  @change grade english 1
+  You explain that a narrator can report events honestly and still misunderstand what those events mean. The teacher nods and uses your answer to move the discussion forward.   @change grade english 1
 
   @next -> @return
 
   @passage misread
 
-  You start confidently, but mix up the narrator's assumptions with the author's intent. The teacher corrects the distinction before moving the discussion on.
-  @change grade english -1
+  You start confidently, but mix up the narrator's assumptions with the author's intent. The teacher corrects the distinction before moving the discussion on.  @change grade english -1
 
   @next -> @return
 
@@ -146,15 +144,13 @@
 
   @passage steady
 
-  You keep a measured pace and land the difficult sentences cleanly. By the end, several classmates are following your rhythm instead of the page.
-  @change grade english 1
+  You keep a measured pace and land the difficult sentences cleanly. By the end, several classmates are following your rhythm instead of the page.  @change grade english 1
 
   @next -> @return
 
   @passage stumbled
 
-  A sentence catches you halfway through. You recover, but not before the room hears the hesitation.
-  @change grade english -1
+  A sentence catches you halfway through. You recover, but not before the room hears the hesitation.  @change grade english -1
 
   @if player.education.english.grade < 70
   You feel embarrassed, this shouldn't have been so difficult!
@@ -209,8 +205,7 @@
   @passage ignored
 
   You keep your head down and focus on your work. It's very hard to focus. 
-  The teacher eventually regains control of the class.
-  @change grade english -1
+  The teacher eventually regains control of the class.  @change grade english -1
 
   @next -> @return
 
@@ -295,20 +290,17 @@
   @endchoice
 
   @passage solved
-  You confidently solve the problem and explain your reasoning to the class. The teacher praises your work.
-  @change grade math 1
+  You confidently solve the problem and explain your reasoning to the class. The teacher praises your work.  @change grade math 1
 
   @next -> @return
 
   @passage struggled
-  You attempt to solve the problem, but you make a mistake in your calculations. The teacher corrects you and explains the right approach.
-  @change grade math -1
+  You attempt to solve the problem, but you make a mistake in your calculations. The teacher corrects you and explains the right approach.  @change grade math -1
 
   @next -> @return
 
   @passage listened
-  You stay quiet and listen to the other students' solutions. You learn a few new techniques, but you don't get to participate in the discussion.
-  @change grade math 1
+  You stay quiet and listen to the other students' solutions. You learn a few new techniques, but you don't get to participate in the discussion.  @change grade math 1
   
   @next -> @return
 @endsequence
@@ -334,21 +326,17 @@
   @endchoice
 
   @passage contributed
-  You actively participate in the group discussion and help solve the problems. Your group appreciates your input.
-  @change grade math 1
+  You actively participate in the group discussion and help solve the problems. Your group appreciates your input.  @change grade math 1
 
   @next -> @return
 
   @passage ignored
-  You try to contribute, but your group members don't seem to value your input. You feel a bit left out.
-  @change grade math -1
-  @change stat stress 5
+  You try to contribute, but your group members don't seem to value your input. You feel a bit left out.  @change grade math -1  @change stat stress 5
 
   @next -> @return
 
   @passage listened
-  You stay quiet and listen to your group members' ideas. You learn a lot, but you don't get to share your own thoughts.
-  @change grade math 1
+  You stay quiet and listen to your group members' ideas. You learn a lot, but you don't get to share your own thoughts.  @change grade math 1
   
   @next -> @return
 
@@ -393,14 +381,12 @@
   @endchoice
 
   @passage correct
-  You confidently solve the problem and explain your reasoning. The teacher praises your work.
-  @change grade math 2
+  You confidently solve the problem and explain your reasoning. The teacher praises your work.  @change grade math 2
 
   @next -> @return
 
   @passage incorrect
-  You make a mistake in your calculations and the teacher corrects you. You feel embarrassed, but you learn from the experience.
-  @change grade math -2
+  You make a mistake in your calculations and the teacher corrects you. You feel embarrassed, but you learn from the experience.  @change grade math -2
   
   @passage failure
   You stay at your seat, hoping the teacher will call on someone else. The teacher eventually gives up and moves on, but you feel a bit embarrassed for not participating.
@@ -486,8 +472,7 @@
 
   @passage defense-strong
 
-  You connect the ruler's reforms to conditions people actually faced at the time. Even the opposing side has trouble finding a clean rebuttal.
-  @change grade history 2
+  You connect the ruler's reforms to conditions people actually faced at the time. Even the opposing side has trouble finding a clean rebuttal.  @change grade history 2
 
   @choice trial-share-credit "Share the closing argument with Taylor" -> .shared-verdict
     @when npc.taylor.present
@@ -498,9 +483,7 @@
 
   @passage defense-weak
 
-  You lean too heavily on one reform and overlook the people harmed by it. The opposing side immediately points out the gap.
-  @change grade history -1
-  @change stat stress 2
+  You lean too heavily on one reform and overlook the people harmed by it. The opposing side immediately points out the gap.  @change grade history -1  @change stat stress 2
 
   @choice trial-admit-gap "Acknowledge the flaw and revise your argument" -> .honest-recovery
   @endchoice
@@ -515,17 +498,13 @@
 
   @passage prosecution-strong
 
-  You arrange the evidence into a sharp argument about power, fear, and the cost of the ruler's victories. The room goes quiet during your conclusion.
-  @change grade history 2
-  @change skill speech 0.1
+  You arrange the evidence into a sharp argument about power, fear, and the cost of the ruler's victories. The room goes quiet during your conclusion.  @change grade history 2  @change skill speech 0.1
 
   @next -> .solo-verdict
 
   @passage prosecution-weak
 
-  Your accusation sounds forceful, but the chronology does not support it. The teacher stops you to correct two of the dates.
-  @change grade history -1
-  @change stat stress 2
+  Your accusation sounds forceful, but the chronology does not support it. The teacher stops you to correct two of the dates.  @change grade history -1  @change stat stress 2
 
   @next -> .failed-verdict
 
@@ -543,31 +522,25 @@
 
   @passage honest-recovery
 
-  You concede the weak point and rebuild the argument around stronger evidence. The teacher praises the correction more than the original claim.
-  @change grade history 1
-  @change skill resolve 0.1
+  You concede the weak point and rebuild the argument around stronger evidence. The teacher praises the correction more than the original claim.  @change grade history 1  @change skill resolve 0.1
 
   @next -> @return
 
   @passage shared-verdict
 
-  You and Taylor deliver the conclusion together. Your case does not answer every question, but it is balanced and convincing.
-  @change grade history 1
-  @change relationship taylor 1
+  You and Taylor deliver the conclusion together. Your case does not answer every question, but it is balanced and convincing.  @change grade history 1  @change relationship taylor 1
 
   @next -> @return
 
   @passage solo-verdict
 
-  You deliver the final argument yourself. The teacher nods at the structure of your case before announcing the class verdict.
-  @change skill speech 0.1
+  You deliver the final argument yourself. The teacher nods at the structure of your case before announcing the class verdict.  @change skill speech 0.1
 
   @next -> @return
 
   @passage failed-verdict
 
-  The argument falls apart under questioning. You return to your seat with a much clearer idea of which evidence you should have used.
-  @change grade history -1
+  The argument falls apart under questioning. You return to your seat with a much clearer idea of which evidence you should have used.  @change grade history -1
 
   @next -> @return
 @endsequence
@@ -596,8 +569,7 @@
 
   @passage clue-found
 
-  You notice that the report was filed before the time it claims the protest ended. Someone completed the paperwork before events had finished.
-  @change skill perception 0.1
+  You notice that the report was filed before the time it claims the protest ended. Someone completed the paperwork before events had finished.  @change skill perception 0.1
 
   @choice source-expose "Explain why the report is unreliable" -> .exposed
   @endchoice
@@ -608,38 +580,31 @@
 
   @passage clue-missed
 
-  The accounts contradict one another, but you cannot find enough context to decide why.
-  @change grade history -1
+  The accounts contradict one another, but you cannot find enough context to decide why.  @change grade history -1
 
   @next -> @return
 
   @passage official
 
-  You argue that the official document is more dependable because it was written for the public record. The teacher asks who controlled that record and why.
-  @change stat mind 1
+  You argue that the official document is more dependable because it was written for the public record. The teacher asks who controlled that record and why.  @change stat mind 1
 
   @next -> @return
 
   @passage taylor-notes
 
-  Taylor points to the language each author uses. Together, you separate what both accounts agree happened from the motives each one assigns.
-  @change relationship taylor 1
-  @change grade history 1
+  Taylor points to the language each author uses. Together, you separate what both accounts agree happened from the motives each one assigns.  @change relationship taylor 1  @change grade history 1
 
   @next -> @return
 
   @passage exposed
 
-  You present the timestamp and explain that neither account can be accepted without checking when and why it was produced.
-  @change grade history 2
+  You present the timestamp and explain that neither account can be accepted without checking when and why it was produced.  @change grade history 2
 
   @next -> @return
 
   @passage shared-clue
 
-  Taylor's eyes widen when she sees the timestamp. {{npc.taylor.subject | cap}} encourages you to present it, then backs up your explanation when the teacher questions it.
-  @change relationship taylor 2
-  @change grade history 1
+  Taylor's eyes widen when she sees the timestamp. {{npc.taylor.subject | cap}} encourages you to present it, then backs up your explanation when the teacher questions it.  @change relationship taylor 2  @change grade history 1
 
   @next -> @return
 @endsequence
@@ -668,39 +633,31 @@
 
   @passage negotiation-success
 
-  You frame negotiation as a way to divide the opposing alliance rather than surrender. Several undecided students switch to your side.
-  @change grade history 2
-  @change skill speech 0.1
+  You frame negotiation as a way to divide the opposing alliance rather than surrender. Several undecided students switch to your side.  @change grade history 2  @change skill speech 0.1
 
   @next -> .consequences
 
   @passage negotiation-failure
 
-  Your proposal sounds reasonable, but you cannot answer what happens if the blockade continues during the talks.
-  @change grade history -1
-  @change stat stress 2
+  Your proposal sounds reasonable, but you cannot answer what happens if the blockade continues during the talks.  @change grade history -1  @change stat stress 2
 
   @next -> .consequences
 
   @passage cautious
 
-  You refuse to commit until the group verifies its reports. The decision costs time, but it prevents the class from acting on false information.
-  @change grade history 1
-  @change skill resolve 0.1
+  You refuse to commit until the group verifies its reports. The decision costs time, but it prevents the class from acting on false information.  @change grade history 1  @change skill resolve 0.1
 
   @next -> .consequences
 
   @passage taylor-plan
 
-  Taylor proposes sending a secret convoy through the blockade. You help {{npc.taylor.object}} answer the group's objections and refine the route.
-  @change relationship taylor 2
+  Taylor proposes sending a secret convoy through the blockade. You help {{npc.taylor.object}} answer the group's objections and refine the route.  @change relationship taylor 2
 
   @next -> .consequences
 
   @passage consequences
 
-  The teacher reveals the historical outcome. Every available option carried a cost, and the class spends the final minutes comparing those costs with its own decisions.
-  @change stat mind 1
+  The teacher reveals the historical outcome. Every available option carried a cost, and the class spends the final minutes comparing those costs with its own decisions.  @change stat mind 1
 
   @next -> @return
 @endsequence
@@ -729,32 +686,25 @@
 
   @passage map-solved
 
-  You match the place names to the period when each language was used. The layers suddenly form a clear chronology.
-  @change grade history 2
-  @change skill perception 0.1
+  You match the place names to the period when each language was used. The layers suddenly form a clear chronology.  @change grade history 2  @change skill perception 0.1
 
   @next -> @return
 
   @passage map-confused
 
-  You mistake a later occupation line for the original border. The teacher corrects the sequence and explains why the map was designed to encourage that reading.
-  @change grade history -1
+  You mistake a later occupation line for the original border. The teacher corrects the sequence and explains why the map was designed to encourage that reading.  @change grade history -1
 
   @next -> @return
 
   @passage map-critical
 
-  You point out that every version places its preferred border in the strongest colour. The teacher uses your observation to discuss maps as political arguments.
-  @change grade history 1
-  @change stat mind 1
+  You point out that every version places its preferred border in the strongest colour. The teacher uses your observation to discuss maps as political arguments.  @change grade history 1  @change stat mind 1
 
   @next -> @return
 
   @passage map-taylor
 
-  You trace the borders while Taylor reads the legend. When your interpretations differ, you combine them into a stronger explanation.
-  @change relationship taylor 1
-  @change grade history 1
+  You trace the borders while Taylor reads the legend. When your interpretations differ, you combine them into a stronger explanation.  @change relationship taylor 1  @change grade history 1
 
   @next -> @return
 @endsequence
@@ -829,9 +779,7 @@
 
   @passage contained
 
-  You remove the heat and slide the beaker into the safety tray before the foam reaches the top. A mislabeled measuring spoon turns out to be the cause.
-  @change grade science 2
-  @change skill perception 0.1
+  You remove the heat and slide the beaker into the safety tray before the foam reaches the top. A mislabeled measuring spoon turns out to be the cause.  @change grade science 2  @change skill perception 0.1
 
   @choice reaction-report-cause "Show the mislabeled spoon to the teacher" -> .commended
   @endchoice
@@ -841,41 +789,31 @@
 
   @passage spill
 
-  You grab the wrong clamp. The beaker tips, covering the bench in harmless but foul-smelling foam.
-  @change grade science -1
-  @change stat hygiene -5
-  @change stat stress 3
+  You grab the wrong clamp. The beaker tips, covering the bench in harmless but foul-smelling foam.  @change grade science -1  @change stat hygiene -5  @change stat stress 3
 
   @next -> @return
 
   @passage reported
 
-  The teacher cuts the heat and contains the reaction. You lose the experiment, but your quick report prevents the rest of the table from being splashed.
-  @change grade science 1
-  @change skill resolve 0.1
+  The teacher cuts the heat and contains the reaction. You lose the experiment, but your quick report prevents the rest of the table from being splashed.  @change grade science 1  @change skill resolve 0.1
 
   @next -> @return
 
   @passage taylor-stabilizes
 
-  Taylor follows your instructions while you monitor the foam. Together you bring the reaction under control just before it spills.
-  @change relationship taylor 2
-  @change grade science 1
+  Taylor follows your instructions while you monitor the foam. Together you bring the reaction under control just before it spills.  @change relationship taylor 2  @change grade science 1
 
   @next -> @return
 
   @passage commended
 
-  The teacher thanks you for identifying an equipment problem and replaces the entire set before another group uses it.
-  @change grade science 1
+  The teacher thanks you for identifying an equipment problem and replaces the entire set before another group uses it.  @change grade science 1
 
   @next -> @return
 
   @passage hidden
 
-  Nobody notices the substitution, but you spend the rest of the lesson wondering whether another group received faulty equipment too.
-  @change stat stress 2
-  @change grade science -1
+  Nobody notices the substitution, but you spend the rest of the lesson wondering whether another group received faulty equipment too.  @change stat stress 2  @change grade science -1
 
   @next -> @return
 @endsequence
@@ -904,8 +842,7 @@
 
   @passage sample-clues
 
-  Tiny cubic breaks along one edge narrow the possibilities to two minerals. One final hardness test will settle it.
-  @change skill perception 0.1
+  Tiny cubic breaks along one edge narrow the possibilities to two minerals. One final hardness test will settle it.  @change skill perception 0.1
 
   @choice sample-careful-test "Perform a careful hardness test" -> .sample-correct
   @endchoice
@@ -915,38 +852,31 @@
 
   @passage sample-misread
 
-  Reflected light makes the sample seem metallic. You identify it confidently, only to learn that you were looking at residue from its container.
-  @change grade science -1
+  Reflected light makes the sample seem metallic. You identify it confidently, only to learn that you were looking at residue from its container.  @change grade science -1
 
   @next -> @return
 
   @passage sample-methodical
 
-  You work through the test sheet in order and eliminate each alternative. It takes longer, but your conclusion is difficult to dispute.
-  @change grade science 2
-  @change stat mind 1
+  You work through the test sheet in order and eliminate each alternative. It takes longer, but your conclusion is difficult to dispute.  @change grade science 2  @change stat mind 1
 
   @next -> @return
 
   @passage sample-taylor
 
-  Taylor records density while you test hardness. Your independent results point to the same mineral.
-  @change relationship taylor 1
-  @change grade science 1
+  Taylor records density while you test hardness. Your independent results point to the same mineral.  @change relationship taylor 1  @change grade science 1
 
   @next -> @return
 
   @passage sample-correct
 
-  The sample scratches the reference plate exactly as predicted. Your identification is correct.
-  @change grade science 2
+  The sample scratches the reference plate exactly as predicted. Your identification is correct.  @change grade science 2
 
   @next -> @return
 
   @passage sample-guess
 
-  Your first impression was close, but the teacher reveals a similar-looking mineral with a different hardness.
-  @change grade science -1
+  Your first impression was close, but the teacher reveals a similar-looking mineral with a different hardness.  @change grade science -1
 
   @next -> @return
 @endsequence
@@ -975,16 +905,13 @@
 
   @passage bridge-strong
 
-  Your triangular folds distribute the load across the entire span. The bridge survives every textbook the teacher places on it.
-  @change grade science 2
+  Your triangular folds distribute the load across the entire span. The bridge survives every textbook the teacher places on it.  @change grade science 2
 
   @next -> @return
 
   @passage bridge-flawed
 
-  The centre support bends sideways under the second book. Once you see the failure, the missing brace is painfully obvious.
-  @change grade science -1
-  @change stat stress 2
+  The centre support bends sideways under the second book. Once you see the failure, the missing brace is painfully obvious.  @change grade science -1  @change stat stress 2
 
   @choice bridge-salvage "Reinforce the weak side before the final test"
     @check skill resolve tricky
@@ -999,25 +926,19 @@
 
   @passage bridge-tested
 
-  Several ugly prototypes fail, but each teaches you where the paper bends. Your final bridge is inelegant and remarkably strong.
-  @change grade science 1
-  @change skill perception 0.1
+  Several ugly prototypes fail, but each teaches you where the paper bends. Your final bridge is inelegant and remarkably strong.  @change grade science 1  @change skill perception 0.1
 
   @next -> @return
 
   @passage bridge-taylor
 
-  Taylor sketches a daring arch while you translate it into careful folds. The finished bridge sways under load but holds.
-  @change relationship taylor 2
-  @change grade science 1
+  Taylor sketches a daring arch while you translate it into careful folds. The finished bridge sways under load but holds.  @change relationship taylor 2  @change grade science 1
 
   @next -> @return
 
   @passage bridge-salvaged
 
-  You add a diagonal brace seconds before testing. The repaired bridge holds long enough to earn a passing result.
-  @change grade science 1
-  @change skill resolve 0.1
+  You add a diagonal brace seconds before testing. The repaired bridge holds long enough to earn a passing result.  @change grade science 1  @change skill resolve 0.1
 
   @next -> @return
 
@@ -1052,33 +973,25 @@
 
   @passage result-explained
 
-  On the second run, you notice condensation collecting beneath the lid before weighing. The supposedly closed experiment was trapping water from the air.
-  @change grade science 2
-  @change stat mind 1
+  On the second run, you notice condensation collecting beneath the lid before weighing. The supposedly closed experiment was trapping water from the air.  @change grade science 2  @change stat mind 1
 
   @next -> @return
 
   @passage result-persists
 
-  The strange result appears again. You document every step and submit it without pretending you understand the cause.
-  @change grade science 1
-  @change stat stress 2
+  The strange result appears again. You document every step and submit it without pretending you understand the cause.  @change grade science 1  @change stat stress 2
 
   @next -> @return
 
   @passage result-fudged
 
-  You alter the number until it resembles the expected result. The teacher spots that your raw notes and graph no longer match.
-  @change grade science -2
-  @change stat stress 3
+  You alter the number until it resembles the expected result. The teacher spots that your raw notes and graph no longer match.  @change grade science -2  @change stat stress 3
 
   @next -> @return
 
   @passage result-taylor
 
-  Taylor finds a unit conversion copied incorrectly from the board. Correcting it makes every measurement fall into place.
-  @change relationship taylor 2
-  @change grade science 1
+  Taylor finds a unit conversion copied incorrectly from the board. Correcting it makes every measurement fall into place.  @change relationship taylor 2  @change grade science 1
 
   @next -> @return
 @endsequence
@@ -1155,9 +1068,7 @@
 
   @passage portrait-honest
 
-  You stop thinking in terms of individual features and capture the expression holding them together. The portrait feels recognizably alive.
-  @change grade art 2
-  @change skill perception 0.1
+  You stop thinking in terms of individual features and capture the expression holding them together. The portrait feels recognizably alive.  @change grade art 2  @change skill perception 0.1
 
   @choice portrait-show-private "Show Taylor privately first" -> .portrait-private
     @when npc.taylor.present
@@ -1168,19 +1079,16 @@
 
   @passage portrait-stiff
 
-  Every feature is technically present, yet the face looks posed and distant. The teacher suggests drawing the movement of the expression instead of its outline.
-  @change grade art -1
+  Every feature is technically present, yet the face looks posed and distant. The teacher suggests drawing the movement of the expression instead of its outline.  @change grade art -1
 
   @next -> @return
 
   @passage portrait-flattering
 
-  You smooth every awkward line and exaggerate the most appealing features. The result is attractive, although it resembles an advertisement more than a person.
-  @change grade art 1
+  You smooth every awkward line and exaggerate the most appealing features. The result is attractive, although it resembles an advertisement more than a person.  @change grade art 1
 
   @if npc.taylor.present
-  Taylor seems pleased at first, then studies the drawing as if wondering what you chose not to include.
-  @change relationship taylor 1
+  Taylor seems pleased at first, then studies the drawing as if wondering what you chose not to include.  @change relationship taylor 1
   @endif
 
   @next -> @return
@@ -1197,32 +1105,25 @@
 
   @passage portrait-private
 
-  Taylor studies the portrait quietly before smiling. "You make me look like I'm thinking something clever," {{npc.taylor.subject}} says.
-  @change relationship taylor 2
+  Taylor studies the portrait quietly before smiling. "You make me look like I'm thinking something clever," {{npc.taylor.subject}} says.  @change relationship taylor 2
 
   @next -> @return
 
   @passage portrait-display
 
-  The teacher points out your use of expression and asks the class what story they imagine behind it.
-  @change grade art 1
-  @change stat stress 1
+  The teacher points out your use of expression and asks the class what story they imagine behind it.  @change grade art 1  @change stat stress 1
 
   @next -> @return
 
   @passage caricature-reveal
 
-  Taylor stares at the enormous grin, then breaks the pose by laughing. The teacher calls it expressive, if not especially subtle.
-  @change relationship taylor 2
-  @change grade art 1
+  Taylor stares at the enormous grin, then breaks the pose by laughing. The teacher calls it expressive, if not especially subtle.  @change relationship taylor 2  @change grade art 1
 
   @next -> @return
 
   @passage caricature-hidden
 
-  Taylor catches a glimpse before you cover the page. {{npc.taylor.subject | cap}} spends the rest of the exercise trying to see what you drew.
-  @change relationship taylor -1
-  @change stat stress 2
+  Taylor catches a glimpse before you cover the page. {{npc.taylor.subject | cap}} spends the rest of the exercise trying to see what you drew.  @change relationship taylor -1  @change stat stress 2
 
   @next -> @return
 @endsequence
@@ -1251,17 +1152,13 @@
 
   @passage critique-explained
 
-  You explain the visual path you wanted the viewer to follow. Once you name it, the class offers practical ways to make that path clearer.
-  @change grade art 2
-  @change skill speech 0.1
+  You explain the visual path you wanted the viewer to follow. Once you name it, the class offers practical ways to make that path clearer.  @change grade art 2  @change skill speech 0.1
 
   @next -> @return
 
   @passage critique-defensive
 
-  Your explanation turns into an argument about why the class misunderstood you. The teacher reminds you that confusion is itself useful feedback.
-  @change grade art -1
-  @change stat stress 3
+  Your explanation turns into an argument about why the class misunderstood you. The teacher reminds you that confusion is itself useful feedback.  @change grade art -1  @change stat stress 3
 
   @choice critique-apologize "Back down and ask for specific advice" -> .critique-recovered
   @endchoice
@@ -1271,9 +1168,7 @@
 
   @passage critique-listened
 
-  You write down the comments instead of answering them. Some criticism feels unfair, but several people identify the same weak area.
-  @change grade art 1
-  @change skill resolve 0.1
+  You write down the comments instead of answering them. Some criticism feels unfair, but several people identify the same weak area.  @change grade art 1  @change skill resolve 0.1
 
   @next -> @return
 
@@ -1289,32 +1184,25 @@
 
   @passage critique-recovered
 
-  You take a breath and ask the class where their eyes go first. The answers give you a clear revision plan.
-  @change grade art 1
-  @change skill resolve 0.1
+  You take a breath and ask the class where their eyes go first. The answers give you a clear revision plan.  @change grade art 1  @change skill resolve 0.1
 
   @next -> @return
 
   @passage critique-stubborn
 
-  The discussion ends awkwardly. Your work remains unchanged, along with the problem everyone noticed.
-  @change grade art -1
+  The discussion ends awkwardly. Your work remains unchanged, along with the problem everyone noticed.  @change grade art -1
 
   @next -> @return
 
   @passage critique-taylor-thanks
 
-  You mark Taylor's suggestion beside your sketch. {{npc.taylor.subject | cap}} looks relieved that you took the honesty well.
-  @change relationship taylor 2
-  @change grade art 1
+  You mark Taylor's suggestion beside your sketch. {{npc.taylor.subject | cap}} looks relieved that you took the honesty well.  @change relationship taylor 2  @change grade art 1
 
   @next -> @return
 
   @passage critique-taylor-dismissed
 
-  Taylor shrugs and stops offering suggestions. A few minutes later, the teacher identifies the same problem.
-  @change relationship taylor -2
-  @change grade art -1
+  Taylor shrugs and stops offering suggestions. A few minutes later, the teacher identifies the same problem.  @change relationship taylor -2  @change grade art -1
 
   @next -> @return
 @endsequence
@@ -1343,17 +1231,13 @@
 
   @passage mural-unified
 
-  You persuade each table to repeat one colour and one horizon line. The wildly different neighborhoods begin to look like parts of the same city.
-  @change grade art 2
-  @change skill speech 0.1
+  You persuade each table to repeat one colour and one horizon line. The wildly different neighborhoods begin to look like parts of the same city.  @change grade art 2  @change skill speech 0.1
 
   @next -> @return
 
   @passage mural-argument
 
-  Everyone agrees that the mural needs a plan, but nobody agrees that yours should be it. The discussion consumes most of the painting time.
-  @change stat stress 3
-  @change grade art -1
+  Everyone agrees that the mural needs a plan, but nobody agrees that yours should be it. The discussion consumes most of the painting time.  @change stat stress 3  @change grade art -1
 
   @choice mural-compromise "Abandon your plan and find a compromise" -> .mural-compromise
   @endchoice
@@ -1363,32 +1247,25 @@
 
   @passage mural-independent
 
-  Your section is carefully rendered and visually strong, but it meets the neighboring sections in abrupt walls of mismatched colour.
-  @change grade art 1
+  Your section is carefully rendered and visually strong, but it meets the neighboring sections in abrupt walls of mismatched colour.  @change grade art 1
 
   @next -> @return
 
   @passage mural-taylor
 
-  Taylor proposes turning the mismatched borders into a river winding through the city. You extend the idea across both sections.
-  @change relationship taylor 2
-  @change grade art 1
+  Taylor proposes turning the mismatched borders into a river winding through the city. You extend the idea across both sections.  @change relationship taylor 2  @change grade art 1
 
   @next -> @return
 
   @passage mural-compromise
 
-  You reduce the plan to a shared horizon and let every table interpret the details. It is enough to hold the mural together.
-  @change grade art 1
-  @change skill resolve 0.1
+  You reduce the plan to a shared horizon and let every table interpret the details. It is enough to hold the mural together.  @change grade art 1  @change skill resolve 0.1
 
   @next -> @return
 
   @passage mural-takeover
 
-  The boundary looks cleaner after you repaint it, but the neighboring group is furious that part of its work disappeared.
-  @change grade art -1
-  @change stat stress 2
+  The boundary looks cleaner after you repaint it, but the neighboring group is furious that part of its work disappeared.  @change grade art -1  @change stat stress 2
 
   @next -> @return
 @endsequence
@@ -1423,42 +1300,33 @@
 
   @passage ruined-transformed
 
-  You tilt the paper and guide the stain through the background. What looked like damage becomes a storm behind the original subject.
-  @change grade art 2
+  You tilt the paper and guide the stain through the background. What looked like damage becomes a storm behind the original subject.  @change grade art 2
 
   @if npc.taylor.present
-  Taylor looks from the altered drawing to you with astonished relief.
-  @change relationship taylor 2
+  Taylor looks from the altered drawing to you with astonished relief.  @change relationship taylor 2
   @endif
 
   @next -> @return
 
   @passage ruined-worse
 
-  Your added marks muddy the remaining clean areas. The teacher finally separates the soaked page from the table and suggests starting again.
-  @change grade art -1
-  @change stat stress 3
+  Your added marks muddy the remaining clean areas. The teacher finally separates the soaked page from the table and suggests starting again.  @change grade art -1  @change stat stress 3
 
   @if npc.taylor.present
-  Taylor tries not to look annoyed, without much success.
-  @change relationship taylor -1
+  Taylor tries not to look annoyed, without much success.  @change relationship taylor -1
   @endif
 
   @next -> @return
 
   @passage ruined-contained
 
-  You sacrifice a stack of paper towels to stop the water. The drawing is scarred along one edge, but most of it survives.
-  @change skill perception 0.1
-  @change grade art 1
+  You sacrifice a stack of paper towels to stop the water. The drawing is scarred along one edge, but most of it survives.  @change skill perception 0.1  @change grade art 1
 
   @next -> @return
 
   @passage ruined-taylor
 
-  You give Taylor your clean paper and help reconstruct the composition from memory. {{npc.taylor.subject | cap}} relaxes once the new version begins taking shape.
-  @change relationship taylor 2
-  @change grade art 1
+  You give Taylor your clean paper and help reconstruct the composition from memory. {{npc.taylor.subject | cap}} relaxes once the new version begins taking shape.  @change relationship taylor 2  @change grade art 1
 
   @next -> @return
 @endsequence
@@ -1534,10 +1402,7 @@
 
   @passage dodgeball-dominant
 
-  You dodge the first throw, recover the loose ball, and eliminate two opponents before they can retreat.
-  @change grade physical_education 2
-  @change skill fitness 0.1
-  @change stat energy -2
+  You dodge the first throw, recover the loose ball, and eliminate two opponents before they can retreat.  @change grade physical_education 2  @change skill fitness 0.1  @change stat energy -2
 
   @choice dodgeball-finish "Take the difficult final shot"
     @check skill perception difficult
@@ -1552,17 +1417,13 @@
 
   @passage dodgeball-catch
 
-  You read a throw early and catch it cleanly, bringing one of your teammates back into the game.
-  @change grade physical_education 1
-  @change skill perception 0.1
+  You read a throw early and catch it cleanly, bringing one of your teammates back into the game.  @change grade physical_education 1  @change skill perception 0.1
 
   @next -> @return
 
   @passage dodgeball-out
 
-  You react a moment too late. The ball clips your leg, and you join the eliminated players against the wall.
-  @change grade physical_education -1
-  @change stat stress 1
+  You react a moment too late. The ball clips your leg, and you join the eliminated players against the wall.  @change grade physical_education -1  @change stat stress 1
 
   @next -> @return
 
@@ -1578,39 +1439,31 @@
 
   @passage dodgeball-win
 
-  Your final throw catches the last opponent moving the wrong way. Your team erupts in celebration.
-  @change grade physical_education 1
+  Your final throw catches the last opponent moving the wrong way. Your team erupts in celebration.  @change grade physical_education 1
 
   @next -> @return
 
   @passage dodgeball-overreach
 
-  You throw before setting your feet. The ball sails wide, and the return throw catches you immediately.
-  @change stat stress 2
+  You throw before setting your feet. The ball sails wide, and the return throw catches you immediately.  @change stat stress 2
 
   @next -> @return
 
   @passage dodgeball-team-win
 
-  Your teammate lands the easier shot. You do not get the dramatic finish, but the team wins because you passed.
-  @change grade physical_education 1
-  @change skill resolve 0.1
+  Your teammate lands the easier shot. You do not get the dramatic finish, but the team wins because you passed.  @change grade physical_education 1  @change skill resolve 0.1
 
   @next -> @return
 
   @passage dodgeball-sacrifice
 
-  The ball strikes your shoulder instead of Taylor. {{npc.taylor.subject | cap}} looks guilty until you point out that {{npc.taylor.subject }} is still in the game.
-  @change relationship taylor 2
-  @change stat health -1
+  The ball strikes your shoulder instead of Taylor. {{npc.taylor.subject | cap}} looks guilty until you point out that {{npc.taylor.subject }} is still in the game.  @change relationship taylor 2  @change stat health -1
 
   @next -> @return
 
   @passage dodgeball-taylor-shot
 
-  Taylor hesitates, throws, and catches the final opponent on the ankle. {{npc.taylor.subject | cap}} turns to you in delighted disbelief.
-  @change relationship taylor 2
-  @change grade physical_education 1
+  Taylor hesitates, throws, and catches the final opponent on the ankle. {{npc.taylor.subject | cap}} turns to you in delighted disbelief.  @change relationship taylor 2  @change grade physical_education 1
 
   @next -> @return
 @endsequence
@@ -1645,18 +1498,13 @@
 
   @passage obstacle-fast
 
-  You clear the opening barriers without breaking stride and reach the rope with time to spare.
-  @change grade physical_education 2
-  @change skill endurance 0.1
-  @change stat energy -3
+  You clear the opening barriers without breaking stride and reach the rope with time to spare.  @change grade physical_education 2  @change skill endurance 0.1  @change stat energy -3
 
   @next -> .obstacle-final
 
   @passage obstacle-exhausted
 
-  You attack the first obstacles too quickly. By the rope climb, your arms are shaking and your partner has caught up with you.
-  @change stat energy -5
-  @change grade physical_education -1
+  You attack the first obstacles too quickly. By the rope climb, your arms are shaking and your partner has caught up with you.  @change stat energy -5  @change grade physical_education -1
 
   @choice obstacle-force "Force yourself through the final obstacles"
     @check skill resolve tricky
@@ -1671,16 +1519,13 @@
 
   @passage obstacle-steady
 
-  You sacrifice a few seconds to place every step securely. Neither you nor your partner needs to repeat an obstacle.
-  @change grade physical_education 1
-  @change skill fitness 0.1
+  You sacrifice a few seconds to place every step securely. Neither you nor your partner needs to repeat an obstacle.  @change grade physical_education 1  @change skill fitness 0.1
 
   @next -> .obstacle-final
 
   @passage obstacle-taylor
 
-  Taylor starts cautiously, then gains confidence when you match {{npc.taylor.dependent}} rhythm instead of rushing ahead.
-  @change relationship taylor 2
+  Taylor starts cautiously, then gains confidence when you match {{npc.taylor.dependent}} rhythm instead of rushing ahead.  @change relationship taylor 2
 
   @next -> .obstacle-final
 
@@ -1696,39 +1541,32 @@
 
   @passage obstacle-recovered
 
-  You find enough strength to complete the course without skipping an obstacle. The time is mediocre, but the recovery impresses the teacher.
-  @change skill resolve 0.1
-  @change grade physical_education 1
+  You find enough strength to complete the course without skipping an obstacle. The time is mediocre, but the recovery impresses the teacher.  @change skill resolve 0.1  @change grade physical_education 1
 
   @next -> @return
 
   @passage obstacle-finished-late
 
-  You finish well outside the target time, exhausted but uninjured.
-  @change stat stress 1
+  You finish well outside the target time, exhausted but uninjured.  @change stat stress 1
 
   @next -> @return
 
   @passage obstacle-helped
 
-  You step back onto the bench and offer a hand. Both of you cross together a few seconds later.
-  @change grade physical_education 1
+  You step back onto the bench and offer a hand. Both of you cross together a few seconds later.  @change grade physical_education 1
 
   @if npc.taylor.present
-  Taylor squeezes your hand before letting go.
-  @change relationship taylor 2
+  Taylor squeezes your hand before letting go.  @change relationship taylor 2
   @endif
 
   @next -> @return
 
   @passage obstacle-solo-finish
 
-  You preserve your own time, but your pair's result does not count until your partner finishes.
-  @change grade physical_education -1
+  You preserve your own time, but your pair's result does not count until your partner finishes.  @change grade physical_education -1
 
   @if npc.taylor.present
-  Taylor crosses without looking at you.
-  @change relationship taylor -1
+  Taylor crosses without looking at you.  @change relationship taylor -1
   @endif
 
   @next -> @return
@@ -1763,8 +1601,7 @@
 
   @passage relay-clean
 
-  The baton lands firmly in your palm. You enter the final straight close behind the leading runner.
-  @change skill perception 0.1
+  The baton lands firmly in your palm. You enter the final straight close behind the leading runner.  @change skill perception 0.1
 
   @choice relay-chase "Spend everything trying to overtake"
     @check skill endurance tricky
@@ -1779,17 +1616,13 @@
 
   @passage relay-flying
 
-  You match the baton perfectly while already at speed. The other teams are still completing their handoffs when you hit the straight.
-  @change grade physical_education 2
-  @change skill fitness 0.1
+  You match the baton perfectly while already at speed. The other teams are still completing their handoffs when you hit the straight.  @change grade physical_education 2  @change skill fitness 0.1
 
   @next -> .relay-win
 
   @passage relay-dropped
 
-  The baton strikes your fingertips and bounces onto the floor. Several teams pass while you turn back for it.
-  @change grade physical_education -1
-  @change stat stress 3
+  The baton strikes your fingertips and bounces onto the floor. Several teams pass while you turn back for it.  @change grade physical_education -1  @change stat stress 3
 
   @choice relay-recover "Recover the baton and finish the race" -> .relay-recovery
   @endchoice
@@ -1799,45 +1632,34 @@
 
   @passage relay-taylor
 
-  You and Taylor rehearse the signal under your breath. When {{npc.taylor.subject}} calls it, the handoff feels effortless.
-  @change relationship taylor 2
-  @change grade physical_education 1
+  You and Taylor rehearse the signal under your breath. When {{npc.taylor.subject}} calls it, the handoff feels effortless.  @change relationship taylor 2  @change grade physical_education 1
 
   @next -> .relay-clean
 
   @passage relay-win
 
-  You lean through the finish just ahead of the nearest runner. Your legs burn, but your team wins.
-  @change grade physical_education 1
-  @change skill endurance 0.1
-  @change stat energy -4
+  You lean through the finish just ahead of the nearest runner. Your legs burn, but your team wins.  @change grade physical_education 1  @change skill endurance 0.1  @change stat energy -4
 
   @next -> @return
 
   @passage relay-second
 
-  You hold your form to the line and secure second place without fading at the end.
-  @change grade physical_education 1
-  @change stat energy -2
+  You hold your form to the line and secure second place without fading at the end.  @change grade physical_education 1  @change stat energy -2
 
   @next -> @return
 
   @passage relay-recovery
 
-  You grab the baton and finish despite having no chance to win. The teacher praises you for completing the race.
-  @change skill resolve 0.1
+  You grab the baton and finish despite having no chance to win. The teacher praises you for completing the race.  @change skill resolve 0.1
 
   @next -> @return
 
   @passage relay-blame
 
-  The argument continues after the race. The teacher makes both of you repeat handoff drills while everyone else rests.
-  @change stat stress 2
-  @change grade physical_education -1
+  The argument continues after the race. The teacher makes both of you repeat handoff drills while everyone else rests.  @change stat stress 2  @change grade physical_education -1
 
   @if npc.taylor.present
-  Taylor is unimpressed by how quickly you assigned blame.
-  @change relationship taylor -1
+  Taylor is unimpressed by how quickly you assigned blame.  @change relationship taylor -1
   @endif
 
   @next -> @return
@@ -1875,24 +1697,19 @@
 
   @passage rough-backed-down
 
-  You tell the student plainly that the next reckless challenge will stop the game. The rest of the team supports you, and the behavior finally ends.
-  @change grade physical_education 1
-  @change skill resolve 0.1
+  You tell the student plainly that the next reckless challenge will stop the game. The rest of the team supports you, and the behavior finally ends.  @change grade physical_education 1  @change skill resolve 0.1
 
   @next -> @return
 
   @passage rough-escalates
 
-  The student laughs off the warning and shoulders past you on the next play. The teacher stops the game before the argument becomes a fight.
-  @change stat stress 3
-  @change grade physical_education -1
+  The student laughs off the warning and shoulders past you on the next play. The teacher stops the game before the argument becomes a fight.  @change stat stress 3  @change grade physical_education -1
 
   @next -> @return
 
   @passage rough-reported
 
-  The teacher watches the next play closely and removes the student after another dangerous challenge. The game becomes noticeably calmer.
-  @change grade physical_education 1
+  The teacher watches the next play closely and removes the student after another dangerous challenge. The game becomes noticeably calmer.  @change grade physical_education 1
 
   @next -> @return
 
@@ -1908,36 +1725,25 @@
 
   @passage rough-retaliation-success
 
-  You meet the student's next challenge and hold your ground. The point is made, but the teacher penalizes both of you.
-  @change skill strength 0.1
-  @change grade physical_education -1
-  @change stat health -1
+  You meet the student's next challenge and hold your ground. The point is made, but the teacher penalizes both of you.  @change skill strength 0.1  @change grade physical_education -1  @change stat health -1
 
   @next -> @return
 
   @passage rough-retaliation-failure
 
-  You charge in too hard, lose your footing, and hit the floor. The teacher removes both players from the game.
-  @change stat health -3
-  @change stat stress 3
-  @change grade physical_education -2
+  You charge in too hard, lose your footing, and hit the floor. The teacher removes both players from the game.  @change stat health -3  @change stat stress 3  @change grade physical_education -2
 
   @next -> @return
 
   @passage rough-taylor-cared
 
-  Taylor admits {{npc.taylor.subject}} would rather sit out than risk getting hurt. You walk to the sideline together.
-  @change relationship taylor 2
-  @change skill resolve 0.1
+  Taylor admits {{npc.taylor.subject}} would rather sit out than risk getting hurt. You walk to the sideline together.  @change relationship taylor 2  @change skill resolve 0.1
 
   @next -> @return
 
   @passage rough-taylor-risk
 
-  You draw the student's attention and spend the next play fending off an unnecessarily hard challenge.
-  @change relationship taylor 1
-  @change stat health -1
-  @change grade physical_education 1
+  You draw the student's attention and spend the next play fending off an unnecessarily hard challenge.  @change relationship taylor 1  @change stat health -1  @change grade physical_education 1
 
   @next -> @return
 @endsequence

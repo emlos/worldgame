@@ -375,6 +375,15 @@ p {
   font-size: 0.9rem;
 }
 
+.scene-inline-change {
+  white-space: nowrap;
+  font-size: 0.9em;
+}
+
+.scene-change-separator {
+  color: #777;
+}
+
 .choice-warning {
   color: var(--outcome-warning);
 }

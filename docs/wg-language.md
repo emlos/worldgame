@@ -47,8 +47,9 @@ sequence blocks.
 ## Core syntax and identifiers
 
 WG is line-oriented. Leading and trailing whitespace does not change how a
-directive is recognized, so indentation is for readability. A directive must
-occupy its own logical line unless its documented syntax includes arguments.
+directive is recognized, so indentation is for readability. Directives occupy
+their own logical lines, except for prose `@br` markers and a trailing inline
+`@change`, described below.
 
 - Story, scene, sequence, entry, choice, and choice-group IDs start with a
   lowercase letter and may then contain lowercase letters, numbers, `_`, `-`,
@@ -344,6 +345,11 @@ sequence's final target. A quoted label changes only the displayed text:
 @next "Wake up"
 ```
 
+Next buttons appear in their own heading-free navigation section, including
+custom-labelled Next buttons. A passage containing both normal choices and
+`@next` retains its normal `@choices` and `@choicegroup` headings; only the
+Next section is heading-free.
+
 Next navigation never advances time, adds an action-log entry, or runs
 `@onenter` on either the current sequence or a global target it enters. It is
 an atomic zero-time transition: entering its target resolves that passage's
@@ -463,7 +469,23 @@ automatically.
 
 Ordinary non-directive lines are prose. Blank lines separate paragraphs.
 Consecutive lines inside one paragraph are trimmed and joined with a single
-space. HTML stays literal and is never executed. Passage prose and response
+space. Use `@br` to start a new displayed line without starting a new paragraph:
+
+```wg
+"Are you ready?"
+@br
+"Almost." @br "Take your time."
+
+This starts a new paragraph.
+```
+
+`@br` may stand on its own source line within a paragraph, or appear inside
+a prose line. Whitespace beside the marker is not displayed. Consecutive
+markers create consecutive breaks. A paragraph cannot contain only breaks.
+These rules also apply inside `@response` blocks. Write `\@br` to display
+the marker literally; HTML such as `<br>` remains literal text.
+
+HTML stays literal and is never executed. Passage prose and response
 paragraphs support these outcome-colour markers:
 
 ```wg
@@ -684,7 +706,40 @@ Stat feedback follows the stat's `higherIsBetter` definition, including when
 the label is overridden: reducing stress, fear, or trauma is green; increasing
 them uses the bad-outcome colour. Zero changes are neutral.
 
-Directives must occupy their own lines. A body-level `@preview` is invalid:
+Put `@change` at the end of a prose source line to attach its coloured feedback
+to that sentence:
+
+```wg
+You give Taylor a pep talk. @change relationship taylor 0.02
+You feel more relaxed. @change stat stress -2
+```
+
+This displays `You give Taylor a pep talk. | +Relationship` followed by
+`You feel more relaxed. | -Stress` in the same paragraph. Add `@br` on a
+separate line between them to display the second sentence on a new line.
+
+Each source line supports any number of trailing inline changes, separated
+by whitespace. They use the same operations, amounts, and optional quoted
+labels as a standalone `@change`, and execute and display left to right:
+
+```wg
+You compare notes with Taylor. @change relationship taylor 1 @change grade history 1
+```
+
+This displays `You compare notes with Taylor. | +Relationship | +History grade`.
+There is no fixed limit on the number of inline changes. Quoted labels may
+contain literal `@change` text and escaped quotes without starting a new
+directive. The chain consumes the remainder of the source line; put further
+prose on the next source line. A standalone `@change` continues to display a
+separate feedback block.
+
+Inline changes run once during passage resolution in source order, before
+subsequent body conditions or checks. Rendering, choice revalidation, and
+save/load do not reapply them. Like standalone body effects, they are forbidden
+in persistent place hubs. They are also forbidden in presentation-only
+`@response` blocks. Write `\@change` to display that marker literally.
+
+A body-level `@preview` is invalid:
 previews describe an uncommitted choice, while a prose change has already been
 committed.
 
@@ -1021,6 +1076,7 @@ place.
 `@#` is a full-line comment, not an inline comment. A comment between two prose
 lines does not split their paragraph; use a blank line for that. At the
 beginning of a prose line, `\@` and `\::` emit literal `@` and `::` markers.
+Within prose, `\@` also escapes inline markers such as `\@br` and `\@change`.
 
 ## Validation and editor support
 
@@ -1064,7 +1120,7 @@ not implemented.
 | Entry | `@scene`, `@hub`, `@offer`, `@auto`, `@pool`, `@place-key`, `@place-tag`, `@location-tag`, `@when`, `@label`, `@icon`, `@hub-text`, `@priority`, `@chance`, `@weight` |
 | Scene metadata | `@kind`, `@heading`, `@choices`, `@onenter ... @endonenter` |
 | Sequence metadata/navigation | scene metadata plus `@school-class`, `@system`, `@passage`, `@next` |
-| Scene or passage body | prose, `@if` / `@elseif` / `@else` / `@endif`, `@random` / `@or` / `@endrandom`, passive `@check` / `@success` / `@failure` / `@endcheck`, `@effect`, `@change`, `@choicegroup ... @endchoicegroup`, `@choice ... @endchoice` |
+| Scene or passage body | prose, `@br`, trailing inline `@change`, `@if` / `@elseif` / `@else` / `@endif`, `@random` / `@or` / `@endrandom`, passive `@check` / `@success` / `@failure` / `@endcheck`, `@effect`, `@change`, `@choicegroup ... @endchoicegroup`, `@choice ... @endchoice` |
 | Direct choice | `@icon`, `@time`, `@time-until`, `@enter-after-time`, `@event-pool`, `@event-chance`, `@when`, `@require`, `@warning`, `@response ... @endresponse`, `@preview`, `@effect`, `@change` |
 | Checked choice | `@icon`, `@event-pool`, `@event-chance`, `@when`, `@require`, `@warning`, `@check`, `@success ... @endsuccess`, `@failure ... @endfailure` |
 | Check outcome | `@time`, `@response ... @endresponse`, `@effect` |

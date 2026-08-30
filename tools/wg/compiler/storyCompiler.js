@@ -140,7 +140,8 @@ export function compileStorySources(sources) {
     walkNodes(scene.body, (node) => {
       if (
         scene.kind === "place" &&
-        (node.type === "effect" || node.type === "passive-check")
+        (node.type === "effect" || node.type === "passive-check" ||
+          (node.type === "paragraph" && node.parts.some((part) => part.type === "change")))
       ) {
         failWG(
           "Persistent place hubs cannot contain prose effects or passive checks",
@@ -278,7 +279,7 @@ export function compileStorySources(sources) {
   const entries = Object.fromEntries(
     [...entryMap.entries()].sort(([left], [right]) => compareText(left, right)),
   );
-  return { formatVersion: 17, scenes, sequences, entries };
+  return { formatVersion: 18, scenes, sequences, entries };
 }
 
 export { walkNodes };

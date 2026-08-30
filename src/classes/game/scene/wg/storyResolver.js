@@ -78,7 +78,13 @@ function resolveNodes(game, nodes, resolution, instanceKey) {
   if (!Array.isArray(nodes)) fail("Resolved story body must be an array");
 
   for (const node of nodes) {
-    if (node?.type === "paragraph" || node?.type === "choice") continue;
+    if (node?.type === "choice") continue;
+    if (node?.type === "paragraph") {
+      for (const part of node.parts) {
+        if (part.type === "change") applyWGEffect(game, part.effect);
+      }
+      continue;
+    }
 
     if (node?.type === "effect") {
       applyWGEffect(game, node.effect);

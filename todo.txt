@@ -14,12 +14,9 @@ ui:
 
 wg script:
 
-- @next nodes should NOT display a heading for the choices
-- @change in side the displayed txt in passages should be possible on the same line ex:
-  You give Taylor a pep talk @change Relationship taylor 1
-  resulting in:
-  You give Taylor a pep talk | +Relationship
-- allow for line breaks in rendered text, see school-class.wg for todo and example
+- [done] @next navigation has no choice heading; actual decisions retain theirs
+- [done] inline @change feedback attached to prose (any number of trailing changes per source line)
+- [done] @br inserts an explicit line break within a paragraph
 - scene interrupt system - special events that override the next scheduled event UNLESS th eplayer is in a sequence
     ex: passing out from energy hitting 0
 - @unlock directive for locations

@@ -49,17 +49,22 @@ function renderInterpolation(part, context, source) {
   return value;
 }
 
-function renderParagraph(node, context) {
+function renderParagraph(node, context, { allowChanges = false } = {}) {
   if (!Array.isArray(node.parts)) fail("Paragraph parts must be an array", node.source);
   return node.parts
     .map((part) => {
-      if (part?.type === "text" && typeof part.value === "string") return part.value;
+      if (part?.type === "text" && typeof part.value === "string") {
+        return { type: "text", text: part.value };
+      }
       if (part?.type === "interpolation") {
-        return renderInterpolation(part, context, node.source);
+        return { type: "text", text: renderInterpolation(part, context, node.source) };
+      }
+      if (part?.type === "break") return { type: "break" };
+      if (part?.type === "change" && allowChanges) {
+        return { type: "change", change: materializeChangeFeedback(part.effect) };
       }
       fail(`Unknown paragraph part '${String(part?.type)}'`, node.source);
-    })
-    .join("");
+    });
 }
 
 export function materializeWGResponse(game, response) {
@@ -68,7 +73,8 @@ export function materializeWGResponse(game, response) {
   }
   const context = createWGRuntimeContext(game);
   return response.paragraphs.map((paragraph) =>
-    renderParagraph(paragraph, context),
+    renderParagraph(paragraph, context)
+      .map((part) => part.type === "break" ? "\n" : part.text).join(""),
   );
 }
 
@@ -259,7 +265,10 @@ function materializeNodes(nodes, context, output, options = {}) {
   const sectionHeading = options.choiceSectionHeading || "Choices";
   for (const node of nodes) {
     if (node?.type === "paragraph") {
-      output.content.push({ type: "paragraph", text: renderParagraph(node, context) });
+      output.content.push({
+        type: "paragraph",
+        parts: renderParagraph(node, context, { allowChanges: Boolean(options.resolution) }),
+      });
       continue;
     }
     if (node?.type === "effect") {
@@ -417,7 +426,7 @@ export function materializeWGSequence(game, definition, passageId) {
     ].join(":"),
   });
   if (passage.next) {
-    choiceSection(output, "choices", definition.choiceHeading).choices.push(createChoice({
+    choiceSection(output, "navigation", null).choices.push(createChoice({
       id: "__wg_next",
       label: passage.next.label,
       action: {

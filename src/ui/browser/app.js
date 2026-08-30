@@ -16,6 +16,7 @@ import {
 import { STATS } from "../../data/player/stats.js";
 import { renderMap as renderGraphMap } from "./renderMap.js";
 import { createSceneTransition } from "./sceneTransition.js";
+import { createChoiceSection, renderSceneContent } from "./sceneContent.js";
 import { MENU_HOTKEYS, choiceHotkeyLabel, resolveKeyboardAction } from "./keyboard.js";
 import {
   OUTCOME,
@@ -991,43 +992,15 @@ function renderScene(preludeParagraphs = []) {
     sceneElement.append(paragraph);
   }
 
-  for (const block of currentScene.content) {
-    if (block.type === "paragraph") {
-      const paragraph = document.createElement("p");
-      setOutcomeText(paragraph, block.text);
-      sceneElement.append(paragraph);
-      continue;
-    }
-    if (block.type === "changes") {
-      const changes = document.createElement("div");
-      changes.className = "scene-changes";
-      for (const change of block.items) {
-        const item = document.createElement("span");
-        item.className = "scene-change";
-        item.dataset.outcome = outcomeForChange(change);
-        item.textContent = change.label;
-        changes.append(item);
-      }
-      sceneElement.append(changes);
-    }
-  }
+  renderSceneContent(sceneElement, currentScene.content);
 
   let choiceNumber = 1;
   for (const section of currentScene.sections) {
-    const sectionElement = document.createElement("section");
-    const sectionHeading = document.createElement("h2");
-    sectionHeading.textContent = section.heading;
-    sectionElement.append(sectionHeading);
-
-    const list = document.createElement("div");
-    list.className = "choices";
-    for (const choice of section.choices) {
+    const sectionElement = createChoiceSection(document, section, (choice) => {
       const button = makeChoiceButton(currentScene.id, choice, choiceNumber++);
       choiceButtons.push(button);
-      list.append(button);
-    }
-
-    sectionElement.append(list);
+      return button;
+    });
     sceneElement.append(sectionElement);
   }
 
