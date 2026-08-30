@@ -769,10 +769,8 @@ function makePhoneGpsDestination(entry) {
   button.append(name, district);
   button.addEventListener("click", () => {
     try {
-      const result = game.setGpsTarget(entry.placeId);
-      noticeElement.textContent = result.alreadyThere
-        ? `You are already in ${result.destination.districtName}.`
-        : `GPS navigation started for ${result.route.destination.name}.`;
+      game.setGpsTarget(entry.placeId);
+      noticeElement.textContent = "";
       noticeElement.className = "notice";
     } catch (error) {
       noticeElement.textContent = error.message;
@@ -1030,7 +1028,7 @@ phoneGpsButton.addEventListener("click", showPhoneGpsScreen);
 phoneGpsSearch.addEventListener("input", renderPhoneGps);
 phoneGpsStopButton.addEventListener("click", () => {
   game.clearGpsTarget();
-  noticeElement.textContent = "GPS navigation stopped.";
+  noticeElement.textContent = "";
   noticeElement.className = "notice";
   renderPhoneGps();
   render();
@@ -1044,11 +1042,8 @@ playerPhoneDialog.addEventListener("click", (event) => {
 
 debugTeleportTaylorButton.addEventListener("click", () => {
   try {
-    const result = teleportNPCToPlayer(game, "taylor", { stayMinutes: 30 });
-    const name = result.npc.meta?.shortName || result.npc.name;
-    noticeElement.textContent = result.busyWithObligation
-      ? `${name} was moved here, but is still committed to their obligation.`
-      : `${name} was moved here and will stay for up to 30 minutes.`;
+    teleportNPCToPlayer(game, "taylor", { stayMinutes: 30 });
+    noticeElement.textContent = "";
     noticeElement.className = "notice";
   } catch (error) {
     noticeElement.textContent = error.message;
@@ -1059,8 +1054,8 @@ debugTeleportTaylorButton.addEventListener("click", () => {
 
 debugTeleportSchoolButton.addEventListener("click", () => {
   try {
-    const destination = teleportPlayerToSchool(game);
-    noticeElement.textContent = `Teleported to ${destination.place.name} in ${destination.location.name}.`;
+    teleportPlayerToSchool(game);
+    noticeElement.textContent = "";
     noticeElement.className = "notice";
   } catch (error) {
     noticeElement.textContent = error.message;
@@ -1070,8 +1065,8 @@ debugTeleportSchoolButton.addEventListener("click", () => {
 });
 
 debugAddMoneyButton.addEventListener("click", () => {
-  const balance = addDebugMoney(game);
-  noticeElement.textContent = `Added £100.00. Balance: ${moneyFormatter.format(balance)}.`;
+  addDebugMoney(game);
+  noticeElement.textContent = "";
   noticeElement.className = "notice";
   render();
 });

@@ -85,19 +85,4 @@ export const SCENE_TEXT = Object.freeze({
   },
 
   loiterLog: "Loiter",
-
-  travelResult(destinationName) {
-    return `You arrive in ${destinationName}.`;
-  },
-
-  enterResult(placeName) {
-    return `You enter ${placeName}.`;
-  },
-
-  leaveResult(placeName) {
-    return `You step outside ${placeName}.`;
-  },
-
-  loiterResult: "You spend a little while watching the area around you.",
-
 });

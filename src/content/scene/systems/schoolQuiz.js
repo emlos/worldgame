@@ -232,7 +232,7 @@ export const SCHOOL_QUIZ_STORY_SYSTEM = Object.freeze({
 
     if (command.type === "finish") {
       if (!state.complete) fail("cannot finish before every question is answered");
-      return { target: definition.finalTarget, notice: "The quiz is over." };
+      return { target: definition.finalTarget };
     }
     if (command.type !== "answer") fail(`unknown command '${String(command.type)}'`);
     if (state.complete) fail("cannot answer a completed quiz");
@@ -262,7 +262,6 @@ export const SCHOOL_QUIZ_STORY_SYSTEM = Object.freeze({
           amount: correct ? bank.gradeChange : -bank.gradeChange,
         },
       ],
-      notice: "Answer recorded.",
     };
   },
 });

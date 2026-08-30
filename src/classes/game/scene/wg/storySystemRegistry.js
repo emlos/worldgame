@@ -162,6 +162,6 @@ export function actWGSystem(game, definition, frame, command) {
     target,
     effects: cloneWGSystemJSON(outcome.effects || [], `WG system '${systemId}' effects`),
     paragraphs: [...(outcome.paragraphs || [])],
-    notice: outcome.notice || "Continue.",
+    notice: outcome.notice ?? "",
   };
 }

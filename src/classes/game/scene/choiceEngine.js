@@ -50,7 +50,7 @@ function fail(code, message) {
   throw new ChoiceError(code, message);
 }
 
-function actionResult(notice, paragraphs = []) {
+function actionResult({ notice = "", paragraphs = [] } = {}) {
   return { notice, paragraphs };
 }
 
@@ -140,7 +140,7 @@ function performTravel(game, choice, minutes) {
       resolveWGAutomaticEntry(currentGame, WG_AUTO_TRIGGER.enterLocation);
     },
   });
-  return actionResult(SCENE_TEXT.travelResult(destination.name));
+  return actionResult();
 }
 
 function performEnter(game, choice, minutes) {
@@ -166,7 +166,7 @@ function performEnter(game, choice, minutes) {
       resolveWGAutomaticEntry(currentGame, WG_AUTO_TRIGGER.enterPlace);
     },
   });
-  return actionResult(SCENE_TEXT.enterResult(place.name));
+  return actionResult();
 }
 
 function performLeave(game, choice, minutes, scene) {
@@ -206,7 +206,7 @@ function performLeave(game, choice, minutes, scene) {
       );
     },
   });
-  return actionResult(SCENE_TEXT.leaveResult(place.name), responseParagraphs);
+  return actionResult({ paragraphs: responseParagraphs });
 }
 
 function performLoiter(game, choice, minutes) {
@@ -216,7 +216,7 @@ function performLoiter(game, choice, minutes) {
     minutes,
     energyFree: choice.energyFree,
   });
-  return actionResult(SCENE_TEXT.loiterResult);
+  return actionResult();
 }
 
 function performBusTravel(game, choice, minutes) {
@@ -262,9 +262,7 @@ function performBusTravel(game, choice, minutes) {
       resolveWGAutomaticEntry(currentGame, WG_AUTO_TRIGGER.enterPlace);
     },
   });
-  return actionResult(
-    `You arrive at ${destination.place.name} in ${destination.location.name}.`,
-  );
+  return actionResult();
 }
 
 function enterWGOutcome(game, outcome, eventPool, choiceId) {
@@ -328,11 +326,11 @@ function performWG(game, choice, minutes, scene) {
     },
   });
   if (result.timeChange?.ejectedFrom) {
-    return actionResult(
-      `${result.timeChange.ejectedFrom.name} has closed. A member of staff ushers you outside.`,
-    );
+    return actionResult({
+      notice: `${result.timeChange.ejectedFrom.name} has closed. A member of staff ushers you outside.`,
+    });
   }
-  return actionResult("Continue.", responseParagraphs);
+  return actionResult({ paragraphs: responseParagraphs });
 }
 
 function performWGNext(game, choice, minutes) {
@@ -348,7 +346,7 @@ function performWGNext(game, choice, minutes) {
       resolveActiveWGStory(currentGame);
     },
   });
-  return actionResult("Continue.");
+  return actionResult();
 }
 
 function performWGSystem(game, choice, minutes) {
@@ -368,7 +366,7 @@ function performWGSystem(game, choice, minutes) {
     );
   }
 
-  let notice = "Continue.";
+  let notice = "";
   let paragraphs = [];
   game.runAction({
     label: choice.label,
@@ -397,7 +395,7 @@ function performWGSystem(game, choice, minutes) {
       resolveActiveWGStory(currentGame);
     },
   });
-  return actionResult(notice, paragraphs);
+  return actionResult({ notice, paragraphs });
 }
 
 function outcomeMinutes(choice, outcome, result) {
@@ -502,7 +500,7 @@ function performSkillCheck(game, choice, _minutes, scene) {
       });
     },
   });
-  return actionResult("Continue.", responseParagraphs);
+  return actionResult({ paragraphs: responseParagraphs });
 }
 
 const ACTION_HANDLERS = Object.freeze({
