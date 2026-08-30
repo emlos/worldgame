@@ -183,7 +183,6 @@ body {
 .player-stat-meter-fill {
   display: block;
   height: 100%;
-  border-radius: inherit;
   background: var(--outcome-color, var(--outcome-ok));
   transition: width 160ms ease;
 }
@@ -411,7 +410,6 @@ p {
 .map-frame {
   overflow: hidden;
   border: 1px solid #29313d;
-  border-radius: 8px;
   background:
     radial-gradient(circle at center, rgba(35, 50, 70, 0.24), transparent 68%),
     #0d1015;
@@ -874,7 +872,6 @@ p {
 .phone-gps-search {
   width: 100%;
   border: 1px solid #3e4b5c;
-  border-radius: 8px;
   padding: 8px 10px;
   background: #161d26;
   color: #e7edf5;
@@ -911,7 +908,6 @@ p {
   display: grid;
   width: 100%;
   border: 1px solid #303b49;
-  border-radius: 9px;
   padding: 9px 10px;
   background: #141b23;
   color: #dbe3ed;
@@ -1119,7 +1115,6 @@ p {
 .phone-meter {
   overflow: hidden;
   height: 4px;
-  border-radius: 999px;
   background: #252e39;
 }
 
@@ -1127,7 +1122,6 @@ p {
   display: block;
   width: 0;
   height: 100%;
-  border-radius: inherit;
   background: var(--outcome-color, var(--outcome-ok));
 }
 
@@ -1149,7 +1143,6 @@ p {
   min-width: 0;
   aspect-ratio: 1;
   border: 1px solid #303a47;
-  border-radius: 6px;
   padding: 9px;
   background: #11161d;
 }
@@ -1187,7 +1180,6 @@ p {
   align-self: start;
   margin-top: 20px;
   border: 1px solid #343b46;
-  border-radius: 8px;
   padding: 16px;
   background: #15191f;
   color: #c7cbd1;
@@ -1235,7 +1227,6 @@ p {
 .debug-button {
   width: 100%;
   border: 1px solid #5c6776;
-  border-radius: 5px;
   padding: 8px 10px;
   background: #242b35;
   color: #ececec;

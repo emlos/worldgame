@@ -10,8 +10,6 @@ SCHOOL CLASS MINIGAME IDEAS
 
 
 ui:
-- very quick twine like fade out/in when scene is rendered
-
 - hotkeys for phone apps
 - numberic shortcuts with choices work fine up to 10 - introduce shift + 1, 2 etc for >9 actions per scene
 

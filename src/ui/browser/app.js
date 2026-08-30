@@ -15,6 +15,7 @@ import {
 } from "../../classes/game/scene/phoneView.js";
 import { STATS } from "../../data/player/stats.js";
 import { renderMap as renderGraphMap } from "./renderMap.js";
+import { createSceneTransition } from "./sceneTransition.js";
 import {
   OUTCOME,
   outcomeForChange,
@@ -26,6 +27,10 @@ import {
 const statusElement = document.querySelector("#status");
 const noticeElement = document.querySelector("#notice");
 const sceneElement = document.querySelector("#scene");
+const sceneTransition = createSceneTransition(
+  sceneElement,
+  window.matchMedia("(prefers-reduced-motion: reduce)"),
+);
 const playerMoneyElement = document.querySelector("#player-money");
 const playerTemperatureElement = document.querySelector("#player-temperature");
 const playerStatsElement = document.querySelector("#player-stats");
@@ -892,6 +897,11 @@ function renderDebugPanel() {
 }
 
 function render(preludeParagraphs = []) {
+  sceneTransition.cancel();
+  renderScene(preludeParagraphs);
+}
+
+function renderScene(preludeParagraphs = []) {
   currentScene = buildScene(game);
   choiceButtons = [];
   choiceButtonsById = new Map();
@@ -964,7 +974,8 @@ function render(preludeParagraphs = []) {
   renderDebugPanel();
 }
 
-function choose(sceneId, choiceId) {
+async function choose(sceneId, choiceId) {
+  if (sceneTransition.running) return;
   try {
     const result = performChoice(game, {
       sceneId,
@@ -972,7 +983,7 @@ function choose(sceneId, choiceId) {
     });
     noticeElement.textContent = result.paragraphs.length ? "" : result.notice;
     noticeElement.className = "notice";
-    render(result.paragraphs);
+    await sceneTransition.play(() => renderScene(result.paragraphs));
   } catch (error) {
     noticeElement.textContent = error.message;
     noticeElement.className = "notice error";
@@ -981,6 +992,7 @@ function choose(sceneId, choiceId) {
 }
 
 window.addEventListener("keydown", (event) => {
+  if (event.repeat || sceneTransition.running) return;
   if (event.altKey || event.ctrlKey || event.metaKey) return;
   const index = event.key === "0" ? 9 : Number(event.key) - 1;
   if (!Number.isInteger(index) || !choiceButtons[index]) return;
