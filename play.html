@@ -75,7 +75,7 @@
               class="player-menu-button button"
               type="button"
               aria-haspopup="dialog"
-              aria-controls="full-map-dialog"
+              aria-controls="player-phone-dialog"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -313,7 +313,14 @@
               S
             </button>
 
-            <button id="phone-2-btn" class="phone-button button hidden">C</button>
+            <button
+              id="phone-settings-btn"
+              class="phone-button button"
+              type="button"
+              aria-label="Settings"
+            >
+              <span aria-hidden="true">⚙</span>
+            </button>
 
             <button id="phone-3-btn" class="phone-button button hidden">C</button>
 
@@ -370,6 +377,23 @@
             hidden
           >
             <div id="phone-stats-content" class="phone-stats-content"></div>
+          </section>
+
+          <section
+            id="phone-settings-screen"
+            class="phone-screen phone-scroll-screen phone-settings-screen"
+            aria-label="Settings"
+            tabindex="0"
+            hidden
+          >
+            <h3>Keyboard shortcuts</h3>
+            <p class="phone-hotkey-note">Current bindings are read-only.</p>
+            <div id="phone-hotkeys-content"></div>
+            <p class="phone-hotkey-note">
+              Phone apps open directly from the game or within the phone.
+              Diary and Map open from the game only. Letter and number shortcuts
+              are paused while typing; Esc still goes back or closes the dialog.
+            </p>
           </section>
         </div>
       </div>

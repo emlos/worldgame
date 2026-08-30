@@ -828,6 +828,65 @@ p {
   --phone-app-accent: #aa98bf;
 }
 
+#phone-settings-btn {
+  --phone-app-accent: #a9b7c9;
+}
+
+.phone-settings-screen > h3 {
+  margin: 0 0 8px;
+  color: #c7cfd9;
+  font-size: 0.9rem;
+}
+
+.phone-hotkey-note {
+  margin: 0 0 18px;
+  color: #8793a2;
+  font-size: 0.76rem;
+  line-height: 1.5;
+}
+
+.phone-hotkey-section {
+  margin-bottom: 20px;
+}
+
+.phone-hotkey-section h4 {
+  margin: 0 0 6px;
+  color: #a9b7c9;
+  font-size: 0.7rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.phone-hotkey-list {
+  margin: 0;
+}
+
+.phone-hotkey-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid #232c37;
+  padding: 8px 0;
+  color: #c7cfd9;
+  font-size: 0.8rem;
+}
+
+.phone-hotkey-row dd {
+  margin: 0;
+}
+
+.phone-hotkey-row kbd {
+  display: inline-block;
+  min-width: 28px;
+  border: 1px solid #3e4b5c;
+  padding: 3px 6px;
+  background: #161d26;
+  color: #e0e7ef;
+  font: inherit;
+  text-align: center;
+}
+
 .phone-scroll-screen {
   height: 100%;
   overflow-x: hidden;

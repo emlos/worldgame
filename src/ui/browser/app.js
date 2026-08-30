@@ -16,6 +16,7 @@ import {
 import { STATS } from "../../data/player/stats.js";
 import { renderMap as renderGraphMap } from "./renderMap.js";
 import { createSceneTransition } from "./sceneTransition.js";
+import { MENU_HOTKEYS, choiceHotkeyLabel, resolveKeyboardAction } from "./keyboard.js";
 import {
   OUTCOME,
   outcomeForChange,
@@ -72,6 +73,9 @@ const phoneGpsDestinations = document.querySelector("#phone-gps-destinations");
 const phoneStatsButton = document.querySelector("#phone-stats-btn");
 const phoneStatsScreen = document.querySelector("#phone-stats-screen");
 const phoneStatsContent = document.querySelector("#phone-stats-content");
+const phoneSettingsButton = document.querySelector("#phone-settings-btn");
+const phoneSettingsScreen = document.querySelector("#phone-settings-screen");
+const phoneHotkeysContent = document.querySelector("#phone-hotkeys-content");
 const debugEnabled = typeof debug !== "undefined" && Boolean(debug);
 const debugPanel = document.querySelector("#debug-panel");
 const debugAddMoneyButton = document.querySelector("#debug-add-money");
@@ -226,7 +230,9 @@ function makeChoiceButton(sceneId, choice, number) {
 
   const text = document.createElement("span");
   text.className = "choice-label";
-  text.textContent = `(${number}) ${choice.label}`;
+  const hotkey = choiceHotkeyLabel(number - 1);
+  text.textContent = hotkey ? `(${hotkey}) ${choice.label}` : choice.label;
+  if (hotkey) button.setAttribute("aria-keyshortcuts", hotkey);
 
   let duration;
   if (choice.durationMinutes > 0) {
@@ -826,6 +832,7 @@ const phoneScreens = [
   phoneRelationshipsScreen,
   phoneGpsScreen,
   phoneStatsScreen,
+  phoneSettingsScreen,
 ];
 
 function showOnlyPhoneScreen(screen) {
@@ -833,9 +840,19 @@ function showOnlyPhoneScreen(screen) {
 }
 
 function showPhoneHomeScreen() {
+  const previousScreen = phoneScreens.find((screen) => !screen.hidden);
   playerPhoneHeading.textContent = "Phone";
   phoneBackButton.hidden = true;
   showOnlyPhoneScreen(phoneHomeScreen);
+  if (playerPhoneDialog.open) {
+    const homeButton = new Map([
+      [phoneRelationshipsScreen, phoneRelationshipsButton],
+      [phoneGpsScreen, phoneGpsButton],
+      [phoneStatsScreen, phoneStatsButton],
+      [phoneSettingsScreen, phoneSettingsButton],
+    ]).get(previousScreen);
+    (homeButton || phoneRelationshipsButton).focus();
+  }
 }
 
 function showPhoneRelationshipsScreen() {
@@ -854,6 +871,7 @@ function showPhoneRelationshipsScreen() {
     phoneRelationshipsList.replaceChildren(empty);
   }
   phoneRelationshipsScreen.scrollTop = 0;
+  phoneRelationshipsScreen.focus();
 }
 
 function showPhoneGpsScreen() {
@@ -872,6 +890,49 @@ function showPhoneStatsScreen() {
   showOnlyPhoneScreen(phoneStatsScreen);
   renderPhoneStats();
   phoneStatsScreen.scrollTop = 0;
+  phoneStatsScreen.focus();
+}
+
+function renderPhoneHotkeys() {
+  const sections = new Map();
+  for (const hotkey of MENU_HOTKEYS) {
+    if (!sections.has(hotkey.group)) {
+      const section = document.createElement("section");
+      section.className = "phone-hotkey-section";
+      const heading = document.createElement("h4");
+      heading.textContent = hotkey.group;
+      const list = document.createElement("dl");
+      list.className = "phone-hotkey-list";
+      section.append(heading, list);
+      sections.set(hotkey.group, { section, list });
+    }
+    const row = document.createElement("div");
+    row.className = "phone-hotkey-row";
+    const description = document.createElement("dt");
+    description.textContent = hotkey.description;
+    const value = document.createElement("dd");
+    const key = document.createElement("kbd");
+    key.textContent = hotkey.label;
+    value.append(key);
+    row.append(description, value);
+    sections.get(hotkey.group).list.append(row);
+  }
+  phoneHotkeysContent.replaceChildren(...[...sections.values()].map(({ section }) => section));
+}
+
+function showPhoneSettingsScreen() {
+  playerPhoneHeading.textContent = "Settings";
+  phoneBackButton.hidden = false;
+  showOnlyPhoneScreen(phoneSettingsScreen);
+  renderPhoneHotkeys();
+  phoneSettingsScreen.scrollTop = 0;
+  phoneSettingsScreen.focus();
+}
+
+function openPhone(screen = showPhoneHomeScreen) {
+  playerPhoneDate.textContent = diaryDateFormatter.format(game.now);
+  if (!playerPhoneDialog.open) playerPhoneDialog.showModal();
+  screen();
 }
 
 function renderDebugPanel() {
@@ -991,13 +1052,49 @@ async function choose(sceneId, choiceId) {
   }
 }
 
+const menuActions = {
+  phone: () => playerPhoneDialog.open ? playerPhoneDialog.close() : openPhone(),
+  diary: () => playerDiaryButton.click(),
+  map: () => openMapButton.click(),
+  relationships: () => openPhone(showPhoneRelationshipsScreen),
+  gps: () => openPhone(showPhoneGpsScreen),
+  stats: () => openPhone(showPhoneStatsScreen),
+  settings: () => openPhone(showPhoneSettingsScreen),
+};
+
+const hotkeyButtons = {
+  phone: playerPhoneButton,
+  diary: playerDiaryButton,
+  map: openMapButton,
+  relationships: phoneRelationshipsButton,
+  gps: phoneGpsButton,
+  stats: phoneStatsButton,
+  settings: phoneSettingsButton,
+};
+for (const hotkey of MENU_HOTKEYS) {
+  const button = hotkeyButtons[hotkey.id];
+  if (!button) continue;
+  button.title = `${hotkey.description} (${hotkey.label})`;
+  button.setAttribute("aria-keyshortcuts", hotkey.key);
+}
+
 window.addEventListener("keydown", (event) => {
-  if (event.repeat || sceneTransition.running) return;
-  if (event.altKey || event.ctrlKey || event.metaKey) return;
-  const index = event.key === "0" ? 9 : Number(event.key) - 1;
-  if (!Number.isInteger(index) || !choiceButtons[index]) return;
+  const dialog = document.querySelector("dialog[open]");
+  // Consume Escape ourselves, including repeats, so native dialog dismissal
+  // cannot also close the phone after a single back action or held key.
+  const action = resolveKeyboardAction(event, {
+    dialog: dialog === playerPhoneDialog ? "phone" : dialog ? "other" : null,
+    phoneHome: !phoneHomeScreen.hidden,
+    transitioning: sceneTransition.running,
+    choices: choiceButtons,
+  });
+  if (dialog && event.key === "Escape" && !event.defaultPrevented) event.preventDefault();
+  if (!action) return;
   event.preventDefault();
-  choiceButtons[index].click();
+  if (action.type === "choice") choiceButtons[action.index].click();
+  else if (action.type === "menu") menuActions[action.id]();
+  else if (action.type === "phone-home") showPhoneHomeScreen();
+  else if (action.type === "close-dialog") dialog.close();
 });
 
 restartButton.addEventListener("click", () => {
@@ -1027,9 +1124,7 @@ fullMapDialog.addEventListener("click", (event) => {
 });
 
 playerPhoneButton.addEventListener("click", () => {
-  playerPhoneDate.textContent = diaryDateFormatter.format(game.now);
-  showPhoneHomeScreen();
-  playerPhoneDialog.showModal();
+  openPhone();
 });
 
 phoneRelationshipsButton.addEventListener(
@@ -1046,6 +1141,7 @@ phoneGpsStopButton.addEventListener("click", () => {
   render();
 });
 phoneStatsButton.addEventListener("click", showPhoneStatsScreen);
+phoneSettingsButton.addEventListener("click", showPhoneSettingsScreen);
 phoneBackButton.addEventListener("click", showPhoneHomeScreen);
 closePhoneButton.addEventListener("click", () => playerPhoneDialog.close());
 playerPhoneDialog.addEventListener("click", (event) => {
