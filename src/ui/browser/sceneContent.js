@@ -52,9 +52,12 @@ export function renderSceneContent(element, content) {
   }
 }
 
-/** A null heading represents navigation, not an empty decision heading. */
+/** A null heading hides the title while preserving a separate choice section. */
 export function createChoiceSection(document, section, makeButton) {
   const element = document.createElement("section");
+  element.className = section.heading === null
+    ? "choice-section choice-section--headingless"
+    : "choice-section";
   if (section.heading !== null) {
     const heading = document.createElement("h2");
     heading.textContent = section.heading;

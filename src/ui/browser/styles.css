@@ -295,6 +295,10 @@ p {
   line-height: 1.6;
 }
 
+.choice-section + .choice-section--headingless {
+  margin-top: 30px;
+}
+
 .choices {
   display: grid;
   gap: 3px;

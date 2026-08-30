@@ -59,7 +59,8 @@ their own logical lines, except for prose `@br` markers and a trailing inline
 - Expression paths contain one or more segments. Every segment starts with a
   letter or `_` and then uses letters, numbers, or `_`. Interpolation and
   `@time-until` specifically require a dotted path with at least two segments.
-- Quoted directive fields are non-empty JSON-style double-quoted strings.
+- Quoted directive fields are JSON-style double-quoted strings and must be
+  non-empty, except that a choice-group heading may be empty to hide its title.
   Normal JSON escapes such as `\"` and `\\` are supported. Expression string
   literals use the same escaping but may be empty. Single-quoted strings are
   not supported.
@@ -293,6 +294,23 @@ is omitted. Choices outside every group continue to render in the default
 `@choices` section. Sections preserve the source order in which their first
 visible choice appears.
 
+To keep a separate group without displaying a heading, use an empty quoted
+heading. This works in scenes and sequence passages:
+
+```wg
+@choicegroup navigation ""
+@choice leave "Leave" -> @leave-place
+  @time 1m
+@endchoice
+@endchoicegroup
+```
+
+An empty or whitespace-only group heading hides the title, without displaying
+"Choices" or an empty heading element. The group still has its own spacing,
+source order, and ID; it does not merge into the previous group. The quoted
+heading remains required. Choices outside a group still use the default
+`@choices` heading, and `@choices ""` is not supported.
+
 For hub activities, do not hide the general group merely because a scheduled
 activity is currently happening. Keep the hub group unconditional and make
 the scheduled choice target a scene or sequence. While that target is active,
@@ -350,8 +368,8 @@ sequence's final target. A quoted label changes only the displayed text:
 
 Next buttons appear in their own heading-free navigation section, including
 custom-labelled Next buttons. A passage containing both normal choices and
-`@next` retains its normal `@choices` and `@choicegroup` headings; only the
-Next section is heading-free.
+`@next` retains its authored `@choices` and `@choicegroup` headings; the
+Next section is always heading-free.
 
 Next navigation never advances time, adds an action-log entry, or runs
 `@onenter` on either the current sequence or a global target it enters. It is

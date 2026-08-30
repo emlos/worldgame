@@ -262,7 +262,9 @@ function resolvedDecision(node, options) {
 function materializeNodes(nodes, context, output, options = {}) {
   if (!Array.isArray(nodes)) fail("Scene body must be an array");
   const sectionId = options.choiceSectionId || "choices";
-  const sectionHeading = options.choiceSectionHeading || "Choices";
+  const sectionHeading = options.choiceSectionHeading === ""
+    ? null
+    : options.choiceSectionHeading || "Choices";
   for (const node of nodes) {
     if (node?.type === "paragraph") {
       output.content.push({

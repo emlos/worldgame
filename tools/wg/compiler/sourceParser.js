@@ -25,7 +25,7 @@ function nodeSource(file, line, column = 1) {
   return { file, line, column };
 }
 
-function parseQuotedString(value, location, label) {
+function parseQuotedString(value, location, label, { allowEmpty = false } = {}) {
   const text = value.trim();
   let parsed;
   try {
@@ -36,7 +36,10 @@ function parseQuotedString(value, location, label) {
   if (typeof parsed !== "string") {
     failWG(`${label} must be a double-quoted string`, location);
   }
-  if (!parsed.trim()) failWG(`${label} cannot be empty`, location);
+  if (!parsed.trim()) {
+    if (allowEmpty) return "";
+    failWG(`${label} cannot be empty`, location);
+  }
   return parsed;
 }
 
@@ -613,6 +616,7 @@ class SceneBodyParser {
         match[2],
         lineLocation(this.file, opening.line),
         "Choice-group heading",
+        { allowEmpty: true },
       ),
       nodes,
       source: nodeSource(this.file, opening.line),
