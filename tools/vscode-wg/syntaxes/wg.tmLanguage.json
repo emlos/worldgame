@@ -17,6 +17,7 @@
     { "include": "#random-directives" },
     { "include": "#condition-directives" },
     { "include": "#effect-directives" },
+    { "include": "#unlock-directive" },
     { "include": "#property-directives" },
     { "include": "#block-directives" },
     { "include": "#interpolation" },
@@ -177,6 +178,19 @@
           "beginCaptures": { "2": { "name": "keyword.control.conditional.wg" } },
           "end": "$",
           "patterns": [{ "include": "#expression" }]
+        }
+      ]
+    },
+    "unlock-directive": {
+      "patterns": [
+        {
+          "name": "meta.unlock.directive.wg",
+          "match": "^(\\s*)(@unlock)\\s+(place)\\s+([a-z][a-z0-9_-]*)\\s*$",
+          "captures": {
+            "2": { "name": "keyword.control.effect.wg" },
+            "3": { "name": "storage.type.effect.wg" },
+            "4": { "name": "entity.name.place.reference.wg" }
+          }
         }
       ]
     },

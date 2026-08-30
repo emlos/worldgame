@@ -2,6 +2,7 @@ import { failWG, sourceLocation } from "./diagnostic.js";
 import { parseExpression } from "./expressionParser.js";
 import { SKILLS, STATS } from "../../../src/data/player/stats.js";
 import { SCHOOL_SUBJECTS } from "../../../src/data/player/education.js";
+import { PLACE_REGISTRY } from "../../../src/data/world/place.js";
 import { SKILL_CHECK_DIFFICULTIES } from "../../../src/data/scene/skillChecks.js";
 
 const ID_PATTERN = "[a-z][a-z0-9_.-]*";
@@ -203,6 +204,20 @@ function parseProbability(value, location, directive) {
     failWG(`@${directive} must be between 0 and 1 or a percentage`, location);
   }
   return probability;
+}
+
+function parseSilentDirective(text, file, line) {
+  if (directiveName(text) !== "unlock") return parseEffect(text, file, line);
+  const location = lineLocation(file, line);
+  const match = text.match(/^@unlock\s+place\s+([a-z][a-z0-9_-]*)$/);
+  if (!match) {
+    failWG("Expected @unlock place <place-key>", location);
+  }
+  const placeKey = match[1];
+  if (!PLACE_REGISTRY.some((place) => place.key === placeKey)) {
+    failWG("Unknown @unlock place key '" + placeKey + "'", location);
+  }
+  return { op: "unlock-place", placeKey, source: nodeSource(file, line) };
 }
 
 function parseEffect(text, file, line) {
@@ -508,14 +523,14 @@ class SceneBodyParser {
         nodes.push(this.parsePassiveCheck());
         continue;
       }
-      if (name === "effect" || name === "change") {
+      if (name === "effect" || name === "change" || name === "unlock") {
         flushParagraph();
         nodes.push({
           type: "effect",
           effect:
             name === "change"
               ? parseChange(trimmed, this.file, line.line)
-              : parseEffect(trimmed, this.file, line.line),
+              : parseSilentDirective(trimmed, this.file, line.line),
           source: nodeSource(this.file, line.line),
         });
         this.index += 1;
@@ -796,13 +811,13 @@ class SceneBodyParser {
         );
         outcome.durationMinutes = parsedTime.durationMinutes;
         outcome.energyFree = parsedTime.energyFree;
-      } else if (name === "effect") {
-        outcome.effects.push(parseEffect(directive, this.file, line.line));
+      } else if (name === "effect" || name === "unlock") {
+        outcome.effects.push(parseSilentDirective(directive, this.file, line.line));
       } else if (name === "response") {
         outcome.responses.push(this.parseResponse());
         continue;
       } else {
-        failWG(`@${kind} may contain only @time, @response, and @effect directives`, location);
+        failWG(`@${kind} may contain only @time, @response, @effect, and @unlock directives`, location);
       }
       this.index += 1;
     }
@@ -855,7 +870,7 @@ class SceneBodyParser {
       choice.previews.length
     ) {
       failWG(
-        "Checked choices keep @time, @response, and @effect inside outcome blocks and cannot use @change or @preview",
+        "Checked choices keep @time, @response, @effect, and @unlock inside outcome blocks and cannot use @change or @preview",
         location,
       );
     }
@@ -1043,8 +1058,8 @@ class SceneBodyParser {
           label: parseQuotedString(preview[3], location, "Preview label"),
           source: nodeSource(this.file, line.line),
         });
-      } else if (name === "effect") {
-        choice.effects.push(parseEffect(text, this.file, line.line));
+      } else if (name === "effect" || name === "unlock") {
+        choice.effects.push(parseSilentDirective(text, this.file, line.line));
       } else if (name === "change") {
         choice.effects.push(parseChange(text, this.file, line.line));
       } else {
@@ -1101,10 +1116,10 @@ function parseOnEnter(file, lines, startIndex, openingLine) {
     if (text === "@endonenter") {
       return { effects, nextIndex: index + 1 };
     }
-    if (directiveName(text) !== "effect") {
-      failWG("@onenter may contain only @effect directives", lineLocation(file, line.line));
+    if (!["effect", "unlock"].includes(directiveName(text))) {
+      failWG("@onenter may contain only @effect and @unlock directives", lineLocation(file, line.line));
     }
-    effects.push(parseEffect(text, file, line.line));
+    effects.push(parseSilentDirective(text, file, line.line));
     index += 1;
   }
   failWG("Unclosed @onenter block", lineLocation(file, openingLine));

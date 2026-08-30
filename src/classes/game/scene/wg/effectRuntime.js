@@ -2,6 +2,7 @@ import { evaluateWGExpression, resolveWGPath } from "./expressionEvaluator.js";
 import { createWGRuntimeContext } from "./runtimeContext.js";
 import { SKILLS, STATS } from "../../../../data/player/stats.js";
 import { SCHOOL_SUBJECTS } from "../../../../data/player/education.js";
+import { PLACE_REGISTRY } from "../../../../data/world/place.js";
 
 export class WGEffectError extends Error {
   constructor(message) {
@@ -66,6 +67,17 @@ export function applyWGEffect(game, effect) {
       fail("WG daily-flag effect needs an id");
     }
     game.setDailyFlag(effect.flag, effect.value);
+    return;
+  }
+
+  if (effect.op === "unlock-place") {
+    if (
+      typeof effect.placeKey !== "string" ||
+      !PLACE_REGISTRY.some((place) => place.key === effect.placeKey)
+    ) {
+      fail("WG unlock effect references unknown place key '" + String(effect.placeKey) + "'");
+    }
+    game.unlockPlacesByKey(effect.placeKey);
     return;
   }
 

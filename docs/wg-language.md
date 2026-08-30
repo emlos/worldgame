@@ -222,8 +222,11 @@ therefore trigger only after the place has been unlocked. Runtime code can call
 that key. Unlocking is saved and irreversible: an unlocked instance never
 returns to the locked state.
 
-WG does not yet expose `place.unlocked` or implement an unlock effect/directive.
-Until `@unlock` is added, unlocking must be initiated by game code outside WG.
+WG can reveal these places with the standalone directive
+`@unlock place <place-key>`, for example `@unlock place civil_office`.
+The key must come from `PLACE_REGISTRY`; it is not a generated instance ID or
+an outdoor location/district ID. WG does not currently expose `place.unlocked`
+or a per-key unlock-state query. See **Unlocking places** below for effect rules.
 
 ## Scenes
 
@@ -930,7 +933,7 @@ difficulty, and two outcome blocks:
 The player sees only the choice label and orange `Strength: Tricky`. The UI
 does not display a probability, roll, selected outcome, branch duration, or
 sanitized preview of branch effects. Checked choices cannot use choice-level
-`@time`, `@response`, `@effect`, `@change`, or `@preview`; put time,
+`@time`, `@response`, `@effect`, `@unlock`, `@change`, or `@preview`; put time,
 responses, and silent effects inside each outcome.
 They may still use one `@icon`, `@when`, `@warning`, and `@check`, plus repeated
 `@require` directives. Both outcomes are required and may target another scene
@@ -943,7 +946,7 @@ Grades are normalized from their `0`–`100` range to the same `0`–`10` check
 level used by skills.
 
 Each `@success` or `@failure` block may contain at most one `@time`, including
-the optional `free` suffix, and any number of `@response` and `@effect`
+the optional `free` suffix, and any number of `@response`, `@effect`, and `@unlock`
 directives. It cannot contain `@time-until`, conditions, requirements,
 warnings, previews, icons, nested checks, or ordinary prose outside a response
 block.
@@ -991,7 +994,7 @@ passage:
 entered. It does not run while a screen is merely rendered or rebuilt. Moving
 between passages in the same sequence does not run it again. Entering the same
 story target again through an ordinary choice does. The block may contain only
-`@effect` directives, comments, and blank lines.
+`@effect` and `@unlock` directives, comments, and blank lines.
 
 Body effects instead run during one-time post-time prose resolution. Moving to
 a new passage resolves that passage and can run its body effects without
@@ -1062,8 +1065,41 @@ NPC residences use `home_access_<npc-id>`. Setting, for example,
 choice while permission is absent.
 
 This residence permission flag is separate from a generated place's
-irreversible `unlocked` state. There is currently no WG effect for unlocking a
-place.
+irreversible `unlocked` state. Unlocking a place does not grant this permission.
+
+### Unlocking places
+
+Use a standalone `@unlock place <place-key>` to reveal every generated
+instance of a registered place key:
+
+```wg
+@choice directions "Ask for directions to the civil office" -> @exit
+  @unlock place civil_office
+@endchoice
+```
+
+It can also appear in an entered event/sequence body (including conditional,
+random, and passive-check branches), an `@onenter` block, or either outcome
+of a checked choice. Place-hub choices can unlock places, but persistent
+place-hub prose and presentation-only `@response` blocks cannot. In a checked
+choice, put the unlock inside `@success` or `@failure`, not at choice level.
+
+- Unlocking is silent: author the discovery text yourself. It does not add
+  automatic feedback, a choice preview, a time cost, or move the player.
+- It uses the normal effect order and action transaction. Body unlocks run
+  once per entered passage, never during rendering or choice revalidation.
+  A later failure in the same action rolls the unlock back.
+- A committed unlock is saved and irreversible. Repeating it is harmless.
+  If a registered key has no instances in the current world, it does nothing.
+- Newly unlocked places appear in the existing map, entry-choice, GPS, bus,
+  and schedule systems wherever those systems normally include that place.
+  Opening hours, age restrictions, and access flags still apply.
+- Unknown keys and malformed syntax fail compilation, including inside
+  unreachable branches. Runtime effects also validate the registered key.
+
+This directive unlocks generated **places**, not outdoor map locations. It
+does not expose locking/relocking or instance-specific unlocking. Use the
+standalone spelling above; `@effect unlock` and `@change unlock` are not syntax.
 
 ## Comments and escaping
 
@@ -1087,7 +1123,8 @@ invalid expressions and durations, unknown global and local targets, unknown
 skill-check target types, target IDs, and difficulties, unknown registered
 skill/stat/school-subject effect IDs, missing entry targets, and direct
 duplicate place hubs. It checks
-`@time-until` path syntax but not whether that runtime value exists. It does
+`@unlock` place keys and `@time-until` path syntax, but not whether that
+runtime timestamp value exists. It does
 not validate other general runtime paths, NPC IDs, or overlapping tag-based
 hub selectors.
 
@@ -1120,10 +1157,12 @@ not implemented.
 | Entry | `@scene`, `@hub`, `@offer`, `@auto`, `@pool`, `@place-key`, `@place-tag`, `@location-tag`, `@when`, `@label`, `@icon`, `@hub-text`, `@priority`, `@chance`, `@weight` |
 | Scene metadata | `@kind`, `@heading`, `@choices`, `@onenter ... @endonenter` |
 | Sequence metadata/navigation | scene metadata plus `@school-class`, `@system`, `@passage`, `@next` |
-| Scene or passage body | prose, `@br`, trailing inline `@change`, `@if` / `@elseif` / `@else` / `@endif`, `@random` / `@or` / `@endrandom`, passive `@check` / `@success` / `@failure` / `@endcheck`, `@effect`, `@change`, `@choicegroup ... @endchoicegroup`, `@choice ... @endchoice` |
-| Direct choice | `@icon`, `@time`, `@time-until`, `@enter-after-time`, `@event-pool`, `@event-chance`, `@when`, `@require`, `@warning`, `@response ... @endresponse`, `@preview`, `@effect`, `@change` |
+| Scene or passage body | prose, `@br`, trailing inline `@change`, `@if` / `@elseif` / `@else` / `@endif`, `@random` / `@or` / `@endrandom`, passive `@check` / `@success` / `@failure` / `@endcheck`, `@effect`, `@unlock`, `@change`, `@choicegroup ... @endchoicegroup`, `@choice ... @endchoice` |
+| Direct choice | `@icon`, `@time`, `@time-until`, `@enter-after-time`, `@event-pool`, `@event-chance`, `@when`, `@require`, `@warning`, `@response ... @endresponse`, `@preview`, `@effect`, `@unlock`, `@change` |
 | Checked choice | `@icon`, `@event-pool`, `@event-chance`, `@when`, `@require`, `@warning`, `@check`, `@success ... @endsuccess`, `@failure ... @endfailure` |
-| Check outcome | `@time`, `@response ... @endresponse`, `@effect` |
+| Check outcome | `@time`, `@response ... @endresponse`, `@effect`, `@unlock` |
+| On-enter block | `@effect`, `@unlock` |
+| Unlock directive | `@unlock place <registered-place-key>` |
 | Effect operations | `set`, `add`, `flag`, `daily-flag`, `relationship`, `money`, `skill`, `stat`, `grade`, `attendance` |
 | Story targets | global scene/sequence ID, local `.passage`, `@return`, `@exit`, `@leave-place` (`@next` and sequence final targets have the narrower rules documented above) |
 
@@ -1131,4 +1170,4 @@ not implemented.
 
 WG currently has no inline arbitrary JavaScript, Twine widgets, HTML rendering,
 loops, includes, user-defined WG macros, localization, automatic resource costs,
-place-unlock directive/effect, undo/history, or hot reloading.
+outdoor-location unlocking, relocking, undo/history, or hot reloading.

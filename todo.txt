@@ -14,12 +14,8 @@ ui:
 
 wg script:
 
-- [done] @next navigation has no choice heading; actual decisions retain theirs
-- [done] inline @change feedback attached to prose (any number of trailing changes per source line)
-- [done] @br inserts an explicit line break within a paragraph
 - scene interrupt system - special events that override the next scheduled event UNLESS th eplayer is in a sequence
     ex: passing out from energy hitting 0
-- @unlock directive for locations
 
 
 game systems:
