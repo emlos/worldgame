@@ -1,0 +1,37 @@
+@entry place.hub.civil-office
+  @scene place.civil-office
+  @place-key civil_office
+  @hub place
+@endentry
+
+:: place.civil-office [place hub]
+@kind place
+@heading "Civil Office"
+@choices "Activities"
+
+Counters, forms, and noticeboards fill {{place.name}}.
+
+@choice notice-question "Ask about the notice" -> place.civil-office
+    @time 10m
+    @when flags.home_notice_read and not flags.home_notice_resolved
+    @effect flag home_notice_resolved true
+    @effect reminder clear civil_notice
+    @response
+      You ask the receptionist about the notice you found on your front door.
+    @br
+    Placeholder response
+    @endresponse
+@endchoice
+
+@choice reception "Ask at reception" -> place.civil-office
+  @icon ℹ️
+@endchoice
+
+@choice forms "Look through the available forms" -> place.civil-office
+  @icon 📄
+@endchoice
+
+@choice leave "Leave" -> @leave-place
+  @icon 🚪
+  @time 1m
+@endchoice

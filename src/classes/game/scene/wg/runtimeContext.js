@@ -42,11 +42,12 @@ function playerContext(player) {
   };
 }
 
-function timeContext(date) {
+function timeContext(date, startedAt) {
   const hour = date.getUTCHours();
   const minute = date.getUTCMinutes();
   return {
     iso: date.toISOString(),
+    day: Math.floor(date.getTime() / 86_400_000) - Math.floor(Date.parse(startedAt) / 86_400_000) + 1,
     hour,
     minute,
     minutesSinceMidnight: hour * 60 + minute,
@@ -106,7 +107,7 @@ export function createWGRuntimeContext(game) {
     npc: npcs,
     flags,
     daily,
-    time: timeContext(game.now),
+    time: timeContext(game.now, game.startedAt),
     school,
     event: activeContinuation
       ? {

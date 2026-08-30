@@ -8,6 +8,7 @@
     { "include": "#scene-header" },
     { "include": "#entry-header" },
     { "include": "#location-header" },
+    { "include": "#reminder-header" },
     { "include": "#sequence-header" },
     { "include": "#passage-header" },
     { "include": "#next-directive" },
@@ -27,6 +28,18 @@
     { "include": "#unknown-directives" }
   ],
   "repository": {
+    "reminder-header": {
+      "patterns": [
+        {
+          "name": "meta.reminder.header.wg",
+          "match": "^(\\s*)(@reminder)\\s+([a-z][a-z0-9_.-]*)\\s*$",
+          "captures": {
+            "2": { "name": "keyword.control.block.begin.wg" },
+            "3": { "name": "entity.name.type.reminder.wg" }
+          }
+        }
+      ]
+    },
     "comments": {
       "patterns": [
         { "name": "comment.line.number-sign.wg", "match": "^\\s*@#.*$" }
@@ -215,7 +228,7 @@
           "beginCaptures": { "2": { "name": "keyword.control.effect.wg" } },
           "end": "$",
           "patterns": [
-            { "name": "storage.type.effect.wg", "match": "\\b(?:set|add|flag|daily-flag|relationship|money|skill|stat|grade|attendance)\\b" },
+            { "name": "storage.type.effect.wg", "match": "\\b(?:set|add|clear|reminder|flag|daily-flag|relationship|money|skill|stat|grade|attendance)\\b" },
             { "include": "#expression" }
           ]
         }
@@ -248,7 +261,7 @@
       "patterns": [
         {
           "name": "meta.property.directive.wg",
-          "begin": "^(\\s*)(@(kind|heading|choices|school-class|system|scene|place-key|place-tag|location-tag|hub|offer|label|icon|hub-text|auto|pool|priority|chance|weight|time|time-until|enter-after-time|event-pool|event-chance|warning|preview|check))\\b",
+          "begin": "^(\\s*)(@(text|tone|kind|heading|choices|school-class|system|scene|place-key|place-tag|location-tag|hub|offer|label|icon|hub-text|auto|pool|priority|chance|weight|time|time-until|enter-after-time|event-pool|event-chance|warning|preview|check))\\b",
           "beginCaptures": { "2": { "name": "keyword.other.directive.wg" } },
           "end": "$",
           "patterns": [{ "include": "#expression" }]
@@ -259,7 +272,7 @@
       "patterns": [
         {
           "name": "keyword.control.block.wg",
-          "match": "^\\s*(@(?:else|endif|endentry|endlocation|endchoice|endchoicegroup|endsequence|success|endsuccess|failure|endfailure|endcheck|response|endresponse|endrandom|onenter|endonenter))\\s*$"
+          "match": "^\\s*(@(?:else|endif|endentry|endreminder|endlocation|endchoice|endchoicegroup|endsequence|success|endsuccess|failure|endfailure|endcheck|response|endresponse|endrandom|onenter|endonenter))\\s*$"
         }
       ]
     },

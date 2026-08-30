@@ -1,18 +1,27 @@
+@reminder civil_notice
+  @text "Visit the civil office about the notice on your door."
+@endreminder
+
 @location home-door
   @when "player_home" in location.visiblePlaceKeys
 
-You live at this juncture.
+  @if not flags.home_notice_read and (time.day > 1 or (time.day == 1 and time.hour >= 13))
+    You are standing in front of your home. A notice has been pinned to your front door.
+  @endif
 
 @choicegroup notices ""
   @choice read "Check the notice on the door" -> @exit
-    @when not flags.home_notice_read
+    @when not flags.home_notice_read and (time.day > 1 or (time.day == 1 and time.hour >= 13))
     @time 1m
     @effect flag home_notice_read true
+    @effect reminder add civil_notice
     @response
       A notice has been pinned to your front door.
       Someone is asking you to contact the civil office.
-      You should probably go there as soon as possible.
+      @br
+      [warning]You should probably go there as soon as possible.[/warning]
     @endresponse
+    @unlock place civil_office
   @endchoice
 @endchoicegroup
 

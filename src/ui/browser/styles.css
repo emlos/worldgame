@@ -829,6 +829,53 @@ p {
   --phone-app-accent: #c4a76f;
 }
 
+#phone-reminders-screen {
+  padding-left: 4px;
+}
+
+#phone-reminders-screen:focus-visible {
+  outline: 1px solid #465568;
+  outline-offset: -1px;
+}
+
+.phone-reminder-group + .phone-reminder-group {
+  margin-top: 24px;
+}
+
+.phone-reminder-group > h3 {
+  margin: 0 0 10px;
+  color: #aeb7c2;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.phone-reminder-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.phone-reminder-item {
+  border-top: 1px solid #29323e;
+  padding: 12px 0;
+  color: #e0e7ef;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+}
+
+.phone-reminder-item[data-tone="warning"] {
+  color: var(--outcome-warning);
+}
+
+.phone-reminders-empty {
+  margin: 0;
+  color: #aeb7c2;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
 #phone-gps-btn {
   --phone-app-accent: #f2c14e;
 }

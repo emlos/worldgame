@@ -42,7 +42,7 @@ Taylor looks up from the textbook.
 ```
 
 Files are UTF-8 and may contain any number of top-level entry, scene,
-sequence, and location-contribution blocks.
+sequence, location-contribution, and reminder blocks.
 
 ## Core syntax and identifiers
 
@@ -51,7 +51,7 @@ directive is recognized, so indentation is for readability. Directives occupy
 their own logical lines, except for prose `@br` markers and a trailing inline
 `@change`, described below.
 
-- Story, scene, sequence, entry, location-contribution, choice, and choice-group IDs start with a
+- Story, scene, sequence, entry, location-contribution, reminder, choice, and choice-group IDs start with a
   lowercase letter and may then contain lowercase letters, numbers, `_`, `-`,
   or `.`.
 - Passage IDs and scene tags use the same rules but do not allow `.`. A local
@@ -67,8 +67,8 @@ their own logical lines, except for prose `@br` markers and a trailing inline
 - `@icon` accepts either a quoted string or the non-empty remainder of its line,
   which makes a bare emoji convenient.
 
-Only blank lines, comments, and top-level `@entry`, `@sequence`, `@location`, or `::` scene
-declarations may appear outside a block. Entries, sequences, and location contributions have explicit
+Only blank lines, comments, and top-level `@entry`, `@sequence`, `@location`, `@reminder`, or `::` scene
+declarations may appear outside a block. Entries, sequences, location contributions, and reminders have explicit
 closing directives. A scene ends at the next top-level declaration or at the
 end of its file. Source files and emitted object keys are sorted
 deterministically, so compiling unchanged sources produces an unchanged
@@ -310,7 +310,7 @@ active story frame or saved separately.
 ## Scenes
 
 A scene starts with a header and continues until the next top-level scene,
-entry, sequence, or location-contribution declaration:
+entry, sequence, location-contribution, or reminder declaration:
 
 ```wg
 :: taylor.study.peek [event taylor study]
@@ -644,6 +644,9 @@ The currently exposed paths are:
   crosses UTC midnight.
 - `time.iso`, `time.hour`, `time.minute`, and
   `time.minutesSinceMidnight`, using the UTC world clock shown by the game.
+- `time.day`: calendar-day index relative to the saved game-start date. The
+  starting date is day 1, and UTC midnight begins the next day, even when less
+  than 24 hours have elapsed. It survives save/load without being reset.
 - `school.isSchoolDay`, `.noSchoolReason`, `.atSchool`, `.phase`,
   `.periodId`, `.periodLabel`, `.subjectId`, `.currentClass`, `.nextClass`,
   `.nextClassPeriodId`, `.nextClassLabel`, `.nextClassStartsAt`,
@@ -1117,6 +1120,8 @@ Implemented effects are:
 @effect stat energy -5
 @effect grade english 1
 @effect attendance english 1
+@effect reminder add civil_notice
+@effect reminder clear civil_notice
 ```
 
 - `set` and `add` target only `story.*`. Their values are expressions, and
@@ -1128,13 +1133,8 @@ Implemented effects are:
 - `daily-flag <id> true|false` enables or removes a daily flag. All daily flags
   are cleared together when forward game time crosses UTC midnight. Use
   `not daily.<id>` to gate a once-per-day choice.
-- The ordinary flags `announcement_vega_station` and
-  `announcement_school_project_last_day` feed the day-start announcement
-  registry. When set as midnight is crossed, their registered text joins all
-  automatic announcements at the top of the destination passage. The visible
-  batch is dismissed by the next successful action, including `@next`, but its
-  source flags remain set until an authored effect unsets them. This makes a
-  reminder repeat on later days unless the story explicitly cancels it.
+- `reminder add <id>` activates an authored reminder; `reminder clear <id>`
+  removes it. Both require a declared reminder ID. See **Reminders** below.
 - `relationship <npc-id> <signed-number>` changes and clamps that NPC
   relationship to `-1` through `1`, marks the relationship as met, and fails at
   runtime if the NPC does not exist.
@@ -1198,6 +1198,82 @@ This directive unlocks generated **places**, not outdoor map locations. It
 does not expose locking/relocking or instance-specific unlocking. Use the
 standalone spelling above; `@effect unlock` and `@change unlock` are not syntax.
 
+## Reminders
+
+Declare a reminder once, anywhere at the top level of a WG file:
+
+```wg
+@reminder civil_notice
+  @text "Visit the civil office about the notice on your door."
+@endreminder
+```
+
+Definitions have a separate, global ID namespace using the normal WG ID rules.
+Every definition requires exactly one nonempty `@text "..."` string. Optional
+`@tone info|warning` defaults to `info`; optional `@priority <signed-integer>`
+defaults to `0` and must be a safe integer. Each field may appear once. Text
+supports the existing safe outcome markup, such as `[warning]...[/warning]`,
+but is literal: interpolation, expressions, and scripts are not supported.
+
+A definition alone does not activate the reminder. Use normal silent effects:
+
+```wg
+@effect reminder add civil_notice
+@effect reminder clear civil_notice
+```
+
+These effects are legal inside ordinary choices, checked outcomes, `@onenter`,
+and one-time event/sequence prose. They are illegal inside persistent hub or
+location prose and presentation-only `@response` blocks. `@change` cannot be
+used for reminder effects, even with a custom label. Author any immediate
+feedback in the choice response.
+
+Adding an active reminder and clearing an inactive reminder are harmless.
+Duplicate definitions, unknown references, and malformed operations fail
+compilation, including inside unreachable branches. Effect order, save/load,
+and failed-action rollback follow the ordinary WG effect rules.
+
+The phone's Reminders app shows active authored reminders under **To do**.
+The school-day reminder is built in: the school schedule automatically supplies
+its declaration, visibility, and start-time text under **Today**. Authors do
+not declare or activate it. It is absent on non-school days and cannot be
+manually added or cleared. The current school-day note remains for that day,
+including after classes, matching the existing daily school announcement.
+Empty groups are hidden. Viewing the phone takes no time and changes no state.
+
+When forward time crosses UTC midnight, all current reminder strings are
+snapshotted into the ordinary passage announcement area. Lower priorities
+display first, with IDs breaking ties; phone items use the same order within
+their groups. The next successful game action dismisses that batch, including
+`@next`, but leaves its source reminders active. They repeat on later days
+until cleared. Clearing a reminder also removes its pending announcement.
+Reading a scene or opening the phone never consumes a batch. New games seed
+automatic notices for their starting day; loading restores the saved batch
+without emitting it again. A jump across several dates emits only the
+destination day's batch, and a backward date change clears the batch.
+
+Only active authored IDs are saved; automatic school reminders are derived
+from the schedule. The built-in and authored namespaces cannot collide.
+Save format 23 requires the reminder state and game-start date; older saves
+are intentionally unsupported.
+
+Run reminder compiler/runtime regression checks with
+`node --test tests/reminders.test.mjs`.
+
+For a notice that first appears at 13:00 on day one and persists until read,
+use the same condition for prose and its read choice:
+
+```wg
+@when not flags.home_notice_read and (time.day > 1 or (time.day == 1 and time.hour >= 13))
+```
+
+After the read choice adds `civil_notice`, the office's completion choice can
+clear it and set `home_notice_resolved`. Gate that choice on
+`flags.home_notice_read and not flags.home_notice_resolved`. Reminder absence
+alone does not prove completion, since the reminder is also absent before the
+notice has been read. Rent amounts, deadlines, and penalties remain separate
+story/gameplay rules.
+
 ## Comments and escaping
 
 ```wg
@@ -1252,7 +1328,8 @@ not implemented.
 
 | Context | Directives |
 | --- | --- |
-| Top level | `:: <scene-id> [tags...]`, `@entry ... @endentry`, `@sequence ... @endsequence`, `@location ... @endlocation`, `@#` |
+| Top level | `:: <scene-id> [tags...]`, `@entry ... @endentry`, `@sequence ... @endsequence`, `@location ... @endlocation`, `@reminder ... @endreminder`, `@#` |
+| Reminder definition | required `@text`, optional `@tone`, `@priority` |
 | Location contribution | leading `@when` conditions, prose, interpolation, `@br`, conditionals, `@random` / `@or` / `@endrandom`, `@choicegroup ... @endchoicegroup`, `@choice ... @endchoice`; choices use the restrictions above |
 | Entry | `@scene`, `@hub`, `@offer`, `@auto`, `@pool`, `@place-key`, `@place-tag`, `@location-tag`, `@when`, `@label`, `@icon`, `@hub-text`, `@priority`, `@chance`, `@weight` |
 | Scene metadata | `@kind`, `@heading`, `@choices`, `@onenter ... @endonenter` |
@@ -1263,7 +1340,7 @@ not implemented.
 | Check outcome | `@time`, `@response ... @endresponse`, `@effect`, `@unlock` |
 | On-enter block | `@effect`, `@unlock` |
 | Unlock directive | `@unlock place <registered-place-key>` |
-| Effect operations | `set`, `add`, `flag`, `daily-flag`, `relationship`, `money`, `skill`, `stat`, `grade`, `attendance` |
+| Effect operations | `set`, `add`, `flag`, `daily-flag`, `relationship`, `money`, `skill`, `stat`, `grade`, `attendance`, `reminder add`, `reminder clear` |
 | Story targets | global scene/sequence ID, local `.passage`, `@return`, `@exit`, `@leave-place` (`@next` and sequence final targets have the narrower rules documented above) |
 
 ## Not supported by WG

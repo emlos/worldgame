@@ -16,7 +16,7 @@ wg script:
 
 - scene interrupt system - special events that override the next scheduled event UNLESS th eplayer is in a sequence
     ex: passing out from energy hitting 0
-
+- vscode highlighting: @br should be accepted in @response/@endresponse blocks - compiler complies corrently, just the highlighting needs adjusting
 
 game systems:
     player stats:

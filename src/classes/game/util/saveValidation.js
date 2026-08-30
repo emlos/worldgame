@@ -1,4 +1,5 @@
 import { deriveSeed } from "../../../shared/util/random.js";
+import { getAuthoredReminder, isKnownReminderItem } from "../reminders.js";
 import { validateWGSystemState } from "../scene/wg/storySystemRegistry.js";
 import {
     GOAL_TYPE,
@@ -1446,6 +1447,7 @@ function validateDailyAnnouncements(value, path, gameTime) {
         const item = record(itemData, itemPath);
         const id = string(required(item, "id", itemPath), `${itemPath}.id`, { nonEmpty: true });
         if (ids.has(id)) fail(`${itemPath}.id`, `duplicates announcement '${id}'`);
+        if (!isKnownReminderItem(id)) fail(`${itemPath}.id`, `unknown reminder '${id}'`);
         ids.add(id);
         const tone = string(required(item, "tone", itemPath), `${itemPath}.tone`, {
             nonEmpty: true,
@@ -1462,14 +1464,19 @@ export function validateGameSave(data) {
     const save = record(data, "save");
     same(
         integer(required(save, "saveVersion", "save"), "save.saveVersion"),
-        22,
+        23,
         "save.saveVersion",
-        "version 22",
+        "version 23",
     );
 
     const seed = uint32(required(save, "seed", "save"), "save.seed");
     validateRandomStreams(required(save, "random", "save"), "save.random", seed, ["gameplay"]);
     const gameTime = dateMilliseconds(required(save, "time", "save"), "save.time");
+    const startedAt = dateMilliseconds(required(save, "startedAt", "save"), "save.startedAt");
+    if (startedAt > gameTime) fail("save.startedAt", "must not be after the game clock");
+    for (const id of uniqueStrings(required(save, "reminders", "save"), "save.reminders", { nonEmpty: true })) {
+        if (!getAuthoredReminder(id)) fail("save.reminders", `unknown authored reminder '${id}'`);
+    }
 
     const world = record(required(save, "world", "save"), "save.world");
     const worldSeed = deriveSeed(seed, "world");

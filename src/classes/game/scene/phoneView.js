@@ -6,6 +6,20 @@ import {
 } from "../../../data/player/education.js";
 import { WearSlot } from "../../../shared/classes/clothing.js";
 import { listNavigationDestinations } from "../navigation.js";
+import { collectReminders } from "../reminders.js";
+
+/** A fresh, read-only view; opening the phone never acknowledges reminders. */
+export function buildPhoneRemindersView(game) {
+  const items = collectReminders(game);
+  return {
+    count: items.length,
+    groups: [
+      { id: "today", label: "Today" },
+      { id: "todo", label: "To do" },
+    ].map((group) => ({ ...group, items: items.filter((item) => item.group === group.id) }))
+      .filter((group) => group.items.length > 0),
+  };
+}
 
 /** Build the read-only list of met NPCs shown by the phone's Relationships app. */
 export function buildPhoneRelationshipsView(game) {

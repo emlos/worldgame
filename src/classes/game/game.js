@@ -22,6 +22,7 @@ import {
   validateGameSave,
 } from "./util/saveValidation.js";
 import { buildGpsRoute, resolveNavigationDestination } from "./navigation.js";
+import { authoredReminderId, getAuthoredReminder } from "./reminders.js";
 import {
   announcementDayKey,
   collectDailyAnnouncements,
@@ -55,6 +56,8 @@ export class Game {
       seed: deriveSeed(this.seed, "world"),
       startDate,
     });
+    this.startedAt = this.now.toISOString();
+    this.reminders = new Set();
 
     // --- player ---
     this.player = new Player(playerOptions);
@@ -352,6 +355,7 @@ export class Game {
       random: this.random.toJSON(),
       playerEnergy: this.player.getStatBase("energy"),
       playerAge: this.player.age,
+      reminders: [...this.reminders],
       dailyFlags: [...this.dailyFlags],
       dailyAnnouncements: JSON.parse(JSON.stringify(this.dailyAnnouncements)),
       currentLocationId: this.currentLocationId,
@@ -378,6 +382,7 @@ export class Game {
     this.rnd = this.getRNG("gameplay");
     this.player.setStatBase("energy", snapshot.playerEnergy);
     this.player.age = snapshot.playerAge;
+    this.reminders = new Set(snapshot.reminders);
     this.currentLocationId = snapshot.currentLocationId;
     this.currentPlaceId = snapshot.currentPlaceId;
     this.currentPlaceKey = snapshot.currentPlaceKey;
@@ -503,7 +508,21 @@ export class Game {
     return this.dailyFlags.has(String(flag));
   }
 
-  /** Dismiss the visible batch without changing any source story flags. */
+  /** Activate authored content once; automatic reminders cannot be manually added. */
+  addReminder(id) {
+    if (!getAuthoredReminder(id)) throw new Error(`Unknown authored reminder '${String(id)}'`);
+    this.reminders.add(id);
+  }
+
+  /** Also remove pending text if a post-time story effect resolves this reminder. */
+  clearReminder(id) {
+    if (!getAuthoredReminder(id)) throw new Error(`Unknown authored reminder '${String(id)}'`);
+    this.reminders.delete(id);
+    const itemId = authoredReminderId(id);
+    this.dailyAnnouncements.items = this.dailyAnnouncements.items.filter((item) => item.id !== itemId);
+  }
+
+  /** Dismiss the visible batch without changing its source reminders. */
   dismissDailyAnnouncements() {
     const dismissed = this.dailyAnnouncements.items.length;
     if (dismissed > 0) {
@@ -837,10 +856,12 @@ export class Game {
   // --------------------------
   toJSON() {
     return {
-      saveVersion: 22,
+      saveVersion: 23,
       seed: this.seed,
       random: this.random.toJSON(),
       time: this.now.toISOString(),
+      startedAt: this.startedAt,
+      reminders: [...this.reminders].sort(),
       world: this.world.toJSON(),
       player: this.player.toJSON(),
       npcs: this.npcsArray.map((npc) => npc.toJSON()),
@@ -882,6 +903,8 @@ export class Game {
     game.random = RandomStreams.fromJSON(data.random);
     game.rnd = game.getRNG("gameplay");
     game.world = World.fromJSON(data.world);
+    game.startedAt = data.startedAt;
+    game.reminders = new Set(data.reminders);
 
     game.player = Player.fromJSON(data.player || {});
     game.player.syncAgeAt(game.now);

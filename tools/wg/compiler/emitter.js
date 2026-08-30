@@ -33,7 +33,7 @@ const NULL_DEFAULTS = new Set([
 const FALSE_DEFAULTS = new Set(["energyFree", "enterAfterTime"]);
 const ZERO_DEFAULTS = new Set(["durationMinutes", "priority"]);
 const ONE_DEFAULTS = new Set(["chance", "eventChance", "weight"]);
-const TOP_LEVEL_COLLECTIONS = ["scenes", "sequences", "entries", "locationContributions"];
+const TOP_LEVEL_COLLECTIONS = ["scenes", "sequences", "entries", "locationContributions", "reminders"];
 
 function isOmittedDefault(key, value) {
   return (

@@ -227,6 +227,11 @@ function parseEffect(text, file, line) {
   const location = lineLocation(file, line);
   const argument = directiveArgument(text, "effect", location);
 
+  const reminder = argument.match(new RegExp(`^reminder\\s+(add|clear)\\s+(${ID_PATTERN})$`));
+  if (reminder) {
+    return { op: "reminder", action: reminder[1], id: reminder[2], source: nodeSource(file, line) };
+  }
+
   const storyMutation = argument.match(
     /^(set|add)\s+([A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)+)\s+(.+)$/,
   );
@@ -340,6 +345,9 @@ function parseChange(text, file, line) {
   );
   const effectArgument = labelMatch ? labelMatch[1] : argument;
   const effect = parseEffect(`@effect ${effectArgument}`, file, line);
+  if (effect.op === "reminder") {
+    failWG("@change does not support reminders; use @effect reminder", location);
+  }
   const label = labelMatch
     ? parseQuotedString(labelMatch[2], location, "Change label")
     : defaultChangeLabel(effect);
@@ -1610,6 +1618,46 @@ function parseLocationBlock(file, lines, startIndex) {
   failWG("Unclosed @location block", lineLocation(file, opening.line));
 }
 
+function parseReminderBlock(file, lines, startIndex) {
+  const opening = lines[startIndex];
+  const header = opening.text.trim().match(new RegExp(`^@reminder\\s+(${ID_PATTERN})$`));
+  if (!header) failWG("Expected @reminder <id>", lineLocation(file, opening.line));
+  const reminder = { id: header[1], tone: "info", priority: 0, source: nodeSource(file, opening.line) };
+  const seen = new Set();
+  for (let index = startIndex + 1; index < lines.length; index += 1) {
+    const line = lines[index];
+    const text = line.text.trim();
+    if (!text || isComment(text)) continue;
+    const location = lineLocation(file, line.line);
+    if (text === "@endreminder") {
+      if (!seen.has("text")) failWG("Reminder requires @text", lineLocation(file, opening.line));
+      return { reminder, nextIndex: index + 1 };
+    }
+    const name = directiveName(text);
+    if (!["text", "tone", "priority"].includes(name)) {
+      failWG("Reminder definitions may contain only @text, @tone, and @priority; close with @endreminder", location);
+    }
+    if (seen.has(name)) failWG(`Duplicate @${name} in reminder '${reminder.id}'`, location);
+    seen.add(name);
+    const value = directiveArgument(text, name, location);
+    if (name === "text") {
+      reminder.text = parseQuotedString(value, location, "Reminder text");
+      if (reminder.text.includes("{{") || reminder.text.includes("}}")) {
+        failWG("Reminder text is literal; interpolation is not supported", location);
+      }
+    } else if (name === "tone") {
+      if (!["info", "warning"].includes(value)) failWG("@tone must be info or warning", location);
+      reminder.tone = value;
+    } else {
+      if (!/^[+-]?\d+$/.test(value) || !Number.isSafeInteger(Number(value))) {
+        failWG("@priority must be a signed safe integer", location);
+      }
+      reminder.priority = Number(value);
+    }
+  }
+  failWG("Unclosed @reminder block", lineLocation(file, opening.line));
+}
+
 export function parseWGDocument({ file = "<wg>", source }) {
   if (typeof source !== "string") {
     failWG("WG source must be text", lineLocation(normalizeFile(file), 1));
@@ -1621,6 +1669,7 @@ export function parseWGDocument({ file = "<wg>", source }) {
   const entries = [];
   const sequences = [];
   const locationContributions = [];
+  const reminders = [];
   let currentChunk = null;
   let index = 0;
 
@@ -1628,6 +1677,13 @@ export function parseWGDocument({ file = "<wg>", source }) {
     const line = lines[index];
     const trimmed = line.text.trim();
 
+    if (trimmed.startsWith("@reminder")) {
+      currentChunk = null;
+      const parsed = parseReminderBlock(normalizedFile, lines, index);
+      reminders.push(parsed.reminder);
+      index = parsed.nextIndex;
+      continue;
+    }
     if (trimmed.startsWith("@entry")) {
       currentChunk = null;
       const parsed = parseEntryBlock(normalizedFile, lines, index);
@@ -1680,7 +1736,7 @@ export function parseWGDocument({ file = "<wg>", source }) {
         index += 1;
         continue;
       }
-      failWG("Content appears outside a scene, entry, sequence, or location block", lineLocation(normalizedFile, line.line));
+      failWG("Content appears outside a scene, entry, sequence, location, or reminder block", lineLocation(normalizedFile, line.line));
     }
     currentChunk.lines.push(line);
     index += 1;
@@ -1691,6 +1747,7 @@ export function parseWGDocument({ file = "<wg>", source }) {
     sequences,
     entries,
     locationContributions,
+    reminders,
   };
 }
 

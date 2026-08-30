@@ -58,9 +58,20 @@ export function compileStorySources(sources) {
   const sequenceMap = new Map();
   const entryMap = new Map();
   const locationMap = new Map();
+  const reminderMap = new Map();
 
   for (const source of orderedSources) {
     const document = parseWGDocument(source);
+    for (const reminder of document.reminders) {
+      const previous = reminderMap.get(reminder.id);
+      if (previous) {
+        failWG(
+          `Duplicate reminder id '${reminder.id}' (first declared at ${previous.source.file}:${previous.source.line})`,
+          atSource(reminder.source),
+        );
+      }
+      reminderMap.set(reminder.id, reminder);
+    }
     for (const scene of document.scenes) {
       const previous = sceneMap.get(scene.id);
       if (previous) {
@@ -103,8 +114,21 @@ export function compileStorySources(sources) {
     }
   }
 
-  if (sceneMap.size === 0 && sequenceMap.size === 0 && locationMap.size === 0) {
-    failWG("No WG scenes, sequences, or location contributions were found", { file: "story", line: 1, column: 1 });
+  if (sceneMap.size === 0 && sequenceMap.size === 0 && locationMap.size === 0 && reminderMap.size === 0) {
+    failWG("No WG scenes, sequences, location contributions, or reminders were found", { file: "story", line: 1, column: 1 });
+  }
+
+  // Visit every effect, including on-enter blocks, checked outcomes, and
+  // unreachable branches. References can point to any source file.
+  function validateReminderEffects(value) {
+    if (!value || typeof value !== "object") return;
+    if (value.op === "reminder" && !reminderMap.has(value.id)) {
+      failWG(`Unknown reminder '${value.id}'`, atSource(value.source));
+    }
+    for (const child of Object.values(value)) validateReminderEffects(child);
+  }
+  for (const definition of [...sceneMap.values(), ...sequenceMap.values(), ...locationMap.values()]) {
+    validateReminderEffects(definition);
   }
 
   for (const scene of sceneMap.values()) {
@@ -330,7 +354,10 @@ export function compileStorySources(sources) {
   const locationContributions = Object.fromEntries(
     [...locationMap.entries()].sort(([left], [right]) => compareText(left, right)),
   );
-  return { formatVersion: 20, scenes, sequences, entries, locationContributions };
+  const reminders = Object.fromEntries(
+    [...reminderMap.entries()].sort(([left], [right]) => compareText(left, right)),
+  );
+  return { formatVersion: 21, scenes, sequences, entries, locationContributions, reminders };
 }
 
 export { walkNodes };

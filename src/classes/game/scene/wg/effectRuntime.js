@@ -62,6 +62,19 @@ export function applyWGEffect(game, effect) {
     return;
   }
 
+  if (effect.op === "reminder") {
+    if (effect.action !== "add" && effect.action !== "clear") {
+      fail("WG reminder effect requires add or clear");
+    }
+    try {
+      if (effect.action === "add") game.addReminder(effect.id);
+      else game.clearReminder(effect.id);
+    } catch (error) {
+      fail(error.message);
+    }
+    return;
+  }
+
   if (effect.op === "daily-flag") {
     if (typeof effect.flag !== "string" || !effect.flag) {
       fail("WG daily-flag effect needs an id");

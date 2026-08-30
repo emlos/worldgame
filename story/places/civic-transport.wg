@@ -27,31 +27,7 @@ The open space of {{place.name}} gives you room to stop and watch the town move 
   @time 1m
 @endchoice
 
-@entry place.hub.civil-office
-  @scene place.civil-office
-  @place-key civil_office
-  @hub place
-@endentry
 
-:: place.civil-office [place hub]
-@kind place
-@heading "Civil Office"
-@choices "Activities"
-
-Counters, forms, and noticeboards fill {{place.name}}.
-
-@choice reception "Ask at reception" -> place.civil-office
-  @icon ℹ️
-@endchoice
-
-@choice forms "Look through the available forms" -> place.civil-office
-  @icon 📄
-@endchoice
-
-@choice leave "Leave" -> @leave-place
-  @icon 🚪
-  @time 1m
-@endchoice
 
 @entry place.hub.jail
   @scene place.jail

@@ -12,6 +12,7 @@ import {
   buildPhoneGpsView,
   buildPhonePlayerStatsView,
   buildPhoneRelationshipsView,
+  buildPhoneRemindersView,
 } from "../../classes/game/scene/phoneView.js";
 import { STATS } from "../../data/player/stats.js";
 import { renderMap as renderGraphMap } from "./renderMap.js";
@@ -56,6 +57,9 @@ const playerPhoneHeading = document.querySelector(
 const playerPhoneDate = document.querySelector("#player-phone-date");
 const phoneBackButton = document.querySelector("#phone-back");
 const phoneHomeScreen = document.querySelector("#phone-home-screen");
+const phoneRemindersButton = document.querySelector("#phone-reminders-btn");
+const phoneRemindersScreen = document.querySelector("#phone-reminders-screen");
+const phoneRemindersContent = document.querySelector("#phone-reminders-content");
 const phoneRelationshipsButton = document.querySelector(
   "#phone-relationships-btn",
 );
@@ -830,6 +834,7 @@ function renderPhoneGps() {
 
 const phoneScreens = [
   phoneHomeScreen,
+  phoneRemindersScreen,
   phoneRelationshipsScreen,
   phoneGpsScreen,
   phoneStatsScreen,
@@ -848,6 +853,7 @@ function showPhoneHomeScreen() {
   if (playerPhoneDialog.open) {
     const homeButton = new Map([
       [phoneRelationshipsScreen, phoneRelationshipsButton],
+      [phoneRemindersScreen, phoneRemindersButton],
       [phoneGpsScreen, phoneGpsButton],
       [phoneStatsScreen, phoneStatsButton],
       [phoneSettingsScreen, phoneSettingsButton],
@@ -873,6 +879,39 @@ function showPhoneRelationshipsScreen() {
   }
   phoneRelationshipsScreen.scrollTop = 0;
   phoneRelationshipsScreen.focus();
+}
+
+function showPhoneRemindersScreen() {
+  playerPhoneHeading.textContent = "Reminders";
+  phoneBackButton.hidden = false;
+  showOnlyPhoneScreen(phoneRemindersScreen);
+  const view = buildPhoneRemindersView(game);
+  const groups = view.groups.map((group) => {
+    const section = document.createElement("section");
+    section.className = "phone-reminder-group";
+    const heading = document.createElement("h3");
+    heading.textContent = group.label;
+    const list = document.createElement("ul");
+    list.className = "phone-reminder-list";
+    for (const reminder of group.items) {
+      const item = document.createElement("li");
+      item.className = "phone-reminder-item";
+      item.dataset.tone = reminder.tone;
+      setOutcomeText(item, reminder.text);
+      list.append(item);
+    }
+    section.append(heading, list);
+    return section;
+  });
+  if (view.count === 0) {
+    const empty = document.createElement("p");
+    empty.className = "phone-reminders-empty";
+    empty.textContent = "No active reminders.";
+    groups.push(empty);
+  }
+  phoneRemindersContent.replaceChildren(...groups);
+  phoneRemindersScreen.scrollTop = 0;
+  phoneRemindersScreen.focus();
 }
 
 function showPhoneGpsScreen() {
@@ -1105,6 +1144,7 @@ phoneRelationshipsButton.addEventListener(
   showPhoneRelationshipsScreen,
 );
 phoneGpsButton.addEventListener("click", showPhoneGpsScreen);
+phoneRemindersButton.addEventListener("click", showPhoneRemindersScreen);
 phoneGpsSearch.addEventListener("input", renderPhoneGps);
 phoneGpsStopButton.addEventListener("click", () => {
   game.clearGpsTarget();

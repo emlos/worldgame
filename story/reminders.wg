@@ -1,0 +1,11 @@
+@# Authored reminders are activated and cleared by story effects.
+@reminder vega_station
+  @text "Vega expects you at the station at [warning]12:00[/warning] today."
+  @priority 200
+@endreminder
+
+@reminder school_project_last_day
+  @text "Today is the last day to present your school project!"
+  @tone warning
+  @priority 210
+@endreminder
