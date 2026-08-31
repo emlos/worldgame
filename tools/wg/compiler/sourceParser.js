@@ -169,16 +169,17 @@ function parseInterpolationParts(text, location) {
 export function parseDuration(value, location = {}) {
   const text = String(value).trim();
   const match = text.match(
-    /^(?:(\d+(?:\.\d+)?)h)?(?:(\d+(?:\.\d+)?)m)?(?:(\d+(?:\.\d+)?)s)?$/,
+    /^(?:(\d+(?:\.\d+)?)d)?(?:(\d+(?:\.\d+)?)h)?(?:(\d+(?:\.\d+)?)m)?(?:(\d+(?:\.\d+)?)s)?$/,
   );
   if (!match || !match.slice(1).some((part) => part !== undefined)) {
     failWG(`Invalid duration '${text}'`, location);
   }
 
   const minutes =
-    Number(match[1] || 0) * 60 +
-    Number(match[2] || 0) +
-    Number(match[3] || 0) / 60;
+    Number(match[1] || 0) * 1440 +
+    Number(match[2] || 0) * 60 +
+    Number(match[3] || 0) +
+    Number(match[4] || 0) / 60;
   if (!Number.isFinite(minutes) || minutes < 0) {
     failWG(`Invalid duration '${text}'`, location);
   }
@@ -226,6 +227,15 @@ function parseSilentDirective(text, file, line) {
 function parseEffect(text, file, line) {
   const location = lineLocation(file, line);
   const argument = directiveArgument(text, "effect", location);
+
+  const contact = argument.match(new RegExp(`^contact\\s+add\\s+(${QUOTED_PATTERN}|${ID_PATTERN})$`));
+  if (contact) {
+    const npcId = contact[1].startsWith('"') ? parseQuotedString(contact[1], location, "Contact") : contact[1];
+    if (!ID_REGEX.test(npcId)) failWG("Invalid contact NPC id", location);
+    return { op: "contact", action: "add", npcId, source: nodeSource(file, line) };
+  }
+  const chat = argument.match(new RegExp(`^chat\\s+start\\s+(${ID_PATTERN})$`));
+  if (chat) return { op: "chat", action: "start", id: chat[1], source: nodeSource(file, line) };
 
   const reminder = argument.match(new RegExp(`^reminder\\s+(add|clear)\\s+(${ID_PATTERN})$`));
   if (reminder) {
@@ -445,10 +455,11 @@ function parseProseLine(text, file, line) {
 }
 
 class SceneBodyParser {
-  constructor(file, lines, startIndex = 0) {
+  constructor(file, lines, startIndex = 0, chat = false) {
     this.file = file;
     this.lines = lines;
     this.index = startIndex;
+    this.chat = chat;
   }
 
   current() {
@@ -509,6 +520,32 @@ class SceneBodyParser {
         return nodes;
       }
 
+      if (this.chat && name === "message") {
+        flushParagraph();
+        const match = trimmed.match(new RegExp(`^@message\\s+(${PASSAGE_ID_PATTERN})$`));
+        if (!match) failWG("Expected @message <id>", lineLocation(this.file, line.line));
+        this.index += 1;
+        const body = this.parseNodes(new Set(["endmessage"]));
+        if (this.current()?.text.trim() !== "@endmessage") failWG("Unclosed @message", lineLocation(this.file, line.line));
+        this.index += 1;
+        nodes.push({ type: "message", id: match[1], body, source: nodeSource(this.file, line.line) });
+        continue;
+      }
+      if (this.chat && (name === "wait" || name === "finish")) {
+        flushParagraph();
+        if (name === "finish") {
+          if (trimmed !== "@finish") failWG("@finish takes no arguments", lineLocation(this.file, line.line));
+          nodes.push({ type: "finish", source: nodeSource(this.file, line.line) });
+        } else {
+          const match = trimmed.match(new RegExp(`^@wait\\s+(\\S+)\\s+->\\s+(\\.${PASSAGE_ID_PATTERN})$`));
+          if (!match) failWG("Expected @wait <duration> -> .passage", lineLocation(this.file, line.line));
+          const minutes = parseDuration(match[1], lineLocation(this.file, line.line));
+          if (minutes < 1 / 60000) failWG("Chat waits must be at least one millisecond", lineLocation(this.file, line.line));
+          nodes.push({ type: "wait", minutes, target: match[2], source: nodeSource(this.file, line.line) });
+        }
+        this.index += 1;
+        continue;
+      }
       if (name === "if") {
         flushParagraph();
         nodes.push(this.parseConditional());
@@ -845,6 +882,7 @@ class SceneBodyParser {
       if (choice.check || choice.outcomes.success || choice.outcomes.failure) {
         failWG("Direct choices cannot contain skill-check outcomes", location);
       }
+
       if (choice.enterAfterTime) {
         if (choice.target === "@leave-place") {
           failWG("@enter-after-time cannot target @leave-place", location);
@@ -966,6 +1004,17 @@ class SceneBodyParser {
       if (!name) {
         failWG("Choice blocks may contain only choice directives", location);
       }
+
+      if (this.chat && !["send", "when", "require", "effect", "unlock"].includes(name)) {
+        failWG("Chat choices support only @send, @when, @require, @effect, and @unlock; texting takes no time", location);
+      }
+      if (this.chat && name === "send") {
+        if (choice.send) failWG("Duplicate @send", location);
+        choice.send = parseInterpolationParts(parseQuotedString(directiveArgument(text, "send", location), location, "Outgoing message"), location);
+        this.index += 1;
+        continue;
+      }
+
 
       if (name === "success" || name === "failure") {
         if (choice.outcomes[name]) failWG(`Duplicate @${name}`, location);
@@ -1658,6 +1707,45 @@ function parseReminderBlock(file, lines, startIndex) {
   failWG("Unclosed @reminder block", lineLocation(file, opening.line));
 }
 
+function parseChatBlock(file, lines, startIndex) {
+  const opening = lines[startIndex];
+  const match = opening.text.trim().match(new RegExp(`^@chat\\s+(${ID_PATTERN})$`));
+  if (!match) failWG("Expected @chat <id>", lineLocation(file, opening.line));
+  const chat = { id: match[1], npcId: null, passages: [], source: nodeSource(file, opening.line) };
+  let passage = null;
+  const finishPassage = () => {
+    if (!passage) return;
+    const parser = new SceneBodyParser(file, passage.lines, 0, true);
+    chat.passages.push({ id: passage.id, body: parser.parseNodes(), source: passage.source });
+  };
+  for (let index = startIndex + 1; index < lines.length; index += 1) {
+    const line = lines[index];
+    const text = line.text.trim();
+    if (!text || isComment(text)) { if (passage) passage.lines.push(line); continue; }
+    if (text === "@endchat") {
+      finishPassage();
+      if (!chat.npcId || !chat.passages.length) failWG("Chat requires @npc and at least one @passage", lineLocation(file, opening.line));
+      return { chat, nextIndex: index + 1 };
+    }
+    if (text.startsWith("@npc")) {
+      if (chat.npcId || passage) failWG("Declare @npc once, before chat passages", lineLocation(file, line.line));
+      chat.npcId = directiveArgument(text, "npc", lineLocation(file, line.line));
+      if (!ID_REGEX.test(chat.npcId)) failWG("Invalid NPC id", lineLocation(file, line.line));
+      continue;
+    }
+    if (text.startsWith("@passage")) {
+      finishPassage();
+      const id = directiveArgument(text, "passage", lineLocation(file, line.line));
+      if (!new RegExp(`^${PASSAGE_ID_PATTERN}$`).test(id)) failWG("Invalid chat passage id", lineLocation(file, line.line));
+      passage = { id, lines: [], source: nodeSource(file, line.line) };
+      continue;
+    }
+    if (!passage) failWG("Chat content requires @passage", lineLocation(file, line.line));
+    passage.lines.push(line);
+  }
+  failWG("Unclosed @chat block", lineLocation(file, opening.line));
+}
+
 export function parseWGDocument({ file = "<wg>", source }) {
   if (typeof source !== "string") {
     failWG("WG source must be text", lineLocation(normalizeFile(file), 1));
@@ -1670,12 +1758,21 @@ export function parseWGDocument({ file = "<wg>", source }) {
   const sequences = [];
   const locationContributions = [];
   const reminders = [];
+  const chats = [];
   let currentChunk = null;
   let index = 0;
 
   while (index < lines.length) {
     const line = lines[index];
     const trimmed = line.text.trim();
+
+    if (trimmed.startsWith("@chat")) {
+      currentChunk = null;
+      const parsed = parseChatBlock(normalizedFile, lines, index);
+      chats.push(parsed.chat);
+      index = parsed.nextIndex;
+      continue;
+    }
 
     if (trimmed.startsWith("@reminder")) {
       currentChunk = null;
@@ -1748,6 +1845,7 @@ export function parseWGDocument({ file = "<wg>", source }) {
     entries,
     locationContributions,
     reminders,
+    chats,
   };
 }
 

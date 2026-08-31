@@ -1,5 +1,6 @@
 import { deriveSeed } from "../../../shared/util/random.js";
 import { getAuthoredReminder, isKnownReminderItem } from "../reminders.js";
+import { validateChatState } from "../chats.js";
 import { validateWGSystemState } from "../scene/wg/storySystemRegistry.js";
 import {
     GOAL_TYPE,
@@ -1464,9 +1465,9 @@ export function validateGameSave(data) {
     const save = record(data, "save");
     same(
         integer(required(save, "saveVersion", "save"), "save.saveVersion"),
-        23,
+        24,
         "save.saveVersion",
-        "version 23",
+        "version 24",
     );
 
     const seed = uint32(required(save, "seed", "save"), "save.seed");
@@ -1529,6 +1530,11 @@ export function validateGameSave(data) {
         npcIds.add(id);
     });
 
+    try {
+        validateChatState(required(save, "chats", "save"), npcIds);
+    } catch (error) {
+        fail("save.chats", error.message);
+    }
     validatePlayer(required(save, "player", "save"), "save.player", npcIds, gameTime);
     npcs.forEach((npcData, index) =>
         validateNPC(npcData, `save.npcs[${index}]`, { mapIndex, gameTime }),

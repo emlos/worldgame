@@ -3,6 +3,7 @@ import { createWGRuntimeContext } from "./runtimeContext.js";
 import { SKILLS, STATS } from "../../../../data/player/stats.js";
 import { SCHOOL_SUBJECTS } from "../../../../data/player/education.js";
 import { PLACE_REGISTRY } from "../../../../data/world/place.js";
+import { addContact, startChat } from "../../chats.js";
 
 export class WGEffectError extends Error {
   constructor(message) {
@@ -35,6 +36,15 @@ function storyParent(game, path) {
 export function applyWGEffect(game, effect) {
   if (!effect || typeof effect !== "object" || Array.isArray(effect)) {
     fail("WG effects must be objects");
+  }
+
+  if (effect.op === "contact" && effect.action === "add") {
+    addContact(game, effect.npcId);
+    return;
+  }
+  if (effect.op === "chat" && effect.action === "start") {
+    startChat(game, effect.id);
+    return;
   }
 
   if (effect.op === "set" || effect.op === "add") {

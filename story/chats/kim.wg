@@ -1,0 +1,96 @@
+@chat kim.rent
+  @npc kim
+
+  @passage opening
+
+  @choice polite "Ask about the notice" -> .checking
+    @send "hi kim! im the tenant from {{home.location.name}}! theres a notice on my door saying i owe two months rent, but ive only just moved in. could you check it?"
+    @effect set story.kim.rentReply "polite"
+  @endchoice
+
+  @choice worried "Explain you're worried" -> .checking
+    @send "hi, i live at {{home.location.name}}. the civil office said i could be evicted over unpaid rent. i just moved in. is there a mistake??"
+    @effect set story.kim.rentReply "worried"
+  @endchoice
+
+  @choice blunt "Challenge the charge" -> .checking
+    @send "why am I being charged for two months when i wasnt even living here?"
+    @effect set story.kim.rentReply "blunt"
+    @effect relationship kim -0.02
+  @endchoice
+
+  @passage checking
+
+  @if story.kim.rentReply == "blunt"
+    @message firm
+      Hello. I understand you're frustrated. Give me a chance to check the records first...
+    @endmessage
+  @elseif story.kim.rentReply == "worried"
+    @message calm
+      Don't panic... Let me look into it before you do anything else.
+    @endmessage
+  @else
+    @message greeting
+      Hi. That doesn't sound right. Thanks for letting me know...
+    @endmessage
+  @endif
+
+  @message checking-records
+    I'll check the account and get back to you in a few hours .
+  @endmessage
+
+  @wait 3h -> .followup
+
+  @passage followup
+
+  @message found-it
+    Found it.
+  @endmessage
+
+  @message problem
+    Seems like you've been living here for a while , but the rent payments haven't been coming through.
+  @endmessage
+
+  @choice polite "What?!" -> .what
+    @send "this can't be right, i just moved in!"
+  @endchoice
+
+  @choice worried "What???" -> .what
+    @send "??? i just moved in!"
+  @endchoice
+
+  @passage what
+
+  @message explain
+    Yes I have it in writing...
+  @endmessage
+
+  @message photo
+    [blurry picture of the lease agreement]
+  @endmessage
+
+  @message explain-2
+    I was trying to contact you about this, but I couldn't reach you. You can see it clearly in the lease agreement. 
+    You signed it when you moved in, and it states that you are responsible for paying rent from the start date.
+  @endmessage
+
+  @choice thanks "So I owe you rent?" -> .done
+    @send "so i owe you rent?"
+  @endchoice
+
+
+  @passage done
+
+  @message explain-rent
+    Yes, it's 400£ per month, so you owe 800£ for the two months.
+    I take payment weekly, so if you don't want your utilities shut off, you should pay me as soon as possible.
+  @endmessage
+
+  @message payment-options
+    My office is at {{npc.kim.home.location.name}}. Please come by to settle your accounts :)
+  @endmessage
+
+  @effect flag story.rent.into.2 true
+
+  @finish
+@endchat

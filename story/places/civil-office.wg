@@ -11,7 +11,7 @@
 
 Counters, forms, and noticeboards fill {{place.name}}.
 
-@choice notice-question "Ask about the notice" -> civil-office.quest
+@choice notice-question "Ask about the notice" -> story.rent.intro.1
     @time 10m
     @when flags.home_notice_read and not flags.home_notice_resolved
     @effect flag home_notice_resolved true
@@ -25,11 +25,10 @@ Counters, forms, and noticeboards fill {{place.name}}.
 @endchoice
 
 @choice leave "Leave" -> @leave-place
-  @icon 🚪
   @time 1m
 @endchoice
 
-@sequence civil-office.quest -> @exit
+@sequence story.rent.intro.1 -> @exit
 
   "Um, hello?" You hold the notice up to the receptionist. "I found this on my door. What is it about?"
 
@@ -48,7 +47,9 @@ Counters, forms, and noticeboards fill {{place.name}}.
 
   Inspecting the notice, you see a phone number at the bottom. Is that your landlord? 
 
-  You add it to your contacts and make a note to call them as soon as possible.
+  You add it to your contacts. You can message Kim through the Chats app on your phone.
+  @effect contact add "kim"
+  @effect chat start kim.rent
   
   @next -> @exit
 

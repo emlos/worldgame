@@ -1,5 +1,7 @@
 import { failWG } from "./diagnostic.js";
 import { parseWGDocument } from "./sourceParser.js";
+import { validateChat } from "./chatValidation.js";
+import { NPC_REGISTRY } from "../../../src/data/npc/npcs.js";
 
 function compareText(left, right) {
   return left < right ? -1 : left > right ? 1 : 0;
@@ -8,7 +10,9 @@ function compareText(left, right) {
 function walkNodes(nodes, visit) {
   for (const node of nodes) {
     visit(node);
-    if (node.type === "if") {
+    if (node.type === "message") {
+      walkNodes(node.body, visit);
+    } else if (node.type === "if") {
       for (const branch of node.branches) walkNodes(branch.nodes, visit);
       if (node.elseNodes) walkNodes(node.elseNodes, visit);
     } else if (node.type === "choice-group") {
@@ -59,9 +63,17 @@ export function compileStorySources(sources) {
   const entryMap = new Map();
   const locationMap = new Map();
   const reminderMap = new Map();
+  const chatMap = new Map();
+  const npcIds = new Set(NPC_REGISTRY.map((npc) => npc.id));
 
   for (const source of orderedSources) {
     const document = parseWGDocument(source);
+    for (const chat of document.chats) {
+      if (chatMap.has(chat.id)) failWG(`Duplicate chat '${chat.id}'`, atSource(chat.source));
+      if (!npcIds.has(chat.npcId)) failWG(`Unknown chat NPC '${chat.npcId}'`, atSource(chat.source));
+      validateChat(chat, assignRuntimeNodeIds);
+      chatMap.set(chat.id, chat);
+    }
     for (const reminder of document.reminders) {
       const previous = reminderMap.get(reminder.id);
       if (previous) {
@@ -114,7 +126,7 @@ export function compileStorySources(sources) {
     }
   }
 
-  if (sceneMap.size === 0 && sequenceMap.size === 0 && locationMap.size === 0 && reminderMap.size === 0) {
+  if (sceneMap.size === 0 && sequenceMap.size === 0 && locationMap.size === 0 && reminderMap.size === 0 && chatMap.size === 0) {
     failWG("No WG scenes, sequences, location contributions, or reminders were found", { file: "story", line: 1, column: 1 });
   }
 
@@ -125,9 +137,11 @@ export function compileStorySources(sources) {
     if (value.op === "reminder" && !reminderMap.has(value.id)) {
       failWG(`Unknown reminder '${value.id}'`, atSource(value.source));
     }
+    if (value.op === "contact" && !npcIds.has(value.npcId)) failWG(`Unknown contact NPC '${value.npcId}'`, atSource(value.source));
+    if (value.op === "chat" && !chatMap.has(value.id)) failWG(`Unknown chat '${value.id}'`, atSource(value.source));
     for (const child of Object.values(value)) validateReminderEffects(child);
   }
-  for (const definition of [...sceneMap.values(), ...sequenceMap.values(), ...locationMap.values()]) {
+  for (const definition of [...sceneMap.values(), ...sequenceMap.values(), ...locationMap.values(), ...chatMap.values()]) {
     validateReminderEffects(definition);
   }
 
@@ -357,7 +371,8 @@ export function compileStorySources(sources) {
   const reminders = Object.fromEntries(
     [...reminderMap.entries()].sort(([left], [right]) => compareText(left, right)),
   );
-  return { formatVersion: 21, scenes, sequences, entries, locationContributions, reminders };
+  const chats = Object.fromEntries([...chatMap.entries()].sort(([left], [right]) => compareText(left, right)));
+  return { formatVersion: 22, scenes, sequences, entries, locationContributions, reminders, chats };
 }
 
 export { walkNodes };

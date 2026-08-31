@@ -13,6 +13,88 @@ The normal command updates the generated module only when its contents change.
 `--check` writes nothing and fails if the committed generated module is missing
 or out of date. Never edit the generated module by hand.
 
+## Phone chats
+
+Chats are authored in `story/chats/*.wg` and compiled with the rest of the story.
+They keep their own conversation state; opening the phone never replaces the
+active world scene. Sending a reply costs zero game time. Exclusive event scenes
+and sequences must finish before the player can send; history remains readable.
+
+```wg
+@effect contact add "kim"
+@effect chat start kim.rent
+```
+
+Add the contact before starting the exchange. Having a number does not mark the
+NPC as met. Both effects are idempotent. Exchanges are one-time: restarting an
+active, queued, or completed exchange does nothing. A second exchange for a busy
+contact queues until the active one finishes. Contacts appear in the Chats app.
+
+```wg
+@chat kim.rent
+  @npc kim
+
+  @passage opening
+  @choice ask "Ask about the notice" -> .checking
+    @send "Hi. Could you check this rent notice?"
+  @endchoice
+
+  @passage checking
+  @message promise
+    I'll look into it and get back to you.
+  @endmessage
+  @wait 3h -> .followup
+
+  @passage followup
+  @message answer
+    It's sorted. You can ignore that notice.
+  @endmessage
+  @effect flag kim_rent_corrected true
+  @finish
+@endchat
+```
+
+- `@npc` names a registered NPC and precedes all passages. The first passage is
+  the entry point. All targets stay within this chat and use `.passage-id`.
+- `@message <id> ... @endmessage` makes one incoming bubble. Message IDs are unique
+  throughout the chat. Paragraphs, interpolation, `@br`, `@if`, and `@random` are
+  supported inside messages. Effects belong outside message blocks.
+- Chat choices require `@send "..."`: this is the outgoing text sent immediately
+  when clicked. The choice label is the short button label. Choice IDs are unique
+  within their passage. `@when`, `@require`, `@effect`, and `@unlock` are supported;
+  timing, checks, and ordinary scene response directives are rejected.
+- Passages end with reply choices, `@wait`, or `@finish`. Wait/finish directives
+  must be the final top-level node, without choices in that passage. Conditions
+  and random blocks may select messages, effects, or reply sets. Every resolved
+  path must leave a reply, a wait, or a finished exchange.
+- `@wait 3h -> .followup` suspends the exchange without advancing the clock.
+  Durations support `d`, `h`, `m`, `s` in order, e.g. `1d2h30m`; waits must be
+  positive. One day is exactly 24 elapsed game hours. The deadline is anchored
+  when the wait executes, not reset by reopening the phone or saving.
+- Normal time simulation processes deadlines chronologically, including rests
+  across midnight. Follow-up branches observe the state at delivery time.
+  Debug/resync clock jumps do not deliver messages; overdue messages deliver at
+  the current clock on the next positive simulated advance, without rewinding.
+- Effects execute once in authored order. Incoming message effects happen at
+  delivery, including while the phone is closed. Messages and effects roll back
+  together if an action or delivery fails. Do not add contacts or start another
+  exchange from within a chat; trigger those from world scenes.
+- Saves store message references, frozen random/conditional choices, and captured
+  interpolation values, not transcript bodies. Rendering/loading history never
+  reruns effects. Editing authored wording changes the reconstructed wording;
+  renamed/removed references invalidate development saves. Save format is 24.
+- Unread counts include incoming messages after each contact's saved read
+  position. Opening the contact list does not mark messages read. Reading to the
+  end of a visible thread does. The app badge totals all contacts.
+- CSS typing dots and length-based pauses are cosmetic. Immediate NPC responses
+  are committed with the send, then revealed one by one. Closing the phone or
+  loading a save skips unfinished animations without losing messages. Disable
+  pauses in Phone Settings; reduced-motion preference also skips them.
+
+Kim's working example is `story/chats/kim.wg`, activated by the final contact
+passage of the civil-office quest. Run `node --test tests/chats.test.mjs` to check
+authoring, timing, saves, branches, and unread state.
+
 ## Minimal authored event
 
 An entry exposes a scene to the world. This example adds an event to the
@@ -911,8 +993,8 @@ Choice directives are:
 
 - `@icon <value>`: optional quoted or unquoted display icon.
 - `@time <duration>`: action duration; omitted means zero time. Durations may
-  combine non-negative decimal hours, minutes, and seconds in that order, with
-  no spaces, such as `30s`, `5m`, `0.5h`, or `1h30m`. Each unit may appear at
+  combine non-negative decimal days, hours, minutes, and seconds in that order, with
+  no spaces, such as `30s`, `5m`, `0.5h`, `1h30m`, or `1d2h`. Each unit may appear at
   most once. Use `0m` for an explicit zero duration; bare `0` is invalid.
 - `@time <duration> free`: advances the full world simulation for the given
   duration but suppresses the player's passive elapsed-time energy drain for

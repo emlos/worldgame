@@ -10,6 +10,7 @@
     { "include": "#location-header" },
     { "include": "#reminder-header" },
     { "include": "#sequence-header" },
+    { "include": "#chat-directives" },
     { "include": "#passage-header" },
     { "include": "#next-directive" },
     { "include": "#choicegroup-header" },
@@ -28,6 +29,25 @@
     { "include": "#unknown-directives" }
   ],
   "repository": {
+    "chat-directives": {
+      "patterns": [
+        {
+          "match": "^(\\s*)(@(chat|message|npc))\\s+([a-z][a-z0-9_.-]*)\\s*$",
+          "captures": { "2": { "name": "keyword.control.block.wg" }, "4": { "name": "entity.name.type.chat.wg" } }
+        },
+        {
+          "begin": "^\\s*(@send)\\b",
+          "beginCaptures": { "1": { "name": "keyword.control.wg" } },
+          "end": "$",
+          "patterns": [{ "include": "#expression" }]
+        },
+        {
+          "match": "^\\s*(@wait)\\s+(\\S+)\\s+(->)\\s+(\\.[a-z][a-z0-9_-]*)\\s*$",
+          "captures": { "1": { "name": "keyword.control.wg" }, "2": { "name": "constant.numeric.duration.wg" }, "3": { "name": "keyword.operator.arrow.wg" }, "4": { "name": "entity.name.section.reference.wg" } }
+        },
+        { "name": "keyword.control.block.wg", "match": "^\\s*@(endchat|endmessage|finish)\\s*$" }
+      ]
+    },
     "reminder-header": {
       "patterns": [
         {
@@ -228,7 +248,7 @@
           "beginCaptures": { "2": { "name": "keyword.control.effect.wg" } },
           "end": "$",
           "patterns": [
-            { "name": "storage.type.effect.wg", "match": "\\b(?:set|add|clear|reminder|flag|daily-flag|relationship|money|skill|stat|grade|attendance)\\b" },
+            { "name": "storage.type.effect.wg", "match": "\\b(?:set|add|clear|contact|chat|start|reminder|flag|daily-flag|relationship|money|skill|stat|grade|attendance)\\b" },
             { "include": "#expression" }
           ]
         }

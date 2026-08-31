@@ -42,7 +42,6 @@ game systems:
         - low health increases stress over time, increses hygiene losses
         - very low health increses trauma over time
     - i was putting in stats at random - which ones are actually necessary?
-    - in phone texting mechanic - for flirting with unlocked npcs for now. flirting history should persists in save
 
     inventory system
 

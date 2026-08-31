@@ -4,6 +4,7 @@ export const MENU_HOTKEYS = [
   { id: "diary", key: "d", label: "D", description: "Open diary", group: "Menus", scope: "game" },
   { id: "map", key: "m", label: "M", description: "Open map", group: "Menus", scope: "game" },
   { id: "relationships", key: "r", label: "R", description: "Relationships", group: "Phone apps", scope: "phone" },
+  { id: "chats", key: "c", label: "C", description: "Chats", group: "Phone apps", scope: "phone" },
   { id: "gps", key: "g", label: "G", description: "GPS", group: "Phone apps", scope: "phone" },
   { id: "stats", key: "s", label: "S", description: "Player stats", group: "Phone apps", scope: "phone" },
   { id: "settings", key: ",", label: ",", description: "Settings", group: "Phone apps", scope: "phone" },

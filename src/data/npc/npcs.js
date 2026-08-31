@@ -1060,4 +1060,44 @@ export const NPC_REGISTRY = [
             ],
         },
     },
+
+    //landlord type
+    {
+        id: "kim",
+        name: "Kim Johnson",
+        meta: {
+            shortName: "Kim",
+            iconPath: "assets/npc/icons/kim/icon.png",
+            nicknames: ["Johnson", "Kim"],
+                    description:
+            "Kim is a no-nonsense landlord who manages several properties in the city. {{npc.kim.subject}} is known for being fair but firm with tenants.", 
+
+            tags: ["human", "landlord", "romance"]
+        },
+
+        age: 32,
+        gender: Gender.F,
+        pronouns: PronounSets.SHE_HER,
+
+        stats: {
+            looks: 5,
+            strength: 2,
+            intelligence: 8,
+            charisma: 6,
+        },
+
+        homePreference: {
+            nameFn: (chosenLocation) => "Kim's Office",
+
+            withPlaceCategory: [PLACE_TAGS.housing, PLACE_TAGS.industry],
+            withLocationCategory: [
+                LOCATION_TAGS.suburban_hub,
+                LOCATION_TAGS.industrial,
+                LOCATION_TAGS.residential,
+                LOCATION_TAGS.urban_edge,
+            ],
+        },
+        bodyTemplate: HUMAN_BODY_TEMPLATE,
+        //NO BEHAVIOR defined
+    }
 ];

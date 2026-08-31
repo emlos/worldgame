@@ -1,4 +1,5 @@
 import { Game } from "../../classes/game/game.js";
+import { createPhoneChats } from "./phoneChats.js";
 import {
   addDebugMoney,
   teleportPlayerToSchool,
@@ -81,6 +82,9 @@ const phoneStatsContent = document.querySelector("#phone-stats-content");
 const phoneSettingsButton = document.querySelector("#phone-settings-btn");
 const phoneSettingsScreen = document.querySelector("#phone-settings-screen");
 const phoneHotkeysContent = document.querySelector("#phone-hotkeys-content");
+const phoneChatsButton = document.querySelector("#phone-chats-btn");
+const phoneChatsScreen = document.querySelector("#phone-chats-screen");
+const phoneChatThreadScreen = document.querySelector("#phone-chat-thread-screen");
 const debugEnabled = typeof debug !== "undefined" && Boolean(debug);
 const debugPanel = document.querySelector("#debug-panel");
 const debugAddMoneyButton = document.querySelector("#debug-add-money");
@@ -98,6 +102,7 @@ document.body.classList.toggle("debug-enabled", debugEnabled);
 debugPanel.hidden = !debugEnabled;
 
 let game = createGame();
+let chatsUI;
 let currentScene = null;
 let choiceButtons = [];
 let choiceButtonsById = new Map();
@@ -833,6 +838,8 @@ function renderPhoneGps() {
 }
 
 const phoneScreens = [
+  phoneChatsScreen,
+  phoneChatThreadScreen,
   phoneHomeScreen,
   phoneRemindersScreen,
   phoneRelationshipsScreen,
@@ -842,6 +849,8 @@ const phoneScreens = [
 ];
 
 function showOnlyPhoneScreen(screen) {
+  if (screen !== phoneChatThreadScreen) chatsUI?.leaveThread();
+  phoneBackButton.setAttribute("aria-label", screen === phoneChatThreadScreen ? "Back to chats" : "Back to phone menu");
   for (const candidate of phoneScreens) candidate.hidden = candidate !== screen;
 }
 
@@ -853,6 +862,8 @@ function showPhoneHomeScreen() {
   if (playerPhoneDialog.open) {
     const homeButton = new Map([
       [phoneRelationshipsScreen, phoneRelationshipsButton],
+      [phoneChatsScreen, phoneChatsButton],
+      [phoneChatThreadScreen, phoneChatsButton],
       [phoneRemindersScreen, phoneRemindersButton],
       [phoneGpsScreen, phoneGpsButton],
       [phoneStatsScreen, phoneStatsButton],
@@ -1045,6 +1056,7 @@ function renderScene(preludeParagraphs = []) {
 
   if (currentScene.map) renderLocalMap(currentScene.map);
   renderDebugPanel();
+  chatsUI?.refresh();
 }
 
 async function choose(sceneId, choiceId) {
@@ -1065,6 +1077,7 @@ async function choose(sceneId, choiceId) {
 }
 
 const menuActions = {
+  chats: () => openPhone(() => chatsUI.openList()),
   phone: () => playerPhoneDialog.open ? playerPhoneDialog.close() : openPhone(),
   diary: () => playerDiaryButton.click(),
   map: () => openMapButton.click(),
@@ -1075,6 +1088,7 @@ const menuActions = {
 };
 
 const hotkeyButtons = {
+  chats: phoneChatsButton,
   phone: playerPhoneButton,
   diary: playerDiaryButton,
   map: openMapButton,
@@ -1105,12 +1119,14 @@ window.addEventListener("keydown", (event) => {
   event.preventDefault();
   if (action.type === "choice") choiceButtons[action.index].click();
   else if (action.type === "menu") menuActions[action.id]();
-  else if (action.type === "phone-home") showPhoneHomeScreen();
+  else if (action.type === "phone-home") { if (!chatsUI.back()) showPhoneHomeScreen(); }
   else if (action.type === "close-dialog") dialog.close();
 });
 
 restartButton.addEventListener("click", () => {
+  chatsUI.leaveThread();
   game = createGame();
+  if (playerPhoneDialog.open) showPhoneHomeScreen();
   noticeElement.textContent = "";
   render();
 });
@@ -1155,7 +1171,8 @@ phoneGpsStopButton.addEventListener("click", () => {
 });
 phoneStatsButton.addEventListener("click", showPhoneStatsScreen);
 phoneSettingsButton.addEventListener("click", showPhoneSettingsScreen);
-phoneBackButton.addEventListener("click", showPhoneHomeScreen);
+phoneChatsButton.addEventListener("click", () => chatsUI.openList());
+phoneBackButton.addEventListener("click", () => { if (!chatsUI.back()) showPhoneHomeScreen(); });
 closePhoneButton.addEventListener("click", () => playerPhoneDialog.close());
 playerPhoneDialog.addEventListener("click", (event) => {
   if (event.target === playerPhoneDialog) playerPhoneDialog.close();
@@ -1190,6 +1207,16 @@ debugAddMoneyButton.addEventListener("click", () => {
   noticeElement.textContent = "";
   noticeElement.className = "notice";
   render();
+});
+
+chatsUI = createPhoneChats({
+  getGame: () => game,
+  onChange: () => render(),
+  openScreen: (screen, heading) => {
+    playerPhoneHeading.textContent = heading;
+    phoneBackButton.hidden = false;
+    showOnlyPhoneScreen(screen);
+  },
 });
 
 render();

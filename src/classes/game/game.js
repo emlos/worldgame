@@ -23,6 +23,7 @@ import {
 } from "./util/saveValidation.js";
 import { buildGpsRoute, resolveNavigationDestination } from "./navigation.js";
 import { authoredReminderId, getAuthoredReminder } from "./reminders.js";
+import { createChatState, nextChatDeadline, deliverDueChats } from "./chats.js";
 import {
   announcementDayKey,
   collectDailyAnnouncements,
@@ -58,6 +59,7 @@ export class Game {
     });
     this.startedAt = this.now.toISOString();
     this.reminders = new Set();
+    this.chats = createChatState();
 
     // --- player ---
     this.player = new Player(playerOptions);
@@ -225,7 +227,38 @@ export class Game {
     });
   }
 
-  _changeTimeTo(target, { mode, source, drainPlayerEnergy }) {
+  _changeTimeTo(target, options) {
+    // Delivery boundaries must observe their own world state, even during a long rest.
+    // Resync/debug jumps remain observational and do not manufacture skipped events.
+    if (options.mode !== "simulate" || target <= this.now || nextChatDeadline(this) > target.getTime()) {
+      return this._changeTimeStep(target, options);
+    }
+    const snapshot = this._captureTimeRuntimeState();
+    const from = new Date(this.now);
+    let ejectedFrom = null;
+    try {
+      let deliveries = 0;
+      while (nextChatDeadline(this) <= target.getTime()) {
+        if (++deliveries > 10000) throw new Error("Chat delivery limit exceeded during one time advance");
+        const deadline = new Date(Math.max(this.now.getTime(), nextChatDeadline(this)));
+        if (deadline > this.now) {
+          const change = this._changeTimeStep(deadline, options);
+          ejectedFrom ||= change.ejectedFrom;
+        }
+        deliverDueChats(this);
+      }
+      if (target > this.now) {
+        const change = this._changeTimeStep(target, options);
+        ejectedFrom ||= change.ejectedFrom;
+      }
+      return { from, to: new Date(this.now), minutes: (this.now - from) / MS_PER_MINUTE, ...options, ejectedFrom };
+    } catch (error) {
+      this._restoreTimeRuntimeState(snapshot);
+      throw error;
+    }
+  }
+
+  _changeTimeStep(target, { mode, source, drainPlayerEnergy }) {
     const from = new Date(this.now.getTime());
     const to = new Date(target.getTime());
     const minutes = (to.getTime() - from.getTime()) / MS_PER_MINUTE;
@@ -351,6 +384,11 @@ export class Game {
 
   _captureTimeRuntimeState() {
     return {
+      player: JSON.parse(JSON.stringify(this.player.toJSON())),
+      flags: [...this.flags],
+      story: JSON.parse(JSON.stringify(this.story)),
+      chats: JSON.parse(JSON.stringify(this.chats)),
+      unlockedPlaces: [...this.world.locations.values()].flatMap((location) => location.places.map((place) => ({ place, unlocked: place.unlocked }))),
       date: new Date(this.now.getTime()),
       random: this.random.toJSON(),
       playerEnergy: this.player.getStatBase("energy"),
@@ -377,6 +415,11 @@ export class Game {
   }
 
   _restoreTimeRuntimeState(snapshot) {
+    this.player = Player.fromJSON(snapshot.player);
+    this.flags = new Set(snapshot.flags);
+    this.story = snapshot.story;
+    this.chats = snapshot.chats;
+    for (const { place, unlocked } of snapshot.unlockedPlaces) place._unlocked = unlocked;
     this.world.setDate(snapshot.date);
     this.random.restoreJSON(snapshot.random);
     this.rnd = this.getRNG("gameplay");
@@ -856,12 +899,13 @@ export class Game {
   // --------------------------
   toJSON() {
     return {
-      saveVersion: 23,
+      saveVersion: 24,
       seed: this.seed,
       random: this.random.toJSON(),
       time: this.now.toISOString(),
       startedAt: this.startedAt,
       reminders: [...this.reminders].sort(),
+      chats: JSON.parse(JSON.stringify(this.chats)),
       world: this.world.toJSON(),
       player: this.player.toJSON(),
       npcs: this.npcsArray.map((npc) => npc.toJSON()),
@@ -905,6 +949,7 @@ export class Game {
     game.world = World.fromJSON(data.world);
     game.startedAt = data.startedAt;
     game.reminders = new Set(data.reminders);
+    game.chats = JSON.parse(JSON.stringify(data.chats));
 
     game.player = Player.fromJSON(data.player || {});
     game.player.syncAgeAt(game.now);
