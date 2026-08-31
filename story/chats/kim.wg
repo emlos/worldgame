@@ -74,12 +74,12 @@
     You signed it when you moved in, and it states that you are responsible for paying rent from the start date.
   @endmessage
 
-  @choice thanks "So I owe you rent?" -> .done
-    @send "so i owe you rent?"
+  @choice thanks "So I owe you rent?" -> .rent-explanation
+    @send "so i owe you rent retroactively?"
   @endchoice
 
 
-  @passage done
+  @passage rent-explanation
 
   @message explain-rent
     Yes, it's 400£ per month, so you owe 800£ for the two months.
@@ -89,6 +89,24 @@
   @message payment-options
     My office is at {{npc.kim.home.location.name}}. Please come by to settle your accounts :)
   @endmessage
+
+  @effect flag home_access_kim true
+
+
+  @choice wait "Wait!" -> .done
+    @send "wait, this this is some misunderstanding!"
+  @endchoice
+
+  @choice okay "Okay" -> .done
+    @send "okay then, ill come by to pay"
+  @endchoice
+
+  @passage done
+
+  @message goodbye
+    👍
+  @endmessage
+
 
   @effect flag story.rent.into.2 true
 

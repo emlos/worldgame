@@ -54,6 +54,13 @@ function timeContext(date, startedAt) {
   };
 }
 
+function homeContext(game, locationId) {
+  const location = locationId == null ? null : game.world.getLocation(locationId);
+  return {
+    location: location ? { name: location.name } : null,
+  };
+}
+
 function npcContext(game, npc) {
   const shortName = npc.meta?.shortName || npc.name;
   const schedule = npc.brain?.getScheduleStatus?.(game.now) ?? {
@@ -73,6 +80,7 @@ function npcContext(game, npc) {
     shortName,
     age: npc.age,
     gender: npc.gender,
+    home: homeContext(game, npc.homeLocationId),
     relationship: game.player.getRelationship(npc.id).score,
     present: game.getNPCsAtCurrentPosition().includes(npc),
     available: game.getNPCInteractionAccess(npc).allowed,
@@ -104,6 +112,7 @@ export function createWGRuntimeContext(game) {
   return {
     story: game.story,
     player: playerContext(game.player),
+    home: homeContext(game, game.homeLocationId),
     npc: npcs,
     flags,
     daily,

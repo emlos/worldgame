@@ -714,6 +714,14 @@ The currently exposed paths are:
   and `physical_education`.
 - `npc.<id>.id`, `.name`, `.shortName`, `.age`, `.gender`, `.relationship`,
   `.present`, and `.available`.
+- `home.location.name`: the name of the location containing the player's home,
+  independent of the player's current position.
+- `npc.<id>.home.location.name`: the name of the location containing that NPC's
+  home, independent of their current position. For example,
+  `{{npc.kim.home.location.name}}`.
+  For either home path, `home.location` is `null` if no home location is assigned
+  or its location no longer exists; guard optional homes with `@if` before
+  interpolating their names.
 - `npc.<id>` pronouns and every evaluated stat declared for that NPC, such as
   `npc.taylor.subject` or `npc.taylor.intelligence`.
 - `npc.<id>.flags.<flag>` for that NPC's stored boolean flags.
@@ -750,6 +758,17 @@ The currently exposed paths are:
   are described under **Outdoor location contributions**.
 - `place.id`, `place.key`, `place.name`, and `place.tags` while indoors.
   `place` is `null` outdoors.
+
+Home location names work in prose, incoming messages, and outgoing `@send` text:
+
+```wg
+@send "I'm the new tenant in {{home.location.name}}."
+@send "Do you still live in {{npc.kim.home.location.name}}?"
+```
+
+As with other message interpolations, the home name is captured when a message
+is sent. Existing messages retain that name after moving, renaming a location,
+or saving and loading. Use the NPC's actual key (`npc.kim`), not bracket notation.
 
 The player does not currently expose a name, inventory, body, clothing, or a
 `player.flags` path to WG. A location does not expose its
