@@ -90,7 +90,7 @@
     My office is at {{npc.kim.home.location.name}}. Please come by to settle your accounts :)
   @endmessage
 
-  @effect flag home_access_kim true
+  @unlock place home_kim
 
 
   @choice wait "Wait!" -> .done

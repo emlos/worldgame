@@ -17,7 +17,6 @@ import {
     SUBJECT_GRADE_MAX,
     SUBJECT_GRADE_MIN,
 } from "../../../data/player/education.js";
-import { npcHomeAccessFlag } from "../../../data/world/access.js";
 import {
     getPlaceInstanceTarget,
     PLACE_DISTRIBUTION_KIND,
@@ -694,11 +693,6 @@ function validateMap(data, path) {
                             "has a minimum age greater than its maximum age",
                         );
                     }
-                }
-                if (Object.prototype.hasOwnProperty.call(props, "accessFlag")) {
-                    string(props.accessFlag, `${placePath}.props.accessFlag`, {
-                        nonEmpty: true,
-                    });
                 }
                 localPlaces.set(placeId, place);
                 places.set(placeId, { locationId: id, data: place, path: placePath });
@@ -1406,12 +1400,6 @@ function validateNPC(data, path, context) {
     if (home.props?.isResidence !== true) {
         fail(`${path}.homePlaceId`, "must point to a residence");
     }
-    same(
-        home.props?.accessFlag,
-        npcHomeAccessFlag(npc.id),
-        `${path}.homePlaceId`,
-        "a residence protected by its owner's access flag",
-    );
 
     const behaviorData = required(npc, "behavior", path);
     const brainData = required(npc, "brain", path);

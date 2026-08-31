@@ -3,6 +3,7 @@ import { parseExpression } from "./expressionParser.js";
 import { SKILLS, STATS } from "../../../src/data/player/stats.js";
 import { SCHOOL_SUBJECTS } from "../../../src/data/player/education.js";
 import { PLACE_REGISTRY } from "../../../src/data/world/place.js";
+import { NPC_REGISTRY } from "../../../src/data/npc/npcs.js";
 import { SKILL_CHECK_DIFFICULTIES } from "../../../src/data/scene/skillChecks.js";
 
 const ID_PATTERN = "[a-z][a-z0-9_.-]*";
@@ -218,7 +219,10 @@ function parseSilentDirective(text, file, line) {
     failWG("Expected @unlock place <place-key>", location);
   }
   const placeKey = match[1];
-  if (!PLACE_REGISTRY.some((place) => place.key === placeKey)) {
+  if (
+    !PLACE_REGISTRY.some((place) => place.key === placeKey) &&
+    !NPC_REGISTRY.some((npc) => `home_${npc.id}` === placeKey)
+  ) {
     failWG("Unknown @unlock place key '" + placeKey + "'", location);
   }
   return { op: "unlock-place", placeKey, source: nodeSource(file, line) };

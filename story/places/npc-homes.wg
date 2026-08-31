@@ -1,5 +1,5 @@
-@# Authored hubs for dynamically placed NPC residences. Access is controlled
-@# by the matching home_access_<npc-id> game flag.
+@# Authored hubs for dynamically placed NPC residences. Homes start locked;
+@# reveal them with @unlock place home_<npc-id>.
 
 @entry place.hub.home-taylor
   @scene place.home-taylor

@@ -3,6 +3,7 @@ import { createWGRuntimeContext } from "./runtimeContext.js";
 import { SKILLS, STATS } from "../../../../data/player/stats.js";
 import { SCHOOL_SUBJECTS } from "../../../../data/player/education.js";
 import { PLACE_REGISTRY } from "../../../../data/world/place.js";
+import { NPC_REGISTRY } from "../../../../data/npc/npcs.js";
 import { addContact, startChat } from "../../chats.js";
 
 export class WGEffectError extends Error {
@@ -96,7 +97,8 @@ export function applyWGEffect(game, effect) {
   if (effect.op === "unlock-place") {
     if (
       typeof effect.placeKey !== "string" ||
-      !PLACE_REGISTRY.some((place) => place.key === effect.placeKey)
+      (!PLACE_REGISTRY.some((place) => place.key === effect.placeKey) &&
+        !NPC_REGISTRY.some((npc) => `home_${npc.id}` === effect.placeKey))
     ) {
       fail("WG unlock effect references unknown place key '" + String(effect.placeKey) + "'");
     }

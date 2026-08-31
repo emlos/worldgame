@@ -307,8 +307,9 @@ returns to the locked state.
 
 WG can reveal these places with the standalone directive
 `@unlock place <place-key>`, for example `@unlock place civil_office`.
-The key must come from `PLACE_REGISTRY`; it is not a generated instance ID or
-an outdoor location/district ID. WG does not currently expose `place.unlocked`
+The key must come from `PLACE_REGISTRY` or be `home_<npc-id>` for an NPC in
+`NPC_REGISTRY`. Other generated instance IDs and outdoor location/district IDs
+are not valid place keys. WG does not currently expose `place.unlocked`
 or a per-key unlock-state query. See **Unlocking places** below for effect rules.
 
 ## Outdoor location contributions
@@ -1209,7 +1210,7 @@ Implemented effects are:
 @effect set story.some.snapshot player.energy
 @effect add story.some.counter 1
 @effect flag met-taylor true
-@effect flag home_access_taylor false
+@effect flag met-taylor false
 @effect daily-flag home_weightlifting true
 @effect daily-flag home_weightlifting false
 @effect relationship taylor 0.02
@@ -1257,18 +1258,15 @@ Effects and changes run sequentially, so a later mutation, condition, or
 passive check can read state changed by an earlier one. Warnings, previews,
 requirements, and time costs do not create implicit effects or resource costs.
 
-NPC residences use `home_access_<npc-id>`. Setting, for example,
-`home_access_taylor` to `true` grants access to Taylor's home and setting it to
-`false` revokes access. The residence remains visible as a disabled place
-choice while permission is absent.
-
-This residence permission flag is separate from a generated place's
-irreversible `unlocked` state. Unlocking a place does not grant this permission.
+All generated NPC residences start with `unlocked: false`. They remain
+available to NPC simulation but hidden from the player until unlocked with
+`@unlock place home_<npc-id>`, for example `@unlock place home_taylor`.
+This uses the same saved, irreversible unlock state as other places.
 
 ### Unlocking places
 
 Use a standalone `@unlock place <place-key>` to reveal every generated
-instance of a registered place key:
+instance of a registered place key or an NPC home key (`home_<npc-id>`):
 
 ```wg
 @choice directions "Ask for directions to the civil office" -> @exit
@@ -1278,7 +1276,9 @@ instance of a registered place key:
 
 It can also appear in an entered event/sequence body (including conditional,
 random, and passive-check branches), an `@onenter` block, or either outcome
-of a checked choice. Place-hub choices can unlock places, but persistent
+of a checked choice. Chats support it in passage bodies and reply choices;
+Kim's rent chat uses `@unlock place home_kim` after sharing the address.
+Place-hub choices can unlock places, but persistent
 place-hub prose and presentation-only `@response` blocks cannot. In a checked
 choice, put the unlock inside `@success` or `@failure`, not at choice level.
 
@@ -1288,12 +1288,13 @@ choice, put the unlock inside `@success` or `@failure`, not at choice level.
   once per entered passage, never during rendering or choice revalidation.
   A later failure in the same action rolls the unlock back.
 - A committed unlock is saved and irreversible. Repeating it is harmless.
-  If a registered key has no instances in the current world, it does nothing.
+  If a valid key has no instances in the current world, it does nothing.
 - Newly unlocked places appear in the existing map, entry-choice, GPS, bus,
   and schedule systems wherever those systems normally include that place.
-  Opening hours, age restrictions, and access flags still apply.
+  Opening hours and age restrictions still apply.
 - Unknown keys and malformed syntax fail compilation, including inside
-  unreachable branches. Runtime effects also validate the registered key.
+  unreachable branches. Runtime effects also validate against registered place
+  keys and NPC home keys.
 
 This directive unlocks generated **places**, not outdoor map locations. It
 does not expose locking/relocking or instance-specific unlocking. Use the

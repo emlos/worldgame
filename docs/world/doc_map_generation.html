@@ -664,9 +664,10 @@
                     </li>
                 </ul>
                 <div class="warnbox">
-                    WG currently has no place-unlock directive/effect and does not expose
-                    <code>place.unlocked</code>. A story-triggered unlock must call the game API
-                    from non-WG runtime code until that WG feature is added.
+                    WG uses <code>@unlock place &lt;place-key&gt;</code> to unlock places,
+                    including generated NPC homes via <code>home_&lt;npc-id&gt;</code>.
+                    NPC homes start with <code>unlocked: false</code>. WG does not expose
+                    <code>place.unlocked</code> as an expression.
                 </div>
             </section>
             <section>

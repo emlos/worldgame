@@ -9,8 +9,8 @@ All hubs are compiled even when their registry place starts with
 absent from every player-facing map, destination list, and entry choice, so its
 hub and place offers remain dormant. Runtime code unlocks all generated
 instances of a key with `game.unlockPlacesByKey("place_key")`; that state is
-saved and cannot be reversed. WG does not yet have an `@unlock` directive or
-effect.
+saved and cannot be reversed. WG uses `@unlock place <place-key>` to reveal
+places from story scenes, choices, or chats.
 
 The initial activity choices deliberately target their own hub and have no
 time or state effects. They are scaffolds: selecting one simply redraws the
@@ -37,7 +37,8 @@ authoritative leave action used elsewhere. The target does not add time by
 itself, so include `@time 1m` when leaving should use the normal one-minute
 transition back outside.
 
-Generated NPC residences are in `npc-homes.wg`. They remain visible on the
-map, but require the corresponding `home_access_<npc-id>` flag. An invitation
-scene can grant access with `@effect flag home_access_taylor true` and revoke
-it later by setting the same flag to `false`.
+Authored NPC residence hubs are in `npc-homes.wg`. All generated NPC homes
+start with `unlocked: false` and stay hidden from the player until revealed.
+Use `@unlock place home_<npc-id>`, for example `@unlock place home_taylor`,
+to unlock a residence permanently. Kim's rent chat unlocks `home_kim` when
+Kim shares the address.

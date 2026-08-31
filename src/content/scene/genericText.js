@@ -55,12 +55,6 @@ export const SCENE_TEXT = Object.freeze({
         return "That place is not available.";
       case "closed":
         return `${access.place?.name || "That place"} is closed.`;
-      case "missing-access-flag": {
-        const ownerName = access.owner?.meta?.shortName || access.owner?.name;
-        return ownerName
-          ? `You need ${ownerName}'s permission to enter.`
-          : "You do not have permission to enter that place.";
-      }
       case "age-minimum":
         return `You must be at least ${access.requiredAge} to enter.`;
       case "age-maximum":

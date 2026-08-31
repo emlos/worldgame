@@ -16,7 +16,6 @@ import {
   INITIAL_PLAYER_AGE,
   PLAYER_ENERGY_DRAIN_PER_MINUTE,
 } from "../../data/player/stats.js";
-import { npcHomeAccessFlag } from "../../data/world/access.js";
 import {
   SaveValidationError,
   validateGameSave,
@@ -711,26 +710,6 @@ export class Game {
       };
     }
 
-    const requiredFlag = place.props?.accessFlag;
-    if (requiredFlag != null) {
-      if (typeof requiredFlag !== "string" || !requiredFlag) {
-        throw new TypeError(`Place '${place.id}' has an invalid access flag`);
-      }
-      if (!this.hasFlag(requiredFlag)) {
-        const ownerNpcId = place.props?.ownerNpcId;
-        return {
-          allowed: false,
-          code: "missing-access-flag",
-          place,
-          requiredFlag,
-          owner:
-            ownerNpcId == null
-              ? null
-              : (this.npcs.get(String(ownerNpcId)) ?? null),
-        };
-      }
-    }
-
     const ageRange = place.props?.ages;
     const playerAge = this.player.getAgeAt(at);
     if (ageRange?.min != null && playerAge < ageRange.min) {
@@ -1190,11 +1169,11 @@ export class Game {
         id: homeId,
         key: homeId,
         name: displayName,
+        unlocked: false,
         props: {
           category: [PLACE_TAGS.housing],
           ownerNpcId: id,
           isResidence: true,
-          accessFlag: npcHomeAccessFlag(id),
           discovered: false,
           icon: "🏠",
         },
