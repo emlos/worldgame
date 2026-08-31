@@ -9,3 +9,9 @@
   @tone warning
   @priority 210
 @endreminder
+
+@reminder home_rent_notice_1
+  @text "You should make your way to the civil office as soon as possible."
+  @tone warning
+  @priority 999
+@endreminder
