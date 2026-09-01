@@ -11,12 +11,14 @@
 
 Counters, forms, and noticeboards fill {{place.name}}.
 
+@choicegroup notice-quest ""
 @choice notice-question "Ask about the notice" -> story.rent.intro.1
     @time 10m
     @when flags.home_notice_read and not flags.home_notice_resolved
     @effect flag home_notice_resolved true
     @effect reminder clear home_rent_notice_1
 @endchoice
+@endchoicegroup
 
 @choice reception "Ask at reception" -> place.civil-office
 @endchoice

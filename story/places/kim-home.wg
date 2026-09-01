@@ -23,7 +23,7 @@ Kim is sitting at {{npc.kim.dependent}} desk. {{npc.kim.subject | cap}} looks up
 
 @sequence story.rent.intro.2 -> @exit
 
-  You look around the office. There are stacks of papers and files on the desk, and a computer monitor is turned on, light flickering. \
+  You look around the office. There are stacks of papers and files on the desk, and a computer monitor is turned on, light flickering.
   Kim is sitting in a chair behind the desk, 
   @if npc.kim.gender == "female"
     wearing a smart business suit and glasses.
@@ -33,11 +33,11 @@ Kim is sitting at {{npc.kim.dependent}} desk. {{npc.kim.subject | cap}} looks up
   {{npc.kim.subject | cap}} eyes are brown, and they follow you as you open your mouth to speak.
 
   @choice has-money "Pay (800£)" -> .pay
-    @when money >= 800
+    @when player.money >= 800
     @endchoice
 
   @choice no-money "Explain the situation" -> .no-money
-    @when money < 800
+    @when player.money < 800
     @endchoice
 
   @passage pay
