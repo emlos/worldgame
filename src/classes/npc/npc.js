@@ -1,4 +1,8 @@
-import { Relationship } from "../../shared/classes/relationship.js";
+import {
+    Relationship,
+    RELATIONSHIP_MAX,
+    RELATIONSHIP_MIN,
+} from "../../shared/classes/relationship.js";
 import { Stat } from "../../shared/classes/stat.js";
 import { Gender, PronounSets } from "../../shared/classes/pronouns.js";
 import { Clothing } from "../../shared/classes/clothing.js";
@@ -172,7 +176,7 @@ export class NPC {
 
     setRelationshipScore(otherId, score) {
         const rel = this.ensureRelationship(otherId);
-        rel.score = clamp(score, -1, 1);
+        rel.score = clamp(Number(score) || RELATIONSHIP_MIN, RELATIONSHIP_MIN, RELATIONSHIP_MAX);
         return rel;
     }
 

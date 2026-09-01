@@ -1,4 +1,8 @@
 import { STATS } from "../../data/player/stats.js";
+import {
+  RELATIONSHIP_MAX,
+  RELATIONSHIP_MIN,
+} from "../../shared/classes/relationship.js";
 
 export const OUTCOME = Object.freeze({
   VERY_GOOD: "very-good",
@@ -48,12 +52,7 @@ export function outcomeForRange(
 }
 
 export function outcomeForRelationship(score) {
-  const value = Number(score);
-  if (!Number.isFinite(value) || value === 0) return OUTCOME.OK;
-  if (value > 0) return OUTCOME.VERY_GOOD;
-  if (value > -0.35) return OUTCOME.WARNING;
-  if (value > -0.7) return OUTCOME.BAD;
-  return OUTCOME.DIRE;
+  return outcomeForRange(score, RELATIONSHIP_MIN, RELATIONSHIP_MAX);
 }
 
 /** Colour feedback by whether a change helps, independently of its label. */

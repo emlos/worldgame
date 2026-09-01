@@ -449,7 +449,7 @@ function renderPlayerDiary() {
 
 function formatRelationshipScore(score) {
   const value = Number(score);
-  return Number.isFinite(value) ? value.toFixed(2) : "0.00";
+  return Number.isFinite(value) ? String(Math.round(value)) : "0";
 }
 
 function makePhoneRelationshipEntry(entry) {

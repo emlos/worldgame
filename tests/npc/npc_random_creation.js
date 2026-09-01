@@ -144,10 +144,10 @@ function init() {
   byId("stats").append(table(statRows, ["Stat", "Base", "Computed Value"]));
 
   // Relationships (with other NPCs)
-  const relRows = [...npc.relationships.values()].map((r) => [r.npcId, String(r.met), r.score.toFixed(2)]);
+  const relRows = [...npc.relationships.values()].map((r) => [r.npcId, String(r.met), String(r.score)]);
   byId("relationships").innerHTML = "";
   byId("relationships").append(el("h2", { html: "Relationships" }));
-  byId("relationships").append(table(relRows.length ? relRows : [["-", "-", "-"]], ["NPC ID", "Met", "Score (-1..1)"]));
+  byId("relationships").append(table(relRows.length ? relRows : [["-", "-", "-"]], ["NPC ID", "Met", "Score (0..100)"]));
 
   // Clothing
   const clothesRows = [...npc.clothing.entries()].map(([slot, item]) => [

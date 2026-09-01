@@ -5,8 +5,8 @@ function init() {
   const p = new Player({ stats: defaultStats(), skinTone: "#d4a373", eyeColor: "#4d6fa9", hairColor: "#3a2a1a", gender: Gender.NB, pronouns: PronounSets.THEY_THEM });
   p.setSkillValue("perception", 0.35);
   p.setSkillValue("strength", 0);
-  p.setRelationship({ npcId: "npc-1", met: true, score: 0.2 });
-  p.setRelationship({ npcId: "npc-2", met: false, score: -0.3 });
+  p.setRelationship({ npcId: "npc-1", met: true, score: 20 });
+  p.setRelationship({ npcId: "npc-2", met: false, score: 30 });
   p.equip(new Clothing({ id: "sun-hat", slot: WearSlot.HEAD, image: "assets/hat.png", genderBias: +0.25, color: "#e7d29c" }));
   p.equip(new Clothing({ id: "jeans", slot: WearSlot.LOWER, image: "assets/jeans.png", genderBias: -0.1, color: "#1f3555" }));
 
@@ -103,10 +103,10 @@ function init() {
 
     // Relationships
     {
-      const relRows = [...p.relationships.values()].map((r) => [r.npcId, String(r.met), r.score.toFixed(2)]);
+      const relRows = [...p.relationships.values()].map((r) => [r.npcId, String(r.met), String(r.score)]);
       byId("relationships").innerHTML = "";
       byId("relationships").append(el("h2", { html: "Relationships" }));
-      byId("relationships").append(table(relRows, ["NPC ID", "Met", "Score (-1..1)"]));
+      byId("relationships").append(table(relRows, ["NPC ID", "Met", "Score (0..100)"]));
     }
 
     // Clothing

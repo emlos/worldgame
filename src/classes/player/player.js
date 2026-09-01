@@ -1,4 +1,8 @@
-import { Relationship } from "../../shared/classes/relationship.js";
+import {
+    Relationship,
+    RELATIONSHIP_MAX,
+    RELATIONSHIP_MIN,
+} from "../../shared/classes/relationship.js";
 import { Stat } from "../../shared/classes/stat.js";
 import { Gender, PronounSets } from "../../shared/classes/pronouns.js";
 import { adjustHexLightness } from "../../shared/util/color.js";
@@ -240,7 +244,11 @@ export class Player {
     bumpRelationship(npcId, delta) {
         const r = this.getRelationship(npcId);
         r.met = true;
-        r.score = clamp(r.score + delta, -1, 1);
+        r.score = clamp(
+            r.score + finiteNumber(delta, `Relationship '${npcId}' adjustment`),
+            RELATIONSHIP_MIN,
+            RELATIONSHIP_MAX,
+        );
         this.relationships.set(String(npcId), r);
         return r.score;
     }

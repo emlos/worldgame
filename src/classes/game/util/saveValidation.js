@@ -13,6 +13,10 @@ import { DAY_KEYS, MS_PER_MINUTE } from "../../../data/world/time.js";
 import { WeatherType } from "../../../data/world/weather.js";
 import { PLAYER_TEMPERATURE_VALUES, SKILLS, STATS } from "../../../data/player/stats.js";
 import {
+    RELATIONSHIP_MAX,
+    RELATIONSHIP_MIN,
+} from "../../../shared/classes/relationship.js";
+import {
     SCHOOL_SUBJECTS,
     SUBJECT_GRADE_MAX,
     SUBJECT_GRADE_MIN,
@@ -253,8 +257,8 @@ function validateRelationships(data, path, knownNpcIds = null) {
         );
         boolean(required(relationship, "met", `${entryPath}[1]`), `${entryPath}[1].met`);
         finiteNumber(required(relationship, "score", `${entryPath}[1]`), `${entryPath}[1].score`, {
-            min: -1,
-            max: 1,
+            min: RELATIONSHIP_MIN,
+            max: RELATIONSHIP_MAX,
         });
     });
 }
@@ -1453,9 +1457,9 @@ export function validateGameSave(data) {
     const save = record(data, "save");
     same(
         integer(required(save, "saveVersion", "save"), "save.saveVersion"),
-        24,
+        25,
         "save.saveVersion",
-        "version 24",
+        "version 25",
     );
 
     const seed = uint32(required(save, "seed", "save"), "save.seed");

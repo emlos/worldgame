@@ -30,7 +30,7 @@ Kim is sitting at {{npc.kim.dependent}} desk. {{npc.kim.subject | cap}} looks up
   @else
     wearing an ironed white shirt and glasses.  
   @endif
-  {{npc.kim.subject | cap}} eyes are brown, and they follow you as you open your mouth to speak.
+  {{npc.kim.dependent | cap}} eyes are brown, and they follow you as you open your mouth to speak.
 
   @choice has-money "Pay (800£)" -> .pay
     @when player.money >= 800
@@ -42,15 +42,15 @@ Kim is sitting at {{npc.kim.dependent}} desk. {{npc.kim.subject | cap}} looks up
 
   @passage pay
 
-        You hand over the 800£ to {{npc.kim.subject}}. {{npc.kim.subject | cap}} takes it and puts it in a drawer.
+        You hand over the 800£ to Kim. {{npc.kim.subject | cap}} takes it and puts it in a drawer.
 
         "Perfect!" {{npc.kim.subject}} says. "You are all caught up on your rent. Please make sure to pay on time in the future."  @change stat stress 5
 
-        There's a note of self satisfaction in {{npc.kim.subject}} voice as {{npc.kim.subject}} says this.
+        There's a note of self satisfaction in {{npc.kim.dependent}} voice as {{npc.kim.subject}} says this.
 
   @next
 
-  Now, was there something else? {{npc.kim.subject | cap}} looks at you expectantly. {{npc.kim.dependent | cap}} teeth are very white as {{npc.kim.subject}} smiles widely.
+  "Now, was there something else?" Kim looks at you expectantly. {{npc.kim.dependent | cap}} teeth are very white as {{npc.kim.subject}} smiles widely.
 
   @choice leave "Leave" -> .leave
   @endchoice
@@ -64,7 +64,7 @@ Kim is sitting at {{npc.kim.dependent}} desk. {{npc.kim.subject | cap}} looks up
 
     @passage flirt
 
-    "Oh what big teeth you have!" you joke, smiling at {{npc.kim.subject}}. Immediately, Kim's smile falters, and {{npc.kim.subject}} looks at you with a mixture of confusion and concern.
+    "Oh what big teeth you have!" you joke, smiling at {{npc.kim.object}}. Immediately, Kim's smile falters, and {{npc.kim.subject}} looks at you with a mixture of confusion and concern.
     "What are you talking about?" {{npc.kim.subject}} asks, frowning. "That's not very flattering." @change relationship kim -10
 
     {{npc.kim.subject | cap}} keeps looking straight at you, unsmiling this time. You avert your eyes.

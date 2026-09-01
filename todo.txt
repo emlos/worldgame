@@ -90,6 +90,3 @@ code:
 other:
 - expand random/special prose into tag-specific location pools, tag-specific place pools, and condition/flag/item/moon-dependent text
 - postpone: localisation
-
-fixes:
-- relationships need to use 0-100 internally instead of 0..1

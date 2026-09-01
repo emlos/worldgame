@@ -848,9 +848,9 @@ function renderRelationships() {
         id: `state-relationship-${npc.id}`,
         label: npc.meta?.shortName || npc.name,
         value: relationship.score,
-        min: -1,
-        max: 1,
-        step: 0.01,
+        min: 0,
+        max: 100,
+        step: 1,
         onChange: (value) => {
           game.player.setRelationship({ npcId: npc.id, met: true, score: value });
           editorOverrides.relationships.set(npc.id, { met: true, score: value });

@@ -82,7 +82,7 @@ contact queues until the active one finishes. Contacts appear in the Chats app.
 - Saves store message references, frozen random/conditional choices, and captured
   interpolation values, not transcript bodies. Rendering/loading history never
   reruns effects. Editing authored wording changes the reconstructed wording;
-  renamed/removed references invalidate development saves. Save format is 24.
+  renamed/removed references invalidate development saves. Save format is 25.
 - Unread counts include incoming messages after each contact's saved read
   position. Opening the contact list does not mark messages read. Reading to the
   end of a visible thread does. The app badge totals all contacts.
@@ -813,7 +813,7 @@ non-empty strings, lists, and objects are true.
 ```wg
 @if story.taylor.hurt >= 1
 Taylor frowns.
-@elseif npc.taylor.relationship >= 0.5
+@elseif npc.taylor.relationship >= 50
 Taylor smiles.
 @elseif "urban" in location.tags
 Traffic murmurs outside.
@@ -914,7 +914,7 @@ You get through the work normally.
 registered data. Add an optional quoted label to override that text:
 
 ```wg
-@change relationship taylor 0.02 "+Taylor relationship"
+@change relationship taylor 2 "+Taylor relationship"
 ```
 
 Stat feedback follows the stat's `higherIsBetter` definition, including when
@@ -925,7 +925,7 @@ Put `@change` at the end of a prose source line to attach its coloured feedback
 to that sentence:
 
 ```wg
-You give Taylor a pep talk. @change relationship taylor 0.02
+You give Taylor a pep talk. @change relationship taylor 2
 You feel more relaxed. @change stat stress -2
 ```
 
@@ -994,8 +994,8 @@ outcome in a targeted event scene or sequence passage instead.
   @endresponse
   @require player.energy >= 10 "You are too tired."
   @warning "This may annoy Taylor."
-  @preview relationship -0.02 "-Relationship"
-  @effect relationship taylor -0.02
+  @preview relationship -2 "-Relationship"
+  @effect relationship taylor -2
 @endchoice
 ```
 
@@ -1223,8 +1223,8 @@ Implemented effects are:
 @effect flag met-taylor false
 @effect daily-flag home_weightlifting true
 @effect daily-flag home_weightlifting false
-@effect relationship taylor 0.02
-@effect relationship taylor -0.02
+@effect relationship taylor 2
+@effect relationship taylor -2
 @effect money 25
 @effect money -5
 @effect skill strength 0.1
@@ -1248,7 +1248,7 @@ Implemented effects are:
 - `reminder add <id>` activates an authored reminder; `reminder clear <id>`
   removes it. Both require a declared reminder ID. See **Reminders** below.
 - `relationship <npc-id> <signed-number>` changes and clamps that NPC
-  relationship to `-1` through `1`, marks the relationship as met, and fails at
+  relationship to `0` through `100`, marks the relationship as met, and fails at
   runtime if the NPC does not exist.
 - `money <signed-number>` adjusts `player.money`; positive values earn money
   and negative values spend it. WG does not implicitly require or clamp a
@@ -1366,7 +1366,7 @@ destination day's batch, and a backward date change clears the batch.
 
 Only active authored IDs are saved; automatic school reminders are derived
 from the schedule. The built-in and authored namespaces cannot collide.
-Save format 23 requires the reminder state and game-start date; older saves
+Save format 25 includes the reminder state and game-start date; older saves
 are intentionally unsupported.
 
 Run reminder compiler/runtime regression checks with

@@ -650,7 +650,7 @@ The few students in the cafeteria are eating quietly. It seems kind of empty.
   @response
     You and Taylor get a snack from the vending machine. It's a nice little break before class starts.
   @endresponse
-  @change relationship taylor 2.5
+  @change relationship taylor 3
   @effect daily-flag school_before_taylor true
 @endchoice
 

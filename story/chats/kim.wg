@@ -16,7 +16,7 @@
   @choice blunt "Challenge the charge" -> .checking
     @send "why am I being charged for two months when i wasnt even living here?"
     @effect set story.kim.rentReply "blunt"
-    @effect relationship kim -0.02
+    @effect relationship kim -2
   @endchoice
 
   @passage checking
