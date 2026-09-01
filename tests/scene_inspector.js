@@ -523,7 +523,7 @@ function makeChoiceButton(sceneId, choice) {
   const label = document.createElement("span");
   label.className = "choice-label";
   const text = document.createElement("span");
-  text.textContent = choice.label;
+  setOutcomeText(text, choice.label);
   label.append(text);
   const metaText = choiceMeta(choice);
   if (metaText) {

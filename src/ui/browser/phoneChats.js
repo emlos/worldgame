@@ -1,4 +1,5 @@
 import { buildChatsView, buildChatThreadView, sendChatReply, markChatRead } from "../../classes/game/chats.js";
+import { setOutcomeText } from "./outcomes.js";
 
 const timeFormat = new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: "UTC" });
 const dateFormat = new Intl.DateTimeFormat("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
@@ -120,7 +121,8 @@ export function createPhoneChats({ getGame, openScreen, onChange }) {
     responses.replaceChildren();
     if (!pending.length) {
       for (const choice of view.choices) {
-        const button = element("button", "chat-response", choice.label);
+        const button = element("button", "chat-response");
+        setOutcomeText(button, choice.label);
         button.type = "button";
         button.disabled = Boolean(choice.disabledReason);
         if (choice.disabledReason) button.title = choice.disabledReason;

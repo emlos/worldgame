@@ -3,6 +3,7 @@ import { keyedRandom01 } from "../../shared/util/random.js";
 import { applyWGEffects } from "./scene/wg/effectRuntime.js";
 import { createWGRuntimeContext } from "./scene/wg/runtimeContext.js";
 import { evaluateWGExpression, resolveWGPath } from "./scene/wg/expressionEvaluator.js";
+import { renderWGText } from "./scene/wg/textRuntime.js";
 
 const own = (object, key) => Object.hasOwn(object, key);
 const fail = (message) => { throw new Error(`Chats: ${message}`); };
@@ -155,7 +156,8 @@ function availableChoices(game, thread) {
   return thread.active.choices.map((id) => nodes.find((node) => node.type === "choice" && node.id === id))
     .filter((choice) => !choice.when || evaluateWGExpression(choice.when, context))
     .map((choice) => ({
-      id: choice.id, label: choice.label,
+      id: choice.id,
+      label: renderWGText(choice.label, context, choice.source),
       disabledReason: sendBlockReason(game) || (choice.requirements || []).find((requirement) => !evaluateWGExpression(requirement.test, context))?.reason || null,
     }));
 }

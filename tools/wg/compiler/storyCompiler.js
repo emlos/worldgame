@@ -372,7 +372,7 @@ export function compileStorySources(sources) {
     [...reminderMap.entries()].sort(([left], [right]) => compareText(left, right)),
   );
   const chats = Object.fromEntries([...chatMap.entries()].sort(([left], [right]) => compareText(left, right)));
-  return { formatVersion: 22, scenes, sequences, entries, locationContributions, reminders, chats };
+  return { formatVersion: 23, scenes, sequences, entries, locationContributions, reminders, chats };
 }
 
 export { walkNodes };

@@ -2,8 +2,9 @@ import { SCENE_ACTION_TYPE } from "../../../../data/scene/actions.js";
 import { buildSceneStatus } from "../sceneContext.js";
 import { createChoice } from "../choiceContract.js";
 import { createScene } from "../sceneContract.js";
-import { evaluateWGExpression, resolveWGPath } from "./expressionEvaluator.js";
+import { evaluateWGExpression } from "./expressionEvaluator.js";
 import { createWGRuntimeContext } from "./runtimeContext.js";
+import { renderWGInterpolation, renderWGText } from "./textRuntime.js";
 import { SKILLS } from "../../../../data/player/stats.js";
 import {
   getSkillCheckDifficulty,
@@ -28,27 +29,6 @@ function fail(message, source) {
   throw new WGMaterializationError(`${message}${sourceSuffix(source)}`);
 }
 
-function capitalize(value) {
-  return value ? value[0].toUpperCase() + value.slice(1) : value;
-}
-
-function renderInterpolation(part, context, source) {
-  let value = resolveWGPath(context, part.path);
-  if (value === undefined || value === null) {
-    fail(`Interpolation path '${part.path?.join(".")}' has no value`, source);
-  }
-  if (!["string", "number", "boolean"].includes(typeof value)) {
-    fail(`Interpolation path '${part.path?.join(".")}' is not scalar`, source);
-  }
-
-  value = String(value);
-  for (const filter of part.filters || []) {
-    if (filter === "cap") value = capitalize(value);
-    else fail(`Unknown interpolation filter '${String(filter)}'`, source);
-  }
-  return value;
-}
-
 function renderParagraph(node, context, { allowChanges = false } = {}) {
   if (!Array.isArray(node.parts)) fail("Paragraph parts must be an array", node.source);
   return node.parts
@@ -57,7 +37,10 @@ function renderParagraph(node, context, { allowChanges = false } = {}) {
         return { type: "text", text: part.value };
       }
       if (part?.type === "interpolation") {
-        return { type: "text", text: renderInterpolation(part, context, node.source) };
+        return {
+          type: "text",
+          text: renderWGInterpolation(part, context, node.source),
+        };
       }
       if (part?.type === "break") return { type: "break" };
       if (part?.type === "change" && allowChanges) {
@@ -209,7 +192,7 @@ function materializeChoice(node, context, { sequenceId = null, idPrefix = "" } =
   return createChoice({
     id: `${idPrefix}${node.id}`,
     icon: node.icon,
-    label: node.label,
+    label: renderWGText(node.label, context, node.source),
     durationMinutes: node.check ? 0 : materializeDuration(node, context),
     energyFree: node.check ? false : node.energyFree,
     enabled: disabledReason === null,
@@ -434,7 +417,7 @@ export function materializeWGSequence(game, definition, passageId) {
   if (passage.next) {
     choiceSection(output, "navigation", null).choices.push(createChoice({
       id: "__wg_next",
-      label: passage.next.label,
+      label: renderWGText(passage.next.label, context, passage.next.source),
       action: {
         type: SCENE_ACTION_TYPE.wgNext,
         sequenceId: definition.id,

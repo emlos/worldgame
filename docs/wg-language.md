@@ -667,8 +667,8 @@ markers create consecutive breaks. A paragraph cannot contain only breaks.
 These rules also apply inside `@response` blocks. Write `\@br` to display
 the marker literally; HTML such as `<br>` remains literal text.
 
-HTML stays literal and is never executed. Passage prose and response
-paragraphs support these outcome-colour markers:
+HTML stays literal and is never executed. Passage prose, response paragraphs,
+choice labels, and custom Next labels support these outcome-colour markers:
 
 ```wg
 [good]A very good result.[/good]
@@ -692,9 +692,19 @@ An interpolation contains a dotted runtime path and may use the implemented
 `null`, list, or object value causes a runtime error rather than printing an
 empty value.
 
-Interpolation is implemented only in prose. Headings, choice labels, entry
-labels, hub text, warnings, requirement reasons, and preview labels are literal
-strings.
+Choice labels and custom Next labels support the same interpolation and
+outcome-colour markers as prose. Interpolation resolves before the markers are
+rendered, so both features may be combined:
+
+```wg
+@choice pay "[warning]Pay £{{player.money}}[/warning]" -> .paid
+@endchoice
+
+@next "[good]Continue with {{npc.taylor.object}}[/good]" -> .continue
+```
+
+Headings, entry labels, hub text, warnings, requirement reasons, and preview
+labels remain literal strings.
 
 ## Runtime values available to expressions and prose
 

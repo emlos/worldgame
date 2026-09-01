@@ -961,13 +961,17 @@ class SceneBodyParser {
       failWG("Malformed @choice header", lineLocation(this.file, opening.line));
     }
 
+    const choiceLabel = parseQuotedString(
+      match[2],
+      lineLocation(this.file, opening.line),
+      "Choice label",
+    );
     const choice = {
       type: "choice",
       id: match[1],
-      label: parseQuotedString(
-        match[2],
+      label: parseInterpolationParts(
+        choiceLabel,
         lineLocation(this.file, opening.line),
-        "Choice label",
       ),
       target: match[3] ?? null,
       check: null,
@@ -1265,8 +1269,11 @@ function parseNext(text, file, line) {
   if (!match || match[2] === "@leave-place") {
     failWG("Malformed @next", location);
   }
+  const label = match[1]
+    ? parseQuotedString(match[1], location, "Next label")
+    : "Next";
   return {
-    label: match[1] ? parseQuotedString(match[1], location, "Next label") : "Next",
+    label: parseInterpolationParts(label, location),
     target: match[2] ?? null,
     source: nodeSource(file, line),
   };

@@ -91,4 +91,6 @@ Kim is sitting at {{npc.kim.dependent}} desk. {{npc.kim.subject | cap}} looks up
 
     @next -> @exit
 
+    @#future content - this is just the story intro. later on this will be a weekly payment, once timers are implmented
+
 @endsequence

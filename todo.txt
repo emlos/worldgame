@@ -18,7 +18,6 @@ wg script:
     ex: passing out from energy hitting 0
 - vscode highlighting: @br should be accepted in @response/@endresponse blocks - compiler complies corrently, just the highlighting needs adjusting
 - inline @if/@elseif/@else/@endif
-- variable interpolation in choices/next directives
 
 game systems:
     player stats:
@@ -45,6 +44,8 @@ game systems:
         - very low health increses trauma over time
     - i was putting in stats at random - which ones are actually necessary?
 
+    -autoplay scenes - when the player passes out in combat etc, have parts of the text fade in one after another slowly, as if they were concussed [needs combat system first]
+
     inventory system
 
     school:
@@ -58,13 +59,16 @@ game systems:
     npcs:
     - npcs should have their own stats instead of the generic relationship - taylor could have love for example
     - pathfinding: allow bus/car travel for select npcs + travel preferences
-    - luce - needs player-follow behavior definition
+    - luce - needs player-follow behavior definition  -afterward can be implemented
+    - allow for arbitrary amnt of relationship meters for npcs - taylor should have love + friendship, each ot be settable/gettable independently, kim should have intimidation instead of relationship etc
 
     player mechanics:
     - smoking/drinking mechanic + addiction? stat penalty?
 
     - combat system
     - better injury system
+
+    - npc timers - every week smth is supposed to happen (i.e) paying rent, if not a flag is set/an event plays/stats change etc. example in timers.js
     
 content:
 - add events/interactions/utility on all unlocked places
@@ -86,3 +90,6 @@ code:
 other:
 - expand random/special prose into tag-specific location pools, tag-specific place pools, and condition/flag/item/moon-dependent text
 - postpone: localisation
+
+fixes:
+- relationships need to use 0-100 internally instead of 0..1

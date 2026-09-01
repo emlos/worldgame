@@ -241,7 +241,7 @@ function makeChoiceButton(sceneId, choice, number) {
   const text = document.createElement("span");
   text.className = "choice-label";
   const hotkey = choiceHotkeyLabel(number - 1);
-  text.textContent = hotkey ? `(${hotkey}) ${choice.label}` : choice.label;
+  setOutcomeText(text, hotkey ? `(${hotkey}) ${choice.label}` : choice.label);
   if (hotkey) button.setAttribute("aria-keyshortcuts", hotkey);
 
   let duration;
