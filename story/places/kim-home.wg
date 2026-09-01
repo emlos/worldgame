@@ -1,0 +1,91 @@
+@entry place.hub.kim-office
+  @scene place.kim-office
+  @place-key home_kim
+  @hub place
+@endentry
+
+:: place.kim-office [place hub]
+@kind place
+
+Kim is sitting at {{npc.kim.dependent}} desk. {{npc.kim.subject | cap}} looks up as you enter.
+
+@choicegroup quest ""
+  @choice rest-quest "Ask about the rent" -> story.rent.intro.2
+    @when flags.rent_intro_2
+    @endchoice
+  @endchoicegroup
+
+@choicegroup navigation ""
+@choice leave "Leave" -> @leave-place
+  @time 1m
+@endchoice
+@endchoicegroup
+
+@sequence story.rent.intro.2 -> @exit
+
+  You look around the office. There are stacks of papers and files on the desk, and a computer monitor is turned on, light flickering. \
+  Kim is sitting in a chair behind the desk, 
+  @if npc.kim.gender == "female"
+    wearing a smart business suit and glasses.
+  @else
+    wearing an ironed white shirt and glasses.  
+  @endif
+  {{npc.kim.subject | cap}} eyes are brown, and they follow you as you open your mouth to speak.
+
+  @choice has-money "Pay (800£)" -> .pay
+    @when money >= 800
+    @endchoice
+
+  @choice no-money "Explain the situation" -> .no-money
+    @when money < 800
+    @endchoice
+
+  @passage pay
+
+        You hand over the 800£ to {{npc.kim.subject}}. {{npc.kim.subject | cap}} takes it and puts it in a drawer.
+        @change money -800
+
+        "Perfect!" {{npc.kim.subject}} says. "You are all caught up on your rent. Please make sure to pay on time in the future."  @change stat stress 5
+
+        There's a note of self satisfaction in {{npc.kim.subject}} voice as {{npc.kim.subject}} says this.
+
+  @next
+
+  Now, was there something else? {{npc.kim.subject | cap}} looks at you expectantly. {{npc.kim.dependent | cap}} teeth are very white as {{npc.kim.subject}} smiles widely.
+
+  @choice leave "Leave" -> .leave
+  @endchoice
+
+
+
+  @choice flirt "Flatter {{npc.kim.object}}" -> .flirt
+    @change relationship kim 5
+  @endchoice
+
+
+    @passage flirt
+
+    "Oh what big teeth you have!" you joke, smiling at {{npc.kim.subject}}. Immediately, Kim's smile falters, and {{npc.kim.subject}} looks at you with a mixture of confusion and concern.
+    "What are you talking about?" {{npc.kim.subject}} asks, frowning. "That's not very flattering." @change relationship kim -10
+
+    {{npc.kim.subject | cap}} keeps looking straight at you, unsmiling this time. You avert your eyes.
+    
+
+    @next "Just leave" -> .leave
+
+    @passage no-money
+
+    "I don't have the money to pay you right now," you say, trying to keep your voice calm. "Is there any way I can work something out with you?"
+
+    {{npc.kim.subject | cap}} looks at you for a moment, then smiles. "I understand that things can be difficult sometimes. However, you still owe me the rent. I can give you a few days to come up with the money, but if you don't pay me by then, I will have to take further action." @change stat stress 10
+
+    @next -> .leave
+
+    @passage leave
+
+    You leave the office, the new notice in your hand. You need to find a way to get the money to pay your rent, or you will be evicted.
+    @effect flag rent_intro_2 false
+
+    @next -> @exit
+
+@endsequence

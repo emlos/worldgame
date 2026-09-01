@@ -90,9 +90,6 @@
     My office is at {{npc.kim.home.location.name}}. Please come by to settle your accounts :)
   @endmessage
 
-  @unlock place home_kim
-
-
   @choice wait "Wait!" -> .done
     @send "wait, this this is some misunderstanding!"
   @endchoice
@@ -107,8 +104,8 @@
     👍
   @endmessage
 
-
-  @effect flag story.rent.into.2 true
+  @unlock place home_kim
+  @effect flag rent_intro_2 true
 
   @finish
 @endchat
