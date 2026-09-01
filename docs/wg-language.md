@@ -723,7 +723,7 @@ The currently exposed paths are:
 - `player.education.<subject-id>.grade` and `.attendedSegments` for each
   registered school subject: `english`, `math`, `history`, `science`, `art`,
   and `physical_education`.
-- `npc.<id>.id`, `.name`, `.shortName`, `.age`, `.gender`, `.relationship`,
+- `npc.<id>.id`, `.name`, `.shortName`, `.age`, `.gender`, `.relationship.<meter-id>`,
   `.present`, and `.available`.
 - `home.location.name`: the name of the location containing the player's home,
   independent of the player's current position.
@@ -785,8 +785,12 @@ The player does not currently expose a name, inventory, body, clothing, or a
 `player.flags` path to WG. A location does not expose its
 district key or type.
 
-NPC relationship scores are between `-1` and `1`. `npc.<id>.present` means the
-NPC shares the player's exact position, and `.available` is the authoritative
+NPC relationship profiles expose only the meters declared by that NPC. Meter
+values are between `0` and `100`; for example, Taylor exposes
+`npc.taylor.relationship.friendship` and `npc.taylor.relationship.love`, while
+Kim exposes `npc.kim.relationship.intimidation`. The meaning and preferred
+direction of each meter comes from the NPC definition. `npc.<id>.present` means
+the NPC shares the player's exact position, and `.available` is the authoritative
 five-minute interaction check. Schedule phases are `free`, `departing`,
 `travelling`, `early`, or `active`; schedule timestamps are ISO strings or
 `null`.
@@ -813,7 +817,7 @@ non-empty strings, lists, and objects are true.
 ```wg
 @if story.taylor.hurt >= 1
 Taylor frowns.
-@elseif npc.taylor.relationship >= 50
+@elseif npc.taylor.relationship.friendship >= 50
 Taylor smiles.
 @elseif "urban" in location.tags
 Traffic murmurs outside.
@@ -914,7 +918,7 @@ You get through the work normally.
 registered data. Add an optional quoted label to override that text:
 
 ```wg
-@change relationship taylor 2 "+Taylor relationship"
+@change relationship taylor.friendship 2 "+Taylor friendship"
 ```
 
 Stat feedback follows the stat's `higherIsBetter` definition, including when
@@ -925,7 +929,7 @@ Put `@change` at the end of a prose source line to attach its coloured feedback
 to that sentence:
 
 ```wg
-You give Taylor a pep talk. @change relationship taylor 2
+You give Taylor a pep talk. @change relationship taylor.friendship 2
 You feel more relaxed. @change stat stress -2
 ```
 
@@ -938,10 +942,10 @@ by whitespace. They use the same operations, amounts, and optional quoted
 labels as a standalone `@change`, and execute and display left to right:
 
 ```wg
-You compare notes with Taylor. @change relationship taylor 1 @change grade history 1
+You compare notes with Taylor. @change relationship taylor.friendship 1 @change grade history 1
 ```
 
-This displays `You compare notes with Taylor. | +Relationship | +History grade`.
+This displays `You compare notes with Taylor. | +Friendship | +History grade`.
 There is no fixed limit on the number of inline changes. Quoted labels may
 contain literal `@change` text and escaped quotes without starting a new
 directive. The chain consumes the remainder of the source line; put further
@@ -994,8 +998,8 @@ outcome in a targeted event scene or sequence passage instead.
   @endresponse
   @require player.energy >= 10 "You are too tired."
   @warning "This may annoy Taylor."
-  @preview relationship -2 "-Relationship"
-  @effect relationship taylor -2
+  @preview relationship taylor.friendship -2 "-Friendship"
+  @effect relationship taylor.friendship -2
 @endchoice
 ```
 
@@ -1223,8 +1227,8 @@ Implemented effects are:
 @effect flag met-taylor false
 @effect daily-flag home_weightlifting true
 @effect daily-flag home_weightlifting false
-@effect relationship taylor 2
-@effect relationship taylor -2
+@effect relationship taylor.friendship 2
+@effect relationship taylor.friendship -2
 @effect money 25
 @effect money -5
 @effect skill strength 0.1
@@ -1247,9 +1251,12 @@ Implemented effects are:
   `not daily.<id>` to gate a once-per-day choice.
 - `reminder add <id>` activates an authored reminder; `reminder clear <id>`
   removes it. Both require a declared reminder ID. See **Reminders** below.
-- `relationship <npc-id> <signed-number>` changes and clamps that NPC
-  relationship to `0` through `100`, marks the relationship as met, and fails at
-  runtime if the NPC does not exist.
+- `relationship <npc-id>.<meter-id> <signed-number>` changes and clamps that
+  named meter to `0` through `100`, marks the NPC as met, and fails during
+  compilation if the NPC or meter does not exist. A meter configured with
+  `revealOnChange` becomes visible after its first change. Feedback colours use
+  the meter's `higherIsBetter` definition, so increasing Kim's intimidation is
+  bad while increasing Taylor's friendship is good.
 - `money <signed-number>` adjusts `player.money`; positive values earn money
   and negative values spend it. WG does not implicitly require or clamp a
   non-negative balance; use `@require` when an action needs sufficient funds.

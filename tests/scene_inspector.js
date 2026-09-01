@@ -141,8 +141,10 @@ function applyEditorOverrides() {
   }
   for (const [id, value] of editorOverrides.flags) game.setFlag(id, value);
   for (const [id, value] of editorOverrides.dailyFlags) game.setDailyFlag(id, value);
-  for (const [id, value] of editorOverrides.relationships) {
-    game.player.setRelationship({ npcId: id, ...value });
+  for (const value of editorOverrides.relationships.values()) {
+    const npc = game.npcs.get(value.npcId);
+    if (!npc) continue;
+    game.player.setRelationshipMeter(value, npc.relationshipProfile);
   }
   if (editorOverrides.story !== undefined) {
     game.story = JSON.parse(JSON.stringify(editorOverrides.story));
@@ -187,9 +189,23 @@ function snapshotState() {
       Object.keys(SCHOOL_SUBJECTS).map((id) => [id, game.player.getSubjectGrade(id)]),
     ),
     relationships: Object.fromEntries(
-      [...game.npcs.keys()].sort().map((id) => {
-        const relationship = game.player.getRelationship(id);
-        return [id, { met: relationship.met, score: relationship.score }];
+      [...game.npcs.values()].sort((a, b) => a.id.localeCompare(b.id)).map((npc) => {
+        const relationship = game.player.getRelationshipProfile(
+          npc.id,
+          npc.relationshipProfile,
+        );
+        return [npc.id, {
+          met: relationship.met,
+          meters: Object.fromEntries(
+            Object.keys(npc.relationshipProfile.meters).map((meterId) => {
+              const meter = relationship.meters.get(meterId);
+              return [meterId, {
+                value: meter.value,
+                revealed: meter.revealed,
+              }];
+            }),
+          ),
+        }];
       }),
     ),
     flags: [...game.flags].sort(),
@@ -228,8 +244,19 @@ function stateChanges(before, after) {
   for (const id of Object.keys(after.relationships)) {
     const previous = before.relationships[id];
     const next = after.relationships[id];
-    if (previous.score !== next.score) {
-      changes.push(`relationship ${id} ${previous.score}→${next.score}`);
+    for (const meterId of Object.keys(next.meters)) {
+      const previousMeter = previous.meters[meterId];
+      const nextMeter = next.meters[meterId];
+      if (previousMeter.value !== nextMeter.value) {
+        changes.push(
+          `relationship ${id}.${meterId} ${previousMeter.value}→${nextMeter.value}`,
+        );
+      }
+      if (previousMeter.revealed !== nextMeter.revealed) {
+        changes.push(
+          `relationship ${id}.${meterId} ${nextMeter.revealed ? "revealed" : "hidden"}`,
+        );
+      }
     }
     if (previous.met !== next.met) {
       changes.push(`relationship ${id} ${next.met ? "met" : "unmet"}`);
@@ -842,21 +869,75 @@ function renderFlags() {
 function renderRelationships() {
   const fields = [];
   for (const npc of [...game.npcs.values()].sort((a, b) => a.name.localeCompare(b.name))) {
-    const relationship = game.player.getRelationship(npc.id);
-    fields.push(
-      makeNumberField({
-        id: `state-relationship-${npc.id}`,
-        label: npc.meta?.shortName || npc.name,
-        value: relationship.score,
-        min: 0,
-        max: 100,
-        step: 1,
-        onChange: (value) => {
-          game.player.setRelationship({ npcId: npc.id, met: true, score: value });
-          editorOverrides.relationships.set(npc.id, { met: true, score: value });
-        },
-      }),
-    );
+    const profile = game.player.getRelationshipProfile(npc.id, npc.relationshipProfile);
+    for (const [meterId, definition] of Object.entries(npc.relationshipProfile.meters)) {
+      const meter = profile.meters.get(meterId);
+      const key = `${npc.id}.${meterId}`;
+      const label = `${npc.meta?.shortName || npc.name} · ${definition.label}`;
+      fields.push(
+        makeNumberField({
+          id: `state-relationship-${npc.id}-${meterId}`,
+          label,
+          value: meter.value,
+          min: 0,
+          max: 100,
+          step: 1,
+          onChange: (value) => {
+            const current = game.player.getRelationshipMeter(
+              npc.id,
+              meterId,
+              npc.relationshipProfile,
+            );
+            const next = {
+              npcId: npc.id,
+              meterId,
+              value,
+              met: true,
+              revealed: current.revealed,
+            };
+            game.player.setRelationshipMeter(next, npc.relationshipProfile);
+            editorOverrides.relationships.set(key, next);
+          },
+        }),
+      );
+
+      const revealToggle = document.createElement("label");
+      revealToggle.className = "inspector-flag-toggle";
+      const revealInput = document.createElement("input");
+      revealInput.type = "checkbox";
+      revealInput.checked = meter.revealed;
+      revealInput.setAttribute("aria-label", `${label} visible`);
+      revealInput.addEventListener("change", () => {
+        const before = snapshotState();
+        const next = {
+          npcId: npc.id,
+          meterId,
+          value: game.player.getRelationshipMeter(
+            npc.id,
+            meterId,
+            npc.relationshipProfile,
+          ).value,
+          met: true,
+          revealed: revealInput.checked,
+        };
+        game.player.setRelationshipMeter(next, npc.relationshipProfile);
+        editorOverrides.relationships.set(key, next);
+        clearChoiceUndo();
+        addTrace(`Edit ${label} visibility`, stateChanges(before, snapshotState()));
+        setNotice(`${label} ${revealInput.checked ? "revealed" : "hidden"}.`);
+        scheduleStorySurfaceRender();
+      });
+      const revealLabel = document.createElement("span");
+      revealLabel.textContent = "Visible";
+      revealToggle.append(revealInput, revealLabel);
+      fields.push(revealToggle);
+    }
+  }
+  if (!fields.length) {
+    const empty = document.createElement("span");
+    empty.className = "inspector-help";
+    empty.textContent = "No NPC relationship meters are defined.";
+    fields.push(empty);
   }
   elements.relationshipFields.replaceChildren(...fields);
 }

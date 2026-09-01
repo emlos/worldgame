@@ -5,8 +5,16 @@ function init() {
   const p = new Player({ stats: defaultStats(), skinTone: "#d4a373", eyeColor: "#4d6fa9", hairColor: "#3a2a1a", gender: Gender.NB, pronouns: PronounSets.THEY_THEM });
   p.setSkillValue("perception", 0.35);
   p.setSkillValue("strength", 0);
-  p.setRelationship({ npcId: "npc-1", met: true, score: 20 });
-  p.setRelationship({ npcId: "npc-2", met: false, score: 30 });
+  p.setRelationshipProfile({
+    npcId: "npc-1",
+    met: true,
+    meters: [["friendship", { value: 20, revealed: true }]],
+  });
+  p.setRelationshipProfile({
+    npcId: "npc-2",
+    met: false,
+    meters: [["friendship", { value: 30, revealed: true }]],
+  });
   p.equip(new Clothing({ id: "sun-hat", slot: WearSlot.HEAD, image: "assets/hat.png", genderBias: +0.25, color: "#e7d29c" }));
   p.equip(new Clothing({ id: "jeans", slot: WearSlot.LOWER, image: "assets/jeans.png", genderBias: -0.1, color: "#1f3555" }));
 
@@ -103,10 +111,21 @@ function init() {
 
     // Relationships
     {
-      const relRows = [...p.relationships.values()].map((r) => [r.npcId, String(r.met), String(r.score)]);
+      const relRows = [...p.relationships.entries()].flatMap(([npcId, profile]) =>
+        [...profile.meters.entries()].map(([meterId, meter]) => [
+          npcId,
+          meterId,
+          String(profile.met),
+          String(meter.value),
+          String(meter.revealed),
+        ]),
+      );
       byId("relationships").innerHTML = "";
       byId("relationships").append(el("h2", { html: "Relationships" }));
-      byId("relationships").append(table(relRows, ["NPC ID", "Met", "Score (0..100)"]));
+      byId("relationships").append(table(
+        relRows,
+        ["NPC ID", "Meter", "Met", "Value (0..100)", "Revealed"],
+      ));
     }
 
     // Clothing

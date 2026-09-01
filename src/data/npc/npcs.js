@@ -25,6 +25,25 @@ export const NPC_REGISTRY = [
         age: 18,
         gender: Gender.F,
         pronouns: PronounSets.SHE_HER,
+        relationshipProfile: {
+            meters: {
+                friendship: {
+                    label: "Friendship",
+                    description: "How close Taylor feels to the player.",
+                    initial: 0,
+                    higherIsBetter: true,
+                    initiallyVisible: true,
+                },
+                love: {
+                    label: "Love",
+                    description: "Taylor's romantic attachment to the player.",
+                    initial: 0,
+                    higherIsBetter: true,
+                    initiallyVisible: false,
+                    revealOnChange: true,
+                },
+            },
+        },
 
         stats: {
             looks: 3,
@@ -1078,6 +1097,25 @@ export const NPC_REGISTRY = [
         age: 32,
         gender: Gender.F,
         pronouns: PronounSets.SHE_HER,
+        relationshipProfile: {
+            meters: {
+                intimidation: {
+                    label: "Intimidation",
+                    description: "How strongly Kim intimidates the player.",
+                    initial: 0,
+                    higherIsBetter: false,
+                    initiallyVisible: false,
+                },
+
+                affection:{
+                    label: "Affection",
+                    description: "How much Kim likes the player.",
+                    initial: 0,
+                    higherIsBetter: true,
+                    initiallyVisible: false,
+                }
+            },
+        },
 
         stats: {
             looks: 5,

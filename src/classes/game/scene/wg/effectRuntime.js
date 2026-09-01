@@ -107,11 +107,21 @@ export function applyWGEffect(game, effect) {
   }
 
   if (effect.op === "relationship") {
-    if (!game.npcs.has(String(effect.npcId))) {
+    const npc = game.npcs.get(String(effect.npcId));
+    if (!npc) {
       fail(`WG relationship effect references unknown NPC '${String(effect.npcId)}'`);
     }
     if (!Number.isFinite(effect.amount)) fail("WG relationship effect needs a finite amount");
-    game.player.bumpRelationship(effect.npcId, effect.amount);
+    try {
+      game.player.adjustRelationshipMeter(
+        npc.id,
+        effect.meterId,
+        effect.amount,
+        npc.relationshipProfile,
+      );
+    } catch (error) {
+      fail(error.message);
+    }
     return;
   }
 

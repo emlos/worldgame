@@ -20,7 +20,7 @@ Tired of studying, you're unable to resist stealing a glance at Taylor.
 
 @if story.taylor.hurt >= 1
 Taylor notices you looking and frowns.
-@elseif npc.taylor.relationship >= 50
+@elseif npc.taylor.relationship.friendship >= 50
 Taylor catches your eye and smiles.
 @else
 Taylor remains focused on the textbook.
@@ -35,8 +35,8 @@ Taylor remains focused on the textbook.
   @icon 😈
   @#require player.energy >= 10 "You are too tired."
   @warning "This may annoy Taylor."
-  @preview relationship -2 "-Relationship"
-  @effect relationship taylor -2
+  @preview relationship taylor.friendship -2 "-Friendship"
+  @effect relationship taylor.friendship -2
 @endchoice
 
 @choice leave "Give up on studying" -> @exit
@@ -61,7 +61,7 @@ You return your attention to the textbook.
 You reach across the desk and interrupt Taylor's careful notes.
 
 @choice apologise "Apologise" -> taylor.study.peek
-  @effect relationship taylor 2
+  @effect relationship taylor.friendship 2
 @endchoice
 
 @choice leave "Roll your eyes" -> taylor.study.peek

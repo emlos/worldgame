@@ -1,8 +1,4 @@
-import {
-    Relationship,
-    RELATIONSHIP_MAX,
-    RELATIONSHIP_MIN,
-} from "../../shared/classes/relationship.js";
+import { normalizeRelationshipProfileDefinition } from "../../shared/classes/relationship.js";
 import { Stat } from "../../shared/classes/stat.js";
 import { Gender, PronounSets } from "../../shared/classes/pronouns.js";
 import { Clothing } from "../../shared/classes/clothing.js";
@@ -90,6 +86,7 @@ export class NPC {
      * @param {string|null} opts.homePlaceId    - Place.id of their home
      * @param {object|null} opts.homePreference - preferences used to generate/assign their home
      * @param {object|null} opts.behavior - static goal rules interpreted by NPCBrain
+     * @param {object|null} opts.relationshipProfile - player-facing named meter definitions
      * @param {object} opts.meta - arbitrary metadata (tags, registry key, etc)
      */
     constructor({
@@ -105,6 +102,7 @@ export class NPC {
         homePlaceId = null,
         homePreference = null,
         behavior = null,
+        relationshipProfile = null,
         meta = {},
     } = {}) {
         this.id = id || String(name || "");
@@ -123,8 +121,8 @@ export class NPC {
         this.gender = gender;
         this.pronouns = { ...pronouns };
 
-        // Relationships / clothing -------------------------------
-        this.relationships = new Map(); // npcId -> Relationship (other NPCs OR player if you want)
+        // Player-facing relationship profile / clothing ----------
+        this.relationshipProfile = normalizeRelationshipProfileDefinition(relationshipProfile);
         this.clothing = new Map(); // slot -> Clothing
 
         // Body -----------------------------------------------------
@@ -157,27 +155,6 @@ export class NPC {
     setLocationAndPlace(locationId, placeId = null) {
         this.locationId = locationId;
         this.currentPlaceId = placeId;
-    }
-
-    // --- Relationship helpers (NPC <-> NPC) --------------------
-    getRelationship(otherId) {
-        return this.relationships.get(String(otherId)) || null;
-    }
-
-    ensureRelationship(otherId) {
-        const key = String(otherId);
-        let rel = this.relationships.get(key);
-        if (!rel) {
-            rel = new Relationship({ npcId: key });
-            this.relationships.set(key, rel);
-        }
-        return rel;
-    }
-
-    setRelationshipScore(otherId, score) {
-        const rel = this.ensureRelationship(otherId);
-        rel.score = clamp(Number(score) || RELATIONSHIP_MIN, RELATIONSHIP_MIN, RELATIONSHIP_MAX);
-        return rel;
     }
 
     getStatBase(name) {
@@ -241,10 +218,7 @@ export class NPC {
             flags: { ...this.flags },
             gender: this.gender,
             pronouns: { ...this.pronouns },
-            relationships: [...this.relationships.entries()].map(([otherId, rel]) => [
-                otherId,
-                rel.toJSON(),
-            ]),
+            relationshipProfile: cloneSerializable(this.relationshipProfile),
             clothing: [...this.clothing.entries()].map(([slot, item]) => [slot, item.toJSON()]),
             body: this.body?.toJSON?.() ?? null,
             locationId: this.locationId,
@@ -283,6 +257,7 @@ export class NPC {
             homePlaceId: data.homePlaceId ?? null,
             homePreference: cloneSerializable(data.homePreference) ?? null,
             behavior: data.behavior,
+            relationshipProfile: data.relationshipProfile,
             meta: cloneSerializable(data.meta) || {},
         });
 
@@ -292,11 +267,6 @@ export class NPC {
         }
 
         npc.flags = data?.flags && typeof data.flags === "object" ? { ...data.flags } : {};
-
-        npc.relationships = new Map();
-        for (const [otherId, relData] of data?.relationships || []) {
-            npc.relationships.set(String(otherId), Relationship.fromJSON(relData));
-        }
 
         npc.clothing = new Map();
         for (const [slot, itemData] of data?.clothing || []) {

@@ -1,7 +1,10 @@
 import {
-    Relationship,
+    createRelationshipProfile,
     RELATIONSHIP_MAX,
     RELATIONSHIP_MIN,
+    RelationshipMeter,
+    RelationshipProfile,
+    requireRelationshipMeterDefinition,
 } from "../../shared/classes/relationship.js";
 import { Stat } from "../../shared/classes/stat.js";
 import { Gender, PronounSets } from "../../shared/classes/pronouns.js";
@@ -130,7 +133,7 @@ export class Player {
         this.pronouns = { ...pronouns };
 
         // Relationships, Skills -----------------------------------
-        this.relationships = new Map(); // npcId -> Relationship
+        this.relationships = new Map(); // npcId -> RelationshipProfile
         this.skills = new Map(); // registered name -> fractional 0..10 value
         const suppliedSkills = skills instanceof Map
             ? Object.fromEntries(skills)
@@ -234,23 +237,79 @@ export class Player {
         return this.money;
     }
 
-    // --- Relationships ---
-    setRelationship({ npcId, met = true, score = 0 }) {
-        this.relationships.set(String(npcId), new Relationship({ npcId, met, score }));
+    // --- Relationship profiles ---
+    setRelationshipProfile({ npcId, met = true, meters = [] }) {
+        const profile = new RelationshipProfile({ met, meters });
+        this.relationships.set(String(npcId), profile);
+        return profile;
     }
-    getRelationship(npcId) {
-        return this.relationships.get(String(npcId)) || new Relationship({ npcId });
+    getRelationshipProfile(npcId, profileDefinition = null) {
+        return this.relationships.get(String(npcId)) ||
+            createRelationshipProfile(profileDefinition, { met: false });
     }
-    bumpRelationship(npcId, delta) {
-        const r = this.getRelationship(npcId);
-        r.met = true;
-        r.score = clamp(
-            r.score + finiteNumber(delta, `Relationship '${npcId}' adjustment`),
+    getRelationshipMeter(npcId, meterId, profileDefinition) {
+        const { id, definition } = requireRelationshipMeterDefinition(
+            profileDefinition,
+            meterId,
+        );
+        const profile = this.getRelationshipProfile(npcId, profileDefinition);
+        return profile.meters.get(id) || new RelationshipMeter({
+            value: definition.initial,
+            revealed: definition.initiallyVisible,
+        });
+    }
+    setRelationshipMeter({
+        npcId,
+        meterId,
+        value,
+        met = true,
+        revealed = null,
+    }, profileDefinition) {
+        const key = String(npcId);
+        const { id, definition } = requireRelationshipMeterDefinition(
+            profileDefinition,
+            meterId,
+        );
+        const profile = this.relationships.get(key) ||
+            createRelationshipProfile(profileDefinition, { met });
+        const previous = profile.meters.get(id);
+        const meter = new RelationshipMeter({
+            value,
+            revealed: revealed == null
+                ? (previous?.revealed ?? definition.initiallyVisible)
+                : revealed,
+        });
+        profile.met = !!met;
+        profile.meters.set(id, meter);
+        this.relationships.set(key, profile);
+        return meter;
+    }
+    adjustRelationshipMeter(npcId, meterId, delta, profileDefinition) {
+        const key = String(npcId);
+        const { id, definition } = requireRelationshipMeterDefinition(
+            profileDefinition,
+            meterId,
+        );
+        const profile = this.relationships.get(key) ||
+            createRelationshipProfile(profileDefinition, { met: true });
+        const meter = profile.meters.get(id) || new RelationshipMeter({
+            value: definition.initial,
+            revealed: definition.initiallyVisible,
+        });
+        const before = meter.value;
+        meter.value = clamp(
+            before + finiteNumber(
+                delta,
+                `Relationship '${key}.${id}' adjustment`,
+            ),
             RELATIONSHIP_MIN,
             RELATIONSHIP_MAX,
         );
-        this.relationships.set(String(npcId), r);
-        return r.score;
+        if (definition.revealOnChange) meter.revealed = true;
+        profile.met = true;
+        profile.meters.set(id, meter);
+        this.relationships.set(key, profile);
+        return { before, after: meter.value, appliedDelta: meter.value - before };
     }
 
     // --- Skills ---
@@ -404,7 +463,7 @@ export class Player {
 
         player.relationships = new Map();
         for (const [npcId, relData] of data?.relationships || []) {
-            player.relationships.set(String(npcId), Relationship.fromJSON(relData));
+            player.relationships.set(String(npcId), RelationshipProfile.fromJSON(relData));
         }
 
         player.skills = new Map();

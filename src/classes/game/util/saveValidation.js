@@ -233,33 +233,75 @@ function validateBody(data, path) {
     });
 }
 
-function validateRelationships(data, path, knownNpcIds = null) {
+function validateRelationshipProfileDefinition(data, path) {
+    const profile = record(data, path);
+    const meters = record(required(profile, "meters", path), `${path}.meters`);
+    for (const [meterId, meterData] of Object.entries(meters)) {
+        const meterPath = `${path}.meters.${meterId}`;
+        if (!/^[a-z][a-z0-9_-]*$/.test(meterId)) {
+            fail(meterPath, "has an invalid meter id");
+        }
+        const meter = record(meterData, meterPath);
+        string(required(meter, "label", meterPath), `${meterPath}.label`, { nonEmpty: true });
+        string(required(meter, "description", meterPath), `${meterPath}.description`, {
+            nonEmpty: true,
+        });
+        finiteNumber(required(meter, "initial", meterPath), `${meterPath}.initial`, {
+            min: RELATIONSHIP_MIN,
+            max: RELATIONSHIP_MAX,
+        });
+        boolean(required(meter, "higherIsBetter", meterPath), `${meterPath}.higherIsBetter`);
+        boolean(required(meter, "initiallyVisible", meterPath), `${meterPath}.initiallyVisible`);
+        boolean(required(meter, "revealOnChange", meterPath), `${meterPath}.revealOnChange`);
+    }
+    return profile;
+}
+
+function validateRelationships(data, path, npcProfiles) {
     const seen = new Set();
     array(data, path).forEach((entry, index) => {
         const entryPath = `${path}[${index}]`;
         if (!Array.isArray(entry) || entry.length !== 2)
-            fail(entryPath, "must be a [targetId, relationship] pair");
+            fail(entryPath, "must be a [npcId, relationship profile] pair");
         const targetId = string(entry[0], `${entryPath}[0]`, { nonEmpty: true });
         if (seen.has(targetId)) fail(`${entryPath}[0]`, `duplicates relationship '${targetId}'`);
-        if (knownNpcIds && !knownNpcIds.has(targetId)) {
+        const definition = npcProfiles.get(targetId);
+        if (!definition) {
             fail(`${entryPath}[0]`, `references unknown NPC '${targetId}'`);
         }
         seen.add(targetId);
 
         const relationship = record(entry[1], `${entryPath}[1]`);
-        same(
-            string(required(relationship, "npcId", `${entryPath}[1]`), `${entryPath}[1].npcId`, {
-                nonEmpty: true,
-            }),
-            targetId,
-            `${entryPath}[1].npcId`,
-            "the relationship map key",
-        );
         boolean(required(relationship, "met", `${entryPath}[1]`), `${entryPath}[1].met`);
-        finiteNumber(required(relationship, "score", `${entryPath}[1]`), `${entryPath}[1].score`, {
-            min: RELATIONSHIP_MIN,
-            max: RELATIONSHIP_MAX,
+        const meterEntries = array(
+            required(relationship, "meters", `${entryPath}[1]`),
+            `${entryPath}[1].meters`,
+        );
+        const seenMeters = new Set();
+        meterEntries.forEach((meterEntry, meterIndex) => {
+            const meterPath = `${entryPath}[1].meters[${meterIndex}]`;
+            if (!Array.isArray(meterEntry) || meterEntry.length !== 2) {
+                fail(meterPath, "must be a [meterId, meter state] pair");
+            }
+            const meterId = string(meterEntry[0], `${meterPath}[0]`, { nonEmpty: true });
+            if (seenMeters.has(meterId)) fail(`${meterPath}[0]`, `duplicates meter '${meterId}'`);
+            const meterDefinition = definition.meters[meterId];
+            if (!meterDefinition) {
+                fail(`${meterPath}[0]`, `references unknown meter '${targetId}.${meterId}'`);
+            }
+            seenMeters.add(meterId);
+            const state = record(meterEntry[1], `${meterPath}[1]`);
+            finiteNumber(required(state, "value", `${meterPath}[1]`), `${meterPath}[1].value`, {
+                min: RELATIONSHIP_MIN,
+                max: RELATIONSHIP_MAX,
+            });
+            boolean(required(state, "revealed", `${meterPath}[1]`), `${meterPath}[1].revealed`);
         });
+        for (const meterId of Object.keys(definition.meters)) {
+            if (!seenMeters.has(meterId)) {
+                fail(`${entryPath}[1].meters`, `is missing meter '${targetId}.${meterId}'`);
+            }
+        }
     });
 }
 
@@ -495,7 +537,7 @@ function validateStoryContinuations(value, path, gameTime) {
     });
 }
 
-function validatePlayer(data, path, npcIds, gameTime) {
+function validatePlayer(data, path, npcProfiles, gameTime) {
     const player = record(data, path);
     validateCharacterCore(player, path);
     const storedStats = record(required(player, "stats", path), `${path}.stats`);
@@ -530,7 +572,11 @@ function validatePlayer(data, path, npcIds, gameTime) {
     if (!PLAYER_TEMPERATURES.has(temperature)) {
         fail(`${path}.temperature`, `has unknown comfort value '${temperature}'`);
     }
-    validateRelationships(required(player, "relationships", path), `${path}.relationships`, npcIds);
+    validateRelationships(
+        required(player, "relationships", path),
+        `${path}.relationships`,
+        npcProfiles,
+    );
 
     const seenSkills = new Set();
     array(required(player, "skills", path), `${path}.skills`).forEach((entry, index) => {
@@ -1374,7 +1420,10 @@ function validateNPC(data, path, context) {
     if (age !== null) finiteNumber(age, `${path}.age`, { min: 0 });
     string(required(npc, "gender", path), `${path}.gender`, { nonEmpty: true });
     record(required(npc, "flags", path), `${path}.flags`);
-    validateRelationships(required(npc, "relationships", path), `${path}.relationships`);
+    validateRelationshipProfileDefinition(
+        required(npc, "relationshipProfile", path),
+        `${path}.relationshipProfile`,
+    );
     record(required(npc, "meta", path), `${path}.meta`);
 
     const locationId = string(required(npc, "locationId", path), `${path}.locationId`, {
@@ -1457,9 +1506,9 @@ export function validateGameSave(data) {
     const save = record(data, "save");
     same(
         integer(required(save, "saveVersion", "save"), "save.saveVersion"),
-        25,
+        26,
         "save.saveVersion",
-        "version 25",
+        "version 26",
     );
 
     const seed = uint32(required(save, "seed", "save"), "save.seed");
@@ -1514,12 +1563,20 @@ export function validateGameSave(data) {
 
     const npcs = array(required(save, "npcs", "save"), "save.npcs");
     const npcIds = new Set();
+    const npcProfiles = new Map();
     npcs.forEach((npcData, index) => {
         const npcPath = `save.npcs[${index}]`;
         const npc = record(npcData, npcPath);
         const id = string(required(npc, "id", npcPath), `${npcPath}.id`, { nonEmpty: true });
         if (npcIds.has(id)) fail(`${npcPath}.id`, `duplicates NPC '${id}'`);
         npcIds.add(id);
+        npcProfiles.set(
+            id,
+            validateRelationshipProfileDefinition(
+                required(npc, "relationshipProfile", npcPath),
+                `${npcPath}.relationshipProfile`,
+            ),
+        );
     });
 
     try {
@@ -1527,7 +1584,7 @@ export function validateGameSave(data) {
     } catch (error) {
         fail("save.chats", error.message);
     }
-    validatePlayer(required(save, "player", "save"), "save.player", npcIds, gameTime);
+    validatePlayer(required(save, "player", "save"), "save.player", npcProfiles, gameTime);
     npcs.forEach((npcData, index) =>
         validateNPC(npcData, `save.npcs[${index}]`, { mapIndex, gameTime }),
     );

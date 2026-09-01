@@ -72,6 +72,18 @@ function npcContext(game, npc) {
     minutesUntilStart: null,
   };
   
+  const relationship = game.player.getRelationshipProfile(
+    npc.id,
+    npc.relationshipProfile,
+  );
+  const relationshipValues = Object.fromEntries(
+    Object.keys(npc.relationshipProfile?.meters || {}).map((meterId) => [
+      meterId,
+      relationship.meters.get(meterId)?.value ??
+        npc.relationshipProfile.meters[meterId].initial,
+    ]),
+  );
+
   return {
     ...evaluatedStats(npc),
     ...pronounValues(npc),
@@ -81,7 +93,7 @@ function npcContext(game, npc) {
     age: npc.age,
     gender: npc.gender,
     home: homeContext(game, npc.homeLocationId),
-    relationship: game.player.getRelationship(npc.id).score,
+    relationship: relationshipValues,
     present: game.getNPCsAtCurrentPosition().includes(npc),
     available: game.getNPCInteractionAccess(npc).allowed,
     schedule,

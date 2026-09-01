@@ -2,7 +2,7 @@ import { SCENE_ACTION_TYPE } from "../../../../data/scene/actions.js";
 import { buildSceneStatus } from "../sceneContext.js";
 import { createChoice } from "../choiceContract.js";
 import { createScene } from "../sceneContract.js";
-import { evaluateWGExpression } from "./expressionEvaluator.js";
+import { evaluateWGExpression, resolveWGPath } from "./expressionEvaluator.js";
 import { createWGRuntimeContext } from "./runtimeContext.js";
 import { renderWGInterpolation, renderWGText } from "./textRuntime.js";
 import { SKILLS } from "../../../../data/player/stats.js";
@@ -199,11 +199,7 @@ function materializeChoice(node, context, { sequenceId = null, idPrefix = "" } =
     disabledReason,
     warning: node.warning,
     effectsPreview: [
-      ...(node.previews || []).map(({ type, amount, label }) => ({
-        type,
-        amount,
-        label,
-      })),
+      ...(node.previews || []).map(({ source: _source, ...preview }) => preview),
       ...materializeVisibleEffects(node.effects),
     ],
     skillChanges: node.check ? [] : materializeSkillChanges(node.effects),

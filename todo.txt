@@ -57,10 +57,8 @@ game systems:
     - missed classes/bad behavior penalty + detention
 
     npcs:
-    - npcs should have their own stats instead of the generic relationship - taylor could have love for example
     - pathfinding: allow bus/car travel for select npcs + travel preferences
     - luce - needs player-follow behavior definition  -afterward can be implemented
-    - allow for arbitrary amnt of relationship meters for npcs - taylor should have love + friendship, each ot be settable/gettable independently, kim should have intimidation instead of relationship etc
 
     player mechanics:
     - smoking/drinking mechanic + addiction? stat penalty?
@@ -69,6 +67,8 @@ game systems:
     - better injury system
 
     - npc timers - every week smth is supposed to happen (i.e) paying rent, if not a flag is set/an event plays/stats change etc. example in timers.js
+
+    -texting: spam messages/groupchats, letting the player leave, sending messages at random intervals/randomly generated users
     
 content:
 - add events/interactions/utility on all unlocked places

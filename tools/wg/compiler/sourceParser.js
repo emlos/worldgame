@@ -7,12 +7,24 @@ import { NPC_REGISTRY } from "../../../src/data/npc/npcs.js";
 import { SKILL_CHECK_DIFFICULTIES } from "../../../src/data/scene/skillChecks.js";
 
 const ID_PATTERN = "[a-z][a-z0-9_.-]*";
+const SIMPLE_ID_PATTERN = "[a-z][a-z0-9_-]*";
+const RELATIONSHIP_TARGET_PATTERN = `(${SIMPLE_ID_PATTERN})\\.(${SIMPLE_ID_PATTERN})`;
 const ID_REGEX = new RegExp(`^${ID_PATTERN}$`);
 const PASSAGE_ID_PATTERN = "[a-z][a-z0-9_-]*";
 const STORY_TARGET_PATTERN = `(?:@exit|@return|@leave-place|\\.${PASSAGE_ID_PATTERN}|${ID_PATTERN})`;
 const TAG_REGEX = /^[a-z][a-z0-9_-]*$/;
 const PATH_REGEX = /^[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)+$/;
 const QUOTED_PATTERN = '"(?:\\\\.|[^"\\\\])*"';
+
+function relationshipMeterDefinition(npcId, meterId, location) {
+  const npc = NPC_REGISTRY.find((entry) => entry.id === npcId);
+  if (!npc) failWG(`Unknown relationship NPC '${npcId}'`, location);
+  const definition = npc.relationshipProfile?.meters?.[meterId];
+  if (!definition) {
+    failWG(`Unknown relationship meter '${npcId}.${meterId}'`, location);
+  }
+  return definition;
+}
 
 function normalizeFile(file) {
   return String(file || "<wg>").replaceAll("\\", "/");
@@ -276,13 +288,15 @@ function parseEffect(text, file, line) {
   }
 
   const relationship = argument.match(
-    new RegExp(`^relationship\\s+(${ID_PATTERN})\\s+([+-]?\\d+(?:\\.\\d+)?)$`),
+    new RegExp(`^relationship\\s+${RELATIONSHIP_TARGET_PATTERN}\\s+([+-]?\\d+(?:\\.\\d+)?)$`),
   );
   if (relationship) {
+    relationshipMeterDefinition(relationship[1], relationship[2], location);
     return {
       op: "relationship",
       npcId: relationship[1],
-      amount: Number(relationship[2]),
+      meterId: relationship[2],
+      amount: Number(relationship[3]),
       source: nodeSource(file, line),
     };
   }
@@ -338,7 +352,14 @@ function parseEffect(text, file, line) {
 
 function defaultChangeLabel(effect) {
   const sign = effect.amount > 0 ? "+" : effect.amount < 0 ? "-" : "";
-  if (effect.op === "relationship") return `${sign}Relationship`;
+  if (effect.op === "relationship") {
+    const definition = relationshipMeterDefinition(
+      effect.npcId,
+      effect.meterId,
+      effect.source,
+    );
+    return `${sign}${definition.label}`;
+  }
   if (effect.op === "money") return `${sign}Money`;
   if (effect.op === "skill") return `${sign}${SKILLS[effect.id].label}`;
   if (effect.op === "stat") return `${sign}${STATS[effect.id].label}`;
@@ -379,6 +400,17 @@ function parseChange(text, file, line) {
       type: effect.op,
       amount: effect.amount,
       label,
+      ...(effect.op === "relationship"
+        ? {
+            npcId: effect.npcId,
+            meterId: effect.meterId,
+            higherIsBetter: relationshipMeterDefinition(
+              effect.npcId,
+              effect.meterId,
+              effect.source,
+            ).higherIsBetter !== false,
+          }
+        : {}),
       direction:
         effect.amount > 0
           ? "increase"
@@ -1117,16 +1149,36 @@ class SceneBodyParser {
         continue;
       } else if (name === "preview") {
         const argument = directiveArgument(text, "preview", location);
-        const preview = argument.match(
-          new RegExp(`^(${ID_PATTERN})\\s+([+-]?\\d+(?:\\.\\d+)?)\\s+(${QUOTED_PATTERN})$`),
+        const relationshipPreview = argument.match(
+          new RegExp(`^relationship\\s+${RELATIONSHIP_TARGET_PATTERN}\\s+([+-]?\\d+(?:\\.\\d+)?)\\s+(${QUOTED_PATTERN})$`),
         );
-        if (!preview) failWG("Malformed @preview", location);
-        choice.previews.push({
-          type: preview[1],
-          amount: Number(preview[2]),
-          label: parseQuotedString(preview[3], location, "Preview label"),
-          source: nodeSource(this.file, line.line),
-        });
+        if (relationshipPreview) {
+          const definition = relationshipMeterDefinition(
+            relationshipPreview[1],
+            relationshipPreview[2],
+            location,
+          );
+          choice.previews.push({
+            type: "relationship",
+            npcId: relationshipPreview[1],
+            meterId: relationshipPreview[2],
+            higherIsBetter: definition.higherIsBetter !== false,
+            amount: Number(relationshipPreview[3]),
+            label: parseQuotedString(relationshipPreview[4], location, "Preview label"),
+            source: nodeSource(this.file, line.line),
+          });
+        } else {
+          const preview = argument.match(
+            new RegExp(`^(${ID_PATTERN})\\s+([+-]?\\d+(?:\\.\\d+)?)\\s+(${QUOTED_PATTERN})$`),
+          );
+          if (!preview) failWG("Malformed @preview", location);
+          choice.previews.push({
+            type: preview[1],
+            amount: Number(preview[2]),
+            label: parseQuotedString(preview[3], location, "Preview label"),
+            source: nodeSource(this.file, line.line),
+          });
+        }
       } else if (name === "effect" || name === "unlock") {
         choice.effects.push(parseSilentDirective(text, this.file, line.line));
       } else if (name === "change") {

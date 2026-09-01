@@ -58,14 +58,14 @@ Kim is sitting at {{npc.kim.dependent}} desk. {{npc.kim.subject | cap}} looks up
 
 
   @choice flirt "Flatter {{npc.kim.object}}" -> .flirt
-    @change relationship kim 5
+    @change relationship kim.affection 5
   @endchoice
 
 
     @passage flirt
 
     "Oh what big teeth you have!" you joke, smiling at {{npc.kim.object}}. Immediately, Kim's smile falters, and {{npc.kim.subject}} looks at you with a mixture of confusion and concern.
-    "What are you talking about?" {{npc.kim.subject}} asks, frowning. "That's not very flattering." @change relationship kim -10
+    "What are you talking about?" {{npc.kim.subject}} asks, frowning. "That's not very flattering." @change relationship kim.intimidation 10
 
     {{npc.kim.subject | cap}} keeps looking straight at you, unsmiling this time. You avert your eyes.
     

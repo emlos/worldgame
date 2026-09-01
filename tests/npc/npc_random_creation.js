@@ -143,11 +143,19 @@ function init() {
   byId("stats").append(el("h2", { html: "Stats" }));
   byId("stats").append(table(statRows, ["Stat", "Base", "Computed Value"]));
 
-  // Relationships (with other NPCs)
-  const relRows = [...npc.relationships.values()].map((r) => [r.npcId, String(r.met), String(r.score)]);
+  // Player-facing relationship profile definitions
+  const relRows = Object.entries(npc.relationshipProfile.meters).map(([id, definition]) => [
+    id,
+    definition.label,
+    String(definition.initial),
+    definition.higherIsBetter ? "higher" : "lower",
+  ]);
   byId("relationships").innerHTML = "";
-  byId("relationships").append(el("h2", { html: "Relationships" }));
-  byId("relationships").append(table(relRows.length ? relRows : [["-", "-", "-"]], ["NPC ID", "Met", "Score (0..100)"]));
+  byId("relationships").append(el("h2", { html: "Relationship profile" }));
+  byId("relationships").append(table(
+    relRows.length ? relRows : [["-", "-", "-", "-"]],
+    ["Meter", "Label", "Initial", "Preferred direction"],
+  ));
 
   // Clothing
   const clothesRows = [...npc.clothing.entries()].map(([slot, item]) => [

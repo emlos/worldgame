@@ -200,7 +200,7 @@ The students fill the classroom and take their seats. The teacher begins the les
   
   @when npc.taylor.present
   @effect attendance english 1
-  @change relationship taylor 1
+  @change relationship taylor.friendship 1
 @endchoice
 
 @choice english-1-study "Study hard" -> .segment-2
@@ -222,7 +222,7 @@ The teacher continues the lesson, and you take notes diligently. The class is go
   @event-pool school.class.english
   @when npc.taylor.present
   @effect attendance english 1
-  @change relationship taylor 1
+  @change relationship taylor.friendship 1
 @endchoice
 
 @choice english-2-study "Study hard" -> .segment-3
@@ -244,7 +244,7 @@ The students look bored as the teacher wraps up the lesson. You have a few minut
   @event-pool school.class.english
   @when npc.taylor.present
   @effect attendance english 1
-  @change relationship taylor 1
+  @change relationship taylor.friendship 1
 @endchoice
 
 @choice english-3-study "Study hard" -> @exit
@@ -274,7 +274,7 @@ The first segment of Mathematics class begins.
   @time-until school.nextBoundaryAt
   @when npc.taylor.present
   @effect attendance math 1
-  @change relationship taylor 1
+  @change relationship taylor.friendship 1
 @endchoice
 
 @choice math-1-study "Study hard" -> .segment-2
@@ -296,7 +296,7 @@ Mathematics class continues into its second segment.
   @time-until school.nextBoundaryAt
   @when npc.taylor.present
   @effect attendance math 1
-  @change relationship taylor 1
+  @change relationship taylor.friendship 1
 @endchoice
 
 @choice math-2-study "Study hard" -> .segment-3
@@ -318,7 +318,7 @@ The final segment of Mathematics class gets underway.
   @time-until school.nextBoundaryAt
   @when npc.taylor.present
   @effect attendance math 1
-  @change relationship taylor 1
+  @change relationship taylor.friendship 1
 @endchoice
 
 @choice math-3-study "Study hard" -> @exit
@@ -346,7 +346,7 @@ The first segment of History class begins.
   @event-pool school.class.history
   @when npc.taylor.present
   @effect attendance history 1
-  @change relationship taylor 1
+  @change relationship taylor.friendship 1
 @endchoice
 
 @choice history-1-study "Study hard" -> .segment-2
@@ -368,7 +368,7 @@ History class continues into its second segment.
   @event-pool school.class.history
   @when npc.taylor.present
   @effect attendance history 1
-  @change relationship taylor 1
+  @change relationship taylor.friendship 1
 @endchoice
 
 @choice history-2-study "Study hard" -> .segment-3
@@ -390,7 +390,7 @@ The final segment of History class gets underway.
   @event-pool school.class.history
   @when npc.taylor.present
   @effect attendance history 1
-  @change relationship taylor 1
+  @change relationship taylor.friendship 1
 @endchoice
 
 @choice history-3-study "Study hard" -> @exit
@@ -419,7 +419,7 @@ The first segment of Science class begins.
   @event-pool school.class.science
   @when npc.taylor.present
   @effect attendance science 1
-  @change relationship taylor 1
+  @change relationship taylor.friendship 1
 @endchoice
 
 @choice science-1-study "Study hard" -> .segment-2
@@ -441,7 +441,7 @@ Science class continues into its second segment.
   @event-pool school.class.science
   @when npc.taylor.present
   @effect attendance science 1
-  @change relationship taylor 1
+  @change relationship taylor.friendship 1
 @endchoice
 
 @choice science-2-study "Study hard" -> .segment-3
@@ -463,7 +463,7 @@ The final segment of Science class gets underway.
   @event-pool school.class.science
   @when npc.taylor.present
   @effect attendance science 1
-  @change relationship taylor 1
+  @change relationship taylor.friendship 1
 @endchoice
 
 @choice science-3-study "Study hard" -> @exit
@@ -492,7 +492,7 @@ The first segment of Art class begins.
   @event-pool school.class.art
   @when npc.taylor.present
   @effect attendance art 1
-  @change relationship taylor 1
+  @change relationship taylor.friendship 1
 @endchoice
 
 @choice art-1-study "Study hard" -> .segment-2
@@ -514,7 +514,7 @@ Art class continues into its second segment.
   @event-pool school.class.art
   @when npc.taylor.present
   @effect attendance art 1
-  @change relationship taylor 1
+  @change relationship taylor.friendship 1
 @endchoice
 
 @choice art-2-study "Study hard" -> .segment-3
@@ -537,7 +537,7 @@ The final segment of Art class gets underway.
   @event-pool school.class.art
   @when npc.taylor.present
   @effect attendance art 1
-  @change relationship taylor 1
+  @change relationship taylor.friendship 1
 @endchoice
 
 @choice art-3-study "Study hard" -> @exit
@@ -567,7 +567,7 @@ The first segment of Physical Education begins.
   @event-pool school.class.physical-education
   @when npc.taylor.present
   @effect attendance physical_education 1
-  @change relationship taylor 1
+  @change relationship taylor.friendship 1
 @endchoice
 
 @choice physical-education-1-study "Train hard" -> .segment-2
@@ -590,7 +590,7 @@ Physical Education continues into its second segment.
   @event-pool school.class.physical-education
   @when npc.taylor.present
   @effect attendance physical_education 1
-  @change relationship taylor 1
+  @change relationship taylor.friendship 1
 @endchoice
 
 @choice physical-education-2-study "Train hard" -> .segment-3
@@ -613,7 +613,7 @@ The final segment of Physical Education gets underway.
   @event-pool school.class.physical-education
   @when npc.taylor.present
   @effect attendance physical_education 1
-  @change relationship taylor 1
+  @change relationship taylor.friendship 1
 @endchoice
 
 @choice physical-education-3-study "Train hard" -> @exit
@@ -650,7 +650,7 @@ The few students in the cafeteria are eating quietly. It seems kind of empty.
   @response
     You and Taylor get a snack from the vending machine. It's a nice little break before class starts.
   @endresponse
-  @change relationship taylor 3
+  @change relationship taylor.friendship 3
   @effect daily-flag school_before_taylor true
 @endchoice
 

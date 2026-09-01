@@ -478,20 +478,46 @@ function makePhoneRelationshipEntry(entry) {
   const name = document.createElement("h3");
   name.textContent = entry.name;
 
-  const scoreRow = document.createElement("p");
-  scoreRow.className = "phone-relationship-score";
+  const meters = document.createElement("div");
+  meters.className = "phone-relationship-meters";
+  for (const meter of entry.meters) {
+    const outcome = outcomeForRelationship(meter.value, {
+      higherIsBetter: meter.higherIsBetter,
+    });
+    const row = document.createElement("div");
+    row.className = "phone-relationship-meter";
+    row.title = meter.description;
 
-  const scoreLabel = document.createElement("span");
-  scoreLabel.textContent = "Score:";
+    const header = document.createElement("div");
+    header.className = "phone-relationship-meter-header";
+    const label = document.createElement("span");
+    label.textContent = meter.label;
+    const value = document.createElement("output");
+    value.className = "phone-relationship-meter-value";
+    value.dataset.outcome = outcome;
+    value.textContent = formatRelationshipScore(meter.value);
+    value.setAttribute("aria-label", `${entry.name} ${meter.label} value`);
+    header.append(label, value);
 
-  const scoreValue = document.createElement("output");
-  scoreValue.className = "phone-relationship-score-value";
-  scoreValue.dataset.outcome = outcomeForRelationship(entry.score);
-  scoreValue.textContent = formatRelationshipScore(entry.score);
-  scoreValue.setAttribute("aria-label", `${entry.name} relationship score`);
+    const bar = document.createElement("progress");
+    bar.className = "phone-relationship-meter-bar";
+    bar.min = meter.min;
+    bar.max = meter.max;
+    bar.value = meter.value;
+    bar.dataset.outcome = outcome;
+    bar.setAttribute("aria-label", `${entry.name} ${meter.label}`);
+    row.append(header, bar);
+    meters.append(row);
+  }
 
-  scoreRow.append(scoreLabel, scoreValue);
-  details.append(name, scoreRow);
+  if (!entry.meters.length) {
+    const empty = document.createElement("p");
+    empty.className = "phone-relationship-meters-empty";
+    empty.textContent = "No known profile details.";
+    meters.append(empty);
+  }
+
+  details.append(name, meters);
   item.append(avatar, details);
   return item;
 }

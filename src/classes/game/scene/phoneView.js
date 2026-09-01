@@ -24,13 +24,34 @@ export function buildPhoneRemindersView(game) {
 /** Build the read-only list of met NPCs shown by the phone's Relationships app. */
 export function buildPhoneRelationshipsView(game) {
   return [...game.npcs.values()]
-    .filter((npc) => game.player.getRelationship(npc.id).met)
-    .map((npc) => ({
-      id: npc.id,
-      name: npc.name,
-      iconPath: npc.meta?.iconPath ?? null,
-      score: game.player.getRelationship(npc.id).score,
-    }))
+    .map((npc) => {
+      const profile = game.player.getRelationshipProfile(
+        npc.id,
+        npc.relationshipProfile,
+      );
+      return {
+        id: npc.id,
+        name: npc.name,
+        iconPath: npc.meta?.iconPath ?? null,
+        met: profile.met,
+        meters: Object.entries(npc.relationshipProfile?.meters || {})
+          .map(([id, definition]) => {
+            const state = profile.meters.get(id);
+            return {
+              id,
+              label: definition.label,
+              description: definition.description,
+              value: state?.value ?? definition.initial,
+              min: 0,
+              max: 100,
+              higherIsBetter: definition.higherIsBetter,
+              revealed: state?.revealed ?? definition.initiallyVisible,
+            };
+          })
+          .filter((meter) => meter.revealed),
+      };
+    })
+    .filter((entry) => entry.met)
     .sort((left, right) => left.name.localeCompare(right.name));
 }
 

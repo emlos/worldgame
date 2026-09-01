@@ -1,8 +1,4 @@
 import { STATS } from "../../data/player/stats.js";
-import {
-  RELATIONSHIP_MAX,
-  RELATIONSHIP_MIN,
-} from "../../shared/classes/relationship.js";
 
 export const OUTCOME = Object.freeze({
   VERY_GOOD: "very-good",
@@ -51,17 +47,18 @@ export function outcomeForRange(
   return OUTCOME.DIRE;
 }
 
-export function outcomeForRelationship(score) {
-  return outcomeForRange(score, RELATIONSHIP_MIN, RELATIONSHIP_MAX);
+export function outcomeForRelationship(score, { higherIsBetter = true } = {}) {
+  return outcomeForRange(score, 0, 100, { lowerIsBetter: !higherIsBetter });
 }
 
 /** Colour feedback by whether a change helps, independently of its label. */
-export function outcomeForChange({ type, statId, amount }) {
+export function outcomeForChange({ type, statId, amount, higherIsBetter }) {
   if (!Number.isFinite(amount) || amount === 0) return OUTCOME.OK;
 
   // @change identifies its stat separately; @preview uses the stat as its type.
   const definition = STATS[type === "stat" ? statId : type];
-  const beneficial = definition?.higherIsBetter === false ? amount < 0 : amount > 0;
+  const preferredDirection = higherIsBetter ?? definition?.higherIsBetter;
+  const beneficial = preferredDirection === false ? amount < 0 : amount > 0;
   return beneficial ? OUTCOME.VERY_GOOD : OUTCOME.BAD;
 }
 

@@ -69,7 +69,7 @@
 
   @choice discussion-taylor "Compare ideas with Taylor" -> .taylor
     @when npc.taylor.present
-    @change relationship taylor 1
+    @change relationship taylor.friendship 1
   @endchoice
 
   @passage argued
@@ -139,7 +139,7 @@
 
   @choice reading-taylor "Draw attention to taylor" -> .taylor
     @when npc.taylor.present
-    @change relationship taylor -1
+    @change relationship taylor.friendship -1
   @endchoice
 
   @passage steady
@@ -515,11 +515,11 @@
   You and Taylor divide the evidence. Taylor spots a contradiction in a witness account while you connect it to the wider political situation.
 
   @choice trial-follow-taylor "Let Taylor present the contradiction" -> .shared-verdict
-    @change relationship taylor 2
+    @change relationship taylor.friendship 2
   @endchoice
 
   @choice trial-take-point "Use Taylor's discovery in your own argument" -> .solo-verdict
-    @change relationship taylor -1
+    @change relationship taylor.friendship -1
   @endchoice
 
   @passage honest-recovery
@@ -530,7 +530,7 @@
 
   @passage shared-verdict
 
-  You and Taylor deliver the conclusion together. Your case does not answer every question, but it is balanced and convincing.  @change grade history 1  @change relationship taylor 1
+  You and Taylor deliver the conclusion together. Your case does not answer every question, but it is balanced and convincing.  @change grade history 1  @change relationship taylor.friendship 1
 
   @next -> @return
 
@@ -594,7 +594,7 @@
 
   @passage taylor-notes
 
-  Taylor points to the language each author uses. Together, you separate what both accounts agree happened from the motives each one assigns.  @change relationship taylor 1  @change grade history 1
+  Taylor points to the language each author uses. Together, you separate what both accounts agree happened from the motives each one assigns.  @change relationship taylor.friendship 1  @change grade history 1
 
   @next -> @return
 
@@ -606,7 +606,7 @@
 
   @passage shared-clue
 
-  Taylor's eyes widen when she sees the timestamp. {{npc.taylor.subject | cap}} encourages you to present it, then backs up your explanation when the teacher questions it.  @change relationship taylor 2  @change grade history 1
+  Taylor's eyes widen when she sees the timestamp. {{npc.taylor.subject | cap}} encourages you to present it, then backs up your explanation when the teacher questions it.  @change relationship taylor.friendship 2  @change grade history 1
 
   @next -> @return
 @endsequence
@@ -653,7 +653,7 @@
 
   @passage taylor-plan
 
-  Taylor proposes sending a secret convoy through the blockade. You help {{npc.taylor.object}} answer the group's objections and refine the route.  @change relationship taylor 2
+  Taylor proposes sending a secret convoy through the blockade. You help {{npc.taylor.object}} answer the group's objections and refine the route.  @change relationship taylor.friendship 2
 
   @next -> .consequences
 
@@ -706,7 +706,7 @@
 
   @passage map-taylor
 
-  You trace the borders while Taylor reads the legend. When your interpretations differ, you combine them into a stronger explanation.  @change relationship taylor 1  @change grade history 1
+  You trace the borders while Taylor reads the legend. When your interpretations differ, you combine them into a stronger explanation.  @change relationship taylor.friendship 1  @change grade history 1
 
   @next -> @return
 @endsequence
@@ -803,7 +803,7 @@
 
   @passage taylor-stabilizes
 
-  Taylor follows your instructions while you monitor the foam. Together you bring the reaction under control just before it spills.  @change relationship taylor 2  @change grade science 1
+  Taylor follows your instructions while you monitor the foam. Together you bring the reaction under control just before it spills.  @change relationship taylor.friendship 2  @change grade science 1
 
   @next -> @return
 
@@ -866,7 +866,7 @@
 
   @passage sample-taylor
 
-  Taylor records density while you test hardness. Your independent results point to the same mineral.  @change relationship taylor 1  @change grade science 1
+  Taylor records density while you test hardness. Your independent results point to the same mineral.  @change relationship taylor.friendship 1  @change grade science 1
 
   @next -> @return
 
@@ -934,7 +934,7 @@
 
   @passage bridge-taylor
 
-  Taylor sketches a daring arch while you translate it into careful folds. The finished bridge sways under load but holds.  @change relationship taylor 2  @change grade science 1
+  Taylor sketches a daring arch while you translate it into careful folds. The finished bridge sways under load but holds.  @change relationship taylor.friendship 2  @change grade science 1
 
   @next -> @return
 
@@ -993,7 +993,7 @@
 
   @passage result-taylor
 
-  Taylor finds a unit conversion copied incorrectly from the board. Correcting it makes every measurement fall into place.  @change relationship taylor 2  @change grade science 1
+  Taylor finds a unit conversion copied incorrectly from the board. Correcting it makes every measurement fall into place.  @change relationship taylor.friendship 2  @change grade science 1
 
   @next -> @return
 @endsequence
@@ -1090,7 +1090,7 @@
   You smooth every awkward line and exaggerate the most appealing features. The result is attractive, although it resembles an advertisement more than a person.  @change grade art 1
 
   @if npc.taylor.present
-  Taylor seems pleased at first, then studies the drawing as if wondering what you chose not to include.  @change relationship taylor 1
+  Taylor seems pleased at first, then studies the drawing as if wondering what you chose not to include.  @change relationship taylor.friendship 1
   @endif
 
   @next -> @return
@@ -1107,7 +1107,7 @@
 
   @passage portrait-private
 
-  Taylor studies the portrait quietly before smiling. "You make me look like I'm thinking something clever," {{npc.taylor.subject}} says.  @change relationship taylor 2
+  Taylor studies the portrait quietly before smiling. "You make me look like I'm thinking something clever," {{npc.taylor.subject}} says.  @change relationship taylor.friendship 2
 
   @next -> @return
 
@@ -1119,13 +1119,13 @@
 
   @passage caricature-reveal
 
-  Taylor stares at the enormous grin, then breaks the pose by laughing. The teacher calls it expressive, if not especially subtle.  @change relationship taylor 2  @change grade art 1
+  Taylor stares at the enormous grin, then breaks the pose by laughing. The teacher calls it expressive, if not especially subtle.  @change relationship taylor.friendship 2  @change grade art 1
 
   @next -> @return
 
   @passage caricature-hidden
 
-  Taylor catches a glimpse before you cover the page. {{npc.taylor.subject | cap}} spends the rest of the exercise trying to see what you drew.  @change relationship taylor -1  @change stat stress 2
+  Taylor catches a glimpse before you cover the page. {{npc.taylor.subject | cap}} spends the rest of the exercise trying to see what you drew.  @change relationship taylor.friendship -1  @change stat stress 2
 
   @next -> @return
 @endsequence
@@ -1198,13 +1198,13 @@
 
   @passage critique-taylor-thanks
 
-  You mark Taylor's suggestion beside your sketch. {{npc.taylor.subject | cap}} looks relieved that you took the honesty well.  @change relationship taylor 2  @change grade art 1
+  You mark Taylor's suggestion beside your sketch. {{npc.taylor.subject | cap}} looks relieved that you took the honesty well.  @change relationship taylor.friendship 2  @change grade art 1
 
   @next -> @return
 
   @passage critique-taylor-dismissed
 
-  Taylor shrugs and stops offering suggestions. A few minutes later, the teacher identifies the same problem.  @change relationship taylor -2  @change grade art -1
+  Taylor shrugs and stops offering suggestions. A few minutes later, the teacher identifies the same problem.  @change relationship taylor.friendship -2  @change grade art -1
 
   @next -> @return
 @endsequence
@@ -1255,7 +1255,7 @@
 
   @passage mural-taylor
 
-  Taylor proposes turning the mismatched borders into a river winding through the city. You extend the idea across both sections.  @change relationship taylor 2  @change grade art 1
+  Taylor proposes turning the mismatched borders into a river winding through the city. You extend the idea across both sections.  @change relationship taylor.friendship 2  @change grade art 1
 
   @next -> @return
 
@@ -1305,7 +1305,7 @@
   You tilt the paper and guide the stain through the background. What looked like damage becomes a storm behind the original subject.  @change grade art 2
 
   @if npc.taylor.present
-  Taylor looks from the altered drawing to you with astonished relief.  @change relationship taylor 2
+  Taylor looks from the altered drawing to you with astonished relief.  @change relationship taylor.friendship 2
   @endif
 
   @next -> @return
@@ -1315,7 +1315,7 @@
   Your added marks muddy the remaining clean areas. The teacher finally separates the soaked page from the table and suggests starting again.  @change grade art -1  @change stat stress 3
 
   @if npc.taylor.present
-  Taylor tries not to look annoyed, without much success.  @change relationship taylor -1
+  Taylor tries not to look annoyed, without much success.  @change relationship taylor.friendship -1
   @endif
 
   @next -> @return
@@ -1328,7 +1328,7 @@
 
   @passage ruined-taylor
 
-  You give Taylor your clean paper and help reconstruct the composition from memory. {{npc.taylor.subject | cap}} relaxes once the new version begins taking shape.  @change relationship taylor 2  @change grade art 1
+  You give Taylor your clean paper and help reconstruct the composition from memory. {{npc.taylor.subject | cap}} relaxes once the new version begins taking shape.  @change relationship taylor.friendship 2  @change grade art 1
 
   @next -> @return
 @endsequence
@@ -1459,13 +1459,13 @@
 
   @passage dodgeball-sacrifice
 
-  The ball strikes your shoulder instead of Taylor. {{npc.taylor.subject | cap}} looks guilty until you point out that {{npc.taylor.subject }} is still in the game.  @change relationship taylor 2  @change stat health -1
+  The ball strikes your shoulder instead of Taylor. {{npc.taylor.subject | cap}} looks guilty until you point out that {{npc.taylor.subject }} is still in the game.  @change relationship taylor.friendship 2  @change stat health -1
 
   @next -> @return
 
   @passage dodgeball-taylor-shot
 
-  Taylor hesitates, throws, and catches the final opponent on the ankle. {{npc.taylor.subject | cap}} turns to you in delighted disbelief.  @change relationship taylor 2  @change grade physical_education 1
+  Taylor hesitates, throws, and catches the final opponent on the ankle. {{npc.taylor.subject | cap}} turns to you in delighted disbelief.  @change relationship taylor.friendship 2  @change grade physical_education 1
 
   @next -> @return
 @endsequence
@@ -1527,7 +1527,7 @@
 
   @passage obstacle-taylor
 
-  Taylor starts cautiously, then gains confidence when you match {{npc.taylor.dependent}} rhythm instead of rushing ahead.  @change relationship taylor 2
+  Taylor starts cautiously, then gains confidence when you match {{npc.taylor.dependent}} rhythm instead of rushing ahead.  @change relationship taylor.friendship 2
 
   @next -> .obstacle-final
 
@@ -1558,7 +1558,7 @@
   You step back onto the bench and offer a hand. Both of you cross together a few seconds later.  @change grade physical_education 1
 
   @if npc.taylor.present
-  Taylor squeezes your hand before letting go.  @change relationship taylor 2
+  Taylor squeezes your hand before letting go.  @change relationship taylor.friendship 2
   @endif
 
   @next -> @return
@@ -1568,7 +1568,7 @@
   You preserve your own time, but your pair's result does not count until your partner finishes.  @change grade physical_education -1
 
   @if npc.taylor.present
-  Taylor crosses without looking at you.  @change relationship taylor -1
+  Taylor crosses without looking at you.  @change relationship taylor.friendship -1
   @endif
 
   @next -> @return
@@ -1634,7 +1634,7 @@
 
   @passage relay-taylor
 
-  You and Taylor rehearse the signal under your breath. When {{npc.taylor.subject}} calls it, the handoff feels effortless.  @change relationship taylor 2  @change grade physical_education 1
+  You and Taylor rehearse the signal under your breath. When {{npc.taylor.subject}} calls it, the handoff feels effortless.  @change relationship taylor.friendship 2  @change grade physical_education 1
 
   @next -> .relay-clean
 
@@ -1661,7 +1661,7 @@
   The argument continues after the race. The teacher makes both of you repeat handoff drills while everyone else rests.  @change stat stress 2  @change grade physical_education -1
 
   @if npc.taylor.present
-  Taylor is unimpressed by how quickly you assigned blame.  @change relationship taylor -1
+  Taylor is unimpressed by how quickly you assigned blame.  @change relationship taylor.friendship -1
   @endif
 
   @next -> @return
@@ -1739,13 +1739,13 @@
 
   @passage rough-taylor-cared
 
-  Taylor admits {{npc.taylor.subject}} would rather sit out than risk getting hurt. You walk to the sideline together.  @change relationship taylor 2  @change skill resolve 0.1
+  Taylor admits {{npc.taylor.subject}} would rather sit out than risk getting hurt. You walk to the sideline together.  @change relationship taylor.friendship 2  @change skill resolve 0.1
 
   @next -> @return
 
   @passage rough-taylor-risk
 
-  You draw the student's attention and spend the next play fending off an unnecessarily hard challenge.  @change relationship taylor 1  @change stat health -1  @change grade physical_education 1
+  You draw the student's attention and spend the next play fending off an unnecessarily hard challenge.  @change relationship taylor.friendship 1  @change stat health -1  @change grade physical_education 1
 
   @next -> @return
 @endsequence
