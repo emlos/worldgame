@@ -34,16 +34,15 @@ Kim is sitting at {{npc.kim.dependent}} desk. {{npc.kim.subject | cap}} looks up
 
   @choice has-money "Pay (800£)" -> .pay
     @when player.money >= 800
+    @change money -800
     @endchoice
 
   @choice no-money "Explain the situation" -> .no-money
-    @when player.money < 800
     @endchoice
 
   @passage pay
 
         You hand over the 800£ to {{npc.kim.subject}}. {{npc.kim.subject | cap}} takes it and puts it in a drawer.
-        @change money -800
 
         "Perfect!" {{npc.kim.subject}} says. "You are all caught up on your rent. Please make sure to pay on time in the future."  @change stat stress 5
 
@@ -75,9 +74,13 @@ Kim is sitting at {{npc.kim.dependent}} desk. {{npc.kim.subject | cap}} looks up
 
     @passage no-money
 
+    @if player.money < 800
     "I don't have the money to pay you right now," you say, trying to keep your voice calm. "Is there any way I can work something out with you?"
+    @else
+    "This seems steep," you say, trying to keep your voice calm. "Is there any way I can work something out with you?"
+    @endif
 
-    {{npc.kim.subject | cap}} looks at you for a moment, then smiles. "I understand that things can be difficult sometimes. However, you still owe me the rent. I can give you a few days to come up with the money, but if you don't pay me by then, I will have to take further action." @change stat stress 10
+    {{npc.kim.subject | cap}} looks at you for a moment, then smiles. "I understand that things can be difficult sometimes. However, the law is clear. I can give you a few days to come up with the money, but if you don't pay me by then, I will have to take further action." @change stat stress 10
 
     @next -> .leave
 

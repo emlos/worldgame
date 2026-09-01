@@ -387,6 +387,8 @@
 
   @passage incorrect
   You make a mistake in your calculations and the teacher corrects you. You feel embarrassed, but you learn from the experience.  @change grade math -2
+
+   @next -> @return
   
   @passage failure
   You stay at your seat, hoping the teacher will call on someone else. The teacher eventually gives up and moves on, but you feel a bit embarrassed for not participating.

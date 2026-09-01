@@ -18,6 +18,7 @@ wg script:
     ex: passing out from energy hitting 0
 - vscode highlighting: @br should be accepted in @response/@endresponse blocks - compiler complies corrently, just the highlighting needs adjusting
 - inline @if/@elseif/@else/@endif
+- variable interpolation in choices/next directives
 
 game systems:
     player stats:
