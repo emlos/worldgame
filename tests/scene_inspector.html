@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Developer sandbox for inspecting Worldgame WG scenes and sequences."
+    />
+    <title>WG Scene Inspector</title>
+    <link rel="stylesheet" href="../src/ui/browser/styles.css" />
+    <link rel="stylesheet" href="./scene_inspector.css" />
+  </head>
+  <body class="inspector-page">
+    <header class="inspector-topbar">
+      <div>
+        <p class="inspector-eyebrow">Worldgame developer tools</p>
+        <h1>Scene Inspector</h1>
+        <p>Run authored WG content against a disposable, editable game state.</p>
+      </div>
+      <a class="inspector-back-link" href="../index.html">← Test index</a>
+    </header>
+
+    <main class="inspector-layout">
+      <aside class="inspector-panel inspector-controls" aria-label="Inspector controls">
+        <section class="inspector-section">
+          <div class="inspector-section-heading">
+            <div>
+              <p class="inspector-step">1</p>
+              <h2>Choose content</h2>
+            </div>
+            <output id="catalog-count" class="inspector-count"></output>
+          </div>
+
+          <label class="inspector-field">
+            <span>Filter</span>
+            <input
+              id="target-filter"
+              type="search"
+              autocomplete="off"
+              placeholder="Kim, school, rent…"
+            />
+          </label>
+
+          <label class="inspector-field">
+            <span>Scene or sequence</span>
+            <select id="target-select" size="10" aria-describedby="target-summary"></select>
+          </label>
+
+          <p id="target-summary" class="inspector-help"></p>
+          <div class="inspector-actions inspector-actions--primary">
+            <button id="start-target" class="inspector-button inspector-button--primary" type="button">
+              Start selected
+            </button>
+            <button id="restart-target" class="inspector-button" type="button">
+              Restart target
+            </button>
+          </div>
+          <button id="new-sandbox" class="inspector-text-button" type="button">
+            New clean sandbox
+          </button>
+        </section>
+
+        <section class="inspector-section" aria-labelledby="player-state-heading">
+          <div class="inspector-section-heading">
+            <div>
+              <p class="inspector-step">2</p>
+              <h2 id="player-state-heading">Player state</h2>
+            </div>
+          </div>
+          <p class="inspector-help">
+            Values update choice availability when applied. Restart restores the
+            pre-entry state, uses your edits as starting values, and reruns entry effects.
+          </p>
+          <div id="player-fields" class="inspector-value-groups"></div>
+        </section>
+
+        <details class="inspector-section inspector-details" open>
+          <summary>Flags</summary>
+          <div id="referenced-flags"></div>
+          <form id="add-flag-form" class="inspector-inline-form">
+            <label>
+              <span class="visually-hidden">Flag type</span>
+              <select id="flag-kind">
+                <option value="flag">Game flag</option>
+                <option value="daily">Daily flag</option>
+              </select>
+            </label>
+            <label class="inspector-grow">
+              <span class="visually-hidden">Flag ID</span>
+              <input id="flag-name" required placeholder="flag_id" autocomplete="off" />
+            </label>
+            <button class="inspector-button" type="submit">Add</button>
+          </form>
+          <div id="active-flags" class="inspector-chip-list"></div>
+        </details>
+
+        <details class="inspector-section inspector-details">
+          <summary>Relationships</summary>
+          <div id="relationship-fields" class="inspector-compact-fields"></div>
+        </details>
+
+        <details class="inspector-section inspector-details">
+          <summary>Story state JSON</summary>
+          <label class="inspector-field">
+            <span class="visually-hidden">Story state JSON</span>
+            <textarea id="story-json" rows="9" spellcheck="false"></textarea>
+          </label>
+          <button id="apply-story-json" class="inspector-button" type="button">
+            Apply story state
+          </button>
+        </details>
+      </aside>
+
+      <section class="inspector-preview-column" aria-label="Rendered scene">
+        <header class="inspector-preview-header">
+          <div>
+            <p id="active-kind" class="inspector-eyebrow">No target running</p>
+            <h2 id="active-target">Select content to begin</h2>
+          </div>
+          <div class="inspector-preview-tools">
+            <div id="scene-status" class="inspector-scene-status"></div>
+            <button id="undo-choice" class="inspector-text-button" type="button" disabled>
+              Undo last choice
+            </button>
+          </div>
+        </header>
+        <div id="inspector-notice" class="inspector-notice" role="status" aria-live="polite"></div>
+        <article id="scene-preview" class="inspector-scene-preview"></article>
+      </section>
+
+      <aside class="inspector-panel inspector-diagnostics" aria-label="Runtime diagnostics">
+        <section class="inspector-section">
+          <div class="inspector-section-heading">
+            <div>
+              <p class="inspector-step">3</p>
+              <h2>Runtime</h2>
+            </div>
+          </div>
+          <dl id="runtime-summary" class="inspector-runtime-summary"></dl>
+        </section>
+
+        <details class="inspector-section inspector-details" open>
+          <summary>Current frame</summary>
+          <pre id="current-frame" class="inspector-json"></pre>
+        </details>
+
+        <details class="inspector-section inspector-details">
+          <summary>WG expression context</summary>
+          <pre id="runtime-context" class="inspector-json"></pre>
+        </details>
+
+        <details class="inspector-section inspector-details">
+          <summary>Rendered scene contract</summary>
+          <pre id="scene-contract" class="inspector-json"></pre>
+        </details>
+
+        <section class="inspector-section inspector-trace-section">
+          <div class="inspector-section-heading">
+            <h2>Action trace</h2>
+            <button id="clear-trace" class="inspector-text-button" type="button">Clear</button>
+          </div>
+          <ol id="action-trace" class="inspector-trace"></ol>
+        </section>
+      </aside>
+    </main>
+
+    <template id="value-field-template">
+      <label class="inspector-number-field">
+        <span></span>
+        <input type="number" />
+      </label>
+    </template>
+
+    <script type="module" src="./scene_inspector.js"></script>
+  </body>
+</html>
