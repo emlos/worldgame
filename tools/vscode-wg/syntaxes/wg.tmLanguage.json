@@ -23,6 +23,7 @@
     { "include": "#unlock-directive" },
     { "include": "#property-directives" },
     { "include": "#block-directives" },
+    { "include": "#inline-conditionals" },
     { "include": "#interpolation" },
     { "include": "#inline-change" },
     { "include": "#prose-break" },
@@ -299,6 +300,32 @@
         {
           "name": "keyword.control.block.wg",
           "match": "^\\s*(@(?:else|endif|endentry|endreminder|endlocation|endchoice|endchoicegroup|endsequence|success|endsuccess|failure|endfailure|endcheck|response|endresponse|endrandom|onenter|endonenter))\\s*$"
+        }
+      ]
+    },
+    "inline-conditionals": {
+      "patterns": [
+        {
+          "name": "meta.inline-conditional.wg",
+          "begin": "(\\{\\{)(\\s*)(@(if|elseif))\\b",
+          "beginCaptures": {
+            "1": { "name": "punctuation.section.inline-conditional.begin.wg" },
+            "3": { "name": "keyword.control.conditional.wg" }
+          },
+          "end": "\\}\\}",
+          "endCaptures": {
+            "0": { "name": "punctuation.section.inline-conditional.end.wg" }
+          },
+          "patterns": [{ "include": "#expression" }]
+        },
+        {
+          "name": "meta.inline-conditional.wg",
+          "match": "(\\{\\{)(\\s*)(@(else|endif))(\\s*)(\\}\\})",
+          "captures": {
+            "1": { "name": "punctuation.section.inline-conditional.begin.wg" },
+            "3": { "name": "keyword.control.conditional.wg" },
+            "6": { "name": "punctuation.section.inline-conditional.end.wg" }
+          }
         }
       ]
     },

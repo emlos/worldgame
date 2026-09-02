@@ -29,25 +29,61 @@ function fail(message, source) {
   throw new WGMaterializationError(`${message}${sourceSuffix(source)}`);
 }
 
-function renderParagraph(node, context, { allowChanges = false } = {}) {
+function renderParagraph(
+  node,
+  context,
+  { allowChanges = false, resolution = null } = {},
+) {
   if (!Array.isArray(node.parts)) fail("Paragraph parts must be an array", node.source);
-  return node.parts
-    .map((part) => {
+  const renderParts = (parts) => {
+    const rendered = [];
+    for (const part of parts) {
       if (part?.type === "text" && typeof part.value === "string") {
-        return { type: "text", text: part.value };
+        rendered.push({ type: "text", text: part.value });
+        continue;
       }
       if (part?.type === "interpolation") {
-        return {
+        rendered.push({
           type: "text",
           text: renderWGInterpolation(part, context, node.source),
-        };
+        });
+        continue;
       }
-      if (part?.type === "break") return { type: "break" };
+      if (part?.type === "break") {
+        rendered.push({ type: "break" });
+        continue;
+      }
       if (part?.type === "change" && allowChanges) {
-        return { type: "change", change: materializeChangeFeedback(part.effect) };
+        rendered.push({
+          type: "change",
+          change: materializeChangeFeedback(part.effect),
+        });
+        continue;
+      }
+      if (part?.type === "inline-if") {
+        const index = resolution
+          ? resolvedDecision(part, { resolution })
+          : (part.branches || []).findIndex((branch) =>
+              Boolean(evaluateWGExpression(branch.test, context)),
+            );
+        if (
+          !Number.isInteger(index) ||
+          index < -1 ||
+          index >= (part.branches || []).length
+        ) {
+          fail("Inline conditional has an invalid branch", part.source || node.source);
+        }
+        const selected = index >= 0
+          ? part.branches[index]?.parts || []
+          : part.elseParts || [];
+        rendered.push(...renderParts(selected));
+        continue;
       }
       fail(`Unknown paragraph part '${String(part?.type)}'`, node.source);
-    });
+    }
+    return rendered;
+  };
+  return renderParts(node.parts);
 }
 
 export function materializeWGResponse(game, response) {
@@ -282,7 +318,10 @@ function materializeNodes(nodes, context, output, options = {}) {
     if (node?.type === "paragraph") {
       output.content.push({
         type: "paragraph",
-        parts: renderParagraph(node, context, { allowChanges: Boolean(options.resolution) }),
+        parts: renderParagraph(node, context, {
+          allowChanges: Boolean(options.resolution),
+          resolution: options.resolution || null,
+        }),
       });
       continue;
     }

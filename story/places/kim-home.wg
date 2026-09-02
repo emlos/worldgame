@@ -24,13 +24,7 @@ Kim is sitting at {{npc.kim.dependent}} desk. {{npc.kim.subject | cap}} looks up
 @sequence story.rent.intro.2 -> @exit
 
   You look around the office. There are stacks of papers and files on the desk, and a computer monitor is turned on, light flickering.
-  Kim is sitting in a chair behind the desk, 
-  @if npc.kim.gender == "female"
-    wearing a smart business suit and glasses.
-  @else
-    wearing an ironed white shirt and glasses.  
-  @endif
-  {{npc.kim.dependent | cap}} eyes are brown, and they follow you as you open your mouth to speak.
+  Kim is sitting in a chair behind the desk, {{@if npc.kim.gender == "female"}}wearing a smart business suit and glasses{{@else}}wearing an ironed white shirt and glasses{{@endif}}. {{npc.kim.dependent | cap}} eyes are brown, and they follow you as you open your mouth to speak.
 
   @choice has-money "Pay (800£)" -> .pay
     @when player.money >= 800

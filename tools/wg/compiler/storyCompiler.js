@@ -7,10 +7,21 @@ function compareText(left, right) {
   return left < right ? -1 : left > right ? 1 : 0;
 }
 
+function walkParts(parts, visit) {
+  for (const part of parts || []) {
+    if (part.type !== "inline-if") continue;
+    visit(part);
+    for (const branch of part.branches || []) walkParts(branch.parts, visit);
+    walkParts(part.elseParts || [], visit);
+  }
+}
+
 function walkNodes(nodes, visit) {
   for (const node of nodes) {
     visit(node);
-    if (node.type === "message") {
+    if (node.type === "paragraph") {
+      walkParts(node.parts, visit);
+    } else if (node.type === "message") {
       walkNodes(node.body, visit);
     } else if (node.type === "if") {
       for (const branch of node.branches) walkNodes(branch.nodes, visit);
@@ -26,7 +37,12 @@ function walkNodes(nodes, visit) {
   }
 }
 
-const RUNTIME_NODE_TYPES = new Set(["if", "random", "passive-check"]);
+const RUNTIME_NODE_TYPES = new Set([
+  "if",
+  "inline-if",
+  "random",
+  "passive-check",
+]);
 
 function assignRuntimeNodeIds(nodes) {
   let runtimeId = 0;
@@ -45,9 +61,23 @@ function atSource(source) {
   };
 }
 
+function partsContainChange(parts) {
+  return (parts || []).some((part) =>
+    part.type === "change" ||
+    (part.type === "inline-if" && (
+      (part.branches || []).some((branch) => partsContainChange(branch.parts)) ||
+      partsContainChange(part.elseParts)
+    ))
+  );
+}
+
 function hasPersistentProseMutation(node) {
   return node.type === "effect" || node.type === "passive-check" ||
-    (node.type === "paragraph" && node.parts.some((part) => part.type === "change"));
+    (node.type === "paragraph" && partsContainChange(node.parts)) ||
+    (node.type === "inline-if" && (
+      (node.branches || []).some((branch) => partsContainChange(branch.parts)) ||
+      partsContainChange(node.elseParts)
+    ));
 }
 
 export function compileStorySources(sources) {
@@ -378,7 +408,7 @@ export function compileStorySources(sources) {
     [...reminderMap.entries()].sort(([left], [right]) => compareText(left, right)),
   );
   const chats = Object.fromEntries([...chatMap.entries()].sort(([left], [right]) => compareText(left, right)));
-  return { formatVersion: 24, scenes, sequences, entries, locationContributions, reminders, chats };
+  return { formatVersion: 25, scenes, sequences, entries, locationContributions, reminders, chats };
 }
 
 export { walkNodes };

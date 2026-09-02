@@ -74,15 +74,33 @@ function passiveResult(game, node, instanceKey) {
   return keyedRandom01(game.seed, key) < chance ? "success" : "failure";
 }
 
+function resolveParagraphParts(game, parts, resolution, instanceKey) {
+  for (const part of parts || []) {
+    if (part?.type === "change") {
+      applyWGEffect(game, part.effect);
+      continue;
+    }
+    if (part?.type !== "inline-if") continue;
+
+    const context = createWGRuntimeContext(game);
+    const index = (part.branches || []).findIndex((branch) =>
+      Boolean(evaluateWGExpression(branch.test, context)),
+    );
+    resolution.decisions[resolutionNodeKey(part)] = index;
+    const selected = index >= 0
+      ? part.branches[index]?.parts || []
+      : part.elseParts || [];
+    resolveParagraphParts(game, selected, resolution, instanceKey);
+  }
+}
+
 function resolveNodes(game, nodes, resolution, instanceKey) {
   if (!Array.isArray(nodes)) fail("Resolved story body must be an array");
 
   for (const node of nodes) {
     if (node?.type === "choice") continue;
     if (node?.type === "paragraph") {
-      for (const part of node.parts) {
-        if (part.type === "change") applyWGEffect(game, part.effect);
-      }
+      resolveParagraphParts(game, node.parts, resolution, instanceKey);
       continue;
     }
 

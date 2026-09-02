@@ -49,10 +49,44 @@ function selectedNodes(nodes, decisions) {
   });
 }
 
+function inlineDecisionId(part) {
+  return `inline-if:${part.runtimeId}`;
+}
+
+function chooseInlineBranch(game, part, decisions) {
+  const index = part.branches.findIndex((branch) =>
+    Boolean(evaluateWGExpression(branch.test, createWGRuntimeContext(game)))
+  );
+  decisions[inlineDecisionId(part)] = index;
+  return index < 0 ? part.elseParts || [] : part.branches[index].parts;
+}
+
+function selectedInlineParts(parts, decisions) {
+  return parts.flatMap((part) => {
+    if (part.type !== "inline-if") return [part];
+    const index = decisions[inlineDecisionId(part)];
+    if (!Number.isInteger(index)) fail("missing saved inline message branch");
+    const selected = index < 0
+      ? part.elseParts || []
+      : part.branches[index]?.parts;
+    if (!selected) fail("invalid saved inline message branch");
+    return selectedInlineParts(selected, decisions);
+  });
+}
+
+function resolveMessageParts(game, parts, decisions) {
+  for (const part of parts) {
+    if (part.type !== "inline-if") continue;
+    resolveMessageParts(game, chooseInlineBranch(game, part, decisions), decisions);
+  }
+}
+
 function resolveMessage(game, nodes, key, decisions) {
   for (const node of nodes) {
     if (node.type === "if" || node.type === "random") {
       resolveMessage(game, chooseBranch(game, node, key, decisions), key, decisions);
+    } else if (node.type === "paragraph") {
+      resolveMessageParts(game, node.parts, decisions);
     }
   }
 }
@@ -76,7 +110,11 @@ function appendMessage(game, thread, node, outgoing = false) {
   const decisions = {};
   const key = `${active.chatId}:${active.passageId}:${thread.history.length + 1}`;
   if (!outgoing) resolveMessage(game, node.body, key, decisions);
-  const parts = outgoing ? node.send : selectedNodes(node.body, decisions).flatMap((paragraph) => paragraph.parts);
+  const parts = outgoing
+    ? node.send
+    : selectedNodes(node.body, decisions).flatMap((paragraph) =>
+        selectedInlineParts(paragraph.parts, decisions)
+      );
   thread.history.push({
     id: thread.history.length + 1,
     chatId: active.chatId,
@@ -184,8 +222,8 @@ function messageSource(record) {
   return nodes.find((node) => node.id === record.nodeId && node.type === (record.kind === "incoming" ? "message" : "choice")) || fail("unknown saved message");
 }
 
-function renderParts(parts, bindings) {
-  return parts.map((part) => {
+function renderParts(parts, bindings, decisions) {
+  return selectedInlineParts(parts, decisions).map((part) => {
     if (part.type === "break") return "\n";
     if (part.type === "text") return part.value;
     let value = String(bindings[part.path.join(".")]);
@@ -197,7 +235,9 @@ function renderParts(parts, bindings) {
 export function renderChatMessage(record) {
   const node = messageSource(record);
   const paragraphs = record.kind === "outgoing" ? [{ parts: node.send }] : selectedNodes(node.body, record.decisions);
-  return paragraphs.map((paragraph) => renderParts(paragraph.parts, record.bindings)).join("\n\n");
+  return paragraphs.map((paragraph) =>
+    renderParts(paragraph.parts, record.bindings, record.decisions)
+  ).join("\n\n");
 }
 
 export function markChatRead(game, npcId, through) {
@@ -273,19 +313,37 @@ export function validateChatState(state, npcIds) {
       const usedDecisions = [];
       function inspect(nodes) {
         for (const part of nodes) {
-          if (!["if", "random"].includes(part.type)) continue;
-          const key = `${part.type}:${part.runtimeId}`;
+          if (["if", "random"].includes(part.type)) {
+            const key = `${part.type}:${part.runtimeId}`;
+            usedDecisions.push(key);
+            const value = record.decisions[key];
+            if (!Number.isInteger(value) || value < (part.type === "if" ? -1 : 0) || value >= (part.type === "if" ? part.branches.length : part.variants.length)) fail("invalid saved branch selection");
+            inspect(part.type === "if" ? value < 0 ? part.elseNodes || [] : part.branches[value].nodes : part.variants[value]);
+          } else if (part.type === "paragraph") {
+            inspectInlineParts(part.parts);
+          }
+        }
+      }
+      function inspectInlineParts(parts) {
+        for (const part of parts) {
+          if (part.type !== "inline-if") continue;
+          const key = inlineDecisionId(part);
           usedDecisions.push(key);
           const value = record.decisions[key];
-          if (!Number.isInteger(value) || value < (part.type === "if" ? -1 : 0) || value >= (part.type === "if" ? part.branches.length : part.variants.length)) fail("invalid saved branch selection");
-          inspect(part.type === "if" ? value < 0 ? part.elseNodes || [] : part.branches[value].nodes : part.variants[value]);
+          if (!Number.isInteger(value) || value < -1 || value >= part.branches.length) {
+            fail("invalid saved inline branch selection");
+          }
+          inspectInlineParts(value < 0 ? part.elseParts || [] : part.branches[value].parts);
         }
       }
       if (!record.decisions || typeof record.decisions !== "object" || Array.isArray(record.decisions)) fail("invalid saved decisions");
       if (record.kind === "incoming") inspect(node.body);
       object(record.decisions, usedDecisions);
       const paragraphs = record.kind === "incoming" ? selectedNodes(node.body, record.decisions) : [{ parts: node.send }];
-      const bindings = [...new Set(paragraphs.flatMap((paragraph) => paragraph.parts).filter((part) => part.type === "interpolation").map((part) => part.path.join(".")))];
+      const bindings = [...new Set(paragraphs
+        .flatMap((paragraph) => selectedInlineParts(paragraph.parts, record.decisions))
+        .filter((part) => part.type === "interpolation")
+        .map((part) => part.path.join(".")))];
       object(record.bindings, bindings);
       for (const value of Object.values(record.bindings)) if (!["string", "number", "boolean"].includes(typeof value) || (typeof value === "number" && !Number.isFinite(value))) fail("invalid captured message value");
     });

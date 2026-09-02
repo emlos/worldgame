@@ -1,5 +1,15 @@
 import { failWG } from "./diagnostic.js";
 
+function partsContainChange(parts) {
+  return (parts || []).some((part) =>
+    part.type === "change" ||
+    (part.type === "inline-if" && (
+      (part.branches || []).some((branch) => partsContainChange(branch.parts)) ||
+      partsContainChange(part.elseParts)
+    ))
+  );
+}
+
 /** Keep chat control flow explicit: a passage ends in choices, a wait, or finish. */
 export function validateChat(chat, assignRuntimeNodeIds) {
   const passageIds = new Set();
@@ -23,7 +33,7 @@ export function validateChat(chat, assignRuntimeNodeIds) {
         } else if (node.type === "random") {
           for (const variant of node.variants) visit(variant, inMessage, true);
         } else if (inMessage) {
-          if (node.type !== "paragraph" || node.parts.some((part) => part.type === "change")) {
+          if (node.type !== "paragraph" || partsContainChange(node.parts)) {
             failWG("Messages contain only prose, interpolation, @if, and @random; put effects outside @message", node.source);
           }
         } else if (node.type === "message") {

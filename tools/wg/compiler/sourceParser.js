@@ -503,11 +503,16 @@ function parseInlineChanges(text, file, line) {
   return parts;
 }
 
-function parseProseLine(text, file, line) {
+function parseSimpleProseParts(text, file, line, columnOffset = 0) {
   const parts = [];
   let cursor = 0;
   const appendText = (value, column) => {
-    if (value) parts.push(...parseInterpolationParts(value, lineLocation(file, line, column)));
+    if (value) {
+      parts.push(...parseInterpolationParts(
+        value,
+        lineLocation(file, line, columnOffset + column),
+      ));
+    }
   };
 
   // A trailing chain consumes the rest of the source line. Its parser keeps
@@ -533,6 +538,147 @@ function parseProseLine(text, file, line) {
   }
   appendText(text.slice(cursor), cursor + 1);
   return parts;
+}
+
+function inlineConditionalMarkers(text, file, line) {
+  const markers = [];
+  const pattern = /\{\{\s*@(if|elseif|else|endif)\b([\s\S]*?)\}\}/g;
+  for (const match of text.matchAll(pattern)) {
+    const name = match[1];
+    const argument = match[2].trim();
+    const location = lineLocation(file, line, match.index + 1);
+    if ((name === "if" || name === "elseif") && !argument) {
+      failWG(`Inline @${name} requires an expression`, location);
+    }
+    if ((name === "else" || name === "endif") && argument) {
+      failWG(`Inline @${name} takes no arguments`, location);
+    }
+    markers.push({
+      name,
+      argument,
+      start: match.index,
+      end: match.index + match[0].length,
+      source: nodeSource(file, line, match.index + 1),
+    });
+  }
+  return markers;
+}
+
+function parseProseLine(text, file, line) {
+  const markers = inlineConditionalMarkers(text, file, line);
+  if (!markers.length) return parseSimpleProseParts(text, file, line);
+
+  let markerIndex = 0;
+  const appendSegment = (parts, start, end) => {
+    if (end <= start) return;
+    parts.push(...parseSimpleProseParts(
+      text.slice(start, end),
+      file,
+      line,
+      start,
+    ));
+  };
+
+  const parseUntil = (start, stopNames) => {
+    const parts = [];
+    let cursor = start;
+
+    while (markerIndex < markers.length) {
+      const marker = markers[markerIndex];
+      appendSegment(parts, cursor, marker.start);
+
+      if (stopNames.has(marker.name)) {
+        return { parts, stop: marker };
+      }
+      if (marker.name !== "if") {
+        failWG(`Unexpected inline @${marker.name}`, marker.source);
+      }
+
+      markerIndex += 1;
+      const parsed = parseConditional(marker);
+      parts.push(parsed.part);
+      cursor = parsed.end;
+    }
+
+    appendSegment(parts, cursor, text.length);
+    return { parts, stop: null };
+  };
+
+  const parseConditional = (opening) => {
+    const branches = [];
+    let testText = opening.argument;
+    let testSource = opening.source;
+    let cursor = opening.end;
+
+    while (true) {
+      const branch = parseUntil(
+        cursor,
+        new Set(["elseif", "else", "endif"]),
+      );
+      branches.push({
+        test: parseExpression(testText, testSource),
+        parts: branch.parts,
+        source: testSource,
+      });
+
+      const stop = branch.stop;
+      if (!stop) failWG("Unclosed inline @if", opening.source);
+      markerIndex += 1;
+
+      if (stop.name === "elseif") {
+        testText = stop.argument;
+        testSource = stop.source;
+        cursor = stop.end;
+        continue;
+      }
+
+      let elseParts = null;
+      let end = stop.end;
+      if (stop.name === "else") {
+        const fallback = parseUntil(stop.end, new Set(["endif"]));
+        if (!fallback.stop) failWG("Unclosed inline @if", opening.source);
+        elseParts = fallback.parts;
+        end = fallback.stop.end;
+        markerIndex += 1;
+      }
+
+      return {
+        part: {
+          type: "inline-if",
+          branches,
+          elseParts,
+          source: opening.source,
+        },
+        end,
+      };
+    }
+  };
+
+  const parsed = parseUntil(0, new Set());
+  if (parsed.stop || markerIndex !== markers.length) {
+    failWG("Malformed inline conditional", lineLocation(file, line));
+  }
+  return parsed.parts;
+}
+
+function partHasDisplayContent(part) {
+  if (part?.type === "interpolation") return true;
+  if (part?.type === "text") return Boolean(part.value?.trim());
+  if (part?.type !== "inline-if") return false;
+  return (part.branches || []).some((branch) =>
+    branch.parts.some(partHasDisplayContent)
+  ) || (part.elseParts || []).some(partHasDisplayContent);
+}
+
+function paragraphPartsContainChange(parts) {
+  return parts.some((part) =>
+    part?.type === "change" ||
+    (part?.type === "inline-if" && (
+      (part.branches || []).some((branch) =>
+        paragraphPartsContainChange(branch.parts)
+      ) || paragraphPartsContainChange(part.elseParts || [])
+    ))
+  );
 }
 
 class SceneBodyParser {
@@ -564,7 +710,7 @@ class SceneBodyParser {
         }
         parts.push(...lineParts);
       }
-      if (!parts.some((part) => part.type === "interpolation" || part.value?.trim())) {
+      if (!parts.some(partHasDisplayContent)) {
         failWG("@br must be inside a prose paragraph", lineLocation(this.file, firstLine.line));
       }
       nodes.push({
@@ -1243,7 +1389,7 @@ class SceneBodyParser {
       failWG("Unclosed @response block", lineLocation(this.file, opening.line));
     }
     if (!paragraphs.length || paragraphs.some((node) =>
-      node.type !== "paragraph" || node.parts.some((part) => part.type === "change")
+      node.type !== "paragraph" || paragraphPartsContainChange(node.parts)
     )) {
       failWG(
         "@response requires prose paragraphs without effects or inline changes",

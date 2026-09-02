@@ -14,8 +14,6 @@ ui:
 
 wg script:
 
-- inline @if/@elseif/@else/@endif
-
 game systems:
     player stats:
     - basic energy drain implemented - other stats should change

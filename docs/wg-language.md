@@ -130,8 +130,8 @@ sequence, location-contribution, and reminder blocks.
 
 WG is line-oriented. Leading and trailing whitespace does not change how a
 directive is recognized, so indentation is for readability. Directives occupy
-their own logical lines, except for prose `@br` markers and a trailing inline
-`@change`, described below.
+their own logical lines, except for prose `@br` markers, trailing inline
+`@change`, and delimited inline conditionals, described below.
 
 - Story, scene, sequence, entry, location-contribution, reminder, choice, and choice-group IDs start with a
   lowercase letter and may then contain lowercase letters, numbers, `_`, `-`,
@@ -868,6 +868,25 @@ instance. This ensures an effect cannot change the condition that selected its
 own prose. Persistent place hubs remain live and read-only, so their
 conditionals are evaluated on every materialization.
 
+For a conditional fragment inside one prose line, wrap the same directives in
+double braces:
+
+```wg
+Kim sits behind the desk, {{@if npc.kim.gender == "female"}}wearing a business suit{{@elseif npc.kim.gender == "male"}}wearing an ironed shirt{{@else}}dressed formally{{@endif}}. {{npc.kim.subject | cap}} looks up.
+```
+
+Inline conditionals support any number of `{{@elseif ...}}` branches, an
+optional `{{@else}}`, nesting, ordinary interpolation, and `@br`. Their markers
+and branch text must stay on the same source line. They produce paragraph parts,
+so selecting a phrase never inserts a paragraph break or visual gap. Inline
+changes in a selected branch run only when that branch is selected; response
+blocks retain their normal rule forbidding changes.
+
+Entered scenes and sequences save inline decisions alongside block decisions,
+while persistent place prose evaluates them live. Use block conditionals when a
+branch needs choices, standalone effects, passive checks, or multiple source
+lines; inline conditionals are for conditional prose fragments.
+
 Expressions support:
 
 - numbers, double-quoted strings, `true`, `false`, and `null`;
@@ -1488,7 +1507,7 @@ not implemented.
 | Entry | `@scene`, `@hub`, `@offer`, `@auto`, `@pool`, `@place-key`, `@place-tag`, `@location-tag`, `@when`, `@label`, `@icon`, `@hub-text`, `@priority`, `@chance`, `@weight` |
 | Scene metadata | `@kind`, `@heading`, `@choices`, `@onenter ... @endonenter` |
 | Sequence metadata/navigation | scene metadata plus `@school-class`, `@system`, `@passage`, `@next` |
-| Scene or passage body | prose, `@br`, trailing inline `@change`, `@if` / `@elseif` / `@else` / `@endif`, `@random` / `@or` / `@endrandom`, passive `@check` / `@success` / `@failure` / `@endcheck`, `@effect`, `@unlock`, `@change`, `@choicegroup ... @endchoicegroup`, `@choice ... @endchoice` |
+| Scene or passage body | prose, `@br`, trailing inline `@change`, `{{@if ...}} ... {{@elseif ...}} ... {{@else}} ... {{@endif}}`, `@if` / `@elseif` / `@else` / `@endif`, `@random` / `@or` / `@endrandom`, passive `@check` / `@success` / `@failure` / `@endcheck`, `@effect`, `@unlock`, `@change`, `@choicegroup ... @endchoicegroup`, `@choice ... @endchoice` |
 | Direct choice | `@icon`, `@time`, `@time-until`, `@event-pool`, `@event-chance`, `@when`, `@require`, `@warning`, `@response ... @endresponse`, `@preview`, `@effect`, `@unlock`, `@change` |
 | Checked choice | `@icon`, `@event-pool`, `@event-chance`, `@when`, `@require`, `@warning`, `@check`, `@success ... @endsuccess`, `@failure ... @endfailure` |
 | Check outcome | `@time`, `@response ... @endresponse`, `@effect`, `@unlock` |
