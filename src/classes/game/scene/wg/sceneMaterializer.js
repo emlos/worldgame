@@ -94,7 +94,20 @@ function materializeVisibleEffects(effects) {
     .map(materializeChangeFeedback);
 }
 
-function materializeDuration(node, context) {
+function materializeDuration(node, context, options, durationKey) {
+  if (node.durationRangeMinutes) {
+    const min = Number(node.durationRangeMinutes.min);
+    const max = Number(node.durationRangeMinutes.max);
+    if (!Number.isInteger(min) || !Number.isInteger(max) || min >= max) {
+      fail("Random duration range is invalid", node.source);
+    }
+    const key = [
+      "wg-duration-v1",
+      options.storyInstanceKey,
+      durationKey,
+    ].join(":");
+    return min + Math.floor(keyedRandom01(options.gameSeed, key) * (max - min + 1));
+  }
   if (!node.timeUntilPath) return node.durationMinutes;
   const targetValue = resolveWGPath(context, node.timeUntilPath);
   const target = new Date(targetValue);
@@ -115,17 +128,24 @@ function materializeDuration(node, context) {
   return minutes;
 }
 
-function materializeOutcome(outcome, sequenceId) {
+function materializeOutcome(outcome, sequenceId, context, options, durationKey) {
+  const {
+    durationRangeMinutes: _durationRangeMinutes,
+    timeUntilPath: _timeUntilPath,
+    ...materialized
+  } = outcome;
   return {
-    ...outcome,
-    durationMinutes: outcome.durationMinutes ?? 0,
+    ...materialized,
+    durationMinutes: materializeDuration(outcome, context, options, durationKey),
     energyFree: outcome.energyFree ?? false,
+    resting: outcome.resting ?? false,
     effects: outcome.effects || [],
     ...(sequenceId ? { sequenceId } : {}),
   };
 }
 
-function materializeChoice(node, context, { sequenceId = null, idPrefix = "" } = {}) {
+function materializeChoice(node, context, options = {}) {
+  const { sequenceId = null, idPrefix = "" } = options;
   if (node.when && !Boolean(evaluateWGExpression(node.when, context))) return null;
 
   let disabledReason = null;
@@ -165,8 +185,20 @@ function materializeChoice(node, context, { sequenceId = null, idPrefix = "" } =
         difficultyId: node.check.difficultyId,
       },
       outcomes: {
-        success: materializeOutcome(node.outcomes.success, sequenceId),
-        failure: materializeOutcome(node.outcomes.failure, sequenceId),
+        success: materializeOutcome(
+          node.outcomes.success,
+          sequenceId,
+          context,
+          options,
+          `${idPrefix}${node.id}:success`,
+        ),
+        failure: materializeOutcome(
+          node.outcomes.failure,
+          sequenceId,
+          context,
+          options,
+          `${idPrefix}${node.id}:failure`,
+        ),
       },
       ...(eventPool ? { eventPool } : {}),
     };
@@ -185,7 +217,6 @@ function materializeChoice(node, context, { sequenceId = null, idPrefix = "" } =
           responses: node.responses || [],
           sequenceId,
           ...(eventPool ? { eventPool } : {}),
-          ...(node.enterAfterTime ? { enterAfterTime: true } : {}),
         };
   }
 
@@ -193,8 +224,11 @@ function materializeChoice(node, context, { sequenceId = null, idPrefix = "" } =
     id: `${idPrefix}${node.id}`,
     icon: node.icon,
     label: renderWGText(node.label, context, node.source),
-    durationMinutes: node.check ? 0 : materializeDuration(node, context),
+    durationMinutes: node.check
+      ? 0
+      : materializeDuration(node, context, options, `${idPrefix}${node.id}`),
     energyFree: node.check ? false : node.energyFree,
+    resting: node.check ? false : node.resting,
     enabled: disabledReason === null,
     disabledReason,
     warning: node.warning,

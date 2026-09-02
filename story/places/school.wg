@@ -670,7 +670,6 @@ Everyone looks at you as you enter the classroom. The teacher is at the front of
 @choice wait-for-class "Wait for class" -> school.class.english
   
   @time-until school.nextClassStartsAt
-  @enter-after-time
   @when school.phase != "class" and school.nextClass == "english"
 @endchoice
 
@@ -692,7 +691,6 @@ Everyone looks at you as you enter the classroom. The teacher is at the front of
 @choice wait-for-class "Wait for class" -> school.class.math
   
   @time-until school.nextClassStartsAt
-  @enter-after-time
   @when school.phase != "class" and school.nextClass == "math"
 @endchoice
 
@@ -714,7 +712,6 @@ Everyone looks at you as you enter the classroom. The teacher is at the front of
 @choice wait-for-class "Wait for class" -> school.class.science
   
   @time-until school.nextClassStartsAt
-  @enter-after-time
   @when school.phase != "class" and school.nextClass == "science"
 @endchoice
 
@@ -736,7 +733,6 @@ Everyone looks at you as you enter the classroom. The teacher is at the front of
 @choice wait-for-class "Wait for class" -> school.class.history
   
   @time-until school.nextClassStartsAt
-  @enter-after-time
   @when school.phase != "class" and school.nextClass == "history"
 @endchoice
 
@@ -758,7 +754,6 @@ Everyone looks at you as you enter the classroom. The teacher is at the front of
 @choice wait-for-class "Wait for class" -> school.class.art
   
   @time-until school.nextClassStartsAt
-  @enter-after-time
   @when school.phase != "class" and school.nextClass == "art"
 @endchoice
 
@@ -780,7 +775,6 @@ Everyone looks at you as you enter the gym. The teacher is at the front of the r
 @choice wait-for-class "Wait for class" -> school.class.physical-education
   
   @time-until school.nextClassStartsAt
-  @enter-after-time
   @when school.phase != "class" and school.nextClass == "physical_education"
 @endchoice
 

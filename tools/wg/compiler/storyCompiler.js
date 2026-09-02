@@ -180,6 +180,12 @@ export function compileStorySources(sources) {
     [...entryMap.values()].flatMap((entry) => entry.pools || []),
   );
   const validateChoicePool = (node) => {
+    if (node.eventPool === "interrupt") {
+      failWG(
+        "The 'interrupt' event pool is engine-reserved and cannot be invoked by a choice",
+        atSource(node.source),
+      );
+    }
     if (node.eventPool && !poolIds.has(node.eventPool)) {
       failWG(
         `Unknown event pool '${node.eventPool}' from choice '${node.id}'`,
@@ -372,7 +378,7 @@ export function compileStorySources(sources) {
     [...reminderMap.entries()].sort(([left], [right]) => compareText(left, right)),
   );
   const chats = Object.fromEntries([...chatMap.entries()].sort(([left], [right]) => compareText(left, right)));
-  return { formatVersion: 23, scenes, sequences, entries, locationContributions, reminders, chats };
+  return { formatVersion: 24, scenes, sequences, entries, locationContributions, reminders, chats };
 }
 
 export { walkNodes };

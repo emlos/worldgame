@@ -106,6 +106,15 @@ export function applyWGEffect(game, effect) {
     return;
   }
 
+  if (effect.op === "relocate") {
+    try {
+      game.relocatePlayer(effect.destination);
+    } catch (error) {
+      fail(error.message);
+    }
+    return;
+  }
+
   if (effect.op === "relationship") {
     const npc = game.npcs.get(String(effect.npcId));
     if (!npc) {

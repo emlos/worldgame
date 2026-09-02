@@ -201,11 +201,33 @@ export function parseDuration(value, location = {}) {
 
 function parseTime(value, location) {
   const text = String(value).trim();
-  const freeMatch = text.match(/^(.*?)\s+free$/);
-  const durationText = freeMatch ? freeMatch[1].trim() : text;
+  const modeMatch = text.match(/^(.*?)\s+(free|rest)$/);
+  const durationText = modeMatch ? modeMatch[1].trim() : text;
+  const rangeParts = durationText.split("..");
+  if (rangeParts.length > 2 || rangeParts.some((part) => !part.trim())) {
+    failWG(`Invalid duration range '${durationText}'`, location);
+  }
+  if (rangeParts.length === 2) {
+    const min = parseDuration(rangeParts[0], location);
+    const max = parseDuration(rangeParts[1], location);
+    if (!Number.isInteger(min) || !Number.isInteger(max)) {
+      failWG("Random duration ranges require whole-minute endpoints", location);
+    }
+    if (min >= max) {
+      failWG("Random duration ranges require the first duration to be smaller", location);
+    }
+    return {
+      durationMinutes: 0,
+      durationRangeMinutes: { min, max },
+      energyFree: Boolean(modeMatch),
+      resting: modeMatch?.[2] === "rest",
+    };
+  }
   return {
     durationMinutes: parseDuration(durationText, location),
-    energyFree: Boolean(freeMatch),
+    durationRangeMinutes: null,
+    energyFree: Boolean(modeMatch),
+    resting: modeMatch?.[2] === "rest",
   };
 }
 
@@ -243,6 +265,29 @@ function parseSilentDirective(text, file, line) {
 function parseEffect(text, file, line) {
   const location = lineLocation(file, line);
   const argument = directiveArgument(text, "effect", location);
+
+  const relocateHome = argument.match(/^relocate\s+home$/);
+  if (relocateHome) {
+    return {
+      op: "relocate",
+      destination: { kind: "home" },
+      source: nodeSource(file, line),
+    };
+  }
+  const relocatePlace = argument.match(
+    new RegExp(`^relocate\\s+nearest-place\\s+(${SIMPLE_ID_PATTERN})$`),
+  );
+  if (relocatePlace) {
+    const placeKey = relocatePlace[1];
+    if (!PLACE_REGISTRY.some((place) => place.key === placeKey)) {
+      failWG(`@effect relocate references unknown place '${placeKey}'`, location);
+    }
+    return {
+      op: "relocate",
+      destination: { kind: "nearest-place", placeKey },
+      source: nodeSource(file, line),
+    };
+  }
 
   const contact = argument.match(new RegExp(`^contact\\s+add\\s+(${QUOTED_PATTERN}|${ID_PATTERN})$`));
   if (contact) {
@@ -864,7 +909,9 @@ class SceneBodyParser {
     const outcome = {
       target: match[1],
       durationMinutes: 0,
+      durationRangeMinutes: null,
       energyFree: false,
+      resting: false,
       responses: [],
       effects: [],
       source: nodeSource(this.file, opening.line),
@@ -895,7 +942,9 @@ class SceneBodyParser {
           location,
         );
         outcome.durationMinutes = parsedTime.durationMinutes;
+        outcome.durationRangeMinutes = parsedTime.durationRangeMinutes;
         outcome.energyFree = parsedTime.energyFree;
+        outcome.resting = parsedTime.resting;
       } else if (name === "effect" || name === "unlock") {
         outcome.effects.push(parseSilentDirective(directive, this.file, line.line));
       } else if (name === "response") {
@@ -919,19 +968,6 @@ class SceneBodyParser {
         failWG("Direct choices cannot contain skill-check outcomes", location);
       }
 
-      if (choice.enterAfterTime) {
-        if (choice.target === "@leave-place") {
-          failWG("@enter-after-time cannot target @leave-place", location);
-        }
-        if (!singleFields.has("timing")) {
-          failWG("@enter-after-time requires @time or @time-until", location);
-        }
-        if (!choice.timeUntilPath && choice.durationMinutes <= 0) {
-          failWG("@enter-after-time requires a positive duration", location);
-        }
-      } else {
-        delete choice.enterAfterTime;
-      }
       if (choice.eventPool && choice.target === "@leave-place") {
         failWG("@event-pool cannot be used with @leave-place", location);
       }
@@ -974,9 +1010,10 @@ class SceneBodyParser {
     }
     delete choice.target;
     delete choice.durationMinutes;
+    delete choice.durationRangeMinutes;
     delete choice.timeUntilPath;
-    delete choice.enterAfterTime;
     delete choice.energyFree;
+    delete choice.resting;
     delete choice.previews;
     delete choice.effects;
     delete choice.responses;
@@ -1010,9 +1047,10 @@ class SceneBodyParser {
       outcomes: { success: null, failure: null },
       icon: null,
       durationMinutes: 0,
+      durationRangeMinutes: null,
       timeUntilPath: null,
-      enterAfterTime: false,
       energyFree: false,
+      resting: false,
       when: null,
       requirements: [],
       warning: null,
@@ -1068,7 +1106,6 @@ class SceneBodyParser {
           "when",
           "warning",
           "check",
-          "enter-after-time",
           "event-pool",
           "event-chance",
         ].includes(name)
@@ -1092,18 +1129,15 @@ class SceneBodyParser {
           location,
         );
         choice.durationMinutes = parsedTime.durationMinutes;
+        choice.durationRangeMinutes = parsedTime.durationRangeMinutes;
         choice.energyFree = parsedTime.energyFree;
+        choice.resting = parsedTime.resting;
       } else if (name === "time-until") {
         const pathText = directiveArgument(text, "time-until", location);
         if (!PATH_REGEX.test(pathText)) {
           failWG("@time-until requires a dotted runtime path", location);
         }
         choice.timeUntilPath = pathText.split(".");
-      } else if (name === "enter-after-time") {
-        if (text !== "@enter-after-time") {
-          failWG("@enter-after-time does not take arguments", location);
-        }
-        choice.enterAfterTime = true;
       } else if (name === "event-pool") {
         const poolId = directiveArgument(text, "event-pool", location);
         if (!ID_REGEX.test(poolId)) failWG("@event-pool requires a pool id", location);

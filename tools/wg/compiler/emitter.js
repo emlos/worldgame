@@ -27,10 +27,11 @@ const NULL_DEFAULTS = new Set([
   "schoolClass",
   "system",
   "timeUntilPath",
+  "durationRangeMinutes",
   "warning",
   "when",
 ]);
-const FALSE_DEFAULTS = new Set(["energyFree", "enterAfterTime"]);
+const FALSE_DEFAULTS = new Set(["energyFree", "resting"]);
 const ZERO_DEFAULTS = new Set(["durationMinutes", "priority"]);
 const ONE_DEFAULTS = new Set(["chance", "eventChance", "weight"]);
 const TOP_LEVEL_COLLECTIONS = ["scenes", "sequences", "entries", "locationContributions", "reminders", "chats"];

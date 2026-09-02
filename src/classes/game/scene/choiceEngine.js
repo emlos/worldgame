@@ -28,6 +28,10 @@ import {
   getCurrentBusStop,
   resolveBusTravelOption,
 } from "../busTransit.js";
+import {
+  finalizeWGInterruptCheckpoint,
+  resolveWGInterruptCheckpoint,
+} from "./wg/interrupts.js";
 
 export const CHOICE_ERROR_CODE = Object.freeze({
   invalidRequest: "invalid-request",
@@ -52,6 +56,22 @@ function fail(code, message) {
 
 function actionResult({ notice = "", paragraphs = [] } = {}) {
   return { notice, paragraphs };
+}
+
+function runChoiceAction(game, options) {
+  const deferForSequence = game.currentStory?.type === "sequence";
+  return game.runAction({
+    ...options,
+    interrupt(currentGame, stage) {
+      if (stage === "before-after") {
+        return resolveWGInterruptCheckpoint(currentGame, {
+          deferForSequence,
+        });
+      }
+      finalizeWGInterruptCheckpoint(currentGame);
+      return false;
+    },
+  });
 }
 
 function selectWGResponse(
@@ -129,10 +149,11 @@ function performTravel(game, choice, minutes) {
     );
   }
 
-  game.runAction({
+  runChoiceAction(game, {
     label: SCENE_TEXT.travelLog(destination.name),
     minutes,
     energyFree: choice.energyFree,
+    resting: choice.resting,
     apply(currentGame) {
       currentGame.moveTo(targetLocationId);
     },
@@ -155,10 +176,11 @@ function performEnter(game, choice, minutes) {
   }
   const place = access.place;
 
-  game.runAction({
+  runChoiceAction(game, {
     label: SCENE_TEXT.enterLog(place.name),
     minutes,
     energyFree: choice.energyFree,
+    resting: choice.resting,
     apply(currentGame) {
       currentGame.setCurrentPlace({ placeId: place.id });
     },
@@ -180,10 +202,11 @@ function performLeave(game, choice, minutes, scene) {
 
   const revision = game.actionRevision;
   let responseParagraphs = [];
-  game.runAction({
+  runChoiceAction(game, {
     label: SCENE_TEXT.leaveLog(place.name),
     minutes,
     energyFree: choice.energyFree,
+    resting: choice.resting,
     apply(currentGame) {
       if (choice.action.effects) {
         applyWGEffects(currentGame, choice.action.effects);
@@ -211,10 +234,11 @@ function performLeave(game, choice, minutes, scene) {
 
 function performLoiter(game, choice, minutes) {
   requireOutdoors(game, "Loitering");
-  game.runAction({
+  runChoiceAction(game, {
     label: SCENE_TEXT.loiterLog,
     minutes,
     energyFree: choice.energyFree,
+    resting: choice.resting,
   });
   return actionResult();
 }
@@ -250,7 +274,7 @@ function performBusTravel(game, choice, minutes) {
     );
   }
 
-  game.runAction({
+  runChoiceAction(game, {
     label: `Take the bus to ${destination.location.name}`,
     minutes,
     apply(currentGame) {
@@ -287,32 +311,22 @@ function enterWGOutcome(game, outcome, eventPool, choiceId) {
 
 function performWG(game, choice, minutes, scene) {
   const revision = game.actionRevision;
-  const enterAfterTime = choice.action.enterAfterTime === true;
   let responseParagraphs = [];
-  const result = game.runAction({
+  const result = runChoiceAction(game, {
     label: choice.label,
     minutes,
     energyFree: choice.energyFree,
+    resting: choice.resting,
     apply(currentGame) {
       applyWGEffects(currentGame, choice.action.effects || []);
-      if (!enterAfterTime) {
-        enterWGOutcome(
-          currentGame,
-          choice.action,
-          choice.action.eventPool,
-          choice.id,
-        );
-      }
     },
     after(currentGame) {
-      if (enterAfterTime) {
-        enterWGOutcome(
-          currentGame,
-          choice.action,
-          choice.action.eventPool,
-          choice.id,
-        );
-      }
+      enterWGOutcome(
+        currentGame,
+        choice.action,
+        choice.action.eventPool,
+        choice.id,
+      );
       resolveActiveWGStory(currentGame);
       responseParagraphs = selectWGResponse(
         currentGame,
@@ -337,12 +351,10 @@ function performWGNext(game, choice, minutes) {
   if (minutes !== 0) {
     fail(CHOICE_ERROR_CODE.invalidAction, "Sequence navigation cannot advance time");
   }
-  game.runAction({
+  runChoiceAction(game, {
     label: "",
-    apply(currentGame) {
-      advanceWGSequence(currentGame, choice.action);
-    },
     after(currentGame) {
+      advanceWGSequence(currentGame, choice.action);
       resolveActiveWGStory(currentGame);
     },
   });
@@ -368,10 +380,12 @@ function performWGSystem(game, choice, minutes) {
 
   let notice = "";
   let paragraphs = [];
-  game.runAction({
+  let outcomeTarget = null;
+  runChoiceAction(game, {
     label: choice.label,
     minutes,
     energyFree: choice.energyFree,
+    resting: choice.resting,
     apply(currentGame) {
       const currentFrame = currentGame.currentStory;
       const outcome = actWGSystem(
@@ -384,7 +398,7 @@ function performWGSystem(game, choice, minutes) {
       notice = outcome.notice;
       paragraphs = outcome.paragraphs;
       if (outcome.target !== null) {
-        enterWGTarget(currentGame, outcome.target);
+        outcomeTarget = outcome.target;
         return;
       }
       currentFrame.system.state = outcome.state;
@@ -392,6 +406,7 @@ function performWGSystem(game, choice, minutes) {
       currentGame.storyRevision += 1;
     },
     after(currentGame) {
+      if (outcomeTarget !== null) enterWGTarget(currentGame, outcomeTarget);
       resolveActiveWGStory(currentGame);
     },
   });
@@ -463,6 +478,7 @@ function performSkillCheck(game, choice, _minutes, scene) {
       {
         ...choice,
         energyFree: outcome.energyFree,
+        resting: outcome.resting,
         action: {
           type: SCENE_ACTION_TYPE.leave,
           effects: outcome.effects,
@@ -477,20 +493,21 @@ function performSkillCheck(game, choice, _minutes, scene) {
   }
 
   let responseParagraphs = [];
-  game.runAction({
+  runChoiceAction(game, {
     label: choice.label,
     minutes,
     energyFree: outcome.energyFree,
+    resting: outcome.resting,
     apply(currentGame) {
       applyWGEffects(currentGame, outcome.effects || []);
+    },
+    after(currentGame) {
       enterWGOutcome(
         currentGame,
         outcome,
         choice.action.eventPool,
         choice.id,
       );
-    },
-    after(currentGame) {
       resolveActiveWGStory(currentGame);
       responseParagraphs = selectWGResponse(currentGame, outcome.responses, {
         revision,

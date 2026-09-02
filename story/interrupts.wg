@@ -1,0 +1,84 @@
+@# Engine-reserved interrupt pool. Conditions are edge-triggered by the runtime.
+
+@entry interrupt.exhaustion.school
+  @scene interrupt.exhaustion.school
+  @pool interrupt
+  @place-key high_school
+  @when player.energy <= 0
+  @priority 100
+@endentry
+
+@entry interrupt.exhaustion.home
+  @scene interrupt.exhaustion.home
+  @pool interrupt
+  @place-key player_home
+  @when player.energy <= 0
+  @priority 100
+@endentry
+
+@entry interrupt.exhaustion.hospital
+  @scene interrupt.exhaustion.hospital
+  @pool interrupt
+  @when player.energy <= 0
+  @priority 0
+@endentry
+
+@sequence interrupt.exhaustion.school -> place.high-school.nurse-office
+  @heading "Everything goes dark"
+
+  @passage collapse
+
+  You're so tired... you can't stay awake.
+
+  @choice darkness "Next" -> .wake
+    @time 1h..3h rest
+  @endchoice
+
+  @passage wake
+
+  @effect relocate nearest-place high_school
+
+  You wake up in the nurse's office, in one of the beds.
+
+  @next -> place.high-school.nurse-office
+@endsequence
+
+@sequence interrupt.exhaustion.home -> place.player-home
+  @heading "Everything goes dark"
+
+  @passage collapse
+
+  You're so tired... you can't stay awake.
+
+  @choice darkness "Next" -> .wake
+    @time 1h..3h rest
+  @endchoice
+
+  @passage wake
+
+  @effect relocate home
+
+  You wake up on the floor of your home.
+
+  @next -> place.player-home
+@endsequence
+
+@sequence interrupt.exhaustion.hospital -> place.hospital
+  @heading "Everything goes dark"
+
+  @passage collapse
+
+  You're so tired... you can't stay awake.
+
+  @choice darkness "Next" -> .wake
+    @time 1h..3h rest
+  @endchoice
+
+  @passage wake
+
+  @effect relocate nearest-place hospital
+
+  You wake up in the hospital, on one of the spare beds.
+
+  @next -> place.hospital
+@endsequence

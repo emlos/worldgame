@@ -537,6 +537,32 @@ function validateStoryContinuations(value, path, gameTime) {
     });
 }
 
+function validateInterruptRecord(value, path, gameTime) {
+    if (value === null) return null;
+    const item = record(value, path);
+    string(required(item, "entryId", path), `${path}.entryId`, { nonEmpty: true });
+    string(required(item, "sceneId", path), `${path}.sceneId`, { nonEmpty: true });
+    integer(required(item, "priority", path), `${path}.priority`);
+    const triggeredAt = dateMilliseconds(
+        required(item, "triggeredAt", path),
+        `${path}.triggeredAt`,
+    );
+    if (triggeredAt > gameTime) fail(`${path}.triggeredAt`, "must not be in the future");
+    return item;
+}
+
+function validateInterruptState(value, path, gameTime) {
+    const state = record(value, path);
+    validateInterruptRecord(required(state, "active", path), `${path}.active`, gameTime);
+    validateInterruptRecord(required(state, "pending", path), `${path}.pending`, gameTime);
+    uniqueStrings(
+        required(state, "latchedEntryIds", path),
+        `${path}.latchedEntryIds`,
+        { nonEmpty: true },
+    );
+    return state;
+}
+
 function validatePlayer(data, path, npcProfiles, gameTime) {
     const player = record(data, path);
     validateCharacterCore(player, path);
@@ -1506,9 +1532,9 @@ export function validateGameSave(data) {
     const save = record(data, "save");
     same(
         integer(required(save, "saveVersion", "save"), "save.saveVersion"),
-        26,
+        27,
         "save.saveVersion",
-        "version 26",
+        "version 27",
     );
 
     const seed = uint32(required(save, "seed", "save"), "save.seed");
@@ -1691,6 +1717,26 @@ export function validateGameSave(data) {
     integer(required(save, "actionRevision", "save"), "save.actionRevision", {
         min: 0,
     });
+    const interruptState = validateInterruptState(
+        required(save, "interruptState", "save"),
+        "save.interruptState",
+        gameTime,
+    );
+    if (interruptState.active !== null && interruptState.pending !== null) {
+        fail("save.interruptState", "cannot contain active and pending interrupts together");
+    }
+    if (
+        interruptState.active !== null &&
+        currentStory?.id !== interruptState.active.sceneId
+    ) {
+        fail("save.interruptState.active.sceneId", "must match the active story");
+    }
+    if (
+        interruptState.pending !== null &&
+        currentStory?.type !== "sequence"
+    ) {
+        fail("save.interruptState.pending", "requires an active sequence");
+    }
     array(required(save, "log", "save"), "save.log").forEach((entryData, index) => {
         const entryPath = `save.log[${index}]`;
         const entry = record(entryData, entryPath);

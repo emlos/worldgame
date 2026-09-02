@@ -103,6 +103,12 @@ function validateSkillCheckAction(action, path) {
     if (typeof outcome.energyFree !== "boolean") {
       fail(`${outcomePath}.energyFree must be a boolean`);
     }
+    if (typeof outcome.resting !== "boolean") {
+      fail(`${outcomePath}.resting must be a boolean`);
+    }
+    if (outcome.resting && !outcome.energyFree) {
+      fail(`${outcomePath}.resting requires energyFree`);
+    }
     if (!Array.isArray(outcome.effects)) fail(`${outcomePath}.effects must be an array`);
   }
 }
@@ -135,6 +141,12 @@ export function validateChoice(choice, path = "choice") {
   }
   if (typeof choice.energyFree !== "boolean") {
     fail(`${path}.energyFree must be a boolean`);
+  }
+  if (typeof choice.resting !== "boolean") {
+    fail(`${path}.resting must be a boolean`);
+  }
+  if (choice.resting && !choice.energyFree) {
+    fail(`${path}.resting requires energyFree`);
   }
 
   if (typeof choice.enabled !== "boolean") {
@@ -176,6 +188,7 @@ export function createChoice(input) {
     label,
     durationMinutes,
     energyFree,
+    resting,
     costs,
     effectsPreview,
     skillChanges,
@@ -194,6 +207,7 @@ export function createChoice(input) {
     label,
     durationMinutes: durationMinutes === undefined ? 0 : durationMinutes,
     energyFree: energyFree === undefined ? false : energyFree,
+    resting: resting === undefined ? false : resting,
     costs: copyMetadataList(costs === undefined ? [] : costs),
     effectsPreview: copyMetadataList(
       effectsPreview === undefined ? [] : effectsPreview,

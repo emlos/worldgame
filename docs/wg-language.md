@@ -274,6 +274,40 @@ continuations and returns to the world hub. The continuation stack, selected
 event, and inherited school arrival snapshot are saved, so save/load cannot
 reroll or lose an interrupted class.
 
+### Engine interrupts
+
+The pool ID `interrupt` is reserved for state-driven scenes that replace the
+ordinary result of a player action. Define them with normal entries, selectors,
+conditions, and priorities:
+
+```wg
+@entry interrupt.exhaustion.school
+  @scene interrupt.exhaustion.school
+  @pool interrupt
+  @place-key high_school
+  @when player.energy <= 0
+  @priority 100
+@endentry
+```
+
+After action effects and elapsed time, the runtime tests this pool before
+entering the action's ordinary target or automatic arrival event. The highest
+eligible priority wins; equally prioritized entries use their normal weights.
+Interrupts are replacements, not continuations, so they do not use `@return`.
+The pool cannot be invoked manually with `@event-pool interrupt`.
+
+Eligibility is edge-triggered. Every eligible variant is latched when one is
+selected, preventing a generic fallback from immediately following a more
+specific version. Entries re-arm after their conditions become false. When an
+interrupt arises during a sequence, its selected entry is saved and fires as
+soon as the player leaves that sequence. Interrupt selection and pending state
+survive save/load and remain inside the action's normal rollback transaction.
+
+Keep consequences in the interrupt scene using ordinary effects. A recovery
+choice can use `@time 1h..3h rest` to choose a stable random whole-minute
+duration, advance the full world simulation, and recover energy at the normal
+sleep rate while the player is unconscious.
+
 ### Position selectors and conditions
 
 Entries may repeat these selectors:
@@ -1030,22 +1064,25 @@ Choice directives are:
   combine non-negative decimal days, hours, minutes, and seconds in that order, with
   no spaces, such as `30s`, `5m`, `0.5h`, `1h30m`, or `1d2h`. Each unit may appear at
   most once. Use `0m` for an explicit zero duration; bare `0` is invalid.
+- `@time <minimum>..<maximum>`: picks a whole-minute duration, including both
+  endpoints. The result is deterministic for that story passage, so rerendering
+  or saving and loading cannot reroll the displayed `HH:MM` choice duration.
+  Both endpoints must resolve to whole minutes and the minimum must be smaller.
 - `@time <duration> free`: advances the full world simulation for the given
   duration but suppresses the player's passive elapsed-time energy drain for
   this action. It is valid in direct choices and skill-check outcomes. Explicit
   effects such as `@effect stat energy -10` still apply.
   NPC simulation, the calendar and weather, age synchronization, midnight
   daily-flag clearing, listeners, and action logging are unchanged.
+- `@time <duration> rest`: has the same simulation behavior as `free` and also
+  restores energy at 10 points per in-game hour. It accepts either a fixed
+  duration or a random range and is the shared time policy used by normal sleep
+  and forced-rest scenes.
 - `@time-until <runtime.path>`: calculates the duration from `time.iso` to
   a future ISO timestamp at materialization time. It is useful for waiting for
   the next class or closing time. It is valid only on direct choices, cannot
   be combined with `@time`, and fails if the path is missing, invalid, or not
   in the future.
-- `@enter-after-time`: delays entry into the choice target until after its
-  `@time` or `@time-until` duration has elapsed. It requires a positive direct
-  choice duration and cannot target `@leave-place`. Choice effects still apply
-  before time advances. Use this when the target is valid only in the resulting
-  world state, such as waiting in a classroom until its scheduled class begins.
 - `@event-pool <id>`: after the choice's effects, try to enter one eligible
   member of the named pool while suspending the ordinary choice target.
   It is valid on direct and checked choices, but not when a direct target or
@@ -1076,22 +1113,17 @@ Choice directives are:
 
 Before an action runs, the game rebuilds the current scene and rechecks that
 the choice still exists and is enabled. Direct-choice effects run in their
-authored order, then an event pool is resolved when present. A selected event
-is entered in place of the normal target and that target becomes its saved
-continuation; otherwise the normal target is entered. The entered target's
-`@onenter` effects run, then `@time` advances the world. The resulting screen
-is rendered against the post-time state. If any part of the action fails, its
-state changes and log entry are rolled back.
-
-With `@enter-after-time`, the effects run first, time advances second, and the
-pool or ordinary target and its `@onenter` effects run third.
+authored order, then `@time` advances the world. Engine interrupts are resolved
+against that resulting state. If no interrupt replaces or defers the normal
+transition, an event pool or ordinary target is entered and its `@onenter`
+effects run. The resulting screen is rendered against the completed state. If
+any part of the action fails, its state changes and log entry are rolled back.
 
 A scheduled classroom wait therefore looks like:
 
 ```wg
 @choice wait-for-class "Wait for class" -> school.class.english
   @time-until school.nextClassStartsAt
-  @enter-after-time
   @when school.phase != "class" and school.nextClass == "english"
 @endchoice
 ```
@@ -1099,13 +1131,11 @@ A scheduled classroom wait therefore looks like:
 A choice with no `@time`, or with a zero duration such as `0m`, does not advance
 the clock or update NPC simulation state.
 
-For example, an eight-hour rest that restores energy without losing passive
-energy during those same hours can use:
+For example, an eight-hour rest uses:
 
 ```wg
 @choice rest "Rest" -> place.player-home
-  @time 8h free
-  @effect stat energy 75
+  @time 8h rest
 @endchoice
 ```
 
@@ -1270,6 +1300,11 @@ Implemented effects are:
   school subject grade from `0` through `100`.
 - `attendance <subject-id> <positive-whole-number>` records completed class
   segments for a registered school subject.
+- `relocate home` immediately moves the player into their generated home.
+  `relocate nearest-place <place-key>` moves them into the closest unlocked
+  generated place with that key. Relocation is intended for authoritative story
+  transitions such as recovery, arrest, or forced transport; follow it with a
+  target scene belonging to the destination place.
 
 Effects and changes run sequentially, so a later mutation, condition, or
 passive check can read state changed by an earlier one. Warnings, previews,
@@ -1454,12 +1489,12 @@ not implemented.
 | Scene metadata | `@kind`, `@heading`, `@choices`, `@onenter ... @endonenter` |
 | Sequence metadata/navigation | scene metadata plus `@school-class`, `@system`, `@passage`, `@next` |
 | Scene or passage body | prose, `@br`, trailing inline `@change`, `@if` / `@elseif` / `@else` / `@endif`, `@random` / `@or` / `@endrandom`, passive `@check` / `@success` / `@failure` / `@endcheck`, `@effect`, `@unlock`, `@change`, `@choicegroup ... @endchoicegroup`, `@choice ... @endchoice` |
-| Direct choice | `@icon`, `@time`, `@time-until`, `@enter-after-time`, `@event-pool`, `@event-chance`, `@when`, `@require`, `@warning`, `@response ... @endresponse`, `@preview`, `@effect`, `@unlock`, `@change` |
+| Direct choice | `@icon`, `@time`, `@time-until`, `@event-pool`, `@event-chance`, `@when`, `@require`, `@warning`, `@response ... @endresponse`, `@preview`, `@effect`, `@unlock`, `@change` |
 | Checked choice | `@icon`, `@event-pool`, `@event-chance`, `@when`, `@require`, `@warning`, `@check`, `@success ... @endsuccess`, `@failure ... @endfailure` |
 | Check outcome | `@time`, `@response ... @endresponse`, `@effect`, `@unlock` |
 | On-enter block | `@effect`, `@unlock` |
 | Unlock directive | `@unlock place <registered-place-key>` |
-| Effect operations | `set`, `add`, `flag`, `daily-flag`, `relationship`, `money`, `skill`, `stat`, `grade`, `attendance`, `reminder add`, `reminder clear` |
+| Effect operations | `set`, `add`, `flag`, `daily-flag`, `relationship`, `money`, `skill`, `stat`, `grade`, `attendance`, `reminder add`, `reminder clear`, `relocate home`, `relocate nearest-place` |
 | Story targets | global scene/sequence ID, local `.passage`, `@return`, `@exit`, `@leave-place` (`@next` and sequence final targets have the narrower rules documented above) |
 
 ## Not supported by WG

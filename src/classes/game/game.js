@@ -15,6 +15,7 @@ import { DEFAULT_NPC_INTERACTION_MINUTES } from "../../data/scene/actions.js";
 import {
   INITIAL_PLAYER_AGE,
   PLAYER_ENERGY_DRAIN_PER_MINUTE,
+  PLAYER_ENERGY_RECOVERY_PER_MINUTE,
 } from "../../data/player/stats.js";
 import {
   SaveValidationError,
@@ -72,6 +73,11 @@ export class Game {
     this.storyContinuations = [];
     this.storyRevision = 0;
     this.actionRevision = 0;
+    this.interruptState = {
+      active: null,
+      pending: null,
+      latchedEntryIds: [],
+    };
 
     // --- npcs ---
     this.npcs = new Map();
@@ -445,7 +451,7 @@ export class Game {
   /**
    * Move player to another location on the world map.
    */
-  moveTo(locationId) {
+  moveTo(locationId, { preserveStory = false } = {}) {
     if (!this.world.locations.has(locationId)) {
       throw new Error(`Unknown location: ${locationId}`);
     }
@@ -456,7 +462,7 @@ export class Game {
     // When moving, you're typically not inside any specific place
     this.currentPlaceId = null;
     this.currentPlaceKey = null;
-    this._clearStory();
+    if (!preserveStory) this._clearStory();
     if (
       this.gpsTarget &&
       String(this.gpsTarget.locationId) === String(this.currentLocationId)
@@ -472,11 +478,15 @@ export class Game {
    * Set where inside the location the player currently is.
    * Use a Place.id, or pass null and set currentPlaceKey to something virtual like "street".
    */
-  setCurrentPlace({ placeId = null, placeKey = null } = {}) {
+  setCurrentPlace({
+    placeId = null,
+    placeKey = null,
+    preserveStory = false,
+  } = {}) {
     if (placeId == null) {
       this.currentPlaceId = null;
       this.currentPlaceKey = placeKey == null ? null : String(placeKey);
-      this._clearStory();
+      if (!preserveStory) this._clearStory();
       return;
     }
 
@@ -500,7 +510,7 @@ export class Game {
     // place keys are represented only by { placeId: null, placeKey: ... }.
     this.currentPlaceId = place.id;
     this.currentPlaceKey = place.key ?? null;
-    this._clearStory();
+    if (!preserveStory) this._clearStory();
   }
 
   _clearStory() {
@@ -535,6 +545,49 @@ export class Game {
       }
     }
     return unlocked;
+  }
+
+  /** Move the player immediately for an authored story effect. */
+  relocatePlayer(destination) {
+    if (!destination || typeof destination !== "object") {
+      throw new TypeError("Player relocation requires a destination");
+    }
+
+    let target = null;
+    if (destination.kind === "home") {
+      target = {
+        locationId: this.homeLocationId,
+        placeId: this.homePlaceId,
+      };
+    } else if (destination.kind === "nearest-place") {
+      const placeKey = String(destination.placeKey || "");
+      target = this.world.map.findNearestPlace(
+        (place) => String(place.key) === placeKey && isPlaceUnlocked(place),
+        this.currentLocationId,
+        this.now,
+        false,
+      );
+    } else {
+      throw new Error(`Unknown player relocation kind '${String(destination.kind)}'`);
+    }
+
+    if (!target?.locationId || !target?.placeId) {
+      throw new Error("No valid player relocation destination was found");
+    }
+    const place = this._getPlaceById(target.locationId, target.placeId);
+    if (!place || !isPlaceUnlocked(place)) {
+      throw new Error("Player relocation destination is unavailable");
+    }
+
+    if (String(target.locationId) !== String(this.currentLocationId)) {
+      this.moveTo(target.locationId, { preserveStory: true });
+    }
+    this.setCurrentPlace({ placeId: target.placeId, preserveStory: true });
+    return {
+      locationId: String(target.locationId),
+      placeId: String(target.placeId),
+      placeKey: String(place.key),
+    };
   }
 
   // --- Daily flags (cleared after crossing UTC midnight) ---
@@ -743,7 +796,15 @@ export class Game {
   /**
    * Wrapper for player actions: do stuff, spend time, log it.
    */
-  runAction({ label, minutes = 0, energyFree = false, apply, after }) {
+  runAction({
+    label,
+    minutes = 0,
+    energyFree = false,
+    resting = false,
+    apply,
+    after,
+    interrupt,
+  }) {
     let amount = 0;
     if (minutes !== 0) {
       amount = Number(minutes);
@@ -755,6 +816,12 @@ export class Game {
     }
     if (typeof energyFree !== "boolean") {
       throw new TypeError("runAction energyFree must be a boolean");
+    }
+    if (typeof resting !== "boolean") {
+      throw new TypeError("runAction resting must be a boolean");
+    }
+    if (resting && !energyFree) {
+      throw new TypeError("runAction resting actions must be energy-free");
     }
 
     const startedAt = this.now.toISOString();
@@ -774,15 +841,34 @@ export class Game {
         apply(this);
       }
 
+      if (resting && amount > 0) {
+        const energy = this.player.adjustStatBase(
+          "energy",
+          amount * PLAYER_ENERGY_RECOVERY_PER_MINUTE,
+        );
+        this.player.setStatBase(
+          "energy",
+          Math.round(energy * ENERGY_PRECISION) / ENERGY_PRECISION,
+        );
+      }
+
       if (amount > 0) {
         timeChange = this.advanceMinutes(amount, { drainPlayerEnergy: !energyFree });
       }
 
+      const skipAfter = typeof interrupt === "function"
+        ? interrupt(this, "before-after") === true
+        : false;
+
       // Arrival/event resolution belongs after time simulation so it
       // observes the destination clock and final NPC positions. It is
       // still inside this action's checkpoint and rolls back with it.
-      if (typeof after === "function") {
+      if (!skipAfter && typeof after === "function") {
         after(this);
+      }
+
+      if (typeof interrupt === "function") {
+        interrupt(this, "after-after");
       }
 
       // Successful actions advance the deterministic choice-roll epoch.
@@ -878,7 +964,7 @@ export class Game {
   // --------------------------
   toJSON() {
     return {
-      saveVersion: 26,
+      saveVersion: 27,
       seed: this.seed,
       random: this.random.toJSON(),
       time: this.now.toISOString(),
@@ -905,6 +991,7 @@ export class Game {
       storyContinuations: JSON.parse(JSON.stringify(this.storyContinuations)),
       storyRevision: this.storyRevision,
       actionRevision: this.actionRevision,
+      interruptState: JSON.parse(JSON.stringify(this.interruptState)),
       log: this.log.map((entry) => ({ ...entry })),
     };
   }
@@ -958,6 +1045,7 @@ export class Game {
     game.storyContinuations = JSON.parse(JSON.stringify(data.storyContinuations));
     game.storyRevision = data.storyRevision;
     game.actionRevision = data.actionRevision;
+    game.interruptState = JSON.parse(JSON.stringify(data.interruptState));
     game.log = data.log.map((entry) => ({ ...entry }));
 
     game._initializeNPCBrains();

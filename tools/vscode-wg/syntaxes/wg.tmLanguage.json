@@ -281,7 +281,7 @@
       "patterns": [
         {
           "name": "meta.property.directive.wg",
-          "begin": "^(\\s*)(@(text|tone|kind|heading|choices|school-class|system|scene|place-key|place-tag|location-tag|hub|offer|label|icon|hub-text|auto|pool|priority|chance|weight|time|time-until|enter-after-time|event-pool|event-chance|warning|preview|check))\\b",
+          "begin": "^(\\s*)(@(text|tone|kind|heading|choices|school-class|system|scene|place-key|place-tag|location-tag|hub|offer|label|icon|hub-text|auto|pool|priority|chance|weight|time|time-until|event-pool|event-chance|warning|preview|check))\\b",
           "beginCaptures": { "2": { "name": "keyword.other.directive.wg" } },
           "end": "$",
           "patterns": [{ "include": "#expression" }]
