@@ -272,6 +272,12 @@
     "prose-break": {
       "patterns": [
         {
+          "match": "^(\\s*)(@br)\\s*$",
+          "captures": {
+            "2": { "name": "keyword.control.prose-break.wg" }
+          }
+        },
+        {
           "name": "keyword.control.prose-break.wg",
           "match": "(?<!\\\\)@br(?=\\s|$)"
         }

@@ -14,7 +14,6 @@ ui:
 
 wg script:
 
-- vscode highlighting: @br should be accepted in @response/@endresponse blocks - compiler complies corrently, just the highlighting needs adjusting
 - inline @if/@elseif/@else/@endif
 
 game systems:
