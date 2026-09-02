@@ -144,7 +144,7 @@ function materializeDuration(node, context, options, durationKey) {
     ].join(":");
     return min + Math.floor(keyedRandom01(options.gameSeed, key) * (max - min + 1));
   }
-  if (!node.timeUntilPath) return node.durationMinutes;
+  if (!node.timeUntilPath) return node.durationMinutes ?? 0;
   const targetValue = resolveWGPath(context, node.timeUntilPath);
   const target = new Date(targetValue);
   const now = new Date(context.time?.iso);
