@@ -1,8 +1,8 @@
 import { SKILLS, STATS } from "../../../data/player/stats.js";
 import {
   SCHOOL_SUBJECTS,
-  SUBJECT_GRADE_MAX,
-  SUBJECT_GRADE_MIN,
+  SUBJECT_ACHIEVEMENT_MAX,
+  subjectAchievementPoints,
 } from "../../../data/player/education.js";
 import { WearSlot } from "../../../shared/classes/clothing.js";
 import { listNavigationDestinations } from "../navigation.js";
@@ -112,9 +112,10 @@ export function buildPhonePlayerStatsView(game) {
         id,
         label: definition.label,
         grade: subject.grade,
+        progress: subject.progress,
+        achievement: subjectAchievementPoints(subject),
+        achievementMax: SUBJECT_ACHIEVEMENT_MAX,
         attendedSegments: subject.attendedSegments,
-        min: SUBJECT_GRADE_MIN,
-        max: SUBJECT_GRADE_MAX,
       };
     }),
     body: {

@@ -263,7 +263,8 @@
   gap: 5px;
 }
 
-.inspector-number-field input {
+.inspector-number-field input,
+.inspector-number-field select {
   padding: 6px 7px;
   font-variant-numeric: tabular-nums;
 }

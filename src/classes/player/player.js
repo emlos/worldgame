@@ -26,7 +26,12 @@ import {
 import {
     initialPlayerEducation,
     normalizeSubjectGrade,
+    normalizeSubjectProgress,
     requireSchoolSubject,
+    SUBJECT_GRADES,
+    SUBJECT_PROGRESS_MAX,
+    SUBJECT_PROGRESS_MIN,
+    SUBJECT_PROMOTION_THRESHOLD,
 } from "../../data/player/education.js";
 
 const SKILL_PRECISION = 1_000_000;
@@ -164,6 +169,10 @@ export class Player {
                     grade: normalizeSubjectGrade(
                         saved.grade,
                         `Player subject '${id}' grade`,
+                    ),
+                    progress: normalizeSubjectProgress(
+                        saved.progress,
+                        `Player subject '${id}' progress`,
                     ),
                     attendedSegments,
                 };
@@ -337,15 +346,61 @@ export class Player {
     getSubjectGrade(subjectId) {
         return this.getSubjectRecord(subjectId).grade;
     }
-    adjustSubjectGrade(subjectId, delta) {
+    getSubjectProgress(subjectId) {
+        return this.getSubjectRecord(subjectId).progress;
+    }
+    setSubjectGrade(subjectId, grade) {
         const { id } = requireSchoolSubject(subjectId);
-        const amount = finiteNumber(delta, `Player subject '${id}' grade adjustment`);
         const record = this.education.subjects[id];
         record.grade = normalizeSubjectGrade(
-            record.grade + amount,
+            grade,
             `Player subject '${id}' grade`,
         );
         return record.grade;
+    }
+    setSubjectProgress(subjectId, progress) {
+        const { id } = requireSchoolSubject(subjectId);
+        const record = this.education.subjects[id];
+        record.progress = normalizeSubjectProgress(
+            progress,
+            `Player subject '${id}' progress`,
+        );
+        return record.progress;
+    }
+    adjustSubjectProgress(subjectId, delta) {
+        const { id } = requireSchoolSubject(subjectId);
+        const amount = finiteNumber(delta, `Player subject '${id}' progress adjustment`);
+        if (!Number.isInteger(amount)) {
+            throw new RangeError("Subject progress adjustments must be whole numbers");
+        }
+
+        const record = this.education.subjects[id];
+        const before = { grade: record.grade, progress: record.progress };
+        const initialGradeIndex = SUBJECT_GRADES.indexOf(record.grade);
+        let gradeIndex = initialGradeIndex;
+        let progress = record.progress;
+
+        if (amount < 0) {
+            progress = Math.max(SUBJECT_PROGRESS_MIN, progress + amount);
+        } else if (amount > 0) {
+            progress += amount;
+            while (
+                progress >= SUBJECT_PROMOTION_THRESHOLD &&
+                gradeIndex < SUBJECT_GRADES.length - 1
+            ) {
+                progress -= SUBJECT_PROMOTION_THRESHOLD;
+                gradeIndex += 1;
+            }
+            progress = Math.min(SUBJECT_PROGRESS_MAX, progress);
+        }
+
+        record.grade = SUBJECT_GRADES[gradeIndex];
+        record.progress = progress;
+        return {
+            before,
+            after: { grade: record.grade, progress: record.progress },
+            promotions: gradeIndex - initialGradeIndex,
+        };
     }
     recordSubjectAttendance(subjectId, segments = 1) {
         const { id } = requireSchoolSubject(subjectId);

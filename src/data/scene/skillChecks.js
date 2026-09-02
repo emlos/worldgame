@@ -1,7 +1,7 @@
 import {
   SCHOOL_SUBJECTS,
-  SUBJECT_GRADE_MAX,
-  SUBJECT_GRADE_MIN,
+  SUBJECT_ACHIEVEMENT_MAX,
+  subjectAchievementPoints,
 } from "../player/education.js";
 import { SKILLS } from "../player/stats.js";
 
@@ -58,13 +58,10 @@ export function getPlayerSkillCheckValue(player, targetType, targetId) {
     return player.getSkillValue(id);
   }
 
-  const grade = Number(player.getSubjectGrade(id));
-  if (!Number.isFinite(grade)) {
-    throw new TypeError(`Grade checks require a finite '${id}' grade`);
-  }
   return (
-    ((grade - SUBJECT_GRADE_MIN) / (SUBJECT_GRADE_MAX - SUBJECT_GRADE_MIN)) * 10
-  );
+    subjectAchievementPoints(player.getSubjectRecord(id)) /
+    SUBJECT_ACHIEVEMENT_MAX
+  ) * 10;
 }
 
 export function skillLevelForCheck(value, { min = 0, max = 10 } = {}) {

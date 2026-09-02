@@ -587,10 +587,11 @@ function makePhoneMeterEntry(entry, kind) {
   label.textContent = entry.label;
 
   const value = document.createElement("output");
-  value.textContent =
+  value.textContent = entry.valueLabel ?? (
     kind === "skill"
       ? `${formatStatValue(entry.value)} / ${formatStatValue(entry.max)}`
-      : formatStatValue(entry.value);
+      : formatStatValue(entry.value)
+  );
   value.setAttribute("aria-label", `${entry.label} value`);
   header.append(label, value);
 
@@ -601,6 +602,7 @@ function makePhoneMeterEntry(entry, kind) {
   meter.setAttribute("aria-valuemin", String(entry.min));
   meter.setAttribute("aria-valuemax", String(entry.max));
   meter.setAttribute("aria-valuenow", String(entry.value));
+  if (entry.valueLabel) meter.setAttribute("aria-valuetext", entry.valueLabel);
 
   const fill = document.createElement("span");
   fill.className = "phone-meter-fill";
@@ -706,9 +708,10 @@ function renderPhoneStats() {
         {
           id: entry.id,
           label: `${entry.label} · ${entry.attendedSegments} segments attended`,
-          value: entry.grade,
-          min: entry.min,
-          max: entry.max,
+          value: entry.achievement,
+          min: 0,
+          max: entry.achievementMax,
+          valueLabel: `${entry.grade} · ${entry.progress}/100`,
         },
         "grade",
       ),

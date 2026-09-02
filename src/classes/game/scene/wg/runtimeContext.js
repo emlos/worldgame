@@ -27,7 +27,11 @@ function playerContext(player) {
   const education = Object.fromEntries(
     Object.entries(player.education?.subjects || {}).map(([id, subject]) => [
       id,
-      { grade: subject.grade, attendedSegments: subject.attendedSegments },
+      {
+        grade: subject.grade,
+        progress: subject.progress,
+        attendedSegments: subject.attendedSegments,
+      },
     ]),
   );
   return {

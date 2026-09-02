@@ -754,9 +754,10 @@ The currently exposed paths are:
 - `player.skills.strength`, `.perception`, `.endurance`, `.speech`,
   `.resolve`, and `.fitness`. Skill values retain their fractional progress
   from `0` through `10`.
-- `player.education.<subject-id>.grade` and `.attendedSegments` for each
-  registered school subject: `english`, `math`, `history`, `science`, `art`,
-  and `physical_education`.
+- `player.education.<subject-id>.grade`, `.progress`, and `.attendedSegments`
+  for each registered school subject: `english`, `math`, `history`, `science`,
+  `art`, and `physical_education`. `grade` is one of `D`, `C`, `B`, or `A`;
+  `progress` is a whole number from `0` through `99` toward the next grade.
 - `npc.<id>.id`, `.name`, `.shortName`, `.age`, `.gender`, `.relationship.<meter-id>`,
   `.present`, and `.available`.
 - `home.location.name`: the name of the location containing the player's home,
@@ -967,7 +968,7 @@ You get through the work normally.
 ```
 
 `@change` accepts `relationship`, `money`, `skill`, `stat`, `grade`, and
-`attendance` operations. It derives labels such as `-English grade` from the
+`attendance` operations. It derives labels such as `-English` from the
 registered data. Add an optional quoted label to override that text:
 
 ```wg
@@ -998,7 +999,7 @@ labels as a standalone `@change`, and execute and display left to right:
 You compare notes with Taylor. @change relationship taylor.friendship 1 @change grade history 1
 ```
 
-This displays `You compare notes with Taylor. | +Friendship | +History grade`.
+This displays `You compare notes with Taylor. | +Friendship | +History`.
 There is no fixed limit on the number of inline changes. Quoted labels may
 contain literal `@change` text and escaped quotes without starting a new
 directive. The chain consumes the remainder of the source line; put further
@@ -1207,8 +1208,10 @@ or sequence, a local passage when inside a sequence, `@exit`, or
 
 To check a school grade instead, use syntax such as
 `@check grade english difficult`. The UI displays `English Grade: Difficult`.
-Grades are normalized from their `0`–`100` range to the same `0`–`10` check
-level used by skills.
+The current letter grade and progress are combined and normalized to the same
+`0`–`10` check level used by skills. `D` begins near level `0`, `C` near `2.5`,
+`B` near `5`, and `A` near `7.5`; progress fills the space before the next
+letter grade.
 
 Each `@success` or `@failure` block may contain at most one `@time`, including
 the optional `free` suffix, and any number of `@response`, `@effect`, and `@unlock`
@@ -1227,10 +1230,10 @@ Implemented difficulty IDs are:
 
 For rolled difficulties, the engine floors the normalized check level before
 calculating the chance. Thus skill values `2.05` and `2.99` both check as level
-`2`, while English grades `20.5` and `29.9` both do the same. Chance rises
-smoothly with the target value using the centralized logistic difficulty
-curve; the author does not specify percentages. Even level `10` has a failure
-chance on `near-impossible`.
+`2`. A high-progress `D` and a new `C` therefore sit near the same check level.
+Chance rises smoothly with the target value using the centralized logistic
+difficulty curve; the author does not specify percentages. Even level `10`
+has a failure chance on `near-impossible`.
 
 Checks are resolved only after the choice is authoritatively rebuilt. Their
 keyed roll uses the game seed, successful-action revision, current scene
@@ -1315,8 +1318,10 @@ Implemented effects are:
   `health`, `mind`, `stress`, `energy`, `trauma`, `hygiene`, or `fear`.
   `health` routes through the player's body health rather than an ordinary
   stored base-stat meter.
-- `grade <subject-id> <signed-number>` adjusts and clamps a registered
-  school subject grade from `0` through `100`.
+- `grade <subject-id> <signed-whole-number>` adjusts progress within a
+  registered school subject. Reaching `100` promotes `D` to `C`, `C` to `B`,
+  or `B` to `A` and carries the remainder into the new grade. Negative changes
+  stop at `0` without demoting the letter grade; `A` caps at `99`.
 - `attendance <subject-id> <positive-whole-number>` records completed class
   segments for a registered school subject.
 - `relocate home` immediately moves the player into their generated home.

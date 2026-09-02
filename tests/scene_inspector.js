@@ -10,8 +10,9 @@ import { WG_BUNDLE } from "../src/generated/wg/scenes.js";
 import { SKILLS, STATS } from "../src/data/player/stats.js";
 import {
   SCHOOL_SUBJECTS,
-  SUBJECT_GRADE_MAX,
-  SUBJECT_GRADE_MIN,
+  SUBJECT_GRADES,
+  SUBJECT_PROGRESS_MAX,
+  SUBJECT_PROGRESS_MIN,
 } from "../src/data/player/education.js";
 import { getSchoolDayState } from "../src/data/player/schedule.js";
 import { createWGRuntimeContext } from "../src/classes/game/scene/wg/runtimeContext.js";
@@ -137,7 +138,8 @@ function applyEditorOverrides() {
     game.player.setSkillValue(id, value);
   }
   for (const [id, value] of editorOverrides.grades) {
-    game.player.adjustSubjectGrade(id, value - game.player.getSubjectGrade(id));
+    game.player.setSubjectGrade(id, value.grade);
+    game.player.setSubjectProgress(id, value.progress);
   }
   for (const [id, value] of editorOverrides.flags) game.setFlag(id, value);
   for (const [id, value] of editorOverrides.dailyFlags) game.setDailyFlag(id, value);
@@ -186,7 +188,10 @@ function snapshotState() {
       Object.keys(SKILLS).map((id) => [id, game.player.getSkillValue(id)]),
     ),
     grades: Object.fromEntries(
-      Object.keys(SCHOOL_SUBJECTS).map((id) => [id, game.player.getSubjectGrade(id)]),
+      Object.keys(SCHOOL_SUBJECTS).map((id) => {
+        const subject = game.player.getSubjectRecord(id);
+        return [id, `${subject.grade}:${subject.progress}`];
+      }),
     ),
     relationships: Object.fromEntries(
       [...game.npcs.values()].sort((a, b) => a.id.localeCompare(b.id)).map((npc) => {
@@ -661,6 +666,39 @@ function makeNumberField({ id, label, value, min, max, step = 1, onChange }) {
   return fragment;
 }
 
+function makeSelectField({ id, label, value, options, onChange }) {
+  const field = document.createElement("label");
+  field.className = "inspector-number-field";
+  field.htmlFor = id;
+  const labelElement = document.createElement("span");
+  labelElement.textContent = label;
+  const input = document.createElement("select");
+  input.id = id;
+  input.append(...options.map((optionValue) => {
+    const option = document.createElement("option");
+    option.value = optionValue;
+    option.textContent = optionValue;
+    return option;
+  }));
+  input.value = value;
+  input.addEventListener("change", () => {
+    try {
+      const before = snapshotState();
+      onChange(input.value);
+      clearChoiceUndo();
+      addTrace(`Edit ${label}`, stateChanges(before, snapshotState()));
+      setNotice(`${label} updated.`);
+      scheduleStorySurfaceRender();
+    } catch (error) {
+      setNotice(error.message, "error");
+      input.value = value;
+      renderDiagnostics();
+    }
+  });
+  field.append(labelElement, input);
+  return field;
+}
+
 function valueGroup(title) {
   const group = document.createElement("section");
   const heading = document.createElement("h3");
@@ -726,17 +764,34 @@ function renderPlayerFields() {
 
   const grades = valueGroup("School grades");
   for (const [id, definition] of Object.entries(SCHOOL_SUBJECTS)) {
+    const rememberGradeOverride = () => {
+      const subject = game.player.getSubjectRecord(id);
+      editorOverrides.grades.set(id, {
+        grade: subject.grade,
+        progress: subject.progress,
+      });
+    };
     grades.fields.append(
-      makeNumberField({
+      makeSelectField({
         id: `state-grade-${id}`,
-        label: definition.label,
+        label: `${definition.label} grade`,
         value: game.player.getSubjectGrade(id),
-        min: SUBJECT_GRADE_MIN,
-        max: SUBJECT_GRADE_MAX,
+        options: SUBJECT_GRADES,
+        onChange: (value) => {
+          game.player.setSubjectGrade(id, value);
+          rememberGradeOverride();
+        },
+      }),
+      makeNumberField({
+        id: `state-progress-${id}`,
+        label: `${definition.label} progress`,
+        value: game.player.getSubjectProgress(id),
+        min: SUBJECT_PROGRESS_MIN,
+        max: SUBJECT_PROGRESS_MAX,
         step: 1,
         onChange: (value) => {
-          game.player.adjustSubjectGrade(id, value - game.player.getSubjectGrade(id));
-          editorOverrides.grades.set(id, value);
+          game.player.setSubjectProgress(id, value);
+          rememberGradeOverride();
         },
       }),
     );

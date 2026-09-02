@@ -166,7 +166,7 @@ export function applyWGEffect(game, effect) {
       fail("WG grade effect references unknown school subject '" + String(effect.id) + "'");
     }
     if (!Number.isFinite(effect.amount)) fail("WG grade effect needs a finite amount");
-    game.player.adjustSubjectGrade(effect.id, effect.amount);
+    game.player.adjustSubjectProgress(effect.id, effect.amount);
     return;
   }
 

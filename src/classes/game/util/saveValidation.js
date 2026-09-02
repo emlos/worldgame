@@ -18,8 +18,9 @@ import {
 } from "../../../shared/classes/relationship.js";
 import {
     SCHOOL_SUBJECTS,
-    SUBJECT_GRADE_MAX,
-    SUBJECT_GRADE_MIN,
+    SUBJECT_GRADES,
+    SUBJECT_PROGRESS_MAX,
+    SUBJECT_PROGRESS_MIN,
 } from "../../../data/player/education.js";
 import {
     getPlaceInstanceTarget,
@@ -636,9 +637,15 @@ function validatePlayer(data, path, npcProfiles, gameTime) {
     for (const id of Object.keys(SCHOOL_SUBJECTS)) {
         const subjectPath = `${path}.education.subjects.${id}`;
         const subject = record(required(subjects, id, `${path}.education.subjects`), subjectPath);
-        finiteNumber(required(subject, "grade", subjectPath), `${subjectPath}.grade`, {
-            min: SUBJECT_GRADE_MIN,
-            max: SUBJECT_GRADE_MAX,
+        const grade = string(required(subject, "grade", subjectPath), `${subjectPath}.grade`, {
+            nonEmpty: true,
+        });
+        if (!SUBJECT_GRADES.includes(grade)) {
+            fail(`${subjectPath}.grade`, `must be one of ${SUBJECT_GRADES.join(", ")}`);
+        }
+        integer(required(subject, "progress", subjectPath), `${subjectPath}.progress`, {
+            min: SUBJECT_PROGRESS_MIN,
+            max: SUBJECT_PROGRESS_MAX,
         });
         integer(
             required(subject, "attendedSegments", subjectPath),
@@ -1532,9 +1539,9 @@ export function validateGameSave(data) {
     const save = record(data, "save");
     same(
         integer(required(save, "saveVersion", "save"), "save.saveVersion"),
-        27,
+        28,
         "save.saveVersion",
-        "version 27",
+        "version 28",
     );
 
     const seed = uint32(required(save, "seed", "save"), "save.seed");

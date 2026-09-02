@@ -118,7 +118,7 @@
     a passage that is full of unfamiliar phrasing.
   @endrandom
 
-  @if player.education.english.grade >= 70
+  @if player.education.english.grade == "A" or player.education.english.grade == "B"
   You're pretty sure you've read this passage before, so you know what to expect.
   @else
   The unfamiliar phrasing makes the passage look more intimidating than it sounded a moment ago.
@@ -152,7 +152,7 @@
 
   A sentence catches you halfway through. You recover, but not before the room hears the hesitation.  @change grade english -1
 
-  @if player.education.english.grade < 70
+  @if player.education.english.grade == "A" or player.education.english.grade == "B"
   You feel embarrassed, this shouldn't have been so difficult!
   @endif
 
@@ -358,7 +358,7 @@
   The teacher calls on you to answer a question on the board.
 
   @choice answer-correct "Answer confidently"
-    @when player.education.math.grade >= 70
+    @when player.education.math.grade == "A" or player.education.math.grade == "B"
     @check grade math easy 
     @success -> .correct
     @endsuccess

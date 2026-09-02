@@ -45,9 +45,6 @@ game systems:
 
     school:
     - midterms/finals mechanic -> skill improvement/reward for player, passing a midterm/final automatically improves grade
-    - currently grades are a plains core -> when score reches 100 their overall grade in subject improves:
-      grades: A, B, C, D - starts at D
-      consequently, ui should now longer show +English grade, but just +English on improvement after the above is implemented
     - some sort of school popularity system (status? it feels too similar to what degrees of lewdity implements...)
     - missed classes/bad behavior penalty + detention
 

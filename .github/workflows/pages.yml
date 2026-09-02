@@ -17,6 +17,16 @@ jobs:
         with:
           fetch-depth: 0 # important: get full history for git log
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Check generated WG output
+        run: node tools/wg/compile.mjs --check
+
+      - name: Run automated tests
+        run: node --test tests/*.test.mjs
+
       - name: Generate commits.json
         run: |
           git log --date=iso8601-strict \

@@ -381,6 +381,9 @@ function parseEffect(text, file, line) {
       failWG(`@effect ${operation} references unknown school subject '${id}'`, location);
     }
     const amount = Number(amountText);
+    if (operation === "grade" && !Number.isInteger(amount)) {
+      failWG("@effect grade requires a signed whole number", location);
+    }
     if (operation === "attendance" && (!Number.isInteger(amount) || amount <= 0)) {
       failWG("@effect attendance requires a positive whole number", location);
     }
@@ -409,7 +412,7 @@ function defaultChangeLabel(effect) {
   if (effect.op === "skill") return `${sign}${SKILLS[effect.id].label}`;
   if (effect.op === "stat") return `${sign}${STATS[effect.id].label}`;
   if (effect.op === "grade") {
-    return `${sign}${SCHOOL_SUBJECTS[effect.id].label} grade`;
+    return `${sign}${SCHOOL_SUBJECTS[effect.id].label}`;
   }
   if (effect.op === "attendance") {
     return `${sign}${SCHOOL_SUBJECTS[effect.id].label} attendance`;
