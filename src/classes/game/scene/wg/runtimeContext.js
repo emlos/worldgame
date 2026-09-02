@@ -25,14 +25,18 @@ function skillValues(player) {
 
 function playerContext(player) {
   const education = Object.fromEntries(
-    Object.entries(player.education?.subjects || {}).map(([id, subject]) => [
-      id,
-      {
-        grade: subject.grade,
-        progress: subject.progress,
-        attendedSegments: subject.attendedSegments,
-      },
-    ]),
+    Object.keys(player.education?.subjects || {}).map((id) => {
+      const subject = player.getSubjectRecord(id);
+      return [
+        id,
+        {
+          achievement: subject.achievement,
+          grade: subject.grade,
+          progress: subject.progress,
+          attendedSegments: subject.attendedSegments,
+        },
+      ];
+    }),
   );
   return {
     ...evaluatedStats(player),

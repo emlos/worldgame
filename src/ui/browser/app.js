@@ -711,7 +711,9 @@ function renderPhoneStats() {
           value: entry.achievement,
           min: 0,
           max: entry.achievementMax,
-          valueLabel: `${entry.grade} · ${entry.progress}/100`,
+          valueLabel: entry.grade === "A"
+            ? `A · mastery ${entry.progress}/99`
+            : `${entry.grade} · ${entry.progress}/100`,
         },
         "grade",
       ),

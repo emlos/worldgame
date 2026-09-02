@@ -1,7 +1,6 @@
 import {
   SCHOOL_SUBJECTS,
   SUBJECT_ACHIEVEMENT_MAX,
-  subjectAchievementPoints,
 } from "../player/education.js";
 import { SKILLS } from "../player/stats.js";
 
@@ -59,7 +58,7 @@ export function getPlayerSkillCheckValue(player, targetType, targetId) {
   }
 
   return (
-    subjectAchievementPoints(player.getSubjectRecord(id)) /
+    player.getSubjectAchievement(id) /
     SUBJECT_ACHIEVEMENT_MAX
   ) * 10;
 }

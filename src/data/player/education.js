@@ -1,12 +1,12 @@
 import { finiteNumber } from "../../shared/util/util.js";
 
 export const SUBJECT_GRADES = Object.freeze(["D", "C", "B", "A"]);
-export const SUBJECT_GRADE_INITIAL = SUBJECT_GRADES[0];
+export const SUBJECT_ACHIEVEMENT_MIN = 0;
 export const SUBJECT_PROGRESS_MIN = 0;
 export const SUBJECT_PROGRESS_MAX = 99;
-export const SUBJECT_PROMOTION_THRESHOLD = 100;
+export const SUBJECT_GRADE_RANGE = 100;
 export const SUBJECT_ACHIEVEMENT_MAX =
-  (SUBJECT_GRADES.length - 1) * SUBJECT_PROMOTION_THRESHOLD +
+  (SUBJECT_GRADES.length - 1) * SUBJECT_GRADE_RANGE +
   SUBJECT_PROGRESS_MAX;
 
 export const SCHOOL_SUBJECTS = Object.freeze({
@@ -24,8 +24,7 @@ export function initialPlayerEducation() {
       Object.keys(SCHOOL_SUBJECTS).map((id) => [
         id,
         {
-          grade: SUBJECT_GRADE_INITIAL,
-          progress: SUBJECT_PROGRESS_MIN,
+          achievement: SUBJECT_ACHIEVEMENT_MIN,
           attendedSegments: 0,
         },
       ]),
@@ -55,18 +54,31 @@ export function normalizeSubjectProgress(value, label = "Subject progress") {
   return progress;
 }
 
+export function normalizeSubjectAchievement(value, label = "Subject achievement") {
+  const achievement = finiteNumber(value, label);
+  if (
+    !Number.isInteger(achievement) ||
+    achievement < SUBJECT_ACHIEVEMENT_MIN ||
+    achievement > SUBJECT_ACHIEVEMENT_MAX
+  ) {
+    throw new RangeError(
+      `${label} must be a whole number from ${SUBJECT_ACHIEVEMENT_MIN} through ${SUBJECT_ACHIEVEMENT_MAX}`,
+    );
+  }
+  return achievement;
+}
+
 export function subjectGradeIndex(grade) {
   return SUBJECT_GRADES.indexOf(normalizeSubjectGrade(grade));
 }
 
-export function subjectAchievementPoints(record) {
-  if (!record || typeof record !== "object") {
-    throw new TypeError("Subject achievement requires a subject record");
-  }
-  return (
-    subjectGradeIndex(record.grade) * SUBJECT_PROMOTION_THRESHOLD +
-    normalizeSubjectProgress(record.progress)
-  );
+export function subjectGradeAndProgress(achievement) {
+  const points = normalizeSubjectAchievement(achievement);
+  const gradeIndex = Math.floor(points / SUBJECT_GRADE_RANGE);
+  return {
+    grade: SUBJECT_GRADES[gradeIndex],
+    progress: points % SUBJECT_GRADE_RANGE,
+  };
 }
 
 export function requireSchoolSubject(id) {

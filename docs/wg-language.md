@@ -754,10 +754,12 @@ The currently exposed paths are:
 - `player.skills.strength`, `.perception`, `.endurance`, `.speech`,
   `.resolve`, and `.fitness`. Skill values retain their fractional progress
   from `0` through `10`.
-- `player.education.<subject-id>.grade`, `.progress`, and `.attendedSegments`
-  for each registered school subject: `english`, `math`, `history`, `science`,
-  `art`, and `physical_education`. `grade` is one of `D`, `C`, `B`, or `A`;
-  `progress` is a whole number from `0` through `99` toward the next grade.
+- `player.education.<subject-id>.achievement`, `.grade`, `.progress`, and
+  `.attendedSegments` for each registered school subject: `english`, `math`,
+  `history`, `science`, `art`, and `physical_education`. `achievement` is the
+  canonical whole-number score from `0` through `399`. `grade` is derived as
+  `D`, `C`, `B`, or `A`, and `progress` is the `0`–`99` position within that
+  grade. Progress within `A` represents mastery rather than another promotion.
 - `npc.<id>.id`, `.name`, `.shortName`, `.age`, `.gender`, `.relationship.<meter-id>`,
   `.present`, and `.available`.
 - `home.location.name`: the name of the location containing the player's home,
@@ -1208,10 +1210,9 @@ or sequence, a local passage when inside a sequence, `@exit`, or
 
 To check a school grade instead, use syntax such as
 `@check grade english difficult`. The UI displays `English Grade: Difficult`.
-The current letter grade and progress are combined and normalized to the same
-`0`–`10` check level used by skills. `D` begins near level `0`, `C` near `2.5`,
-`B` near `5`, and `A` near `7.5`; progress fills the space before the next
-letter grade.
+The subject's achievement is normalized to the same `0`–`10` check level used
+by skills. `D` begins near level `0`, `C` near `2.5`, `B` near `5`, and `A`
+near `7.5`; progress fills the space within each letter grade.
 
 Each `@success` or `@failure` block may contain at most one `@time`, including
 the optional `free` suffix, and any number of `@response`, `@effect`, and `@unlock`
@@ -1318,10 +1319,11 @@ Implemented effects are:
   `health`, `mind`, `stress`, `energy`, `trauma`, `hygiene`, or `fear`.
   `health` routes through the player's body health rather than an ordinary
   stored base-stat meter.
-- `grade <subject-id> <signed-whole-number>` adjusts progress within a
-  registered school subject. Reaching `100` promotes `D` to `C`, `C` to `B`,
-  or `B` to `A` and carries the remainder into the new grade. Negative changes
-  stop at `0` without demoting the letter grade; `A` caps at `99`.
+- `grade <subject-id> <signed-whole-number>` adjusts a registered school
+  subject's achievement. Crossing a hundred-point boundary changes the letter
+  grade in either direction and carries the remainder: `D · 99 + 1` becomes
+  `C · 0`, while `B · 3 - 10` becomes `C · 93`. Achievement clamps at
+  `D · 0` and `A · 99`.
 - `attendance <subject-id> <positive-whole-number>` records completed class
   segments for a registered school subject.
 - `relocate home` immediately moves the player into their generated home.

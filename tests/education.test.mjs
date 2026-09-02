@@ -12,58 +12,65 @@ import {
   SUBJECT_ACHIEVEMENT_MAX,
   SUBJECT_GRADES,
   initialPlayerEducation,
-  subjectAchievementPoints,
 } from "../src/data/player/education.js";
 import { getPlayerSkillCheckValue } from "../src/data/scene/skillChecks.js";
 import { WG_BUNDLE } from "../src/generated/wg/scenes.js";
 import { parseWGDocument } from "../tools/wg/compiler/sourceParser.js";
 
-test("new subjects start at grade D with no progress", () => {
+test("new subjects store one canonical achievement score", () => {
   const education = initialPlayerEducation();
   assert.deepEqual(Object.keys(education.subjects), Object.keys(SCHOOL_SUBJECTS));
   for (const subject of Object.values(education.subjects)) {
     assert.deepEqual(subject, {
-      grade: "D",
-      progress: 0,
+      achievement: 0,
       attendedSegments: 0,
     });
   }
 });
 
-test("subject progress promotes through letter grades and carries overflow", () => {
+test("subject achievement promotes through letter grades and carries overflow", () => {
   const player = new Player();
   player.setSubjectProgress("english", 99);
 
-  assert.deepEqual(player.adjustSubjectProgress("english", 1), {
-    before: { grade: "D", progress: 99 },
-    after: { grade: "C", progress: 0 },
-    promotions: 1,
+  assert.deepEqual(player.adjustSubjectAchievement("english", 1), {
+    before: { achievement: 99, grade: "D", progress: 99 },
+    after: { achievement: 100, grade: "C", progress: 0 },
+    appliedDelta: 1,
+    gradeDelta: 1,
   });
 
-  assert.deepEqual(player.adjustSubjectProgress("english", 250), {
-    before: { grade: "C", progress: 0 },
-    after: { grade: "A", progress: 50 },
-    promotions: 2,
+  assert.deepEqual(player.adjustSubjectAchievement("english", 250), {
+    before: { achievement: 100, grade: "C", progress: 0 },
+    after: { achievement: 350, grade: "A", progress: 50 },
+    appliedDelta: 250,
+    gradeDelta: 2,
   });
 });
 
-test("negative progress does not demote and A progress caps", () => {
+test("negative achievement demotes grades and both ends clamp", () => {
   const player = new Player();
   player.setSubjectGrade("math", "B");
   player.setSubjectProgress("math", 3);
-  assert.deepEqual(player.adjustSubjectProgress("math", -10).after, {
-    grade: "B",
-    progress: 0,
+  assert.deepEqual(player.adjustSubjectAchievement("math", -10), {
+    before: { achievement: 203, grade: "B", progress: 3 },
+    after: { achievement: 193, grade: "C", progress: 93 },
+    appliedDelta: -10,
+    gradeDelta: -1,
   });
+
+  player.setSubjectGrade("math", "D");
+  player.setSubjectProgress("math", 0);
+  assert.equal(player.adjustSubjectAchievement("math", -10).appliedDelta, 0);
 
   player.setSubjectGrade("math", "A");
   player.setSubjectProgress("math", 98);
-  assert.deepEqual(player.adjustSubjectProgress("math", 10).after, {
+  assert.deepEqual(player.adjustSubjectAchievement("math", 10).after, {
+    achievement: 399,
     grade: "A",
     progress: 99,
   });
   assert.throws(
-    () => player.adjustSubjectProgress("math", 0.5),
+    () => player.adjustSubjectAchievement("math", 0.5),
     /whole numbers/,
   );
 });
@@ -80,7 +87,7 @@ test("grade checks use combined letter grade and progress", () => {
 
   player.setSubjectGrade("science", "A");
   player.setSubjectProgress("science", 99);
-  assert.equal(subjectAchievementPoints(player.getSubjectRecord("science")), 399);
+  assert.equal(player.getSubjectAchievement("science"), 399);
   assert.equal(getPlayerSkillCheckValue(player, "grade", "science"), 10);
 });
 
@@ -90,7 +97,12 @@ test("WG effects, expression context, and the phone expose progress", () => {
   applyWGEffect(game, { op: "grade", id: "history", amount: 1 });
 
   const subject = game.player.getSubjectRecord("history");
-  assert.deepEqual(subject, { grade: "C", progress: 0, attendedSegments: 0 });
+  assert.deepEqual(subject, {
+    achievement: 100,
+    grade: "C",
+    progress: 0,
+    attendedSegments: 0,
+  });
   assert.deepEqual(createWGRuntimeContext(game).player.education.history, subject);
 
   const phoneSubject = buildPhonePlayerStatsView(game).education.find(
@@ -99,38 +111,38 @@ test("WG effects, expression context, and the phone expose progress", () => {
   assert.deepEqual(phoneSubject, {
     id: "history",
     label: "History",
+    achievement: 100,
     grade: "C",
     progress: 0,
-    achievement: 100,
     achievementMax: SUBJECT_ACHIEVEMENT_MAX,
     attendedSegments: 0,
   });
 });
 
-test("save version 28 round-trips the letter-grade schema", () => {
+test("save version 29 round-trips canonical subject achievement", () => {
   const game = new Game({ seed: 117 });
   game.player.setSubjectGrade("art", "B");
   game.player.setSubjectProgress("art", 42);
   game.player.recordSubjectAttendance("art", 3);
 
   const save = game.toJSON();
-  assert.equal(save.saveVersion, 28);
+  assert.equal(save.saveVersion, 29);
   assert.deepEqual(save.player.education.subjects.art, {
-    grade: "B",
-    progress: 42,
+    achievement: 242,
     attendedSegments: 3,
   });
 
   const restored = Game.fromJSON(JSON.parse(JSON.stringify(save)));
   assert.deepEqual(restored.player.getSubjectRecord("art"), {
+    achievement: 242,
     grade: "B",
     progress: 42,
     attendedSegments: 3,
   });
 
-  const numericGradeSave = JSON.parse(JSON.stringify(save));
-  numericGradeSave.player.education.subjects.art.grade = 50;
-  assert.throws(() => Game.fromJSON(numericGradeSave), /grade.*string/);
+  const invalidAchievementSave = JSON.parse(JSON.stringify(save));
+  invalidAchievementSave.player.education.subjects.art.achievement = 400;
+  assert.throws(() => Game.fromJSON(invalidAchievementSave), /achievement/);
   assert.deepEqual(SUBJECT_GRADES, ["D", "C", "B", "A"]);
 });
 

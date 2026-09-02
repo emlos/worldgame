@@ -964,7 +964,7 @@ export class Game {
   // --------------------------
   toJSON() {
     return {
-      saveVersion: 28,
+      saveVersion: 29,
       seed: this.seed,
       random: this.random.toJSON(),
       time: this.now.toISOString(),
