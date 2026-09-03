@@ -82,3 +82,9 @@ code:
 other:
 - expand random/special prose into tag-specific location pools, tag-specific place pools, and condition/flag/item/moon-dependent text
 - postpone: localisation
+- adjust sleep balance - -sleeping for 6 hours almost fills up energy bar
+
+-fix:
+- error on "stay until school closes": can't access property "key", place is null
+- third segment of class never plays
+- 
