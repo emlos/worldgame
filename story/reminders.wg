@@ -15,3 +15,8 @@
   @tone warning
   @priority 999
 @endreminder
+
+@reminder cafe_job
+  @text "You can work one-hour shifts at the cafe between 16:00 and 18:00."
+  @priority 100
+@endreminder

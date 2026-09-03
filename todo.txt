@@ -64,7 +64,7 @@ game systems:
     
 content:
 - add events/interactions/utility on all unlocked places
-- jobs (+schedules, minigames?) + money making opportunities + expenses
+- expand jobs beyond the cafe (+schedules, more minigames?) + money making opportunities + expenses
 - specific npc storylines for romance
 - first time place/class visit events to tutorialise the player + npc first meeting events
 - npc archetypes: gossip, delinquent, doctor, homeless character, mayor, teacher, mafia, urban explorer, divorced parent, religious character, stoner, jaded stripper, and band

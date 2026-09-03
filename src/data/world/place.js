@@ -1842,7 +1842,7 @@ export const DEFAULT_OPENING_HOURS_BY_KEY = {
   market: hoursEveryDay("07:00", "15:00"), // Morning farmers market feel
   fish_market: hoursEveryDay("05:00", "13:00"), // Early catch
   bakery: hoursEveryDay("06:00", "16:00"), // Early riser
-  cafe: hoursEveryDay("07:00", "19:00"),
+  cafe: hoursEveryDay("07:00", "22:00"),
   butcher: hoursWeekdays({
     from: "08:00",
     to: "18:00",

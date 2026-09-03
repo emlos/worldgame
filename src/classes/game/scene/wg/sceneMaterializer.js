@@ -444,6 +444,7 @@ export function materializeWGScene(game, definition) {
 
   return createScene({
     id: `wg:${game.storyRevision}:scene:${definition.id}:${game.now.toISOString()}`,
+    wgStoryId: definition.id,
     kind: definition.kind,
     heading: definition.heading,
     status: buildSceneStatus(game),

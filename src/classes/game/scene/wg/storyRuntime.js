@@ -201,10 +201,13 @@ export function enterWGSequence(game, sequenceId, passageId = null, { runOnEnter
 export function suspendWGContinuation(
   game,
   outcome,
-  { poolId, entryId, choiceId } = {},
+  { poolId, entryId, choiceId, sourceStoryId = null } = {},
 ) {
   const frame = game.currentStory;
-  if (!frame) fail("WG event pools require an active source story");
+  const resolvedSourceStoryId = frame?.id ?? sourceStoryId;
+  if (!resolvedSourceStoryId) {
+    fail("WG event pools require an active or materialized source story");
+  }
   const target = outcome?.target;
   if (typeof target !== "string" || !target) {
     fail("WG event-pool continuations require a target");
@@ -213,12 +216,12 @@ export function suspendWGContinuation(
   game.storyContinuations.push({
     target,
     sequenceId: outcome.sequenceId || null,
-    schoolClass: frame.schoolClass ? { ...frame.schoolClass } : null,
+    schoolClass: frame?.schoolClass ? { ...frame.schoolClass } : null,
     poolId: String(poolId),
     entryId: String(entryId),
-    sourceStoryId: String(frame.id),
+    sourceStoryId: String(resolvedSourceStoryId),
     sourcePassageId:
-      frame.type === "sequence" ? String(frame.passageId) : null,
+      frame?.type === "sequence" ? String(frame.passageId) : null,
     sourceChoiceId: String(choiceId),
   });
 }

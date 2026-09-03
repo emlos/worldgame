@@ -169,6 +169,20 @@ Warm air and the smell of baking dough drift through {{place.name}}.
 
 The quiet clatter of cups fills {{place.name}}.
 
+@choicegroup cafe-menu ""
+  
+@choice ask-for-work "Ask about a job" -> cafe.job.application
+  @when not flags.cafe_employee
+@endchoice
+
+@choice work-shift "Work for one hour" -> place.cafe
+  @time 1h
+  @event-pool cafe.job.shift
+  @when flags.cafe_employee and time.hour >= 7 and time.hour < 22
+  @change money 7 "£7 wages"
+@endchoice
+@endchoicegroup
+
 @choice drink "Order a drink" -> place.cafe
   @icon ☕
 @endchoice
@@ -176,6 +190,7 @@ The quiet clatter of cups fills {{place.name}}.
 @choice sit "Sit at a table" -> place.cafe
   @icon 🪑
 @endchoice
+
 
 @choice leave "Leave" -> @leave-place
   @icon 🚪

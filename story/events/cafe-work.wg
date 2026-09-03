@@ -1,0 +1,175 @@
+@sequence cafe.job.application -> place.cafe
+  @choices "The manager waits for your answer"
+
+  @passage offer
+
+  You ask the manager if the cafe needs any help. After looking you over, they offer you casual work serving customers and cleaning up after the afternoon rush.
+
+  The pay is £7 an hour. You can come in for shifts as long as the cafe is open.
+
+  @choice accept "Accept the job" -> .accepted
+    @effect flag has_job true
+    @effect flag cafe_employee true
+    @effect reminder add cafe_job
+  @endchoice
+
+  @choice decline "Decline the offer" -> .declined
+  @endchoice
+
+  @passage accepted
+
+  The manager gives you a spare apron and tells you to come to the counter whenever you are ready to work. Your shifts are informal, but they still expect you to pull your weight.
+
+  @next -> place.cafe
+
+  @passage declined
+
+  You thank the manager, but tell them you cannot commit to the job. They shrug and say the offer will remain open for now.
+
+  @next -> place.cafe
+@endsequence
+
+@sequence cafe.job.shift.cleanup -> @return
+  @choices "What do you do?"
+
+  @passage opening
+
+  A tray clips the corner of a table. Two drinks hit the floor, splashing coffee across the tiles and the bottom of your apron.
+
+  @choice clean-thoroughly "Clean it thoroughly" -> .thorough
+  @endchoice
+
+  @choice clean-quickly "Clean the worst of it quickly" -> .quick
+  @endchoice
+
+  @passage thorough
+
+  You fetch the mop and scrub until the floor is no longer sticky. The mess is gone, but your clothes smell strongly of old coffee. @change stat hygiene -4 @change stat energy -2
+
+  @next -> @return
+
+  @passage quick
+
+  You wipe up the visible spill and hurry back to the counter. A tacky patch remains under the table, and you spend the rest of the shift hoping nobody notices. @change stat stress 2 @change stat hygiene -1
+
+  @next -> @return
+@endsequence
+
+@sequence cafe.job.shift.mistake -> @return
+  @choices "What do you do?"
+
+  @passage opening
+
+  You realize that you entered an order incorrectly just as the wrong drinks reach the table. The customers look from the cups to you, waiting for an explanation.
+
+  @choice own-mistake "Admit the mistake"
+    @check skill resolve tricky
+
+    @success -> .owned
+    @endsuccess
+
+    @failure -> .flustered
+    @endfailure
+  @endchoice
+
+  @choice fix-quietly "Try to replace it quietly" -> .quiet
+  @endchoice
+
+  @passage owned
+
+  You apologize, correct the ticket, and bring the right drinks without making excuses. The customers accept the apology, and the manager appreciates your honesty. @change skill resolve 0.1
+
+  @next -> @return
+
+  @passage flustered
+
+  You own up to the mistake, but stumble through the explanation until the manager takes over. Nobody is especially angry, but you cannot stop replaying it in your head. @change stat stress 4
+
+  @next -> @return
+
+  @passage quiet
+
+  You remake the drinks and swap them before the manager notices. The customers are satisfied, but hiding the mistake keeps you tense until the shift ends. @change stat stress 2
+
+  @next -> @return
+@endsequence
+
+@entry cafe.job.shift.routine
+  @scene cafe.job.shift.routine
+  @pool cafe.job.shift
+  @place-key cafe
+  @priority 0
+  @weight 1
+@endentry
+
+@entry cafe.job.shift.rowdy-customer
+  @scene cafe.job.shift.rowdy-customer
+  @pool cafe.job.shift
+  @place-key cafe
+  @priority 0
+  @weight 1
+@endentry
+
+@entry cafe.job.shift.cleanup
+  @scene cafe.job.shift.cleanup
+  @pool cafe.job.shift
+  @place-key cafe
+  @priority 0
+  @weight 1
+@endentry
+
+@entry cafe.job.shift.mistake
+  @scene cafe.job.shift.mistake
+  @pool cafe.job.shift
+  @place-key cafe
+  @priority 0
+  @weight 1
+@endentry
+
+@sequence cafe.job.shift.routine -> @return
+
+  @passage opening
+
+  The hour passes without incident. You take orders, wipe tables, and keep the counter stocked until the manager tells you that you are done.
+
+  @next -> @return
+@endsequence
+
+@sequence cafe.job.shift.rowdy-customer -> @return
+  @choices "How do you handle them?"
+
+  @passage opening
+
+  A customer starts complaining loudly about their order. Their voice carries across the cafe, and the other customers are beginning to stare.
+
+  @choice calm-customer "Try to calm them down"
+    @check skill speech tricky
+
+    @success -> .calmed
+    @endsuccess
+
+    @failure -> .escalated
+    @endfailure
+  @endchoice
+
+  @choice get-manager "Get the manager" -> .manager
+  @endchoice
+
+  @passage calmed
+
+  You listen without interrupting, repeat the complaint back to them, and offer to replace the order. Their anger slowly drains away, and they leave satisfied. @change skill speech 0.1
+
+  @next -> @return
+
+  @passage escalated
+
+  You try to reason with the customer, but every answer gives them something new to argue about. The manager eventually steps in and sends you to the back until things settle down. @change stat stress 4
+
+  @next -> @return
+
+  @passage manager
+
+  You fetch the manager before the argument can get worse. They handle the complaint, though the confrontation leaves you on edge for the rest of the hour. @change stat stress 1
+
+  @next -> @return
+@endsequence

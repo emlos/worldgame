@@ -289,7 +289,7 @@ function performBusTravel(game, choice, minutes) {
   return actionResult();
 }
 
-function enterWGOutcome(game, outcome, eventPool, choiceId) {
+function enterWGOutcome(game, outcome, eventPool, choiceId, sourceStoryId = null) {
   const selected = eventPool
     ? resolveWGPoolEntry(game, eventPool.id, eventPool.chance)
     : null;
@@ -304,6 +304,7 @@ function enterWGOutcome(game, outcome, eventPool, choiceId) {
     poolId: eventPool.id,
     entryId: selected.id,
     choiceId,
+    sourceStoryId,
   });
   enterWGTarget(game, selected.sceneId);
   return selected;
@@ -326,6 +327,7 @@ function performWG(game, choice, minutes, scene) {
         choice.action,
         choice.action.eventPool,
         choice.id,
+        scene.wgStoryId,
       );
       resolveActiveWGStory(currentGame);
       responseParagraphs = selectWGResponse(
@@ -507,6 +509,7 @@ function performSkillCheck(game, choice, _minutes, scene) {
         outcome,
         choice.action.eventPool,
         choice.id,
+        scene.wgStoryId,
       );
       resolveActiveWGStory(currentGame);
       responseParagraphs = selectWGResponse(currentGame, outcome.responses, {
