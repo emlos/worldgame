@@ -61,6 +61,15 @@ game systems:
     - npc timers - every week smth is supposed to happen (i.e) paying rent, if not a flag is set/an event plays/stats change etc. example in timers.js
 
     -texting: spam messages/groupchats, letting the player leave, sending messages at random intervals/randomly generated users
+    - cinema system:
+     list of 50 movies, different titles and genres and durations - cinema offers 4 movies, changed every week
+     movie timetable - few screenings every day, sometimes two at once
+     ticket price: 10
+     little table banner at the top of cinema hub
+
+    - theres catacombs under the city, multiple locations, with a randomly generated maze [maze changed every two weeks? supernatural reasons]
+
+
     
 content:
 - add events/interactions/utility on all unlocked places
@@ -68,9 +77,12 @@ content:
 - specific npc storylines for romance
 - first time place/class visit events to tutorialise the player + npc first meeting events
 - npc archetypes: gossip, delinquent, doctor, homeless character, mayor, teacher, mafia, urban explorer, divorced parent, religious character, stoner, jaded stripper, and band
+- progression: theres strange receptacles the player can activate throughout various locations, some easy to access some hard (like in the catacomb maze, appearing after an all night movie marathon, hidden in a statue at the graveyard etc)
+    reward the player with lore/unlocking extra locations/amenities/abilities -> reason to explorer
+    first receptacle in player home?
 
 design [important]:
-- what drives the gameplay loop? in Degrees of Lewdity it's rent payments, or the player is sent to a location thats hard to get out of - soft bad ends. id like to avoid that
+
 - npc characterisation + purpose needs to be decided
 - animal content - do animals need body templates? od i want animals? no probably not
 - how should the clothing system work?
