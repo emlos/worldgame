@@ -62,11 +62,12 @@ function runChoiceAction(game, options) {
   const deferForSequence = game.currentStory?.type === "sequence";
   return game.runAction({
     ...options,
-    interrupt(currentGame, stage) {
+    interrupt(currentGame, stage, timeChange) {
       if (stage === "before-after") {
-        return resolveWGInterruptCheckpoint(currentGame, {
+        const interrupted = resolveWGInterruptCheckpoint(currentGame, {
           deferForSequence,
         });
+        return Boolean(timeChange?.ejectedFrom) || interrupted;
       }
       finalizeWGInterruptCheckpoint(currentGame);
       return false;

@@ -857,7 +857,7 @@ export class Game {
       }
 
       const skipAfter = typeof interrupt === "function"
-        ? interrupt(this, "before-after") === true
+        ? interrupt(this, "before-after", timeChange) === true
         : false;
 
       // Arrival/event resolution belongs after time simulation so it
@@ -868,7 +868,7 @@ export class Game {
       }
 
       if (typeof interrupt === "function") {
-        interrupt(this, "after-after");
+        interrupt(this, "after-after", timeChange);
       }
 
       // Successful actions advance the deterministic choice-roll epoch.
