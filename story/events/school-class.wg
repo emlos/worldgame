@@ -4,8 +4,7 @@
   @scene school.english.event.group-discussion
   @pool school.class.english
   @place-key high_school
-  @when school.phase == "class"
-  @when school.subjectId == "english"
+  @when school.arrival.subjectId == "english"
   @priority 0
   @weight 1
 @endentry
@@ -14,8 +13,7 @@
   @scene school.english.event.reading-aloud
   @pool school.class.english
   @place-key high_school
-  @when school.phase == "class"
-  @when school.subjectId == "english"
+  @when school.arrival.subjectId == "english"
   @priority 0
   @weight 1
 @endentry
@@ -24,8 +22,7 @@
   @scene school.english.event.surprise-quiz
   @pool school.class.english
   @place-key high_school
-  @when school.phase == "class"
-  @when school.subjectId == "english"
+  @when school.arrival.subjectId == "english"
   @when not daily.school_quiz_english
   @priority 0
   @weight 1
@@ -35,8 +32,7 @@
   @scene school.english.event.student-distraction
   @pool school.class.english
   @place-key high_school
-  @when school.phase == "class"
-  @when school.subjectId == "english"
+  @when school.arrival.subjectId == "english"
   @priority 0
   @weight 1
 @endentry
@@ -232,8 +228,7 @@
   @scene school.math.event.problem-solving
   @pool school.class.math
   @place-key high_school
-  @when school.phase == "class"
-  @when school.subjectId == "math"
+  @when school.arrival.subjectId == "math"
   @priority 0
   @weight 1
 @endentry
@@ -242,8 +237,7 @@
   @scene school.math.event.group-work
   @pool school.class.math
   @place-key high_school
-  @when school.phase == "class"
-  @when school.subjectId == "math"
+  @when school.arrival.subjectId == "math"
   @priority 0
   @weight 1
 @endentry
@@ -252,8 +246,7 @@
   @scene school.math.event.surprise-quiz
   @pool school.class.math
   @place-key high_school
-  @when school.phase == "class"
-  @when school.subjectId == "math"
+  @when school.arrival.subjectId == "math"
   @when not daily.school_quiz_math
   @priority 0
   @weight 1
@@ -263,8 +256,7 @@
   @scene school.math.event.called-to-answer
   @pool school.class.math
   @place-key high_school
-  @when school.phase == "class"
-  @when school.subjectId == "math"
+  @when school.arrival.subjectId == "math"
   @priority 0
   @weight 1
 @endentry
@@ -405,8 +397,7 @@
   @scene school.history.event.mock-trial
   @pool school.class.history
   @place-key high_school
-  @when school.phase == "class"
-  @when school.subjectId == "history"
+  @when school.arrival.subjectId == "history"
   @priority 0
   @weight 1
 @endentry
@@ -415,8 +406,7 @@
   @scene school.history.event.primary-source
   @pool school.class.history
   @place-key high_school
-  @when school.phase == "class"
-  @when school.subjectId == "history"
+  @when school.arrival.subjectId == "history"
   @priority 0
   @weight 1
 @endentry
@@ -425,8 +415,7 @@
   @scene school.history.event.crisis-cabinet
   @pool school.class.history
   @place-key high_school
-  @when school.phase == "class"
-  @when school.subjectId == "history"
+  @when school.arrival.subjectId == "history"
   @priority 0
   @weight 1
 @endentry
@@ -435,8 +424,7 @@
   @scene school.history.event.disputed-map
   @pool school.class.history
   @place-key high_school
-  @when school.phase == "class"
-  @when school.subjectId == "history"
+  @when school.arrival.subjectId == "history"
   @priority 0
   @weight 1
 @endentry
@@ -717,8 +705,7 @@
   @scene school.science.event.runaway-reaction
   @pool school.class.science
   @place-key high_school
-  @when school.phase == "class"
-  @when school.subjectId == "science"
+  @when school.arrival.subjectId == "science"
   @priority 0
   @weight 1
 @endentry
@@ -727,8 +714,7 @@
   @scene school.science.event.mystery-sample
   @pool school.class.science
   @place-key high_school
-  @when school.phase == "class"
-  @when school.subjectId == "science"
+  @when school.arrival.subjectId == "science"
   @priority 0
   @weight 1
 @endentry
@@ -737,8 +723,7 @@
   @scene school.science.event.bridge-challenge
   @pool school.class.science
   @place-key high_school
-  @when school.phase == "class"
-  @when school.subjectId == "science"
+  @when school.arrival.subjectId == "science"
   @priority 0
   @weight 1
 @endentry
@@ -747,8 +732,7 @@
   @scene school.science.event.impossible-result
   @pool school.class.science
   @place-key high_school
-  @when school.phase == "class"
-  @when school.subjectId == "science"
+  @when school.arrival.subjectId == "science"
   @priority 0
   @weight 1
 @endentry
@@ -1004,8 +988,7 @@
   @scene school.art.event.partner-portrait
   @pool school.class.art
   @place-key high_school
-  @when school.phase == "class"
-  @when school.subjectId == "art"
+  @when school.arrival.subjectId == "art"
   @priority 0
   @weight 1
 @endentry
@@ -1014,8 +997,7 @@
   @scene school.art.event.critique-circle
   @pool school.class.art
   @place-key high_school
-  @when school.phase == "class"
-  @when school.subjectId == "art"
+  @when school.arrival.subjectId == "art"
   @priority 0
   @weight 1
 @endentry
@@ -1024,8 +1006,7 @@
   @scene school.art.event.shared-mural
   @pool school.class.art
   @place-key high_school
-  @when school.phase == "class"
-  @when school.subjectId == "art"
+  @when school.arrival.subjectId == "art"
   @priority 0
   @weight 1
 @endentry
@@ -1034,8 +1015,7 @@
   @scene school.art.event.ruined-artwork
   @pool school.class.art
   @place-key high_school
-  @when school.phase == "class"
-  @when school.subjectId == "art"
+  @when school.arrival.subjectId == "art"
   @priority 0
   @weight 1
 @endentry
@@ -1339,8 +1319,7 @@
   @scene school.physical-education.event.dodgeball
   @pool school.class.physical-education
   @place-key high_school
-  @when school.phase == "class"
-  @when school.subjectId == "physical_education"
+  @when school.arrival.subjectId == "physical_education"
   @priority 0
   @weight 1
 @endentry
@@ -1349,8 +1328,7 @@
   @scene school.physical-education.event.obstacle-course
   @pool school.class.physical-education
   @place-key high_school
-  @when school.phase == "class"
-  @when school.subjectId == "physical_education"
+  @when school.arrival.subjectId == "physical_education"
   @priority 0
   @weight 1
 @endentry
@@ -1359,8 +1337,7 @@
   @scene school.physical-education.event.relay-race
   @pool school.class.physical-education
   @place-key high_school
-  @when school.phase == "class"
-  @when school.subjectId == "physical_education"
+  @when school.arrival.subjectId == "physical_education"
   @priority 0
   @weight 1
 @endentry
@@ -1369,8 +1346,7 @@
   @scene school.physical-education.event.dangerous-player
   @pool school.class.physical-education
   @place-key high_school
-  @when school.phase == "class"
-  @when school.subjectId == "physical_education"
+  @when school.arrival.subjectId == "physical_education"
   @priority 0
   @weight 1
 @endentry

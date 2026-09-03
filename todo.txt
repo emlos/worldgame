@@ -83,6 +83,3 @@ other:
 - expand random/special prose into tag-specific location pools, tag-specific place pools, and condition/flag/item/moon-dependent text
 - postpone: localisation
 - adjust sleep balance - -sleeping for 6 hours almost fills up energy bar
-
--fix:
-- third segment of class never plays
