@@ -11,6 +11,9 @@ Kim is sitting at {{npc.kim.dependent}} desk. {{npc.kim.subject | cap}} looks up
 
 @if story.rent.active and story.rent.debt > 0
   Kim's ledger shows £{{story.rent.debt}} in outstanding rent.
+
+@elseif story.rent.debt > 0
+  It looks like you've paid off your rent... for now.
 @endif
 
 @choicegroup rent ""
@@ -32,7 +35,6 @@ Kim is sitting at {{npc.kim.dependent}} desk. {{npc.kim.subject | cap}} looks up
 @endchoicegroup
 
 @sequence story.rent.intro.2 -> @exit
-  @heading "The rent account"
   @onenter
     @effect set story.rent.active true
     @effect set story.rent.debt 800
@@ -43,36 +45,92 @@ Kim is sitting at {{npc.kim.dependent}} desk. {{npc.kim.subject | cap}} looks up
 
   @passage account
 
-  You look around the office. Stacks of paper crowd Kim's desk, and the light from a computer monitor flickers across the files.
+  You look around the office. Stacks of paper crowd Kim's desk, and the light from a computer monitor flickers across the files. Kim is sitting in a chair behind the desk, {{@if npc.kim.gender == "female"}}wearing a smart business suit and glasses{{@else}}wearing an ironed white shirt and glasses{{@endif}}. {{npc.kim.dependent | cap}} eyes are brown, and they follow you as you open your mouth to speak.
 
-  Kim turns the lease toward you. "The account starts with the two missed monthly payments: £800. I collect payments in £200 weekly instalments."
+  "Hello. You muste be from {{home.location.name}}, yes?" Kim turns the lease toward you. "The account starts with the two missed monthly payments: £800. I collect payments in £200 weekly instalments."
 
-  @choice worried "I don't have £800" -> .no-money
+
+   @choice explain "Try to explain" -> .explain
+    @endchoice
+
+  @choice worried "\"I don't have £800\"" -> .no-money
   @endchoice
 
-  @choice arrange "I'll start paying it down" -> .leave
+
+  @choice has-money "Pay (800£)" -> .pay
+    @when player.money >= 800
+    @change money -800
+    @effect add story.rent.debt -800
+  @endchoice
+
+  @passage explain
+
+  "As I said in my message, this must be some mistake." You start. You try to not get intimidated by the way Kim is sitting completely straight. "I've only moved here very recently, and I haven't even had a chance to pay rent yet. I don't know how this could have happened."
+
+  Kim's expression doesn't change. "I don't make mistakes," {{npc.kim.subject}} says. "I keep a thorough record of *all* my tenants. The property at {{home.location.name}} has been registered for two months, and I am not in the business of charity." @change stat stress 5
+
+  @choice worried2 "\"I don't have £800\"" -> .no-money
+  @endchoice
+
+
+  @choice has-money2 "Pay (800£)" -> .pay
+    @when player.money >= 800
+    @change money -800
+    @effect add story.rent.debt -800
   @endchoice
 
   @passage no-money
 
-  "I don't have that kind of money right now," you say.
+   @if player.money < 800
+    "I don't have the money to pay you right now," you say, trying to keep your voice calm. "Is there any way I can work something out with you?"
+    @else
+    "This seems steep," you say, trying to keep your voice calm. "Is there any way I can work something out with you?"
+    @endif
 
-  Kim folds {{npc.kim.dependent}} hands over the ledger. "Then pay what you can each week. Leaving it unpaid will only make the account worse."
+  Kim folds {{npc.kim.dependent}} hands over the ledger. "Then pay what you can each week. Leaving it unpaid will only make the account worse." 
+  There's an uncomfortable emphasis on the word "worse" as {{npc.kim.subject}} says this. @change stat stress 8
 
   @next -> .leave
+
+  @passage pay
+
+        You hand over the 800£ to Kim. {{npc.kim.subject | cap}} takes it and puts it in a drawer.
+
+        "Perfect!" {{npc.kim.subject}} says. "You are all caught up on your rent. Please make sure to pay on time in the future."  @change stat stress 5
+
+        There's a note of self satisfaction in {{npc.kim.dependent}} voice as {{npc.kim.subject}} says this.
+
+  @next
+
+  "Now, was there something else?" Kim looks at you expectantly. {{npc.kim.dependent | cap}} teeth are very white as {{npc.kim.subject}} smiles widely.
+
+  @choice leave "Leave" -> .leave
+  @endchoice
+
+  @choice flirt "Flatter {{npc.kim.object}}?" -> .flirt
+    @preview relationship kim.affection 5 "+Affection?"
+  @endchoice
+
+    @passage flirt
+
+    "Oh what big teeth you have!" you joke, grinning at {{npc.kim.object}}. Immediately, Kim's smile falters, and {{npc.kim.subject}} looks at you with a mixture of confusion and concern.
+    "What are you talking about?" {{npc.kim.subject}} asks, frowning. "That's not very flattering." @change relationship kim.intimidation 10
+
+    {{npc.kim.subject | cap}} keeps looking straight at you, unsmiling this time. You avert your eyes.
+    
+    @next "Just leave" -> .leave
 
   @passage leave
 
   @effect flag rent_intro_2 false
   @effect timer start rent.weekly
 
-  You leave the office with a copy of the account. The £800 balance is overdue, and another £200 charge will be added every seven days.
+  You leave the office with a copy of the account. {{@if story.rent.debt >= 800}}The £800 balance is overdue, and {{@else}}You have paid the outstanding amount, but {{@endif}}another £200 charge will be added every seven days.
 
   @next -> @exit
 @endsequence
 
 @sequence story.rent.payment -> place.kim-office
-  @heading "A rent payment"
 
   @passage paid
 
@@ -88,6 +146,8 @@ Kim is sitting at {{npc.kim.dependent}} desk. {{npc.kim.subject | cap}} looks up
   @next -> place.kim-office
 @endsequence
 
+
+@#replace with kim sending you a threatening message if you don't pay your rent, when rent >= 1200
 @entry rent.debt-escalation
   @scene story.rent.debt-escalation
   @pool interrupt
