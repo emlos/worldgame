@@ -77,6 +77,7 @@ content:
 - specific npc storylines for romance
 - first time place/class visit events to tutorialise the player + npc first meeting events
 - npc archetypes: gossip, delinquent, doctor, homeless character, mayor, teacher, mafia, urban explorer, divorced parent, religious character, stoner, jaded stripper, and band
+
 - progression: theres strange receptacles the player can activate throughout various locations, some easy to access some hard (like in the catacomb maze, appearing after an all night movie marathon, hidden in a statue at the graveyard etc)
     reward the player with lore/unlocking extra locations/amenities/abilities -> reason to explorer
     first receptacle in player home?

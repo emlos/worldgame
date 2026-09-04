@@ -69,7 +69,6 @@ test("the cafe offers unemployed players a job they can decline", () => {
   assert.ok(choice(game, "decline"));
   choose(game, "decline");
 
-  assert.equal(game.flags.has("has_job"), false);
   assert.equal(game.flags.has("cafe_employee"), false);
   assert.equal(game.reminders.has("cafe_job"), false);
 
@@ -83,20 +82,18 @@ test("accepting the cafe job adds its reminder and enables paid one-hour shifts"
   choose(game, "ask-for-work");
   choose(game, "accept");
 
-  assert.equal(game.flags.has("has_job"), true);
   assert.equal(game.flags.has("cafe_employee"), true);
   assert.equal(game.reminders.has("cafe_job"), true);
 
   continueSequence(game);
   assert.equal(choice(game, "ask-for-work"), null);
-  assert.equal(choice(game, "work-shift"), null, "work should be hidden before 16:00");
+  assert.ok(choice(game, "work-shift"));
 
   const cafeId = game.currentPlace.id;
   game.setCurrentPlace();
   game.setCurrentPlace({ placeId: cafeId });
   assert.equal(game.currentStory, null, "re-entering should exercise the normal place-hub path");
 
-  game.jumpToDate(new Date("2026-09-03T16:00:00.000Z"));
   const work = choice(game, "work-shift");
   assert.ok(work);
   assert.equal(work.durationMinutes, 60);
@@ -119,14 +116,13 @@ test("accepting the cafe job adds its reminder and enables paid one-hour shifts"
 
   const restored = Game.fromJSON(JSON.parse(JSON.stringify(game.toJSON())));
   assert.equal(restored.player.money, 7);
-  assert.equal(restored.flags.has("has_job"), true);
   assert.equal(restored.flags.has("cafe_employee"), true);
   assert.equal(restored.reminders.has("cafe_job"), true);
   assert.equal(restored.currentStory.id, game.currentStory.id);
   assert.equal(restored.storyContinuations.length, 1);
 });
 
-test("cafe shifts have four equally weighted events and cannot start too late", () => {
+test("cafe shifts have four equally weighted events", () => {
   const poolEntries = Object.values(WG_BUNDLE.entries)
     .filter((entry) => entry.pools?.includes("cafe.job.shift"))
     .sort((left, right) => left.id.localeCompare(right.id));
@@ -134,15 +130,21 @@ test("cafe shifts have four equally weighted events and cannot start too late", 
   assert.deepEqual(poolEntries.map((entry) => entry.id), CAFE_SHIFT_ENTRY_IDS);
   assert.ok(poolEntries.every((entry) => (entry.weight ?? 1) === 1));
   assert.ok(poolEntries.every((entry) => entry.placeKeys.includes("cafe")));
+});
 
-  const game = createCafeGame("2026-09-03T18:00:00.000Z");
-  game.setFlag("has_job", true);
-  game.setFlag("cafe_employee", true);
+test("cafe shifts can start from 07:00 through exactly 21:00", () => {
+  const cases = [
+    ["2026-09-03T06:59:00.000Z", false],
+    ["2026-09-03T07:00:00.000Z", true],
+    ["2026-09-03T20:59:00.000Z", true],
+    ["2026-09-03T21:00:00.000Z", true],
+    ["2026-09-03T21:01:00.000Z", false],
+    ["2026-09-03T22:00:00.000Z", false],
+  ];
 
-  assert.equal(choice(game, "ask-for-work"), null);
-  assert.equal(
-    choice(game, "work-shift"),
-    null,
-    "a full hour cannot start when the cafe is one hour from closing",
-  );
+  for (const [at, expected] of cases) {
+    const game = createCafeGame(at);
+    game.setFlag("cafe_employee", true);
+    assert.equal(Boolean(choice(game, "work-shift")), expected, at);
+  }
 });
