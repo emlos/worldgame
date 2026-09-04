@@ -178,7 +178,7 @@ The quiet clatter of cups fills {{place.name}}.
 @choice work-shift "Work for one hour" -> place.cafe
   @time 1h
   @event-pool cafe.job.shift
-  @when flags.cafe_employee and time.hour >= 7 and time.hour <21
+  @when flags.cafe_employee and time.minutesSinceMidnight >= 420 and time.minutesSinceMidnight <= 1260
   @change money 7 "£7 wages"
 @endchoice
 @endchoicegroup

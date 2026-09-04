@@ -82,7 +82,8 @@ contact queues until the active one finishes. Contacts appear in the Chats app.
 - Saves store message references, frozen random/conditional choices, and captured
   interpolation values, not transcript bodies. Rendering/loading history never
   reruns effects. Editing authored wording changes the reconstructed wording;
-  renamed/removed references invalidate development saves. Save format is 25.
+  renamed/removed references invalidate development saves. Game save format is
+  currently 30; the separately versioned compiled WG bundle format is 25.
 - Unread counts include incoming messages after each contact's saved read
   position. Opening the contact list does not mark messages read. Reading to the
   end of a visible thread does. The app badge totals all contacts.
@@ -92,8 +93,9 @@ contact queues until the active one finishes. Contacts appear in the Chats app.
   pauses in Phone Settings; reduced-motion preference also skips them.
 
 Kim's working example is `story/chats/kim.wg`, activated by the final contact
-passage of the civil-office quest. Run `node --test tests/chats.test.mjs` to check
-authoring, timing, saves, branches, and unread state.
+passage of the civil-office quest. The project compiler checks its authoring and
+cross-references. Dedicated chat timing, save, branch, and unread-state runtime
+tests have not been added yet.
 
 ## Minimal authored event
 
@@ -1462,11 +1464,13 @@ destination day's batch, and a backward date change clears the batch.
 
 Only active authored IDs are saved; automatic school reminders are derived
 from the schedule. The built-in and authored namespaces cannot collide.
-Save format 25 includes the reminder state and game-start date; older saves
-are intentionally unsupported.
+Game save format 30 includes the reminder state and game-start date; older saves
+are intentionally unsupported. The compiled WG bundle has its own format version,
+currently 25.
 
-Run reminder compiler/runtime regression checks with
-`node --test tests/reminders.test.mjs`.
+Reminder lifecycle integration is covered by
+`node --test tests/timers.test.mjs tests/cafe_job.test.mjs`; all authored reminder
+references are also checked by the project WG compiler.
 
 For a notice that first appears at 13:00 on day one and persists until read,
 use the same condition for prose and its read choice:

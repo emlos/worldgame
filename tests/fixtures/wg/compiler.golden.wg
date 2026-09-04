@@ -1,0 +1,57 @@
+@reminder compiler_notice
+  @text "The compiler fixture reminder is active."
+  @tone warning
+  @priority 7
+@endreminder
+
+@entry fixture.offer
+  @scene fixture.scene
+  @place-key cafe
+  @offer place
+  @label "Open the fixture"
+  @icon 🧪
+  @hub-text "A compiler fixture is ready."
+  @when player.energy >= 5
+@endentry
+
+:: fixture.scene [fixture event]
+@heading "Compiler fixture"
+@choices "What next?"
+@onenter
+  @effect flag compiler_fixture_started true
+@endonenter
+
+Hello, {{player.name}}.
+
+@if flags.compiler_fixture_alt
+  The alternate branch is active.
+@else
+  The default branch is active.
+@endif
+
+@choice proceed "Proceed" -> fixture.sequence
+  @icon ➡️
+  @time 15m
+  @when player.energy >= 5
+  @require player.money >= 2 "You need more money."
+  @preview energy -2 "-Energy"
+  @effect stat energy -2
+  @effect reminder add compiler_notice
+@endchoice
+
+@choice leave "Leave" -> @exit
+@endchoice
+
+@sequence fixture.sequence -> @exit
+@heading "Fixture sequence"
+
+The first passage is implicit.
+
+@next "Continue"
+
+@passage ending
+
+The explicit ending passage.
+
+@next "Finish"
+@endsequence

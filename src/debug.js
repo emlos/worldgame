@@ -2,7 +2,7 @@
 //
 // Production modules import their dependencies directly and never depend on
 // this file. Test/docs pages can load it with `debug = true` to expose the
-// project API on window for console use and legacy non-module helper scripts.
+// project API on window for console use and non-module diagnostic pages.
 
 import * as clothing from "./shared/classes/clothing.js";
 import * as pronouns from "./shared/classes/pronouns.js";
@@ -15,7 +15,6 @@ import * as util from "./shared/util/util.js";
 import * as random from "./shared/util/random.js";
 import * as date from "./shared/util/date.js";
 
-import * as skill from "./classes/player/util/skill.js";
 import * as player from "./classes/player/player.js";
 import * as npc from "./classes/npc/npc.js";
 import * as npcBrain from "./classes/npc/npcBrain.js";
@@ -39,6 +38,7 @@ import * as streetData from "./data/world/street.js";
 import * as weatherData from "./data/world/weather.js";
 import * as behaviorData from "./data/npc/behavior.js";
 import * as npcData from "./data/npc/npcs.js";
+import * as playerData from "./data/player/stats.js";
 
 // `debug` is intentionally supplied by the embedding HTML page.
 // @ts-ignore
@@ -54,7 +54,6 @@ if (typeof debug !== "undefined" && debug) {
         ...util,
         ...random,
         ...date,
-        ...skill,
         ...player,
         ...npc,
         ...npcBrain,
@@ -77,5 +76,6 @@ if (typeof debug !== "undefined" && debug) {
         ...weatherData,
         ...behaviorData,
         ...npcData,
+        ...playerData,
     });
 }
