@@ -14,7 +14,7 @@ import {
   SUBJECT_PROGRESS_MIN,
 } from "../src/data/player/education.js";
 import { getSchoolDayState } from "../src/data/player/schedule.js";
-import { createWGRuntimeContext } from "../src/classes/game/scene/wg/runtimeContext.js";
+import { createWGRuntimeContext } from "../src/classes/game/wg/runtimeContext.js";
 import { createChoiceSection, renderSceneContent } from "../src/ui/browser/sceneContent.js";
 import { setOutcomeText } from "../src/ui/browser/outcomes.js";
 

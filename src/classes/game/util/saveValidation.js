@@ -1,6 +1,6 @@
 import { deriveSeed } from "../../../shared/util/random.js";
 import { getAuthoredReminder, isKnownReminderItem } from "../reminders.js";
-import { validateChatState } from "../chats.js";
+import { validateChatState } from "../chat/validation.js";
 import { getTimerDefinition } from "../timers.js";
 import { validateWGSystemState } from "../scene/wg/storySystemRegistry.js";
 import {
@@ -360,6 +360,7 @@ function validateCurrentStory(value, path, gameTime) {
     if (value === null) return null;
     const frame = record(value, path);
     string(required(frame, "id", path), `${path}.id`, { nonEmpty: true });
+    string(required(frame, "instanceKey", path), `${path}.instanceKey`, { nonEmpty: true });
     const hasSystem = Object.prototype.hasOwnProperty.call(frame, "system");
     if (hasSystem) {
         if (Object.prototype.hasOwnProperty.call(frame, "passageId")) {
@@ -371,9 +372,6 @@ function validateCurrentStory(value, path, gameTime) {
         const systemPath = `${path}.system`;
         const system = record(frame.system, systemPath);
         const systemId = string(required(system, "id", systemPath), `${systemPath}.id`, {
-            nonEmpty: true,
-        });
-        string(required(system, "instanceKey", systemPath), `${systemPath}.instanceKey`, {
             nonEmpty: true,
         });
         integer(required(system, "revision", systemPath), `${systemPath}.revision`, { min: 0 });
@@ -1539,9 +1537,9 @@ export function validateGameSave(data) {
     const save = record(data, "save");
     same(
         integer(required(save, "saveVersion", "save"), "save.saveVersion"),
-        31,
+        32,
         "save.saveVersion",
-        "version 31",
+        "version 32",
     );
 
     const seed = uint32(required(save, "seed", "save"), "save.seed");

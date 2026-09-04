@@ -1,6 +1,6 @@
 import { WG_BUNDLE } from "../../../../generated/wg/scenes.js";
-import { evaluateWGExpression } from "./expressionEvaluator.js";
-import { createWGRuntimeContext } from "./runtimeContext.js";
+import { evaluateWGExpression } from "../../wg/expressionEvaluator.js";
+import { createWGRuntimeContext } from "../../wg/runtimeContext.js";
 import { enterWGTarget, resolveActiveWGStory } from "./storyRuntime.js";
 
 export const WG_AUTO_TRIGGER = Object.freeze({

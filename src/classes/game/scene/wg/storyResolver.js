@@ -3,10 +3,13 @@ import {
   getPlayerSkillCheckValue,
   getSkillCheckTargetDefinition,
 } from "../../../../data/scene/skillChecks.js";
-import { keyedRandom01 } from "../../../../shared/util/random.js";
-import { evaluateWGExpression } from "./expressionEvaluator.js";
-import { applyWGEffect } from "./effectRuntime.js";
-import { createWGRuntimeContext } from "./runtimeContext.js";
+import { applyWGEffect } from "../../wg/effectRuntime.js";
+import { createWGRuntimeContext } from "../../wg/runtimeContext.js";
+import {
+  createWGDecisionSession,
+  iterateSelectedWGNodes,
+  iterateSelectedWGParts,
+} from "../../wg/decisionRuntime.js";
 
 export class WGResolutionError extends Error {
   constructor(message) {
@@ -24,27 +27,7 @@ function fail(message, source) {
   throw new WGResolutionError(`${message}${sourceSuffix(source)}`);
 }
 
-function runtimeNodeId(node) {
-  if (!Number.isSafeInteger(node?.runtimeId) || node.runtimeId < 0) {
-    fail("Resolvable WG node is missing its runtime id", node?.source);
-  }
-  return node.runtimeId;
-}
-
-export function resolutionNodeKey(node) {
-  return `${node.type}:${runtimeNodeId(node)}`;
-}
-
-function randomIndex(game, node, instanceKey) {
-  const key = [
-    "wg-random-v2",
-    instanceKey,
-    resolutionNodeKey(node),
-  ].join(":");
-  return Math.floor(keyedRandom01(game.seed, key) * node.variants.length);
-}
-
-function passiveResult(game, node, instanceKey) {
+function passiveChance(game, node) {
   const definition = getSkillCheckTargetDefinition(
     node.check?.targetType,
     node.check?.targetId,
@@ -66,41 +49,24 @@ function passiveResult(game, node, instanceKey) {
     fail(error.message, node.source);
   }
 
-  const key = [
-    "wg-passive-check-v2",
-    instanceKey,
-    resolutionNodeKey(node),
-  ].join(":");
-  return keyedRandom01(game.seed, key) < chance ? "success" : "failure";
+  return chance;
 }
 
-function resolveParagraphParts(game, parts, resolution, instanceKey) {
-  for (const part of parts || []) {
+function resolveParagraphParts(game, parts, session) {
+  for (const part of iterateSelectedWGParts(parts, session)) {
     if (part?.type === "change") {
       applyWGEffect(game, part.effect);
-      continue;
     }
-    if (part?.type !== "inline-if") continue;
-
-    const context = createWGRuntimeContext(game);
-    const index = (part.branches || []).findIndex((branch) =>
-      Boolean(evaluateWGExpression(branch.test, context)),
-    );
-    resolution.decisions[resolutionNodeKey(part)] = index;
-    const selected = index >= 0
-      ? part.branches[index]?.parts || []
-      : part.elseParts || [];
-    resolveParagraphParts(game, selected, resolution, instanceKey);
   }
 }
 
-function resolveNodes(game, nodes, resolution, instanceKey) {
+function resolveNodes(game, nodes, session) {
   if (!Array.isArray(nodes)) fail("Resolved story body must be an array");
 
-  for (const node of nodes) {
+  for (const node of iterateSelectedWGNodes(nodes, session)) {
     if (node?.type === "choice") continue;
     if (node?.type === "paragraph") {
-      resolveParagraphParts(game, node.parts, resolution, instanceKey);
+      resolveParagraphParts(game, node.parts, session);
       continue;
     }
 
@@ -110,42 +76,7 @@ function resolveNodes(game, nodes, resolution, instanceKey) {
     }
 
     if (node?.type === "choice-group") {
-      resolveNodes(game, node.nodes, resolution, instanceKey);
-      continue;
-    }
-
-    if (node?.type === "if") {
-      const context = createWGRuntimeContext(game);
-      const index = (node.branches || []).findIndex((branch) =>
-        Boolean(evaluateWGExpression(branch.test, context)),
-      );
-      resolution.decisions[resolutionNodeKey(node)] = index;
-      const selected = index >= 0
-        ? node.branches[index]?.nodes || []
-        : node.elseNodes || [];
-      resolveNodes(game, selected, resolution, instanceKey);
-      continue;
-    }
-
-    if (node?.type === "random") {
-      if (!Array.isArray(node.variants) || node.variants.length < 2) {
-        fail("Random blocks require at least two alternatives", node.source);
-      }
-      const index = randomIndex(game, node, instanceKey);
-      resolution.decisions[resolutionNodeKey(node)] = index;
-      resolveNodes(game, node.variants[index], resolution, instanceKey);
-      continue;
-    }
-
-    if (node?.type === "passive-check") {
-      const result = passiveResult(game, node, instanceKey);
-      resolution.decisions[resolutionNodeKey(node)] = result;
-      resolveNodes(
-        game,
-        node.outcomes?.[result] || [],
-        resolution,
-        instanceKey,
-      );
+      resolveNodes(game, node.nodes, session);
       continue;
     }
 
@@ -158,6 +89,14 @@ export function resolveWGBody(game, nodes, { instanceKey } = {}) {
     fail("WG body resolution requires a story instance key");
   }
   const resolution = { decisions: {} };
-  resolveNodes(game, nodes, resolution, instanceKey);
+  const session = createWGDecisionSession({
+    mode: "record",
+    decisions: resolution.decisions,
+    seed: game.seed,
+    instanceKey,
+    getContext: () => createWGRuntimeContext(game),
+    getPassiveCheckChance: (node) => passiveChance(game, node),
+  });
+  resolveNodes(game, nodes, session);
   return resolution;
 }

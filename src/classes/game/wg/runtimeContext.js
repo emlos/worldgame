@@ -1,5 +1,5 @@
-import { getSchoolDayState } from "../../../../data/player/schedule.js";
-import { isPlaceUnlocked } from "../../../world/util/place.js";
+import { getSchoolDayState } from "../../../data/player/schedule.js";
+import { isPlaceUnlocked } from "../../world/util/place.js";
 
 function placeKeys(places) {
   const keys = places.map((place) => place.key)

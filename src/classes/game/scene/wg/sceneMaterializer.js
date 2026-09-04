@@ -2,16 +2,20 @@ import { SCENE_ACTION_TYPE } from "../../../../data/scene/actions.js";
 import { buildSceneStatus } from "../sceneContext.js";
 import { createChoice } from "../choiceContract.js";
 import { createScene } from "../sceneContract.js";
-import { evaluateWGExpression, resolveWGPath } from "./expressionEvaluator.js";
-import { createWGRuntimeContext } from "./runtimeContext.js";
-import { renderWGInterpolation, renderWGText } from "./textRuntime.js";
+import { evaluateWGExpression, resolveWGPath } from "../../wg/expressionEvaluator.js";
+import { createWGRuntimeContext } from "../../wg/runtimeContext.js";
+import { renderWGInterpolation, renderWGText } from "../../wg/textRuntime.js";
 import { SKILLS } from "../../../../data/player/stats.js";
 import {
   getSkillCheckDifficulty,
   getSkillCheckTargetDefinition,
 } from "../../../../data/scene/skillChecks.js";
 import { keyedRandom01 } from "../../../../shared/util/random.js";
-import { resolutionNodeKey } from "./storyResolver.js";
+import {
+  createWGDecisionSession,
+  iterateSelectedWGNodes,
+  iterateSelectedWGParts,
+} from "../../wg/decisionRuntime.js";
 
 export class WGMaterializationError extends Error {
   constructor(message) {
@@ -32,12 +36,12 @@ function fail(message, source) {
 function renderParagraph(
   node,
   context,
-  { allowChanges = false, resolution = null } = {},
+  { allowChanges = false, decisionSession } = {},
 ) {
   if (!Array.isArray(node.parts)) fail("Paragraph parts must be an array", node.source);
   const renderParts = (parts) => {
     const rendered = [];
-    for (const part of parts) {
+    for (const part of iterateSelectedWGParts(parts, decisionSession)) {
       if (part?.type === "text" && typeof part.value === "string") {
         rendered.push({ type: "text", text: part.value });
         continue;
@@ -60,25 +64,6 @@ function renderParagraph(
         });
         continue;
       }
-      if (part?.type === "inline-if") {
-        const index = resolution
-          ? resolvedDecision(part, { resolution })
-          : (part.branches || []).findIndex((branch) =>
-              Boolean(evaluateWGExpression(branch.test, context)),
-            );
-        if (
-          !Number.isInteger(index) ||
-          index < -1 ||
-          index >= (part.branches || []).length
-        ) {
-          fail("Inline conditional has an invalid branch", part.source || node.source);
-        }
-        const selected = index >= 0
-          ? part.branches[index]?.parts || []
-          : part.elseParts || [];
-        rendered.push(...renderParts(selected));
-        continue;
-      }
       fail(`Unknown paragraph part '${String(part?.type)}'`, node.source);
     }
     return rendered;
@@ -91,8 +76,13 @@ export function materializeWGResponse(game, response) {
     fail("WG responses require one or more paragraphs", response?.source);
   }
   const context = createWGRuntimeContext(game);
+  const decisionSession = createWGDecisionSession({
+    mode: "evaluate",
+    decisions: {},
+    getContext: () => context,
+  });
   return response.paragraphs.map((paragraph) =>
-    renderParagraph(paragraph, context)
+    renderParagraph(paragraph, context, { decisionSession })
       .map((part) => part.type === "break" ? "\n" : part.text).join(""),
   );
 }
@@ -299,28 +289,19 @@ function appendChange(output, feedback) {
   }
 }
 
-function resolvedDecision(node, options) {
-  const decisions = options.resolution?.decisions;
-  const key = resolutionNodeKey(node);
-  if (!decisions || !Object.prototype.hasOwnProperty.call(decisions, key)) {
-    fail(`Story resolution is missing a decision for '${key}'`, node.source);
-  }
-  return decisions[key];
-}
-
 function materializeNodes(nodes, context, output, options = {}) {
   if (!Array.isArray(nodes)) fail("Scene body must be an array");
   const sectionId = options.choiceSectionId || `${options.idPrefix || ""}choices`;
   const sectionHeading = options.choiceSectionHeading === ""
     ? null
     : options.choiceSectionHeading || "Choices";
-  for (const node of nodes) {
+  for (const node of iterateSelectedWGNodes(nodes, options.decisionSession)) {
     if (node?.type === "paragraph") {
       output.content.push({
         type: "paragraph",
         parts: renderParagraph(node, context, {
           allowChanges: Boolean(options.resolution),
-          resolution: options.resolution || null,
+          decisionSession: options.decisionSession,
         }),
       });
       continue;
@@ -337,55 +318,6 @@ function materializeNodes(nodes, context, output, options = {}) {
       if (choice) {
         choiceSection(output, sectionId, sectionHeading).choices.push(choice);
       }
-      continue;
-    }
-    if (node?.type === "if") {
-      const index = options.resolution
-        ? resolvedDecision(node, options)
-        : (node.branches || []).findIndex((candidate) =>
-            Boolean(evaluateWGExpression(candidate.test, context)),
-          );
-      if (!Number.isInteger(index) || index < -1 || index >= (node.branches || []).length) {
-        fail("Conditional story resolution has an invalid branch", node.source);
-      }
-      const selected = index >= 0
-        ? node.branches[index]?.nodes || []
-        : node.elseNodes || [];
-      materializeNodes(selected, context, output, options);
-      continue;
-    }
-    if (node?.type === "random") {
-      if (!Array.isArray(node.variants) || node.variants.length < 2) {
-        fail("Random blocks require at least two alternatives", node.source);
-      }
-      let index;
-      if (options.resolution) {
-        index = resolvedDecision(node, options);
-      } else {
-        const key = [
-          "wg-random-v2",
-          options.storyInstanceKey,
-          resolutionNodeKey(node),
-        ].join(":");
-        index = Math.floor(
-          keyedRandom01(options.gameSeed, key) * node.variants.length,
-        );
-      }
-      if (!Number.isInteger(index) || index < 0 || index >= node.variants.length) {
-        fail("Random story resolution has an invalid alternative", node.source);
-      }
-      materializeNodes(node.variants[index], context, output, options);
-      continue;
-    }
-    if (node?.type === "passive-check") {
-      if (!options.resolution) {
-        fail("Passive checks require a resolved story instance", node.source);
-      }
-      const result = resolvedDecision(node, options);
-      if (result !== "success" && result !== "failure") {
-        fail("Passive-check resolution has an invalid outcome", node.source);
-      }
-      materializeNodes(node.outcomes?.[result] || [], context, output, options);
       continue;
     }
     if (node?.type === "choice-group") {
@@ -406,7 +338,14 @@ function materializeNodes(nodes, context, output, options = {}) {
 
 export function materializeWGBody(nodes, context, options = {}) {
   const output = { content: [], sections: [] };
-  materializeNodes(nodes, context, output, options);
+  const decisionSession = createWGDecisionSession({
+    mode: options.resolution ? "replay" : "record",
+    decisions: options.resolution?.decisions || {},
+    seed: options.gameSeed,
+    instanceKey: options.storyInstanceKey,
+    getContext: () => context,
+  });
+  materializeNodes(nodes, context, output, { ...options, decisionSession });
   return output;
 }
 
@@ -446,13 +385,15 @@ export function materializeWGScene(game, definition, passageId = null) {
     choiceSectionHeading: definition.choiceHeading,
     gameSeed: game.seed,
     resolution,
-    storyInstanceKey: [
-      "scene",
-      definition.id,
-      passage.id,
-      game.storyRevision,
-      game.now.toISOString(),
-    ].join(":"),
+    storyInstanceKey: resolution
+      ? game.currentStory.instanceKey
+      : [
+          "scene",
+          definition.id,
+          passage.id,
+          game.storyRevision,
+          game.now.toISOString(),
+        ].join(":"),
   });
   if (passage.next) {
     choiceSection(output, "navigation", null).choices.push(createChoice({

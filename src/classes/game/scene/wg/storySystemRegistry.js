@@ -105,7 +105,7 @@ export function renderWGSystem(game, definition, frame) {
     game,
     definition,
     systemId,
-    instanceKey: frame.system.instanceKey,
+    instanceKey: frame.instanceKey,
     config: cloneWGSystemJSON(definition.system.config || {}, "WG system config"),
     state: cloneWGSystemJSON(frame.system.state, `WG system '${systemId}' state`),
   });
@@ -124,7 +124,7 @@ export function actWGSystem(game, definition, frame, command) {
     game,
     definition,
     systemId,
-    instanceKey: frame.system.instanceKey,
+    instanceKey: frame.instanceKey,
     config: cloneWGSystemJSON(definition.system.config || {}, "WG system config"),
     state: cloneWGSystemJSON(frame.system.state, `WG system '${systemId}' state`),
     command: cloneWGSystemJSON(command, `WG system '${systemId}' command`),

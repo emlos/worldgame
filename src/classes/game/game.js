@@ -23,7 +23,13 @@ import {
 } from "./util/saveValidation.js";
 import { buildGpsRoute, resolveNavigationDestination } from "./navigation.js";
 import { authoredReminderId, getAuthoredReminder } from "./reminders.js";
-import { createChatState, nextChatDeadline, deliverDueChats } from "./chats.js";
+import {
+  addContact as addGameContact,
+  createChatState,
+  deliverDueChats,
+  nextChatDeadline,
+  startChat as startGameChat,
+} from "./chat/runtime.js";
 import {
   nextActiveTimerDeadline,
   processDueTimers,
@@ -190,6 +196,14 @@ export class Game {
   /** Return a stable named RNG stream derived from this game's master seed. */
   getRNG(name = "gameplay") {
     return this.random.stream(name);
+  }
+
+  addContact(npcId) {
+    return addGameContact(this, npcId);
+  }
+
+  startChat(chatId) {
+    return startGameChat(this, chatId);
   }
 
   // --------------------------
@@ -870,7 +884,7 @@ export class Game {
   // --------------------------
   toJSON() {
     return {
-      saveVersion: 31,
+      saveVersion: 32,
       seed: this.seed,
       random: this.random.toJSON(),
       time: this.now.toISOString(),

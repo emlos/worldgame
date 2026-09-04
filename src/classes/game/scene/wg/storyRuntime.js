@@ -1,5 +1,5 @@
 import { WG_BUNDLE } from "../../../../generated/wg/scenes.js";
-import { applyWGEffects } from "./effectRuntime.js";
+import { applyWGEffects } from "../../wg/effectRuntime.js";
 import { resolveWGBody } from "./storyResolver.js";
 import { createWGSystemState } from "./storySystemRegistry.js";
 import {
@@ -38,13 +38,7 @@ function activeStoryBody(game) {
   }
   return {
     nodes: passage.body,
-    instanceKey: [
-      "scene",
-      definition.id,
-      passage.id,
-      game.storyRevision,
-      game.now.toISOString(),
-    ].join(":"),
+    instanceKey: frame.instanceKey,
   };
 }
 
@@ -61,7 +55,7 @@ export function resolveActiveWGStory(game) {
       frame.system.state = createWGSystemState(
         game,
         definition,
-        frame.system.instanceKey,
+        frame.instanceKey,
       );
     }
     return frame.system;
@@ -97,15 +91,15 @@ export function enterWGScene(
     const revision = game.storyRevision + 1;
     game.currentStory = {
       id: definition.id,
+      instanceKey: [
+        "wg-system-v1",
+        definition.id,
+        revision,
+        game.actionRevision,
+        game.now.toISOString(),
+      ].join(":"),
       system: {
         id: definition.system.id,
-        instanceKey: [
-          "wg-system-v1",
-          definition.id,
-          revision,
-          game.actionRevision,
-          game.now.toISOString(),
-        ].join(":"),
         revision: 0,
       },
     };
@@ -158,12 +152,20 @@ export function enterWGScene(
     fail(`Unknown passage '${String(resolvedPassageId)}' in WG scene '${definition.id}'`);
   }
 
+  const revision = game.storyRevision + 1;
   game.currentStory = {
     id: definition.id,
     passageId: resolvedPassageId,
+    instanceKey: [
+      "scene",
+      definition.id,
+      resolvedPassageId,
+      revision,
+      game.now.toISOString(),
+    ].join(":"),
     ...(schoolClass ? { schoolClass } : {}),
   };
-  game.storyRevision += 1;
+  game.storyRevision = revision;
   if (runOnEnter) applyWGEffects(game, definition.onEnter || []);
 }
 

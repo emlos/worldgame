@@ -2,39 +2,10 @@ import { failWG } from "./diagnostic.js";
 import { parseWGDocument } from "./sourceParser.js";
 import { validateChat } from "./chatValidation.js";
 import { NPC_REGISTRY } from "../../../src/data/npc/npcs.js";
+import { walkWGNodes } from "../../../src/shared/wg/tree.js";
 
 function compareText(left, right) {
   return left < right ? -1 : left > right ? 1 : 0;
-}
-
-function walkParts(parts, visit) {
-  for (const part of parts || []) {
-    if (part.type !== "inline-if") continue;
-    visit(part);
-    for (const branch of part.branches || []) walkParts(branch.parts, visit);
-    walkParts(part.elseParts || [], visit);
-  }
-}
-
-function walkNodes(nodes, visit) {
-  for (const node of nodes) {
-    visit(node);
-    if (node.type === "paragraph") {
-      walkParts(node.parts, visit);
-    } else if (node.type === "message") {
-      walkNodes(node.body, visit);
-    } else if (node.type === "if") {
-      for (const branch of node.branches) walkNodes(branch.nodes, visit);
-      if (node.elseNodes) walkNodes(node.elseNodes, visit);
-    } else if (node.type === "choice-group") {
-      walkNodes(node.nodes, visit);
-    } else if (node.type === "random") {
-      for (const variant of node.variants) walkNodes(variant, visit);
-    } else if (node.type === "passive-check") {
-      walkNodes(node.outcomes?.success || [], visit);
-      walkNodes(node.outcomes?.failure || [], visit);
-    }
-  }
 }
 
 const RUNTIME_NODE_TYPES = new Set([
@@ -46,7 +17,7 @@ const RUNTIME_NODE_TYPES = new Set([
 
 function assignRuntimeNodeIds(nodes) {
   let runtimeId = 0;
-  walkNodes(nodes, (node) => {
+  walkWGNodes(nodes, (node) => {
     if (!RUNTIME_NODE_TYPES.has(node.type)) return;
     node.runtimeId = runtimeId;
     runtimeId += 1;
@@ -218,7 +189,7 @@ export function compileStorySources(sources) {
     for (const passage of scene.passages) {
       const choiceIds = new Map();
       const choiceGroupIds = new Map();
-      walkNodes(passage.body, (node) => {
+      walkWGNodes(passage.body, (node) => {
         if (scene.kind === "place" && hasPersistentProseMutation(node)) {
           failWG(
             "Persistent place hubs cannot contain prose effects or passive checks",
@@ -274,7 +245,7 @@ export function compileStorySources(sources) {
   for (const contribution of locationMap.values()) {
     const choiceIds = new Map();
     const groupIds = new Map();
-    walkNodes(contribution.body, (node) => {
+    walkWGNodes(contribution.body, (node) => {
       if (hasPersistentProseMutation(node)) {
         failWG("Location contributions cannot contain prose effects or passive checks; put effects inside choices", atSource(node.source));
       }
@@ -335,5 +306,3 @@ export function compileStorySources(sources) {
   const chats = Object.fromEntries([...chatMap.entries()].sort(([left], [right]) => compareText(left, right)));
   return { formatVersion: 27, scenes, locationContributions, reminders, chats };
 }
-
-export { walkNodes };

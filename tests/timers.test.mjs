@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { Game } from "../src/classes/game/game.js";
 import { performChoice } from "../src/classes/game/scene/choiceEngine.js";
 import { buildScene } from "../src/classes/game/scene/sceneEngine.js";
-import { applyWGEffect } from "../src/classes/game/scene/wg/effectRuntime.js";
+import { applyWGEffect } from "../src/classes/game/wg/effectRuntime.js";
 import {
   initialTimerDeadline,
   nextTimerDeadlineForSchedule,
@@ -181,11 +181,11 @@ test("WG timer effects compile and preserve their lifecycle semantics", () => {
   assert.deepEqual(game.timers, {});
 });
 
-test("save version 31 requires valid named timer state", () => {
+test("save version 32 requires valid named timer state", () => {
   const game = new Game({ seed: 706 });
   game.startTimer("rent.weekly");
   const save = game.toJSON();
-  assert.equal(save.saveVersion, 31);
+  assert.equal(save.saveVersion, 32);
 
   const missing = JSON.parse(JSON.stringify(save));
   delete missing.timers;

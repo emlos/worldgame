@@ -3,9 +3,9 @@ import assert from "node:assert/strict";
 
 import { Game } from "../src/classes/game/game.js";
 import { buildPhonePlayerStatsView } from "../src/classes/game/scene/phoneView.js";
-import { applyWGEffect } from "../src/classes/game/scene/wg/effectRuntime.js";
-import { evaluateWGExpression } from "../src/classes/game/scene/wg/expressionEvaluator.js";
-import { createWGRuntimeContext } from "../src/classes/game/scene/wg/runtimeContext.js";
+import { applyWGEffect } from "../src/classes/game/wg/effectRuntime.js";
+import { evaluateWGExpression } from "../src/classes/game/wg/expressionEvaluator.js";
+import { createWGRuntimeContext } from "../src/classes/game/wg/runtimeContext.js";
 import { Player } from "../src/classes/player/player.js";
 import {
   SCHOOL_SUBJECTS,
@@ -119,14 +119,14 @@ test("WG effects, expression context, and the phone expose progress", () => {
   });
 });
 
-test("save version 31 round-trips canonical subject achievement", () => {
+test("save version 32 round-trips canonical subject achievement", () => {
   const game = new Game({ seed: 117 });
   game.player.setSubjectGrade("art", "B");
   game.player.setSubjectProgress("art", 42);
   game.player.recordSubjectAttendance("art", 3);
 
   const save = game.toJSON();
-  assert.equal(save.saveVersion, 31);
+  assert.equal(save.saveVersion, 32);
   assert.deepEqual(save.player.education.subjects.art, {
     achievement: 242,
     attendedSegments: 3,
