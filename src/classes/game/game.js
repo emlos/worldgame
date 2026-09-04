@@ -255,37 +255,37 @@ export class Game {
     ) {
       return this._changeTimeStep(target, options);
     }
-    const snapshot = this._captureTimeRuntimeState();
     const from = new Date(this.now);
     let ejectedFrom = null;
-    try {
-      let boundaries = 0;
-      while (true) {
-        const deadlineMs = Math.min(
-          nextChatDeadline(this),
-          nextActiveTimerDeadline(this),
-        );
-        if (deadlineMs > target.getTime()) break;
-        if (++boundaries > 10000) {
-          throw new Error("Scheduled event limit exceeded during one time advance");
-        }
-        const deadline = new Date(Math.max(this.now.getTime(), deadlineMs));
-        if (deadline > this.now) {
-          const change = this._changeTimeStep(deadline, options);
-          ejectedFrom ||= change.ejectedFrom;
-        }
-        processDueTimers(this);
-        deliverDueChats(this);
+    let boundaries = 0;
+    while (true) {
+      const deadlineMs = Math.min(
+        nextChatDeadline(this),
+        nextActiveTimerDeadline(this),
+      );
+      if (deadlineMs > target.getTime()) break;
+      if (++boundaries > 10000) {
+        throw new Error("Scheduled event limit exceeded during one time advance");
       }
-      if (target > this.now) {
-        const change = this._changeTimeStep(target, options);
+      const deadline = new Date(Math.max(this.now.getTime(), deadlineMs));
+      if (deadline > this.now) {
+        const change = this._changeTimeStep(deadline, options);
         ejectedFrom ||= change.ejectedFrom;
       }
-      return { from, to: new Date(this.now), minutes: (this.now - from) / MS_PER_MINUTE, ...options, ejectedFrom };
-    } catch (error) {
-      this._restoreTimeRuntimeState(snapshot);
-      throw error;
+      processDueTimers(this);
+      deliverDueChats(this);
     }
+    if (target > this.now) {
+      const change = this._changeTimeStep(target, options);
+      ejectedFrom ||= change.ejectedFrom;
+    }
+    return {
+      from,
+      to: new Date(this.now),
+      minutes: (this.now - from) / MS_PER_MINUTE,
+      ...options,
+      ejectedFrom,
+    };
   }
 
   _changeTimeStep(target, { mode, source, drainPlayerEnergy }) {
@@ -303,37 +303,30 @@ export class Game {
       return { from, to, minutes, mode, source, drainPlayerEnergy };
     }
 
-    const eventName = mode === "simulate" ? "time" : "timeJump";
-    const listenerCheckpoint = this._captureListenerCheckpoint(eventName);
-    const snapshot = this._captureTimeRuntimeState();
     let ejectedFrom = null;
-    try {
-      if (mode === "simulate") {
-        this.world.advance(minutes);
 
-        // Brains resolve meaningful decision boundaries, not every minute.
-        for (const npc of this.npcs.values()) {
-          npc.brain?.updateTo(this.now, this);
-        }
-      } else {
-        this.world.setDate(to);
+    if (mode === "simulate") {
+      this.world.advance(minutes);
 
-        for (const npc of this.npcs.values()) {
-          npc.brain?.resyncAt(this.now, this);
-        }
-        if (to > from) resyncTimers(this, to);
+      // Brains resolve meaningful decision boundaries, not every minute.
+      for (const npc of this.npcs.values()) {
+        npc.brain?.updateTo(this.now, this);
       }
+    } else {
+      this.world.setDate(to);
 
-      this._applyElapsedPlayerChanges(minutes, {
-        drainEnergy: drainPlayerEnergy,
-      });
-      this._clearDailyFlagsAfterMidnight(from, this.now);
-      ejectedFrom = this._enforcePlaceClosing(from, this.now);
-      this._syncDailyAnnouncementsAfterDateChange(from, this.now);
-    } catch (error) {
-      this._restoreTimeRuntimeState(snapshot);
-      throw error;
+      for (const npc of this.npcs.values()) {
+        npc.brain?.resyncAt(this.now, this);
+      }
+      if (to > from) resyncTimers(this, to);
     }
+
+    this._applyElapsedPlayerChanges(minutes, {
+      drainEnergy: drainPlayerEnergy,
+    });
+    this._clearDailyFlagsAfterMidnight(from, this.now);
+    ejectedFrom = this._enforcePlaceClosing(from, this.now);
+    this._syncDailyAnnouncementsAfterDateChange(from, this.now);
 
     const change = {
       from,
@@ -347,15 +340,11 @@ export class Game {
 
     if (mode === "simulate") {
       // Normal time listeners are reserved for genuinely simulated elapsed time.
-      this._dispatchListeners(
-        "time",
-        [this, minutes, change],
-        listenerCheckpoint,
-      );
+      this._dispatchListeners("time", [this, minutes, change]);
     } else {
       // A resync is observational: skipped wages, encounters, deliveries, etc.
       // must not be inferred from the size of this delta.
-      this._dispatchListeners("timeJump", [this, change], listenerCheckpoint);
+      this._dispatchListeners("timeJump", [this, change]);
     }
 
     return change;
@@ -413,69 +402,6 @@ export class Game {
     return ejectedFrom;
   }
 
-  _captureTimeRuntimeState() {
-    return {
-      player: JSON.parse(JSON.stringify(this.player.toJSON())),
-      flags: [...this.flags],
-      story: JSON.parse(JSON.stringify(this.story)),
-      chats: JSON.parse(JSON.stringify(this.chats)),
-      timers: JSON.parse(JSON.stringify(this.timers)),
-      unlockedPlaces: [...this.world.locations.values()].flatMap((location) => location.places.map((place) => ({ place, unlocked: place.unlocked }))),
-      date: new Date(this.now.getTime()),
-      random: this.random.toJSON(),
-      playerEnergy: this.player.getStatBase("energy"),
-      playerAge: this.player.age,
-      reminders: [...this.reminders],
-      dailyFlags: [...this.dailyFlags],
-      dailyAnnouncements: JSON.parse(JSON.stringify(this.dailyAnnouncements)),
-      currentLocationId: this.currentLocationId,
-      currentPlaceId: this.currentPlaceId,
-      currentPlaceKey: this.currentPlaceKey,
-      currentStory:
-        this.currentStory === null
-          ? null
-          : JSON.parse(JSON.stringify(this.currentStory)),
-      storyContinuations: JSON.parse(JSON.stringify(this.storyContinuations)),
-      storyRevision: this.storyRevision,
-      npcs: this.npcsArray.map((npc) => ({
-        npc,
-        locationId: npc.locationId,
-        currentPlaceId: npc.currentPlaceId,
-        brain: npc.brain?.toJSON?.() ?? null,
-      })),
-    };
-  }
-
-  _restoreTimeRuntimeState(snapshot) {
-    this.player = Player.fromJSON(snapshot.player);
-    this.flags = new Set(snapshot.flags);
-    this.story = snapshot.story;
-    this.chats = snapshot.chats;
-    this.timers = snapshot.timers;
-    for (const { place, unlocked } of snapshot.unlockedPlaces) place._unlocked = unlocked;
-    this.world.setDate(snapshot.date);
-    this.random.restoreJSON(snapshot.random);
-    this.rnd = this.getRNG("gameplay");
-    this.player.setStatBase("energy", snapshot.playerEnergy);
-    this.player.age = snapshot.playerAge;
-    this.reminders = new Set(snapshot.reminders);
-    this.currentLocationId = snapshot.currentLocationId;
-    this.currentPlaceId = snapshot.currentPlaceId;
-    this.currentPlaceKey = snapshot.currentPlaceKey;
-    this.currentStory = snapshot.currentStory;
-    this.storyContinuations = snapshot.storyContinuations;
-    this.storyRevision = snapshot.storyRevision;
-    this.dailyFlags.clear();
-    for (const flag of snapshot.dailyFlags) this.dailyFlags.add(flag);
-    this.dailyAnnouncements = snapshot.dailyAnnouncements;
-
-    for (const state of snapshot.npcs) {
-      state.npc.setLocationAndPlace(state.locationId, state.currentPlaceId);
-      if (state.npc.brain && state.brain)
-        state.npc.brain.restoreJSON(state.brain);
-    }
-  }
-
   /**
    * Move player to another location on the world map.
    */
@@ -485,7 +411,6 @@ export class Game {
     }
     if (locationId === this.currentLocationId) return;
 
-    const listenerCheckpoint = this._captureListenerCheckpoint("location");
     this.currentLocationId = locationId;
     // When moving, you're typically not inside any specific place
     this.currentPlaceId = null;
@@ -499,7 +424,7 @@ export class Game {
     }
 
     // Subscribers should observe a fully consistent position.
-    this._dispatchListeners("location", [this, locationId], listenerCheckpoint);
+    this._dispatchListeners("location", [this, locationId]);
   }
 
   /**
@@ -868,123 +793,61 @@ export class Game {
     }
 
     const startedAt = this.now.toISOString();
-    const checkpoint = this._captureActionCheckpoint();
-
     let timeChange = null;
-    try {
-      // Any committed player action acknowledges the currently visible batch.
-      // If this action crosses midnight, time synchronization creates a fresh
-      // batch for the destination day later in this same transaction.
-      this.dismissDailyAnnouncements();
+    // Any completed player action acknowledges the currently visible batch.
+    // If this action crosses midnight, time synchronization creates a fresh
+    // batch for the destination day later in this action.
+    this.dismissDailyAnnouncements();
 
-      if (typeof apply === "function") {
-        // Let the action mutate game / player / NPCs / world. The
-        // detached checkpoint below restores all persisted state if
-        // this callback or the following simulation fails.
-        apply(this);
-      }
+    if (typeof apply === "function") {
+      apply(this);
+    }
 
-      if (resting && amount > 0) {
-        const energy = this.player.adjustStatBase(
-          "energy",
-          amount * PLAYER_ENERGY_RECOVERY_PER_MINUTE,
-        );
-        this.player.setStatBase(
-          "energy",
-          Math.round(energy * ENERGY_PRECISION) / ENERGY_PRECISION,
-        );
-      }
+    if (resting && amount > 0) {
+      const energy = this.player.adjustStatBase(
+        "energy",
+        amount * PLAYER_ENERGY_RECOVERY_PER_MINUTE,
+      );
+      this.player.setStatBase(
+        "energy",
+        Math.round(energy * ENERGY_PRECISION) / ENERGY_PRECISION,
+      );
+    }
 
-      if (amount > 0) {
-        timeChange = this.advanceMinutes(amount, { drainPlayerEnergy: !energyFree });
-      }
+    if (amount > 0) {
+      timeChange = this.advanceMinutes(amount, {
+        drainPlayerEnergy: !energyFree,
+      });
+    }
 
-      const skipAfter = typeof interrupt === "function"
-        ? interrupt(this, "before-after", timeChange) === true
-        : false;
+    const skipAfter = typeof interrupt === "function"
+      ? interrupt(this, "before-after", timeChange) === true
+      : false;
 
-      // Arrival/event resolution belongs after time simulation so it
-      // observes the destination clock and final NPC positions. It is
-      // still inside this action's checkpoint and rolls back with it.
-      if (!skipAfter && typeof after === "function") {
-        after(this);
-      }
+    // Arrival/event resolution belongs after time simulation so it observes
+    // the destination clock and final NPC positions.
+    if (!skipAfter && typeof after === "function") {
+      after(this);
+    }
 
-      if (typeof interrupt === "function") {
-        interrupt(this, "after-after", timeChange);
-      }
+    if (typeof interrupt === "function") {
+      interrupt(this, "after-after", timeChange);
+    }
 
-      // Successful actions advance the deterministic choice-roll epoch.
-      // Rendering, rejected requests, and rolled-back actions never do.
-      this.actionRevision += 1;
+    // Successful actions advance the deterministic choice-roll epoch.
+    // Rendering and rejected requests do not.
+    this.actionRevision += 1;
 
-      // A log entry describes a committed action, so add it only after
-      // its effects, time cost, and post-time resolution have succeeded.
-      if (typeof label === "string" && label) {
-        this.log.push({ t: startedAt, label });
-      }
-    } catch (error) {
-      this._restoreActionCheckpoint(checkpoint);
-      throw error;
+    // A log entry describes a completed action, so add it only after its
+    // effects, time cost, and post-time resolution have succeeded.
+    if (typeof label === "string" && label) {
+      this.log.push({ t: startedAt, label });
     }
     return { timeChange };
   }
 
-  _captureActionCheckpoint() {
-    const save = JSON.parse(JSON.stringify(this));
-    validateGameSave(save);
-    const listeners = Object.fromEntries(
-      Object.entries(this._listeners).map(([eventName, set]) => [
-        eventName,
-        { set, callbacks: [...set] },
-      ]),
-    );
-    return {
-      save,
-      ownKeys: new Set(Object.keys(this)),
-      listeners,
-    };
-  }
-
-  _restoreActionCheckpoint(checkpoint) {
-    const restored = Game.fromJSON(checkpoint.save);
-
-    // Remove runtime properties added by the failed callback, then adopt
-    // every current/future constructor field except the listener registry.
-    for (const key of Object.keys(this)) {
-      if (!checkpoint.ownKeys.has(key)) delete this[key];
-    }
-    for (const [key, value] of Object.entries(restored)) {
-      if (key !== "_listeners") this[key] = value;
-    }
-
-    // Keep the original Set objects so unsubscribe functions returned by
-    // `on()` remain valid, while undoing listener changes made by the failed action.
-    const listeners = {};
-    for (const [eventName, state] of Object.entries(checkpoint.listeners)) {
-      state.set.clear();
-      for (const callback of state.callbacks) state.set.add(callback);
-      listeners[eventName] = state.set;
-    }
-    this._listeners = listeners;
-  }
-
-  _captureListenerCheckpoint(eventName) {
-    return this._listeners[eventName].size
-      ? this._captureActionCheckpoint()
-      : null;
-  }
-
-  _dispatchListeners(eventName, args, checkpoint) {
-    try {
-      for (const callback of this._listeners[eventName]) callback(...args);
-    } catch (error) {
-      // Event callbacks observe the proposed committed state. If any one
-      // fails, undo both the mutation and all game/listener changes made
-      // by callbacks that already ran.
-      if (checkpoint) this._restoreActionCheckpoint(checkpoint);
-      throw error;
-    }
+  _dispatchListeners(eventName, args) {
+    for (const callback of this._listeners[eventName]) callback(...args);
   }
 
   // --------------------------

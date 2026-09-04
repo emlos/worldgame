@@ -76,9 +76,9 @@ contact queues until the active one finishes. Contacts appear in the Chats app.
   Debug/resync clock jumps do not deliver messages; overdue messages deliver at
   the current clock on the next positive simulated advance, without rewinding.
 - Effects execute once in authored order. Incoming message effects happen at
-  delivery, including while the phone is closed. Messages and effects roll back
-  together if an action or delivery fails. Do not add contacts or start another
-  exchange from within a chat; trigger those from world scenes.
+  delivery, including while the phone is closed. Delivery errors propagate
+  without restoring messages or effects that already ran. Do not add contacts
+  or start another exchange from within a chat; trigger those from world scenes.
 - Saves store message references, frozen random/conditional choices, and captured
   interpolation values, not transcript bodies. Rendering/loading history never
   reruns effects. Editing authored wording changes the reconstructed wording;
@@ -322,7 +322,7 @@ selected, preventing a generic fallback from immediately following a more
 specific version. Scenes re-arm after their conditions become false. When an
 interrupt arises during a scene, its selected scene ID is saved and fires as
 soon as the player leaves that scene. Interrupt selection and pending state
-survive save/load and remain inside the action's normal rollback transaction.
+survive save/load.
 
 Keep consequences in the interrupt scene using ordinary effects. A recovery
 choice can use `@time 1h..3h rest` to choose a stable random whole-minute
@@ -429,7 +429,8 @@ The body supports prose, interpolation, `@br`, conditionals, deterministic
 `@random` variants, choice groups, and ordinary or checked choices. Rendering
 and choice revalidation are pure: no state changes or random-stream advancement.
 Choice effects, skill checks, requirements, time, previews, unlocks, and responses
-use the same action transaction and rollback behavior as other WG choices.
+use the same execution order as other WG choices. Runtime errors propagate and
+do not restore earlier state; reload a previous save after a fatal error.
 A successful `@exit` choice stays at the outdoor hub; a global scene
 target enters that story. Responses use the completed post-action state and
 are displayed only for the immediate result. Flags persist through save/load.
@@ -657,8 +658,8 @@ scene. `@next` cannot perform `@leave-place`; use an ordinary
 choice for an authoritative place exit.
 
 Ordinary choices inside passages keep their normal effects, duration, skill
-checks, requirements, and atomic rollback behavior. Choice IDs must be unique
-within their passage. Local `.passage` targets are valid in every scene.
+checks, and requirements. Choice IDs must be unique within their passage.
+Local `.passage` targets are valid in every scene.
 
 ### School class scenes
 
@@ -1259,8 +1260,8 @@ the same result, while completing another action or re-entering the scene
 changes the roll key. Rendering never rolls or advances that revision.
 
 After a result is selected, that branch's effects and target transition run,
-then its time advances. The complete branch remains part of the normal atomic
-action transaction.
+then its time advances. Runtime errors propagate without restoring effects that
+were already applied.
 
 ## Effects
 
@@ -1382,7 +1383,8 @@ Ordinary WG interrupt conditions decide whether that state unlocks a scene.
 Forward `jumpToDate(..., { mode: "resync" })` calls no timer callbacks. It
 removes elapsed one-shots and advances repeating deadlines past the target,
 matching resync's rule that skipped time must not manufacture gameplay events.
-Timer mutations participate in normal time and action rollback transactions.
+Timer state and callback mutations are saved normally. Callback failures
+propagate and do not restore the clock or earlier timer mutations.
 
 ### Unlocking places
 
@@ -1405,9 +1407,8 @@ choice, put the unlock inside `@success` or `@failure`, not at choice level.
 
 - Unlocking is silent: author the discovery text yourself. It does not add
   automatic feedback, a choice preview, a time cost, or move the player.
-- It uses the normal effect order and action transaction. Body unlocks run
-  once per entered passage, never during rendering or choice revalidation.
-  A later failure in the same action rolls the unlock back.
+- It uses the normal effect order. Body unlocks run once per entered passage,
+  never during rendering or choice revalidation.
 - A committed unlock is saved and irreversible. Repeating it is harmless.
   If a valid key has no instances in the current world, it does nothing.
 - Newly unlocked places appear in the existing map, place-choice, GPS, bus,
@@ -1454,7 +1455,7 @@ feedback in the choice response.
 Adding an active reminder and clearing an inactive reminder are harmless.
 Duplicate definitions, unknown references, and malformed operations fail
 compilation, including inside unreachable branches. Effect order, save/load,
-and failed-action rollback follow the ordinary WG effect rules.
+and runtime error handling follow the ordinary WG effect rules.
 
 The phone's Reminders app shows active authored reminders under **To do**.
 The school-day reminder is built in: the school schedule automatically supplies

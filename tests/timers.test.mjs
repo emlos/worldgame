@@ -133,14 +133,18 @@ test("resync skips callbacks and advances the recurring deadline", () => {
   assert.equal(game.timers["rent.weekly"].occurrences, 1);
 });
 
-test("timer callback failures roll back time and timer state", () => {
+test("timer callback failures propagate without restoring prior state", () => {
   const game = new Game({ seed: 704, startDate: new Date("2026-09-04T12:00:00.000Z") });
   game.story.rent = 5;
   game.startTimer("rent.weekly");
-  const before = game.toJSON();
 
   assert.throws(() => game.advanceMinutes(7 * DAY_MINUTES), /non-object story path/);
-  assert.deepEqual(game.toJSON(), before);
+  assert.equal(game.now.toISOString(), "2026-09-11T12:00:00.000Z");
+  assert.deepEqual(game.timers["rent.weekly"], {
+    dueAt: "2026-09-18T12:00:00.000Z",
+    occurrences: 1,
+  });
+  assert.equal(game.story.rent, 5);
 });
 
 test("WG timer effects compile and preserve their lifecycle semantics", () => {
