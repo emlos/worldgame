@@ -1,9 +1,5 @@
 :: place.civil-office [place hub]
-  @place-key civil_office
-  @hub place
-@kind place
-@heading "Civil Office"
-@choices "Activities"
+@hub civil_office
 
 Counters, forms, and noticeboards fill {{place.name}}.
 
@@ -16,15 +12,6 @@ Counters, forms, and noticeboards fill {{place.name}}.
 @endchoice
 @endchoicegroup
 
-@choice reception "Ask at reception" -> place.civil-office
-@endchoice
-
-@choice forms "Look through the available forms" -> place.civil-office
-@endchoice
-
-@choice leave "Leave" -> @leave-place
-  @time 1m
-@endchoice
 
 :: story.rent.intro.1 -> @exit
   "Um, hello?" You hold the notice up to the receptionist. "I found this on my door. What is it about?"

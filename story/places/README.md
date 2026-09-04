@@ -1,23 +1,27 @@
 # Place hubs
 
-Each registered place key has one authored WG hub in this directory. The files
-are grouped by broad domain only to keep them manageable; every hub still has
-its own scene, exposure metadata, prose, and choices.
+Every registered place gets a generated hub automatically. Most places need no
+WG declaration: the runtime supplies generic prose, eligible offers and NPCs,
+and the standard one-minute Leave choice.
 
-All hubs are compiled even when their registry place starts with
-`unlocked: false`. A locked place remains generated for NPC simulation but is
+All places are generated even when their registry definition starts with
+`unlocked: false`. A locked place remains available to NPC simulation but is
 absent from every player-facing map, destination list, and place choice, so its
 hub and place offers remain dormant. Runtime code unlocks all generated
 instances of a key with `game.unlockPlacesByKey("place_key")`; that state is
 saved and cannot be reversed. WG uses `@unlock place <place-key>` to reveal
 places from story scenes, choices, or chats.
 
-The initial activity choices deliberately target their own hub and have no
-time or state effects. They are scaffolds: selecting one simply redraws the
-same place menu. To expand an activity, point it at a new scene and add the
-desired `@time`, conditions, requirements, previews, and effects there.
+Only places with real custom prose or behavior have an authored hub in this
+directory. Declare one with `@hub <place-key>`; this also implies `@kind place`
+and the corresponding place selector. Do not author a Leave choice.
 
 ```wg
+:: place.library [place library]
+@hub library
+
+Rows of bookshelves divide the quiet room.
+
 @choice study "Study for a while" -> library.study
   @icon 📝
   @time 1h
@@ -28,17 +32,16 @@ desired `@time`, conditions, requirements, previews, and effects there.
 
 You settle down with your notes.
 
-@choice back "Finish studying" -> place.library
+@choice back "Finish studying" -> @exit
 @endchoice
 ```
 
-Use `@leave-place` for the exit choice. The runtime converts it to the same
-authoritative leave action used elsewhere. The target does not add time by
-itself, so include `@time 1m` when leaving should use the normal one-minute
-transition back outside.
+To trigger an event after the player leaves, put `@auto leave-place` and the
+source `@place-key` on the event. Its `@onenter` block runs normally after the
+exit completes. `@onenter` alone is initialization, not a trigger.
 
-Authored NPC residence hubs are in `npc-homes.wg`. All generated NPC homes
-start with `unlocked: false` and stay hidden from the player until revealed.
+Generated NPC homes start with `unlocked: false` and stay hidden from the
+player until revealed.
 Use `@unlock place home_<npc-id>`, for example `@unlock place home_taylor`,
 to unlock a residence permanently. Kim's rent chat unlocks `home_kim` when
 Kim shares the address.

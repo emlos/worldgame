@@ -195,12 +195,6 @@ export function compileStorySources(sources) {
   for (const scene of sceneMap.values()) {
     if (scene.finalTarget) validateTarget(scene.finalTarget, scene.source, { scene });
     if (scene.hub?.type === "place") {
-      if (scene.kind !== "place") {
-        failWG(
-          `Place hub scene '${scene.id}' must use @kind place`,
-          atSource(scene.source),
-        );
-      }
       if (scene.passages.length !== 1) {
         failWG(
           `Place hub scene '${scene.id}' must contain exactly one passage`,
@@ -243,6 +237,12 @@ export function compileStorySources(sources) {
           return;
         }
         if (node.type !== "choice") return;
+        if (scene.hub?.type === "place" && node.id === "leave") {
+          failWG(
+            "Choice id 'leave' is reserved by the implicit place-hub navigation",
+            atSource(node.source),
+          );
+        }
         const previous = choiceIds.get(node.id);
         if (previous) {
           failWG(
@@ -255,6 +255,12 @@ export function compileStorySources(sources) {
         const targets = node.check
           ? [node.outcomes?.success, node.outcomes?.failure].map((outcome) => outcome?.target)
           : [node.target];
+        if (scene.hub?.type === "place" && targets.includes("@leave-place")) {
+          failWG(
+            "Place hubs already provide an implicit Leave choice",
+            atSource(node.source),
+          );
+        }
         for (const target of targets) {
           validateTarget(target, node.source, { scene, choiceId: node.id });
         }
@@ -327,7 +333,7 @@ export function compileStorySources(sources) {
     [...reminderMap.entries()].sort(([left], [right]) => compareText(left, right)),
   );
   const chats = Object.fromEntries([...chatMap.entries()].sort(([left], [right]) => compareText(left, right)));
-  return { formatVersion: 26, scenes, locationContributions, reminders, chats };
+  return { formatVersion: 27, scenes, locationContributions, reminders, chats };
 }
 
 export { walkNodes };

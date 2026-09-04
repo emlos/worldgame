@@ -1,8 +1,5 @@
 :: place.high-school [place hub]
-  @place-key high_school
-  @hub place
-@kind place
-@heading "High School"
+@hub high_school
 @choices "Travel"
 
 
@@ -12,7 +9,7 @@
 
 The halls of {{place.name}} are open, though lessons have not begun yet. You can see groups of students move in the hallways.
 
-@choice wait-for-first-class "Wait for the first class" -> place.high-school
+@choice wait-for-first-class "Wait for the first class" -> @exit
   
   @time-until school.nextBoundaryAt
 @endchoice
@@ -45,12 +42,12 @@ History class is in progress. You can still attend or keep exploring the school.
 
 Lunch break is underway. The cafeteria is open until afternoon classes begin.
 
-@choice lunch-cafeteria "Go to the cafeteria" -> place.high-school
+@choice lunch-cafeteria "Go to the cafeteria" -> @exit
   
   @time-until school.nextBoundaryAt
 @endchoice
 
-@choice lunch-wait "Wait for the next class" -> place.high-school
+@choice lunch-wait "Wait for the next class" -> @exit
   
   @time-until school.nextBoundaryAt
 @endchoice
@@ -83,12 +80,12 @@ Physical education is in progress. You can still attend or keep exploring the sc
 
 There is a short break before the next class begins.
 
-@choice break-cafeteria "Go to the cafeteria" -> place.high-school
+@choice break-cafeteria "Go to the cafeteria" -> @exit
   
   @time-until school.nextBoundaryAt
 @endchoice
 
-@choice break-wait "Wait for the next class" -> place.high-school
+@choice break-wait "Wait for the next class" -> @exit
   
   @time-until school.nextBoundaryAt
 @endchoice
@@ -97,7 +94,7 @@ There is a short break before the next class begins.
 
 Lessons are over, but {{place.name}} remains open until 17:00.
 
-@choice after-school-wait "Stay until school closes" -> place.high-school
+@choice after-school-wait "Stay until school closes" -> @exit
   
   @time-until school.nextBoundaryAt
 @endchoice
@@ -106,12 +103,12 @@ Lessons are over, but {{place.name}} remains open until 17:00.
 
 There are no lessons today, though the administrative areas remain open.
 
-@choice no-school-office "Visit the school office" -> place.high-school
+@choice no-school-office "Visit the school office" -> @exit
   @icon 🏫
   @time 15m
 @endchoice
 
-@choice no-school-notices "Read the school notices" -> place.high-school
+@choice no-school-notices "Read the school notices" -> @exit
   @icon 📌
   @time 5m
 @endchoice
@@ -172,12 +169,6 @@ The school has closed for the day.
 @endchoice
 
 @endchoicegroup
-
-
-@choice leave-school "Leave" -> @leave-place
-  
-  @time 1m
-@endchoice
 
 
 :: school.class.english -> @exit
@@ -638,7 +629,7 @@ The few students in the cafeteria are eating quietly. It seems kind of empty.
   @effect daily-flag school_before_taylor true
 @endchoice
 
-@choice leave "Leave" -> place.high-school
+@choice leave "Leave" -> @exit
   @time 1m
 @endchoice
 
@@ -657,7 +648,7 @@ Everyone looks at you as you enter the classroom. The teacher is at the front of
   @when school.phase != "class" and school.nextClass == "english"
 @endchoice
 
-@choice leave "Leave" -> place.high-school
+@choice leave "Leave" -> @exit
   @time 1m
 @endchoice
 
@@ -678,7 +669,7 @@ Everyone looks at you as you enter the classroom. The teacher is at the front of
   @when school.phase != "class" and school.nextClass == "math"
 @endchoice
 
-@choice leave "Leave" -> place.high-school
+@choice leave "Leave" -> @exit
   @time 1m
 @endchoice
 
@@ -699,7 +690,7 @@ Everyone looks at you as you enter the classroom. The teacher is at the front of
   @when school.phase != "class" and school.nextClass == "science"
 @endchoice
 
-@choice leave "Leave" -> place.high-school
+@choice leave "Leave" -> @exit
   @time 1m
 @endchoice
 
@@ -720,7 +711,7 @@ Everyone looks at you as you enter the classroom. The teacher is at the front of
   @when school.phase != "class" and school.nextClass == "history"
 @endchoice
 
-@choice leave "Leave" -> place.high-school
+@choice leave "Leave" -> @exit
   @time 2m
 @endchoice
 
@@ -741,7 +732,7 @@ Everyone looks at you as you enter the classroom. The teacher is at the front of
   @when school.phase != "class" and school.nextClass == "art"
 @endchoice
 
-@choice leave "Leave" -> place.high-school
+@choice leave "Leave" -> @exit
   @time 2m
 @endchoice
 
@@ -762,7 +753,7 @@ Everyone looks at you as you enter the gym. The teacher is at the front of the r
   @when school.phase != "class" and school.nextClass == "physical_education"
 @endchoice
 
-@choice leave "Leave" -> place.high-school
+@choice leave "Leave" -> @exit
   @time 5m
 @endchoice
 
@@ -777,7 +768,7 @@ Nobody answers your knock. The office is closed during class time.
   There's nobody here.
 @endif
 
-@choice leave "Leave" -> place.high-school
+@choice leave "Leave" -> @exit
   @time 5m
 @endchoice
 
@@ -803,7 +794,7 @@ Nobody answers your knock. The office is closed during class time.
   @endresponse
 @endchoice
 
-@choice leave "Leave" -> place.high-school
+@choice leave "Leave" -> @exit
   @time 2m
 @endchoice
 

@@ -2,10 +2,14 @@ import { keyedRandom01 } from "../../../shared/util/random.js";
 import { isPlaceUnlocked } from "../../world/util/place.js";
 import {
   LOCATION_DESCRIPTIONS,
+  PLACE_DESCRIPTIONS,
   SCENE_TEXT,
 } from "../../../content/scene/genericText.js";
 import { SCENE_ACTION_TYPE } from "../../../data/scene/actions.js";
-import { PLACE_ENTER_MINUTES } from "../../../data/world/travel.js";
+import {
+  PLACE_ENTER_MINUTES,
+  PLACE_LEAVE_MINUTES,
+} from "../../../data/world/travel.js";
 import { buildLocalMapView } from "./mapView.js";
 import { buildSceneStatus } from "./sceneContext.js";
 import { createChoice } from "./choiceContract.js";
@@ -286,22 +290,39 @@ function buildLocationScene(game) {
 
 function buildPlaceScene(game, activeDefinition = null) {
   const place = game.currentPlace;
+  if (!place) throw new Error("A place hub requires a current place");
   const hubScene = getWGPlaceHubScene(game);
-  if (!hubScene) {
-    throw new Error(`No authored WG hub exists for place key '${String(place.key)}'`);
-  }
-  if (activeDefinition && activeDefinition.id !== hubScene.id) {
+  if (activeDefinition && activeDefinition.id !== hubScene?.id) {
     throw new Error(
       `Active WG place hub '${activeDefinition.id}' does not match ` +
-        `current place hub '${hubScene.id}'`,
+        `current place hub '${hubScene?.id ?? "implicit"}'`,
     );
   }
   const definition = activeDefinition || hubScene;
-  if (!definition || definition.kind !== "place") {
-    throw new Error(`Invalid authored WG hub '${hubScene.id}' for '${String(place.key)}'`);
+  if (definition && definition.kind !== "place") {
+    throw new Error(
+      `Invalid authored WG hub '${definition.id}' for '${String(place.key)}'`,
+    );
   }
 
-  let authored = materializeWGScene(game, definition);
+  let authored = definition
+    ? materializeWGScene(game, definition)
+    : createScene({
+        id: `place:${String(place.id)}:${game.now.toISOString()}`,
+        kind: "place",
+        heading: place.name,
+        status: buildSceneStatus(game),
+        map: null,
+        content: [
+          paragraphBlock(
+            SCENE_TEXT.placeIntroduction(place.name, game.location.name),
+          ),
+          paragraphBlock(
+            stablePick(PLACE_DESCRIPTIONS, game, `place:${String(place.id)}`),
+          ),
+        ],
+        sections: [],
+      });
   if (place.key === BUS_STOP_KEY) authored = decorateBusStopHub(game, authored);
   const people = game.getNPCsAtCurrentPosition();
   const eventScenes = getWGOfferScenes(game, {
@@ -311,25 +332,54 @@ function buildPlaceScene(game, activeDefinition = null) {
   const hubText = eventScenes
     .map((scene) => scene.hubText)
     .filter((text) => typeof text === "string" && text);
+  const leaveChoice = createChoice({
+    id: "leave",
+    icon: "",
+    label: SCENE_TEXT.leaveChoice,
+    durationMinutes: PLACE_LEAVE_MINUTES,
+    action: {
+      type: SCENE_ACTION_TYPE.leave,
+      effects: [],
+      responses: [],
+      exitStory: true,
+    },
+  });
+  const sections = [
+    ...authored.sections,
+    {
+      id: "events",
+      heading: SCENE_TEXT.sectionHeading.events,
+      choices: events,
+    },
+    {
+      id: "people",
+      heading: SCENE_TEXT.sectionHeading.people,
+      choices: people.flatMap((npc) => personChoices(game, npc)),
+    },
+  ].filter((section) => section.choices.length);
+  const navigationIndex = sections.findIndex(
+    (section) => section.id === "navigation",
+  );
+  if (navigationIndex === -1) {
+    sections.push({
+      id: "navigation",
+      heading: SCENE_TEXT.sectionHeading.navigation,
+      choices: [leaveChoice],
+    });
+  } else {
+    const navigation = sections[navigationIndex];
+    sections[navigationIndex] = {
+      ...navigation,
+      choices: [...navigation.choices, leaveChoice],
+    };
+  }
 
   return createScene({
     ...authored,
     kind: "place",
     heading: place.name,
     content: [...authored.content, ...paragraphBlocks(hubText)],
-    sections: [
-      ...authored.sections,
-      {
-        id: "events",
-        heading: SCENE_TEXT.sectionHeading.events,
-        choices: events,
-      },
-      {
-        id: "people",
-        heading: SCENE_TEXT.sectionHeading.people,
-        choices: people.flatMap((npc) => personChoices(game, npc)),
-      },
-    ].filter((section) => section.choices.length),
+    sections,
   });
 }
 

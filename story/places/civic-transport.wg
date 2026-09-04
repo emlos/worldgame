@@ -1,117 +1,20 @@
-@# Basic authored hubs for civic, transport, and everyday service places.
+@# The bus stop needs authored controls; other civic/transport hubs are implicit.
 
-
-:: place.town-square [place hub]
-  @place-key town_square
-  @hub place
-@kind place
-@heading "Town Square"
-@choices "Activities"
-
-The open space of {{place.name}} gives you room to stop and watch the town move around you.
-
-@choice fountain "Sit near the fountain" -> place.town-square
-  @icon ⛲
-@endchoice
-
-@choice people "Watch the passersby" -> place.town-square
-  @icon 👀
-@endchoice
-
-@choice leave "Leave" -> @leave-place
-  @icon 🚪
-  @time 1m
-@endchoice
-
-
-
-:: place.jail [place hub]
-  @place-key jail
-  @hub place
-@kind place
-@heading "Jail"
-@choices "Activities"
-
-The controlled entrance of {{place.name}} feels deliberately unwelcoming.
-
-@choice desk "Speak to the front desk" -> place.jail
-  @icon 🗣️
-@endchoice
-
-@choice notices "Read the visitor notices" -> place.jail
-  @icon 📋
-@endchoice
-
-@choice leave "Leave" -> @leave-place
-  @icon 🚪
-  @time 1m
-@endchoice
-
-:: place.court [place hub]
-  @place-key court
-  @hub place
-@kind place
-@heading "Court"
-@choices "Activities"
-
-Muted footsteps and low voices echo through {{place.name}}.
-
-@choice schedule "Check the court schedule" -> place.court
-  @icon 📅
-@endchoice
-
-@choice gallery "Sit in the public gallery" -> place.court
-  @icon ⚖️
-@endchoice
-
-@choice leave "Leave" -> @leave-place
-  @icon 🚪
-  @time 1m
-@endchoice
-
-:: place.train-station [place hub]
-  @place-key train_station
-  @hub place
-@kind place
-@heading "Train Station"
-@choices "Activities"
-
-Announcements and rolling luggage keep {{place.name}} in constant motion.
-
-@choice timetable "Check the departures board" -> place.train-station
-  @icon 🕒
-@endchoice
-
-@choice platform "Wait on the platform" -> place.train-station
-  @icon 🚉
-@endchoice
-
-@choice leave "Leave" -> @leave-place
-  @icon 🚪
-  @time 1m
-@endchoice
 
 :: place.bus-stop [place hub]
-  @place-key bus_stop
-  @hub place
-@kind place
-@heading "Bus Stop"
+@hub bus_stop
 @choices "Activities"
 
 The route display at {{place.name}} is covered with times and destination names.
 
 @choice timetable "Check the timetable" -> transit.bus-timetable
-  @icon 🕒
+
 @endchoice
 
 @choice wait "Wait for a bus" -> transit.bus-boarding
-  @icon 🚌
+
 @endchoice
 
-@choice leave "Leave" -> @leave-place
-  @icon 🚪
-  @time 1m
-@endchoice
 
 :: transit.bus-timetable [event]
 @kind event
@@ -121,7 +24,7 @@ The route display at {{place.name}} is covered with times and destination names.
 The timetable lists the shared service used by every bus stop in the city.
 
 @choice back "Return to the bus stop" -> @exit
-  @icon ↩️
+
 @endchoice
 
 :: transit.bus-boarding [event]
@@ -132,115 +35,4 @@ The timetable lists the shared service used by every bus stop in the city.
 The bus pulls up and its doors fold open.
 
 @choice step-away "Step away" -> @exit
-  @icon 🚶
-@endchoice
-
-:: place.boulevard [place hub]
-  @place-key boulevard
-  @hub place
-@kind place
-@heading "Boulevard"
-@choices "Activities"
-
-Trees and street furniture break up the long view through {{place.name}}.
-
-@choice stroll "Take a stroll" -> place.boulevard
-  @icon 🚶
-@endchoice
-
-@choice bench "Sit on a bench" -> place.boulevard
-  @icon 🪑
-@endchoice
-
-@choice leave "Leave" -> @leave-place
-  @icon 🚪
-  @time 1m
-@endchoice
-
-:: place.parking-garage [place hub]
-  @place-key parking_garage
-  @hub place
-@kind place
-@heading "Parking Garage"
-@choices "Activities"
-
-Engine noise reverberates through the concrete levels of {{place.name}}.
-
-@choice directory "Check the level directory" -> place.parking-garage
-  @icon 🗺️
-@endchoice
-
-@choice search "Look around the parked cars" -> place.parking-garage
-  @icon 🔎
-@endchoice
-
-@choice leave "Leave" -> @leave-place
-  @icon 🚪
-  @time 1m
-@endchoice
-
-:: place.gas-station [place hub]
-  @place-key gas_station
-  @hub place
-@kind place
-@heading "Gas Station"
-@choices "Activities"
-
-The small shop at {{place.name}} is bright beneath the forecourt lights.
-
-@choice shelves "Browse the convenience shelves" -> place.gas-station
-  @icon 🛒
-@endchoice
-
-@choice counter "Talk to the cashier" -> place.gas-station
-  @icon 🗣️
-@endchoice
-
-@choice leave "Leave" -> @leave-place
-  @icon 🚪
-  @time 1m
-@endchoice
-
-:: place.bank [place hub]
-  @place-key bank
-  @hub place
-@kind place
-@heading "Bank"
-@choices "Activities"
-
-Orderly queues form beneath the quiet lights of {{place.name}}.
-
-@choice account "Check your account" -> place.bank
-  @icon 💳
-@endchoice
-
-@choice adviser "Speak to an adviser" -> place.bank
-  @icon 🗣️
-@endchoice
-
-@choice leave "Leave" -> @leave-place
-  @icon 🚪
-  @time 1m
-@endchoice
-
-:: place.post-office [place hub]
-  @place-key post_office
-  @hub place
-@kind place
-@heading "Post Office"
-@choices "Activities"
-
-Shelves of envelopes and packing supplies line {{place.name}}.
-
-@choice post "Post a letter" -> place.post-office
-  @icon ✉️
-@endchoice
-
-@choice parcels "Check for a parcel" -> place.post-office
-  @icon 📦
-@endchoice
-
-@choice leave "Leave" -> @leave-place
-  @icon 🚪
-  @time 1m
 @endchoice

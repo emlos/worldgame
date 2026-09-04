@@ -1597,9 +1597,22 @@ function parseSceneChunk(file, chunk) {
       scene.onEnter = parsed.effects;
       index = parsed.nextIndex;
     } else if (name === "hub") {
-      const hubType = directiveArgument(text, "hub", location);
-      if (hubType !== "place") failWG("@hub must be 'place'", location);
-      scene.hub = { type: hubType };
+      const placeKey = directiveArgument(text, "hub", location);
+      if (!ID_REGEX.test(placeKey)) {
+        failWG("@hub requires a place key", location);
+      }
+      if (
+        !PLACE_REGISTRY.some((place) => place.key === placeKey) &&
+        !NPC_REGISTRY.some((npc) => `home_${npc.id}` === placeKey)
+      ) {
+        failWG(`@hub references unknown place '${placeKey}'`, location);
+      }
+      if (scene.placeKeys.includes(placeKey)) {
+        failWG(`Duplicate place selector '${placeKey}'`, location);
+      }
+      scene.hub = { type: "place" };
+      scene.placeKeys.push(placeKey);
+      scene.kind = "place";
       index += 1;
     } else if (["place-key", "place-tag", "location-tag"].includes(name)) {
       const value = directiveArgument(text, name, location);
@@ -1625,8 +1638,13 @@ function parseSceneChunk(file, chunk) {
       index += 1;
     } else if (name === "auto") {
       const trigger = directiveArgument(text, "auto", location);
-      if (!["enter-place", "enter-location"].includes(trigger)) {
-        failWG("@auto must be 'enter-place' or 'enter-location'", location);
+      if (
+        !["enter-place", "enter-location", "leave-place"].includes(trigger)
+      ) {
+        failWG(
+          "@auto must be 'enter-place', 'enter-location', or 'leave-place'",
+          location,
+        );
       }
       if (scene.automaticTriggers.includes(trigger)) {
         failWG(`Duplicate @auto '${trigger}'`, location);
@@ -1788,9 +1806,26 @@ function parseSceneChunk(file, chunk) {
       lineLocation(file, chunk.headerLine),
     );
   }
-  if (scene.hub?.type === "place" && !scene.placeKeys.length && !scene.placeTags.length) {
+  if (scene.hub && singleFields.has("kind")) {
     failWG(
-      "Place hub scenes require @place-key or @place-tag",
+      "@kind place is implicit for @hub scenes",
+      lineLocation(file, chunk.headerLine),
+    );
+  }
+  if (!scene.hub && scene.kind === "place") {
+    failWG(
+      "@kind place is reserved for @hub <place-key> scenes",
+      lineLocation(file, chunk.headerLine),
+    );
+  }
+  if (
+    scene.hub?.type === "place" &&
+    (scene.placeKeys.length !== 1 ||
+      scene.placeTags.length ||
+      scene.locationTags.length)
+  ) {
+    failWG(
+      "@hub selects exactly one place and cannot use additional position selectors",
       lineLocation(file, chunk.headerLine),
     );
   }

@@ -83,7 +83,7 @@ contact queues until the active one finishes. Contacts appear in the Chats app.
   interpolation values, not transcript bodies. Rendering/loading history never
   reruns effects. Editing authored wording changes the reconstructed wording;
   renamed/removed references invalidate development saves. Game save format is
-  currently 31; the separately versioned compiled WG bundle format is 26.
+  currently 31; the separately versioned compiled WG bundle format is 27.
 - Unread counts include incoming messages after each contact's saved read
   position. Opening the contact list does not mark messages read. Reading to the
   end of a visible thread does. The app badge totals all contacts.
@@ -169,32 +169,38 @@ selection metadata without an exposure directive is rejected.
 
 ### Place hubs
 
+Every generated place has a hub automatically. If no WG hub is authored, the
+runtime supplies its generated place name, generic place prose, eligible offers
+and NPC interactions, plus a one-minute **Leave** choice.
+
+Author a hub only when a place needs its own prose or choices:
+
 ```wg
 :: place.library [place library]
-@place-key library
-@hub place
-@kind place
-@heading "Library"
+@hub library
+@choices "Activities"
 
 Rows of bookshelves divide the quiet room.
 
-@choice leave "Leave" -> @leave-place
-  @time 1m
+@choice study "Study for a while" -> library.study
+  @time 1h
 @endchoice
 ```
 
-`@hub place` makes a `@kind place` scene the ordinary hub for every matching
-place. It requires at least one `@place-key` or `@place-tag`, exactly one
-authored passage, and cannot be combined with `@offer`, `@auto`, or `@pool`.
+`@hub <place-key>` selects exactly one registered place (including generated
+`home_<npc-id>` keys) and implies `@kind place` and the corresponding
+`@place-key`. Do not repeat those directives or add other position selectors.
+An authored hub contains exactly one passage and cannot also use `@offer`,
+`@auto`, or `@pool`.
 
-At runtime exactly one hub must match the current place. The compiler rejects
-two hubs that explicitly name the same place key; overlapping tag-based hubs
-are detected only when the place scene is built. A hub should therefore use
-selectors and conditions that always leave one unambiguous match.
+The compiler rejects duplicate authored hubs for a place. A hub's `@when`
+conditions may make its custom content conditional; when they do not pass, the
+implicit hub is used instead.
 
-The generated place name replaces any authored `@heading` while a scene is
-being used as a place hub. Its prose, choice heading, conditional content, and
-authored choices are used normally.
+The generated place name is always the heading. Authored prose, choice headings,
+conditional content, and choices are used normally. The engine appends the
+eligible offers, NPC interactions, and Navigation section. Its `leave` choice
+ID is reserved, and hub source must not author an `@leave-place` choice.
 
 ### Offered scenes
 
@@ -218,11 +224,35 @@ them and rendering an offer consumes no randomness.
 
 `@auto enter-place` checks the scene after the player enters a place.
 `@auto enter-location` checks it after the player travels to an outdoor
-location. Both triggers may be present on one scene.
+location. `@auto leave-place` checks after the one-minute exit using the place
+the player just left for position selectors. Any combination of the three
+triggers may be present on one scene.
+
+Use the leave trigger for a scene that should run immediately after exiting a
+particular place:
+
+```wg
+:: library.closing-encounter
+@auto leave-place
+@place-key library
+@when not flags.library_closing_seen
+@onenter
+  @effect flag library_closing_seen true
+@endonenter
+
+Someone calls after you as the library door closes.
+
+@next -> @exit
+```
+
+`@onenter` initializes the selected event; it does not select or trigger the
+event by itself. If no leave-triggered event is eligible, the ordinary outdoor
+location hub appears.
 
 Automatic scenes do not interrupt an already active authored scene. Eligible
-scenes are resolved after travel or place-entry time has passed, so conditions see
-the arrival clock and final NPC positions.
+scenes are resolved after the transition time has passed, so conditions see the
+arrival or exit clock and final NPC positions. A leave trigger's `@place-key`
+and `@place-tag` selectors alone use the departed place snapshot.
 
 Selection works as follows:
 
@@ -433,7 +463,8 @@ Taylor looks up from the textbook.
 - Header tags are optional lowercase metadata using letters, numbers, `_`, and
   `-`. Duplicate tags on one header are collapsed. Tags are emitted into the
   compiled data but are not currently used by the runtime.
-- `@kind` supports `event`, `place`, or `location` and defaults to `event`.
+- `@kind` supports `event` or `location` and defaults to `event`. Place kind is
+  assigned implicitly by `@hub <place-key>` and cannot be written separately.
 - `@heading "..."` optionally sets the page heading. If it is omitted, the
   scene renders without an `<h1>` heading.
 - `@choices "..."` labels the default section for ungrouped choices and
@@ -445,8 +476,8 @@ Taylor looks up from the textbook.
 
 WG materialization does not create map data: authored scenes of any kind have
 `map: null`. The ordinary generated outdoor location screen still supplies the
-interactive map. A `place` kind has additional hub behavior only when selected
-  when it carries matching `@hub place` metadata.
+interactive map. `@hub <place-key>` is the authoring form for a persistent
+place-kind scene; ordinary places need no WG scene at all.
 
 ### Choice groups
 
@@ -454,16 +485,16 @@ Use a choice group when one screen needs multiple choice headings:
 
 ```wg
 @choicegroup rooms "Rooms"
-@choice cafeteria "Go to the cafeteria" -> place.high-school
+@choice cafeteria "Go to the cafeteria" -> school.cafeteria
 @endchoice
-@choice gym "Go to the school gym" -> place.high-school
+@choice gym "Go to the school gym" -> school.gym
 @endchoice
 @endchoicegroup
 
 @choicegroup current "Current Activities"
 @if school.phase == "class"
 Class is currently in progress.
-@choice attend "Attend class" -> place.high-school
+@choice attend "Attend class" -> school.class.english
 @endchoice
 @endif
 @endchoicegroup
@@ -486,8 +517,7 @@ heading. This works in every scene passage:
 
 ```wg
 @choicegroup navigation ""
-@choice leave "Leave" -> @leave-place
-  @time 1m
+@choice back "Go back" -> @exit
 @endchoice
 @endchoicegroup
 ```
@@ -853,7 +883,7 @@ form a conditional block. Blocks may be nested and may contain prose, choices,
 effects, passive checks, or more conditions. When an event scene passage is
 entered, its selected structural branches are saved for that story
 instance. This ensures an effect cannot change the condition that selected its
-own prose. Persistent place hubs remain live and read-only, so their
+own prose. Authored `@hub` scenes remain live and read-only, so their
 conditionals are evaluated on every materialization.
 
 For a conditional fragment inside one prose line, wrap the same directives in
@@ -996,7 +1026,7 @@ separate feedback block.
 Inline changes run once during passage resolution in source order, before
 subsequent body conditions or checks. Rendering, choice revalidation, and
 save/load do not reapply them. Like standalone body effects, they are forbidden
-in persistent place hubs. They are also forbidden in presentation-only
+in authored `@hub` scenes. They are also forbidden in presentation-only
 `@response` blocks. Write `\@change` to display that marker literally.
 
 A body-level `@preview` is invalid:
@@ -1023,7 +1053,7 @@ difficulty. Both use the same difficulty curve and hidden keyed roll. The
 result is saved for the story instance and is never rerolled by rendering or
 loading.
 
-Persistent `@kind place` hubs cannot contain prose effects or passive checks,
+Persistent `@hub` scenes cannot contain prose effects or passive checks,
 because they are live views rather than entered story instances. Put such an
 outcome in a targeted event scene passage instead.
 
@@ -1061,8 +1091,9 @@ The target may be:
 - `@leave-place`, which performs the authoritative place-exit action and
   closes the authored story. It fails if the player is already outdoors.
 
-`@leave-place` does not add a duration. Add `@time 1m` when leaving should take
-the game's normal one-minute transition.
+`@leave-place` does not add a duration. Add `@time 1m` when an event choice
+should perform the game's normal one-minute exit. Place hubs already receive
+that standard Leave choice from the engine.
 
 Choice directives are:
 
@@ -1141,7 +1172,7 @@ the clock or update NPC simulation state.
 For example, an eight-hour rest uses:
 
 ```wg
-@choice rest "Rest" -> place.player-home
+@choice rest "Rest" -> @exit
   @time 8h rest
 @endchoice
 ```
@@ -1151,7 +1182,7 @@ For example, an eight-hour rest uses:
 A direct skill effect changes a registered fractional `0` through `10` skill:
 
 ```wg
-@choice lift-weights "Lift weights" -> place.player-home
+@choice lift-weights "Lift weights" -> @exit
   @time 5m
   @effect skill strength 0.1
 @endchoice
@@ -1488,11 +1519,11 @@ unclosed blocks, duplicate scene, passage, location-contribution, choice, or
 choice-group IDs,
 invalid expressions and durations, unknown global and local targets, unknown
 skill-check target types, target IDs, and difficulties, unknown registered
-skill/stat/school-subject effect IDs and direct duplicate place hubs. It checks
+skill/stat/school-subject effect IDs, hub place keys, explicit hub leave
+choices, and duplicate authored place hubs. It checks
 `@unlock` place keys and `@time-until` path syntax, but not whether that
 runtime timestamp value exists. It does
-not validate other general runtime paths, NPC IDs, or overlapping tag-based
-hub selectors.
+not validate other general runtime paths or NPC IDs.
 
 Compilation is whole-project rather than file-local. Scene IDs have one global
 namespace. Location-contribution IDs have their own global namespace. Their local choice
@@ -1523,7 +1554,7 @@ not implemented.
 | Top level | `:: <scene-id> [tags...] [-> <final-target>]`, `@chat ... @endchat`, `@location ... @endlocation`, `@reminder ... @endreminder`, `@#` |
 | Reminder definition | required `@text`, optional `@tone`, `@priority` |
 | Location contribution | leading `@when` conditions, prose, interpolation, `@br`, conditionals, `@random` / `@or` / `@endrandom`, `@choicegroup ... @endchoicegroup`, `@choice ... @endchoice`; choices use the restrictions above |
-| Scene metadata | `@kind`, `@heading`, `@choices`, `@school-class`, `@system`, `@onenter ... @endonenter`, `@hub`, `@offer`, `@auto`, `@pool`, `@place-key`, `@place-tag`, `@location-tag`, `@when`, `@label`, `@icon`, `@hub-text`, `@priority`, `@chance`, `@weight` |
+| Scene metadata | `@kind`, `@heading`, `@choices`, `@school-class`, `@system`, `@onenter ... @endonenter`, `@hub <place-key>`, `@offer`, `@auto` (`enter-place`, `enter-location`, or `leave-place`), `@pool`, `@place-key`, `@place-tag`, `@location-tag`, `@when`, `@label`, `@icon`, `@hub-text`, `@priority`, `@chance`, `@weight` |
 | Passage/navigation | `@passage`, `@next` |
 | Scene or passage body | prose, `@br`, trailing inline `@change`, `{{@if ...}} ... {{@elseif ...}} ... {{@else}} ... {{@endif}}`, `@if` / `@elseif` / `@else` / `@endif`, `@random` / `@or` / `@endrandom`, passive `@check` / `@success` / `@failure` / `@endcheck`, `@effect`, `@unlock`, `@change`, `@choicegroup ... @endchoicegroup`, `@choice ... @endchoice` |
 | Direct choice | `@icon`, `@time`, `@time-until`, `@event-pool`, `@event-chance`, `@when`, `@require`, `@warning`, `@response ... @endresponse`, `@preview`, `@effect`, `@unlock`, `@change` |

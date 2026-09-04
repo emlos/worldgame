@@ -1,8 +1,5 @@
 :: place.kim-office [place hub]
-  @place-key home_kim
-  @hub place
-@kind place
-
+@hub home_kim
 Kim is sitting at {{npc.kim.dependent}} desk. {{npc.kim.subject | cap}} looks up as you enter.
 
 @if story.rent.active and story.rent.debt > 0
@@ -24,11 +21,6 @@ Kim is sitting at {{npc.kim.dependent}} desk. {{npc.kim.subject | cap}} looks up
   @endchoice
 @endchoicegroup
 
-@choicegroup navigation ""
-  @choice leave "Leave" -> @leave-place
-    @time 1m
-  @endchoice
-@endchoicegroup
 
 :: story.rent.intro.2 -> @exit
   @onenter
@@ -124,7 +116,7 @@ Kim is sitting at {{npc.kim.dependent}} desk. {{npc.kim.subject | cap}} looks up
   You leave the office with a copy of the account. {{@if story.rent.debt >= 800}}The £800 balance is overdue, and {{@else}}You have paid the outstanding amount, but {{@endif}}another £200 charge will be added every seven days.
 
   @next -> @exit
-:: story.rent.payment -> place.kim-office
+:: story.rent.payment -> @exit
   @passage paid
 
   You hand Kim £200. {{npc.kim.subject | cap}} records the payment in the ledger.
@@ -136,7 +128,7 @@ Kim is sitting at {{npc.kim.dependent}} desk. {{npc.kim.subject | cap}} looks up
     "Your outstanding balance is now £{{story.rent.debt}}," Kim says.
   @endif
 
-  @next -> place.kim-office
+  @next -> @exit
 @#replace with kim sending you a threatening message if you don't pay your rent, when rent >= 1200
 :: story.rent.debt-escalation -> @exit
   @pool interrupt

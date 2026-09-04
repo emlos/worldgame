@@ -1,9 +1,5 @@
-
 :: place.player-home [place hub]
-  @place-key player_home
-  @hub place
-@kind place
-
+@hub player_home
 You are back in the privacy of your four walls.
 
 @choicegroup bedroom-menu "Bedroom"
@@ -15,7 +11,7 @@ You are back in the privacy of your four walls.
 @endchoicegroup
 
 @choicegroup activity-menu "Activities"
-@choice lift-weights "Lift weights" -> place.player-home
+@choice lift-weights "Lift weights" -> @exit
   @time 5m
   @when not daily.home_weightlifting
   @change skill strength 0.1
@@ -25,7 +21,7 @@ You are back in the privacy of your four walls.
 
 @choicegroup bathroom-menu "Bathroom"
 
-@choice shower "Take a shower" -> place.player-home
+@choice shower "Take a shower" -> @exit
   @time 15m
   @change stat hygiene +50
   @change stat energy -5
@@ -33,11 +29,6 @@ You are back in the privacy of your four walls.
 
 @endchoicegroup
 
-@choicegroup navigation ""
-@choice leave "Leave" -> @leave-place
-  @time 1m
-@endchoice
-@endchoicegroup
 
 :: menu.player.home.rest -> @exit
   @passage rest-menu

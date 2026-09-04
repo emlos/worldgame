@@ -6,6 +6,7 @@ import { enterWGTarget, resolveActiveWGStory } from "./storyRuntime.js";
 export const WG_AUTO_TRIGGER = Object.freeze({
   enterPlace: "enter-place",
   enterLocation: "enter-location",
+  leavePlace: "leave-place",
 });
 
 export const WG_OFFER_TYPE = Object.freeze({
@@ -54,9 +55,12 @@ function matchesAny(required, actual) {
   return !required?.length || required.some((value) => actual.has(String(value)));
 }
 
-function matchesPosition(scene, game) {
-  const location = game.location;
-  const place = game.currentPlace;
+function currentPosition(game) {
+  return { location: game.location, place: game.currentPlace };
+}
+
+function matchesPosition(scene, position) {
+  const { location, place } = position;
   if (!location) return false;
 
   if (scene.placeKeys?.length) {
@@ -99,7 +103,10 @@ export function getWGOfferScenes(
         return false;
       }
     }
-    return matchesPosition(scene, game) && conditionsPass(scene, context);
+    return (
+      matchesPosition(scene, currentPosition(game)) &&
+      conditionsPass(scene, context)
+    );
   });
 }
 
@@ -110,7 +117,7 @@ export function getWGPlaceHubScene(game, { scenes = undefined } = {}) {
   const matches = exposedSceneList(scenes).filter(
     (scene) =>
       scene.hub?.type === WG_HUB_TYPE.place &&
-      matchesPosition(scene, game) &&
+      matchesPosition(scene, currentPosition(game)) &&
       conditionsPass(scene, context),
   );
 
@@ -127,19 +134,28 @@ export function getWGPlaceHubScene(game, { scenes = undefined } = {}) {
 export function getEligibleWGAutomaticScenes(
   game,
   trigger,
-  { scenes = undefined } = {},
+  { scenes = undefined, position = undefined } = {},
 ) {
   if (!Object.values(WG_AUTO_TRIGGER).includes(trigger)) {
     fail(`Unknown WG automatic trigger '${String(trigger)}'`);
   }
-  if (trigger === WG_AUTO_TRIGGER.enterPlace && !game.currentPlace) return [];
-  if (trigger === WG_AUTO_TRIGGER.enterLocation && game.currentPlace) return [];
+  const resolvedPosition = position ?? currentPosition(game);
+  if (!resolvedPosition.location) return [];
+  if (trigger === WG_AUTO_TRIGGER.enterPlace && !resolvedPosition.place) {
+    return [];
+  }
+  if (trigger === WG_AUTO_TRIGGER.enterLocation && resolvedPosition.place) {
+    return [];
+  }
+  if (trigger === WG_AUTO_TRIGGER.leavePlace && !resolvedPosition.place) {
+    return [];
+  }
 
   const context = createWGRuntimeContext(game);
   return exposedSceneList(scenes).filter(
     (scene) =>
       scene.automaticTriggers?.includes(trigger) &&
-      matchesPosition(scene, game) &&
+      matchesPosition(scene, resolvedPosition) &&
       conditionsPass(scene, context),
   );
 }
@@ -156,7 +172,7 @@ export function getEligibleWGPoolScenes(
   return exposedSceneList(scenes).filter(
     (scene) =>
       scene.pools?.includes(id) &&
-      matchesPosition(scene, game) &&
+      matchesPosition(scene, currentPosition(game)) &&
       conditionsPass(scene, context),
   );
 }
@@ -261,10 +277,13 @@ export function selectWGAutomaticScene(scenes, random) {
 export function resolveWGAutomaticScene(
   game,
   trigger,
-  { scenes = undefined, random = undefined } = {},
+  { scenes = undefined, random = undefined, position = undefined } = {},
 ) {
   if (game.currentStory) return null;
-  const candidates = getEligibleWGAutomaticScenes(game, trigger, { scenes });
+  const candidates = getEligibleWGAutomaticScenes(game, trigger, {
+    scenes,
+    position,
+  });
   if (!candidates.length) return null;
 
   const selected = selectWGAutomaticScene(

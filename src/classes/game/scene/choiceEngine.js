@@ -228,6 +228,10 @@ function performLeave(game, choice, minutes, scene) {
           variant: choice.action.responseVariant,
         },
       );
+      resolveWGAutomaticScene(currentGame, WG_AUTO_TRIGGER.leavePlace, {
+        position: { location: currentGame.location, place },
+      });
+      resolveActiveWGStory(currentGame);
     },
   });
   return actionResult({ paragraphs: responseParagraphs });

@@ -22,7 +22,7 @@
   You wake up in the nurse's office, in one of the beds.
 
   @next -> place.high-school.nurse-office
-:: interrupt.exhaustion.home -> place.player-home
+:: interrupt.exhaustion.home -> @exit
   @pool interrupt
   @place-key player_home
   @when player.energy <= 0
@@ -43,8 +43,8 @@
 
   You wake up on the floor of your home.
 
-  @next -> place.player-home
-:: interrupt.exhaustion.hospital -> place.hospital
+  @next -> @exit
+:: interrupt.exhaustion.hospital -> @exit
   @pool interrupt
   @when player.energy <= 0
   @priority 0
@@ -64,4 +64,4 @@
 
   You wake up in the hospital, on one of the spare beds.
 
-  @next -> place.hospital
+  @next -> @exit

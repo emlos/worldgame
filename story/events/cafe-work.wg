@@ -1,4 +1,4 @@
-:: cafe.job.application -> place.cafe
+:: cafe.job.application -> @exit
   @choices "The manager waits for your answer"
 
   @passage offer
@@ -19,13 +19,13 @@
 
   The manager gives you a spare apron and tells you to come to the counter whenever you are ready to work. Your shifts are informal, but they still expect you to pull your weight.
 
-  @next -> place.cafe
+  @next -> @exit
 
   @passage declined
 
   You thank the manager, but tell them you cannot commit to the job. They shrug and say the offer will remain open for now.
 
-  @next -> place.cafe
+  @next -> @exit
 :: cafe.job.shift.cleanup -> @return
   @pool cafe.job.shift
   @place-key cafe
