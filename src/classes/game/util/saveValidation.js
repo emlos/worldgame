@@ -359,21 +359,14 @@ function validateCharacterCore(data, path) {
 function validateCurrentStory(value, path, gameTime) {
     if (value === null) return null;
     const frame = record(value, path);
-    const type = string(required(frame, "type", path), `${path}.type`, { nonEmpty: true });
-    if (type !== "scene" && type !== "sequence") {
-        fail(`${path}.type`, "must be 'scene' or 'sequence'");
-    }
     string(required(frame, "id", path), `${path}.id`, { nonEmpty: true });
     const hasSystem = Object.prototype.hasOwnProperty.call(frame, "system");
-    if (hasSystem && type !== "sequence") {
-        fail(`${path}.system`, "is only valid for sequence story state");
-    }
-    if (type === "sequence" && hasSystem) {
+    if (hasSystem) {
         if (Object.prototype.hasOwnProperty.call(frame, "passageId")) {
-            fail(`${path}.passageId`, "is not valid for system-backed sequence state");
+            fail(`${path}.passageId`, "is not valid for system-backed scene state");
         }
         if (Object.prototype.hasOwnProperty.call(frame, "resolution")) {
-            fail(`${path}.resolution`, "is not valid for system-backed sequence state");
+            fail(`${path}.resolution`, "is not valid for system-backed scene state");
         }
         const systemPath = `${path}.system`;
         const system = record(frame.system, systemPath);
@@ -391,10 +384,8 @@ function validateCurrentStory(value, path, gameTime) {
         } catch (error) {
             fail(`${systemPath}.state`, error.message);
         }
-    } else if (type === "sequence") {
+    } else {
         string(required(frame, "passageId", path), `${path}.passageId`, { nonEmpty: true });
-    } else if (Object.prototype.hasOwnProperty.call(frame, "passageId")) {
-        fail(`${path}.passageId`, "is only valid for sequence story state");
     }
     if (!hasSystem) {
         const resolutionPath = `${path}.resolution`;
@@ -419,11 +410,8 @@ function validateCurrentStory(value, path, gameTime) {
         }
     }
     if (Object.prototype.hasOwnProperty.call(frame, "schoolClass")) {
-        if (type !== "sequence") {
-            fail(`${path}.schoolClass`, "is only valid for sequence story state");
-        }
         if (hasSystem) {
-            fail(`${path}.schoolClass`, "is not valid for system-backed sequence state");
+            fail(`${path}.schoolClass`, "is not valid for system-backed scene state");
         }
         const schoolClassPath = `${path}.schoolClass`;
         const schoolClass = record(frame.schoolClass, schoolClassPath);
@@ -473,25 +461,27 @@ function validateStoryContinuations(value, path, gameTime) {
         const target = string(required(item, "target", itemPath), `${itemPath}.target`, {
             nonEmpty: true,
         });
-        const sequenceId = optionalNullableString(
-            required(item, "sequenceId", itemPath),
-            `${itemPath}.sequenceId`,
+        const sceneId = optionalNullableString(
+            required(item, "sceneId", itemPath),
+            `${itemPath}.sceneId`,
         );
         const sourcePassageId = optionalNullableString(
             required(item, "sourcePassageId", itemPath),
             `${itemPath}.sourcePassageId`,
         );
         string(required(item, "poolId", itemPath), `${itemPath}.poolId`, { nonEmpty: true });
-        string(required(item, "entryId", itemPath), `${itemPath}.entryId`, { nonEmpty: true });
-        string(required(item, "sourceStoryId", itemPath), `${itemPath}.sourceStoryId`, {
+        string(required(item, "eventSceneId", itemPath), `${itemPath}.eventSceneId`, {
+            nonEmpty: true,
+        });
+        string(required(item, "sourceSceneId", itemPath), `${itemPath}.sourceSceneId`, {
             nonEmpty: true,
         });
         string(required(item, "sourceChoiceId", itemPath), `${itemPath}.sourceChoiceId`, {
             nonEmpty: true,
         });
 
-        if (target.startsWith(".") && (!sequenceId || !sourcePassageId)) {
-            fail(itemPath, "local continuation targets require sequence and source passage ids");
+        if (target.startsWith(".") && (!sceneId || !sourcePassageId)) {
+            fail(itemPath, "local continuation targets require scene and source passage ids");
         }
 
         const schoolClassValue = required(item, "schoolClass", itemPath);
@@ -541,7 +531,6 @@ function validateStoryContinuations(value, path, gameTime) {
 function validateInterruptRecord(value, path, gameTime) {
     if (value === null) return null;
     const item = record(value, path);
-    string(required(item, "entryId", path), `${path}.entryId`, { nonEmpty: true });
     string(required(item, "sceneId", path), `${path}.sceneId`, { nonEmpty: true });
     integer(required(item, "priority", path), `${path}.priority`);
     const triggeredAt = dateMilliseconds(
@@ -557,8 +546,8 @@ function validateInterruptState(value, path, gameTime) {
     validateInterruptRecord(required(state, "active", path), `${path}.active`, gameTime);
     validateInterruptRecord(required(state, "pending", path), `${path}.pending`, gameTime);
     uniqueStrings(
-        required(state, "latchedEntryIds", path),
-        `${path}.latchedEntryIds`,
+        required(state, "latchedSceneIds", path),
+        `${path}.latchedSceneIds`,
         { nonEmpty: true },
     );
     return state;
@@ -1550,9 +1539,9 @@ export function validateGameSave(data) {
     const save = record(data, "save");
     same(
         integer(required(save, "saveVersion", "save"), "save.saveVersion"),
-        30,
+        31,
         "save.saveVersion",
-        "version 30",
+        "version 31",
     );
 
     const seed = uint32(required(save, "seed", "save"), "save.seed");
@@ -1752,9 +1741,9 @@ export function validateGameSave(data) {
     }
     if (
         interruptState.pending !== null &&
-        currentStory?.type !== "sequence"
+        currentStory === null
     ) {
-        fail("save.interruptState.pending", "requires an active sequence");
+        fail("save.interruptState.pending", "requires an active scene");
     }
     array(required(save, "log", "save"), "save.log").forEach((entryData, index) => {
         const entryPath = `save.log[${index}]`;

@@ -1,12 +1,8 @@
 @# Basic authored hubs for hidden and suspicious places.
 
-@entry place.hub.smugglers-den
-  @scene place.smugglers-den
+:: place.smugglers-den [place hub]
   @place-key smugglers_den
   @hub place
-@endentry
-
-:: place.smugglers-den [place hub]
 @kind place
 @heading "Smuggler's Den"
 @choices "Activities"
@@ -26,13 +22,9 @@ People lower their voices inside {{place.name}}.
   @time 1m
 @endchoice
 
-@entry place.hub.night-market
-  @scene place.night-market
+:: place.night-market [place hub]
   @place-key night_market
   @hub place
-@endentry
-
-:: place.night-market [place hub]
 @kind place
 @heading "Night Market"
 @choices "Activities"
@@ -52,13 +44,9 @@ Unusual goods change hands beneath the lights of {{place.name}}.
   @time 1m
 @endchoice
 
-@entry place.hub.abandoned-parking-lot
-  @scene place.abandoned-parking-lot
+:: place.abandoned-parking-lot [place hub]
   @place-key abandoned_parking_lot
   @hub place
-@endentry
-
-:: place.abandoned-parking-lot [place hub]
 @kind place
 @heading "Abandoned Parking Lot"
 @choices "Activities"
@@ -78,13 +66,9 @@ Weeds push through the cracked surface of {{place.name}}.
   @time 1m
 @endchoice
 
-@entry place.hub.alleyway
-  @scene place.alleyway
+:: place.alleyway [place hub]
   @place-key alleyway
   @hub place
-@endentry
-
-:: place.alleyway [place hub]
 @kind place
 @heading "Alleyway"
 @choices "Activities"

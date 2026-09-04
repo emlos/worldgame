@@ -2,20 +2,20 @@ import { SCENE_ACTION_TYPE } from "../../../data/scene/actions.js";
 import { SCENE_TEXT } from "../../../content/scene/genericText.js";
 import { buildScene } from "./sceneEngine.js";
 import {
-  advanceWGSequence,
+  advanceWGScene,
   applyWGEffects,
   enterWGTarget,
   exitWGStory,
-  getWGSequence,
+  getWGScene,
   resolveActiveWGStory,
   suspendWGContinuation,
 } from "./wg/storyRuntime.js";
 import { materializeWGResponse } from "./wg/sceneMaterializer.js";
 import {
-  resolveWGAutomaticEntry,
-  resolveWGPoolEntry,
+  resolveWGAutomaticScene,
+  resolveWGPoolScene,
   WG_AUTO_TRIGGER,
-} from "./wg/entryResolver.js";
+} from "./wg/sceneExposure.js";
 import {
   calculateSkillCheckChance,
   getPlayerSkillCheckValue,
@@ -59,13 +59,13 @@ function actionResult({ notice = "", paragraphs = [] } = {}) {
 }
 
 function runChoiceAction(game, options) {
-  const deferForSequence = game.currentStory?.type === "sequence";
+  const deferForScene = Boolean(game.currentStory);
   return game.runAction({
     ...options,
     interrupt(currentGame, stage, timeChange) {
       if (stage === "before-after") {
         const interrupted = resolveWGInterruptCheckpoint(currentGame, {
-          deferForSequence,
+          deferForScene,
         });
         return Boolean(timeChange?.ejectedFrom) || interrupted;
       }
@@ -159,7 +159,7 @@ function performTravel(game, choice, minutes) {
       currentGame.moveTo(targetLocationId);
     },
     after(currentGame) {
-      resolveWGAutomaticEntry(currentGame, WG_AUTO_TRIGGER.enterLocation);
+      resolveWGAutomaticScene(currentGame, WG_AUTO_TRIGGER.enterLocation);
     },
   });
   return actionResult();
@@ -186,7 +186,7 @@ function performEnter(game, choice, minutes) {
       currentGame.setCurrentPlace({ placeId: place.id });
     },
     after(currentGame) {
-      resolveWGAutomaticEntry(currentGame, WG_AUTO_TRIGGER.enterPlace);
+      resolveWGAutomaticScene(currentGame, WG_AUTO_TRIGGER.enterPlace);
     },
   });
   return actionResult();
@@ -284,30 +284,30 @@ function performBusTravel(game, choice, minutes) {
       currentGame.setCurrentPlace({ placeId: destination.place.id });
     },
     after(currentGame) {
-      resolveWGAutomaticEntry(currentGame, WG_AUTO_TRIGGER.enterPlace);
+      resolveWGAutomaticScene(currentGame, WG_AUTO_TRIGGER.enterPlace);
     },
   });
   return actionResult();
 }
 
-function enterWGOutcome(game, outcome, eventPool, choiceId, sourceStoryId = null) {
+function enterWGOutcome(game, outcome, eventPool, choiceId, sourceSceneId = null) {
   const selected = eventPool
-    ? resolveWGPoolEntry(game, eventPool.id, eventPool.chance)
+    ? resolveWGPoolScene(game, eventPool.id, eventPool.chance)
     : null;
   if (!selected) {
     enterWGTarget(game, outcome.target, {
-      sequenceId: outcome.sequenceId || null,
+      sceneId: outcome.sceneId || null,
     });
     return null;
   }
 
   suspendWGContinuation(game, outcome, {
     poolId: eventPool.id,
-    entryId: selected.id,
+    eventSceneId: selected.id,
     choiceId,
-    sourceStoryId,
+    sourceSceneId,
   });
-  enterWGTarget(game, selected.sceneId);
+  enterWGTarget(game, selected.id);
   return selected;
 }
 
@@ -352,12 +352,12 @@ function performWG(game, choice, minutes, scene) {
 
 function performWGNext(game, choice, minutes) {
   if (minutes !== 0) {
-    fail(CHOICE_ERROR_CODE.invalidAction, "Sequence navigation cannot advance time");
+    fail(CHOICE_ERROR_CODE.invalidAction, "Scene navigation cannot advance time");
   }
   runChoiceAction(game, {
     label: "",
     after(currentGame) {
-      advanceWGSequence(currentGame, choice.action);
+      advanceWGScene(currentGame, choice.action);
       resolveActiveWGStory(currentGame);
     },
   });
@@ -367,17 +367,16 @@ function performWGNext(game, choice, minutes) {
 function performWGSystem(game, choice, minutes) {
   const action = choice.action;
   const frame = game.currentStory;
-  const definition = getWGSequence(action.sequenceId);
+  const definition = getWGScene(action.sceneId);
   if (
-    frame?.type !== "sequence" ||
-    frame.id !== action.sequenceId ||
+    frame?.id !== action.sceneId ||
     !frame.system ||
     frame.system.id !== action.systemId ||
     definition?.system?.id !== action.systemId
   ) {
     fail(
       CHOICE_ERROR_CODE.invalidAction,
-      "WG system action no longer matches the active sequence",
+      "WG system action no longer matches the active scene",
     );
   }
 

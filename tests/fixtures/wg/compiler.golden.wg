@@ -4,17 +4,13 @@
   @priority 7
 @endreminder
 
-@entry fixture.offer
-  @scene fixture.scene
+:: fixture.scene [fixture event]
   @place-key cafe
   @offer place
   @label "Open the fixture"
   @icon 🧪
   @hub-text "A compiler fixture is ready."
   @when player.energy >= 5
-@endentry
-
-:: fixture.scene [fixture event]
 @heading "Compiler fixture"
 @choices "What next?"
 @onenter
@@ -29,7 +25,7 @@ Hello, {{player.name}}.
   The default branch is active.
 @endif
 
-@choice proceed "Proceed" -> fixture.sequence
+@choice proceed "Proceed" -> fixture.followup
   @icon ➡️
   @time 15m
   @when player.energy >= 5
@@ -42,8 +38,8 @@ Hello, {{player.name}}.
 @choice leave "Leave" -> @exit
 @endchoice
 
-@sequence fixture.sequence -> @exit
-@heading "Fixture sequence"
+:: fixture.followup -> @exit
+@heading "Fixture follow-up"
 
 The first passage is implicit.
 
@@ -54,4 +50,3 @@ The first passage is implicit.
 The explicit ending passage.
 
 @next "Finish"
-@endsequence

@@ -1,12 +1,8 @@
 @# Basic authored hubs for health, fitness, personal care, and faith places.
 
-@entry place.hub.clinic
-  @scene place.clinic
+:: place.clinic [place hub]
   @place-key clinic
   @hub place
-@endentry
-
-:: place.clinic [place hub]
 @kind place
 @heading "Clinic"
 @choices "Activities"
@@ -26,13 +22,9 @@ The reception area of {{place.name}} smells faintly of disinfectant.
   @time 1m
 @endchoice
 
-@entry place.hub.hospital
-  @scene place.hospital
+:: place.hospital [place hub]
   @place-key hospital
   @hub place
-@endentry
-
-:: place.hospital [place hub]
 @kind place
 @heading "Hospital"
 @choices "Activities"
@@ -52,13 +44,9 @@ Staff and visitors pass through the busy entrance of {{place.name}}.
   @time 1m
 @endchoice
 
-@entry place.hub.pharmacy
-  @scene place.pharmacy
+:: place.pharmacy [place hub]
   @place-key pharmacy
   @hub place
-@endentry
-
-:: place.pharmacy [place hub]
 @kind place
 @heading "Pharmacy"
 @choices "Activities"
@@ -78,13 +66,9 @@ Medicine and toiletries fill the shelves of {{place.name}}.
   @time 1m
 @endchoice
 
-@entry place.hub.doctors-office
-  @scene place.doctors-office
+:: place.doctors-office [place hub]
   @place-key doctors_office
   @hub place
-@endentry
-
-:: place.doctors-office [place hub]
 @kind place
 @heading "Doctor's Office"
 @choices "Activities"
@@ -104,13 +88,9 @@ The compact waiting room at {{place.name}} is quiet.
   @time 1m
 @endchoice
 
-@entry place.hub.gym
-  @scene place.gym
+:: place.gym [place hub]
   @place-key gym
   @hub place
-@endentry
-
-:: place.gym [place hub]
 @kind place
 @heading "Gym"
 @choices "Activities"
@@ -130,13 +110,9 @@ Exercise machines and free weights fill {{place.name}}.
   @time 1m
 @endchoice
 
-@entry place.hub.swimming-pool
-  @scene place.swimming-pool
+:: place.swimming-pool [place hub]
   @place-key swimming_pool
   @hub place
-@endentry
-
-:: place.swimming-pool [place hub]
 @kind place
 @heading "Swimming Pool"
 @choices "Activities"
@@ -156,13 +132,9 @@ Water reflects shifting light across the ceiling of {{place.name}}.
   @time 1m
 @endchoice
 
-@entry place.hub.salon
-  @scene place.salon
+:: place.salon [place hub]
   @place-key salon
   @hub place
-@endentry
-
-:: place.salon [place hub]
 @kind place
 @heading "Salon"
 @choices "Activities"
@@ -182,13 +154,9 @@ Mirrors and product displays brighten {{place.name}}.
   @time 1m
 @endchoice
 
-@entry place.hub.church
-  @scene place.church
+:: place.church [place hub]
   @place-key church
   @hub place
-@endentry
-
-:: place.church [place hub]
 @kind place
 @heading "Church"
 @choices "Activities"
@@ -208,13 +176,9 @@ The interior of {{place.name}} is still and softly lit.
   @time 1m
 @endchoice
 
-@entry place.hub.cemetery
-  @scene place.cemetery
+:: place.cemetery [place hub]
   @place-key cemetery
   @hub place
-@endentry
-
-:: place.cemetery [place hub]
 @kind place
 @heading "Cemetery"
 @choices "Activities"

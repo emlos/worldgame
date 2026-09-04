@@ -3,7 +3,6 @@ import { buildScene } from "../src/classes/game/scene/sceneEngine.js";
 import { performChoice } from "../src/classes/game/scene/choiceEngine.js";
 import {
   enterWGScene,
-  enterWGSequence,
   resolveActiveWGStory,
 } from "../src/classes/game/scene/wg/storyRuntime.js";
 import { WG_BUNDLE } from "../src/generated/wg/scenes.js";
@@ -77,17 +76,9 @@ const catalog = [
     type: "scene",
     definition,
     title: titleForDefinition(id, definition),
-    detail: `${definition.kind} scene${definition.tags?.length ? ` · ${definition.tags.join(", ")}` : ""}`,
-  })),
-  ...Object.entries(WG_BUNDLE.sequences || {}).map(([id, definition]) => ({
-    key: `sequence:${id}`,
-    id,
-    type: "sequence",
-    definition,
-    title: titleForDefinition(id, definition),
     detail: definition.system
-      ? `${definition.system.id} system sequence`
-      : `${definition.passages?.length || 0} passage sequence`,
+      ? `${definition.system.id} system scene`
+      : `${definition.kind} scene · ${definition.passages?.length || 0} passage${definition.passages?.length === 1 ? "" : "s"}${definition.tags?.length ? ` · ${definition.tags.join(", ")}` : ""}`,
   })),
 ].sort((left, right) =>
   left.type.localeCompare(right.type) ||
@@ -168,10 +159,7 @@ function safeJson(value) {
 
 function frameLabel(frame) {
   if (!frame) return "world";
-  if (frame.type === "sequence") {
-    return `${frame.id}${frame.passageId ? ` / ${frame.passageId}` : ""}`;
-  }
-  return frame.id;
+  return `${frame.id}${frame.passageId ? ` / ${frame.passageId}` : ""}`;
 }
 
 function snapshotState() {
@@ -310,22 +298,16 @@ function renderCatalog(filter = elements.targetFilter.value) {
       .includes(query),
   );
   const previous = elements.targetSelect.value || selectedKey;
-  const groups = new Map([
-    ["scene", document.createElement("optgroup")],
-    ["sequence", document.createElement("optgroup")],
-  ]);
-  groups.get("scene").label = "Scenes";
-  groups.get("sequence").label = "Sequences";
+  const group = document.createElement("optgroup");
+  group.label = "Scenes";
   for (const entry of visible) {
     const option = document.createElement("option");
     option.value = entry.key;
     option.textContent = `${entry.id} — ${entry.title}`;
     option.title = entry.detail;
-    groups.get(entry.type).append(option);
+    group.append(option);
   }
-  elements.targetSelect.replaceChildren(
-    ...[...groups.values()].filter((group) => group.children.length),
-  );
+  elements.targetSelect.replaceChildren(...(group.children.length ? [group] : []));
   const preferred = visible.find((entry) => entry.key === previous)
     || visible.find((entry) => entry.id === "story.rent.intro.2")
     || visible[0]
@@ -347,10 +329,9 @@ function renderTargetSummary() {
     : "No matching content.";
 }
 
-function findPlaceHubEntry(sceneId) {
-  return Object.values(WG_BUNDLE.entries || {}).find((entry) =>
-    entry.sceneId === sceneId && entry.hub?.type === "place",
-  ) || null;
+function findPlaceHubScene(sceneId) {
+  const scene = WG_BUNDLE.scenes[sceneId];
+  return scene?.hub?.type === "place" ? scene : null;
 }
 
 function findPlaceByKeys(keys) {
@@ -376,9 +357,9 @@ function placePlayerAtKey(placeKey) {
 }
 
 function preparePlaceScene(entry) {
-  const hub = findPlaceHubEntry(entry.id);
+  const hub = findPlaceHubScene(entry.id);
   if (!hub?.placeKeys?.length) {
-    throw new Error(`Place scene '${entry.id}' has no matching authored hub entry.`);
+    throw new Error(`Place scene '${entry.id}' has no authored hub metadata.`);
   }
   const destination = findPlaceByKeys(hub.placeKeys.map(String));
   if (!destination) {
@@ -411,20 +392,20 @@ function prepareSchoolContext(subjectId) {
 function schoolSubjectFor(entry) {
   const authored = entry.definition.schoolClass?.subjectId;
   if (authored) return authored;
-  if (entry.type !== "sequence" || !entry.id.startsWith("school.")) return null;
+  if (!entry.id.startsWith("school.")) return null;
   const candidate = entry.id.split(".")[1]?.replaceAll("-", "_");
   return SCHOOL_SUBJECTS[candidate] ? candidate : null;
 }
 
 function seedInspectorReturn(entry) {
-  if (entry.type !== "sequence" || entry.definition.finalTarget !== "@return") return;
+  if (entry.definition.finalTarget !== "@return") return;
   game.storyContinuations.push({
     target: "@exit",
-    sequenceId: null,
+    sceneId: null,
     schoolClass: null,
     poolId: "scene-inspector",
-    entryId: entry.id,
-    sourceStoryId: entry.id,
+    eventSceneId: entry.id,
+    sourceSceneId: entry.id,
     sourcePassageId: game.currentStory?.passageId || null,
     sourceChoiceId: "scene-inspector",
   });
@@ -433,29 +414,21 @@ function seedInspectorReturn(entry) {
 function enterCatalogEntry(entry, { beforeEnter = null } = {}) {
   game.storyContinuations.length = 0;
   game.setCurrentPlace({ placeId: null });
-  if (entry.type === "scene" && entry.definition.kind === "place") {
+  if (entry.definition.kind === "place") {
     preparePlaceScene(entry);
     beforeEnter?.();
     enterWGScene(game, entry.id);
     resolveActiveWGStory(game);
     return;
   }
-  if (entry.type === "scene") {
-    if (["transit.bus-boarding", "transit.bus-timetable"].includes(entry.id)) {
-      placePlayerAtKey("bus_stop");
-    }
-    if (entry.id.startsWith("place.high-school.")) {
-      placePlayerAtKey("high_school");
-    }
-    beforeEnter?.();
-    enterWGScene(game, entry.id);
-    resolveActiveWGStory(game);
-    return;
+  if (["transit.bus-boarding", "transit.bus-timetable"].includes(entry.id)) {
+    placePlayerAtKey("bus_stop");
   }
+  if (entry.id.startsWith("place.high-school.")) placePlayerAtKey("high_school");
   const schoolSubject = schoolSubjectFor(entry);
   if (schoolSubject) prepareSchoolContext(schoolSubject);
   beforeEnter?.();
-  enterWGSequence(game, entry.id);
+  enterWGScene(game, entry.id);
   seedInspectorReturn(entry);
   resolveActiveWGStory(game);
 }
@@ -471,7 +444,7 @@ function startEntry(entry, label = "Start") {
     resetEditorOverrides();
     preludeParagraphs = [];
     clearChoiceUndo();
-    setNotice(`${entry.type === "scene" ? "Scene" : "Sequence"} started.`);
+    setNotice("Scene started.");
     addTrace(`${label}: ${entry.id}`, stateChanges(before, snapshotState()));
     render();
   } catch (error) {
@@ -574,7 +547,7 @@ function renderPreview() {
   if (!currentScene) {
     const empty = document.createElement("p");
     empty.className = "inspector-empty";
-    empty.textContent = "Start a scene or sequence to render it here.";
+    empty.textContent = "Start a scene to render it here.";
     elements.scenePreview.append(empty);
     return;
   }
@@ -818,12 +791,7 @@ function walkDefinition(value, visit, seen = new Set()) {
 function referencedFlagIds(entry) {
   const found = { flag: new Set(), daily: new Set() };
   if (!entry) return found;
-  const definitions = [
-    entry.definition,
-    ...Object.values(WG_BUNDLE.entries || {}).filter((candidate) =>
-      candidate.sceneId === entry.id,
-    ),
-  ];
+  const definitions = [entry.definition];
   for (const definition of definitions) {
     walkDefinition(definition, (node) => {
       if (node.type === "path" && Array.isArray(node.value)) {

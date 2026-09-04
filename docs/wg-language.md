@@ -17,8 +17,8 @@ or out of date. Never edit the generated module by hand.
 
 Chats are authored in `story/chats/*.wg` and compiled with the rest of the story.
 They keep their own conversation state; opening the phone never replaces the
-active world scene. Sending a reply costs zero game time. Exclusive event scenes
-and sequences must finish before the player can send; history remains readable.
+  active world scene. Sending a reply costs zero game time. Exclusive event scenes
+  must finish before the player can send; history remains readable.
 
 ```wg
 @effect contact add "kim"
@@ -83,7 +83,7 @@ contact queues until the active one finishes. Contacts appear in the Chats app.
   interpolation values, not transcript bodies. Rendering/loading history never
   reruns effects. Editing authored wording changes the reconstructed wording;
   renamed/removed references invalidate development saves. Game save format is
-  currently 30; the separately versioned compiled WG bundle format is 25.
+  currently 31; the separately versioned compiled WG bundle format is 26.
 - Unread counts include incoming messages after each contact's saved read
   position. Opening the contact list does not mark messages read. Reading to the
   end of a visible thread does. The app badge totals all contacts.
@@ -99,23 +99,18 @@ tests have not been added yet.
 
 ## Minimal authored event
 
-An entry exposes a scene to the world. This example adds an event to the
-current place's “Things to do” section:
+Exposure metadata lives on the scene it exposes. This example adds a scene to
+the current place's “Things to do” section:
 
 ```wg
-@entry home.taylor-study
-  @scene taylor.study.peek
-  @place-key player_home
-  @offer place
-  @label "Study with Taylor"
-  @icon 📚
-  @hub-text "Taylor is sitting at the table with a textbook and a loose stack of notes."
-  @when npc.taylor.present
-  @when npc.taylor.available
-@endentry
-
 :: taylor.study.peek [event taylor study]
-@kind event
+@place-key player_home
+@offer place
+@label "Study with Taylor"
+@icon 📚
+@hub-text "Taylor is sitting at the table with a textbook and a loose stack of notes."
+@when npc.taylor.present
+@when npc.taylor.available
 @heading "Studying with Taylor"
 @choices "What do you do?"
 
@@ -125,8 +120,8 @@ Taylor looks up from the textbook.
 @endchoice
 ```
 
-Files are UTF-8 and may contain any number of top-level entry, scene,
-sequence, location-contribution, and reminder blocks.
+Files are UTF-8 and may contain any number of top-level scene, chat,
+location-contribution, and reminder blocks.
 
 ## Core syntax and identifiers
 
@@ -135,7 +130,7 @@ directive is recognized, so indentation is for readability. Directives occupy
 their own logical lines, except for prose `@br` markers, trailing inline
 `@change`, and delimited inline conditionals, described below.
 
-- Story, scene, sequence, entry, location-contribution, reminder, choice, and choice-group IDs start with a
+- Scene, chat, location-contribution, reminder, choice, and choice-group IDs start with a
   lowercase letter and may then contain lowercase letters, numbers, `_`, `-`,
   or `.`.
 - Passage IDs and scene tags use the same rules but do not allow `.`. A local
@@ -151,40 +146,33 @@ their own logical lines, except for prose `@br` markers, trailing inline
 - `@icon` accepts either a quoted string or the non-empty remainder of its line,
   which makes a bare emoji convenient.
 
-Only blank lines, comments, and top-level `@entry`, `@sequence`, `@location`, `@reminder`, or `::` scene
-declarations may appear outside a block. Entries, sequences, location contributions, and reminders have explicit
-closing directives. A scene ends at the next top-level declaration or at the
-end of its file. Source files and emitted object keys are sorted
+Only blank lines, comments, and top-level `@chat`, `@location`, `@reminder`, or
+`::` scene declarations may appear outside a block. Chats, location
+contributions, and reminders have explicit closing directives. A scene ends at
+the next top-level declaration or at the end of its file. Source files and emitted object keys are sorted
 deterministically, so compiling unchanged sources produces an unchanged
 module.
 
-## Entries
+## Scene exposure metadata
 
-An entry starts with `@entry <id>` and ends with `@endentry`. Entry IDs use a
-lowercase letter followed by lowercase letters, numbers, `_`, `-`, or `.`, and
-must be unique across all WG files.
+A scene becomes discoverable through at least one exposure directive: `@hub`,
+`@offer`, `@auto`, or `@pool`. Exposure metadata must appear immediately after
+the scene header, with the other scene metadata, and before its first passage or
+body content.
 
-Every entry requires:
-
-- exactly one `@scene <story-id>` pointing to a compiled scene or sequence; and
-- at least one exposure directive: `@hub`, `@offer`, `@auto`, or `@pool`.
-
-The following entry fields may appear once: `@scene`, `@hub`, `@offer`,
-`@label`, `@icon`, `@hub-text`, `@priority`, `@chance`, and `@weight`.
-`@place-key`, `@place-tag`, `@location-tag`, `@when`, and `@pool` may repeat.
-`@auto` may repeat once per distinct trigger. An offered entry may also be
-automatic or pooled; only `@hub` is exclusive with the other exposure types.
+The following fields may appear once: `@hub`, `@offer`, `@label`, `@icon`,
+`@hub-text`, `@priority`, `@chance`, and `@weight`. `@place-key`, `@place-tag`,
+`@location-tag`, `@when`, and `@pool` may repeat. `@auto` may repeat once per
+distinct trigger. An offered scene may also be automatic or pooled; only
+`@hub` is exclusive with the other exposure types. Selector, display, or
+selection metadata without an exposure directive is rejected.
 
 ### Place hubs
 
 ```wg
-@entry hub.library
-  @scene place.library
-  @place-key library
-  @hub place
-@endentry
-
 :: place.library [place library]
+@place-key library
+@hub place
 @kind place
 @heading "Library"
 
@@ -196,11 +184,8 @@ Rows of bookshelves divide the quiet room.
 ```
 
 `@hub place` makes a `@kind place` scene the ordinary hub for every matching
-place. It requires at least one `@place-key` or `@place-tag`, and a hub entry
-cannot also contain `@offer`, `@auto`, or `@pool`.
-
-Place hubs must target scenes rather than sequences. Offered, automatic, and
-pooled entries may target either kind of authored story block.
+place. It requires at least one `@place-key` or `@place-tag`, exactly one
+authored passage, and cannot be combined with `@offer`, `@auto`, or `@pool`.
 
 At runtime exactly one hub must match the current place. The compiler rejects
 two hubs that explicitly name the same place key; overlapping tag-based hubs
@@ -211,16 +196,16 @@ The generated place name replaces any authored `@heading` while a scene is
 being used as a place hub. Its prose, choice heading, conditional content, and
 authored choices are used normally.
 
-### Offered entries
+### Offered scenes
 
-- `@offer place` adds the entry to the current place's “Things to do” section.
+- `@offer place` adds the scene to the current place's “Things to do” section.
 - `@offer npc <id>` adds an authored interaction for that NPC. The
   NPC must be at the player's exact indoor or outdoor position.
-- Every offered entry requires `@label "..."`. `@icon` is optional and may be
+- Every offered scene requires `@label "..."`. `@icon` is optional and may be
   quoted or written directly.
 - `@hub-text "..."` appends a paragraph to the ordinary place hub while an
-  `@offer place` entry is eligible. It is not shown inside the event scene and
-  has no effect on NPC offers or automatic entries.
+  `@offer place` scene is eligible. It is not shown inside the event scene and
+  has no effect on NPC offers or automatic scenes.
 - NPC presence does not imply availability. Add
   `@when npc.<id>.available` if the offer should disappear while an NPC is busy
   with, or cannot safely pause for the ordinary five-minute interaction before,
@@ -229,22 +214,22 @@ authored choices are used normally.
 Offers are pure queries. `@priority`, `@chance`, and `@weight` do not affect
 them and rendering an offer consumes no randomness.
 
-### Automatic entries
+### Automatic scenes
 
-`@auto enter-place` checks the entry after the player enters a place.
+`@auto enter-place` checks the scene after the player enters a place.
 `@auto enter-location` checks it after the player travels to an outdoor
-location. Both triggers may be present on one entry.
+location. Both triggers may be present on one scene.
 
-Automatic entries do not interrupt an already active authored scene. Eligible
-entries are resolved after travel or entry time has passed, so conditions see
+Automatic scenes do not interrupt an already active authored scene. Eligible
+scenes are resolved after travel or place-entry time has passed, so conditions see
 the arrival clock and final NPC positions.
 
 Selection works as follows:
 
 1. Check priority groups from highest to lowest.
-2. Roll each entry's independent chance within that group.
-3. Select one surviving entry by relative weight.
-4. Try the next lower priority only if no entry in the higher group survives.
+2. Roll each scene's independent chance within that group.
+3. Select one surviving scene by relative weight.
+4. Try the next lower priority only if no scene in the higher group survives.
 
 `@priority` is a signed safe integer and defaults to `0`. `@chance` accepts a
 decimal from `0` to `1` or a percentage from `0%` to `100%`, and defaults to
@@ -255,22 +240,22 @@ and the weighted pick therefore advance that stream only when automatic
 candidates are actually resolved. A selected target is authoritatively entered
 and runs its `@onenter` effects.
 
-### Event-pool entries
+### Event-pool scenes
 
-`@pool <id>` registers an entry as a candidate in a named event pool. A choice
+`@pool <id>` registers a scene as a candidate in a named event pool. A choice
 invokes that pool with `@event-pool <id>` and may set the overall trigger
 frequency with `@event-chance`. Pool IDs are validated across the whole WG
-project and an entry may belong to more than one pool.
+project and a scene may belong to more than one pool.
 
 When a pool is invoked, position selectors and every `@when` condition first
-filter its members. Only entries at the highest remaining `@priority` are
-considered, and one is selected by relative `@weight`. The entry-level
-`@chance` belongs to automatic-entry resolution and is ignored by pool
+filter its members. Only scenes at the highest remaining `@priority` are
+considered, and one is selected by relative `@weight`. The scene-level
+`@chance` belongs to automatic-scene resolution and is ignored by pool
 selection; `@event-chance` controls whether the pool triggers at all. This
 keeps the overall event frequency stable as more members are added.
 
 A selected event temporarily suspends the choice's ordinary target. The event
-may be a scene or sequence and can navigate normally. Target `@return` to
+can navigate normally. Target `@return` to
 resume the suspended target. Targeting `@exit` instead abandons all suspended
 continuations and returns to the world hub. The continuation stack, selected
 event, and inherited school arrival snapshot are saved, so save/load cannot
@@ -279,30 +264,34 @@ reroll or lose an interrupted class.
 ### Engine interrupts
 
 The pool ID `interrupt` is reserved for state-driven scenes that replace the
-ordinary result of a player action. Define them with normal entries, selectors,
+ordinary result of a player action. Define them with normal scene exposure metadata, selectors,
 conditions, and priorities:
 
 ```wg
-@entry interrupt.exhaustion.school
-  @scene interrupt.exhaustion.school
-  @pool interrupt
-  @place-key high_school
-  @when player.energy <= 0
-  @priority 100
-@endentry
+:: interrupt.exhaustion.school -> @exit
+@pool interrupt
+@place-key high_school
+@when player.energy <= 0
+@priority 100
+
+You wake in the school nurse's office.
+
+@choice recover "Rest" -> @exit
+  @time 1h rest
+@endchoice
 ```
 
 After action effects and elapsed time, the runtime tests this pool before
 entering the action's ordinary target or automatic arrival event. The highest
-eligible priority wins; equally prioritized entries use their normal weights.
+eligible priority wins; equally prioritized scenes use their normal weights.
 Interrupts are replacements, not continuations, so they do not use `@return`.
 The pool cannot be invoked manually with `@event-pool interrupt`.
 
 Eligibility is edge-triggered. Every eligible variant is latched when one is
 selected, preventing a generic fallback from immediately following a more
-specific version. Entries re-arm after their conditions become false. When an
-interrupt arises during a sequence, its selected entry is saved and fires as
-soon as the player leaves that sequence. Interrupt selection and pending state
+specific version. Scenes re-arm after their conditions become false. When an
+interrupt arises during a scene, its selected scene ID is saved and fires as
+soon as the player leaves that scene. Interrupt selection and pending state
 survive save/load and remain inside the action's normal rollback transaction.
 
 Keep consequences in the interrupt scene using ordinary effects. A recovery
@@ -312,7 +301,7 @@ sleep rate while the player is unconscious.
 
 ### Position selectors and conditions
 
-Entries may repeat these selectors:
+Exposed scenes may repeat these selectors:
 
 - `@place-key <key>`
 - `@place-tag <tag>`
@@ -324,7 +313,7 @@ both the place's category and its explicit tags. A required place key or tag
 cannot match while the player is outdoors.
 
 Every repeated `@when <expression>` must pass. Conditions apply to hubs,
-offers, automatic entries, and pool entries before those entries are used.
+offers, automatic scenes, and pool scenes before those scenes are used.
 
 ### Locked generated places
 
@@ -335,7 +324,7 @@ bus destinations, player schedule destinations, and GPS targets. The player
 cannot be loaded into it or enter it through a direct runtime call.
 
 WG hubs and place offers for a locked place remain compiled but dormant because
-the player cannot enter or select that place. An `@auto enter-place` entry can
+  the player cannot enter or select that place. An `@auto enter-place` scene can
 therefore trigger only after the place has been unlocked. Runtime code can call
 `game.unlockPlacesByKey("place_key")` to unlock every generated instance with
 that key. Unlocking is saved and irreversible: an unlocked instance never
@@ -354,7 +343,7 @@ Use `@location <id> ... @endlocation` to add prose and ordinary choices to a
 generated outdoor hub, without entering a story or replacing its map, places,
 people, or travel choices. The ID names the contribution, not a map location.
 Multiple contributions may match the same hub. Their IDs are unique across WG
-files in a separate namespace and are not valid scene/sequence targets.
+files in a separate namespace and are not valid scene targets.
 
 ```wg
 @location home-door
@@ -380,7 +369,7 @@ Every block-level `@when` must pass. These conditions are optional, repeatable,
 and must precede all body content. Without conditions the contribution matches
 every outdoor hub. Use the normal expression language, including `and`, `or`,
 `in`, `flags.*`, `daily.*`, `player.*`, `npc.*`, and `time.*`. Contributions
-never appear indoors or while an authored scene or sequence is active.
+never appear indoors or while an authored scene is active.
 
 Two location lists support containment conditions in any WG expression:
 
@@ -411,25 +400,25 @@ The body supports prose, interpolation, `@br`, conditionals, deterministic
 and choice revalidation are pure: no state changes or random-stream advancement.
 Choice effects, skill checks, requirements, time, previews, unlocks, and responses
 use the same action transaction and rollback behavior as other WG choices.
-A successful `@exit` choice stays at the outdoor hub; a global scene/sequence
+A successful `@exit` choice stays at the outdoor hub; a global scene
 target enters that story. Responses use the completed post-action state and
 are displayed only for the immediate result. Flags persist through save/load.
 
 Location contributions require a non-empty body, but prose-only blocks are
-allowed. They do not support entry metadata such as `@offer`, `@hub`, or
-`@scene`, scene metadata such as `@kind`, `@heading`, or `@choices`, or sequence
-directives such as `@passage` and `@next`. Put effects and changes inside
+allowed. They do not support scene metadata such as `@offer`, `@hub`, `@kind`,
+`@heading`, or `@choices`, or passage directives such as `@passage` and
+`@next`. Put effects and changes inside
 choices, not persistent hub prose; body effects, inline changes, passive checks,
 and `@onenter` are rejected even inside unreachable branches. Local passage
 targets, `@leave-place`, and `@return` are rejected in direct choices and check
-outcomes. `@event-pool` is also rejected: enter a scene/sequence first if a
+outcomes. `@event-pool` is also rejected: enter a scene first if a
 choice needs a pooled continuation. No location contribution is stored as an
 active story frame or saved separately.
 
 ## Scenes
 
 A scene starts with a header and continues until the next top-level scene,
-entry, sequence, location-contribution, or reminder declaration:
+chat, location-contribution, or reminder declaration:
 
 ```wg
 :: taylor.study.peek [event taylor study]
@@ -440,7 +429,7 @@ entry, sequence, location-contribution, or reminder declaration:
 Taylor looks up from the textbook.
 ```
 
-- Scene IDs follow the same syntax as entry IDs and must be globally unique.
+- Scene IDs must be globally unique.
 - Header tags are optional lowercase metadata using letters, numbers, `_`, and
   `-`. Duplicate tags on one header are collapsed. Tags are emitted into the
   compiled data but are not currently used by the runtime.
@@ -449,14 +438,15 @@ Taylor looks up from the textbook.
   scene renders without an `<h1>` heading.
 - `@choices "..."` labels the default section for ungrouped choices and
   defaults to `"Choices"`.
-- `@kind`, `@heading`, `@choices`, and `@onenter` are optional scene metadata
-  directives. They must all appear before prose, conditionals, or choices, and
-  each may appear at most once.
+- `@kind`, `@heading`, `@choices`, `@school-class`, `@system`, `@onenter`, and
+  all exposure directives are scene metadata. They must appear before prose,
+  passages, conditionals, or choices. Single-value directives may appear only
+  once.
 
 WG materialization does not create map data: authored scenes of any kind have
 `map: null`. The ordinary generated outdoor location screen still supplies the
 interactive map. A `place` kind has additional hub behavior only when selected
-by a matching `@hub place` entry.
+  when it carries matching `@hub place` metadata.
 
 ### Choice groups
 
@@ -480,8 +470,8 @@ Class is currently in progress.
 ```
 
 A group begins with `@choicegroup <id> "<heading>"` and ends with
-`@endchoicegroup`. Group IDs must be unique within a scene or sequence
-passage. Groups cannot be nested, and each group must contain at least one
+`@endchoicegroup`. Group IDs must be unique within their scene passage. Groups
+cannot be nested, and each group must contain at least one
 authored choice somewhere in its direct, conditional, or random content.
 
 Choices inside the block render under that group's heading. Prose still joins
@@ -492,7 +482,7 @@ is omitted. Choices outside every group continue to render in the default
 visible choice appears.
 
 To keep a separate group without displaying a heading, use an empty quoted
-heading. This works in scenes and sequence passages:
+heading. This works in every scene passage:
 
 ```wg
 @choicegroup navigation ""
@@ -510,15 +500,15 @@ heading remains required. Choices outside a group still use the default
 
 For hub activities, do not hide the general group merely because a scheduled
 activity is currently happening. Keep the hub group unconditional and make
-the scheduled choice target a scene or sequence. While that target is active,
+  the scheduled choice target a scene. While that target is active,
 its screen replaces the hub automatically; returning through `@exit` restores
 the hub and its general choices.
 
-## Sequences and passages
+## Passages and final targets
 
-A sequence groups several rendered screens under one global story ID. Use it
+A scene can group several rendered passages under one global ID. Use passages
 when prose should be paced behind one or more zero-time Next buttons without
-creating a separate scene and choice for every screen:
+creating a separate global scene and choice for every screen:
 
 ```wg
 @choice inspect "Inspect the room" -> example.inspection
@@ -526,7 +516,7 @@ creating a separate scene and choice for every screen:
   @time 5m
 @endchoice
 
-@sequence example.inspection -> @exit
+:: example.inspection -> @exit
 @heading "Inspecting the room"
 
 You look over the room carefully.
@@ -536,19 +526,15 @@ You look over the room carefully.
 Nothing else catches your attention.
 
 @next "Return"
-@endsequence
 ```
 
-A sequence starts with `@sequence <id> -> <final-target>` and ends with
-`@endsequence`. Its ID shares the global namespace used by scene IDs. The
-final target may be `@exit`, `@return`, a scene ID, or another sequence ID.
+A scene header may end with `-> <final-target>`. The final target may be
+`@exit`, `@return`, or another scene ID.
 `@return` is valid at runtime only while a pooled event continuation is
-active. `@heading`, `@kind`, `@choices`, and `@onenter` are optional and have
-the same metadata placement rules and defaults as scenes. `@school-class` and
-`@system` are the additional sequence metadata directives. Choice groups work
-inside authored sequence passages as they do in ordinary scenes.
+active. A final target is optional unless the scene uses a final bare `@next`
+or `@system`. Choice groups work identically in implicit and named passages.
 
-Every authored sequence must contain at least one non-empty passage. Prose before the
+Every non-system scene contains at least one non-empty passage. Prose before the
 first `@passage` or between `@next` directives creates anonymous passages named
 `p1`, `p2`, and so on, skipping any ID already explicitly declared. Those
 generated names may be targeted just like named passages, but explicit names
@@ -557,7 +543,7 @@ are less fragile when source order may change.
 Each `@next` ends the current passage and creates a navigation choice. Prose
 after it begins the next anonymous passage. A bare `@next` uses the label
 `"Next"` and targets the following passage. The last bare `@next` uses the
-sequence's final target. A quoted label changes only the displayed text:
+scene's final target. A quoted label changes only the displayed text:
 
 ```wg
 @next "Wake up"
@@ -569,34 +555,33 @@ custom-labelled Next buttons. A passage containing both normal choices and
 Next section is always heading-free.
 
 Next navigation never advances time, adds an action-log entry, or runs
-`@onenter` on either the current sequence or a global target it enters. It is
+`@onenter` on either the current scene or a global target it enters. It is
 an atomic zero-time transition: entering its target resolves that passage's
 prose effects and passive checks and advances the gameplay action revision.
 Use an ordinary choice when the transition itself needs authored choice
 effects or a duration.
-The active authored sequence and passage, or a runtime system's JSON state,
+The active authored scene and passage, or a runtime system's JSON state,
 are included in save data, so loading resumes on the same screen.
 
 ### Runtime story systems
 
-Use `@system <system-id> [config]` to delegate a whole sequence to a registered
+Use `@system <system-id> [config]` to delegate a whole scene to a registered
 JavaScript story system. The optional config is a JSON object emitted into the
 WG bundle as ordinary data:
 
 ```wg
-@sequence school.math.event.surprise-quiz -> @return
+:: school.math.event.surprise-quiz -> @return
 @heading "Surprise Math Quiz"
 @choices "Choose an answer"
 @system school.quiz {"bank":"math.core","questions":3}
-@endsequence
 ```
 
-System-backed sequences cannot contain authored passages or use
+System-backed scenes cannot contain authored passages or use
 `@school-class`. Their registered system creates serializable instance state
 once on entry, renders ordinary scene and choice contracts from that state,
 and handles JSON command objects from its choices. Rendering must be pure:
 random selection belongs in system creation so repeated renders and save/load
-cannot reroll active content. Completing the system follows the sequence's
+cannot reroll active content. Completing the system follows the scene's
 declared final target, including pooled-event `@return` continuations.
 
 WG stores only the system ID, config, and current JSON state. JavaScript
@@ -610,11 +595,11 @@ there without changing the runtime story system.
 
 Use `@passage <id>` when a choice or Next button must address a passage. Passage
 IDs are lowercase local identifiers and need to be unique only within their
-sequence; unlike global IDs, they cannot contain dots. Prefix one with `.` when
+  scene; unlike global IDs, they cannot contain dots. Prefix one with `.` when
 targeting it:
 
 ```wg
-@sequence taylor.study -> @exit
+:: taylor.study -> @exit
 @heading "Studying with Taylor"
 @choices "What do you do?"
 
@@ -634,25 +619,24 @@ Taylor remains focused on the textbook.
 You return your attention to your notes.
 
 @next -> .peek
-@endsequence
 ```
 
 `@next -> <target>` and `@next "<label>" -> <target>` override the normal
 source-order target. They may point to a local passage, `@exit`, `@return`, a
-scene, or a sequence. `@next` cannot perform `@leave-place`; use an ordinary
+scene. `@next` cannot perform `@leave-place`; use an ordinary
 choice for an authoritative place exit.
 
 Ordinary choices inside passages keep their normal effects, duration, skill
 checks, requirements, and atomic rollback behavior. Choice IDs must be unique
-within their passage. Local `.passage` targets are invalid in ordinary scenes.
+within their passage. Local `.passage` targets are valid in every scene.
 
-### School class sequences
+### School class scenes
 
-Use `@school-class <subject-id>` on a sequence to make its initial passage
+Use `@school-class <subject-id>` on a scene to make its initial passage
 follow the active school timetable segment:
 
 ```wg
-@sequence school.class.english -> @exit
+:: school.class.english -> @exit
 @school-class english
 @heading "English Class"
 
@@ -664,7 +648,6 @@ The second segment is underway.
 
 @passage segment-3
 The final segment is underway.
-@endsequence
 ```
 
 School class passages must be named consecutively in source order, starting
@@ -679,7 +662,7 @@ the end of class.
 Entry also records an immutable arrival snapshot on the active story frame.
 It is available to class prose and expressions as `school.arrival.*`, survives
 local passage transitions, pooled event interruptions, and save/load, and is
-cleared when the sequence ends. This is intended as the input for later
+cleared when the scene ends. This is intended as the input for later
 lateness penalties or detention rules; those consequences are not applied
 automatically.
 
@@ -739,7 +722,7 @@ rendered, so both features may be combined:
 @next "[good]Continue with {{npc.taylor.object}}[/good]" -> .continue
 ```
 
-Headings, entry labels, hub text, warnings, requirement reasons, and preview
+Headings, scene labels, hub text, warnings, requirement reasons, and preview
 labels remain literal strings.
 
 ## Runtime values available to expressions and prose
@@ -796,12 +779,12 @@ The currently exposed paths are:
   are ISO strings or `null`.
   `currentClass` is the active class's subject ID or `null`; `nextClass` is
   the next class that starts later on the current school day, or `null`.
-- During an active `@school-class` sequence: `school.arrival.periodId`,
+- During an active `@school-class` scene: `school.arrival.periodId`,
   `.subjectId`, `.scheduledAt`, `.arrivedAt`, `.minutesLate`, and
   `.startingSegment`. These remain available inside an interrupting pooled
   event.
-- During an active pooled event: `event.poolId`, `event.entryId`,
-  `event.source.storyId`, `.passageId`, and `.choiceId`. `event` is `null`
+- During an active pooled event: `event.poolId`, `event.sceneId`,
+  `event.source.sceneId`, `.passageId`, and `.choiceId`. `event` is `null`
   outside a pooled event.
 - `location.id`, `location.name`, `location.tags`, `location.placeKeys`, and
   `location.visiblePlaceKeys` for the containing location. The two key lists
@@ -867,8 +850,8 @@ Taylor returns to the textbook.
 
 `@if`, any number of `@elseif` branches, an optional `@else`, and `@endif`
 form a conditional block. Blocks may be nested and may contain prose, choices,
-effects, passive checks, or more conditions. When an event scene or sequence
-passage is entered, its selected structural branches are saved for that story
+effects, passive checks, or more conditions. When an event scene passage is
+entered, its selected structural branches are saved for that story
 instance. This ensures an effect cannot change the condition that selected its
 own prose. Persistent place hubs remain live and read-only, so their
 conditionals are evaluated on every materialization.
@@ -887,7 +870,7 @@ so selecting a phrase never inserts a paragraph break or visual gap. Inline
 changes in a selected branch run only when that branch is selected; response
 blocks retain their normal rule forbidding changes.
 
-Entered scenes and sequences save inline decisions alongside block decisions,
+Entered scenes save inline decisions alongside block decisions,
 while persistent place prose evaluates them live. Use block conditionals when a
 branch needs choices, standalone effects, passive checks, or multiple source
 lines; inline conditionals are for conditional prose fragments.
@@ -948,7 +931,7 @@ never consumes a mutable random stream.
 
 ## Prose effects, visible changes, and passive checks
 
-Entered event scenes and sequence passages resolve their structural content
+Entered event scene passages resolve their structural content
 exactly once. Resolution happens after the incoming action's time has advanced
 and before the screen is rendered. Active `@effect` and `@change` directives
 run in authored order; a later condition or passive check observes state
@@ -1042,7 +1025,7 @@ loading.
 
 Persistent `@kind place` hubs cannot contain prose effects or passive checks,
 because they are live views rather than entered story instances. Put such an
-outcome in a targeted event scene or sequence passage instead.
+outcome in a targeted event scene passage instead.
 
 ## Choices
 
@@ -1063,14 +1046,14 @@ outcome in a targeted event scene or sequence passage instead.
 
 A direct choice header has the form
 `@choice <id> "<label>" -> <target>` and ends with `@endchoice`. Choice IDs
-must be unique throughout their scene or current sequence passage, including
+must be unique throughout their current scene passage, including
 mutually exclusive conditional branches. A choice block may contain only
 choice directives; put prose and conditionals outside it.
 
 The target may be:
 
-- another compiled scene or sequence ID;
-- a local `.passage-id` while authoring inside a sequence;
+- another compiled scene ID;
+- a local `.passage-id` inside the current scene;
 - `@return`, which resumes the target suspended by a pooled event and fails if
   there is no active continuation;
 - `@exit`, which closes the authored story and returns to the current place hub
@@ -1206,8 +1189,8 @@ sanitized preview of branch effects. Checked choices cannot use choice-level
 `@time`, `@response`, `@effect`, `@unlock`, `@change`, or `@preview`; put time,
 responses, and silent effects inside each outcome.
 They may still use one `@icon`, `@when`, `@warning`, and `@check`, plus repeated
-`@require` directives. Both outcomes are required and may target another scene
-or sequence, a local passage when inside a sequence, `@exit`, or
+`@require` directives. Both outcomes are required and may target another scene,
+a local passage, `@exit`, or
 `@leave-place`.
 
 To check a school grade instead, use syntax such as
@@ -1250,9 +1233,8 @@ action transaction.
 
 ## Effects
 
-Effects may appear inside direct choices, skill-check outcomes, a scene or
-sequence `@onenter` block, or the body of an entered event scene or sequence
-passage:
+Effects may appear inside direct choices, skill-check outcomes, a scene
+`@onenter` block, or the body of an entered event scene passage:
 
 ```wg
 @onenter
@@ -1261,15 +1243,15 @@ passage:
 @endonenter
 ```
 
-`@onenter` runs once each time that scene or sequence is authoritatively
+`@onenter` runs once each time that scene is authoritatively
 entered. It does not run while a screen is merely rendered or rebuilt. Moving
-between passages in the same sequence does not run it again. Entering the same
+between passages in the same scene does not run it again. Entering the same
 story target again through an ordinary choice does. The block may contain only
 `@effect` and `@unlock` directives, comments, and blank lines.
 
 Body effects instead run during one-time post-time prose resolution. Moving to
 a new passage resolves that passage and can run its body effects without
-rerunning the sequence's `@onenter`. Use `@change` rather than `@effect` when
+rerunning the scene's `@onenter`. Use `@change` rather than `@effect` when
 the mutation should create visible result feedback.
 
 Implemented effects are:
@@ -1382,7 +1364,7 @@ instance of a registered place key or an NPC home key (`home_<npc-id>`):
 @endchoice
 ```
 
-It can also appear in an entered event/sequence body (including conditional,
+It can also appear in an entered event scene body (including conditional,
 random, and passive-check branches), an `@onenter` block, or either outcome
 of a checked choice. Chats support it in passage bodies and reply choices;
 Kim's rent chat uses `@unlock place home_kim` after sharing the address.
@@ -1397,7 +1379,7 @@ choice, put the unlock inside `@success` or `@failure`, not at choice level.
   A later failure in the same action rolls the unlock back.
 - A committed unlock is saved and irreversible. Repeating it is harmless.
   If a valid key has no instances in the current world, it does nothing.
-- Newly unlocked places appear in the existing map, entry-choice, GPS, bus,
+- Newly unlocked places appear in the existing map, place-choice, GPS, bus,
   and schedule systems wherever those systems normally include that place.
   Opening hours and age restrictions still apply.
 - Unknown keys and malformed syntax fail compilation, including inside
@@ -1433,7 +1415,7 @@ A definition alone does not activate the reminder. Use normal silent effects:
 ```
 
 These effects are legal inside ordinary choices, checked outcomes, `@onenter`,
-and one-time event/sequence prose. They are illegal inside persistent hub or
+and one-time event-scene prose. They are illegal inside persistent hub or
 location prose and presentation-only `@response` blocks. `@change` cannot be
 used for reminder effects, even with a custom label. Author any immediate
 feedback in the choice response.
@@ -1464,9 +1446,9 @@ destination day's batch, and a backward date change clears the batch.
 
 Only active authored IDs are saved; automatic school reminders are derived
 from the schedule. The built-in and authored namespaces cannot collide.
-Game save format 30 includes the reminder state and game-start date; older saves
+Game save format 31 includes the reminder state and game-start date; older saves
 are intentionally unsupported. The compiled WG bundle has its own format version,
-currently 25.
+currently 26.
 
 Reminder lifecycle integration is covered by
 `node --test tests/timers.test.mjs tests/cafe_job.test.mjs`; all authored reminder
@@ -1502,24 +1484,22 @@ Within prose, `\@` also escapes inline markers such as `\@br` and `\@change`.
 ## Validation and editor support
 
 The compiler rejects malformed directives, duplicate single-value fields,
-unclosed blocks, duplicate scene, sequence, passage, entry, location-contribution,
-choice, or choice-group IDs,
+unclosed blocks, duplicate scene, passage, location-contribution, choice, or
+choice-group IDs,
 invalid expressions and durations, unknown global and local targets, unknown
 skill-check target types, target IDs, and difficulties, unknown registered
-skill/stat/school-subject effect IDs, missing entry targets, and direct
-duplicate place hubs. It checks
+skill/stat/school-subject effect IDs and direct duplicate place hubs. It checks
 `@unlock` place keys and `@time-until` path syntax, but not whether that
 runtime timestamp value exists. It does
 not validate other general runtime paths, NPC IDs, or overlapping tag-based
 hub selectors.
 
-Compilation is whole-project rather than file-local. Scene and sequence IDs
-share one global namespace; entry IDs have a separate global namespace.
-Location-contribution IDs have their own global namespace. Their local choice
+Compilation is whole-project rather than file-local. Scene IDs have one global
+namespace. Location-contribution IDs have their own global namespace. Their local choice
 and choice-group IDs are validated across all conditional and random branches.
 Choice and choice-group IDs are checked across all conditional and random
-branches in their scene, or separately within each sequence passage. Passage
-IDs are local to one sequence. The compiler validates all global and local
+branches separately within each scene passage. Passage IDs are local to one
+scene. The compiler validates all global and local
 targets even if their branch is unreachable at runtime.
 
 The repository includes a zero-build VS Code extension with WG syntax
@@ -1540,12 +1520,11 @@ not implemented.
 
 | Context | Directives |
 | --- | --- |
-| Top level | `:: <scene-id> [tags...]`, `@entry ... @endentry`, `@sequence ... @endsequence`, `@location ... @endlocation`, `@reminder ... @endreminder`, `@#` |
+| Top level | `:: <scene-id> [tags...] [-> <final-target>]`, `@chat ... @endchat`, `@location ... @endlocation`, `@reminder ... @endreminder`, `@#` |
 | Reminder definition | required `@text`, optional `@tone`, `@priority` |
 | Location contribution | leading `@when` conditions, prose, interpolation, `@br`, conditionals, `@random` / `@or` / `@endrandom`, `@choicegroup ... @endchoicegroup`, `@choice ... @endchoice`; choices use the restrictions above |
-| Entry | `@scene`, `@hub`, `@offer`, `@auto`, `@pool`, `@place-key`, `@place-tag`, `@location-tag`, `@when`, `@label`, `@icon`, `@hub-text`, `@priority`, `@chance`, `@weight` |
-| Scene metadata | `@kind`, `@heading`, `@choices`, `@onenter ... @endonenter` |
-| Sequence metadata/navigation | scene metadata plus `@school-class`, `@system`, `@passage`, `@next` |
+| Scene metadata | `@kind`, `@heading`, `@choices`, `@school-class`, `@system`, `@onenter ... @endonenter`, `@hub`, `@offer`, `@auto`, `@pool`, `@place-key`, `@place-tag`, `@location-tag`, `@when`, `@label`, `@icon`, `@hub-text`, `@priority`, `@chance`, `@weight` |
+| Passage/navigation | `@passage`, `@next` |
 | Scene or passage body | prose, `@br`, trailing inline `@change`, `{{@if ...}} ... {{@elseif ...}} ... {{@else}} ... {{@endif}}`, `@if` / `@elseif` / `@else` / `@endif`, `@random` / `@or` / `@endrandom`, passive `@check` / `@success` / `@failure` / `@endcheck`, `@effect`, `@unlock`, `@change`, `@choicegroup ... @endchoicegroup`, `@choice ... @endchoice` |
 | Direct choice | `@icon`, `@time`, `@time-until`, `@event-pool`, `@event-chance`, `@when`, `@require`, `@warning`, `@response ... @endresponse`, `@preview`, `@effect`, `@unlock`, `@change` |
 | Checked choice | `@icon`, `@event-pool`, `@event-chance`, `@when`, `@require`, `@warning`, `@check`, `@success ... @endsuccess`, `@failure ... @endfailure` |
@@ -1553,7 +1532,7 @@ not implemented.
 | On-enter block | `@effect`, `@unlock` |
 | Unlock directive | `@unlock place <registered-place-key>` |
 | Effect operations | `set`, `add`, `flag`, `daily-flag`, `relationship`, `money`, `skill`, `stat`, `grade`, `attendance`, `reminder add`, `reminder clear`, `relocate home`, `relocate nearest-place` |
-| Story targets | global scene/sequence ID, local `.passage`, `@return`, `@exit`, `@leave-place` (`@next` and sequence final targets have the narrower rules documented above) |
+| Story targets | global scene ID, local `.passage`, `@return`, `@exit`, `@leave-place` (`@next` and scene final targets have the narrower rules documented above) |
 
 ## Not supported by WG
 

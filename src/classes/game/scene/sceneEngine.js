@@ -12,16 +12,13 @@ import { createChoice } from "./choiceContract.js";
 import { createScene } from "./sceneContract.js";
 import { buildGlobalSceneAlerts } from "./sceneAlerts.js";
 import {
-  getWGOfferEntries,
-  getWGPlaceHubEntry,
+  getWGOfferScenes,
+  getWGPlaceHubScene,
   WG_OFFER_TYPE,
-} from "./wg/entryResolver.js";
-import {
-  materializeWGScene,
-  materializeWGSequence,
-} from "./wg/sceneMaterializer.js";
+} from "./wg/sceneExposure.js";
+import { materializeWGScene } from "./wg/sceneMaterializer.js";
 import { materializeWGSystem } from "./wg/storySystemMaterializer.js";
-import { getWGScene, getWGSequence } from "./wg/storyRuntime.js";
+import { getWGScene } from "./wg/storyRuntime.js";
 import { materializeWGLocationContributions } from "./wg/locationContributions.js";
 import {
   BUS_BOARDING_SCENE_ID,
@@ -176,26 +173,25 @@ function stablePick(lines, game, key) {
   return lines[index];
 }
 
-function entryChoice(entry) {
+function exposedSceneChoice(scene) {
   return createChoice({
-    id: `entry:${entry.id}`,
-    icon: entry.icon,
-    label: entry.label,
+    id: `scene:${scene.id}`,
+    icon: scene.icon,
+    label: scene.label,
     action: {
       type: SCENE_ACTION_TYPE.wg,
-      target: entry.sceneId,
+      target: scene.id,
       effects: [],
-      entryId: entry.id,
     },
   });
 }
 
 function personChoices(game, npc) {
-  const offers = getWGOfferEntries(game, {
+  const offers = getWGOfferScenes(game, {
     type: WG_OFFER_TYPE.npc,
     npcId: npc.id,
   });
-  return offers.map(entryChoice);
+  return offers.map(exposedSceneChoice);
 }
 
 function buildLocationScene(game) {
@@ -290,30 +286,30 @@ function buildLocationScene(game) {
 
 function buildPlaceScene(game, activeDefinition = null) {
   const place = game.currentPlace;
-  const hubEntry = getWGPlaceHubEntry(game);
-  if (!hubEntry) {
+  const hubScene = getWGPlaceHubScene(game);
+  if (!hubScene) {
     throw new Error(`No authored WG hub exists for place key '${String(place.key)}'`);
   }
-  if (activeDefinition && activeDefinition.id !== hubEntry.sceneId) {
+  if (activeDefinition && activeDefinition.id !== hubScene.id) {
     throw new Error(
       `Active WG place hub '${activeDefinition.id}' does not match ` +
-        `current place hub '${hubEntry.sceneId}'`,
+        `current place hub '${hubScene.id}'`,
     );
   }
-  const definition = activeDefinition || getWGScene(hubEntry.sceneId);
+  const definition = activeDefinition || hubScene;
   if (!definition || definition.kind !== "place") {
-    throw new Error(`Invalid authored WG hub '${hubEntry.id}' for '${String(place.key)}'`);
+    throw new Error(`Invalid authored WG hub '${hubScene.id}' for '${String(place.key)}'`);
   }
 
   let authored = materializeWGScene(game, definition);
   if (place.key === BUS_STOP_KEY) authored = decorateBusStopHub(game, authored);
   const people = game.getNPCsAtCurrentPosition();
-  const eventEntries = getWGOfferEntries(game, {
+  const eventScenes = getWGOfferScenes(game, {
     type: WG_OFFER_TYPE.place,
   });
-  const events = eventEntries.map(entryChoice);
-  const hubText = eventEntries
-    .map((entry) => entry.hubText)
+  const events = eventScenes.map(exposedSceneChoice);
+  const hubText = eventScenes
+    .map((scene) => scene.hubText)
     .filter((text) => typeof text === "string" && text);
 
   return createScene({
@@ -339,30 +335,22 @@ function buildPlaceScene(game, activeDefinition = null) {
 
 export function buildScene(game) {
   let scene;
-  if (game.currentStory?.type === "scene") {
+  if (game.currentStory) {
     const definition = getWGScene(game.currentStory.id);
     if (!definition) {
       throw new Error(`Unknown active WG scene: ${game.currentStory.id}`);
     }
-    if (definition.kind === "place") {
+    if (definition.system) {
+      scene = materializeWGSystem(game, definition);
+    } else if (definition.kind === "place") {
       scene = buildPlaceScene(game, definition);
     } else {
       scene = decorateRuntimeWGScene(
         game,
         definition.id,
-        materializeWGScene(game, definition),
+        materializeWGScene(game, definition, game.currentStory.passageId),
       );
     }
-  } else if (game.currentStory?.type === "sequence") {
-    const definition = getWGSequence(game.currentStory.id);
-    if (!definition) {
-      throw new Error(`Unknown active WG sequence: ${game.currentStory.id}`);
-    }
-    scene = definition.system
-      ? materializeWGSystem(game, definition)
-      : materializeWGSequence(game, definition, game.currentStory.passageId);
-  } else if (game.currentStory !== null) {
-    throw new Error(`Unknown active WG story type: ${String(game.currentStory?.type)}`);
   } else {
     scene = game.currentPlace
       ? buildPlaceScene(game)

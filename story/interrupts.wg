@@ -1,29 +1,10 @@
 @# Engine-reserved interrupt pool. Conditions are edge-triggered by the runtime.
 
-@entry interrupt.exhaustion.school
-  @scene interrupt.exhaustion.school
+:: interrupt.exhaustion.school -> place.high-school.nurse-office
   @pool interrupt
   @place-key high_school
   @when player.energy <= 0
   @priority 100
-@endentry
-
-@entry interrupt.exhaustion.home
-  @scene interrupt.exhaustion.home
-  @pool interrupt
-  @place-key player_home
-  @when player.energy <= 0
-  @priority 100
-@endentry
-
-@entry interrupt.exhaustion.hospital
-  @scene interrupt.exhaustion.hospital
-  @pool interrupt
-  @when player.energy <= 0
-  @priority 0
-@endentry
-
-@sequence interrupt.exhaustion.school -> place.high-school.nurse-office
   @heading "Everything goes dark"
 
   @passage collapse
@@ -41,9 +22,11 @@
   You wake up in the nurse's office, in one of the beds.
 
   @next -> place.high-school.nurse-office
-@endsequence
-
-@sequence interrupt.exhaustion.home -> place.player-home
+:: interrupt.exhaustion.home -> place.player-home
+  @pool interrupt
+  @place-key player_home
+  @when player.energy <= 0
+  @priority 100
   @heading "Everything goes dark"
 
   @passage collapse
@@ -61,9 +44,10 @@
   You wake up on the floor of your home.
 
   @next -> place.player-home
-@endsequence
-
-@sequence interrupt.exhaustion.hospital -> place.hospital
+:: interrupt.exhaustion.hospital -> place.hospital
+  @pool interrupt
+  @when player.energy <= 0
+  @priority 0
   @heading "Everything goes dark"
 
   @passage collapse
@@ -81,4 +65,3 @@
   You wake up in the hospital, on one of the spare beds.
 
   @next -> place.hospital
-@endsequence

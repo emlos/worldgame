@@ -1,43 +1,11 @@
 @# ------------------------------------- ENGLISH EVENTS -------------------------------------
 
-@entry school.english.event.group-discussion
-  @scene school.english.event.group-discussion
+:: school.english.event.group-discussion -> @return
   @pool school.class.english
   @place-key high_school
   @when school.arrival.subjectId == "english"
   @priority 0
   @weight 1
-@endentry
-
-@entry school.english.event.reading-aloud
-  @scene school.english.event.reading-aloud
-  @pool school.class.english
-  @place-key high_school
-  @when school.arrival.subjectId == "english"
-  @priority 0
-  @weight 1
-@endentry
-
-@entry school.english.event.surprise-quiz
-  @scene school.english.event.surprise-quiz
-  @pool school.class.english
-  @place-key high_school
-  @when school.arrival.subjectId == "english"
-  @when not daily.school_quiz_english
-  @priority 0
-  @weight 1
-@endentry
-
-@entry school.english.event.student-distraction
-  @scene school.english.event.student-distraction
-  @pool school.class.english
-  @place-key high_school
-  @when school.arrival.subjectId == "english"
-  @priority 0
-  @weight 1
-@endentry
-
-@sequence school.english.event.group-discussion -> @return
 @choices "How do you participate?"
 
 @passage opening
@@ -98,9 +66,12 @@
 
 
   @next -> @return
-@endsequence
-
-@sequence school.english.event.reading-aloud -> @return
+:: school.english.event.reading-aloud -> @return
+  @pool school.class.english
+  @place-key high_school
+  @when school.arrival.subjectId == "english"
+  @priority 0
+  @weight 1
   @choices "What do you do?"
 
   @passage opening
@@ -168,17 +139,24 @@
   The teacher calls on {{npc.taylor.object}} and Taylors stammers through the passage. You feel a little guilty, but you also feel a little smug.
   @next -> @return
 
-@endsequence
-
-@sequence school.english.event.surprise-quiz -> @return
+:: school.english.event.surprise-quiz -> @return
+  @pool school.class.english
+  @place-key high_school
+  @when school.arrival.subjectId == "english"
+  @when not daily.school_quiz_english
+  @priority 0
+  @weight 1
   @choices "Choose an answer"
   @onenter
     @effect daily-flag school_quiz_english true
   @endonenter
   @system school.quiz {"bank":"english.core","questions":3}
-@endsequence
-
-@sequence school.english.event.student-distraction -> @return
+:: school.english.event.student-distraction -> @return
+  @pool school.class.english
+  @place-key high_school
+  @when school.arrival.subjectId == "english"
+  @priority 0
+  @weight 1
   @choices "What do you do?"
 
   @passage opening
@@ -220,48 +198,14 @@
 
   @next -> @return
 
-@endsequence
-
 @# ------------------------------------- MATH EVENTS -------------------------------------
 
-@entry school.math.event.problem-solving
-  @scene school.math.event.problem-solving
+:: school.math.event.problem-solving -> @return
   @pool school.class.math
   @place-key high_school
   @when school.arrival.subjectId == "math"
   @priority 0
   @weight 1
-@endentry
-
-@entry school.math.event.group-work
-  @scene school.math.event.group-work
-  @pool school.class.math
-  @place-key high_school
-  @when school.arrival.subjectId == "math"
-  @priority 0
-  @weight 1
-@endentry
-
-@entry school.math.event.surprise-quiz
-  @scene school.math.event.surprise-quiz
-  @pool school.class.math
-  @place-key high_school
-  @when school.arrival.subjectId == "math"
-  @when not daily.school_quiz_math
-  @priority 0
-  @weight 1
-@endentry
-
-@entry school.math.event.called-to-answer
-  @scene school.math.event.called-to-answer
-  @pool school.class.math
-  @place-key high_school
-  @when school.arrival.subjectId == "math"
-  @priority 0
-  @weight 1
-@endentry
-
-@sequence school.math.event.problem-solving -> @return
   @choices "How do you approach the problem?"
 
   @passage opening
@@ -295,9 +239,12 @@
   You stay quiet and listen to the other students' solutions. You learn a few new techniques, but you don't get to participate in the discussion.  @change grade math 1
   
   @next -> @return
-@endsequence
-
-@sequence school.math.event.group-work -> @return
+:: school.math.event.group-work -> @return
+  @pool school.class.math
+  @place-key high_school
+  @when school.arrival.subjectId == "math"
+  @priority 0
+  @weight 1
   @choices "How do you contribute?"
 
   @passage opening
@@ -332,17 +279,24 @@
   
   @next -> @return
 
-@endsequence
-
-@sequence school.math.event.surprise-quiz -> @return
+:: school.math.event.surprise-quiz -> @return
+  @pool school.class.math
+  @place-key high_school
+  @when school.arrival.subjectId == "math"
+  @when not daily.school_quiz_math
+  @priority 0
+  @weight 1
   @choices "Choose an answer"
   @onenter
     @effect daily-flag school_quiz_math true
   @endonenter
   @system school.quiz {"bank":"math.core","questions":3}
-@endsequence
-
-@sequence school.math.event.called-to-answer -> @return
+:: school.math.event.called-to-answer -> @return
+  @pool school.class.math
+  @place-key high_school
+  @when school.arrival.subjectId == "math"
+  @priority 0
+  @weight 1
   @choices "How do you respond?"
 
   @passage opening
@@ -388,48 +342,14 @@
 
   @next -> @return
 
-@endsequence
-
-
 @# ------------------------------------- HISTORY EVENTS -------------------------------------
 
-@entry school.history.event.mock-trial
-  @scene school.history.event.mock-trial
+:: school.history.event.mock-trial -> @return
   @pool school.class.history
   @place-key high_school
   @when school.arrival.subjectId == "history"
   @priority 0
   @weight 1
-@endentry
-
-@entry school.history.event.primary-source
-  @scene school.history.event.primary-source
-  @pool school.class.history
-  @place-key high_school
-  @when school.arrival.subjectId == "history"
-  @priority 0
-  @weight 1
-@endentry
-
-@entry school.history.event.crisis-cabinet
-  @scene school.history.event.crisis-cabinet
-  @pool school.class.history
-  @place-key high_school
-  @when school.arrival.subjectId == "history"
-  @priority 0
-  @weight 1
-@endentry
-
-@entry school.history.event.disputed-map
-  @scene school.history.event.disputed-map
-  @pool school.class.history
-  @place-key high_school
-  @when school.arrival.subjectId == "history"
-  @priority 0
-  @weight 1
-@endentry
-
-@sequence school.history.event.mock-trial -> @return
   @choices "Choose your role"
 
   @passage opening
@@ -533,9 +453,12 @@
   The argument falls apart under questioning. You return to your seat with a much clearer idea of which evidence you should have used.  @change grade history -1
 
   @next -> @return
-@endsequence
-
-@sequence school.history.event.primary-source -> @return
+:: school.history.event.primary-source -> @return
+  @pool school.class.history
+  @place-key high_school
+  @when school.arrival.subjectId == "history"
+  @priority 0
+  @weight 1
   @choices "Which account do you trust?"
 
   @passage opening
@@ -597,9 +520,12 @@
   Taylor's eyes widen when she sees the timestamp. {{npc.taylor.subject | cap}} encourages you to present it, then backs up your explanation when the teacher questions it.  @change relationship taylor.friendship 2  @change grade history 1
 
   @next -> @return
-@endsequence
-
-@sequence school.history.event.crisis-cabinet -> @return
+:: school.history.event.crisis-cabinet -> @return
+  @pool school.class.history
+  @place-key high_school
+  @when school.arrival.subjectId == "history"
+  @priority 0
+  @weight 1
   @choices "Advise the cabinet"
 
   @passage opening
@@ -650,9 +576,12 @@
   The teacher reveals the historical outcome. Every available option carried a cost, and the class spends the final minutes comparing those costs with its own decisions.  @change stat mind 1
 
   @next -> @return
-@endsequence
-
-@sequence school.history.event.disputed-map -> @return
+:: school.history.event.disputed-map -> @return
+  @pool school.class.history
+  @place-key high_school
+  @when school.arrival.subjectId == "history"
+  @priority 0
+  @weight 1
   @choices "Interpret the map"
 
   @passage opening
@@ -697,47 +626,14 @@
   You trace the borders while Taylor reads the legend. When your interpretations differ, you combine them into a stronger explanation.  @change relationship taylor.friendship 1  @change grade history 1
 
   @next -> @return
-@endsequence
-
 @# ------------------------------------- SCIENCE EVENTS -------------------------------------
 
-@entry school.science.event.runaway-reaction
-  @scene school.science.event.runaway-reaction
+:: school.science.event.runaway-reaction -> @return
   @pool school.class.science
   @place-key high_school
   @when school.arrival.subjectId == "science"
   @priority 0
   @weight 1
-@endentry
-
-@entry school.science.event.mystery-sample
-  @scene school.science.event.mystery-sample
-  @pool school.class.science
-  @place-key high_school
-  @when school.arrival.subjectId == "science"
-  @priority 0
-  @weight 1
-@endentry
-
-@entry school.science.event.bridge-challenge
-  @scene school.science.event.bridge-challenge
-  @pool school.class.science
-  @place-key high_school
-  @when school.arrival.subjectId == "science"
-  @priority 0
-  @weight 1
-@endentry
-
-@entry school.science.event.impossible-result
-  @scene school.science.event.impossible-result
-  @pool school.class.science
-  @place-key high_school
-  @when school.arrival.subjectId == "science"
-  @priority 0
-  @weight 1
-@endentry
-
-@sequence school.science.event.runaway-reaction -> @return
   @choices "Respond to the reaction"
 
   @passage opening
@@ -802,9 +698,12 @@
   Nobody notices the substitution, but you spend the rest of the lesson wondering whether another group received faulty equipment too.  @change stat stress 2  @change grade science -1
 
   @next -> @return
-@endsequence
-
-@sequence school.science.event.mystery-sample -> @return
+:: school.science.event.mystery-sample -> @return
+  @pool school.class.science
+  @place-key high_school
+  @when school.arrival.subjectId == "science"
+  @priority 0
+  @weight 1
   @choices "Examine the sample"
 
   @passage opening
@@ -865,9 +764,12 @@
   Your first impression was close, but the teacher reveals a similar-looking mineral with a different hardness.  @change grade science -1
 
   @next -> @return
-@endsequence
-
-@sequence school.science.event.bridge-challenge -> @return
+:: school.science.event.bridge-challenge -> @return
+  @pool school.class.science
+  @place-key high_school
+  @when school.arrival.subjectId == "science"
+  @priority 0
+  @weight 1
   @choices "Build the bridge"
 
   @passage opening
@@ -933,9 +835,12 @@
   The bridge folds flat beneath the books. At least the collapse demonstrates exactly where the forces were concentrated.
 
   @next -> @return
-@endsequence
-
-@sequence school.science.event.impossible-result -> @return
+:: school.science.event.impossible-result -> @return
+  @pool school.class.science
+  @place-key high_school
+  @when school.arrival.subjectId == "science"
+  @priority 0
+  @weight 1
   @choices "Handle the result"
 
   @passage opening
@@ -980,47 +885,14 @@
   Taylor finds a unit conversion copied incorrectly from the board. Correcting it makes every measurement fall into place.  @change relationship taylor.friendship 2  @change grade science 1
 
   @next -> @return
-@endsequence
-
 @# ------------------------------------- ART EVENTS -------------------------------------
 
-@entry school.art.event.partner-portrait
-  @scene school.art.event.partner-portrait
+:: school.art.event.partner-portrait -> @return
   @pool school.class.art
   @place-key high_school
   @when school.arrival.subjectId == "art"
   @priority 0
   @weight 1
-@endentry
-
-@entry school.art.event.critique-circle
-  @scene school.art.event.critique-circle
-  @pool school.class.art
-  @place-key high_school
-  @when school.arrival.subjectId == "art"
-  @priority 0
-  @weight 1
-@endentry
-
-@entry school.art.event.shared-mural
-  @scene school.art.event.shared-mural
-  @pool school.class.art
-  @place-key high_school
-  @when school.arrival.subjectId == "art"
-  @priority 0
-  @weight 1
-@endentry
-
-@entry school.art.event.ruined-artwork
-  @scene school.art.event.ruined-artwork
-  @pool school.class.art
-  @place-key high_school
-  @when school.arrival.subjectId == "art"
-  @priority 0
-  @weight 1
-@endentry
-
-@sequence school.art.event.partner-portrait -> @return
   @choices "Choose your approach"
 
   @passage opening
@@ -1108,9 +980,12 @@
   Taylor catches a glimpse before you cover the page. {{npc.taylor.subject | cap}} spends the rest of the exercise trying to see what you drew.  @change relationship taylor.friendship -1  @change stat stress 2
 
   @next -> @return
-@endsequence
-
-@sequence school.art.event.critique-circle -> @return
+:: school.art.event.critique-circle -> @return
+  @pool school.class.art
+  @place-key high_school
+  @when school.arrival.subjectId == "art"
+  @priority 0
+  @weight 1
   @choices "Respond to the critique"
 
   @passage opening
@@ -1187,9 +1062,12 @@
   Taylor shrugs and stops offering suggestions. A few minutes later, the teacher identifies the same problem.  @change relationship taylor.friendship -2  @change grade art -1
 
   @next -> @return
-@endsequence
-
-@sequence school.art.event.shared-mural -> @return
+:: school.art.event.shared-mural -> @return
+  @pool school.class.art
+  @place-key high_school
+  @when school.arrival.subjectId == "art"
+  @priority 0
+  @weight 1
   @choices "Contribute to the mural"
 
   @passage opening
@@ -1250,9 +1128,12 @@
   The boundary looks cleaner after you repaint it, but the neighboring group is furious that part of its work disappeared.  @change grade art -1  @change stat stress 2
 
   @next -> @return
-@endsequence
-
-@sequence school.art.event.ruined-artwork -> @return
+:: school.art.event.ruined-artwork -> @return
+  @pool school.class.art
+  @place-key high_school
+  @when school.arrival.subjectId == "art"
+  @priority 0
+  @weight 1
   @choices "React to the accident"
 
   @passage opening
@@ -1311,47 +1192,14 @@
   You give Taylor your clean paper and help reconstruct the composition from memory. {{npc.taylor.subject | cap}} relaxes once the new version begins taking shape.  @change relationship taylor.friendship 2  @change grade art 1
 
   @next -> @return
-@endsequence
-
 @# ------------------------------------- PHYSICAL EDUCATION EVENTS -------------------------------------
 
-@entry school.physical-education.event.dodgeball
-  @scene school.physical-education.event.dodgeball
+:: school.physical-education.event.dodgeball -> @return
   @pool school.class.physical-education
   @place-key high_school
   @when school.arrival.subjectId == "physical_education"
   @priority 0
   @weight 1
-@endentry
-
-@entry school.physical-education.event.obstacle-course
-  @scene school.physical-education.event.obstacle-course
-  @pool school.class.physical-education
-  @place-key high_school
-  @when school.arrival.subjectId == "physical_education"
-  @priority 0
-  @weight 1
-@endentry
-
-@entry school.physical-education.event.relay-race
-  @scene school.physical-education.event.relay-race
-  @pool school.class.physical-education
-  @place-key high_school
-  @when school.arrival.subjectId == "physical_education"
-  @priority 0
-  @weight 1
-@endentry
-
-@entry school.physical-education.event.dangerous-player
-  @scene school.physical-education.event.dangerous-player
-  @pool school.class.physical-education
-  @place-key high_school
-  @when school.arrival.subjectId == "physical_education"
-  @priority 0
-  @weight 1
-@endentry
-
-@sequence school.physical-education.event.dodgeball -> @return
   @choices "Play the round"
 
   @passage opening
@@ -1444,9 +1292,12 @@
   Taylor hesitates, throws, and catches the final opponent on the ankle. {{npc.taylor.subject | cap}} turns to you in delighted disbelief.  @change relationship taylor.friendship 2  @change grade physical_education 1
 
   @next -> @return
-@endsequence
-
-@sequence school.physical-education.event.obstacle-course -> @return
+:: school.physical-education.event.obstacle-course -> @return
+  @pool school.class.physical-education
+  @place-key high_school
+  @when school.arrival.subjectId == "physical_education"
+  @priority 0
+  @weight 1
   @choices "Approach the course"
 
   @passage opening
@@ -1548,9 +1399,12 @@
   @endif
 
   @next -> @return
-@endsequence
-
-@sequence school.physical-education.event.relay-race -> @return
+:: school.physical-education.event.relay-race -> @return
+  @pool school.class.physical-education
+  @place-key high_school
+  @when school.arrival.subjectId == "physical_education"
+  @priority 0
+  @weight 1
   @choices "Run your relay leg"
 
   @passage opening
@@ -1641,9 +1495,12 @@
   @endif
 
   @next -> @return
-@endsequence
-
-@sequence school.physical-education.event.dangerous-player -> @return
+:: school.physical-education.event.dangerous-player -> @return
+  @pool school.class.physical-education
+  @place-key high_school
+  @when school.arrival.subjectId == "physical_education"
+  @priority 0
+  @weight 1
   @choices "Handle the rough play"
 
   @passage opening
@@ -1724,4 +1581,3 @@
   You draw the student's attention and spend the next play fending off an unnecessarily hard challenge.  @change relationship taylor.friendship 1  @change stat health -1  @change grade physical_education 1
 
   @next -> @return
-@endsequence

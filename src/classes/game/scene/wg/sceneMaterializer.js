@@ -164,7 +164,7 @@ function materializeDuration(node, context, options, durationKey) {
   return minutes;
 }
 
-function materializeOutcome(outcome, sequenceId, context, options, durationKey) {
+function materializeOutcome(outcome, sceneId, context, options, durationKey) {
   const {
     durationRangeMinutes: _durationRangeMinutes,
     timeUntilPath: _timeUntilPath,
@@ -176,12 +176,12 @@ function materializeOutcome(outcome, sequenceId, context, options, durationKey) 
     energyFree: outcome.energyFree ?? false,
     resting: outcome.resting ?? false,
     effects: outcome.effects || [],
-    ...(sequenceId ? { sequenceId } : {}),
+    ...(sceneId ? { sceneId } : {}),
   };
 }
 
 function materializeChoice(node, context, options = {}) {
-  const { sequenceId = null, idPrefix = "" } = options;
+  const { sceneId = null, idPrefix = "" } = options;
   if (node.when && !Boolean(evaluateWGExpression(node.when, context))) return null;
 
   let disabledReason = null;
@@ -223,14 +223,14 @@ function materializeChoice(node, context, options = {}) {
       outcomes: {
         success: materializeOutcome(
           node.outcomes.success,
-          sequenceId,
+          sceneId,
           context,
           options,
           `${idPrefix}${node.id}:success`,
         ),
         failure: materializeOutcome(
           node.outcomes.failure,
-          sequenceId,
+          sceneId,
           context,
           options,
           `${idPrefix}${node.id}:failure`,
@@ -251,7 +251,7 @@ function materializeChoice(node, context, options = {}) {
           target: node.target,
           effects: node.effects || [],
           responses: node.responses || [],
-          sequenceId,
+          sceneId,
           ...(eventPool ? { eventPool } : {}),
         };
   }
@@ -410,74 +410,44 @@ export function materializeWGBody(nodes, context, options = {}) {
   return output;
 }
 
-function activeResolution(game, type, id, passageId = null) {
+function activeResolution(game, id, passageId) {
   const frame = game.currentStory;
-  if (frame?.type !== type || frame.id !== id) return null;
-  if (type === "sequence" && frame.passageId !== passageId) return null;
+  if (frame?.id !== id || frame.passageId !== passageId) return null;
   if (!frame.resolution || frame.resolution.revision !== game.storyRevision) {
     fail("Active WG story has not been resolved for this revision");
   }
   return frame.resolution;
 }
 
-export function materializeWGScene(game, definition) {
+export function materializeWGScene(game, definition, passageId = null) {
   if (!definition || typeof definition !== "object" || Array.isArray(definition)) {
     fail("WG scene definition must be an object");
   }
 
+  const resolvedPassageId = passageId ?? (
+    game.currentStory?.id === definition.id
+      ? game.currentStory.passageId
+      : definition.passages?.[0]?.id
+  );
+  const passage = definition.passages?.find(
+    (candidate) => candidate.id === resolvedPassageId,
+  );
+  if (!passage) {
+    fail(`WG scene '${definition.id}' has no passage '${String(resolvedPassageId)}'`);
+  }
+
   const context = createWGRuntimeContext(game);
-  const resolution = activeResolution(game, "scene", definition.id);
+  const resolution = activeResolution(game, definition.id, passage.id);
   if (!resolution && definition.kind !== "place") {
     fail("Entered WG scenes must resolve before materialization", definition.source);
   }
-  const output = materializeWGBody(definition.body, context, {
+  const output = materializeWGBody(passage.body, context, {
+    sceneId: definition.id,
     choiceSectionHeading: definition.choiceHeading,
     gameSeed: game.seed,
     resolution,
     storyInstanceKey: [
       "scene",
-      definition.id,
-      game.storyRevision,
-      game.now.toISOString(),
-    ].join(":"),
-  });
-
-  return createScene({
-    id: `wg:${game.storyRevision}:scene:${definition.id}:${game.now.toISOString()}`,
-    wgStoryId: definition.id,
-    kind: definition.kind,
-    heading: definition.heading,
-    status: buildSceneStatus(game),
-    map: null,
-    content: output.content,
-    sections: output.sections,
-  });
-}
-
-export function materializeWGSequence(game, definition, passageId) {
-  if (!definition || typeof definition !== "object" || Array.isArray(definition)) {
-    fail("WG sequence definition must be an object");
-  }
-  const passage = definition.passages?.find((candidate) => candidate.id === passageId);
-  if (!passage) fail(`WG sequence '${definition.id}' has no passage '${String(passageId)}'`);
-
-  const context = createWGRuntimeContext(game);
-  const resolution = activeResolution(
-    game,
-    "sequence",
-    definition.id,
-    passage.id,
-  );
-  if (!resolution) {
-    fail("Entered WG sequence passages must resolve before materialization", passage.source);
-  }
-  const output = materializeWGBody(passage.body, context, {
-    sequenceId: definition.id,
-    choiceSectionHeading: definition.choiceHeading,
-    gameSeed: game.seed,
-    resolution,
-    storyInstanceKey: [
-      "sequence",
       definition.id,
       passage.id,
       game.storyRevision,
@@ -490,14 +460,15 @@ export function materializeWGSequence(game, definition, passageId) {
       label: renderWGText(passage.next.label, context, passage.next.source),
       action: {
         type: SCENE_ACTION_TYPE.wgNext,
-        sequenceId: definition.id,
+        sceneId: definition.id,
         target: passage.next.target,
       },
     }));
   }
 
   return createScene({
-    id: `wg:${game.storyRevision}:sequence:${definition.id}:${passage.id}:${game.now.toISOString()}`,
+    id: `wg:${game.storyRevision}:scene:${definition.id}:${passage.id}:${game.now.toISOString()}`,
+    wgStoryId: definition.id,
     kind: definition.kind,
     heading: definition.heading,
     status: buildSceneStatus(game),

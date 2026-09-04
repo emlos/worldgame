@@ -120,7 +120,7 @@ function answerChoice(definition, systemId, question, choice) {
     label: choice.label,
     action: {
       type: SCENE_ACTION_TYPE.wgSystem,
-      sequenceId: definition.id,
+      sceneId: definition.id,
       systemId,
       command: {
         type: "answer",
@@ -184,7 +184,7 @@ export const SCHOOL_QUIZ_STORY_SYSTEM = Object.freeze({
                 label: "Return to class",
                 action: {
                   type: SCENE_ACTION_TYPE.wgSystem,
-                  sequenceId: definition.id,
+                  sceneId: definition.id,
                   systemId,
                   command: { type: "finish" },
                 },

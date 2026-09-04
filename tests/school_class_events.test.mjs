@@ -5,7 +5,7 @@ import { Game } from "../src/classes/game/game.js";
 import { performChoice } from "../src/classes/game/scene/choiceEngine.js";
 import { buildScene } from "../src/classes/game/scene/sceneEngine.js";
 import {
-  enterWGSequence,
+  enterWGScene,
   resolveActiveWGStory,
 } from "../src/classes/game/scene/wg/storyRuntime.js";
 
@@ -45,7 +45,7 @@ for (const fixture of FINAL_SEGMENTS) {
       playerOptions: { startPlaceId: null },
     });
     placePlayerAtHighSchool(game);
-    enterWGSequence(game, `school.class.${storySubject}`);
+    enterWGScene(game, `school.class.${storySubject}`);
     resolveActiveWGStory(game);
 
     const classScene = buildScene(game);

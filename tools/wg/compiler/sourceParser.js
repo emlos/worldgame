@@ -1443,73 +1443,6 @@ function parseOnEnter(file, lines, startIndex, openingLine) {
   failWG("Unclosed @onenter block", lineLocation(file, openingLine));
 }
 
-function parseSceneChunk(file, chunk) {
-  let index = 0;
-  let kind = "event";
-  let heading = null;
-  let choiceHeading = "Choices";
-  let onEnter = [];
-  const seenMetadata = new Set();
-
-  while (index < chunk.lines.length) {
-    const line = chunk.lines[index];
-    const text = line.text.trim();
-    if (!text || isComment(text)) {
-      index += 1;
-      continue;
-    }
-
-    const name = directiveName(text);
-    if (!["kind", "heading", "choices", "onenter"].includes(name)) break;
-    if (seenMetadata.has(name)) {
-      failWG(`Duplicate @${name}`, lineLocation(file, line.line));
-    }
-    seenMetadata.add(name);
-
-    if (name === "kind") {
-      kind = directiveArgument(text, "kind", lineLocation(file, line.line));
-      if (!ID_REGEX.test(kind)) {
-        failWG("Scene kind must be a lowercase identifier", lineLocation(file, line.line));
-      }
-      index += 1;
-    } else if (name === "heading") {
-      heading = parseQuotedString(
-        directiveArgument(text, "heading", lineLocation(file, line.line)),
-        lineLocation(file, line.line),
-        "Scene heading",
-      );
-      index += 1;
-    } else if (name === "choices") {
-      choiceHeading = parseQuotedString(
-        directiveArgument(text, "choices", lineLocation(file, line.line)),
-        lineLocation(file, line.line),
-        "Choice section heading",
-      );
-      index += 1;
-    } else {
-      if (text !== "@onenter") {
-        failWG("@onenter does not accept arguments", lineLocation(file, line.line));
-      }
-      const parsed = parseOnEnter(file, chunk.lines, index + 1, line.line);
-      onEnter = parsed.effects;
-      index = parsed.nextIndex;
-    }
-  }
-
-  const bodyParser = new SceneBodyParser(file, chunk.lines, index);
-  const body = bodyParser.parseNodes();
-  return {
-    id: chunk.id,
-    kind,
-    heading,
-    choiceHeading,
-    tags: chunk.tags,
-    onEnter,
-    body,
-    source: nodeSource(file, chunk.headerLine),
-  };
-}
-
 function parseNext(text, file, line) {
   const location = lineLocation(file, line);
   const match = text.match(
@@ -1528,16 +1461,10 @@ function parseNext(text, file, line) {
   };
 }
 
-function parseSequenceBlock(file, lines, startIndex) {
-  const opening = lines[startIndex];
-  const header = opening.text.trim().match(
-    new RegExp(`^@sequence\\s+(${ID_PATTERN})\\s+->\\s+(@exit|@return|${ID_PATTERN})\\s*$`),
-  );
-  if (!header) failWG("Malformed @sequence header", lineLocation(file, opening.line));
-
-  const sequence = {
-    id: header[1],
-    finalTarget: header[2],
+function parseSceneChunk(file, chunk) {
+  const scene = {
+    id: chunk.id,
+    finalTarget: chunk.finalTarget,
     kind: "event",
     heading: null,
     choiceHeading: "Choices",
@@ -1545,15 +1472,30 @@ function parseSequenceBlock(file, lines, startIndex) {
     system: null,
     onEnter: [],
     passages: [],
-    source: nodeSource(file, opening.line),
+    placeKeys: [],
+    placeTags: [],
+    locationTags: [],
+    hub: null,
+    offer: null,
+    automaticTriggers: [],
+    pools: [],
+    conditions: [],
+    label: null,
+    icon: null,
+    hubText: null,
+    priority: 0,
+    chance: 1,
+    weight: 1,
+    tags: chunk.tags,
+    source: nodeSource(file, chunk.headerLine),
   };
-  const seenMetadata = new Set();
+  const singleFields = new Set();
   const passageIds = new Set();
   let anonymousIndex = 1;
-  let index = startIndex + 1;
+  let index = 0;
 
-  while (index < lines.length) {
-    const line = lines[index];
+  while (index < chunk.lines.length) {
+    const line = chunk.lines[index];
     const text = line.text.trim();
     if (!text || isComment(text)) {
       index += 1;
@@ -1568,28 +1510,62 @@ function parseSequenceBlock(file, lines, startIndex) {
         "school-class",
         "system",
         "onenter",
+        "hub",
+        "place-key",
+        "place-tag",
+        "location-tag",
+        "offer",
+        "auto",
+        "pool",
+        "when",
+        "label",
+        "icon",
+        "hub-text",
+        "priority",
+        "chance",
+        "weight",
       ].includes(name)
     ) break;
-    if (seenMetadata.has(name)) failWG(`Duplicate @${name}`, lineLocation(file, line.line));
-    seenMetadata.add(name);
+    const location = lineLocation(file, line.line);
+    if (
+      [
+        "kind",
+        "heading",
+        "choices",
+        "school-class",
+        "system",
+        "onenter",
+        "hub",
+        "offer",
+        "label",
+        "icon",
+        "hub-text",
+        "priority",
+        "chance",
+        "weight",
+      ].includes(name)
+    ) {
+      if (singleFields.has(name)) failWG(`Duplicate @${name}`, location);
+      singleFields.add(name);
+    }
 
     if (name === "kind") {
-      sequence.kind = directiveArgument(text, "kind", lineLocation(file, line.line));
-      if (!ID_REGEX.test(sequence.kind)) {
-        failWG("Sequence kind must be a lowercase identifier", lineLocation(file, line.line));
+      scene.kind = directiveArgument(text, "kind", location);
+      if (!ID_REGEX.test(scene.kind)) {
+        failWG("Scene kind must be a lowercase identifier", location);
       }
       index += 1;
     } else if (name === "heading") {
-      sequence.heading = parseQuotedString(
-        directiveArgument(text, "heading", lineLocation(file, line.line)),
-        lineLocation(file, line.line),
-        "Sequence heading",
+      scene.heading = parseQuotedString(
+        directiveArgument(text, "heading", location),
+        location,
+        "Scene heading",
       );
       index += 1;
     } else if (name === "choices") {
-      sequence.choiceHeading = parseQuotedString(
-        directiveArgument(text, "choices", lineLocation(file, line.line)),
-        lineLocation(file, line.line),
+      scene.choiceHeading = parseQuotedString(
+        directiveArgument(text, "choices", location),
+        location,
         "Choice section heading",
       );
       index += 1;
@@ -1597,29 +1573,116 @@ function parseSequenceBlock(file, lines, startIndex) {
       const subjectId = directiveArgument(
         text,
         "school-class",
-        lineLocation(file, line.line),
+        location,
       );
       if (!ID_REGEX.test(subjectId) || !SCHOOL_SUBJECTS[subjectId]) {
         failWG(
           `@school-class references unknown school subject '${subjectId}'`,
-          lineLocation(file, line.line),
+          location,
         );
       }
-      sequence.schoolClass = {
+      scene.schoolClass = {
         subjectId,
         source: nodeSource(file, line.line),
       };
       index += 1;
     } else if (name === "system") {
-      sequence.system = parseSystemMetadata(text, file, line.line);
+      scene.system = parseSystemMetadata(text, file, line.line);
       index += 1;
-    } else {
+    } else if (name === "onenter") {
       if (text !== "@onenter") {
-        failWG("@onenter does not accept arguments", lineLocation(file, line.line));
+        failWG("@onenter does not accept arguments", location);
       }
-      const parsed = parseOnEnter(file, lines, index + 1, line.line);
-      sequence.onEnter = parsed.effects;
+      const parsed = parseOnEnter(file, chunk.lines, index + 1, line.line);
+      scene.onEnter = parsed.effects;
       index = parsed.nextIndex;
+    } else if (name === "hub") {
+      const hubType = directiveArgument(text, "hub", location);
+      if (hubType !== "place") failWG("@hub must be 'place'", location);
+      scene.hub = { type: hubType };
+      index += 1;
+    } else if (["place-key", "place-tag", "location-tag"].includes(name)) {
+      const value = directiveArgument(text, name, location);
+      const regex = name === "place-key" ? ID_REGEX : TAG_REGEX;
+      if (!regex.test(value)) failWG(`Invalid @${name} value '${value}'`, location);
+      const target = {
+        "place-key": scene.placeKeys,
+        "place-tag": scene.placeTags,
+        "location-tag": scene.locationTags,
+      }[name];
+      if (target.includes(value)) failWG(`Duplicate @${name} '${value}'`, location);
+      target.push(value);
+      index += 1;
+    } else if (name === "offer") {
+      const argument = directiveArgument(text, "offer", location);
+      if (argument === "place") {
+        scene.offer = { type: "place" };
+      } else {
+        const npcOffer = argument.match(new RegExp(`^npc\\s+(${ID_PATTERN})$`));
+        if (!npcOffer) failWG("@offer must be 'place' or 'npc <id>'", location);
+        scene.offer = { type: "npc", npcId: npcOffer[1] };
+      }
+      index += 1;
+    } else if (name === "auto") {
+      const trigger = directiveArgument(text, "auto", location);
+      if (!["enter-place", "enter-location"].includes(trigger)) {
+        failWG("@auto must be 'enter-place' or 'enter-location'", location);
+      }
+      if (scene.automaticTriggers.includes(trigger)) {
+        failWG(`Duplicate @auto '${trigger}'`, location);
+      }
+      scene.automaticTriggers.push(trigger);
+      index += 1;
+    } else if (name === "pool") {
+      const poolId = directiveArgument(text, "pool", location);
+      if (!ID_REGEX.test(poolId)) failWG("@pool requires a pool id", location);
+      if (scene.pools.includes(poolId)) failWG(`Duplicate @pool '${poolId}'`, location);
+      scene.pools.push(poolId);
+      index += 1;
+    } else if (name === "when") {
+      scene.conditions.push(parseExpression(directiveArgument(text, "when", location), location));
+      index += 1;
+    } else if (name === "label") {
+      scene.label = parseQuotedString(
+        directiveArgument(text, "label", location),
+        location,
+        "Scene label",
+      );
+      index += 1;
+    } else if (name === "icon") {
+      const value = directiveArgument(text, "icon", location);
+      scene.icon = value.startsWith('"')
+        ? parseQuotedString(value, location, "Scene icon")
+        : value;
+      index += 1;
+    } else if (name === "hub-text") {
+      scene.hubText = parseQuotedString(
+        directiveArgument(text, "hub-text", location),
+        location,
+        "Scene hub text",
+      );
+      index += 1;
+    } else if (name === "priority") {
+      const value = directiveArgument(text, "priority", location);
+      if (!/^[+-]?\d+$/.test(value) || !Number.isSafeInteger(Number(value))) {
+        failWG("@priority must be a safe integer", location);
+      }
+      scene.priority = Number(value);
+      index += 1;
+    } else if (name === "chance") {
+      scene.chance = parseProbability(
+        directiveArgument(text, "chance", location),
+        location,
+        "chance",
+      );
+      index += 1;
+    } else if (name === "weight") {
+      const value = Number(directiveArgument(text, "weight", location));
+      if (!Number.isFinite(value) || value <= 0) {
+        failWG("@weight must be a positive number", location);
+      }
+      scene.weight = value;
+      index += 1;
     }
   }
 
@@ -1631,7 +1694,7 @@ function parseSequenceBlock(file, lines, startIndex) {
   };
   const startPassage = (id, line) => {
     if (passageIds.has(id)) {
-      failWG(`Duplicate passage id '${id}' in sequence '${sequence.id}'`, lineLocation(file, line));
+      failWG(`Duplicate passage id '${id}' in scene '${scene.id}'`, lineLocation(file, line));
     }
     passageIds.add(id);
     const passage = {
@@ -1640,55 +1703,19 @@ function parseSequenceBlock(file, lines, startIndex) {
       next: null,
       source: nodeSource(file, line),
     };
-    sequence.passages.push(passage);
+    scene.passages.push(passage);
     return passage;
   };
 
   let currentPassage = null;
-  while (index < lines.length) {
-    const line = lines[index];
+  while (index < chunk.lines.length) {
+    const line = chunk.lines[index];
     const text = line.text.trim();
 
     if (!text || isComment(text)) {
       index += 1;
       continue;
     }
-    if (text === "@endsequence") {
-      if (sequence.system && sequence.schoolClass) {
-        failWG(
-          "@system and @school-class cannot be used on the same sequence",
-          lineLocation(file, opening.line),
-        );
-      }
-      if (sequence.system && sequence.passages.length) {
-        failWG(
-          "System-backed sequences cannot contain authored passages",
-          lineLocation(file, sequence.passages[0].source.line),
-        );
-      }
-      if (!sequence.system && !sequence.passages.length) {
-        failWG("Sequence requires at least one passage", lineLocation(file, opening.line));
-      }
-      for (let passageIndex = 0; passageIndex < sequence.passages.length; passageIndex += 1) {
-        const passage = sequence.passages[passageIndex];
-        if (!passage.body.length) {
-          failWG(
-            `Passage '${passage.id}' cannot be empty`,
-            lineLocation(file, passage.source.line),
-          );
-        }
-        if (passage.next && passage.next.target === null) {
-          passage.next.target = passageIndex + 1 < sequence.passages.length
-            ? `.${sequence.passages[passageIndex + 1].id}`
-            : sequence.finalTarget;
-        }
-      }
-      return { sequence, nextIndex: index + 1 };
-    }
-    if (text.startsWith("@sequence") || text.startsWith("@entry") || text.startsWith("@location") || text.startsWith("::")) {
-      failWG("Unclosed @sequence block", lineLocation(file, opening.line));
-    }
-
     const name = directiveName(text);
     if (name === "passage") {
       const passageId = directiveArgument(text, "passage", lineLocation(file, line.line));
@@ -1709,179 +1736,79 @@ function parseSequenceBlock(file, lines, startIndex) {
     }
 
     if (!currentPassage) currentPassage = startPassage(nextAnonymousId(), line.line);
-    const bodyParser = new SceneBodyParser(file, lines, index);
+    const bodyParser = new SceneBodyParser(file, chunk.lines, index);
     currentPassage.body.push(
-      ...bodyParser.parseNodes(new Set(["passage", "next", "endsequence"])),
+      ...bodyParser.parseNodes(new Set(["passage", "next"])),
     );
     index = bodyParser.index;
   }
 
-  failWG("Unclosed @sequence block", lineLocation(file, opening.line));
-}
-
-function parseEntryBlock(file, lines, startIndex) {
-  const opening = lines[startIndex];
-  const openingText = opening.text.trim();
-  const header = openingText.match(new RegExp(`^@entry\\s+(${ID_PATTERN})\\s*$`));
-  if (!header) failWG("Malformed @entry header", lineLocation(file, opening.line));
-
-  const entry = {
-    id: header[1],
-    sceneId: null,
-    placeKeys: [],
-    placeTags: [],
-    locationTags: [],
-    hub: null,
-    offer: null,
-    automaticTriggers: [],
-    pools: [],
-    conditions: [],
-    label: null,
-    icon: null,
-    hubText: null,
-    priority: 0,
-    chance: 1,
-    weight: 1,
-    source: nodeSource(file, opening.line),
-  };
-  const singleFields = new Set();
-  let index = startIndex + 1;
-
-  while (index < lines.length) {
-    const line = lines[index];
-    const text = line.text.trim();
-    const location = lineLocation(file, line.line);
-
-    if (!text || isComment(text)) {
-      index += 1;
-      continue;
+  if (scene.system && scene.schoolClass) {
+    failWG(
+      "@system and @school-class cannot be used on the same scene",
+      lineLocation(file, chunk.headerLine),
+    );
+  }
+  if (scene.system && scene.passages.length) {
+    failWG(
+      "System-backed scenes cannot contain authored passages",
+      lineLocation(file, scene.passages[0].source.line),
+    );
+  }
+  if (scene.system && !scene.finalTarget) {
+    failWG("System-backed scenes require a final target", lineLocation(file, chunk.headerLine));
+  }
+  if (!scene.system && !scene.passages.length) {
+    failWG("Scene requires at least one passage", lineLocation(file, chunk.headerLine));
+  }
+  for (let passageIndex = 0; passageIndex < scene.passages.length; passageIndex += 1) {
+    const passage = scene.passages[passageIndex];
+    if (!passage.body.length) {
+      failWG(`Passage '${passage.id}' cannot be empty`, lineLocation(file, passage.source.line));
     }
-    if (text === "@endentry") {
-      if (entry.sceneId === null) failWG("Entry requires @scene", location);
-      if (
-        entry.hub === null &&
-        entry.offer === null &&
-        entry.automaticTriggers.length === 0 &&
-        entry.pools.length === 0
-      ) {
-        failWG("Entry requires @hub, @offer, @auto, or @pool", location);
+    if (passage.next && passage.next.target === null) {
+      passage.next.target = passageIndex + 1 < scene.passages.length
+        ? `.${scene.passages[passageIndex + 1].id}`
+        : scene.finalTarget;
+      if (!passage.next.target) {
+        failWG(
+          `Final @next in scene '${scene.id}' requires a target or a scene final target`,
+          lineLocation(file, passage.next.source.line),
+        );
       }
-      if (entry.hub && (entry.offer || entry.automaticTriggers.length || entry.pools.length)) {
-        failWG("Hub entries cannot also use @offer, @auto, or @pool", location);
-      }
-      if (entry.hub?.type === "place" && !entry.placeKeys.length && !entry.placeTags.length) {
-        failWG("Place hub entries require @place-key or @place-tag", location);
-      }
-      if (entry.offer && entry.label === null) {
-        failWG("Offered entries require @label", location);
-      }
-      return { entry, nextIndex: index + 1 };
     }
-    if (text.startsWith("::") || text.startsWith("@entry") || text.startsWith("@location")) {
-      failWG("Unclosed @entry block", lineLocation(file, opening.line));
-    }
-
-    const name = directiveName(text);
-    if (!name) failWG("Entry blocks may contain only entry directives", location);
-
-    if (
-      ["scene", "hub", "offer", "label", "icon", "hub-text", "priority", "chance", "weight"].includes(
-        name,
-      )
-    ) {
-      if (singleFields.has(name)) failWG(`Duplicate @${name}`, location);
-      singleFields.add(name);
-    }
-
-    if (name === "scene") {
-      const sceneId = directiveArgument(text, "scene", location);
-      if (!ID_REGEX.test(sceneId)) failWG("Entry scene must be a scene id", location);
-      entry.sceneId = sceneId;
-    } else if (name === "hub") {
-      const hubType = directiveArgument(text, "hub", location);
-      if (hubType !== "place") failWG("@hub must be 'place'", location);
-      entry.hub = { type: hubType };
-    } else if (["place-key", "place-tag", "location-tag"].includes(name)) {
-      const value = directiveArgument(text, name, location);
-      const regex = name === "place-key" ? ID_REGEX : TAG_REGEX;
-      if (!regex.test(value)) failWG(`Invalid @${name} value '${value}'`, location);
-      const target = {
-        "place-key": entry.placeKeys,
-        "place-tag": entry.placeTags,
-        "location-tag": entry.locationTags,
-      }[name];
-      if (target.includes(value)) failWG(`Duplicate @${name} '${value}'`, location);
-      target.push(value);
-    } else if (name === "offer") {
-      const argument = directiveArgument(text, "offer", location);
-      if (argument === "place") {
-        entry.offer = { type: "place" };
-      } else {
-        const npcOffer = argument.match(new RegExp(`^npc\\s+(${ID_PATTERN})$`));
-        if (!npcOffer) failWG("@offer must be 'place' or 'npc <id>'", location);
-        entry.offer = { type: "npc", npcId: npcOffer[1] };
-      }
-    } else if (name === "auto") {
-      const trigger = directiveArgument(text, "auto", location);
-      if (!["enter-place", "enter-location"].includes(trigger)) {
-        failWG("@auto must be 'enter-place' or 'enter-location'", location);
-      }
-      if (entry.automaticTriggers.includes(trigger)) {
-        failWG(`Duplicate @auto '${trigger}'`, location);
-      }
-      entry.automaticTriggers.push(trigger);
-    } else if (name === "pool") {
-      const poolId = directiveArgument(text, "pool", location);
-      if (!ID_REGEX.test(poolId)) failWG("@pool requires a pool id", location);
-      if (entry.pools.includes(poolId)) failWG(`Duplicate @pool '${poolId}'`, location);
-      entry.pools.push(poolId);
-    } else if (name === "when") {
-      entry.conditions.push(
-        parseExpression(directiveArgument(text, "when", location), location),
-      );
-    } else if (name === "label") {
-      entry.label = parseQuotedString(
-        directiveArgument(text, "label", location),
-        location,
-        "Entry label",
-      );
-    } else if (name === "icon") {
-      const value = directiveArgument(text, "icon", location);
-      entry.icon = value.startsWith('"')
-        ? parseQuotedString(value, location, "Entry icon")
-        : value;
-    } else if (name === "hub-text") {
-      entry.hubText = parseQuotedString(
-        directiveArgument(text, "hub-text", location),
-        location,
-        "Entry hub text",
-      );
-    } else if (name === "priority") {
-      const value = directiveArgument(text, "priority", location);
-      if (!/^[+-]?\d+$/.test(value) || !Number.isSafeInteger(Number(value))) {
-        failWG("@priority must be a safe integer", location);
-      }
-      entry.priority = Number(value);
-    } else if (name === "chance") {
-      entry.chance = parseProbability(
-        directiveArgument(text, "chance", location),
-        location,
-        "chance",
-      );
-    } else if (name === "weight") {
-      const value = Number(directiveArgument(text, "weight", location));
-      if (!Number.isFinite(value) || value <= 0) {
-        failWG("@weight must be a positive number", location);
-      }
-      entry.weight = value;
-    } else {
-      failWG(`Unknown entry directive @${name}`, location);
-    }
-
-    index += 1;
   }
 
-  failWG("Unclosed @entry block", lineLocation(file, opening.line));
+  const exposed = Boolean(
+    scene.hub || scene.offer || scene.automaticTriggers.length || scene.pools.length,
+  );
+  if (scene.hub && (scene.offer || scene.automaticTriggers.length || scene.pools.length)) {
+    failWG(
+      "Hub scenes cannot also use @offer, @auto, or @pool",
+      lineLocation(file, chunk.headerLine),
+    );
+  }
+  if (scene.hub?.type === "place" && !scene.placeKeys.length && !scene.placeTags.length) {
+    failWG(
+      "Place hub scenes require @place-key or @place-tag",
+      lineLocation(file, chunk.headerLine),
+    );
+  }
+  if (scene.offer && scene.label === null) {
+    failWG("Offered scenes require @label", lineLocation(file, chunk.headerLine));
+  }
+  if (!exposed && (
+    scene.placeKeys.length || scene.placeTags.length || scene.locationTags.length ||
+    scene.conditions.length || scene.label !== null || scene.icon !== null ||
+    scene.hubText !== null || scene.priority !== 0 || scene.chance !== 1 || scene.weight !== 1
+  )) {
+    failWG(
+      "Scene exposure metadata requires @hub, @offer, @auto, or @pool",
+      lineLocation(file, chunk.headerLine),
+    );
+  }
+
+  return scene;
 }
 
 function parseLocationBlock(file, lines, startIndex) {
@@ -1919,7 +1846,10 @@ function parseLocationBlock(file, lines, startIndex) {
         nextIndex: index + 1,
       };
     }
-    if (text.startsWith("::") || ["entry", "sequence", "location"].includes(directiveName(text))) {
+    if (
+      text.startsWith("::") ||
+      ["chat", "location", "reminder"].includes(directiveName(text))
+    ) {
       break;
     }
     index += 1;
@@ -2014,8 +1944,6 @@ export function parseWGDocument({ file = "<wg>", source }) {
   const rawLines = source.replaceAll("\r\n", "\n").replaceAll("\r", "\n").split("\n");
   const lines = rawLines.map((text, index) => ({ text, line: index + 1 }));
   const chunks = [];
-  const entries = [];
-  const sequences = [];
   const locationContributions = [];
   const reminders = [];
   const chats = [];
@@ -2041,20 +1969,6 @@ export function parseWGDocument({ file = "<wg>", source }) {
       index = parsed.nextIndex;
       continue;
     }
-    if (trimmed.startsWith("@entry")) {
-      currentChunk = null;
-      const parsed = parseEntryBlock(normalizedFile, lines, index);
-      entries.push(parsed.entry);
-      index = parsed.nextIndex;
-      continue;
-    }
-    if (trimmed.startsWith("@sequence")) {
-      currentChunk = null;
-      const parsed = parseSequenceBlock(normalizedFile, lines, index);
-      sequences.push(parsed.sequence);
-      index = parsed.nextIndex;
-      continue;
-    }
     if (trimmed.startsWith("@location")) {
       currentChunk = null;
       const parsed = parseLocationBlock(normalizedFile, lines, index);
@@ -2064,7 +1978,9 @@ export function parseWGDocument({ file = "<wg>", source }) {
     }
     if (trimmed.startsWith("::")) {
       const header = trimmed.match(
-        new RegExp(`^::\\s+(${ID_PATTERN})(?:\\s+\\[([^\\]]*)\\])?\\s*$`),
+        new RegExp(
+          `^::\\s+(${ID_PATTERN})(?:\\s+\\[([^\\]]*)\\])?(?:\\s+->\\s+(@exit|@return|${ID_PATTERN}))?\\s*$`,
+        ),
       );
       if (!header) {
         failWG("Malformed scene header", lineLocation(normalizedFile, line.line));
@@ -2080,6 +1996,7 @@ export function parseWGDocument({ file = "<wg>", source }) {
       currentChunk = {
         id: header[1],
         tags: [...new Set(tags)],
+        finalTarget: header[3] ?? null,
         headerLine: line.line,
         lines: [],
       };
@@ -2093,7 +2010,10 @@ export function parseWGDocument({ file = "<wg>", source }) {
         index += 1;
         continue;
       }
-      failWG("Content appears outside a scene, entry, sequence, location, or reminder block", lineLocation(normalizedFile, line.line));
+      failWG(
+        "Content appears outside a scene, location, reminder, or chat block",
+        lineLocation(normalizedFile, line.line),
+      );
     }
     currentChunk.lines.push(line);
     index += 1;
@@ -2101,8 +2021,6 @@ export function parseWGDocument({ file = "<wg>", source }) {
 
   return {
     scenes: chunks.map((chunk) => parseSceneChunk(normalizedFile, chunk)),
-    sequences,
-    entries,
     locationContributions,
     reminders,
     chats,

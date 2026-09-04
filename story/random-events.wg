@@ -1,38 +1,12 @@
 @# One-shot events used to exercise automatic home-entry selection.
 
-@entry home.random.forgotten-mug
-  @scene home.random.forgotten-mug
+:: home.random.forgotten-mug [event home random]
   @place-key player_home
   @auto enter-place
   @when not story.homeEvents.forgottenMugPlayed
   @priority 0
   @chance 100%
   @weight 1
-@endentry
-
-@entry home.random.open-window
-  @scene home.random.open-window
-  @place-key player_home
-  @auto enter-place
-  @when not story.homeEvents.openWindowPlayed
-  @priority 0
-  @chance 100%
-  @weight 1
-@endentry
-
-@entry home.random.late-breakfast
-  @scene home.random.late-breakfast
-  @place-key player_home
-  @auto enter-place
-  @when not story.homeEvents.lateBreakfastPlayed
-  @when time.minutesSinceMidnight >= 600
-  @when time.minutesSinceMidnight <= 780
-  @priority 0
-  @chance 100%
-  @weight 1
-@endentry
-
-:: home.random.forgotten-mug [event home random]
 @heading "An abandoned mug"
 
 @onenter
@@ -45,6 +19,12 @@ A half-finished mug of tea waits on the kitchen counter. It has gone completely 
 @endchoice
 
 :: home.random.open-window [event home random]
+  @place-key player_home
+  @auto enter-place
+  @when not story.homeEvents.openWindowPlayed
+  @priority 0
+  @chance 100%
+  @weight 1
 @heading "An open window"
 
 @onenter
@@ -57,6 +37,14 @@ One of the windows is cracked open. A faint breeze stirs the curtains and carrie
 @endchoice
 
 :: home.random.late-breakfast [event home random]
+  @place-key player_home
+  @auto enter-place
+  @when not story.homeEvents.lateBreakfastPlayed
+  @when time.minutesSinceMidnight >= 600
+  @when time.minutesSinceMidnight <= 780
+  @priority 0
+  @chance 100%
+  @weight 1
 @heading "The remains of breakfast"
 
 @onenter

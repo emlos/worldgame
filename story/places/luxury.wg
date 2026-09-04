@@ -1,12 +1,8 @@
 @# Basic authored hubs for luxury shops, clubs, hospitality, and leisure.
 
-@entry place.hub.jewelry-store
-  @scene place.jewelry-store
+:: place.jewelry-store [place hub]
   @place-key jewelry_store
   @hub place
-@endentry
-
-:: place.jewelry-store [place hub]
 @kind place
 @heading "Jewelry Store"
 @choices "Activities"
@@ -26,13 +22,9 @@ Glass cases sparkle beneath the lights of {{place.name}}.
   @time 1m
 @endchoice
 
-@entry place.hub.country-club
-  @scene place.country-club
+:: place.country-club [place hub]
   @place-key country_club
   @hub place
-@endentry
-
-:: place.country-club [place hub]
 @kind place
 @heading "Country Club"
 @choices "Activities"
@@ -52,13 +44,9 @@ Members and staff move through the refined rooms of {{place.name}}.
   @time 1m
 @endchoice
 
-@entry place.hub.yacht-club
-  @scene place.yacht-club
+:: place.yacht-club [place hub]
   @place-key yacht_club
   @hub place
-@endentry
-
-:: place.yacht-club [place hub]
 @kind place
 @heading "Yacht Club"
 @choices "Activities"
@@ -78,13 +66,9 @@ The marina is visible beyond the windows of {{place.name}}.
   @time 1m
 @endchoice
 
-@entry place.hub.fine-dining
-  @scene place.fine-dining
+:: place.fine-dining [place hub]
   @place-key fine_dining
   @hub place
-@endentry
-
-:: place.fine-dining [place hub]
 @kind place
 @heading "Fine Dining Restaurant"
 @choices "Activities"
@@ -104,13 +88,9 @@ Carefully arranged tables set the tone inside {{place.name}}.
   @time 1m
 @endchoice
 
-@entry place.hub.casino
-  @scene place.casino
+:: place.casino [place hub]
   @place-key casino
   @hub place
-@endentry
-
-:: place.casino [place hub]
 @kind place
 @heading "Casino"
 @choices "Activities"
@@ -130,13 +110,9 @@ Lights, music, and game tables compete for attention throughout {{place.name}}.
   @time 1m
 @endchoice
 
-@entry place.hub.luxury-hotel
-  @scene place.luxury-hotel
+:: place.luxury-hotel [place hub]
   @place-key luxury_hotel
   @hub place
-@endentry
-
-:: place.luxury-hotel [place hub]
 @kind place
 @heading "Luxury Hotel"
 @choices "Activities"
@@ -156,13 +132,9 @@ The spacious lobby of {{place.name}} is kept immaculate.
   @time 1m
 @endchoice
 
-@entry place.hub.designer-boutique
-  @scene place.designer-boutique
+:: place.designer-boutique [place hub]
   @place-key designer_boutique
   @hub place
-@endentry
-
-:: place.designer-boutique [place hub]
 @kind place
 @heading "Designer Boutique"
 @choices "Activities"
@@ -182,13 +154,9 @@ Carefully arranged clothing and accessories fill {{place.name}}.
   @time 1m
 @endchoice
 
-@entry place.hub.spa-resort
-  @scene place.spa-resort
+:: place.spa-resort [place hub]
   @place-key spa_resort
   @hub place
-@endentry
-
-:: place.spa-resort [place hub]
 @kind place
 @heading "Day Spa"
 @choices "Activities"
@@ -208,13 +176,9 @@ Soft lighting and quiet music settle over {{place.name}}.
   @time 1m
 @endchoice
 
-@entry place.hub.vineyard
-  @scene place.vineyard
+:: place.vineyard [place hub]
   @place-key vineyard
   @hub place
-@endentry
-
-:: place.vineyard [place hub]
 @kind place
 @heading "Vineyard"
 @choices "Activities"

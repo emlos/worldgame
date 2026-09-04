@@ -1,10 +1,6 @@
-@entry place.hub.kim-office
-  @scene place.kim-office
+:: place.kim-office [place hub]
   @place-key home_kim
   @hub place
-@endentry
-
-:: place.kim-office [place hub]
 @kind place
 
 Kim is sitting at {{npc.kim.dependent}} desk. {{npc.kim.subject | cap}} looks up as you enter.
@@ -34,7 +30,7 @@ Kim is sitting at {{npc.kim.dependent}} desk. {{npc.kim.subject | cap}} looks up
   @endchoice
 @endchoicegroup
 
-@sequence story.rent.intro.2 -> @exit
+:: story.rent.intro.2 -> @exit
   @onenter
     @effect set story.rent.active true
     @effect set story.rent.debt 800
@@ -128,10 +124,7 @@ Kim is sitting at {{npc.kim.dependent}} desk. {{npc.kim.subject | cap}} looks up
   You leave the office with a copy of the account. {{@if story.rent.debt >= 800}}The £800 balance is overdue, and {{@else}}You have paid the outstanding amount, but {{@endif}}another £200 charge will be added every seven days.
 
   @next -> @exit
-@endsequence
-
-@sequence story.rent.payment -> place.kim-office
-
+:: story.rent.payment -> place.kim-office
   @passage paid
 
   You hand Kim £200. {{npc.kim.subject | cap}} records the payment in the ledger.
@@ -144,20 +137,13 @@ Kim is sitting at {{npc.kim.dependent}} desk. {{npc.kim.subject | cap}} looks up
   @endif
 
   @next -> place.kim-office
-@endsequence
-
-
 @#replace with kim sending you a threatening message if you don't pay your rent, when rent >= 1200
-@entry rent.debt-escalation
-  @scene story.rent.debt-escalation
+:: story.rent.debt-escalation -> @exit
   @pool interrupt
   @priority 200
   @when story.rent.active
   @when story.rent.debt >= 1200
   @when not flags.rent_debt_escalation_seen
-@endentry
-
-@sequence story.rent.debt-escalation -> @exit
   @heading "The rent cannot be ignored"
   @onenter
     @effect flag rent_debt_escalation_seen true
@@ -170,4 +156,3 @@ Kim is sitting at {{npc.kim.dependent}} desk. {{npc.kim.subject | cap}} looks up
   [warning]This is a placeholder for the first overdue-rent consequence.[/warning]
 
   @next -> @exit
-@endsequence

@@ -1,9 +1,9 @@
-@# Compiler/runtime fixture and authoring example for passage sequences.
+@# Compiler/runtime fixture and authoring example for a multi-passage scene.
 
-@sequence example.passage-sequence -> @exit
-@heading "A short sequence"
+:: example.passage-scene -> @exit
+@heading "A short scene"
 @onenter
-  @effect add story.examples.sequenceEntries 1
+  @effect add story.examples.passageSceneEntries 1
 @endonenter
 
 The first passage is displayed without requiring a standalone scene.
@@ -18,7 +18,7 @@ The second passage can offer ordinary authored choices.
 @endchoice
 
 @choice finish "Continue to the ending" -> .ending
-  @effect set story.examples.sequenceFinished true
+  @effect set story.examples.passageSceneFinished true
 @endchoice
 
 @passage ending
@@ -26,4 +26,3 @@ The second passage can offer ordinary authored choices.
 The final passage returns to the underlying world hub.
 
 @next "Return"
-@endsequence

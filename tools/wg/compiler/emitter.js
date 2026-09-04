@@ -3,6 +3,7 @@ const EMPTY_ARRAY_DEFAULTS = new Set([
   "conditions",
   "effects",
   "elseNodes",
+  "finalTarget",
   "filters",
   "locationTags",
   "onEnter",
@@ -34,7 +35,7 @@ const NULL_DEFAULTS = new Set([
 const FALSE_DEFAULTS = new Set(["energyFree", "resting"]);
 const ZERO_DEFAULTS = new Set(["durationMinutes", "priority"]);
 const ONE_DEFAULTS = new Set(["chance", "eventChance", "weight"]);
-const TOP_LEVEL_COLLECTIONS = ["scenes", "sequences", "entries", "locationContributions", "reminders", "chats"];
+const TOP_LEVEL_COLLECTIONS = ["scenes", "locationContributions", "reminders", "chats"];
 
 function isOmittedDefault(key, value) {
   return (

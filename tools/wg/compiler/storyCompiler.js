@@ -89,8 +89,6 @@ export function compileStorySources(sources) {
     compareText(String(left.file), String(right.file)),
   );
   const sceneMap = new Map();
-  const sequenceMap = new Map();
-  const entryMap = new Map();
   const locationMap = new Map();
   const reminderMap = new Map();
   const chatMap = new Map();
@@ -124,26 +122,6 @@ export function compileStorySources(sources) {
       }
       sceneMap.set(scene.id, scene);
     }
-    for (const sequence of document.sequences || []) {
-      const previous = sequenceMap.get(sequence.id) || sceneMap.get(sequence.id);
-      if (previous) {
-        failWG(
-          `Duplicate story id '${sequence.id}' (first declared at ${previous.source.file}:${previous.source.line})`,
-          atSource(sequence.source),
-        );
-      }
-      sequenceMap.set(sequence.id, sequence);
-    }
-    for (const entry of document.entries) {
-      const previous = entryMap.get(entry.id);
-      if (previous) {
-        failWG(
-          `Duplicate entry id '${entry.id}' (first declared at ${previous.source.file}:${previous.source.line})`,
-          atSource(entry.source),
-        );
-      }
-      entryMap.set(entry.id, entry);
-    }
     for (const contribution of document.locationContributions) {
       const previous = locationMap.get(contribution.id);
       if (previous) {
@@ -156,8 +134,8 @@ export function compileStorySources(sources) {
     }
   }
 
-  if (sceneMap.size === 0 && sequenceMap.size === 0 && locationMap.size === 0 && reminderMap.size === 0 && chatMap.size === 0) {
-    failWG("No WG scenes, sequences, location contributions, or reminders were found", { file: "story", line: 1, column: 1 });
+  if (sceneMap.size === 0 && locationMap.size === 0 && reminderMap.size === 0 && chatMap.size === 0) {
+    failWG("No WG scenes, location contributions, reminders, or chats were found", { file: "story", line: 1, column: 1 });
   }
 
   // Visit every effect, including on-enter blocks, checked outcomes, and
@@ -171,31 +149,21 @@ export function compileStorySources(sources) {
     if (value.op === "chat" && !chatMap.has(value.id)) failWG(`Unknown chat '${value.id}'`, atSource(value.source));
     for (const child of Object.values(value)) validateReminderEffects(child);
   }
-  for (const definition of [...sceneMap.values(), ...sequenceMap.values(), ...locationMap.values(), ...chatMap.values()]) {
+  for (const definition of [...sceneMap.values(), ...locationMap.values(), ...chatMap.values()]) {
     validateReminderEffects(definition);
   }
 
-  for (const scene of sceneMap.values()) {
-    const sequence = sequenceMap.get(scene.id);
-    if (sequence) {
-      failWG(
-        `Duplicate story id '${scene.id}' (also declared at ${sequence.source.file}:${sequence.source.line})`,
-        atSource(scene.source),
-      );
-    }
-  }
-
-  const hasGlobalTarget = (target) => sceneMap.has(target) || sequenceMap.has(target);
-  const validateTarget = (target, source, { sequence = null, choiceId = null } = {}) => {
+  const hasGlobalTarget = (target) => sceneMap.has(target);
+  const validateTarget = (target, source, { scene = null, choiceId = null } = {}) => {
     if (["@exit", "@return", "@leave-place"].includes(target)) return;
     if (target?.startsWith(".")) {
       const passageId = target.slice(1);
-      if (!sequence) {
-        failWG(`Local passage target '${target}' is only valid inside a sequence`, atSource(source));
+      if (!scene) {
+        failWG(`Local passage target '${target}' is only valid inside a scene`, atSource(source));
       }
-      if (!sequence.passages.some((passage) => passage.id === passageId)) {
+      if (!scene.passages.some((passage) => passage.id === passageId)) {
         failWG(
-          `Unknown passage target '${target}' in sequence '${sequence.id}'`,
+          `Unknown passage target '${target}' in scene '${scene.id}'`,
           atSource(source),
         );
       }
@@ -207,7 +175,7 @@ export function compileStorySources(sources) {
     }
   };
   const poolIds = new Set(
-    [...entryMap.values()].flatMap((entry) => entry.pools || []),
+    [...sceneMap.values()].flatMap((scene) => scene.pools || []),
   );
   const validateChoicePool = (node) => {
     if (node.eventPool === "interrupt") {
@@ -225,74 +193,49 @@ export function compileStorySources(sources) {
   };
 
   for (const scene of sceneMap.values()) {
-    const choiceIds = new Map();
-    const choiceGroupIds = new Map();
-    walkNodes(scene.body, (node) => {
-      if (
-        scene.kind === "place" &&
-        hasPersistentProseMutation(node)
-      ) {
+    if (scene.finalTarget) validateTarget(scene.finalTarget, scene.source, { scene });
+    if (scene.hub?.type === "place") {
+      if (scene.kind !== "place") {
         failWG(
-          "Persistent place hubs cannot contain prose effects or passive checks",
-          atSource(node.source),
+          `Place hub scene '${scene.id}' must use @kind place`,
+          atSource(scene.source),
         );
       }
-      if (node.type === "choice-group") {
-        const previous = choiceGroupIds.get(node.id);
-        if (previous) {
-          failWG(
-            `Duplicate choice-group id '${node.id}' in scene '${scene.id}' (first declared at ${previous.file}:${previous.line})`,
-            atSource(node.source),
-          );
-        }
-        choiceGroupIds.set(node.id, node.source);
-        return;
-      }
-      if (node.type !== "choice") return;
-
-      const previous = choiceIds.get(node.id);
-      if (previous) {
+      if (scene.passages.length !== 1) {
         failWG(
-          `Duplicate choice id '${node.id}' in scene '${scene.id}' (first declared at ${previous.file}:${previous.line})`,
-          atSource(node.source),
+          `Place hub scene '${scene.id}' must contain exactly one passage`,
+          atSource(scene.source),
         );
       }
-      choiceIds.set(node.id, node.source);
-      validateChoicePool(node);
-
-      const targets = node.check
-        ? [node.outcomes?.success, node.outcomes?.failure].map((outcome) => outcome?.target)
-        : [node.target];
-      for (const target of targets) {
-        validateTarget(target, node.source, { choiceId: node.id });
-      }
-    });
-  }
-
-  for (const sequence of sequenceMap.values()) {
-    validateTarget(sequence.finalTarget, sequence.source, { sequence });
-    if (sequence.schoolClass) {
-      const passageIds = sequence.passages.map((passage) => passage.id);
+    }
+    if (scene.schoolClass) {
+      const passageIds = scene.passages.map((passage) => passage.id);
       const expectedIds = passageIds.map((_, index) => `segment-${index + 1}`);
       if (
         passageIds.length === 0 ||
         passageIds.some((passageId, index) => passageId !== expectedIds[index])
       ) {
         failWG(
-          `School class sequence '${sequence.id}' requires contiguous passages named segment-1 through segment-${passageIds.length}`,
-          atSource(sequence.schoolClass.source),
+          `School class scene '${scene.id}' requires contiguous passages named segment-1 through segment-${passageIds.length}`,
+          atSource(scene.schoolClass.source),
         );
       }
     }
-    for (const passage of sequence.passages) {
+    for (const passage of scene.passages) {
       const choiceIds = new Map();
       const choiceGroupIds = new Map();
       walkNodes(passage.body, (node) => {
+        if (scene.kind === "place" && hasPersistentProseMutation(node)) {
+          failWG(
+            "Persistent place hubs cannot contain prose effects or passive checks",
+            atSource(node.source),
+          );
+        }
         if (node.type === "choice-group") {
           const previous = choiceGroupIds.get(node.id);
           if (previous) {
             failWG(
-              `Duplicate choice-group id '${node.id}' in passage '${passage.id}' of sequence '${sequence.id}' (first declared at ${previous.file}:${previous.line})`,
+              `Duplicate choice-group id '${node.id}' in passage '${passage.id}' of scene '${scene.id}' (first declared at ${previous.file}:${previous.line})`,
               atSource(node.source),
             );
           }
@@ -303,7 +246,7 @@ export function compileStorySources(sources) {
         const previous = choiceIds.get(node.id);
         if (previous) {
           failWG(
-            `Duplicate choice id '${node.id}' in passage '${passage.id}' of sequence '${sequence.id}' (first declared at ${previous.file}:${previous.line})`,
+            `Duplicate choice id '${node.id}' in passage '${passage.id}' of scene '${scene.id}' (first declared at ${previous.file}:${previous.line})`,
             atSource(node.source),
           );
         }
@@ -313,11 +256,11 @@ export function compileStorySources(sources) {
           ? [node.outcomes?.success, node.outcomes?.failure].map((outcome) => outcome?.target)
           : [node.target];
         for (const target of targets) {
-          validateTarget(target, node.source, { sequence, choiceId: node.id });
+          validateTarget(target, node.source, { scene, choiceId: node.id });
         }
       });
       if (passage.next) {
-        validateTarget(passage.next.target, passage.next.source, { sequence });
+        validateTarget(passage.next.target, passage.next.source, { scene });
       }
     }
   }
@@ -342,64 +285,40 @@ export function compileStorySources(sources) {
       }
       if (node.type !== "choice") return;
       if (node.eventPool) {
-        failWG("Location contribution choices cannot use @event-pool; enter a scene or sequence first", atSource(node.source));
+        failWG("Location contribution choices cannot use @event-pool; enter a scene first", atSource(node.source));
       }
       const outcomes = node.check ? [node.outcomes.success, node.outcomes.failure] : [node];
       for (const outcome of outcomes) {
         if (["@return", "@leave-place"].includes(outcome.target) || outcome.target.startsWith(".")) {
-          failWG("Location contribution choices must target @exit or a global scene/sequence", atSource(outcome.source));
+          failWG("Location contribution choices must target @exit or a global scene", atSource(outcome.source));
         }
         validateTarget(outcome.target, outcome.source, { choiceId: node.id });
       }
     });
   }
 
-  for (const entry of entryMap.values()) {
-    if (!hasGlobalTarget(entry.sceneId)) {
-      failWG(
-        `Unknown entry target '${entry.sceneId}' from entry '${entry.id}'`,
-        atSource(entry.source),
-      );
-    }
-
-    const entryDefinition = sceneMap.get(entry.sceneId);
-    if (entry.hub?.type === "place" && entryDefinition?.kind !== "place") {
-      failWG(
-        `Place hub entry '${entry.id}' must reference a scene with @kind place`,
-        atSource(entry.source),
-      );
-    }
-  }
-
   const placeHubKeys = new Map();
-  for (const entry of entryMap.values()) {
-    if (entry.hub?.type !== "place") continue;
-    for (const placeKey of entry.placeKeys) {
+  for (const scene of sceneMap.values()) {
+    if (scene.hub?.type !== "place") continue;
+    for (const placeKey of scene.placeKeys) {
       const previous = placeHubKeys.get(placeKey);
       if (previous) {
         failWG(
           `Duplicate place hub for '${placeKey}' (first declared at ${previous.source.file}:${previous.source.line})`,
-          atSource(entry.source),
+          atSource(scene.source),
         );
       }
-      placeHubKeys.set(placeKey, entry);
+      placeHubKeys.set(placeKey, scene);
     }
   }
 
-  for (const scene of sceneMap.values()) assignRuntimeNodeIds(scene.body);
-  for (const contribution of locationMap.values()) assignRuntimeNodeIds(contribution.body);
-  for (const sequence of sequenceMap.values()) {
-    for (const passage of sequence.passages) assignRuntimeNodeIds(passage.body);
+  for (const scene of sceneMap.values()) {
+    for (const passage of scene.passages) assignRuntimeNodeIds(passage.body);
   }
+  for (const contribution of locationMap.values()) assignRuntimeNodeIds(contribution.body);
 
   const scenes = Object.fromEntries(
     [...sceneMap.entries()].sort(([left], [right]) => compareText(left, right)),
-  );
-  const sequences = Object.fromEntries(
-    [...sequenceMap.entries()].sort(([left], [right]) => compareText(left, right)),
-  );
-  const entries = Object.fromEntries(
-    [...entryMap.entries()].sort(([left], [right]) => compareText(left, right)),
   );
   const locationContributions = Object.fromEntries(
     [...locationMap.entries()].sort(([left], [right]) => compareText(left, right)),
@@ -408,7 +327,7 @@ export function compileStorySources(sources) {
     [...reminderMap.entries()].sort(([left], [right]) => compareText(left, right)),
   );
   const chats = Object.fromEntries([...chatMap.entries()].sort(([left], [right]) => compareText(left, right)));
-  return { formatVersion: 25, scenes, sequences, entries, locationContributions, reminders, chats };
+  return { formatVersion: 26, scenes, locationContributions, reminders, chats };
 }
 
 export { walkNodes };

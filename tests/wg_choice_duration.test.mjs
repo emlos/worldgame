@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { Game } from "../src/classes/game/game.js";
 import { buildScene } from "../src/classes/game/scene/sceneEngine.js";
 import {
-  enterWGSequence,
+  enterWGScene,
   resolveActiveWGStory,
 } from "../src/classes/game/scene/wg/storyRuntime.js";
 
@@ -16,9 +16,9 @@ test("compacted zero-duration checked outcomes materialize as zero", () => {
   });
 
   game.runAction({
-    label: "Enter checked WG sequence",
+    label: "Enter checked WG scene",
     apply(currentGame) {
-      enterWGSequence(currentGame, "school.english.event.reading-aloud");
+      enterWGScene(currentGame, "school.english.event.reading-aloud");
     },
     after(currentGame) {
       resolveActiveWGStory(currentGame);

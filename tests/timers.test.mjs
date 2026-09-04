@@ -154,7 +154,7 @@ test("WG timer effects compile and preserve their lifecycle semantics", () => {
       "@endchoice",
     ].join("\n"),
   });
-  assert.deepEqual(document.scenes[0].body[0].effects[0], {
+  assert.deepEqual(document.scenes[0].passages[0].body[0].effects[0], {
     op: "timer",
     action: "start",
     id: "rent.weekly",
@@ -177,11 +177,11 @@ test("WG timer effects compile and preserve their lifecycle semantics", () => {
   assert.deepEqual(game.timers, {});
 });
 
-test("save version 30 requires valid named timer state", () => {
+test("save version 31 requires valid named timer state", () => {
   const game = new Game({ seed: 706 });
   game.startTimer("rent.weekly");
   const save = game.toJSON();
-  assert.equal(save.saveVersion, 30);
+  assert.equal(save.saveVersion, 31);
 
   const missing = JSON.parse(JSON.stringify(save));
   delete missing.timers;
@@ -206,7 +206,8 @@ test("the authored rent flow starts weekly charges and accepts £200 payments", 
   });
   assert.equal(game.reminders.has("rent_due"), true);
 
-  choose(game, "arrange");
+  choose(game, "worried");
+  choose(game, "__wg_next");
   assert.ok(game.timers["rent.weekly"]);
   choose(game, "__wg_next");
 

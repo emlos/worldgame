@@ -119,14 +119,14 @@ test("WG effects, expression context, and the phone expose progress", () => {
   });
 });
 
-test("save version 30 round-trips canonical subject achievement", () => {
+test("save version 31 round-trips canonical subject achievement", () => {
   const game = new Game({ seed: 117 });
   game.player.setSubjectGrade("art", "B");
   game.player.setSubjectProgress("art", 42);
   game.player.recordSubjectAttendance("art", 3);
 
   const save = game.toJSON();
-  assert.equal(save.saveVersion, 30);
+  assert.equal(save.saveVersion, 31);
   assert.deepEqual(save.player.education.subjects.art, {
     achievement: 242,
     attendedSegments: 3,
@@ -151,7 +151,7 @@ test("WG grade changes use subject-only feedback and whole progress points", () 
     file: "test-grade.wg",
     source: ":: test-grade\n\nThe lesson helps. @change grade english 1",
   });
-  const change = document.scenes[0].body[0].parts.find(
+  const change = document.scenes[0].passages[0].body[0].parts.find(
     (part) => part.type === "change",
   );
   assert.equal(change.effect.feedback.label, "+English");
@@ -167,7 +167,7 @@ test("WG grade changes use subject-only feedback and whole progress points", () 
 
 test("authored school branches compare against letter grades", () => {
   const game = new Game({ seed: 117 });
-  const readingAloud = WG_BUNDLE.sequences["school.english.event.reading-aloud"];
+  const readingAloud = WG_BUNDLE.scenes["school.english.event.reading-aloud"];
   const gradeBranch = readingAloud.passages[0].body.find(
     (node) => node.type === "if",
   ).branches[0].test;

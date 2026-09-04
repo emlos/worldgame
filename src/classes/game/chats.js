@@ -181,7 +181,7 @@ export function deliverDueChats(game) {
 }
 
 function sendBlockReason(game) {
-  if (game.currentStory && (game.currentStory.type === "sequence" || WG_BUNDLE.scenes[game.currentStory.id]?.kind !== "place")) {
+  if (game.currentStory && WG_BUNDLE.scenes[game.currentStory.id]?.kind !== "place") {
     return "Finish the current scene before replying.";
   }
   return null;

@@ -122,7 +122,7 @@ export function createWGRuntimeContext(game) {
   const school = getSchoolDayState(game);
   const activeContinuation = game.storyContinuations.at(-1) || null;
   const schoolClass =
-    game.currentStory?.type === "sequence" && game.currentStory.schoolClass
+    game.currentStory?.schoolClass
       ? game.currentStory.schoolClass
       : activeContinuation?.schoolClass;
   if (schoolClass) {
@@ -141,9 +141,9 @@ export function createWGRuntimeContext(game) {
     event: activeContinuation
       ? {
           poolId: activeContinuation.poolId,
-          entryId: activeContinuation.entryId,
+          sceneId: activeContinuation.eventSceneId,
           source: {
-            storyId: activeContinuation.sourceStoryId,
+            sceneId: activeContinuation.sourceSceneId,
             passageId: activeContinuation.sourcePassageId,
             choiceId: activeContinuation.sourceChoiceId,
           },

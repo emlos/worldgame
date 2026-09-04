@@ -1,10 +1,6 @@
-@entry place.hub.civil-office
-  @scene place.civil-office
+:: place.civil-office [place hub]
   @place-key civil_office
   @hub place
-@endentry
-
-:: place.civil-office [place hub]
 @kind place
 @heading "Civil Office"
 @choices "Activities"
@@ -30,8 +26,7 @@ Counters, forms, and noticeboards fill {{place.name}}.
   @time 1m
 @endchoice
 
-@sequence story.rent.intro.1 -> @exit
-
+:: story.rent.intro.1 -> @exit
   "Um, hello?" You hold the notice up to the receptionist. "I found this on my door. What is it about?"
 
   The receptionist looks at the notice, then back at you. "Oh, yes. That is a notice about your rent. It seems that you have not paid your rent for the last two months." @change stat stress 25
@@ -54,7 +49,3 @@ Counters, forms, and noticeboards fill {{place.name}}.
   @effect chat start kim.rent
   
   @next -> @exit
-
-  
-
-@endsequence

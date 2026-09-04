@@ -1,13 +1,9 @@
 @# Basic authored hubs for civic, transport, and everyday service places.
 
 
-@entry place.hub.town-square
-  @scene place.town-square
+:: place.town-square [place hub]
   @place-key town_square
   @hub place
-@endentry
-
-:: place.town-square [place hub]
 @kind place
 @heading "Town Square"
 @choices "Activities"
@@ -29,13 +25,9 @@ The open space of {{place.name}} gives you room to stop and watch the town move 
 
 
 
-@entry place.hub.jail
-  @scene place.jail
+:: place.jail [place hub]
   @place-key jail
   @hub place
-@endentry
-
-:: place.jail [place hub]
 @kind place
 @heading "Jail"
 @choices "Activities"
@@ -55,13 +47,9 @@ The controlled entrance of {{place.name}} feels deliberately unwelcoming.
   @time 1m
 @endchoice
 
-@entry place.hub.court
-  @scene place.court
+:: place.court [place hub]
   @place-key court
   @hub place
-@endentry
-
-:: place.court [place hub]
 @kind place
 @heading "Court"
 @choices "Activities"
@@ -81,13 +69,9 @@ Muted footsteps and low voices echo through {{place.name}}.
   @time 1m
 @endchoice
 
-@entry place.hub.train-station
-  @scene place.train-station
+:: place.train-station [place hub]
   @place-key train_station
   @hub place
-@endentry
-
-:: place.train-station [place hub]
 @kind place
 @heading "Train Station"
 @choices "Activities"
@@ -107,13 +91,9 @@ Announcements and rolling luggage keep {{place.name}} in constant motion.
   @time 1m
 @endchoice
 
-@entry place.hub.bus-stop
-  @scene place.bus-stop
+:: place.bus-stop [place hub]
   @place-key bus_stop
   @hub place
-@endentry
-
-:: place.bus-stop [place hub]
 @kind place
 @heading "Bus Stop"
 @choices "Activities"
@@ -155,13 +135,9 @@ The bus pulls up and its doors fold open.
   @icon 🚶
 @endchoice
 
-@entry place.hub.boulevard
-  @scene place.boulevard
+:: place.boulevard [place hub]
   @place-key boulevard
   @hub place
-@endentry
-
-:: place.boulevard [place hub]
 @kind place
 @heading "Boulevard"
 @choices "Activities"
@@ -181,13 +157,9 @@ Trees and street furniture break up the long view through {{place.name}}.
   @time 1m
 @endchoice
 
-@entry place.hub.parking-garage
-  @scene place.parking-garage
+:: place.parking-garage [place hub]
   @place-key parking_garage
   @hub place
-@endentry
-
-:: place.parking-garage [place hub]
 @kind place
 @heading "Parking Garage"
 @choices "Activities"
@@ -207,13 +179,9 @@ Engine noise reverberates through the concrete levels of {{place.name}}.
   @time 1m
 @endchoice
 
-@entry place.hub.gas-station
-  @scene place.gas-station
+:: place.gas-station [place hub]
   @place-key gas_station
   @hub place
-@endentry
-
-:: place.gas-station [place hub]
 @kind place
 @heading "Gas Station"
 @choices "Activities"
@@ -233,13 +201,9 @@ The small shop at {{place.name}} is bright beneath the forecourt lights.
   @time 1m
 @endchoice
 
-@entry place.hub.bank
-  @scene place.bank
+:: place.bank [place hub]
   @place-key bank
   @hub place
-@endentry
-
-:: place.bank [place hub]
 @kind place
 @heading "Bank"
 @choices "Activities"
@@ -259,13 +223,9 @@ Orderly queues form beneath the quiet lights of {{place.name}}.
   @time 1m
 @endchoice
 
-@entry place.hub.post-office
-  @scene place.post-office
+:: place.post-office [place hub]
   @place-key post_office
   @hub place
-@endentry
-
-:: place.post-office [place hub]
 @kind place
 @heading "Post Office"
 @choices "Activities"

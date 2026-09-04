@@ -10,12 +10,12 @@
   "surroundingPairs": [["\"", "\""], ["[", "]"], ["(", ")"], ["{{", "}}"]],
   "folding": {
     "markers": {
-      "start": "^\\s*@(chat|message|reminder|entry|location|sequence|choice|choicegroup|if|success|failure|response|random|onenter)\\b",
-      "end": "^\\s*@(endchat|endmessage|endreminder|endentry|endlocation|endsequence|endchoice|endchoicegroup|endif|endsuccess|endfailure|endresponse|endrandom|endonenter)\\b"
+      "start": "^\\s*@(chat|message|reminder|location|choice|choicegroup|if|success|failure|response|random|onenter)\\b",
+      "end": "^\\s*@(endchat|endmessage|endreminder|endlocation|endchoice|endchoicegroup|endif|endsuccess|endfailure|endresponse|endrandom|endonenter)\\b"
     }
   },
   "indentationRules": {
-    "increaseIndentPattern": "^\\s*@(chat|message|reminder|entry|location|sequence|choice|choicegroup|if|elseif|else|success|failure|response|random|or|onenter)\\b.*$",
-    "decreaseIndentPattern": "^\\s*@(endchat|endmessage|endreminder|endentry|endlocation|endsequence|endchoice|endchoicegroup|endif|endsuccess|endfailure|endresponse|endrandom|endonenter|elseif|else|or)\\b.*$"
+    "increaseIndentPattern": "^\\s*@(chat|message|reminder|location|choice|choicegroup|if|elseif|else|success|failure|response|random|or|onenter)\\b.*$",
+    "decreaseIndentPattern": "^\\s*@(endchat|endmessage|endreminder|endlocation|endchoice|endchoicegroup|endif|endsuccess|endfailure|endresponse|endrandom|endonenter|elseif|else|or)\\b.*$"
   }
 }

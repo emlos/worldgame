@@ -1,11 +1,7 @@
 
-@entry place.hub.player-home
-  @scene place.player-home
+:: place.player-home [place hub]
   @place-key player_home
   @hub place
-@endentry
-
-:: place.player-home [place hub]
 @kind place
 
 You are back in the privacy of your four walls.
@@ -43,8 +39,7 @@ You are back in the privacy of your four walls.
 @endchoice
 @endchoicegroup
 
-@sequence menu.player.home.rest -> @exit
-
+:: menu.player.home.rest -> @exit
   @passage rest-menu
   @choicegroup sleep-menu "Set your alarm to:"
 
@@ -109,5 +104,3 @@ Your alarm goes off.
 @endif
 
 @next -> @exit
-
-@endsequence

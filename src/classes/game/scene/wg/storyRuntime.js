@@ -25,69 +25,46 @@ export function getWGScene(sceneId) {
   return WG_BUNDLE.scenes[id] || null;
 }
 
-export function getWGSequence(sequenceId) {
-  const id = String(sequenceId);
-  return WG_BUNDLE.sequences?.[id] || null;
-}
-
 function activeStoryBody(game) {
   const frame = game.currentStory;
   if (!frame) return null;
-  if (frame.type === "scene") {
-    const definition = getWGScene(frame.id);
-    if (!definition) fail(`Unknown active WG scene '${String(frame.id)}'`);
-    return {
-      nodes: definition.body,
-      instanceKey: [
-        "scene",
-        definition.id,
-        game.storyRevision,
-        game.now.toISOString(),
-      ].join(":"),
-    };
+  const definition = getWGScene(frame.id);
+  if (!definition) fail(`Unknown active WG scene '${String(frame.id)}'`);
+  const passage = definition.passages?.find(
+    (candidate) => candidate.id === frame.passageId,
+  );
+  if (!passage) {
+    fail(`Unknown active passage '${String(frame.passageId)}' in '${frame.id}'`);
   }
-  if (frame.type === "sequence") {
-    const definition = getWGSequence(frame.id);
-    if (!definition) fail(`Unknown active WG sequence '${String(frame.id)}'`);
-    const passage = definition.passages?.find(
-      (candidate) => candidate.id === frame.passageId,
-    );
-    if (!passage) {
-      fail(`Unknown active passage '${String(frame.passageId)}' in '${frame.id}'`);
-    }
-    return {
-      nodes: passage.body,
-      instanceKey: [
-        "sequence",
-        definition.id,
-        passage.id,
-        game.storyRevision,
-        game.now.toISOString(),
-      ].join(":"),
-    };
-  }
-  fail(`Unknown active WG story type '${String(frame.type)}'`);
+  return {
+    nodes: passage.body,
+    instanceKey: [
+      "scene",
+      definition.id,
+      passage.id,
+      game.storyRevision,
+      game.now.toISOString(),
+    ].join(":"),
+  };
 }
 
 export function resolveActiveWGStory(game) {
   const frame = game.currentStory;
   if (!frame) return null;
-  if (frame.type === "sequence") {
-    const definition = getWGSequence(frame.id);
-    if (!definition) fail(`Unknown active WG sequence '${String(frame.id)}'`);
-    if (definition.system) {
-      if (!frame.system || frame.system.id !== definition.system.id) {
-        fail(`Active WG system state does not match sequence '${definition.id}'`);
-      }
-      if (!Object.prototype.hasOwnProperty.call(frame.system, "state")) {
-        frame.system.state = createWGSystemState(
-          game,
-          definition,
-          frame.system.instanceKey,
-        );
-      }
-      return frame.system;
+  const definition = getWGScene(frame.id);
+  if (!definition) fail(`Unknown active WG scene '${String(frame.id)}'`);
+  if (definition.system) {
+    if (!frame.system || frame.system.id !== definition.system.id) {
+      fail(`Active WG system state does not match scene '${definition.id}'`);
     }
+    if (!Object.prototype.hasOwnProperty.call(frame.system, "state")) {
+      frame.system.state = createWGSystemState(
+        game,
+        definition,
+        frame.system.instanceKey,
+      );
+    }
+    return frame.system;
   }
   if (frame.resolution) {
     if (frame.resolution.revision !== game.storyRevision) {
@@ -105,26 +82,20 @@ export function resolveActiveWGStory(game) {
   return resolution;
 }
 
-export function enterWGScene(game, sceneId, { runOnEnter = true } = {}) {
+export function enterWGScene(
+  game,
+  sceneId,
+  { passageId = null, runOnEnter = true } = {},
+) {
   const definition = getWGScene(sceneId);
   if (!definition) fail(`Unknown WG scene '${String(sceneId)}'`);
 
-  game.currentStory = { type: "scene", id: definition.id };
-  game.storyRevision += 1;
-  if (runOnEnter) applyWGEffects(game, definition.onEnter || []);
-}
-
-export function enterWGSequence(game, sequenceId, passageId = null, { runOnEnter = true } = {}) {
-  const definition = getWGSequence(sequenceId);
-  if (!definition) fail(`Unknown WG sequence '${String(sequenceId)}'`);
-
   if (definition.system) {
     if (passageId !== null) {
-      fail(`WG system sequence '${definition.id}' does not have passages`);
+      fail(`WG system scene '${definition.id}' does not have passages`);
     }
     const revision = game.storyRevision + 1;
     game.currentStory = {
-      type: "sequence",
       id: definition.id,
       system: {
         id: definition.system.id,
@@ -177,19 +148,17 @@ export function enterWGSequence(game, sequenceId, passageId = null, { runOnEnter
     };
   } else if (
     !runOnEnter &&
-    game.currentStory?.type === "sequence" &&
-    game.currentStory.id === definition.id &&
+    game.currentStory?.id === definition.id &&
     game.currentStory.schoolClass
   ) {
     schoolClass = { ...game.currentStory.schoolClass };
   }
 
   if (!definition.passages?.some((passage) => passage.id === resolvedPassageId)) {
-    fail(`Unknown passage '${String(resolvedPassageId)}' in WG sequence '${definition.id}'`);
+    fail(`Unknown passage '${String(resolvedPassageId)}' in WG scene '${definition.id}'`);
   }
 
   game.currentStory = {
-    type: "sequence",
     id: definition.id,
     passageId: resolvedPassageId,
     ...(schoolClass ? { schoolClass } : {}),
@@ -201,12 +170,12 @@ export function enterWGSequence(game, sequenceId, passageId = null, { runOnEnter
 export function suspendWGContinuation(
   game,
   outcome,
-  { poolId, entryId, choiceId, sourceStoryId = null } = {},
+  { poolId, eventSceneId, choiceId, sourceSceneId = null } = {},
 ) {
   const frame = game.currentStory;
-  const resolvedSourceStoryId = frame?.id ?? sourceStoryId;
-  if (!resolvedSourceStoryId) {
-    fail("WG event pools require an active or materialized source story");
+  const resolvedSourceSceneId = frame?.id ?? sourceSceneId;
+  if (!resolvedSourceSceneId) {
+    fail("WG event pools require an active or materialized source scene");
   }
   const target = outcome?.target;
   if (typeof target !== "string" || !target) {
@@ -215,13 +184,12 @@ export function suspendWGContinuation(
 
   game.storyContinuations.push({
     target,
-    sequenceId: outcome.sequenceId || null,
+    sceneId: outcome.sceneId || null,
     schoolClass: frame?.schoolClass ? { ...frame.schoolClass } : null,
     poolId: String(poolId),
-    entryId: String(entryId),
-    sourceStoryId: String(resolvedSourceStoryId),
-    sourcePassageId:
-      frame?.type === "sequence" ? String(frame.passageId) : null,
+    eventSceneId: String(eventSceneId),
+    sourceSceneId: String(resolvedSourceSceneId),
+    sourcePassageId: frame?.passageId ? String(frame.passageId) : null,
     sourceChoiceId: String(choiceId),
   });
 }
@@ -231,21 +199,18 @@ export function returnWGStory(game) {
   if (!continuation) fail("@return requires an active WG event continuation");
 
   if (continuation.target.startsWith(".")) {
-    if (!continuation.sequenceId) {
-      fail("Local WG event continuation has no owning sequence");
+    if (!continuation.sceneId) {
+      fail("Local WG event continuation has no owning scene");
     }
     game.currentStory = {
-      type: "sequence",
-      id: continuation.sequenceId,
+      id: continuation.sceneId,
       passageId: continuation.sourcePassageId,
       ...(continuation.schoolClass
         ? { schoolClass: { ...continuation.schoolClass } }
         : {}),
     };
   }
-  enterWGTarget(game, continuation.target, {
-    sequenceId: continuation.sequenceId,
-  });
+  enterWGTarget(game, continuation.target, { sceneId: continuation.sceneId });
 }
 
 export function exitWGStory(game) {
@@ -257,7 +222,7 @@ export function exitWGStory(game) {
 export function enterWGTarget(
   game,
   target,
-  { sequenceId = null, runOnEnter = true } = {},
+  { sceneId = null, runOnEnter = true } = {},
 ) {
   if (target === "@return") {
     returnWGStory(game);
@@ -267,18 +232,16 @@ export function enterWGTarget(
     exitWGStory(game);
     return;
   }
-  if (typeof target !== "string" || !target) fail("WG story targets must be non-empty strings");
+  if (typeof target !== "string" || !target) {
+    fail("WG story targets must be non-empty strings");
+  }
   if (target.startsWith(".")) {
-    if (!sequenceId) fail(`Local passage target '${target}' has no owning sequence`);
-    enterWGSequence(game, sequenceId, target.slice(1), { runOnEnter: false });
+    if (!sceneId) fail(`Local passage target '${target}' has no owning scene`);
+    enterWGScene(game, sceneId, { passageId: target.slice(1), runOnEnter: false });
     return;
   }
   if (getWGScene(target)) {
     enterWGScene(game, target, { runOnEnter });
-    return;
-  }
-  if (getWGSequence(target)) {
-    enterWGSequence(game, target, null, { runOnEnter });
     return;
   }
   fail(`Unknown WG story target '${target}'`);
@@ -290,16 +253,16 @@ export function followWGChoice(game, choice) {
 
 export function followWGOutcome(game, outcome) {
   applyWGEffects(game, outcome.effects || []);
-  enterWGTarget(game, outcome.target, { sequenceId: outcome.sequenceId || null });
+  enterWGTarget(game, outcome.target, { sceneId: outcome.sceneId || null });
 }
 
-export function advanceWGSequence(game, action) {
+export function advanceWGScene(game, action) {
   const frame = game.currentStory;
-  if (frame?.type !== "sequence" || frame.id !== action.sequenceId) {
-    fail("WG sequence navigation no longer matches the active sequence");
+  if (frame?.id !== action.sceneId) {
+    fail("WG scene navigation no longer matches the active scene");
   }
   enterWGTarget(game, action.target, {
-    sequenceId: action.sequenceId,
+    sceneId: action.sceneId,
     runOnEnter: false,
   });
 }

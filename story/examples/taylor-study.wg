@@ -1,7 +1,6 @@
 @# Small end-to-end runtime example for the WG compiler and materializer.
 
-@entry home.taylor-study
-  @scene taylor.study.peek
+:: taylor.study.peek [event taylor study]
   @place-key player_home
   @offer place
   @label "Study with Taylor"
@@ -9,9 +8,6 @@
   @hub-text "Taylor is sitting at the table with a textbook and a loose stack of notes."
   @when npc.taylor.present
   @when npc.taylor.available
-@endentry
-
-:: taylor.study.peek [event taylor study]
 @heading "Studying with Taylor"
 @choices "What do you do?"
 

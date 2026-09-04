@@ -85,7 +85,7 @@ export class Game {
     this.interruptState = {
       active: null,
       pending: null,
-      latchedEntryIds: [],
+      latchedSceneIds: [],
     };
 
     // --- npcs ---
@@ -1007,7 +1007,7 @@ export class Game {
   // --------------------------
   toJSON() {
     return {
-      saveVersion: 30,
+      saveVersion: 31,
       seed: this.seed,
       random: this.random.toJSON(),
       time: this.now.toISOString(),

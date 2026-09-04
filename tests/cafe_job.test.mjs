@@ -6,7 +6,7 @@ import { performChoice } from "../src/classes/game/scene/choiceEngine.js";
 import { buildScene } from "../src/classes/game/scene/sceneEngine.js";
 import { WG_BUNDLE } from "../src/generated/wg/scenes.js";
 
-const CAFE_SHIFT_ENTRY_IDS = [
+const CAFE_SHIFT_SCENE_IDS = [
   "cafe.job.shift.cleanup",
   "cafe.job.shift.mistake",
   "cafe.job.shift.routine",
@@ -51,7 +51,7 @@ function choose(game, id) {
   performChoice(game, { sceneId: scene.id, choiceId: id });
 }
 
-function continueSequence(game) {
+function continueScene(game) {
   const scene = buildScene(game);
   const available = scene.sections.flatMap((section) => section.choices);
   assert.equal(available.length, 1, "expected one continuation choice");
@@ -72,7 +72,7 @@ test("the cafe offers unemployed players a job they can decline", () => {
   assert.equal(game.flags.has("cafe_employee"), false);
   assert.equal(game.reminders.has("cafe_job"), false);
 
-  continueSequence(game);
+  continueScene(game);
   assert.ok(choice(game, "ask-for-work"), "declining should leave the offer open");
 });
 
@@ -85,7 +85,7 @@ test("accepting the cafe job adds its reminder and enables paid one-hour shifts"
   assert.equal(game.flags.has("cafe_employee"), true);
   assert.equal(game.reminders.has("cafe_job"), true);
 
-  continueSequence(game);
+  continueScene(game);
   assert.equal(choice(game, "ask-for-work"), null);
   assert.ok(choice(game, "work-shift"));
 
@@ -111,7 +111,7 @@ test("accepting the cafe job adds its reminder and enables paid one-hour shifts"
 
   assert.equal(game.now.getTime() - before, 60 * 60_000);
   assert.equal(game.player.money, 7);
-  assert.ok(CAFE_SHIFT_ENTRY_IDS.includes(game.currentStory?.id));
+  assert.ok(CAFE_SHIFT_SCENE_IDS.includes(game.currentStory?.id));
   assert.equal(game.storyContinuations.length, 1);
 
   const restored = Game.fromJSON(JSON.parse(JSON.stringify(game.toJSON())));
@@ -123,13 +123,13 @@ test("accepting the cafe job adds its reminder and enables paid one-hour shifts"
 });
 
 test("cafe shifts have four equally weighted events", () => {
-  const poolEntries = Object.values(WG_BUNDLE.entries)
-    .filter((entry) => entry.pools?.includes("cafe.job.shift"))
+  const poolScenes = Object.values(WG_BUNDLE.scenes)
+    .filter((scene) => scene.pools?.includes("cafe.job.shift"))
     .sort((left, right) => left.id.localeCompare(right.id));
 
-  assert.deepEqual(poolEntries.map((entry) => entry.id), CAFE_SHIFT_ENTRY_IDS);
-  assert.ok(poolEntries.every((entry) => (entry.weight ?? 1) === 1));
-  assert.ok(poolEntries.every((entry) => entry.placeKeys.includes("cafe")));
+  assert.deepEqual(poolScenes.map((scene) => scene.id), CAFE_SHIFT_SCENE_IDS);
+  assert.ok(poolScenes.every((scene) => (scene.weight ?? 1) === 1));
+  assert.ok(poolScenes.every((scene) => scene.placeKeys.includes("cafe")));
 });
 
 test("cafe shifts can start from 07:00 through exactly 21:00", () => {

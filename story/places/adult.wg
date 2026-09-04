@@ -1,12 +1,8 @@
 @# Basic authored hubs for age-restricted places.
 
-@entry place.hub.brothel
-  @scene place.brothel
+:: place.brothel [place hub]
   @place-key brothel
   @hub place
-@endentry
-
-:: place.brothel [place hub]
 @kind place
 @heading "Brothel"
 @choices "Activities"
@@ -26,13 +22,9 @@ The reception area of {{place.name}} is discreetly furnished.
   @time 1m
 @endchoice
 
-@entry place.hub.strip-club
-  @scene place.strip-club
+:: place.strip-club [place hub]
   @place-key strip_club
   @hub place
-@endentry
-
-:: place.strip-club [place hub]
 @kind place
 @heading "Strip Club"
 @choices "Activities"
@@ -52,13 +44,9 @@ Music and low lighting shape the atmosphere inside {{place.name}}.
   @time 1m
 @endchoice
 
-@entry place.hub.adult-store
-  @scene place.adult-store
+:: place.adult-store [place hub]
   @place-key adult_store
   @hub place
-@endentry
-
-:: place.adult-store [place hub]
 @kind place
 @heading "Adult Store"
 @choices "Activities"
@@ -78,13 +66,9 @@ Products are arranged by section throughout {{place.name}}.
   @time 1m
 @endchoice
 
-@entry place.hub.love-hotel
-  @scene place.love-hotel
+:: place.love-hotel [place hub]
   @place-key love_hotel
   @hub place
-@endentry
-
-:: place.love-hotel [place hub]
 @kind place
 @heading "Love Hotel"
 @choices "Activities"
@@ -104,13 +88,9 @@ The reception desk at {{place.name}} promises privacy and short stays.
   @time 1m
 @endchoice
 
-@entry place.hub.dungeon-club
-  @scene place.dungeon-club
+:: place.dungeon-club [place hub]
   @place-key dungeon_club
   @hub place
-@endentry
-
-:: place.dungeon-club [place hub]
 @kind place
 @heading "Fetish Club"
 @choices "Activities"
@@ -130,13 +110,9 @@ Rules and event notices are prominently displayed inside {{place.name}}.
   @time 1m
 @endchoice
 
-@entry place.hub.massage-parlor
-  @scene place.massage-parlor
+:: place.massage-parlor [place hub]
   @place-key massage_parlor
   @hub place
-@endentry
-
-:: place.massage-parlor [place hub]
 @kind place
 @heading "Massage Parlor"
 @choices "Activities"
@@ -156,13 +132,9 @@ Soft music reaches the reception area of {{place.name}}.
   @time 1m
 @endchoice
 
-@entry place.hub.escort-agency
-  @scene place.escort-agency
+:: place.escort-agency [place hub]
   @place-key escort_agency
   @hub place
-@endentry
-
-:: place.escort-agency [place hub]
 @kind place
 @heading "Escort Agency"
 @choices "Activities"
@@ -182,13 +154,9 @@ The office at {{place.name}} is polished and deliberately discreet.
   @time 1m
 @endchoice
 
-@entry place.hub.bathhouse
-  @scene place.bathhouse
+:: place.bathhouse [place hub]
   @place-key bathhouse
   @hub place
-@endentry
-
-:: place.bathhouse [place hub]
 @kind place
 @heading "Bathhouse"
 @choices "Activities"
@@ -208,13 +176,9 @@ Warm air and tiled corridors extend beyond the entrance of {{place.name}}.
   @time 1m
 @endchoice
 
-@entry place.hub.nude-beach
-  @scene place.nude-beach
+:: place.nude-beach [place hub]
   @place-key nude_beach
   @hub place
-@endentry
-
-:: place.nude-beach [place hub]
 @kind place
 @heading "Secluded Beach"
 @choices "Activities"
@@ -234,13 +198,9 @@ The sheltered shoreline of {{place.name}} is quiet and exposed to the weather.
   @time 1m
 @endchoice
 
-@entry place.hub.glory-hole
-  @scene place.glory-hole
+:: place.glory-hole [place hub]
   @place-key glory_hole
   @hub place
-@endentry
-
-:: place.glory-hole [place hub]
 @kind place
 @heading "Public Restroom"
 @choices "Activities"

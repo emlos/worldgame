@@ -1,12 +1,8 @@
 @# Basic authored hubs for recreation, culture, and community places.
 
-@entry place.hub.park
-  @scene place.park
+:: place.park [place hub]
   @place-key park
   @hub place
-@endentry
-
-:: place.park [place hub]
 @kind place
 @heading "Park"
 @choices "Activities"
@@ -26,13 +22,9 @@ Paths wind between the green spaces of {{place.name}}.
   @time 1m
 @endchoice
 
-@entry place.hub.stadium
-  @scene place.stadium
+:: place.stadium [place hub]
   @place-key stadium
   @hub place
-@endentry
-
-:: place.stadium [place hub]
 @kind place
 @heading "Stadium"
 @choices "Activities"
@@ -52,13 +44,9 @@ The stands and entrances of {{place.name}} stretch out around you.
   @time 1m
 @endchoice
 
-@entry place.hub.theater
-  @scene place.theater
+:: place.theater [place hub]
   @place-key theater
   @hub place
-@endentry
-
-:: place.theater [place hub]
 @kind place
 @heading "Theater"
 @choices "Activities"
@@ -78,13 +66,9 @@ Posters advertise the current productions at {{place.name}}.
   @time 1m
 @endchoice
 
-@entry place.hub.cinema
-  @scene place.cinema
+:: place.cinema [place hub]
   @place-key cinema
   @hub place
-@endentry
-
-:: place.cinema [place hub]
 @kind place
 @heading "Cinema"
 @choices "Activities"
@@ -104,13 +88,9 @@ The smell of popcorn hangs in the foyer of {{place.name}}.
   @time 1m
 @endchoice
 
-@entry place.hub.museum
-  @scene place.museum
+:: place.museum [place hub]
   @place-key museum
   @hub place
-@endentry
-
-:: place.museum [place hub]
 @kind place
 @heading "Museum"
 @choices "Activities"
@@ -130,13 +110,9 @@ Quiet galleries branch away from the entrance of {{place.name}}.
   @time 1m
 @endchoice
 
-@entry place.hub.art-gallery
-  @scene place.art-gallery
+:: place.art-gallery [place hub]
   @place-key art_gallery
   @hub place
-@endentry
-
-:: place.art-gallery [place hub]
 @kind place
 @heading "Art Gallery"
 @choices "Activities"
@@ -156,13 +132,9 @@ Carefully lit works cover the walls of {{place.name}}.
   @time 1m
 @endchoice
 
-@entry place.hub.library
-  @scene place.library
+:: place.library [place hub]
   @place-key library
   @hub place
-@endentry
-
-:: place.library [place hub]
 @kind place
 @heading "Library"
 @choices "Activities"
@@ -182,13 +154,9 @@ Rows of shelves make {{place.name}} feel calm and secluded.
   @time 1m
 @endchoice
 
-@entry place.hub.club
-  @scene place.club
+:: place.club [place hub]
   @place-key club
   @hub place
-@endentry
-
-:: place.club [place hub]
 @kind place
 @heading "Club"
 @choices "Activities"
@@ -208,13 +176,9 @@ Music and conversation fill {{place.name}}.
   @time 1m
 @endchoice
 
-@entry place.hub.art-center
-  @scene place.art-center
+:: place.art-center [place hub]
   @place-key art_center
   @hub place
-@endentry
-
-:: place.art-center [place hub]
 @kind place
 @heading "Art Center"
 @choices "Activities"
@@ -234,13 +198,9 @@ Workshops and noticeboards crowd the rooms of {{place.name}}.
   @time 1m
 @endchoice
 
-@entry place.hub.community-center
-  @scene place.community-center
+:: place.community-center [place hub]
   @place-key community_center
   @hub place
-@endentry
-
-:: place.community-center [place hub]
 @kind place
 @heading "Community Center"
 @choices "Activities"

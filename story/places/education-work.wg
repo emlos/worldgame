@@ -1,12 +1,8 @@
 @# Basic authored hubs for schools, workplaces, and emergency services.
 
-@entry place.hub.primary-school
-  @scene place.primary-school
+:: place.primary-school [place hub]
   @place-key primary_school
   @hub place
-@endentry
-
-:: place.primary-school [place hub]
 @kind place
 @heading "Primary School"
 @choices "Activities"
@@ -26,13 +22,9 @@ Children's work and school notices decorate {{place.name}}.
   @time 1m
 @endchoice
 
-@entry place.hub.middle-school
-  @scene place.middle-school
+:: place.middle-school [place hub]
   @place-key middle_school
   @hub place
-@endentry
-
-:: place.middle-school [place hub]
 @kind place
 @heading "Middle School"
 @choices "Activities"
@@ -55,13 +47,9 @@ Class schedules and club posters cover the walls of {{place.name}}.
 
 
 @#---------------------------------------------------------------------
-@entry place.hub.university
-  @scene place.university
+:: place.university [place hub]
   @place-key university
   @hub place
-@endentry
-
-:: place.university [place hub]
 @kind place
 @heading "University"
 @choices "Activities"
@@ -81,13 +69,9 @@ Lecture rooms and departmental corridors branch through {{place.name}}.
   @time 1m
 @endchoice
 
-@entry place.hub.office-block
-  @scene place.office-block
+:: place.office-block [place hub]
   @place-key office_block
   @hub place
-@endentry
-
-:: place.office-block [place hub]
 @kind place
 @heading "Office Block"
 @choices "Activities"
@@ -107,13 +91,9 @@ Company directories stand beside the lifts in {{place.name}}.
   @time 1m
 @endchoice
 
-@entry place.hub.mechanic
-  @scene place.mechanic
+:: place.mechanic [place hub]
   @place-key mechanic
   @hub place
-@endentry
-
-:: place.mechanic [place hub]
 @kind place
 @heading "Mechanic"
 @choices "Activities"
@@ -133,13 +113,9 @@ Tools and vehicle parts crowd the workshop at {{place.name}}.
   @time 1m
 @endchoice
 
-@entry place.hub.police-station
-  @scene place.police-station
+:: place.police-station [place hub]
   @place-key police_station
   @hub place
-@endentry
-
-:: place.police-station [place hub]
 @kind place
 @heading "Police Station"
 @choices "Activities"
@@ -159,13 +135,9 @@ Officers and visitors cross the public lobby of {{place.name}}.
   @time 1m
 @endchoice
 
-@entry place.hub.fire-station
-  @scene place.fire-station
+:: place.fire-station [place hub]
   @place-key fire_station
   @hub place
-@endentry
-
-:: place.fire-station [place hub]
 @kind place
 @heading "Fire Department"
 @choices "Activities"
@@ -185,13 +157,9 @@ The vehicle bays dominate the front of {{place.name}}.
   @time 1m
 @endchoice
 
-@entry place.hub.warehouse
-  @scene place.warehouse
+:: place.warehouse [place hub]
   @place-key warehouse
   @hub place
-@endentry
-
-:: place.warehouse [place hub]
 @kind place
 @heading "Warehouse"
 @choices "Activities"
@@ -211,13 +179,9 @@ Crates and loading equipment fill {{place.name}}.
   @time 1m
 @endchoice
 
-@entry place.hub.logistics-depot
-  @scene place.logistics-depot
+:: place.logistics-depot [place hub]
   @place-key logistics_depot
   @hub place
-@endentry
-
-:: place.logistics-depot [place hub]
 @kind place
 @heading "Logistics Depot"
 @choices "Activities"

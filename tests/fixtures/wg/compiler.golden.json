@@ -1,184 +1,11 @@
 {
-  "formatVersion": 25,
+  "formatVersion": 26,
   "scenes": {
-    "fixture.scene": {
-      "id": "fixture.scene",
-      "kind": "event",
-      "heading": "Compiler fixture",
-      "choiceHeading": "What next?",
-      "tags": [
-        "fixture",
-        "event"
-      ],
-      "onEnter": [
-        {
-          "op": "flag",
-          "flag": "compiler_fixture_started",
-          "value": true
-        }
-      ],
-      "body": [
-        {
-          "type": "paragraph",
-          "parts": [
-            {
-              "type": "text",
-              "value": "Hello, "
-            },
-            {
-              "type": "interpolation",
-              "path": [
-                "player",
-                "name"
-              ],
-              "filters": []
-            },
-            {
-              "type": "text",
-              "value": "."
-            }
-          ]
-        },
-        {
-          "type": "if",
-          "branches": [
-            {
-              "test": {
-                "type": "path",
-                "value": [
-                  "flags",
-                  "compiler_fixture_alt"
-                ]
-              },
-              "nodes": [
-                {
-                  "type": "paragraph",
-                  "parts": [
-                    {
-                      "type": "text",
-                      "value": "The alternate branch is active."
-                    }
-                  ]
-                }
-              ]
-            }
-          ],
-          "elseNodes": [
-            {
-              "type": "paragraph",
-              "parts": [
-                {
-                  "type": "text",
-                  "value": "The default branch is active."
-                }
-              ]
-            }
-          ],
-          "runtimeId": 0
-        },
-        {
-          "type": "choice",
-          "id": "proceed",
-          "label": [
-            {
-              "type": "text",
-              "value": "Proceed"
-            }
-          ],
-          "target": "fixture.sequence",
-          "icon": "➡️",
-          "durationMinutes": 15,
-          "durationRangeMinutes": null,
-          "timeUntilPath": null,
-          "energyFree": false,
-          "resting": false,
-          "when": {
-            "type": "binary",
-            "operator": ">=",
-            "left": {
-              "type": "path",
-              "value": [
-                "player",
-                "energy"
-              ]
-            },
-            "right": {
-              "type": "literal",
-              "value": 5
-            }
-          },
-          "requirements": [
-            {
-              "test": {
-                "type": "binary",
-                "operator": ">=",
-                "left": {
-                  "type": "path",
-                  "value": [
-                    "player",
-                    "money"
-                  ]
-                },
-                "right": {
-                  "type": "literal",
-                  "value": 2
-                }
-              },
-              "reason": "You need more money."
-            }
-          ],
-          "warning": null,
-          "previews": [
-            {
-              "type": "energy",
-              "amount": -2,
-              "label": "-Energy"
-            }
-          ],
-          "effects": [
-            {
-              "op": "stat",
-              "id": "energy",
-              "amount": -2
-            },
-            {
-              "op": "reminder",
-              "action": "add",
-              "id": "compiler_notice"
-            }
-          ]
-        },
-        {
-          "type": "choice",
-          "id": "leave",
-          "label": [
-            {
-              "type": "text",
-              "value": "Leave"
-            }
-          ],
-          "target": "@exit",
-          "icon": null,
-          "durationMinutes": 0,
-          "durationRangeMinutes": null,
-          "timeUntilPath": null,
-          "energyFree": false,
-          "resting": false,
-          "when": null,
-          "requirements": [],
-          "warning": null,
-          "previews": [],
-          "effects": []
-        }
-      ]
-    }
-  },
-  "sequences": {
-    "fixture.sequence": {
-      "id": "fixture.sequence",
+    "fixture.followup": {
+      "id": "fixture.followup",
       "finalTarget": "@exit",
       "kind": "event",
-      "heading": "Fixture sequence",
+      "heading": "Fixture follow-up",
       "choiceHeading": "Choices",
       "schoolClass": null,
       "system": null,
@@ -230,13 +57,198 @@
             "target": "@exit"
           }
         }
-      ]
-    }
-  },
-  "entries": {
-    "fixture.offer": {
-      "id": "fixture.offer",
-      "sceneId": "fixture.scene",
+      ],
+      "placeKeys": [],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [],
+      "conditions": [],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "tags": []
+    },
+    "fixture.scene": {
+      "id": "fixture.scene",
+      "finalTarget": null,
+      "kind": "event",
+      "heading": "Compiler fixture",
+      "choiceHeading": "What next?",
+      "schoolClass": null,
+      "system": null,
+      "onEnter": [
+        {
+          "op": "flag",
+          "flag": "compiler_fixture_started",
+          "value": true
+        }
+      ],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Hello, "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "player",
+                    "name"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": "."
+                }
+              ]
+            },
+            {
+              "type": "if",
+              "branches": [
+                {
+                  "test": {
+                    "type": "path",
+                    "value": [
+                      "flags",
+                      "compiler_fixture_alt"
+                    ]
+                  },
+                  "nodes": [
+                    {
+                      "type": "paragraph",
+                      "parts": [
+                        {
+                          "type": "text",
+                          "value": "The alternate branch is active."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "elseNodes": [
+                {
+                  "type": "paragraph",
+                  "parts": [
+                    {
+                      "type": "text",
+                      "value": "The default branch is active."
+                    }
+                  ]
+                }
+              ],
+              "runtimeId": 0
+            },
+            {
+              "type": "choice",
+              "id": "proceed",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Proceed"
+                }
+              ],
+              "target": "fixture.followup",
+              "icon": "➡️",
+              "durationMinutes": 15,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": {
+                "type": "binary",
+                "operator": ">=",
+                "left": {
+                  "type": "path",
+                  "value": [
+                    "player",
+                    "energy"
+                  ]
+                },
+                "right": {
+                  "type": "literal",
+                  "value": 5
+                }
+              },
+              "requirements": [
+                {
+                  "test": {
+                    "type": "binary",
+                    "operator": ">=",
+                    "left": {
+                      "type": "path",
+                      "value": [
+                        "player",
+                        "money"
+                      ]
+                    },
+                    "right": {
+                      "type": "literal",
+                      "value": 2
+                    }
+                  },
+                  "reason": "You need more money."
+                }
+              ],
+              "warning": null,
+              "previews": [
+                {
+                  "type": "energy",
+                  "amount": -2,
+                  "label": "-Energy"
+                }
+              ],
+              "effects": [
+                {
+                  "op": "stat",
+                  "id": "energy",
+                  "amount": -2
+                },
+                {
+                  "op": "reminder",
+                  "action": "add",
+                  "id": "compiler_notice"
+                }
+              ]
+            },
+            {
+              "type": "choice",
+              "id": "leave",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Leave"
+                }
+              ],
+              "target": "@exit",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "previews": [],
+              "effects": []
+            }
+          ],
+          "next": null
+        }
+      ],
       "placeKeys": [
         "cafe"
       ],
@@ -270,7 +282,11 @@
       "hubText": "A compiler fixture is ready.",
       "priority": 0,
       "chance": 1,
-      "weight": 1
+      "weight": 1,
+      "tags": [
+        "fixture",
+        "event"
+      ]
     }
   },
   "locationContributions": {},

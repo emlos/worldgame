@@ -1,13 +1,9 @@
 @# Authored hubs for dynamically placed NPC residences. Homes start locked;
 @# reveal them with @unlock place home_<npc-id>.
 
-@entry place.hub.home-taylor
-  @scene place.home-taylor
+:: place.home-taylor [place hub]
   @place-key home_taylor
   @hub place
-@endentry
-
-:: place.home-taylor [place hub]
 @kind place
 @heading "Taylor's home"
 @choices "Activities"
@@ -27,13 +23,9 @@ You are inside {{place.name}}.
   @time 1m
 @endchoice
 
-@entry place.hub.home-shade
-  @scene place.home-shade
+:: place.home-shade [place hub]
   @place-key home_shade
   @hub place
-@endentry
-
-:: place.home-shade [place hub]
 @kind place
 @heading "Shade's home"
 @choices "Activities"
@@ -53,13 +45,9 @@ You are inside {{place.name}}.
   @time 1m
 @endchoice
 
-@entry place.hub.home-officer-vega
-  @scene place.home-officer-vega
+:: place.home-officer-vega [place hub]
   @place-key home_officer_vega
   @hub place
-@endentry
-
-:: place.home-officer-vega [place hub]
 @kind place
 @heading "Vega's home"
 @choices "Activities"
@@ -79,13 +67,9 @@ You are inside {{place.name}}.
   @time 1m
 @endchoice
 
-@entry place.hub.home-caro
-  @scene place.home-caro
+:: place.home-caro [place hub]
   @place-key home_caro
   @hub place
-@endentry
-
-:: place.home-caro [place hub]
 @kind place
 @heading "Caro's home"
 @choices "Activities"
@@ -105,13 +89,9 @@ You are inside {{place.name}}.
   @time 1m
 @endchoice
 
-@entry place.hub.home-mike
-  @scene place.home-mike
+:: place.home-mike [place hub]
   @place-key home_mike
   @hub place
-@endentry
-
-:: place.home-mike [place hub]
 @kind place
 @heading "Mike's room"
 @choices "Activities"
@@ -131,13 +111,9 @@ You are inside {{place.name}}.
   @time 1m
 @endchoice
 
-@entry place.hub.home-vinny
-  @scene place.home-vinny
+:: place.home-vinny [place hub]
   @place-key home_vinny
   @hub place
-@endentry
-
-:: place.home-vinny [place hub]
 @kind place
 @heading "Vinny's home"
 @choices "Activities"

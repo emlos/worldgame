@@ -1,4 +1,4 @@
-@sequence cafe.job.application -> place.cafe
+:: cafe.job.application -> place.cafe
   @choices "The manager waits for your answer"
 
   @passage offer
@@ -26,9 +26,11 @@
   You thank the manager, but tell them you cannot commit to the job. They shrug and say the offer will remain open for now.
 
   @next -> place.cafe
-@endsequence
-
-@sequence cafe.job.shift.cleanup -> @return
+:: cafe.job.shift.cleanup -> @return
+  @pool cafe.job.shift
+  @place-key cafe
+  @priority 0
+  @weight 1
   @choices "What do you do?"
 
   @passage opening
@@ -52,9 +54,11 @@
   You wipe up the visible spill and hurry back to the counter. A tacky patch remains under the table, and you spend the rest of the shift hoping nobody notices. @change stat stress 2 @change stat hygiene -1
 
   @next -> @return
-@endsequence
-
-@sequence cafe.job.shift.mistake -> @return
+:: cafe.job.shift.mistake -> @return
+  @pool cafe.job.shift
+  @place-key cafe
+  @priority 0
+  @weight 1
   @choices "What do you do?"
 
   @passage opening
@@ -91,50 +95,21 @@
   You remake the drinks and swap them before the manager notices. The customers are satisfied, but hiding the mistake keeps you tense until the shift ends. @change stat stress 2
 
   @next -> @return
-@endsequence
-
-@entry cafe.job.shift.routine
-  @scene cafe.job.shift.routine
+:: cafe.job.shift.routine -> @return
   @pool cafe.job.shift
   @place-key cafe
   @priority 0
   @weight 1
-@endentry
-
-@entry cafe.job.shift.rowdy-customer
-  @scene cafe.job.shift.rowdy-customer
-  @pool cafe.job.shift
-  @place-key cafe
-  @priority 0
-  @weight 1
-@endentry
-
-@entry cafe.job.shift.cleanup
-  @scene cafe.job.shift.cleanup
-  @pool cafe.job.shift
-  @place-key cafe
-  @priority 0
-  @weight 1
-@endentry
-
-@entry cafe.job.shift.mistake
-  @scene cafe.job.shift.mistake
-  @pool cafe.job.shift
-  @place-key cafe
-  @priority 0
-  @weight 1
-@endentry
-
-@sequence cafe.job.shift.routine -> @return
-
   @passage opening
 
   The hour passes without incident. You take orders, wipe tables, and keep the counter stocked until the manager tells you that you are done.
 
   @next -> @return
-@endsequence
-
-@sequence cafe.job.shift.rowdy-customer -> @return
+:: cafe.job.shift.rowdy-customer -> @return
+  @pool cafe.job.shift
+  @place-key cafe
+  @priority 0
+  @weight 1
   @choices "How do you handle them?"
 
   @passage opening
@@ -171,4 +146,3 @@
   You fetch the manager before the argument can get worse. They handle the complaint, though the confrontation leaves you on edge for the rest of the hour. @change stat stress 1
 
   @next -> @return
-@endsequence
