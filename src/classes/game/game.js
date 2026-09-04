@@ -25,6 +25,14 @@ import { buildGpsRoute, resolveNavigationDestination } from "./navigation.js";
 import { authoredReminderId, getAuthoredReminder } from "./reminders.js";
 import { createChatState, nextChatDeadline, deliverDueChats } from "./chats.js";
 import {
+  nextActiveTimerDeadline,
+  processDueTimers,
+  resyncTimers,
+  restartTimer as restartGameTimer,
+  startTimer as startGameTimer,
+  stopTimer as stopGameTimer,
+} from "./timers.js";
+import {
   announcementDayKey,
   collectDailyAnnouncements,
   emptyDailyAnnouncements,
@@ -60,6 +68,7 @@ export class Game {
     this.startedAt = this.now.toISOString();
     this.reminders = new Set();
     this.chats = createChatState();
+    this.timers = {};
 
     // --- player ---
     this.player = new Player(playerOptions);
@@ -233,23 +242,39 @@ export class Game {
   }
 
   _changeTimeTo(target, options) {
-    // Delivery boundaries must observe their own world state, even during a long rest.
+    // Scheduled boundaries must observe their own world state, even during a long rest.
     // Resync/debug jumps remain observational and do not manufacture skipped events.
-    if (options.mode !== "simulate" || target <= this.now || nextChatDeadline(this) > target.getTime()) {
+    const firstDeadline = Math.min(
+      nextChatDeadline(this),
+      nextActiveTimerDeadline(this),
+    );
+    if (
+      options.mode !== "simulate" ||
+      target <= this.now ||
+      firstDeadline > target.getTime()
+    ) {
       return this._changeTimeStep(target, options);
     }
     const snapshot = this._captureTimeRuntimeState();
     const from = new Date(this.now);
     let ejectedFrom = null;
     try {
-      let deliveries = 0;
-      while (nextChatDeadline(this) <= target.getTime()) {
-        if (++deliveries > 10000) throw new Error("Chat delivery limit exceeded during one time advance");
-        const deadline = new Date(Math.max(this.now.getTime(), nextChatDeadline(this)));
+      let boundaries = 0;
+      while (true) {
+        const deadlineMs = Math.min(
+          nextChatDeadline(this),
+          nextActiveTimerDeadline(this),
+        );
+        if (deadlineMs > target.getTime()) break;
+        if (++boundaries > 10000) {
+          throw new Error("Scheduled event limit exceeded during one time advance");
+        }
+        const deadline = new Date(Math.max(this.now.getTime(), deadlineMs));
         if (deadline > this.now) {
           const change = this._changeTimeStep(deadline, options);
           ejectedFrom ||= change.ejectedFrom;
         }
+        processDueTimers(this);
         deliverDueChats(this);
       }
       if (target > this.now) {
@@ -296,6 +321,7 @@ export class Game {
         for (const npc of this.npcs.values()) {
           npc.brain?.resyncAt(this.now, this);
         }
+        if (to > from) resyncTimers(this, to);
       }
 
       this._applyElapsedPlayerChanges(minutes, {
@@ -393,6 +419,7 @@ export class Game {
       flags: [...this.flags],
       story: JSON.parse(JSON.stringify(this.story)),
       chats: JSON.parse(JSON.stringify(this.chats)),
+      timers: JSON.parse(JSON.stringify(this.timers)),
       unlockedPlaces: [...this.world.locations.values()].flatMap((location) => location.places.map((place) => ({ place, unlocked: place.unlocked }))),
       date: new Date(this.now.getTime()),
       random: this.random.toJSON(),
@@ -424,6 +451,7 @@ export class Game {
     this.flags = new Set(snapshot.flags);
     this.story = snapshot.story;
     this.chats = snapshot.chats;
+    this.timers = snapshot.timers;
     for (const { place, unlocked } of snapshot.unlockedPlaces) place._unlocked = unlocked;
     this.world.setDate(snapshot.date);
     this.random.restoreJSON(snapshot.random);
@@ -615,6 +643,21 @@ export class Game {
     this.reminders.delete(id);
     const itemId = authoredReminderId(id);
     this.dailyAnnouncements.items = this.dailyAnnouncements.items.filter((item) => item.id !== itemId);
+  }
+
+  /** Start a named timer without moving an existing deadline. */
+  startTimer(id) {
+    return startGameTimer(this, id);
+  }
+
+  /** Replace a named timer with a fresh schedule from the current world time. */
+  restartTimer(id) {
+    return restartGameTimer(this, id);
+  }
+
+  /** Stop a named timer. Unknown timer definitions are programmer errors. */
+  stopTimer(id) {
+    return stopGameTimer(this, id);
   }
 
   /** Dismiss the visible batch without changing its source reminders. */
@@ -964,13 +1007,14 @@ export class Game {
   // --------------------------
   toJSON() {
     return {
-      saveVersion: 29,
+      saveVersion: 30,
       seed: this.seed,
       random: this.random.toJSON(),
       time: this.now.toISOString(),
       startedAt: this.startedAt,
       reminders: [...this.reminders].sort(),
       chats: JSON.parse(JSON.stringify(this.chats)),
+      timers: JSON.parse(JSON.stringify(this.timers)),
       world: this.world.toJSON(),
       player: this.player.toJSON(),
       npcs: this.npcsArray.map((npc) => npc.toJSON()),
@@ -1016,6 +1060,7 @@ export class Game {
     game.startedAt = data.startedAt;
     game.reminders = new Set(data.reminders);
     game.chats = JSON.parse(JSON.stringify(data.chats));
+    game.timers = JSON.parse(JSON.stringify(data.timers));
 
     game.player = Player.fromJSON(data.player || {});
     game.player.syncAgeAt(game.now);

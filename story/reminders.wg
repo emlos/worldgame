@@ -16,6 +16,12 @@
   @priority 999
 @endreminder
 
+@reminder rent_due
+  @text "You have overdue rent. Kim accepts £200 payments at the office."
+  @tone warning
+  @priority 220
+@endreminder
+
 @reminder cafe_job
   @text "You can work one-hour shifts at the cafe from 07:00. The last shift starts at 21:00."
   @priority 100

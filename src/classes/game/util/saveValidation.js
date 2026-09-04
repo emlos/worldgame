@@ -1,6 +1,7 @@
 import { deriveSeed } from "../../../shared/util/random.js";
 import { getAuthoredReminder, isKnownReminderItem } from "../reminders.js";
 import { validateChatState } from "../chats.js";
+import { getTimerDefinition } from "../timers.js";
 import { validateWGSystemState } from "../scene/wg/storySystemRegistry.js";
 import {
     GOAL_TYPE,
@@ -1527,14 +1528,31 @@ function validateDailyAnnouncements(value, path, gameTime) {
     });
 }
 
+function validateTimers(value, path, gameTime) {
+    const timers = record(value, path);
+    for (const [id, stateData] of Object.entries(timers)) {
+        const timerPath = `${path}.${id}`;
+        if (!getTimerDefinition(id)) fail(timerPath, `references unknown timer '${id}'`);
+        const state = record(stateData, timerPath);
+        const dueAt = dateMilliseconds(required(state, "dueAt", timerPath), `${timerPath}.dueAt`);
+        if (dueAt <= gameTime) {
+            fail(`${timerPath}.dueAt`, "must be after the current game clock");
+        }
+        integer(required(state, "occurrences", timerPath), `${timerPath}.occurrences`, {
+            min: 0,
+            max: Number.MAX_SAFE_INTEGER,
+        });
+    }
+}
+
 export function validateGameSave(data) {
     validateJsonValue(data, "save");
     const save = record(data, "save");
     same(
         integer(required(save, "saveVersion", "save"), "save.saveVersion"),
-        29,
+        30,
         "save.saveVersion",
-        "version 29",
+        "version 30",
     );
 
     const seed = uint32(required(save, "seed", "save"), "save.seed");
@@ -1610,6 +1628,7 @@ export function validateGameSave(data) {
     } catch (error) {
         fail("save.chats", error.message);
     }
+    validateTimers(required(save, "timers", "save"), "save.timers", gameTime);
     validatePlayer(required(save, "player", "save"), "save.player", npcProfiles, gameTime);
     npcs.forEach((npcData, index) =>
         validateNPC(npcData, `save.npcs[${index}]`, { mapIndex, gameTime }),

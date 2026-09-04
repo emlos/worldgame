@@ -249,7 +249,7 @@
           "beginCaptures": { "2": { "name": "keyword.control.effect.wg" } },
           "end": "$",
           "patterns": [
-            { "name": "storage.type.effect.wg", "match": "\\b(?:set|add|clear|contact|chat|start|reminder|flag|daily-flag|relationship|money|skill|stat|grade|attendance)\\b" },
+            { "name": "storage.type.effect.wg", "match": "\\b(?:set|add|clear|contact|chat|start|restart|stop|timer|reminder|flag|daily-flag|relationship|money|skill|stat|grade|attendance)\\b" },
             { "include": "#expression" }
           ]
         }

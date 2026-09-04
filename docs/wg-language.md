@@ -1291,6 +1291,9 @@ Implemented effects are:
 @effect attendance english 1
 @effect reminder add civil_notice
 @effect reminder clear civil_notice
+@effect timer start rent.weekly
+@effect timer restart rent.weekly
+@effect timer stop rent.weekly
 ```
 
 - `set` and `add` target only `story.*`. Their values are expressions, and
@@ -1304,6 +1307,10 @@ Implemented effects are:
   `not daily.<id>` to gate a once-per-day choice.
 - `reminder add <id>` activates an authored reminder; `reminder clear <id>`
   removes it. Both require a declared reminder ID. See **Reminders** below.
+- `timer start <id>` starts a named JavaScript timer definition if it is not
+  already active. `timer restart <id>` replaces its deadline with a fresh
+  schedule from the current UTC world time, and `timer stop <id>` removes it.
+  Unknown timer IDs fail during WG compilation and again at runtime.
 - `relationship <npc-id>.<meter-id> <signed-number>` changes and clamps that
   named meter to `0` through `100`, marks the NPC as met, and fails during
   compilation if the NPC or meter does not exist. A meter configured with
@@ -1340,6 +1347,27 @@ All generated NPC residences start with `unlocked: false`. They remain
 available to NPC simulation but hidden from the player until unlocked with
 `@unlock place home_<npc-id>`, for example `@unlock place home_taylor`.
 This uses the same saved, irreversible unlock state as other places.
+
+### Timers
+
+Named definitions live in `src/content/timers.js`; the generic scheduling
+engine lives in `src/classes/game/timers.js`. Definitions may use elapsed
+`interval` schedules in hours or days, UTC `weekly` and `monthly` calendar
+schedules, or a one-shot `once` schedule. Repeating deadlines are always
+calculated from the previous deadline, so late processing cannot make them
+drift.
+
+Only active state is serialized under `game.timers`: each entry stores its
+ISO `dueAt` timestamp and completed `occurrences`. During simulated time, the
+engine stops at the earliest timer or chat deadline, runs all timers due at
+that instant in stable ID order, then delivers chats. Timer callbacks change
+durable state such as `story.*` and reminders; they do not enter scenes.
+Ordinary WG interrupt conditions decide whether that state unlocks a scene.
+
+Forward `jumpToDate(..., { mode: "resync" })` calls no timer callbacks. It
+removes elapsed one-shots and advances repeating deadlines past the target,
+matching resync's rule that skipped time must not manufacture gameplay events.
+Timer mutations participate in normal time and action rollback transactions.
 
 ### Unlocking places
 

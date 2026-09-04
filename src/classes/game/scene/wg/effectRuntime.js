@@ -86,6 +86,20 @@ export function applyWGEffect(game, effect) {
     return;
   }
 
+  if (effect.op === "timer") {
+    if (!["start", "restart", "stop"].includes(effect.action)) {
+      fail("WG timer effect requires start, restart, or stop");
+    }
+    try {
+      if (effect.action === "start") game.startTimer(effect.id);
+      else if (effect.action === "restart") game.restartTimer(effect.id);
+      else game.stopTimer(effect.id);
+    } catch (error) {
+      fail(error.message);
+    }
+    return;
+  }
+
   if (effect.op === "daily-flag") {
     if (typeof effect.flag !== "string" || !effect.flag) {
       fail("WG daily-flag effect needs an id");

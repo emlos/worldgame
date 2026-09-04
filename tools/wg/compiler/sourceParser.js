@@ -5,6 +5,7 @@ import { SCHOOL_SUBJECTS } from "../../../src/data/player/education.js";
 import { PLACE_REGISTRY } from "../../../src/data/world/place.js";
 import { NPC_REGISTRY } from "../../../src/data/npc/npcs.js";
 import { SKILL_CHECK_DIFFICULTIES } from "../../../src/data/scene/skillChecks.js";
+import { TIMER_DEFINITIONS } from "../../../src/content/timers.js";
 
 const ID_PATTERN = "[a-z][a-z0-9_.-]*";
 const SIMPLE_ID_PATTERN = "[a-z][a-z0-9_-]*";
@@ -301,6 +302,19 @@ function parseEffect(text, file, line) {
   const reminder = argument.match(new RegExp(`^reminder\\s+(add|clear)\\s+(${ID_PATTERN})$`));
   if (reminder) {
     return { op: "reminder", action: reminder[1], id: reminder[2], source: nodeSource(file, line) };
+  }
+
+  const timer = argument.match(new RegExp(`^timer\\s+(start|restart|stop)\\s+(${ID_PATTERN})$`));
+  if (timer) {
+    if (!Object.prototype.hasOwnProperty.call(TIMER_DEFINITIONS, timer[2])) {
+      failWG(`@effect timer references unknown timer '${timer[2]}'`, location);
+    }
+    return {
+      op: "timer",
+      action: timer[1],
+      id: timer[2],
+      source: nodeSource(file, line),
+    };
   }
 
   const storyMutation = argument.match(

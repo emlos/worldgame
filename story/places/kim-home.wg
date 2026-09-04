@@ -9,82 +9,105 @@
 
 Kim is sitting at {{npc.kim.dependent}} desk. {{npc.kim.subject | cap}} looks up as you enter.
 
-@choicegroup quest ""
-  @choice rest-quest "Ask about the rent" -> story.rent.intro.2
+@if story.rent.active and story.rent.debt > 0
+  Kim's ledger shows £{{story.rent.debt}} in outstanding rent.
+@endif
+
+@choicegroup rent ""
+  @choice rent-intro "Ask about the rent" -> story.rent.intro.2
     @when flags.rent_intro_2
-    @endchoice
-  @endchoicegroup
+  @endchoice
+
+  @choice pay-rent "Pay £200 toward rent" -> story.rent.payment
+    @when story.rent.active and story.rent.debt >= 200 and player.money >= 200
+    @change money -200 "£200 rent payment"
+    @effect add story.rent.debt -200
+  @endchoice
+@endchoicegroup
 
 @choicegroup navigation ""
-@choice leave "Leave" -> @leave-place
-  @time 1m
-@endchoice
+  @choice leave "Leave" -> @leave-place
+    @time 1m
+  @endchoice
 @endchoicegroup
 
 @sequence story.rent.intro.2 -> @exit
+  @heading "The rent account"
+  @onenter
+    @effect set story.rent.active true
+    @effect set story.rent.debt 800
+    @effect set story.rent.chargesIssued 0
+    @effect reminder clear home_rent_notice_1
+    @effect reminder add rent_due
+  @endonenter
 
-  You look around the office. There are stacks of papers and files on the desk, and a computer monitor is turned on, light flickering.
-  Kim is sitting in a chair behind the desk, {{@if npc.kim.gender == "female"}}wearing a smart business suit and glasses{{@else}}wearing an ironed white shirt and glasses{{@endif}}. {{npc.kim.dependent | cap}} eyes are brown, and they follow you as you open your mouth to speak.
+  @passage account
 
-  @choice has-money "Pay (800£)" -> .pay
-    @when player.money >= 800
-    @change money -800
-    @endchoice
+  You look around the office. Stacks of paper crowd Kim's desk, and the light from a computer monitor flickers across the files.
 
-  @choice no-money "Explain the situation" -> .no-money
-    @endchoice
+  Kim turns the lease toward you. "The account starts with the two missed monthly payments: £800. I collect payments in £200 weekly instalments."
 
-  @passage pay
-
-        You hand over the 800£ to Kim. {{npc.kim.subject | cap}} takes it and puts it in a drawer.
-
-        "Perfect!" {{npc.kim.subject}} says. "You are all caught up on your rent. Please make sure to pay on time in the future."  @change stat stress 5
-
-        There's a note of self satisfaction in {{npc.kim.dependent}} voice as {{npc.kim.subject}} says this.
-
-  @next
-
-  "Now, was there something else?" Kim looks at you expectantly. {{npc.kim.dependent | cap}} teeth are very white as {{npc.kim.subject}} smiles widely.
-
-  @choice leave "Leave" -> .leave
+  @choice worried "I don't have £800" -> .no-money
   @endchoice
 
-
-
-  @choice flirt "Flatter {{npc.kim.object}}" -> .flirt
-    @change relationship kim.affection 5
+  @choice arrange "I'll start paying it down" -> .leave
   @endchoice
 
+  @passage no-money
 
-    @passage flirt
+  "I don't have that kind of money right now," you say.
 
-    "Oh what big teeth you have!" you joke, smiling at {{npc.kim.object}}. Immediately, Kim's smile falters, and {{npc.kim.subject}} looks at you with a mixture of confusion and concern.
-    "What are you talking about?" {{npc.kim.subject}} asks, frowning. "That's not very flattering." @change relationship kim.intimidation 10
+  Kim folds {{npc.kim.dependent}} hands over the ledger. "Then pay what you can each week. Leaving it unpaid will only make the account worse."
 
-    {{npc.kim.subject | cap}} keeps looking straight at you, unsmiling this time. You avert your eyes.
-    
+  @next -> .leave
 
-    @next "Just leave" -> .leave
+  @passage leave
 
-    @passage no-money
+  @effect flag rent_intro_2 false
+  @effect timer start rent.weekly
 
-    @if player.money < 800
-    "I don't have the money to pay you right now," you say, trying to keep your voice calm. "Is there any way I can work something out with you?"
-    @else
-    "This seems steep," you say, trying to keep your voice calm. "Is there any way I can work something out with you?"
-    @endif
+  You leave the office with a copy of the account. The £800 balance is overdue, and another £200 charge will be added every seven days.
 
-    {{npc.kim.subject | cap}} looks at you for a moment, then smiles. "I understand that things can be difficult sometimes. However, the law is clear. I can give you a few days to come up with the money, but if you don't pay me by then, I will have to take further action." @change stat stress 10
+  @next -> @exit
+@endsequence
 
-    @next -> .leave
+@sequence story.rent.payment -> place.kim-office
+  @heading "A rent payment"
 
-    @passage leave
+  @passage paid
 
-    You leave the office, the new notice in your hand. You need to find a way to get the money to pay your rent, or you will be evicted.
-    @effect flag rent_intro_2 false
+  You hand Kim £200. {{npc.kim.subject | cap}} records the payment in the ledger.
 
-    @next -> @exit
+  @if story.rent.debt == 0
+    @effect reminder clear rent_due
+    "That clears the balance," Kim says. "The next weekly charge will still arrive on schedule."
+  @else
+    "Your outstanding balance is now £{{story.rent.debt}}," Kim says.
+  @endif
 
-    @#future content - this is just the story intro. later on this will be a weekly payment, once timers are implmented
+  @next -> place.kim-office
+@endsequence
 
+@entry rent.debt-escalation
+  @scene story.rent.debt-escalation
+  @pool interrupt
+  @priority 200
+  @when story.rent.active
+  @when story.rent.debt >= 1200
+  @when not flags.rent_debt_escalation_seen
+@endentry
+
+@sequence story.rent.debt-escalation -> @exit
+  @heading "The rent cannot be ignored"
+  @onenter
+    @effect flag rent_debt_escalation_seen true
+  @endonenter
+
+  @passage warning
+
+  A new message from Kim appears on your phone. The account has reached £{{story.rent.debt}}, and {{npc.kim.subject}} is no longer willing to let it slide.
+
+  [warning]This is a placeholder for the first overdue-rent consequence.[/warning]
+
+  @next -> @exit
 @endsequence
