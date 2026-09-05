@@ -181,9 +181,9 @@
             <h1>World Map Generation & World Data Reference</h1>
             <p>
                 This page documents how the procedural world map is generated
-                (<code>src/classes/world/util/worldmap.js</code>), and how to add new districts,
-                streets, and places (<code>src/data/world/location.js</code>,
-                <code>src/data/world/street.js</code>, <code>src/data/world/place.js</code>). It
+                (<code>src/world/model/worldmap.js</code>), and how to add new districts,
+                streets, and places (<code>src/world/data/location.js</code>,
+                <code>src/world/data/street.js</code>, <code>src/world/data/place.js</code>). It
                 describes structures and expectations without listing the actual tags/entries (those
                 live in the data files).
             </p>
@@ -298,7 +298,7 @@
             <section>
                 <h2>Locations (districts)</h2>
                 <p>
-                    District types are defined in <code>src/data/world/location.js</code> as
+                    District types are defined in <code>src/world/data/location.js</code> as
                     <code>LOCATION_REGISTRY</code> entries. The fixed-size generator creates one of
                     every registered district, then shuffles them before layout. If future registry
                     growth requires additional locations for place capacity, extra districts use
@@ -805,7 +805,7 @@
                 <h3>Add a new district type (location)</h3>
                 <ol>
                     <li>
-                        Edit <code>src/data/world/location.js</code> and add an entry to
+                        Edit <code>src/world/data/location.js</code> and add an entry to
                         <code>LOCATION_REGISTRY</code>.
                     </li>
                     <li>
@@ -818,7 +818,7 @@
                 <h3>Add new street name variants</h3>
                 <ol>
                     <li>
-                        Edit <code>src/data/world/street.js</code> and add an entry to
+                        Edit <code>src/world/data/street.js</code> and add an entry to
                         <code>STREET_REGISTRY</code>.
                     </li>
                     <li>Give it a unique <code>key</code> and a <code>name</code>.</li>
@@ -835,7 +835,7 @@
                 <h3>Add a new place type</h3>
                 <ol>
                     <li>
-                        Edit <code>src/data/world/place.js</code> and add a
+                        Edit <code>src/world/data/place.js</code> and add a
                         <code>PLACE_REGISTRY</code> entry with a unique <code>key</code>.
                     </li>
                     <li>

@@ -1,5 +1,5 @@
 import { failWG } from "./diagnostic.js";
-import { isWGEffectAllowedInChat } from "../../../src/shared/wg/effects/registry.js";
+import { isWGEffectAllowedInChat } from "../../../src/story/wg/shared/effects/registry.js";
 
 function partsContainChange(parts) {
   return (parts || []).some((part) =>

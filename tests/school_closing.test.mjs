@@ -1,9 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { Game } from "../src/classes/game/game.js";
-import { performChoice } from "../src/classes/game/scene/choiceEngine.js";
-import { buildScene } from "../src/classes/game/scene/sceneEngine.js";
+import { Game } from "../src/game/game.js";
+import { performChoice } from "../src/game/scene/choiceEngine.js";
+import { buildScene } from "../src/game/scene/sceneEngine.js";
 
 function placePlayerAtHighSchool(game) {
   for (const location of game.world.locations.values()) {

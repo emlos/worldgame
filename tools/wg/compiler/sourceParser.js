@@ -4,11 +4,11 @@ import {
   parseWGChangeDirective,
   parseWGEffectDirective,
 } from "./effects/effectParsers.js";
-import { SKILLS } from "../../../src/data/player/stats.js";
-import { SCHOOL_SUBJECTS } from "../../../src/data/player/education.js";
-import { PLACE_REGISTRY } from "../../../src/data/world/place.js";
-import { NPC_REGISTRY } from "../../../src/data/npc/npcs.js";
-import { SKILL_CHECK_DIFFICULTIES } from "../../../src/data/scene/skillChecks.js";
+import { SKILLS } from "../../../src/characters/player/stats.js";
+import { SCHOOL_SUBJECTS } from "../../../src/characters/player/education.js";
+import { PLACE_REGISTRY } from "../../../src/world/data/place.js";
+import { NPC_REGISTRY } from "../../../src/characters/npc/npcs.js";
+import { SKILL_CHECK_DIFFICULTIES } from "../../../src/game/scene/skillChecks.js";
 
 const ID_PATTERN = "[a-z][a-z0-9_.-]*";
 const SIMPLE_ID_PATTERN = "[a-z][a-z0-9_-]*";

@@ -1,10 +1,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { Game } from "../src/classes/game/game.js";
-import { performChoice } from "../src/classes/game/scene/choiceEngine.js";
-import { buildScene } from "../src/classes/game/scene/sceneEngine.js";
-import { WG_BUNDLE } from "../src/generated/wg/scenes.js";
+import { Game } from "../src/game/game.js";
+import { performChoice } from "../src/game/scene/choiceEngine.js";
+import { buildScene } from "../src/game/scene/sceneEngine.js";
+import { WG_BUNDLE } from "../src/story/wg/generated/scenes.js";
 
 const CAFE_SHIFT_SCENE_IDS = [
   "cafe.job.shift.cleanup",

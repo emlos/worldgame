@@ -2,7 +2,7 @@
 
 WG is Worldgame's text-first story format. Source files live under
 `story/**/*.wg`. The compiler turns them into the generated data module at
-`src/generated/wg/scenes.js`:
+`src/story/wg/generated/scenes.js`:
 
 ```text
 node tools/wg/compile.mjs
@@ -622,7 +622,7 @@ WG stores only the system ID, config, and current JSON state. JavaScript
 callbacks remain in the runtime registry and are never emitted into generated
 story data or save files.
 The shared school quiz system currently resolves `math.core` and
-`english.core` through `src/data/scene/quizzes/index.js`; add new subject banks
+`english.core` through `src/story/systems/schoolQuiz/banks/index.js`; add new subject banks
 there without changing the runtime story system.
 
 ### Named passages and local targets
@@ -1373,8 +1373,8 @@ This uses the same saved, irreversible unlock state as other places.
 
 ### Timers
 
-Named definitions live in `src/content/timers.js`; the generic scheduling
-engine lives in `src/classes/game/timers.js`. Definitions may use elapsed
+Named definitions live in `src/game/timerDefinitions.js`; the generic scheduling
+engine lives in `src/game/timers.js`. Definitions may use elapsed
 `interval` schedules in hours or days, UTC `weekly` and `monthly` calendar
 schedules, or a one-shot `once` schedule. Repeating deadlines are always
 calculated from the previous deadline, so late processing cannot make them
@@ -1542,7 +1542,7 @@ branches separately within each scene passage. Passage IDs are local to one
 scene. The compiler validates all global and local
 targets even if their branch is unreachable at runtime.
 
-Effect contracts are centralized in `src/shared/wg/effects/registry.js`.
+Effect contracts are centralized in `src/story/wg/shared/effects/registry.js`.
 Compiler syntax adapters and runtime handlers are checked against that registry,
 so adding an operation requires all three pieces and a missing piece fails the
 effect-registry tests. Static references are validated only after every WG file

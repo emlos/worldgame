@@ -1,20 +1,20 @@
-import { Game } from "../src/classes/game/game.js";
-import { buildScene } from "../src/classes/game/scene/sceneEngine.js";
-import { performChoice } from "../src/classes/game/scene/choiceEngine.js";
+import { Game } from "../src/game/game.js";
+import { buildScene } from "../src/game/scene/sceneEngine.js";
+import { performChoice } from "../src/game/scene/choiceEngine.js";
 import {
   enterWGScene,
   resolveActiveWGStory,
-} from "../src/classes/game/scene/wg/storyRuntime.js";
-import { WG_BUNDLE } from "../src/generated/wg/scenes.js";
-import { SKILLS, STATS } from "../src/data/player/stats.js";
+} from "../src/story/wg/runtime/storyRuntime.js";
+import { WG_BUNDLE } from "../src/story/wg/generated/scenes.js";
+import { SKILLS, STATS } from "../src/characters/player/stats.js";
 import {
   SCHOOL_SUBJECTS,
   SUBJECT_GRADES,
   SUBJECT_PROGRESS_MAX,
   SUBJECT_PROGRESS_MIN,
-} from "../src/data/player/education.js";
-import { getSchoolDayState } from "../src/data/player/schedule.js";
-import { createWGRuntimeContext } from "../src/classes/game/wg/runtimeContext.js";
+} from "../src/characters/player/education.js";
+import { getSchoolDayState } from "../src/characters/player/schedule.js";
+import { createWGRuntimeContext } from "../src/story/wg/runtime/runtimeContext.js";
 import { createChoiceSection, renderSceneContent } from "../src/ui/browser/sceneContent.js";
 import { setOutcomeText } from "../src/ui/browser/outcomes.js";
 

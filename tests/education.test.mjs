@@ -1,20 +1,20 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { Game } from "../src/classes/game/game.js";
-import { buildPhonePlayerStatsView } from "../src/classes/game/scene/phoneView.js";
-import { applyWGEffect } from "../src/classes/game/wg/effectRuntime.js";
-import { evaluateWGExpression } from "../src/classes/game/wg/expressionEvaluator.js";
-import { createWGRuntimeContext } from "../src/classes/game/wg/runtimeContext.js";
-import { Player } from "../src/classes/player/player.js";
+import { Game } from "../src/game/game.js";
+import { buildPhonePlayerStatsView } from "../src/game/scene/phoneView.js";
+import { applyWGEffect } from "../src/story/wg/runtime/effectRuntime.js";
+import { evaluateWGExpression } from "../src/story/wg/runtime/expressionEvaluator.js";
+import { createWGRuntimeContext } from "../src/story/wg/runtime/runtimeContext.js";
+import { Player } from "../src/characters/player/player.js";
 import {
   SCHOOL_SUBJECTS,
   SUBJECT_ACHIEVEMENT_MAX,
   SUBJECT_GRADES,
   initialPlayerEducation,
-} from "../src/data/player/education.js";
-import { getPlayerSkillCheckValue } from "../src/data/scene/skillChecks.js";
-import { WG_BUNDLE } from "../src/generated/wg/scenes.js";
+} from "../src/characters/player/education.js";
+import { getPlayerSkillCheckValue } from "../src/game/scene/skillChecks.js";
+import { WG_BUNDLE } from "../src/story/wg/generated/scenes.js";
 import { compileStorySources } from "../tools/wg/compiler/storyCompiler.js";
 
 test("new subjects store one canonical achievement score", () => {

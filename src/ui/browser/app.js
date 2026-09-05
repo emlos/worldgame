@@ -1,21 +1,21 @@
-import { Game } from "../../classes/game/game.js";
+import { Game } from "../../game/game.js";
 import { createPhoneChats } from "./phoneChats.js";
 import {
   addDebugMoney,
   teleportPlayerToSchool,
   teleportNPCToPlayer,
-} from "../../classes/game/debugCommands.js";
-import { buildScene } from "../../classes/game/scene/sceneEngine.js";
-import { performChoice } from "../../classes/game/scene/choiceEngine.js";
-import { buildPlayerDiaryView } from "../../classes/game/scene/diaryView.js";
-import { buildFullMapView } from "../../classes/game/scene/mapView.js";
+} from "../../game/debugCommands.js";
+import { buildScene } from "../../game/scene/sceneEngine.js";
+import { performChoice } from "../../game/scene/choiceEngine.js";
+import { getSchoolDayPlan } from "../../characters/player/schedule.js";
+import { buildFullMapView } from "../../game/scene/mapView.js";
 import {
   buildPhoneGpsView,
   buildPhonePlayerStatsView,
   buildPhoneRelationshipsView,
   buildPhoneRemindersView,
-} from "../../classes/game/scene/phoneView.js";
-import { STATS } from "../../data/player/stats.js";
+} from "../../game/scene/phoneView.js";
+import { STATS } from "../../characters/player/stats.js";
 import { renderMap as renderGraphMap } from "./renderMap.js";
 import { createSceneTransition } from "./sceneTransition.js";
 import { createChoiceSection, renderSceneContent } from "./sceneContent.js";
@@ -389,7 +389,7 @@ function noSchoolMessage(view) {
 }
 
 function renderPlayerDiary() {
-  const view = buildPlayerDiaryView(game);
+  const view = getSchoolDayPlan(game);
   playerDiaryDate.textContent = diaryDateFormatter.format(new Date(view.date));
   playerDiaryContent.replaceChildren();
 

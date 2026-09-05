@@ -1,0 +1,249 @@
+import { DAY_KEYS } from "../data/time.js";
+import {
+    emptySchedule,
+    DEFAULT_OPENING_HOURS_BY_CATEGORY,
+    DEFAULT_OPENING_HOURS_BY_KEY,
+    DEFAULT_OPENING_HOURS,
+} from "../data/place.js";
+import { parseTimeToMinutes } from "../../shared/util/date.js";
+
+const parseTimeOrNull = (str) => parseTimeToMinutes(str, { nullOnEmpty: true });
+
+function normalizeSlots(slots) {
+    if (!slots) return [];
+    return slots
+        .map((slot) => {
+            if (!slot) return null;
+            if (Array.isArray(slot)) {
+                const [from, to] = slot;
+                return { from, to };
+            }
+            if (typeof slot === "object") {
+                return { from: slot.from, to: slot.to };
+            }
+            return null;
+        })
+        .filter(Boolean);
+}
+
+function getDayIndexAndMinutes(atTime) {
+    // Primary: native Date
+    if (atTime instanceof Date) {
+        return {
+            dayIndex: atTime.getUTCDay(), // 0 = Sun
+            minutes: atTime.getUTCHours() * 60 + atTime.getUTCMinutes(),
+        };
+    }
+    if (!atTime || typeof atTime !== "object") return null;
+
+    // Fallback: lightweight “time-like” object
+    let dayIndex = atTime.dayIndex;
+    if (typeof dayIndex !== "number") {
+        if (typeof atTime.day === "number") {
+            dayIndex = atTime.day;
+        } else if (typeof atTime.day === "string") {
+            const norm = atTime.day.toLowerCase().slice(0, 3);
+            dayIndex = DAY_KEYS.indexOf(norm);
+        }
+    }
+    if (typeof dayIndex !== "number" || dayIndex < 0) return null;
+
+    const hour = Number.isFinite(atTime.hour) ? atTime.hour : 0;
+    const minute = Number.isFinite(atTime.minute) ? atTime.minute : 0;
+
+    return {
+        dayIndex: ((dayIndex % 7) + 7) % 7,
+        minutes: hour * 60 + minute,
+    };
+}
+
+function cloneSchedule(schedule) {
+    if (!schedule) return null;
+    const out = emptySchedule();
+    for (const day of Object.keys(out)) {
+        const slots = normalizeSlots(schedule[day]);
+        out[day] = slots.map((s) => ({ from: s.from, to: s.to }));
+    }
+    return out;
+}
+
+function isOpenForSchedule(schedule, dayIndex, minutes) {
+    const dayKey = DAY_KEYS[dayIndex];
+    if (!dayKey) return true;
+
+    const todaySlots = normalizeSlots(schedule[dayKey]);
+    const prevKey = DAY_KEYS[(dayIndex + 6) % 7];
+    const prevSlots = normalizeSlots(schedule[prevKey]);
+
+    // 1) same-day slots
+    for (const slot of todaySlots) {
+        const start = parseTimeOrNull(slot.from);
+        const end = parseTimeOrNull(slot.to);
+        if (start == null || end == null) continue;
+
+        if (end > start) {
+            // Normal: e.g. 09:00–17:00
+            if (minutes >= start && minutes < end) return true;
+        } else if (end < start) {
+            // Crosses midnight, this is the “late evening” part for today
+            // e.g. Mon 22:00–02:00 -> Monday 22:00–24:00
+            if (minutes >= start) return true;
+        }
+    }
+
+    // 2) after-midnight part of previous day’s overnight slots
+    for (const slot of prevSlots) {
+        const start = parseTimeOrNull(slot.from);
+        const end = parseTimeOrNull(slot.to);
+        if (start == null || end == null) continue;
+
+        if (end < start) {
+            // e.g. Mon 22:00–02:00 -> Tuesday 00:00–02:00
+            if (minutes < end) return true;
+        }
+    }
+
+    return false;
+}
+
+function inferOpeningHours(key, categories) {
+    if (DEFAULT_OPENING_HOURS_BY_KEY[key]) {
+        return DEFAULT_OPENING_HOURS_BY_KEY[key];
+    }
+    const category = categories[0];
+
+    if (category && DEFAULT_OPENING_HOURS_BY_CATEGORY[category]) {
+        return DEFAULT_OPENING_HOURS_BY_CATEGORY[category];
+    }
+    return DEFAULT_OPENING_HOURS;
+}
+
+// ---- Place class ---------------------------------------------------
+
+export class Place {
+    constructor({ id, key, name, locationId, props = {}, unlocked = true }) {
+        this.id = id; // unique string id for this instance
+        this.key = key; // registry key ("park", "bus_stop", ...)
+        this.name = name; // human label ("Central Park", "Bus Stop")
+        this.locationId = locationId; // where on the map it lives
+        if (typeof unlocked !== "boolean") {
+            throw new TypeError("Place unlocked state must be a boolean");
+        }
+        this._unlocked = unlocked;
+
+        const inferredHours = inferOpeningHours(key, props.category);
+
+        // clone schedule so instances don't share mutable state
+        const openingHours = props.openingHours || inferredHours;
+        this.props = {
+            ...props,
+            ...(openingHours ? { openingHours: cloneSchedule(openingHours) } : {}),
+        };
+    }
+
+    get unlocked() {
+        return this._unlocked;
+    }
+
+    /** Reveal this place to the player. Unlocking is intentionally irreversible. */
+    unlock() {
+        if (this._unlocked) return false;
+        this._unlocked = true;
+        return true;
+    }
+
+    toJSON() {
+        return {
+            id: this.id,
+            key: this.key,
+            name: this.name,
+            locationId: this.locationId,
+            unlocked: this.unlocked,
+            props: this.props,
+        };
+    }
+
+    static fromJSON(data) {
+        if (data instanceof Place) return data;
+
+        // Bypass constructor inference: the serialized props already contain
+        // the exact opening-hours/runtime state that was present at save time.
+        const place = Object.create(Place.prototype);
+        place.id = data?.id;
+        place.key = data?.key;
+        place.name = data?.name;
+        place.locationId = data?.locationId;
+        if (typeof data?.unlocked !== "boolean") {
+            throw new TypeError("Saved place unlocked state must be a boolean");
+        }
+        place._unlocked = data.unlocked;
+        place.props =
+            data?.props && typeof data.props === "object"
+                ? JSON.parse(JSON.stringify(data.props))
+                : {};
+        return place;
+    }
+
+    /**
+     * Check if the place is open at the given local time.
+     *
+     * @param {Date|{dayIndex?:number, day?:number|string, hour?:number, minute?:number}} atTime
+     *   Use a Date (e.g. worldTime.date) or a small `{ dayIndex, hour, minute }` object.
+     */
+    isOpen(atTime = new Date()) {
+        const schedule = this.props && this.props.openingHours;
+        if (!schedule) {
+            // no hours defined => treat as always accessible
+            return true;
+        }
+        const info = getDayIndexAndMinutes(atTime);
+        if (!info) return true;
+        const { dayIndex, minutes } = info;
+        return isOpenForSchedule(schedule, dayIndex, minutes);
+    }
+
+    /** Return the end of the opening-hours slot containing atTime, or null. */
+    getClosingTime(atTime = new Date()) {
+        const schedule = this.props && this.props.openingHours;
+        if (!schedule || !(atTime instanceof Date)) return null;
+
+        const info = getDayIndexAndMinutes(atTime);
+        if (!info) return null;
+        const { dayIndex, minutes } = info;
+        const dayStart = Date.UTC(
+            atTime.getUTCFullYear(),
+            atTime.getUTCMonth(),
+            atTime.getUTCDate(),
+        );
+
+        const todayKey = DAY_KEYS[dayIndex];
+        for (const slot of normalizeSlots(schedule[todayKey])) {
+            const start = parseTimeOrNull(slot.from);
+            const end = parseTimeOrNull(slot.to);
+            if (start == null || end == null) continue;
+
+            if (end > start && minutes >= start && minutes < end) {
+                return new Date(dayStart + end * 60 * 1000);
+            }
+            if (end < start && minutes >= start) {
+                return new Date(dayStart + (24 * 60 + end) * 60 * 1000);
+            }
+        }
+
+        const previousKey = DAY_KEYS[(dayIndex + 6) % 7];
+        for (const slot of normalizeSlots(schedule[previousKey])) {
+            const start = parseTimeOrNull(slot.from);
+            const end = parseTimeOrNull(slot.to);
+            if (start == null || end == null) continue;
+            if (end < start && minutes < end) {
+                return new Date(dayStart + end * 60 * 1000);
+            }
+        }
+
+        return null;
+    }
+}
+
+export function isPlaceUnlocked(place) {
+    return place?.unlocked === true;
+}

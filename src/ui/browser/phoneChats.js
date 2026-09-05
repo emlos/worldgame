@@ -1,5 +1,5 @@
-import { sendChatReply, markChatRead } from "../../classes/game/chat/runtime.js";
-import { buildChatsView, buildChatThreadView } from "../../classes/game/chat/view.js";
+import { sendChatReply, markChatRead } from "../../game/chat/runtime.js";
+import { buildChatsView, buildChatThreadView } from "../../game/chat/view.js";
 import { setOutcomeText } from "./outcomes.js";
 
 const timeFormat = new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: "UTC" });

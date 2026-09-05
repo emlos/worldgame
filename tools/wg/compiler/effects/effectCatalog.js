@@ -1,9 +1,9 @@
-import { SKILLS, STATS } from "../../../../src/data/player/stats.js";
-import { SCHOOL_SUBJECTS } from "../../../../src/data/player/education.js";
-import { PLACE_REGISTRY } from "../../../../src/data/world/place.js";
-import { NPC_REGISTRY } from "../../../../src/data/npc/npcs.js";
-import { TIMER_DEFINITIONS } from "../../../../src/content/timers.js";
-import { createWGEffectCatalog } from "../../../../src/shared/wg/effects/catalog.js";
+import { SKILLS, STATS } from "../../../../src/characters/player/stats.js";
+import { SCHOOL_SUBJECTS } from "../../../../src/characters/player/education.js";
+import { PLACE_REGISTRY } from "../../../../src/world/data/place.js";
+import { NPC_REGISTRY } from "../../../../src/characters/npc/npcs.js";
+import { TIMER_DEFINITIONS } from "../../../../src/game/timerDefinitions.js";
+import { createWGEffectCatalog } from "../../../../src/story/wg/shared/effects/catalog.js";
 
 export function createCompilerEffectCatalog({ reminderMap, chatMap }) {
   return createWGEffectCatalog({

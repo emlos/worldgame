@@ -3,7 +3,7 @@ import { parseExpression } from "../expressionParser.js";
 import {
   supportsWGChange,
   validateWGEffectShape,
-} from "../../../../src/shared/wg/effects/registry.js";
+} from "../../../../src/story/wg/shared/effects/registry.js";
 
 const ID_PATTERN = "[a-z][a-z0-9_.-]*";
 const SIMPLE_ID_PATTERN = "[a-z][a-z0-9_-]*";

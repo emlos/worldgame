@@ -6,13 +6,13 @@ import {
   isParsedWGChange,
   parsedWGChangeLabel,
 } from "./effects/effectParsers.js";
-import { NPC_REGISTRY } from "../../../src/data/npc/npcs.js";
+import { NPC_REGISTRY } from "../../../src/characters/npc/npcs.js";
 import {
   createWGChangeFeedback,
   validateWGEffectReferences,
-} from "../../../src/shared/wg/effects/registry.js";
-import { walkWGDefinitionEffects } from "../../../src/shared/wg/effects/traversal.js";
-import { walkWGNodes } from "../../../src/shared/wg/tree.js";
+} from "../../../src/story/wg/shared/effects/registry.js";
+import { walkWGDefinitionEffects } from "../../../src/story/wg/shared/effects/traversal.js";
+import { walkWGNodes } from "../../../src/story/wg/shared/tree.js";
 
 function compareText(left, right) {
   return left < right ? -1 : left > right ? 1 : 0;

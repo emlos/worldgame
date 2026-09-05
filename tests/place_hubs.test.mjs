@@ -1,13 +1,13 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { Game } from "../src/classes/game/game.js";
-import { performChoice } from "../src/classes/game/scene/choiceEngine.js";
-import { buildScene } from "../src/classes/game/scene/sceneEngine.js";
-import { getWGPlaceHubScene } from "../src/classes/game/scene/wg/sceneExposure.js";
-import { SCENE_ACTION_TYPE } from "../src/data/scene/actions.js";
-import { PLACE_LEAVE_MINUTES } from "../src/data/world/travel.js";
-import { WG_BUNDLE } from "../src/generated/wg/scenes.js";
+import { Game } from "../src/game/game.js";
+import { performChoice } from "../src/game/scene/choiceEngine.js";
+import { buildScene } from "../src/game/scene/sceneEngine.js";
+import { getWGPlaceHubScene } from "../src/story/wg/runtime/sceneExposure.js";
+import { SCENE_ACTION_TYPE } from "../src/game/scene/actions.js";
+import { PLACE_LEAVE_MINUTES } from "../src/world/data/travel.js";
+import { WG_BUNDLE } from "../src/story/wg/generated/scenes.js";
 import { compileStorySources } from "../tools/wg/compiler/storyCompiler.js";
 
 function placePlayerAt(game, placeKey) {

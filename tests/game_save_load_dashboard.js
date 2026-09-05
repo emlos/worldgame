@@ -1,4 +1,4 @@
-import { Game } from "../src/classes/game/game.js";
+import { Game } from "../src/game/game.js";
 
 const STORAGE_KEY = "worldgame:save-load-dashboard:v6";
 const MINUTE_MS = 60 * 1000;

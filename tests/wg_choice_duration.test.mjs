@@ -1,12 +1,12 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { Game } from "../src/classes/game/game.js";
-import { buildScene } from "../src/classes/game/scene/sceneEngine.js";
+import { Game } from "../src/game/game.js";
+import { buildScene } from "../src/game/scene/sceneEngine.js";
 import {
   enterWGScene,
   resolveActiveWGStory,
-} from "../src/classes/game/scene/wg/storyRuntime.js";
+} from "../src/story/wg/runtime/storyRuntime.js";
 
 test("compacted zero-duration checked outcomes materialize as zero", () => {
   const game = new Game({

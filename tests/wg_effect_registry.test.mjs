@@ -1,20 +1,20 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { Game } from "../src/classes/game/game.js";
+import { Game } from "../src/game/game.js";
 import {
   actWGSystem,
   registerWGStorySystem,
-} from "../src/classes/game/scene/wg/storySystemRegistry.js";
+} from "../src/story/wg/runtime/storySystemRegistry.js";
 import {
   applyWGEffects,
   WG_EFFECT_HANDLER_OPS,
-} from "../src/classes/game/wg/effectRuntime.js";
+} from "../src/story/wg/runtime/effectRuntime.js";
 import {
   validateWGEffectShape,
   WG_EFFECT_OPS,
-} from "../src/shared/wg/effects/registry.js";
-import { walkWGDefinitionEffects } from "../src/shared/wg/effects/traversal.js";
+} from "../src/story/wg/shared/effects/registry.js";
+import { walkWGDefinitionEffects } from "../src/story/wg/shared/effects/traversal.js";
 import { WG_EFFECT_PARSER_OPS } from "../tools/wg/compiler/effects/effectParsers.js";
 import { compileStorySources } from "../tools/wg/compiler/storyCompiler.js";
 

@@ -1,25 +1,25 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { Game } from "../src/classes/game/game.js";
-import { sendChatReply } from "../src/classes/game/chat/runtime.js";
-import { buildChatThreadView } from "../src/classes/game/chat/view.js";
-import { applyWGEffects } from "../src/classes/game/wg/effectRuntime.js";
+import { Game } from "../src/game/game.js";
+import { sendChatReply } from "../src/game/chat/runtime.js";
+import { buildChatThreadView } from "../src/game/chat/view.js";
+import { applyWGEffects } from "../src/story/wg/runtime/effectRuntime.js";
 import {
   enterWGScene,
   resolveActiveWGStory,
-} from "../src/classes/game/scene/wg/storyRuntime.js";
-import { materializeWGResponse } from "../src/classes/game/scene/wg/sceneMaterializer.js";
+} from "../src/story/wg/runtime/storyRuntime.js";
+import { materializeWGResponse } from "../src/story/wg/runtime/sceneMaterializer.js";
 import {
   createWGDecisionSession,
   iterateSelectedWGNodes,
   iterateSelectedWGParts,
-} from "../src/classes/game/wg/decisionRuntime.js";
+} from "../src/story/wg/runtime/decisionRuntime.js";
 import {
   captureWGTextBindings,
   renderWGSnapshottedParts,
-} from "../src/classes/game/wg/textRuntime.js";
-import { collectWGNodes } from "../src/shared/wg/tree.js";
+} from "../src/story/wg/runtime/textRuntime.js";
+import { collectWGNodes } from "../src/story/wg/shared/tree.js";
 
 const path = (...value) => ({ type: "path", value });
 const paragraph = (value) => ({

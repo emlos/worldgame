@@ -1,4 +1,4 @@
-import { STATS } from "../../data/player/stats.js";
+import { STATS } from "../../characters/player/stats.js";
 
 export const OUTCOME = Object.freeze({
   VERY_GOOD: "very-good",

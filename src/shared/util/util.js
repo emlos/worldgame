@@ -20,12 +20,6 @@ export const deepFreeze = (obj) => {
     return obj;
 };
 
-export const normalize = (weights) => {
-    const sum = Object.values(weights).reduce((a, b) => a + b, 0) || 1;
-    for (const k in weights) weights[k] /= sum;
-    return weights;
-};
-
 export function finiteNumber(value, label) {
     const number = Number(value);
     if (!Number.isFinite(number)) {
