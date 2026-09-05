@@ -1,4 +1,6 @@
 import { SCHOOL_QUIZ_STORY_SYSTEM } from "../../../../content/scene/systems/schoolQuiz.js";
+import { validateWGEffectReferences } from "../../../../shared/wg/effects/registry.js";
+import { WG_RUNTIME_EFFECT_CATALOG } from "../../wg/effectCatalog.js";
 
 export class WGStorySystemError extends Error {
   constructor(message) {
@@ -143,6 +145,11 @@ export function actWGSystem(game, definition, frame, command) {
   }
   if (outcome.effects !== undefined && !Array.isArray(outcome.effects)) {
     fail(`WG story system '${systemId}' effects must be an array`);
+  }
+  for (const effect of outcome.effects || []) {
+    validateWGEffectReferences(effect, WG_RUNTIME_EFFECT_CATALOG, {
+      fail: (message) => fail(`WG story system '${systemId}' returned ${message}`),
+    });
   }
   if (
     outcome.paragraphs !== undefined &&

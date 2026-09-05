@@ -9,7 +9,7 @@ import {
   initialTimerDeadline,
   nextTimerDeadlineForSchedule,
 } from "../src/classes/game/timers.js";
-import { parseWGDocument } from "../tools/wg/compiler/sourceParser.js";
+import { compileStorySources } from "../tools/wg/compiler/storyCompiler.js";
 
 const DAY_MINUTES = 24 * 60;
 
@@ -114,7 +114,7 @@ test("simulated time fires every crossed rent deadline without drift", () => {
   assert.deepEqual(restored.story.rent, game.story.rent);
 });
 
-test("resync skips callbacks and advances the recurring deadline", () => {
+test("resync skips timer effects and advances the recurring deadline", () => {
   const game = new Game({ seed: 703, startDate: new Date("2026-09-01T12:00:00.000Z") });
   game.story.rent = { active: true, debt: 800, chargesIssued: 0 };
   game.startTimer("rent.weekly");
@@ -133,7 +133,7 @@ test("resync skips callbacks and advances the recurring deadline", () => {
   assert.equal(game.timers["rent.weekly"].occurrences, 1);
 });
 
-test("timer callback failures propagate without restoring prior state", () => {
+test("timer effect failures propagate without restoring prior state", () => {
   const game = new Game({ seed: 704, startDate: new Date("2026-09-04T12:00:00.000Z") });
   game.story.rent = 5;
   game.startTimer("rent.weekly");
@@ -148,7 +148,7 @@ test("timer callback failures propagate without restoring prior state", () => {
 });
 
 test("WG timer effects compile and preserve their lifecycle semantics", () => {
-  const document = parseWGDocument({
+  const bundle = compileStorySources([{
     file: "test-timer.wg",
     source: [
       ":: test-timer",
@@ -157,18 +157,18 @@ test("WG timer effects compile and preserve their lifecycle semantics", () => {
       "  @effect timer start rent.weekly",
       "@endchoice",
     ].join("\n"),
-  });
-  assert.deepEqual(document.scenes[0].passages[0].body[0].effects[0], {
+  }]);
+  assert.deepEqual(bundle.scenes["test-timer"].passages[0].body[0].effects[0], {
     op: "timer",
     action: "start",
     id: "rent.weekly",
     source: { file: "test-timer.wg", line: 4, column: 1 },
   });
   assert.throws(
-    () => parseWGDocument({
+    () => compileStorySources([{
       file: "test-timer.wg",
       source: ":: test-timer\n\n@effect timer start missing.timer",
-    }),
+    }]),
     /unknown timer/i,
   );
 

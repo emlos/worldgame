@@ -104,7 +104,7 @@
     👍
   @endmessage
 
-  @unlock place home_kim
+  @effect unlock place home_kim
   @effect flag rent_intro_2 true
 
   @finish

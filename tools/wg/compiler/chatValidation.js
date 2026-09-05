@@ -1,4 +1,5 @@
 import { failWG } from "./diagnostic.js";
+import { isWGEffectAllowedInChat } from "../../../src/shared/wg/effects/registry.js";
 
 function partsContainChange(parts) {
   return (parts || []).some((part) =>
@@ -53,7 +54,7 @@ export function validateChat(chat, assignRuntimeNodeIds) {
           failWG("Chat prose must be inside @message", node.source);
         }
         const effects = node.type === "effect" ? [node.effect] : node.effects || [];
-        if (effects.some((effect) => ["chat", "contact"].includes(effect.op))) {
+        if (effects.some((effect) => !isWGEffectAllowedInChat(effect.op))) {
           failWG("Start chats and add contacts from world scenes, not inside chats", node.source);
         }
       }

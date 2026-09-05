@@ -1,7 +1,17 @@
 import { failWG } from "./diagnostic.js";
 import { parseWGDocument } from "./sourceParser.js";
 import { validateChat } from "./chatValidation.js";
+import { createCompilerEffectCatalog } from "./effects/effectCatalog.js";
+import {
+  isParsedWGChange,
+  parsedWGChangeLabel,
+} from "./effects/effectParsers.js";
 import { NPC_REGISTRY } from "../../../src/data/npc/npcs.js";
+import {
+  createWGChangeFeedback,
+  validateWGEffectReferences,
+} from "../../../src/shared/wg/effects/registry.js";
+import { walkWGDefinitionEffects } from "../../../src/shared/wg/effects/traversal.js";
 import { walkWGNodes } from "../../../src/shared/wg/tree.js";
 
 function compareText(left, right) {
@@ -109,19 +119,22 @@ export function compileStorySources(sources) {
     failWG("No WG scenes, location contributions, reminders, or chats were found", { file: "story", line: 1, column: 1 });
   }
 
-  // Visit every effect, including on-enter blocks, checked outcomes, and
-  // unreachable branches. References can point to any source file.
-  function validateReminderEffects(value) {
-    if (!value || typeof value !== "object") return;
-    if (value.op === "reminder" && !reminderMap.has(value.id)) {
-      failWG(`Unknown reminder '${value.id}'`, atSource(value.source));
-    }
-    if (value.op === "contact" && !npcIds.has(value.npcId)) failWG(`Unknown contact NPC '${value.npcId}'`, atSource(value.source));
-    if (value.op === "chat" && !chatMap.has(value.id)) failWG(`Unknown chat '${value.id}'`, atSource(value.source));
-    for (const child of Object.values(value)) validateReminderEffects(child);
-  }
+  const effectCatalog = createCompilerEffectCatalog({ reminderMap, chatMap });
   for (const definition of [...sceneMap.values(), ...locationMap.values(), ...chatMap.values()]) {
-    validateReminderEffects(definition);
+    walkWGDefinitionEffects(definition, (effect) => {
+      const options = {
+        fail: (message) => failWG(message, atSource(effect?.source)),
+      };
+      validateWGEffectReferences(effect, effectCatalog, options);
+      if (isParsedWGChange(effect)) {
+        effect.feedback = createWGChangeFeedback(
+          effect,
+          effectCatalog,
+          parsedWGChangeLabel(effect),
+          options,
+        );
+      }
+    });
   }
 
   const hasGlobalTarget = (target) => sceneMap.has(target);

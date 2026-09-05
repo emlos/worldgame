@@ -17,7 +17,7 @@
       @br
       [warning]You should probably go there as soon as possible.[/warning]
     @endresponse
-    @unlock place civil_office
+    @effect unlock place civil_office
   @endchoice
 @endchoicegroup
 

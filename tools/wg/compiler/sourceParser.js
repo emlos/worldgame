@@ -1,11 +1,14 @@
 import { failWG, sourceLocation } from "./diagnostic.js";
 import { parseExpression } from "./expressionParser.js";
-import { SKILLS, STATS } from "../../../src/data/player/stats.js";
+import {
+  parseWGChangeDirective,
+  parseWGEffectDirective,
+} from "./effects/effectParsers.js";
+import { SKILLS } from "../../../src/data/player/stats.js";
 import { SCHOOL_SUBJECTS } from "../../../src/data/player/education.js";
 import { PLACE_REGISTRY } from "../../../src/data/world/place.js";
 import { NPC_REGISTRY } from "../../../src/data/npc/npcs.js";
 import { SKILL_CHECK_DIFFICULTIES } from "../../../src/data/scene/skillChecks.js";
-import { TIMER_DEFINITIONS } from "../../../src/content/timers.js";
 
 const ID_PATTERN = "[a-z][a-z0-9_.-]*";
 const SIMPLE_ID_PATTERN = "[a-z][a-z0-9_-]*";
@@ -246,243 +249,6 @@ function parseProbability(value, location, directive) {
   return probability;
 }
 
-function parseSilentDirective(text, file, line) {
-  if (directiveName(text) !== "unlock") return parseEffect(text, file, line);
-  const location = lineLocation(file, line);
-  const match = text.match(/^@unlock\s+place\s+([a-z][a-z0-9_-]*)$/);
-  if (!match) {
-    failWG("Expected @unlock place <place-key>", location);
-  }
-  const placeKey = match[1];
-  if (
-    !PLACE_REGISTRY.some((place) => place.key === placeKey) &&
-    !NPC_REGISTRY.some((npc) => `home_${npc.id}` === placeKey)
-  ) {
-    failWG("Unknown @unlock place key '" + placeKey + "'", location);
-  }
-  return { op: "unlock-place", placeKey, source: nodeSource(file, line) };
-}
-
-function parseEffect(text, file, line) {
-  const location = lineLocation(file, line);
-  const argument = directiveArgument(text, "effect", location);
-
-  const relocateHome = argument.match(/^relocate\s+home$/);
-  if (relocateHome) {
-    return {
-      op: "relocate",
-      destination: { kind: "home" },
-      source: nodeSource(file, line),
-    };
-  }
-  const relocatePlace = argument.match(
-    new RegExp(`^relocate\\s+nearest-place\\s+(${SIMPLE_ID_PATTERN})$`),
-  );
-  if (relocatePlace) {
-    const placeKey = relocatePlace[1];
-    if (!PLACE_REGISTRY.some((place) => place.key === placeKey)) {
-      failWG(`@effect relocate references unknown place '${placeKey}'`, location);
-    }
-    return {
-      op: "relocate",
-      destination: { kind: "nearest-place", placeKey },
-      source: nodeSource(file, line),
-    };
-  }
-
-  const contact = argument.match(new RegExp(`^contact\\s+add\\s+(${QUOTED_PATTERN}|${ID_PATTERN})$`));
-  if (contact) {
-    const npcId = contact[1].startsWith('"') ? parseQuotedString(contact[1], location, "Contact") : contact[1];
-    if (!ID_REGEX.test(npcId)) failWG("Invalid contact NPC id", location);
-    return { op: "contact", action: "add", npcId, source: nodeSource(file, line) };
-  }
-  const chat = argument.match(new RegExp(`^chat\\s+start\\s+(${ID_PATTERN})$`));
-  if (chat) return { op: "chat", action: "start", id: chat[1], source: nodeSource(file, line) };
-
-  const reminder = argument.match(new RegExp(`^reminder\\s+(add|clear)\\s+(${ID_PATTERN})$`));
-  if (reminder) {
-    return { op: "reminder", action: reminder[1], id: reminder[2], source: nodeSource(file, line) };
-  }
-
-  const timer = argument.match(new RegExp(`^timer\\s+(start|restart|stop)\\s+(${ID_PATTERN})$`));
-  if (timer) {
-    if (!Object.prototype.hasOwnProperty.call(TIMER_DEFINITIONS, timer[2])) {
-      failWG(`@effect timer references unknown timer '${timer[2]}'`, location);
-    }
-    return {
-      op: "timer",
-      action: timer[1],
-      id: timer[2],
-      source: nodeSource(file, line),
-    };
-  }
-
-  const storyMutation = argument.match(
-    /^(set|add)\s+([A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)+)\s+(.+)$/,
-  );
-  if (storyMutation) {
-    const [, operation, pathText, valueText] = storyMutation;
-    const path = pathText.split(".");
-    if (path[0] !== "story" || path.length < 2) {
-      failWG(`@effect ${operation} may only target story.*`, location);
-    }
-    return {
-      op: operation,
-      path,
-      value: parseExpression(valueText, location),
-      source: nodeSource(file, line),
-    };
-  }
-
-  const flag = argument.match(
-    new RegExp(`^(flag|daily-flag)\\s+(${ID_PATTERN})\\s+(true|false)$`),
-  );
-  if (flag) {
-    return {
-      op: flag[1],
-      flag: flag[2],
-      value: flag[3] === "true",
-      source: nodeSource(file, line),
-    };
-  }
-
-  const relationship = argument.match(
-    new RegExp(`^relationship\\s+${RELATIONSHIP_TARGET_PATTERN}\\s+([+-]?\\d+(?:\\.\\d+)?)$`),
-  );
-  if (relationship) {
-    relationshipMeterDefinition(relationship[1], relationship[2], location);
-    return {
-      op: "relationship",
-      npcId: relationship[1],
-      meterId: relationship[2],
-      amount: Number(relationship[3]),
-      source: nodeSource(file, line),
-    };
-  }
-
-  const money = argument.match(/^money\s+([+-]?\d+(?:\.\d+)?)$/);
-  if (money) {
-    const amount = Number(money[1]);
-    if (!Number.isFinite(amount)) failWG("@effect money requires a finite amount", location);
-    return {
-      op: "money",
-      amount,
-      source: nodeSource(file, line),
-    };
-  }
-
-  const playerValue = argument.match(
-    new RegExp(`^(skill|stat)\\s+(${ID_PATTERN})\\s+([+-]?\\d+(?:\\.\\d+)?)$`),
-  );
-  if (playerValue) {
-    const [, operation, id, amountText] = playerValue;
-    const registry = operation === "skill" ? SKILLS : STATS;
-    if (!registry[id]) failWG(`@effect ${operation} references unknown ${operation} '${id}'`, location);
-    return {
-      op: operation,
-      id,
-      amount: Number(amountText),
-      source: nodeSource(file, line),
-    };
-  }
-
-  const educationValue = argument.match(
-    new RegExp(`^(grade|attendance)\\s+(${ID_PATTERN})\\s+([+-]?\\d+(?:\\.\\d+)?)$`),
-  );
-  if (educationValue) {
-    const [, operation, id, amountText] = educationValue;
-    if (!SCHOOL_SUBJECTS[id]) {
-      failWG(`@effect ${operation} references unknown school subject '${id}'`, location);
-    }
-    const amount = Number(amountText);
-    if (operation === "grade" && !Number.isInteger(amount)) {
-      failWG("@effect grade requires a signed whole number", location);
-    }
-    if (operation === "attendance" && (!Number.isInteger(amount) || amount <= 0)) {
-      failWG("@effect attendance requires a positive whole number", location);
-    }
-    return {
-      op: operation,
-      id,
-      amount,
-      source: nodeSource(file, line),
-    };
-  }
-
-  failWG("Unknown or malformed @effect", location);
-}
-
-function defaultChangeLabel(effect) {
-  const sign = effect.amount > 0 ? "+" : effect.amount < 0 ? "-" : "";
-  if (effect.op === "relationship") {
-    const definition = relationshipMeterDefinition(
-      effect.npcId,
-      effect.meterId,
-      effect.source,
-    );
-    return `${sign}${definition.label}`;
-  }
-  if (effect.op === "money") return `${sign}Money`;
-  if (effect.op === "skill") return `${sign}${SKILLS[effect.id].label}`;
-  if (effect.op === "stat") return `${sign}${STATS[effect.id].label}`;
-  if (effect.op === "grade") {
-    return `${sign}${SCHOOL_SUBJECTS[effect.id].label}`;
-  }
-  if (effect.op === "attendance") {
-    return `${sign}${SCHOOL_SUBJECTS[effect.id].label} attendance`;
-  }
-  return null;
-}
-
-function parseChange(text, file, line) {
-  const location = lineLocation(file, line);
-  const argument = directiveArgument(text, "change", location);
-  const labelMatch = argument.match(
-    new RegExp(`^(.*\\S)\\s+(${QUOTED_PATTERN})\\s*$`),
-  );
-  const effectArgument = labelMatch ? labelMatch[1] : argument;
-  const effect = parseEffect(`@effect ${effectArgument}`, file, line);
-  if (effect.op === "reminder") {
-    failWG("@change does not support reminders; use @effect reminder", location);
-  }
-  const label = labelMatch
-    ? parseQuotedString(labelMatch[2], location, "Change label")
-    : defaultChangeLabel(effect);
-
-  if (label === null) {
-    failWG(
-      `@change does not support '${String(effect.op)}'; use @effect for silent state changes`,
-      location,
-    );
-  }
-
-  return {
-    ...effect,
-    feedback: {
-      type: effect.op,
-      amount: effect.amount,
-      label,
-      ...(effect.op === "relationship"
-        ? {
-            npcId: effect.npcId,
-            meterId: effect.meterId,
-            higherIsBetter: relationshipMeterDefinition(
-              effect.npcId,
-              effect.meterId,
-              effect.source,
-            ).higherIsBetter !== false,
-          }
-        : {}),
-      direction:
-        effect.amount > 0
-          ? "increase"
-          : effect.amount < 0
-            ? "decrease"
-            : "neutral",
-    },
-  };
-}
-
 function parseInlineChanges(text, file, line) {
   const parts = [];
   let start = 0;
@@ -509,7 +275,7 @@ function parseInlineChanges(text, file, line) {
     if (index === text.length || nextChange) {
       parts.push({
         type: "change",
-        effect: parseChange(text.slice(start, index).trimEnd(), file, line),
+        effect: parseWGChangeDirective(text.slice(start, index).trimEnd(), file, line),
       });
       start = index;
     }
@@ -815,14 +581,14 @@ class SceneBodyParser {
         nodes.push(this.parsePassiveCheck());
         continue;
       }
-      if (name === "effect" || name === "change" || name === "unlock") {
+      if (name === "effect" || name === "change") {
         flushParagraph();
         nodes.push({
           type: "effect",
           effect:
             name === "change"
-              ? parseChange(trimmed, this.file, line.line)
-              : parseSilentDirective(trimmed, this.file, line.line),
+              ? parseWGChangeDirective(trimmed, this.file, line.line)
+              : parseWGEffectDirective(trimmed, this.file, line.line),
           source: nodeSource(this.file, line.line),
         });
         this.index += 1;
@@ -1108,13 +874,13 @@ class SceneBodyParser {
         outcome.durationRangeMinutes = parsedTime.durationRangeMinutes;
         outcome.energyFree = parsedTime.energyFree;
         outcome.resting = parsedTime.resting;
-      } else if (name === "effect" || name === "unlock") {
-        outcome.effects.push(parseSilentDirective(directive, this.file, line.line));
+      } else if (name === "effect") {
+        outcome.effects.push(parseWGEffectDirective(directive, this.file, line.line));
       } else if (name === "response") {
         outcome.responses.push(this.parseResponse());
         continue;
       } else {
-        failWG(`@${kind} may contain only @time, @response, @effect, and @unlock directives`, location);
+        failWG(`@${kind} may contain only @time, @response, and @effect directives`, location);
       }
       this.index += 1;
     }
@@ -1155,7 +921,7 @@ class SceneBodyParser {
       choice.previews.length
     ) {
       failWG(
-        "Checked choices keep @time, @response, @effect, and @unlock inside outcome blocks and cannot use @change or @preview",
+        "Checked choices keep @time, @response, and @effect inside outcome blocks and cannot use @change or @preview",
         location,
       );
     }
@@ -1246,8 +1012,8 @@ class SceneBodyParser {
         failWG("Choice blocks may contain only choice directives", location);
       }
 
-      if (this.chat && !["send", "when", "require", "effect", "unlock"].includes(name)) {
-        failWG("Chat choices support only @send, @when, @require, @effect, and @unlock; texting takes no time", location);
+      if (this.chat && !["send", "when", "require", "effect"].includes(name)) {
+        failWG("Chat choices support only @send, @when, @require, and @effect; texting takes no time", location);
       }
       if (this.chat && name === "send") {
         if (choice.send) failWG("Duplicate @send", location);
@@ -1376,10 +1142,10 @@ class SceneBodyParser {
             source: nodeSource(this.file, line.line),
           });
         }
-      } else if (name === "effect" || name === "unlock") {
-        choice.effects.push(parseSilentDirective(text, this.file, line.line));
+      } else if (name === "effect") {
+        choice.effects.push(parseWGEffectDirective(text, this.file, line.line));
       } else if (name === "change") {
-        choice.effects.push(parseChange(text, this.file, line.line));
+        choice.effects.push(parseWGChangeDirective(text, this.file, line.line));
       } else {
         failWG(`Unknown choice directive @${name}`, location);
       }
@@ -1434,10 +1200,10 @@ function parseOnEnter(file, lines, startIndex, openingLine) {
     if (text === "@endonenter") {
       return { effects, nextIndex: index + 1 };
     }
-    if (!["effect", "unlock"].includes(directiveName(text))) {
-      failWG("@onenter may contain only @effect and @unlock directives", lineLocation(file, line.line));
+    if (directiveName(text) !== "effect") {
+      failWG("@onenter may contain only @effect directives", lineLocation(file, line.line));
     }
-    effects.push(parseSilentDirective(text, file, line.line));
+    effects.push(parseWGEffectDirective(text, file, line.line));
     index += 1;
   }
   failWG("Unclosed @onenter block", lineLocation(file, openingLine));

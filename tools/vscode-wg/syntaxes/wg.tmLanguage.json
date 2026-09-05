@@ -18,7 +18,6 @@
     { "include": "#random-directives" },
     { "include": "#condition-directives" },
     { "include": "#effect-directives" },
-    { "include": "#unlock-directive" },
     { "include": "#property-directives" },
     { "include": "#block-directives" },
     { "include": "#inline-conditionals" },
@@ -202,19 +201,6 @@
         }
       ]
     },
-    "unlock-directive": {
-      "patterns": [
-        {
-          "name": "meta.unlock.directive.wg",
-          "match": "^(\\s*)(@unlock)\\s+(place)\\s+([a-z][a-z0-9_-]*)\\s*$",
-          "captures": {
-            "2": { "name": "keyword.control.effect.wg" },
-            "3": { "name": "storage.type.effect.wg" },
-            "4": { "name": "entity.name.place.reference.wg" }
-          }
-        }
-      ]
-    },
     "effect-directives": {
       "patterns": [
         {
@@ -223,7 +209,7 @@
           "beginCaptures": { "2": { "name": "keyword.control.effect.wg" } },
           "end": "$",
           "patterns": [
-            { "name": "storage.type.effect.wg", "match": "\\b(?:set|add|clear|contact|chat|start|restart|stop|timer|reminder|flag|daily-flag|relationship|money|skill|stat|grade|attendance)\\b" },
+            { "name": "storage.type.effect.wg", "match": "\\b(?:set|add|clear|contact|chat|start|restart|stop|timer|reminder|flag|daily-flag|relationship|money|skill|stat|grade|attendance|unlock|place|relocate|home|nearest-place)\\b" },
             { "include": "#expression" }
           ]
         }

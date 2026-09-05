@@ -1,4 +1,6 @@
 import { TIMER_DEFINITIONS } from "../../content/timers.js";
+import { validateWGEffectShape } from "../../shared/wg/effects/registry.js";
+import { applyWGEffects } from "./wg/effectRuntime.js";
 
 const MS_PER_HOUR = 60 * 60 * 1000;
 const MS_PER_DAY = 24 * MS_PER_HOUR;
@@ -77,8 +79,26 @@ export function validateTimerDefinition(id, definition) {
   if (typeof definition.repeat !== "boolean") {
     fail(`Timer '${id}' requires an explicit repeat boolean`);
   }
-  if (typeof definition.onDue !== "function") {
-    fail(`Timer '${id}' requires an onDue callback`);
+  const definesEffects = Object.prototype.hasOwnProperty.call(definition, "effects");
+  const definesCallback = Object.prototype.hasOwnProperty.call(definition, "onDue");
+  if (definesEffects && !Array.isArray(definition.effects)) {
+    fail(`Timer '${id}' effects must be an array`);
+  }
+  if (definesCallback && typeof definition.onDue !== "function") {
+    fail(`Timer '${id}' onDue must be a function`);
+  }
+  const hasEffects = definesEffects && Array.isArray(definition.effects);
+  const hasCallback = definesCallback && typeof definition.onDue === "function";
+  if (hasEffects === hasCallback) {
+    fail(`Timer '${id}' requires exactly one of effects or an onDue callback`);
+  }
+  if (hasEffects) {
+    if (!definition.effects.length) fail(`Timer '${id}' effects cannot be empty`);
+    for (const effect of definition.effects) {
+      validateWGEffectShape(effect, {
+        fail: (message) => fail(`Timer '${id}' has invalid effects: ${message}`),
+      });
+    }
   }
 
   if (schedule.kind === "interval") intervalDuration(schedule);
@@ -257,7 +277,8 @@ export function processDueTimers(game) {
     } else {
       delete timers[id];
     }
-    definition.onDue(game, { id, dueAt: new Date(dueAt), occurrence });
+    if (definition.effects) applyWGEffects(game, definition.effects);
+    else definition.onDue(game, { id, dueAt: new Date(dueAt), occurrence });
   }
   return dueIds.length;
 }

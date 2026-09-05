@@ -12,6 +12,10 @@ import {
 } from "../../../../data/scene/skillChecks.js";
 import { keyedRandom01 } from "../../../../shared/util/random.js";
 import {
+  hasImplicitWGSkillChange,
+  materializeWGEffectFeedback,
+} from "../../../../shared/wg/effects/registry.js";
+import {
   createWGDecisionSession,
   iterateSelectedWGNodes,
   iterateSelectedWGParts,
@@ -91,7 +95,7 @@ function materializeSkillChanges(effects) {
   const totals = new Map();
   for (const effect of effects || []) {
     if (
-      effect?.op !== "skill" ||
+      !hasImplicitWGSkillChange(effect) ||
       effect.feedback ||
       !Number.isFinite(effect.amount)
     ) continue;
@@ -107,11 +111,7 @@ function materializeSkillChanges(effects) {
 }
 
 function materializeChangeFeedback(effect) {
-  if (!effect?.feedback) return null;
-  return {
-    ...effect.feedback,
-    ...(effect.op === "stat" ? { statId: effect.id } : {}),
-  };
+  return materializeWGEffectFeedback(effect);
 }
 
 function materializeVisibleEffects(effects) {

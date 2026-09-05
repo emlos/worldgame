@@ -15,7 +15,7 @@ import {
 } from "../src/data/player/education.js";
 import { getPlayerSkillCheckValue } from "../src/data/scene/skillChecks.js";
 import { WG_BUNDLE } from "../src/generated/wg/scenes.js";
-import { parseWGDocument } from "../tools/wg/compiler/sourceParser.js";
+import { compileStorySources } from "../tools/wg/compiler/storyCompiler.js";
 
 test("new subjects store one canonical achievement score", () => {
   const education = initialPlayerEducation();
@@ -147,20 +147,20 @@ test("save version 32 round-trips canonical subject achievement", () => {
 });
 
 test("WG grade changes use subject-only feedback and whole progress points", () => {
-  const document = parseWGDocument({
+  const bundle = compileStorySources([{
     file: "test-grade.wg",
     source: ":: test-grade\n\nThe lesson helps. @change grade english 1",
-  });
-  const change = document.scenes[0].passages[0].body[0].parts.find(
+  }]);
+  const change = bundle.scenes["test-grade"].passages[0].body[0].parts.find(
     (part) => part.type === "change",
   );
   assert.equal(change.effect.feedback.label, "+English");
 
   assert.throws(
-    () => parseWGDocument({
+    () => compileStorySources([{
       file: "test-grade.wg",
       source: ":: test-grade\n\nThe lesson helps. @change grade english 0.5",
-    }),
+    }]),
     /@effect grade requires a signed whole number/,
   );
 });

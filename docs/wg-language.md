@@ -61,7 +61,7 @@ contact queues until the active one finishes. Contacts appear in the Chats app.
   supported inside messages. Effects belong outside message blocks.
 - Chat choices require `@send "..."`: this is the outgoing text sent immediately
   when clicked. The choice label is the short button label. Choice IDs are unique
-  within their passage. `@when`, `@require`, `@effect`, and `@unlock` are supported;
+  within their passage. `@when`, `@require`, and `@effect` are supported;
   timing, checks, and ordinary scene response directives are rejected.
 - Passages end with reply choices, `@wait`, or `@finish`. Wait/finish directives
   must be the final top-level node, without choices in that passage. Conditions
@@ -360,8 +360,9 @@ therefore trigger only after the place has been unlocked. Runtime code can call
 that key. Unlocking is saved and irreversible: an unlocked instance never
 returns to the locked state.
 
-WG can reveal these places with the standalone directive
-`@unlock place <place-key>`, for example `@unlock place civil_office`.
+WG can reveal these places with the effect
+`@effect unlock place <place-key>`, for example
+`@effect unlock place civil_office`.
 The key must come from `PLACE_REGISTRY` or be `home_<npc-id>` for an NPC in
 `NPC_REGISTRY`. Other generated instance IDs and outdoor location/district IDs
 are not valid place keys. WG does not currently expose `place.unlocked`
@@ -1218,7 +1219,7 @@ difficulty, and two outcome blocks:
 The player sees only the choice label and orange `Strength: Tricky`. The UI
 does not display a probability, roll, selected outcome, branch duration, or
 sanitized preview of branch effects. Checked choices cannot use choice-level
-`@time`, `@response`, `@effect`, `@unlock`, `@change`, or `@preview`; put time,
+`@time`, `@response`, `@effect`, `@change`, or `@preview`; put time,
 responses, and silent effects inside each outcome.
 They may still use one `@icon`, `@when`, `@warning`, and `@check`, plus repeated
 `@require` directives. Both outcomes are required and may target another scene,
@@ -1232,7 +1233,7 @@ by skills. `D` begins near level `0`, `C` near `2.5`, `B` near `5`, and `A`
 near `7.5`; progress fills the space within each letter grade.
 
 Each `@success` or `@failure` block may contain at most one `@time`, including
-the optional `free` suffix, and any number of `@response`, `@effect`, and `@unlock`
+the optional `free` suffix, and any number of `@response` and `@effect`
 directives. It cannot contain `@time-until`, conditions, requirements,
 warnings, previews, icons, nested checks, or ordinary prose outside a response
 block.
@@ -1279,7 +1280,7 @@ Effects may appear inside direct choices, skill-check outcomes, a scene
 entered. It does not run while a screen is merely rendered or rebuilt. Moving
 between passages in the same scene does not run it again. Entering the same
 story target again through an ordinary choice does. The block may contain only
-`@effect` and `@unlock` directives, comments, and blank lines.
+`@effect` directives, comments, and blank lines.
 
 Body effects instead run during one-time post-time prose resolution. Moving to
 a new passage resolves that passage and can run its body effects without
@@ -1310,6 +1311,9 @@ Implemented effects are:
 @effect timer start rent.weekly
 @effect timer restart rent.weekly
 @effect timer stop rent.weekly
+@effect unlock place civil_office
+@effect relocate home
+@effect relocate nearest-place hospital
 ```
 
 - `set` and `add` target only `story.*`. Their values are expressions, and
@@ -1361,7 +1365,8 @@ requirements, and time costs do not create implicit effects or resource costs.
 
 All generated NPC residences start with `unlocked: false`. They remain
 available to NPC simulation but hidden from the player until unlocked with
-`@unlock place home_<npc-id>`, for example `@unlock place home_taylor`.
+`@effect unlock place home_<npc-id>`, for example
+`@effect unlock place home_taylor`.
 This uses the same saved, irreversible unlock state as other places.
 
 ### Timers
@@ -1371,36 +1376,37 @@ engine lives in `src/classes/game/timers.js`. Definitions may use elapsed
 `interval` schedules in hours or days, UTC `weekly` and `monthly` calendar
 schedules, or a one-shot `once` schedule. Repeating deadlines are always
 calculated from the previous deadline, so late processing cannot make them
-drift.
+drift. Prefer an `effects` array for ordinary state changes; an `onDue`
+callback remains available for timers that require algorithmic behavior.
 
 Only active state is serialized under `game.timers`: each entry stores its
 ISO `dueAt` timestamp and completed `occurrences`. During simulated time, the
 engine stops at the earliest timer or chat deadline, runs all timers due at
-that instant in stable ID order, then delivers chats. Timer callbacks change
+that instant in stable ID order, then delivers chats. Timer effect lists change
 durable state such as `story.*` and reminders; they do not enter scenes.
 Ordinary WG interrupt conditions decide whether that state unlocks a scene.
 
-Forward `jumpToDate(..., { mode: "resync" })` calls no timer callbacks. It
+Forward `jumpToDate(..., { mode: "resync" })` applies no timer effects. It
 removes elapsed one-shots and advances repeating deadlines past the target,
 matching resync's rule that skipped time must not manufacture gameplay events.
-Timer state and callback mutations are saved normally. Callback failures
+Timer state and effect mutations are saved normally. Effect failures
 propagate and do not restore the clock or earlier timer mutations.
 
 ### Unlocking places
 
-Use a standalone `@unlock place <place-key>` to reveal every generated
+Use `@effect unlock place <place-key>` to reveal every generated
 instance of a registered place key or an NPC home key (`home_<npc-id>`):
 
 ```wg
 @choice directions "Ask for directions to the civil office" -> @exit
-  @unlock place civil_office
+  @effect unlock place civil_office
 @endchoice
 ```
 
 It can also appear in an entered event scene body (including conditional,
 random, and passive-check branches), an `@onenter` block, or either outcome
 of a checked choice. Chats support it in passage bodies and reply choices;
-Kim's rent chat uses `@unlock place home_kim` after sharing the address.
+Kim's rent chat uses `@effect unlock place home_kim` after sharing the address.
 Place-hub choices can unlock places, but persistent
 place-hub prose and presentation-only `@response` blocks cannot. In a checked
 choice, put the unlock inside `@success` or `@failure`, not at choice level.
@@ -1420,7 +1426,7 @@ choice, put the unlock inside `@success` or `@failure`, not at choice level.
 
 This directive unlocks generated **places**, not outdoor map locations. It
 does not expose locking/relocking or instance-specific unlocking. Use the
-standalone spelling above; `@effect unlock` and `@change unlock` are not syntax.
+effect spelling above; `@change unlock` is not syntax.
 
 ## Reminders
 
@@ -1520,11 +1526,11 @@ unclosed blocks, duplicate scene, passage, location-contribution, choice, or
 choice-group IDs,
 invalid expressions and durations, unknown global and local targets, unknown
 skill-check target types, target IDs, and difficulties, unknown registered
-skill/stat/school-subject effect IDs, hub place keys, explicit hub leave
-choices, and duplicate authored place hubs. It checks
-`@unlock` place keys and `@time-until` path syntax, but not whether that
-runtime timestamp value exists. It does
-not validate other general runtime paths or NPC IDs.
+effect references, hub place keys, explicit hub leave choices, and duplicate
+authored place hubs. It checks
+`@effect unlock place` keys and `@time-until` path syntax, but not whether that
+runtime timestamp value exists. It does not validate other general runtime
+paths.
 
 Compilation is whole-project rather than file-local. Scene IDs have one global
 namespace. Location-contribution IDs have their own global namespace. Their local choice
@@ -1533,6 +1539,12 @@ Choice and choice-group IDs are checked across all conditional and random
 branches separately within each scene passage. Passage IDs are local to one
 scene. The compiler validates all global and local
 targets even if their branch is unreachable at runtime.
+
+Effect contracts are centralized in `src/shared/wg/effects/registry.js`.
+Compiler syntax adapters and runtime handlers are checked against that registry,
+so adding an operation requires all three pieces and a missing piece fails the
+effect-registry tests. Static references are validated only after every WG file
+has been parsed, which permits forward references to reminders and chats.
 
 The repository includes a zero-build VS Code extension with WG syntax
 highlighting, comments, indentation, bracket pairing, and folding. Install or
@@ -1557,13 +1569,12 @@ not implemented.
 | Location contribution | leading `@when` conditions, prose, interpolation, `@br`, conditionals, `@random` / `@or` / `@endrandom`, `@choicegroup ... @endchoicegroup`, `@choice ... @endchoice`; choices use the restrictions above |
 | Scene metadata | `@kind`, `@heading`, `@choices`, `@school-class`, `@system`, `@onenter ... @endonenter`, `@hub <place-key>`, `@offer`, `@auto` (`enter-place`, `enter-location`, or `leave-place`), `@pool`, `@place-key`, `@place-tag`, `@location-tag`, `@when`, `@label`, `@icon`, `@hub-text`, `@priority`, `@chance`, `@weight` |
 | Passage/navigation | `@passage`, `@next` |
-| Scene or passage body | prose, `@br`, trailing inline `@change`, `{{@if ...}} ... {{@elseif ...}} ... {{@else}} ... {{@endif}}`, `@if` / `@elseif` / `@else` / `@endif`, `@random` / `@or` / `@endrandom`, passive `@check` / `@success` / `@failure` / `@endcheck`, `@effect`, `@unlock`, `@change`, `@choicegroup ... @endchoicegroup`, `@choice ... @endchoice` |
-| Direct choice | `@icon`, `@time`, `@time-until`, `@event-pool`, `@event-chance`, `@when`, `@require`, `@warning`, `@response ... @endresponse`, `@preview`, `@effect`, `@unlock`, `@change` |
+| Scene or passage body | prose, `@br`, trailing inline `@change`, `{{@if ...}} ... {{@elseif ...}} ... {{@else}} ... {{@endif}}`, `@if` / `@elseif` / `@else` / `@endif`, `@random` / `@or` / `@endrandom`, passive `@check` / `@success` / `@failure` / `@endcheck`, `@effect`, `@change`, `@choicegroup ... @endchoicegroup`, `@choice ... @endchoice` |
+| Direct choice | `@icon`, `@time`, `@time-until`, `@event-pool`, `@event-chance`, `@when`, `@require`, `@warning`, `@response ... @endresponse`, `@preview`, `@effect`, `@change` |
 | Checked choice | `@icon`, `@event-pool`, `@event-chance`, `@when`, `@require`, `@warning`, `@check`, `@success ... @endsuccess`, `@failure ... @endfailure` |
-| Check outcome | `@time`, `@response ... @endresponse`, `@effect`, `@unlock` |
-| On-enter block | `@effect`, `@unlock` |
-| Unlock directive | `@unlock place <registered-place-key>` |
-| Effect operations | `set`, `add`, `flag`, `daily-flag`, `relationship`, `money`, `skill`, `stat`, `grade`, `attendance`, `reminder add`, `reminder clear`, `relocate home`, `relocate nearest-place` |
+| Check outcome | `@time`, `@response ... @endresponse`, `@effect` |
+| On-enter block | `@effect` |
+| Effect operations | `contact add`, `chat start`, `set`, `add`, `flag`, `daily-flag`, `relationship`, `money`, `skill`, `stat`, `grade`, `attendance`, `reminder add`, `reminder clear`, `timer start`, `timer restart`, `timer stop`, `unlock place`, `relocate home`, `relocate nearest-place` |
 | Story targets | global scene ID, local `.passage`, `@return`, `@exit`, `@leave-place` (`@next` and scene final targets have the narrower rules documented above) |
 
 ## Not supported by WG

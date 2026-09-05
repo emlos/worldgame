@@ -9,7 +9,7 @@ All places are generated even when their registry definition starts with
 absent from every player-facing map, destination list, and place choice, so its
 hub and place offers remain dormant. Runtime code unlocks all generated
 instances of a key with `game.unlockPlacesByKey("place_key")`; that state is
-saved and cannot be reversed. WG uses `@unlock place <place-key>` to reveal
+saved and cannot be reversed. WG uses `@effect unlock place <place-key>` to reveal
 places from story scenes, choices, or chats.
 
 Only places with real custom prose or behavior have an authored hub in this
@@ -42,6 +42,7 @@ exit completes. `@onenter` alone is initialization, not a trigger.
 
 Generated NPC homes start with `unlocked: false` and stay hidden from the
 player until revealed.
-Use `@unlock place home_<npc-id>`, for example `@unlock place home_taylor`,
+Use `@effect unlock place home_<npc-id>`, for example
+`@effect unlock place home_taylor`,
 to unlock a residence permanently. Kim's rent chat unlocks `home_kim` when
 Kim shares the address.
