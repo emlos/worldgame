@@ -1,7 +1,7 @@
 @# The bus stop needs authored controls; other civic/transport hubs are implicit.
 
 
-:: place.bus-stop [place hub]
+:: place.bus-stop
 @hub bus_stop
 @choices "Activities"
 
@@ -16,8 +16,7 @@ The route display at {{place.name}} is covered with times and destination names.
 @endchoice
 
 
-:: transit.bus-timetable [event]
-@kind event
+:: transit.bus-timetable
 @heading "Bus Timetable"
 @choices "Timetable"
 
@@ -27,8 +26,7 @@ The timetable lists the shared service used by every bus stop in the city.
 
 @endchoice
 
-:: transit.bus-boarding [event]
-@kind event
+:: transit.bus-boarding
 @heading "The Bus Arrives"
 @choices "Destinations"
 

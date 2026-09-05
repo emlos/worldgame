@@ -179,7 +179,7 @@
       "patterns": [
         {
           "name": "meta.scene.header.wg",
-          "match": "^(\\s*)(::)(\\s+)([a-z][a-z0-9_.-]*)(?:\\s+(\\[)([^\\]]*)(\\]))?(?:\\s+(->)\\s+((?:@exit|@return|[a-z][a-z0-9_.-]*)))?\\s*$",
+          "match": "^(\\s*)(::)(\\s+)([a-z][a-z0-9_.-]*)(?:\\s+(->)\\s+((?:@exit|@return|[a-z][a-z0-9_.-]*)))?\\s*$",
           "captures": {
             "2": {
               "name": "keyword.control.section.wg"
@@ -188,18 +188,9 @@
               "name": "entity.name.section.wg"
             },
             "5": {
-              "name": "punctuation.definition.annotation.begin.wg"
-            },
-            "6": {
-              "name": "storage.modifier.scene-tag.wg"
-            },
-            "7": {
-              "name": "punctuation.definition.annotation.end.wg"
-            },
-            "8": {
               "name": "keyword.operator.arrow.wg"
             },
-            "9": {
+            "6": {
               "name": "entity.name.section.reference.wg"
             }
           }
@@ -433,7 +424,7 @@
       "patterns": [
         {
           "name": "meta.property.directive.wg",
-          "begin": "^(\\s*)(@(text|tone|kind|heading|choices|behavior|system|hub|place-key|place-tag|location-tag|offer|auto|pool|when|label|icon|hub-text|priority|chance|weight|time|time-until|event-pool|event-chance|warning|preview|check))\\b",
+          "begin": "^(\\s*)(@(text|tone|heading|choices|behavior|system|hub|place-key|place-tag|location-tag|offer|auto|pool|when|label|icon|hub-text|priority|chance|weight|time|time-until|event-pool|event-chance|warning|preview|check))\\b",
           "beginCaptures": {
             "2": {
               "name": "keyword.other.directive.wg"

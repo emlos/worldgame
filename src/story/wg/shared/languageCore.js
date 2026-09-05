@@ -5,7 +5,6 @@ function freezeList(values) {
 export const WG_ID_PATTERN = "[a-z][a-z0-9_.-]*";
 export const WG_SIMPLE_ID_PATTERN = "[a-z][a-z0-9_-]*";
 export const WG_PASSAGE_ID_PATTERN = WG_SIMPLE_ID_PATTERN;
-export const WG_TAG_PATTERN = WG_SIMPLE_ID_PATTERN;
 export const WG_PATH_SEGMENT_PATTERN = "[A-Za-z_][A-Za-z0-9_]*";
 export const WG_DOTTED_PATH_PATTERN =
   `${WG_PATH_SEGMENT_PATTERN}(?:\\.${WG_PATH_SEGMENT_PATTERN})+`;

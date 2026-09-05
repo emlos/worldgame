@@ -122,15 +122,12 @@ export function buildWGTextMateGrammar() {
       "scene-header": {
         patterns: [{
           name: "meta.scene.header.wg",
-          match: `^(\\s*)(::)(\\s+)(${id})(?:\\s+(\\[)([^\\]]*)(\\]))?(?:\\s+(->)\\s+(${finalTarget}))?\\s*$`,
+          match: `^(\\s*)(::)(\\s+)(${id})(?:\\s+(->)\\s+(${finalTarget}))?\\s*$`,
           captures: {
             2: { name: "keyword.control.section.wg" },
             4: { name: "entity.name.section.wg" },
-            5: { name: "punctuation.definition.annotation.begin.wg" },
-            6: { name: "storage.modifier.scene-tag.wg" },
-            7: { name: "punctuation.definition.annotation.end.wg" },
-            8: { name: "keyword.operator.arrow.wg" },
-            9: { name: "entity.name.section.reference.wg" },
+            5: { name: "keyword.operator.arrow.wg" },
+            6: { name: "entity.name.section.reference.wg" },
           },
         }],
       },

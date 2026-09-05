@@ -23,7 +23,6 @@ import {
   WG_PROBABILITY_DECIMAL_PATTERN,
   WG_QUOTED_STRING_PATTERN,
   WG_SIMPLE_ID_PATTERN,
-  WG_TAG_PATTERN,
 } from "./languageCore.js";
 
 export * from "./languageCore.js";
@@ -44,9 +43,6 @@ export const WG_SCENE_FINAL_TARGET_PATTERN =
 export const WG_NEXT_TARGET_PATTERN =
   `(?:${WG_STORY_TARGETS.exit}|${WG_STORY_TARGETS.return}|\\.${WG_PASSAGE_ID_PATTERN}|${WG_ID_PATTERN})`;
 
-// `place` is recognized so the compiler can issue the precise @hub-specific
-// diagnostic; authors cannot set it directly.
-export const WG_SCENE_KINDS = freezeList(["event", "location", "place"]);
 export const WG_AUTO_TRIGGER = Object.freeze({
   enterPlace: "enter-place",
   enterLocation: "enter-location",
@@ -57,7 +53,6 @@ export const WG_REMINDER_TONES = freezeList(["info", "warning"]);
 export const WG_CHECK_TARGET_TYPES = freezeList(["skill", "grade"]);
 
 export const WG_SCENE_METADATA_DIRECTIVES = freezeList([
-  "kind",
   "heading",
   "choices",
   "behavior",
@@ -80,7 +75,6 @@ export const WG_SCENE_METADATA_DIRECTIVES = freezeList([
 ]);
 
 export const WG_SINGLE_SCENE_METADATA_DIRECTIVES = freezeList([
-  "kind",
   "heading",
   "choices",
   "behavior",
@@ -152,7 +146,7 @@ export const WG_DIRECTIVE_CONTEXTS = Object.freeze([
   {
     label: "Top level",
     syntax: [
-      ":: <scene-id> [tags...] [-> <final-target>]",
+      ":: <scene-id> [-> <final-target>]",
       "@chat ... @endchat",
       "@location ... @endlocation",
       "@reminder ... @endreminder",
@@ -277,7 +271,6 @@ export const WG_LANGUAGE = Object.freeze({
     id: WG_ID_PATTERN,
     simpleId: WG_SIMPLE_ID_PATTERN,
     passageId: WG_PASSAGE_ID_PATTERN,
-    tag: WG_TAG_PATTERN,
     pathSegment: WG_PATH_SEGMENT_PATTERN,
     dottedPath: WG_DOTTED_PATH_PATTERN,
     quotedString: WG_QUOTED_STRING_PATTERN,
@@ -297,7 +290,6 @@ export const WG_LANGUAGE = Object.freeze({
   directiveContexts: WG_DIRECTIVE_CONTEXTS,
   blocks: WG_BLOCKS,
   enums: Object.freeze({
-    sceneKinds: WG_SCENE_KINDS,
     automaticTriggers: WG_AUTO_TRIGGERS,
     reminderTones: WG_REMINDER_TONES,
     checkTargetTypes: WG_CHECK_TARGET_TYPES,

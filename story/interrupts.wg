@@ -47,7 +47,6 @@
 :: interrupt.exhaustion.hospital -> @exit
   @pool interrupt
   @when player.energy <= 0
-  @priority 0
   @heading "Everything goes dark"
 
   @passage collapse

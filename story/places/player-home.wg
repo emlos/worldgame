@@ -1,4 +1,4 @@
-:: place.player-home [place hub]
+:: place.player-home
 @hub player_home
 You are back in the privacy of your four walls.
 

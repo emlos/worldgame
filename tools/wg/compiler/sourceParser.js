@@ -24,13 +24,11 @@ import {
   WG_QUOTED_STRING_PATTERN,
   WG_REMINDER_TONES,
   WG_SCENE_FINAL_TARGET_PATTERN,
-  WG_SCENE_KINDS,
   WG_SCENE_METADATA_DIRECTIVES,
   WG_SIMPLE_ID_PATTERN,
   WG_SINGLE_SCENE_METADATA_DIRECTIVES,
   WG_STORY_TARGET_PATTERN,
   WG_NEXT_TARGET_PATTERN,
-  WG_TAG_PATTERN,
 } from "../../../src/story/wg/shared/language.js";
 
 const ID_PATTERN = WG_ID_PATTERN;
@@ -39,7 +37,6 @@ const RELATIONSHIP_TARGET_PATTERN = `(${SIMPLE_ID_PATTERN})\\.(${SIMPLE_ID_PATTE
 const ID_REGEX = new RegExp(`^${ID_PATTERN}$`);
 const PASSAGE_ID_PATTERN = WG_PASSAGE_ID_PATTERN;
 const STORY_TARGET_PATTERN = WG_STORY_TARGET_PATTERN;
-const TAG_REGEX = new RegExp(`^${WG_TAG_PATTERN}$`);
 const PATH_REGEX = new RegExp(`^${WG_DOTTED_PATH_PATTERN}$`);
 const QUOTED_PATTERN = WG_QUOTED_STRING_PATTERN;
 
@@ -1284,7 +1281,6 @@ function parseSceneChunk(file, chunk, features) {
     priority: 0,
     chance: 1,
     weight: 1,
-    tags: chunk.tags,
     source: nodeSource(file, chunk.headerLine),
   };
   const singleFields = new Set();
@@ -1311,13 +1307,7 @@ function parseSceneChunk(file, chunk, features) {
       singleFields.add(name);
     }
 
-    if (name === "kind") {
-      scene.kind = directiveArgument(text, "kind", location);
-      if (!WG_SCENE_KINDS.includes(scene.kind)) {
-        failWG(`Scene kind must be one of: ${WG_SCENE_KINDS.join(", ")}`, location);
-      }
-      index += 1;
-    } else if (name === "heading") {
+    if (name === "heading") {
       scene.heading = parseQuotedString(
         directiveArgument(text, "heading", location),
         location,
@@ -1554,18 +1544,6 @@ function parseSceneChunk(file, chunk, features) {
       lineLocation(file, chunk.headerLine),
     );
   }
-  if (scene.hub && singleFields.has("kind")) {
-    failWG(
-      "@kind place is implicit for @hub scenes",
-      lineLocation(file, chunk.headerLine),
-    );
-  }
-  if (!scene.hub && scene.kind === "place") {
-    failWG(
-      "@kind place is reserved for @hub <place-key> scenes",
-      lineLocation(file, chunk.headerLine),
-    );
-  }
   if (
     scene.hub?.type === "place" &&
     (scene.placeKeys.length !== 1 ||
@@ -1773,24 +1751,15 @@ export function parseWGDocument(
     if (trimmed.startsWith("::")) {
       const header = trimmed.match(
         new RegExp(
-          `^::\\s+(${ID_PATTERN})(?:\\s+\\[([^\\]]*)\\])?(?:\\s+->\\s+(${WG_SCENE_FINAL_TARGET_PATTERN}))?\\s*$`,
+          `^::\\s+(${ID_PATTERN})(?:\\s+->\\s+(${WG_SCENE_FINAL_TARGET_PATTERN}))?\\s*$`,
         ),
       );
       if (!header) {
         failWG("Malformed scene header", lineLocation(normalizedFile, line.line));
       }
-      const tags = header[2]
-        ? header[2].trim().split(/\s+/).filter(Boolean)
-        : [];
-      for (const tag of tags) {
-        if (!TAG_REGEX.test(tag)) {
-          failWG(`Invalid scene tag '${tag}'`, lineLocation(normalizedFile, line.line));
-        }
-      }
       currentChunk = {
         id: header[1],
-        tags: [...new Set(tags)],
-        finalTarget: header[3] ?? null,
+        finalTarget: header[2] ?? null,
         headerLine: line.line,
         lines: [],
       };

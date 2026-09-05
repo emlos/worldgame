@@ -8,14 +8,11 @@ export const OUTCOME = Object.freeze({
   DIRE: "dire",
 });
 
-const MARKER_PATTERN =
-  /\[(very(?:[-_ ]?good)|good|ok|warning|bad|dire)\]([\s\S]*?)\[\/\1\]/gi;
+const MARKER_PATTERN = /\[(good|ok|warning|bad|dire)\]([\s\S]*?)\[\/\1\]/gi;
 
 function canonicalOutcomeTag(tag) {
-  const compact = String(tag).toLowerCase().replace(/[-_\s]/g, "");
-  return compact === "good" || compact === "verygood"
-    ? OUTCOME.VERY_GOOD
-    : compact;
+  const compact = String(tag).toLowerCase();
+  return compact === "good" ? OUTCOME.VERY_GOOD : compact;
 }
 
 /** Map a bounded value to the shared player-facing outcome scale. */
@@ -65,8 +62,8 @@ export function outcomeForChange({ type, statId, amount, higherIsBetter }) {
 /**
  * Split passage prose into plain and outcome-coloured runs.
  *
- * Supported markers are [good], [very-good], [ok], [warning], [bad], and
- * [dire]. Unclosed or mismatched markers remain ordinary visible text.
+ * Supported markers are [good], [ok], [warning], [bad], and [dire]. Unclosed
+ * or mismatched markers remain ordinary visible text.
  */
 export function parseOutcomeText(value) {
   const source = String(value ?? "");

@@ -1,4 +1,4 @@
-:: place.civil-office [place hub]
+:: place.civil-office
 @hub civil_office
 
 Counters, forms, and noticeboards fill {{place.name}}.

@@ -1,6 +1,6 @@
 @# Small end-to-end runtime example for the WG compiler and materializer.
 
-:: taylor.study.peek [event taylor study]
+:: taylor.study.peek
   @place-key player_home
   @offer place
   @label "Study with Taylor"
@@ -38,7 +38,7 @@ Taylor remains focused on the textbook.
 @choice leave "Give up on studying" -> @exit
 @endchoice
 
-:: taylor.study.back [event taylor study]
+:: taylor.study.back
 @heading "Taylor's room"
 
 @onenter
@@ -51,7 +51,7 @@ You return your attention to the textbook.
   @time 1h
 @endchoice
 
-:: taylor.study.mess [event taylor study]
+:: taylor.study.mess
 @heading "Taylor's room"
 
 You reach across the desk and interrupt Taylor's careful notes.

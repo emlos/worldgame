@@ -85,7 +85,7 @@ contact queues until the active one finishes. Contacts appear in the Chats app.
   interpolation values, not transcript bodies. Rendering/loading history never
   reruns effects. Editing authored wording changes the reconstructed wording;
   renamed/removed references invalidate development saves. Game save format is
-  currently 31; the separately versioned compiled WG bundle format is 27.
+  currently 32; the separately versioned compiled WG bundle format is 28.
 - Unread counts include incoming messages after each contact's saved read
   position. Opening the contact list does not mark messages read. Reading to the
   end of a visible thread does. The app badge totals all contacts.
@@ -105,7 +105,7 @@ Exposure metadata lives on the scene it exposes. This example adds a scene to
 the current place's “Things to do” section:
 
 ```wg
-:: taylor.study.peek [event taylor study]
+:: taylor.study.peek
 @place-key player_home
 @offer place
 @label "Study with Taylor"
@@ -135,7 +135,7 @@ their own logical lines, except for prose `@br` markers, trailing inline
 - Scene, chat, location-contribution, reminder, choice, and choice-group IDs start with a
   lowercase letter and may then contain lowercase letters, numbers, `_`, `-`,
   or `.`.
-- Passage IDs and scene tags use the same rules but do not allow `.`. A local
+- Passage IDs use the same rules but do not allow `.`. A local
   passage is declared as `@passage result` and targeted as `.result`.
 - Expression paths contain one or more segments. Every segment starts with a
   letter or `_` and then uses letters, numbers, or `_`. Interpolation and
@@ -178,7 +178,7 @@ and NPC interactions, plus a one-minute **Leave** choice.
 Author a hub only when a place needs its own prose or choices:
 
 ```wg
-:: place.library [place library]
+:: place.library
 @hub library
 @choices "Activities"
 
@@ -190,8 +190,8 @@ Rows of bookshelves divide the quiet room.
 ```
 
 `@hub <place-key>` selects exactly one registered place (including generated
-`home_<npc-id>` keys) and implies `@kind place` and the corresponding
-`@place-key`. Do not repeat those directives or add other position selectors.
+`home_<npc-id>` keys) and implies the corresponding `@place-key`. Do not repeat
+that selector or add other position selectors.
 An authored hub contains exactly one passage and cannot also use `@offer`,
 `@auto`, or `@pool`.
 
@@ -439,7 +439,7 @@ target enters that story. Responses use the completed post-action state and
 are displayed only for the immediate result. Flags persist through save/load.
 
 Location contributions require a non-empty body, but prose-only blocks are
-allowed. They do not support scene metadata such as `@offer`, `@hub`, `@kind`,
+allowed. They do not support scene metadata such as `@offer` or `@hub`,
 `@heading`, or `@choices`, or passage directives such as `@passage` and
 `@next`. Put effects and changes inside
 choices, not persistent hub prose; body effects, inline changes, passive checks,
@@ -455,8 +455,7 @@ A scene starts with a header and continues until the next top-level scene,
 chat, location-contribution, or reminder declaration:
 
 ```wg
-:: taylor.study.peek [event taylor study]
-@kind event
+:: taylor.study.peek
 @heading "Taylor's room"
 @choices "What do you do?"
 
@@ -464,16 +463,13 @@ Taylor looks up from the textbook.
 ```
 
 - Scene IDs must be globally unique.
-- Header tags are optional lowercase metadata using letters, numbers, `_`, and
-  `-`. Duplicate tags on one header are collapsed. Tags are emitted into the
-  compiled data but are not currently used by the runtime.
-- `@kind` supports `event` or `location` and defaults to `event`. Place kind is
-  assigned implicitly by `@hub <place-key>` and cannot be written separately.
+- WG scenes are events unless `@hub <place-key>` identifies them as persistent
+  place hubs. Scene kind is inferred and cannot be authored separately.
 - `@heading "..."` optionally sets the page heading. If it is omitted, the
   scene renders without an `<h1>` heading.
 - `@choices "..."` labels the default section for ungrouped choices and
   defaults to `"Choices"`.
-- `@kind`, `@heading`, `@choices`, `@behavior`, `@system`, `@onenter`, and
+- `@heading`, `@choices`, `@behavior`, `@system`, `@onenter`, and
   all exposure directives are scene metadata. They must appear before prose,
   passages, conditionals, or choices. Single-value directives may appear only
   once.
@@ -737,9 +733,9 @@ choice labels, and custom Next labels support these outcome-colour markers:
 [dire]The situation is dire.[/dire]
 ```
 
-`[good]` is the short form of `[very-good]`. Markers are not nested. Missing
-or mismatched closing markers remain visible as ordinary text, which makes
-authoring mistakes obvious instead of swallowing prose.
+Markers are not nested. Missing or mismatched closing markers remain visible as
+ordinary text, which makes authoring mistakes obvious instead of swallowing
+prose.
 
 ```wg
 You have £{{player.money}}.
@@ -1493,9 +1489,9 @@ destination day's batch, and a backward date change clears the batch.
 
 Only active authored IDs are saved; automatic school reminders are derived
 from the schedule. The built-in and authored namespaces cannot collide.
-Game save format 31 includes the reminder state and game-start date; older saves
+Game save format 32 includes the reminder state and game-start date; older saves
 are intentionally unsupported. The compiled WG bundle has its own format version,
-currently 26.
+currently 28.
 
 Reminder lifecycle integration is covered by
 `node --test tests/timers.test.mjs tests/cafe_job.test.mjs`; all authored reminder
@@ -1575,10 +1571,10 @@ not implemented.
 <!-- Generated from src/story/wg/shared/language.js. -->
 | Context | Directives |
 | --- | --- |
-| Top level | `:: <scene-id> [tags...] [-> <final-target>]`, `@chat ... @endchat`, `@location ... @endlocation`, `@reminder ... @endreminder`, `@#` |
+| Top level | `:: <scene-id> [-> <final-target>]`, `@chat ... @endchat`, `@location ... @endlocation`, `@reminder ... @endreminder`, `@#` |
 | Reminder definition | `required @text`, `optional @tone`, `@priority` |
 | Location contribution | `leading @when conditions`, `prose`, `interpolation`, `@br`, `conditionals`, `@random ... @or ... @endrandom`, `@choicegroup ... @endchoicegroup`, `@choice ... @endchoice` |
-| Scene metadata | `@kind`, `@heading`, `@choices`, `@behavior`, `@system`, `@onenter`, `@hub`, `@place-key`, `@place-tag`, `@location-tag`, `@offer`, `@auto`, `@pool`, `@when`, `@label`, `@icon`, `@hub-text`, `@priority`, `@chance`, `@weight` |
+| Scene metadata | `@heading`, `@choices`, `@behavior`, `@system`, `@onenter`, `@hub`, `@place-key`, `@place-tag`, `@location-tag`, `@offer`, `@auto`, `@pool`, `@when`, `@label`, `@icon`, `@hub-text`, `@priority`, `@chance`, `@weight` |
 | Passage/navigation | `@passage`, `@next` |
 | Scene or passage body | `prose`, `@br`, `trailing inline @change`, `inline and block @if / @elseif / @else / @endif`, `@random / @or / @endrandom`, `passive @check / @success / @failure / @endcheck`, `@effect`, `@change`, `@choicegroup ... @endchoicegroup`, `@choice ... @endchoice` |
 | Direct choice | `@icon`, `@time`, `@time-until`, `@event-pool`, `@event-chance`, `@when`, `@require`, `@warning`, `@response ... @endresponse`, `@preview`, `@effect`, `@change` |

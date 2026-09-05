@@ -1,4 +1,4 @@
-:: place.high-school [place hub]
+:: place.high-school
 @hub high_school
 @choices "Travel"
 

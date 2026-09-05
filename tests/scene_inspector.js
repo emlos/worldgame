@@ -78,7 +78,7 @@ const catalog = [
     title: titleForDefinition(id, definition),
     detail: definition.system
       ? `${definition.system.id} system scene`
-      : `${definition.kind} scene · ${definition.passages?.length || 0} passage${definition.passages?.length === 1 ? "" : "s"}${definition.tags?.length ? ` · ${definition.tags.join(", ")}` : ""}`,
+      : `${definition.kind} scene · ${definition.passages?.length || 0} passage${definition.passages?.length === 1 ? "" : "s"}`,
   })),
 ].sort((left, right) =>
   left.type.localeCompare(right.type) ||

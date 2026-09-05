@@ -1,6 +1,6 @@
 @# The cafe has authored job actions; other shop and food hubs are implicit.
 
-:: place.cafe [place hub]
+:: place.cafe
 @hub cafe
 
 The quiet clatter of cups fills {{place.name}}.

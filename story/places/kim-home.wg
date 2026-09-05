@@ -1,4 +1,4 @@
-:: place.kim-office [place hub]
+:: place.kim-office
 @hub home_kim
 Kim is sitting at {{npc.kim.dependent}} desk. {{npc.kim.subject | cap}} looks up as you enter.
 

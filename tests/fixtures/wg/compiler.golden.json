@@ -1,5 +1,5 @@
 {
-  "formatVersion": 27,
+  "formatVersion": 28,
   "scenes": {
     "fixture.followup": {
       "id": "fixture.followup",
@@ -71,8 +71,7 @@
       "hubText": null,
       "priority": 0,
       "chance": 1,
-      "weight": 1,
-      "tags": []
+      "weight": 1
     },
     "fixture.scene": {
       "id": "fixture.scene",
@@ -282,11 +281,7 @@
       "hubText": "A compiler fixture is ready.",
       "priority": 0,
       "chance": 1,
-      "weight": 1,
-      "tags": [
-        "fixture",
-        "event"
-      ]
+      "weight": 1
     }
   },
   "locationContributions": {},

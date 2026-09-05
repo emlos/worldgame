@@ -4,7 +4,7 @@
   @priority 7
 @endreminder
 
-:: fixture.scene [fixture event]
+:: fixture.scene
   @place-key cafe
   @offer place
   @label "Open the fixture"

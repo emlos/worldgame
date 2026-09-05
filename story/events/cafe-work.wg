@@ -29,11 +29,8 @@
 :: cafe.job.shift.cleanup -> @return
   @pool cafe.job.shift
   @place-key cafe
-  @priority 0
-  @weight 1
   @choices "What do you do?"
 
-  @passage opening
 
   A tray clips the corner of a table. Two drinks hit the floor, splashing coffee across the tiles and the bottom of your apron.
 
@@ -57,11 +54,8 @@
 :: cafe.job.shift.mistake -> @return
   @pool cafe.job.shift
   @place-key cafe
-  @priority 0
-  @weight 1
   @choices "What do you do?"
 
-  @passage opening
 
   You realize that you entered an order incorrectly just as the wrong drinks reach the table. The customers look from the cups to you, waiting for an explanation.
 
@@ -98,9 +92,6 @@
 :: cafe.job.shift.routine -> @return
   @pool cafe.job.shift
   @place-key cafe
-  @priority 0
-  @weight 1
-  @passage opening
 
   The hour passes without incident. You take orders, wipe tables, and keep the counter stocked until the manager tells you that you are done.
 
@@ -108,11 +99,8 @@
 :: cafe.job.shift.rowdy-customer -> @return
   @pool cafe.job.shift
   @place-key cafe
-  @priority 0
-  @weight 1
   @choices "How do you handle them?"
 
-  @passage opening
 
   A customer starts complaining loudly about their order. Their voice carries across the cafe, and the other customers are beginning to stare.
 

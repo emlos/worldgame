@@ -13,11 +13,11 @@ saved and cannot be reversed. WG uses `@effect unlock place <place-key>` to reve
 places from story scenes, choices, or chats.
 
 Only places with real custom prose or behavior have an authored hub in this
-directory. Declare one with `@hub <place-key>`; this also implies `@kind place`
-and the corresponding place selector. Do not author a Leave choice.
+directory. Declare one with `@hub <place-key>`; this also implies the
+corresponding place selector. Do not author a Leave choice.
 
 ```wg
-:: place.library [place library]
+:: place.library
 @hub library
 
 Rows of bookshelves divide the quiet room.
@@ -27,7 +27,7 @@ Rows of bookshelves divide the quiet room.
   @time 1h
 @endchoice
 
-:: library.study [event library]
+:: library.study
 @heading "A quiet study session"
 
 You settle down with your notes.

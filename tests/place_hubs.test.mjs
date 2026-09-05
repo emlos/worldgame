@@ -103,7 +103,7 @@ The event runs outside.
     },
   ]);
 
-  assert.equal(bundle.formatVersion, 27);
+  assert.equal(bundle.formatVersion, 28);
   assert.equal(bundle.scenes["fixture.cafe-hub"].kind, "place");
   assert.deepEqual(bundle.scenes["fixture.cafe-hub"].placeKeys, ["cafe"]);
   assert.deepEqual(
@@ -112,23 +112,38 @@ The event runs outside.
   );
 });
 
-test("authored hubs cannot restate their implicit kind or Leave choice", () => {
+test("removed scene kind and header-tag syntax is rejected", () => {
   assert.throws(
     () =>
       compileStorySources([
         {
-          file: "tests/redundant-hub-kind.wg",
-          source: `:: fixture.cafe-hub
-@hub cafe
-@kind place
+          file: "tests/removed-scene-kind.wg",
+          source: `:: fixture.event
+@kind event
 
-The cafe has custom content.
+This is an event.
 `,
         },
       ]),
-    /@kind place is implicit/,
+    /Unexpected @kind/,
   );
 
+  assert.throws(
+    () =>
+      compileStorySources([
+        {
+          file: "tests/removed-header-tags.wg",
+          source: `:: fixture.event [event fixture]
+
+This is an event.
+`,
+        },
+      ]),
+    /Malformed scene header/,
+  );
+});
+
+test("authored hubs cannot add their own Leave choice", () => {
   assert.throws(
     () =>
       compileStorySources([
@@ -145,20 +160,5 @@ The cafe has custom content.
         },
       ]),
     /reserved by the implicit place-hub navigation/,
-  );
-
-  assert.throws(
-    () =>
-      compileStorySources([
-        {
-          file: "tests/orphan-place-kind.wg",
-          source: `:: fixture.orphan-place
-@kind place
-
-This is not attached to a generated place.
-`,
-        },
-      ]),
-    /@kind place is reserved for @hub/,
   );
 });
