@@ -1,6 +1,6 @@
-import { TIMER_DEFINITIONS } from "./timerDefinitions.js";
 import { validateWGEffectShape } from "../story/wg/shared/effects/registry.js";
 import { applyWGEffects } from "../story/wg/runtime/effectRuntime.js";
+import { DEFAULT_FEATURE_CATALOG } from "../features/index.js";
 import {
   failSave,
   requiredSaveField,
@@ -128,25 +128,25 @@ export function validateTimerDefinition(id, definition) {
   return definition;
 }
 
-for (const [id, definition] of Object.entries(TIMER_DEFINITIONS)) {
+for (const [id, definition] of Object.entries(DEFAULT_FEATURE_CATALOG.timerDefinitions)) {
   validateTimerDefinition(id, definition);
 }
 
-export function getTimerDefinition(id) {
+export function getTimerDefinition(id, features = DEFAULT_FEATURE_CATALOG) {
   const key = String(id);
-  return Object.prototype.hasOwnProperty.call(TIMER_DEFINITIONS, key)
-    ? TIMER_DEFINITIONS[key]
+  return Object.prototype.hasOwnProperty.call(features.timerDefinitions, key)
+    ? features.timerDefinitions[key]
     : null;
 }
 
 export function validateTimerStateSave(
   value,
-  { path = "save.timers", gameTime },
+  { path = "save.timers", gameTime, features = DEFAULT_FEATURE_CATALOG },
 ) {
   const timers = saveRecord(value, path);
   for (const [id, stateData] of Object.entries(timers)) {
     const timerPath = `${path}.${id}`;
-    if (!getTimerDefinition(id)) failSave(timerPath, `references unknown timer '${id}'`);
+    if (!getTimerDefinition(id, features)) failSave(timerPath, `references unknown timer '${id}'`);
     const state = saveRecord(stateData, timerPath);
     const dueAt = saveDateMilliseconds(
       requiredSaveField(state, "dueAt", timerPath),
@@ -164,9 +164,9 @@ export function validateTimerStateSave(
   return timers;
 }
 
-function requireTimerDefinition(id) {
+function requireTimerDefinition(id, features = DEFAULT_FEATURE_CATALOG) {
   const key = String(id);
-  const definition = getTimerDefinition(key);
+  const definition = getTimerDefinition(key, features);
   if (!definition) fail(`Unknown timer '${key}'`);
   return { id: key, definition };
 }
@@ -252,7 +252,7 @@ function freshTimerState(definition, now) {
 }
 
 export function startTimer(game, id) {
-  const { id: key, definition } = requireTimerDefinition(id);
+  const { id: key, definition } = requireTimerDefinition(id, game.features);
   const timers = timerState(game);
   if (Object.prototype.hasOwnProperty.call(timers, key)) return false;
   timers[key] = freshTimerState(definition, game.now);
@@ -260,13 +260,13 @@ export function startTimer(game, id) {
 }
 
 export function restartTimer(game, id) {
-  const { id: key, definition } = requireTimerDefinition(id);
+  const { id: key, definition } = requireTimerDefinition(id, game.features);
   timerState(game)[key] = freshTimerState(definition, game.now);
   return true;
 }
 
 export function stopTimer(game, id) {
-  const { id: key } = requireTimerDefinition(id);
+  const { id: key } = requireTimerDefinition(id, game.features);
   return delete timerState(game)[key];
 }
 
@@ -296,7 +296,7 @@ export function processDueTimers(game) {
   for (const id of dueIds) {
     const state = timers[id];
     if (!state || new Date(state.dueAt).getTime() > nowMs) continue;
-    const { definition } = requireTimerDefinition(id);
+    const { definition } = requireTimerDefinition(id, game.features);
     const dueAt = validDate(state.dueAt, `Timer '${id}' deadline`);
     const occurrence = Number(state.occurrences) + 1;
     if (!Number.isSafeInteger(occurrence) || occurrence <= 0) {
@@ -321,7 +321,7 @@ export function resyncTimers(game, targetValue) {
 
   for (const id of Object.keys(timers).sort()) {
     const state = timers[id];
-    const { definition } = requireTimerDefinition(id);
+    const { definition } = requireTimerDefinition(id, game.features);
     let dueAt = validDate(state.dueAt, `Timer '${id}' deadline`);
     if (dueAt > target) continue;
 

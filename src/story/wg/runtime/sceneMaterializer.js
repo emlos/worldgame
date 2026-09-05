@@ -192,6 +192,7 @@ function materializeChoice(node, context, options = {}) {
     const target = getSkillCheckTargetDefinition(
       node.check.targetType,
       node.check.targetId,
+      options.gameFeatures,
     );
     const difficulty = getSkillCheckDifficulty(node.check.difficultyId);
     if (!target || !difficulty) {
@@ -385,6 +386,7 @@ export function materializeWGScene(game, definition, passageId = null) {
     sceneId: definition.id,
     choiceSectionHeading: definition.choiceHeading,
     gameSeed: game.seed,
+    gameFeatures: game.features,
     resolution,
     storyInstanceKey: resolution
       ? game.currentStory.instanceKey

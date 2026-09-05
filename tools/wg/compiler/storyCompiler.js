@@ -14,6 +14,7 @@ import {
 import { walkWGDefinitionEffects } from "../../../src/story/wg/shared/effects/traversal.js";
 import { WG_STORY_TARGETS } from "../../../src/story/wg/shared/language.js";
 import { walkWGNodes } from "../../../src/story/wg/shared/tree.js";
+import { DEFAULT_FEATURE_CATALOG } from "../../../src/features/index.js";
 
 function compareText(left, right) {
   return left < right ? -1 : left > right ? 1 : 0;
@@ -62,7 +63,7 @@ function hasPersistentProseMutation(node) {
     ));
 }
 
-export function compileStorySources(sources) {
+export function compileStorySources(sources, { features = DEFAULT_FEATURE_CATALOG } = {}) {
   if (!Array.isArray(sources) || sources.length === 0) {
     failWG("No WG source files were found", { file: "story", line: 1, column: 1 });
   }
@@ -77,7 +78,7 @@ export function compileStorySources(sources) {
   const npcIds = new Set(NPC_REGISTRY.map((npc) => npc.id));
 
   for (const source of orderedSources) {
-    const document = parseWGDocument(source);
+    const document = parseWGDocument(source, { features });
     for (const chat of document.chats) {
       if (chatMap.has(chat.id)) failWG(`Duplicate chat '${chat.id}'`, atSource(chat.source));
       if (!npcIds.has(chat.npcId)) failWG(`Unknown chat NPC '${chat.npcId}'`, atSource(chat.source));
@@ -120,7 +121,11 @@ export function compileStorySources(sources) {
     failWG("No WG scenes, location contributions, reminders, or chats were found", { file: "story", line: 1, column: 1 });
   }
 
-  const effectCatalog = createCompilerEffectCatalog({ reminderMap, chatMap });
+  const effectCatalog = createCompilerEffectCatalog({
+    reminderMap,
+    chatMap,
+    features,
+  });
   for (const definition of [...sceneMap.values(), ...locationMap.values(), ...chatMap.values()]) {
     walkWGDefinitionEffects(definition, (effect) => {
       const options = {
@@ -187,17 +192,18 @@ export function compileStorySources(sources) {
         );
       }
     }
-    if (scene.schoolClass) {
-      const passageIds = scene.passages.map((passage) => passage.id);
-      const expectedIds = passageIds.map((_, index) => `segment-${index + 1}`);
-      if (
-        passageIds.length === 0 ||
-        passageIds.some((passageId, index) => passageId !== expectedIds[index])
-      ) {
-        failWG(
-          `School class scene '${scene.id}' requires contiguous passages named segment-1 through segment-${passageIds.length}`,
-          atSource(scene.schoolClass.source),
-        );
+    if (scene.system && !features.getWGSystem(scene.system.id)) {
+      failWG(`Unknown WG story system '${scene.system.id}'`, atSource(scene.system.source));
+    }
+    if (scene.behavior) {
+      const behavior = features.getStoryBehavior(scene.behavior.id);
+      if (!behavior) {
+        failWG(`Unknown WG story behavior '${scene.behavior.id}'`, atSource(scene.behavior.source));
+      }
+      try {
+        behavior.validateDefinition?.(scene);
+      } catch (error) {
+        failWG(error.message, atSource(scene.behavior.source));
       }
     }
     for (const passage of scene.passages) {

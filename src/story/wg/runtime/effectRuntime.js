@@ -1,6 +1,6 @@
 import { evaluateWGExpression, resolveWGPath } from "./expressionEvaluator.js";
 import { createWGRuntimeContext } from "./runtimeContext.js";
-import { WG_RUNTIME_EFFECT_CATALOG } from "./effectCatalog.js";
+import { getWGRuntimeEffectCatalog } from "./effectCatalog.js";
 import {
   validateWGEffectReferences,
   WG_EFFECT_OPS,
@@ -127,14 +127,6 @@ function applyStatEffect(game, effect) {
   game.player.adjustStatBase(effect.id, effect.amount);
 }
 
-function applyGradeEffect(game, effect) {
-  game.player.adjustSubjectAchievement(effect.id, effect.amount);
-}
-
-function applyAttendanceEffect(game, effect) {
-  game.player.recordSubjectAttendance(effect.id, effect.amount);
-}
-
 const EFFECT_HANDLERS = new Map([
   ["contact", applyContactEffect],
   ["chat", applyChatEffect],
@@ -150,37 +142,35 @@ const EFFECT_HANDLERS = new Map([
   ["money", applyMoneyEffect],
   ["skill", applySkillEffect],
   ["stat", applyStatEffect],
-  ["grade", applyGradeEffect],
-  ["attendance", applyAttendanceEffect],
 ]);
 
-for (const op of WG_EFFECT_OPS) {
-  if (!EFFECT_HANDLERS.has(op)) {
-    throw new Error(`WG effect '${op}' has no runtime handler`);
-  }
-}
 for (const op of EFFECT_HANDLERS.keys()) {
   if (!WG_EFFECT_OPS.includes(op)) {
     throw new Error(`WG runtime handler '${op}' has no effect specification`);
   }
 }
 
-export const WG_EFFECT_HANDLER_OPS = Object.freeze([...EFFECT_HANDLERS.keys()]);
+export function getWGEffectHandlerOps(features) {
+  return Object.freeze([
+    ...EFFECT_HANDLERS.keys(),
+    ...(features?.wgEffectHandlerOps ?? []),
+  ]);
+}
 
-function runtimeHandler(effect) {
-  validateWGEffectReferences(effect, WG_RUNTIME_EFFECT_CATALOG, { fail });
-  const handler = EFFECT_HANDLERS.get(effect.op);
+function runtimeHandler(game, effect) {
+  validateWGEffectReferences(effect, getWGRuntimeEffectCatalog(game.features), { fail });
+  const handler = EFFECT_HANDLERS.get(effect.op) ?? game.features.getWGEffectHandler(effect.op);
   if (!handler) fail(`Unknown WG effect '${String(effect.op)}'`);
   return handler;
 }
 
 export function applyWGEffect(game, effect) {
-  runtimeHandler(effect)(game, effect);
+  runtimeHandler(game, effect)(game, effect);
 }
 
 export function applyWGEffects(game, effects) {
   if (!Array.isArray(effects)) fail("WG effect collections must be arrays");
-  const handlers = effects.map(runtimeHandler);
+  const handlers = effects.map((effect) => runtimeHandler(game, effect));
   for (let index = 0; index < effects.length; index += 1) {
     handlers[index](game, effects[index]);
   }

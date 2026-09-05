@@ -8,7 +8,7 @@ function requireNPC(game, npcId) {
   return npc;
 }
 
-function requirePlaceByKey(game, placeKey) {
+export function requireDebugPlaceByKey(game, placeKey) {
   const key = String(placeKey);
   for (const location of game?.world?.locations?.values?.() || []) {
     const place = (location.places || []).find(
@@ -30,20 +30,6 @@ export function addDebugMoney(game) {
   });
 
   return balance;
-}
-
-export function teleportPlayerToSchool(game) {
-  const destination = requirePlaceByKey(game, "high_school");
-
-  game.runAction({
-    label: `[Debug] Teleport player to ${destination.place.name}`,
-    apply(currentGame) {
-      currentGame.moveTo(destination.location.id);
-      currentGame.setCurrentPlace({ placeId: destination.place.id });
-    },
-  });
-
-  return destination;
 }
 
 export function teleportNPCToPlayer(

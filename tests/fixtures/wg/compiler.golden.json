@@ -7,7 +7,7 @@
       "kind": "event",
       "heading": "Fixture follow-up",
       "choiceHeading": "Choices",
-      "schoolClass": null,
+      "behavior": null,
       "system": null,
       "onEnter": [],
       "passages": [
@@ -80,7 +80,7 @@
       "kind": "event",
       "heading": "Compiler fixture",
       "choiceHeading": "What next?",
-      "schoolClass": null,
+      "behavior": null,
       "system": null,
       "onEnter": [
         {

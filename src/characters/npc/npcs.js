@@ -1,6 +1,6 @@
 import { Gender, PronounSets } from "../core/pronouns.js";
 import { HUMAN_BODY_TEMPLATE } from "../core/body.js";
-import { SCHOOL_DAY_END, SCHOOL_DAY_START } from "../player/schedule.js";
+import { SCHOOL_DAY_END, SCHOOL_DAY_START } from "../../features/school/timetable.js";
 import { DayKind } from "../../world/data/calendar.js";
 import { DAY_KEYS } from "../../world/data/time.js";
 import { PLACE_TAGS } from "../../world/data/place.js";

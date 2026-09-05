@@ -1,7 +1,11 @@
 import { SCHOOL_SUBJECTS } from "./education.js";
 import { DayKind } from "../../world/data/calendar.js";
-import { PLACE_REGISTRY } from "../../world/data/place.js";
 import { parseTimeToMinutes } from "../../shared/util/date.js";
+import {
+  HIGH_SCHOOL_PLACE_KEY,
+  SCHOOL_SEMESTERS,
+  SCHOOL_TIMETABLE,
+} from "./config.js";
 
 export const SCHEDULE = {
   school: true,
@@ -49,29 +53,21 @@ function monthDayNumber(value) {
 }
 
 function defaultHighSchool() {
-  const definition = PLACE_REGISTRY.find(
-    (place) => place.key === "high_school" && place.unlocked === true,
-  );
-  return definition
-    ? { name: definition.label, props: definition.props }
-    : null;
+  return { name: "High School" };
 }
 
 function schoolFromWorld(game) {
   for (const location of game?.world?.locations?.values?.() || []) {
     const school = (location.places || []).find(
-      (place) => place.key === "high_school" && place.unlocked === true,
+      (place) => place.key === HIGH_SCHOOL_PLACE_KEY && place.unlocked === true,
     );
     if (school) return { school, location };
   }
   return { school: defaultHighSchool(), location: null };
 }
 
-function schoolPeriods(school) {
-  const timetable = school?.props?.timetable;
-  if (!Array.isArray(timetable)) return [];
-
-  return timetable
+function schoolPeriods() {
+  return SCHOOL_TIMETABLE
     .filter(
       (period) =>
         period &&
@@ -121,11 +117,8 @@ function isoOrNull(value) {
     : null;
 }
 
-function currentSemester(school, date) {
-  const definitions = Array.isArray(school?.props?.semesters)
-    ? school.props.semesters
-    : [];
-  const semesters = definitions
+function currentSemester(date) {
+  const semesters = SCHOOL_SEMESTERS
     .map((semester) => ({
       name: String(semester?.name || "Semester"),
       start: semester?.start,
@@ -167,8 +160,8 @@ export function getSchoolDayPlan(
   const dayInfo = game.world.getDayInfo(schoolDate);
   const resolvedSchool = schoolFromWorld(game);
   const school = resolvedSchool.school;
-  const periods = schoolPeriods(school);
-  const semester = currentSemester(school, schoolDate);
+  const periods = schoolPeriods();
+  const semester = currentSemester(schoolDate);
 
   let noSchoolReason = null;
   if (!schoolEnabled) noSchoolReason = "school_disabled";
@@ -333,7 +326,7 @@ export function getSchoolDayState(
   };
 }
 
-const defaultPeriods = schoolPeriods(defaultHighSchool()).filter(
+const defaultPeriods = schoolPeriods().filter(
   (period) => period.kind === "class",
 );
 

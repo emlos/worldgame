@@ -20,7 +20,7 @@ import {
   SCHOOL_SUBJECTS,
   SUBJECT_ACHIEVEMENT_MAX,
   SUBJECT_ACHIEVEMENT_MIN,
-} from "./education.js";
+} from "../../features/school/education.js";
 import { PLAYER_TEMPERATURE_VALUES, SKILLS, STATS } from "./stats.js";
 
 const PLAYER_TEMPERATURES = new Set(PLAYER_TEMPERATURE_VALUES);

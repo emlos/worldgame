@@ -3,10 +3,7 @@ import { applyWGEffects } from "./effectRuntime.js";
 import { resolveWGBody } from "./storyResolver.js";
 import { createWGSystemState } from "./storySystemRegistry.js";
 import { clearActiveStory } from "../../storyState.js";
-import {
-  getSchoolDayState,
-  SCHOOL_PHASE,
-} from "../../../characters/player/schedule.js";
+import { enterWGStoryBehavior } from "./storyBehaviorRegistry.js";
 
 export class WGRuntimeError extends Error {
   constructor(message) {
@@ -110,43 +107,17 @@ export function enterWGScene(
   }
 
   let resolvedPassageId = passageId ?? definition.passages?.[0]?.id;
-  let schoolClass = null;
-  if (definition.schoolClass && runOnEnter) {
-    const state = getSchoolDayState(game);
-    const subjectId = definition.schoolClass.subjectId;
-    if (!state.atSchool || state.phase !== SCHOOL_PHASE.class) {
-      fail(`School class '${definition.id}' can only begin during class at school`);
-    }
-    if (state.subjectId !== subjectId) {
-      fail(
-        `School class '${definition.id}' requires '${subjectId}', but '${String(state.subjectId)}' is scheduled`,
-      );
-    }
-    if (!Number.isInteger(state.segment) || state.segment < 1) {
-      fail(`School class '${definition.id}' has no active timetable segment`);
-    }
-    if (
-      typeof state.periodStartsAt !== "string" ||
-      !Number.isFinite(state.minutesIntoPeriod)
-    ) {
-      fail(`School class '${definition.id}' has invalid arrival timing`);
-    }
-
-    resolvedPassageId = `segment-${state.segment}`;
-    schoolClass = {
-      periodId: state.periodId,
-      subjectId,
-      scheduledAt: state.periodStartsAt,
-      arrivedAt: game.now.toISOString(),
-      minutesLate: Math.max(0, state.minutesIntoPeriod),
-      startingSegment: state.segment,
-    };
+  let behavior = null;
+  if (definition.behavior && runOnEnter) {
+    const entered = enterWGStoryBehavior(game, definition);
+    resolvedPassageId = entered.passageId;
+    behavior = entered.behavior;
   } else if (
     !runOnEnter &&
     game.currentStory?.id === definition.id &&
-    game.currentStory.schoolClass
+    game.currentStory.behavior
   ) {
-    schoolClass = { ...game.currentStory.schoolClass };
+    behavior = structuredClone(game.currentStory.behavior);
   }
 
   if (!definition.passages?.some((passage) => passage.id === resolvedPassageId)) {
@@ -164,7 +135,7 @@ export function enterWGScene(
       revision,
       game.now.toISOString(),
     ].join(":"),
-    ...(schoolClass ? { schoolClass } : {}),
+    ...(behavior ? { behavior } : {}),
   };
   game.storyRevision = revision;
   if (runOnEnter) applyWGEffects(game, definition.onEnter || []);
@@ -188,7 +159,7 @@ export function suspendWGContinuation(
   game.storyContinuations.push({
     target,
     sceneId: outcome.sceneId || null,
-    schoolClass: frame?.schoolClass ? { ...frame.schoolClass } : null,
+    behavior: frame?.behavior ? structuredClone(frame.behavior) : null,
     poolId: String(poolId),
     eventSceneId: String(eventSceneId),
     sourceSceneId: String(resolvedSourceSceneId),
@@ -208,8 +179,8 @@ export function returnWGStory(game) {
     game.currentStory = {
       id: continuation.sceneId,
       passageId: continuation.sourcePassageId,
-      ...(continuation.schoolClass
-        ? { schoolClass: { ...continuation.schoolClass } }
+      ...(continuation.behavior
+        ? { behavior: structuredClone(continuation.behavior) }
         : {}),
     };
   }

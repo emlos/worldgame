@@ -1,5 +1,3 @@
-const SKILL_CHECK_TARGET_TYPES = new Set(["skill", "grade"]);
-
 export class ChoiceContractError extends TypeError {
   constructor(message) {
     super(message);
@@ -69,9 +67,6 @@ function validateSkillCheck(value, path) {
   if (value === null) return;
   requireRecord(value, path);
   requireText(value.targetType, `${path}.targetType`);
-  if (!SKILL_CHECK_TARGET_TYPES.has(value.targetType)) {
-    fail(`${path}.targetType must be 'skill' or 'grade'`);
-  }
   requireText(value.targetId, `${path}.targetId`);
   requireText(value.targetLabel, `${path}.targetLabel`);
   requireText(value.difficultyId, `${path}.difficultyId`);
@@ -86,9 +81,6 @@ function validateSkillCheck(value, path) {
 function validateSkillCheckAction(action, path) {
   requireRecord(action.check, `${path}.check`);
   requireText(action.check.targetType, `${path}.check.targetType`);
-  if (!SKILL_CHECK_TARGET_TYPES.has(action.check.targetType)) {
-    fail(`${path}.check.targetType must be 'skill' or 'grade'`);
-  }
   requireText(action.check.targetId, `${path}.check.targetId`);
   requireText(action.check.difficultyId, `${path}.check.difficultyId`);
   requireRecord(action.outcomes, `${path}.outcomes`);

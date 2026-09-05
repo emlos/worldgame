@@ -8,8 +8,9 @@ import {
 } from "../src/story/wg/runtime/storySystemRegistry.js";
 import {
   applyWGEffects,
-  WG_EFFECT_HANDLER_OPS,
+  getWGEffectHandlerOps,
 } from "../src/story/wg/runtime/effectRuntime.js";
+import { DEFAULT_FEATURE_CATALOG } from "../src/features/index.js";
 import {
   validateWGEffectShape,
   WG_EFFECT_OPS,
@@ -24,7 +25,10 @@ function sorted(values) {
 
 test("every WG effect has compiler syntax and a runtime handler", () => {
   assert.deepEqual(sorted(WG_EFFECT_PARSER_OPS), sorted(WG_EFFECT_OPS));
-  assert.deepEqual(sorted(WG_EFFECT_HANDLER_OPS), sorted(WG_EFFECT_OPS));
+  assert.deepEqual(
+    sorted(getWGEffectHandlerOps(DEFAULT_FEATURE_CATALOG)),
+    sorted(WG_EFFECT_OPS),
+  );
 });
 
 test("the compiler registry parses every effect without changing the effect IR", () => {

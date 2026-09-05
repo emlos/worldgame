@@ -12,8 +12,8 @@ import {
   SUBJECT_GRADES,
   SUBJECT_PROGRESS_MAX,
   SUBJECT_PROGRESS_MIN,
-} from "../src/characters/player/education.js";
-import { getSchoolDayState } from "../src/characters/player/schedule.js";
+} from "../src/features/school/education.js";
+import { getSchoolDayState } from "../src/features/school/timetable.js";
 import { createWGRuntimeContext } from "../src/story/wg/runtime/runtimeContext.js";
 import { createChoiceSection, renderSceneContent } from "../src/ui/browser/sceneContent.js";
 import { setOutcomeText } from "../src/ui/browser/outcomes.js";
@@ -390,7 +390,9 @@ function prepareSchoolContext(subjectId) {
 }
 
 function schoolSubjectFor(entry) {
-  const authored = entry.definition.schoolClass?.subjectId;
+  const authored = entry.definition.behavior?.id === "school.class"
+    ? entry.definition.behavior.config?.subject
+    : null;
   if (authored) return authored;
   if (!entry.id.startsWith("school.")) return null;
   const candidate = entry.id.split(".")[1]?.replaceAll("-", "_");
@@ -402,7 +404,7 @@ function seedInspectorReturn(entry) {
   game.storyContinuations.push({
     target: "@exit",
     sceneId: null,
-    schoolClass: null,
+    behavior: null,
     poolId: "scene-inspector",
     eventSceneId: entry.id,
     sourceSceneId: entry.id,

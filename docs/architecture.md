@@ -1,29 +1,38 @@
 # Worldgame architecture
 
-Worldgame is organized by feature ownership. A module should live beside the
-state or behavior it owns, rather than in a project-wide `classes`, `data`, or
-`content` bucket.
+Worldgame separates reusable game machinery from one-off gameplay features.
+Generic modules define contracts and extension points; a feature owns every
+concrete rule, data contribution, and authored story file that exists only for
+that feature.
 
 ## Repository layout
 
 ```text
-story/                         Authored `.wg` source
+story/                         Authored `.wg` source, grouped by feature
+  bus/                         Bus hubs and authored bus text
+  school/                      School scenes, events, and class content
 src/
+  features/                    Cross-cutting gameplay feature slices
+    catalog.js                 Registration contract and composition
+    index.js                   The game's enabled feature list
+    placeContributions.js      Cycle-free composition of feature-owned places
+    bus/                       Bus places, timetable, scene decoration, actions
+    school/                    School timetable, classes, quizzes, context,
+                               effects, reminders, views, and places
+    rent/                      Rent timer definition
   characters/
     core/                      Character value objects shared by player and NPCs
-    player/                    Player model, stats, education, schedule, and save validation
-    npc/                       NPC model, AI, definitions, behavior, and save validation
-      roster.js                NPC creation, home assignment, and brain startup
-      presence.js              NPC location and interaction queries
+    player/                    Player aggregate and save validation
+    npc/                       NPC model, AI, definitions, behavior, and validation
   world/
-    data/                      Static world definitions and tuning values
+    data/                      Shared world definitions and registry composition
     model/                     Calendar, places, weather, and map implementation
     world.js                   World aggregate
     saveValidation.js          World, calendar, weather, place, and map save rules
   game/
     chat/                      Chat state, validation, and read models
-    persistence/               Save serialization, hydration, and validation orchestration
-    scene/                     Scene assembly, choice execution, and scene contracts
+    persistence/               Save serialization, hydration, and validation
+    scene/                     Generic scene assembly and choice execution
     game.js                    Top-level mutable game state and public facade
     actionRunner.js            Ordered player-action transaction
     bootstrap.js               Fresh-game construction only
@@ -31,58 +40,87 @@ src/
     movement.js                Player position, place access, and relocation
     navigation.js              GPS destinations and routes
     timeline.js                Simulation and resynchronization of game time
-    timers.js                  Timer runtime
-    timerDefinitions.js        Named timer content
+    timers.js                  Generic timer runtime
   story/
-    storyState.js              Flags and active-story lifecycle primitives
-    saveValidation.js          Active story, continuation, and interrupt save rules
-    systems/                   JavaScript-backed story systems
+    storyState.js              Active-story lifecycle primitives
+    saveValidation.js          Story, continuation, and interrupt save rules
     wg/
       generated/               Compiler output; never edit by hand
-      runtime/                 WG evaluation, resolution, effects, and materialization
-      shared/                  WG contracts shared by compiler and runtime
+      runtime/                 Generic WG evaluation and materialization
+      shared/                  WG grammar and contracts shared by all consumers
   ui/browser/                  DOM rendering and browser input
   shared/util/                 Domain-neutral utilities only
 tools/wg/compiler/             WG compiler implementation
-tests/                         Runtime, compiler, and diagnostic-page tests
+tests/                         Runtime, compiler, boundary, and diagnostic tests
 ```
+
+## Feature boundary
+
+Use `src/features/<name>/` when behavior is specific to one gameplay system and
+crosses ordinary technical layers. A feature may own places, dynamic scene
+content, choice actions, WG systems or behaviors, context, effects, checks,
+  timers, reminders, NPC schedule conditions, navigation metadata, and
+  feature-specific views. Its `.wg`
+source belongs in `story/<name>/`.
+
+`src/features/catalog.js` is the integration boundary. The application enables
+features in `src/features/index.js`; generic infrastructure asks the catalog for
+registered contributions. It must not switch on story IDs such as
+`transit.bus-boarding`, place keys such as `bus_stop`, or feature names such as
+`school.class`.
+
+Choose the smallest fitting extension:
+
+- A scene decorator adds dynamic content to an otherwise ordinary scene.
+- A registered action handles a serializable, feature-owned choice command.
+- `@behavior` augments an authored WG scene while leaving prose and passages in WG.
+- `@system` delegates an entire scene or minigame to programmatic rendering.
+- Context, effect, skill-check, timer, reminder, NPC schedule-condition, place,
+  navigation, and view providers contribute their corresponding pieces without
+  teaching the core runtime about the feature.
+
+This is intended for unique systems such as bus travel, school, labyrinths,
+minigames, jobs, combat, or shops with custom logic. Do not turn every ordinary
+piece of authored content into a feature: static prose stays in WG, and data used
+by many systems stays with its shared domain owner.
 
 ## Dependency direction
 
 - `shared/util` must not import a game domain.
-- `characters` and `world` may use shared utilities and their own modules.
-- `game` coordinates character and world state and exposes the mutation facade
-  used by choices, effects, saves, timers, and chats.
+- `features/catalog.js` contains only generic registration mechanics.
+- Feature implementations may depend on generic character, world, game, and WG
+  contracts. Features must not import one another's implementation internals.
+- Generic game and WG infrastructure consumes `game.features`; it does not import
+  concrete bus, school, rent, or future feature modules.
+- `features/index.js` is the composition root for runtime contributions.
+  `features/placeContributions.js` is the deliberately narrow, cycle-free
+  composition root used while constructing the world place registry.
 - Game services are stateless functions that accept the aggregate they operate
   on. They must not import the `Game` class or retain a game instance globally.
-- Fresh-game bootstrap and save hydration are separate code paths. Loading a
-  save must not generate and discard a temporary world or NPC roster.
-- Save validation follows state ownership. Character, world, story, and game
-  services define their own rules; `game/persistence/saveValidation.js` only
-  validates the root envelope and coordinates cross-subsystem checks before
-  hydration begins.
-- `story/wg/shared` is independent of both compiler and runtime. The compiler
-  and runtime may depend on it, but not on each other.
-- `story/wg/generated` contains data only. Runtime behavior stays in
-  `story/wg/runtime` and `story/systems`.
-- `game/scene` is the application boundary that combines game state with WG
-  story definitions. WG materializers emit the same validated scene contracts.
-- `ui/browser` renders those contracts and delegates mutations to game or scene
-  actions. Browser modules should not become a second rules engine.
+- Fresh-game bootstrap and save hydration are separate code paths. Loading a save
+  must not generate and discard a temporary world or NPC roster.
+- Save validation follows state ownership. Subsystems define their rules;
+  `game/persistence/saveValidation.js` only coordinates the root envelope and
+  cross-subsystem checks before hydration.
+- `story/wg/shared` is independent of compiler and runtime. Both consume the same
+  grammar schema; neither keeps a private copy of WG syntax.
+- `story/wg/generated` contains data only. Runtime callbacks remain in feature
+  registrations and are never serialized.
+- `ui/browser` renders scene/view contracts and delegates mutations to game or
+  scene actions. It must not become a second rules engine.
 
-The graph has no static JavaScript import cycles. Keep it that way: if two
-features need the same pure helper or contract, extract that small boundary
-instead of making them import each other's implementation internals.
+The static JavaScript graph should remain cycle-free. If a registry composition
+would introduce a cycle, extract a narrow data-only contribution module rather
+than importing a feature through its full runtime entry point.
 
 ## Placement rules
 
-1. Put static definitions beside their owning feature. World registries belong
-   in `world/data`; player and NPC definitions belong in their character folder.
-2. Put WG syntax and tree contracts in `story/wg/shared`, WG execution in
-   `story/wg/runtime`, and authored gameplay callbacks in `story/systems`.
-3. Keep the `Game` class as the small stateful facade. Multi-step behavior
-   belongs in a feature module; new UI and WG effects should call a named game
-   operation instead of editing nested state directly.
+1. Put reusable infrastructure beside the contract it implements; put concrete,
+   one-off behavior in its feature folder.
+2. Put a feature's authored WG under `story/<feature>/` and its programmatic
+   implementation under `src/features/<feature>/`.
+3. Keep the `Game` class as a small stateful facade. Multi-step behavior belongs
+   in a service or feature operation.
 4. Do not add forwarding modules or old-path aliases while the project is in
    active development. Update imports and tests with a move.
 5. Treat generated WG output as a build artifact. Change `.wg` sources or the

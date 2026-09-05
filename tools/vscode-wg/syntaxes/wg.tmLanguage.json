@@ -433,7 +433,7 @@
       "patterns": [
         {
           "name": "meta.property.directive.wg",
-          "begin": "^(\\s*)(@(text|tone|kind|heading|choices|school-class|system|hub|place-key|place-tag|location-tag|offer|auto|pool|when|label|icon|hub-text|priority|chance|weight|time|time-until|event-pool|event-chance|warning|preview|check))\\b",
+          "begin": "^(\\s*)(@(text|tone|kind|heading|choices|behavior|system|hub|place-key|place-tag|location-tag|offer|auto|pool|when|label|icon|hub-text|priority|chance|weight|time|time-until|event-pool|event-chance|warning|preview|check))\\b",
           "beginCaptures": {
             "2": {
               "name": "keyword.other.directive.wg"

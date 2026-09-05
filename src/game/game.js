@@ -41,6 +41,7 @@ import {
   stopTimer as stopGameTimer,
 } from "./timers.js";
 import { advanceGameTime, jumpGameTime } from "./timeline.js";
+import { DEFAULT_FEATURE_CATALOG } from "../features/index.js";
 
 export {
   SaveValidationError,
@@ -50,7 +51,9 @@ export {
 /** Mutable game aggregate and public command/query facade. */
 export class Game {
   constructor(options = {}) {
-    initializeNewGame(this, options);
+    const { features = DEFAULT_FEATURE_CATALOG, ...gameOptions } = options;
+    this.features = features;
+    initializeNewGame(this, gameOptions);
   }
 
   get now() {
@@ -197,8 +200,10 @@ export class Game {
     return serializeGame(this);
   }
 
-  static fromJSON(data) {
-    return hydrateGame(Object.create(Game.prototype), data);
+  static fromJSON(data, { features = DEFAULT_FEATURE_CATALOG } = {}) {
+    const game = Object.create(Game.prototype);
+    game.features = features;
+    return hydrateGame(game, data);
   }
 
   // Kept for the browser NPC diagnostics, which can add a roster after

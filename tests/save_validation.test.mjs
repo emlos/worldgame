@@ -164,7 +164,7 @@ test("story corruption is rejected by the story subsystem", async (t) => {
     eventSceneId: "test.event",
     sourceSceneId: "test.source",
     sourceChoiceId: "test.choice",
-    schoolClass: null,
+    behavior: null,
   };
   const cases = [
     ["orphaned continuation", (save) => { save.storyContinuations.push(continuation); }, "save.storyContinuations"],

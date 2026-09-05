@@ -21,10 +21,11 @@ import { validateSavedPlayerPosition } from "../movement.js";
 import { validateGpsTargetSave } from "../navigation.js";
 import { validateRemindersSave } from "../reminders.js";
 import { validateTimerStateSave } from "../timers.js";
+import { DEFAULT_FEATURE_CATALOG } from "../../features/index.js";
 
 export { SaveValidationError };
 
-export function validateGameSave(data) {
+export function validateGameSave(data, { features = DEFAULT_FEATURE_CATALOG } = {}) {
   validateJsonValue(data, "save");
   const save = saveRecord(data, "save");
   requireSameSaveValue(
@@ -48,7 +49,7 @@ export function validateGameSave(data) {
   if (startedAt > gameTime) {
     failSave("save.startedAt", "must not be after the game clock");
   }
-  validateRemindersSave(save);
+  validateRemindersSave(save, { features });
 
   const { mapIndex } = validateWorldSave(requiredSaveField(save, "world", "save"), {
     expectedSeed: deriveSeed(seed, "world"),
@@ -64,7 +65,7 @@ export function validateGameSave(data) {
   } catch (error) {
     failSave("save.chats", error.message);
   }
-  validateTimerStateSave(requiredSaveField(save, "timers", "save"), { gameTime });
+  validateTimerStateSave(requiredSaveField(save, "timers", "save"), { gameTime, features });
   validatePlayerSave(requiredSaveField(save, "player", "save"), {
     npcProfiles,
     gameTime,
@@ -77,9 +78,9 @@ export function validateGameSave(data) {
   });
   validateDailyAnnouncementsSave(
     requiredSaveField(save, "dailyAnnouncements", "save"),
-    { gameTime },
+    { gameTime, features },
   );
-  validateStorySave(save, { gameTime });
+  validateStorySave(save, { gameTime, features });
   validateActionHistorySave(save, { gameTime });
   return data;
 }

@@ -2,12 +2,12 @@ import { Game } from "../../game/game.js";
 import { createPhoneChats } from "./phoneChats.js";
 import {
   addDebugMoney,
-  teleportPlayerToSchool,
   teleportNPCToPlayer,
 } from "../../game/debugCommands.js";
 import { buildScene } from "../../game/scene/sceneEngine.js";
 import { performChoice } from "../../game/scene/choiceEngine.js";
-import { getSchoolDayPlan } from "../../characters/player/schedule.js";
+import { renderSchoolDiary } from "../../features/school/browserDiary.js";
+import { teleportPlayerToSchool } from "../../features/school/debug.js";
 import { buildFullMapView } from "../../game/scene/mapView.js";
 import {
   buildPhoneGpsView,
@@ -363,88 +363,12 @@ function renderFullMap() {
   });
 }
 
-function makeDiaryCell(tagName, text) {
-  const cell = document.createElement(tagName);
-  cell.textContent = text;
-  return cell;
-}
-
-function noSchoolMessage(view) {
-  if (view.noSchoolReason === "school_disabled") {
-    return "There is no school scheduled for you today.";
-  }
-  if (view.noSchoolReason === "timetable_unavailable") {
-    return "There is no school timetable available for today.";
-  }
-  if (view.noSchoolReason === "out_of_term") {
-    return "There is no school for you today. School is currently out of term.";
-  }
-
-  const holiday = view.day.holidays[0];
-  if (holiday)
-    return `There is no school for you today because it is ${holiday}.`;
-  if (view.day.isWeekend)
-    return "There is no school for you today. It is the weekend.";
-  return "There is no school for you today.";
-}
-
 function renderPlayerDiary() {
-  const view = getSchoolDayPlan(game);
-  playerDiaryDate.textContent = diaryDateFormatter.format(new Date(view.date));
-  playerDiaryContent.replaceChildren();
-
-  const entry = document.createElement("section");
-  entry.className = "diary-entry";
-
-  const heading = document.createElement("h3");
-  heading.textContent = view.school.name;
-
-  const location = document.createElement("p");
-  location.className = "diary-school-location";
-  location.textContent = `Located in ${view.school.districtName}.`;
-
-  entry.append(heading, location);
-
-  if (!view.hasSchool) {
-    const notice = document.createElement("p");
-    notice.className = "diary-empty";
-    notice.textContent = noSchoolMessage(view);
-    entry.append(notice);
-    playerDiaryContent.append(entry);
-    return;
-  }
-
-  const summary = document.createElement("p");
-  summary.className = "diary-school-summary";
-  summary.textContent = `You have to go to school from ${view.school.start} to ${view.school.end}.`;
-
-  const table = document.createElement("table");
-  table.className = "diary-schedule";
-
-  const caption = document.createElement("caption");
-  caption.textContent = "Today's classes";
-
-  const tableHead = document.createElement("thead");
-  const headingRow = document.createElement("tr");
-  headingRow.append(
-    makeDiaryCell("th", "Time"),
-    makeDiaryCell("th", "Class / activity"),
-  );
-  tableHead.append(headingRow);
-
-  const tableBody = document.createElement("tbody");
-  for (const period of view.school.periods) {
-    const row = document.createElement("tr");
-    row.append(
-      makeDiaryCell("td", `${period.start}–${period.end}`),
-      makeDiaryCell("td", period.label),
-    );
-    tableBody.append(row);
-  }
-
-  table.append(caption, tableHead, tableBody);
-  entry.append(summary, table);
-  playerDiaryContent.append(entry);
+  renderSchoolDiary(game, {
+    dateElement: playerDiaryDate,
+    contentElement: playerDiaryContent,
+    formatDate: (date) => diaryDateFormatter.format(date),
+  });
 }
 
 function formatRelationshipScore(score) {
@@ -701,24 +625,15 @@ function renderPhoneStats() {
     ...view.skills.map((entry) => makePhoneMeterEntry(entry, "skill")),
   );
 
-  const educationSection = makePhoneStatsSection("School grades");
-  educationSection.append(
-    ...view.education.map((entry) =>
-      makePhoneMeterEntry(
-        {
-          id: entry.id,
-          label: `${entry.label} · ${entry.attendedSegments} segments attended`,
-          value: entry.achievement,
-          min: 0,
-          max: entry.achievementMax,
-          valueLabel: entry.grade === "A"
-            ? `A · mastery ${entry.progress}/99`
-            : `${entry.grade} · ${entry.progress}/100`,
-        },
-        "grade",
+  const featureSections = view.featureSections.map((featureSection) => {
+    const section = makePhoneStatsSection(featureSection.label);
+    section.append(
+      ...featureSection.entries.map((entry) =>
+        makePhoneMeterEntry(entry, entry.kind || featureSection.id),
       ),
-    ),
-  );
+    );
+    return section;
+  });
 
   const bodySection = makePhoneStatsSection("Body status");
   bodySection.append(
@@ -783,7 +698,7 @@ function renderPhoneStats() {
     overviewSection,
     statsSection,
     skillsSection,
-    educationSection,
+    ...featureSections,
     bodySection,
     bodyPartsSection,
     identitySection,

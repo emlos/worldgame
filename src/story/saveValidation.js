@@ -4,7 +4,6 @@ import {
   requireSameSaveValue,
   saveArray,
   saveDateMilliseconds,
-  saveFiniteNumber,
   saveInteger,
   saveNullableString,
   saveRecord,
@@ -12,50 +11,26 @@ import {
   saveUniqueStrings,
   validateJsonValue,
 } from "../shared/util/saveValidation.js";
-import { SCHOOL_SUBJECTS } from "../characters/player/education.js";
 import { validateWGSystemState } from "./wg/runtime/storySystemRegistry.js";
+import { validateWGBehaviorState } from "./wg/runtime/storyBehaviorRegistry.js";
+import { DEFAULT_FEATURE_CATALOG } from "../features/index.js";
 
-function validateSchoolClassSave(value, path, gameTime) {
-  const schoolClass = saveRecord(value, path);
-  saveString(requiredSaveField(schoolClass, "periodId", path), `${path}.periodId`, {
+function validateBehaviorSave(value, path, gameTime, features) {
+  const frame = saveRecord(value, path);
+  const id = saveString(requiredSaveField(frame, "id", path), `${path}.id`, {
     nonEmpty: true,
   });
-  const subjectId = saveString(
-    requiredSaveField(schoolClass, "subjectId", path),
-    `${path}.subjectId`,
-    { nonEmpty: true },
-  );
-  if (!SCHOOL_SUBJECTS[subjectId]) {
-    failSave(`${path}.subjectId`, `references unknown school subject '${subjectId}'`);
+  const state = requiredSaveField(frame, "state", path);
+  validateJsonValue(state, `${path}.state`);
+  try {
+    validateWGBehaviorState(features, id, state, { gameTime });
+  } catch (error) {
+    failSave(`${path}.state`, error.message);
   }
-  const scheduledAt = saveDateMilliseconds(
-    requiredSaveField(schoolClass, "scheduledAt", path),
-    `${path}.scheduledAt`,
-  );
-  const arrivedAt = saveDateMilliseconds(
-    requiredSaveField(schoolClass, "arrivedAt", path),
-    `${path}.arrivedAt`,
-  );
-  if (scheduledAt > arrivedAt) {
-    failSave(`${path}.scheduledAt`, "must not be later than arrival time");
-  }
-  if (arrivedAt > gameTime) {
-    failSave(`${path}.arrivedAt`, "must not be later than the game clock");
-  }
-  saveFiniteNumber(
-    requiredSaveField(schoolClass, "minutesLate", path),
-    `${path}.minutesLate`,
-    { min: 0 },
-  );
-  saveInteger(
-    requiredSaveField(schoolClass, "startingSegment", path),
-    `${path}.startingSegment`,
-    { min: 1 },
-  );
-  return schoolClass;
+  return frame;
 }
 
-function validateCurrentStorySave(value, path, gameTime) {
+function validateCurrentStorySave(value, path, gameTime, features) {
   if (value === null) return null;
   const frame = saveRecord(value, path);
   saveString(requiredSaveField(frame, "id", path), `${path}.id`, { nonEmpty: true });
@@ -85,7 +60,7 @@ function validateCurrentStorySave(value, path, gameTime) {
     const state = requiredSaveField(system, "state", systemPath);
     validateJsonValue(state, `${systemPath}.state`);
     try {
-      validateWGSystemState(systemId, state);
+      validateWGSystemState(systemId, state, features);
     } catch (error) {
       failSave(`${systemPath}.state`, error.message);
     }
@@ -123,16 +98,16 @@ function validateCurrentStorySave(value, path, gameTime) {
     }
   }
 
-  if (Object.prototype.hasOwnProperty.call(frame, "schoolClass")) {
+  if (Object.prototype.hasOwnProperty.call(frame, "behavior")) {
     if (hasSystem) {
-      failSave(`${path}.schoolClass`, "is not valid for system-backed scene state");
+      failSave(`${path}.behavior`, "is not valid for system-backed scene state");
     }
-    validateSchoolClassSave(frame.schoolClass, `${path}.schoolClass`, gameTime);
+    validateBehaviorSave(frame.behavior, `${path}.behavior`, gameTime, features);
   }
   return frame;
 }
 
-function validateStoryContinuationsSave(value, path, gameTime) {
+function validateStoryContinuationsSave(value, path, gameTime, features) {
   return saveArray(value, path).map((itemData, index) => {
     const itemPath = `${path}[${index}]`;
     const item = saveRecord(itemData, itemPath);
@@ -172,9 +147,9 @@ function validateStoryContinuationsSave(value, path, gameTime) {
       failSave(itemPath, "local continuation targets require scene and source passage ids");
     }
 
-    const schoolClass = requiredSaveField(item, "schoolClass", itemPath);
-    if (schoolClass !== null) {
-      validateSchoolClassSave(schoolClass, `${itemPath}.schoolClass`, gameTime);
+    const behavior = requiredSaveField(item, "behavior", itemPath);
+    if (behavior !== null) {
+      validateBehaviorSave(behavior, `${itemPath}.behavior`, gameTime, features);
     }
     return item;
   });
@@ -215,7 +190,10 @@ function validateInterruptStateSave(value, path, gameTime) {
   return { state, active, pending };
 }
 
-export function validateStorySave(save, { path = "save", gameTime }) {
+export function validateStorySave(
+  save,
+  { path = "save", gameTime, features = DEFAULT_FEATURE_CATALOG },
+) {
   saveUniqueStrings(requiredSaveField(save, "flags", path), `${path}.flags`);
   saveUniqueStrings(requiredSaveField(save, "dailyFlags", path), `${path}.dailyFlags`, {
     nonEmpty: true,
@@ -225,11 +203,13 @@ export function validateStorySave(save, { path = "save", gameTime }) {
     requiredSaveField(save, "currentStory", path),
     `${path}.currentStory`,
     gameTime,
+    features,
   );
   const storyContinuations = validateStoryContinuationsSave(
     requiredSaveField(save, "storyContinuations", path),
     `${path}.storyContinuations`,
     gameTime,
+    features,
   );
   if (storyContinuations.length && currentStory === null) {
     failSave(`${path}.storyContinuations`, "requires an active current story");

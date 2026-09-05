@@ -1,6 +1,5 @@
-import { SCHOOL_QUIZ_STORY_SYSTEM } from "../../systems/schoolQuiz/system.js";
 import { validateWGEffectReferences } from "../shared/effects/registry.js";
-import { WG_RUNTIME_EFFECT_CATALOG } from "./effectCatalog.js";
+import { getWGRuntimeEffectCatalog } from "./effectCatalog.js";
 
 export class WGStorySystemError extends Error {
   constructor(message) {
@@ -26,8 +25,6 @@ export function registerWGStorySystem(systemId, system) {
   if (SYSTEMS.has(id)) fail(`Duplicate WG story system '${id}'`);
   SYSTEMS.set(id, Object.freeze({ ...system }));
 }
-
-registerWGStorySystem("school.quiz", SCHOOL_QUIZ_STORY_SYSTEM);
 
 function validateJSON(value, path, ancestors = new WeakSet()) {
   if (value === null || typeof value === "string" || typeof value === "boolean") return;
@@ -61,9 +58,9 @@ export function cloneWGSystemJSON(value, path = "WG system data") {
   return JSON.parse(JSON.stringify(value));
 }
 
-export function getWGStorySystem(systemId) {
+export function getWGStorySystem(systemId, features = null) {
   const id = String(systemId);
-  const system = SYSTEMS.get(id);
+  const system = SYSTEMS.get(id) ?? features?.getWGSystem(id);
   if (!system) fail(`Unknown WG story system '${id}'`);
   return system;
 }
@@ -73,15 +70,15 @@ function validateState(system, state, systemId) {
   if (typeof system.validateState === "function") system.validateState(state);
 }
 
-export function validateWGSystemState(systemId, state) {
-  const system = getWGStorySystem(systemId);
+export function validateWGSystemState(systemId, state, features = null) {
+  const system = getWGStorySystem(systemId, features);
   validateState(system, state, String(systemId));
   return state;
 }
 
 export function createWGSystemState(game, definition, instanceKey) {
   const systemId = definition.system?.id;
-  const system = getWGStorySystem(systemId);
+  const system = getWGStorySystem(systemId, game.features);
   if (typeof system.create !== "function") {
     fail(`WG story system '${systemId}' has no create callback`);
   }
@@ -98,7 +95,7 @@ export function createWGSystemState(game, definition, instanceKey) {
 
 export function renderWGSystem(game, definition, frame) {
   const systemId = definition.system?.id;
-  const system = getWGStorySystem(systemId);
+  const system = getWGStorySystem(systemId, game.features);
   if (typeof system.render !== "function") {
     fail(`WG story system '${systemId}' has no render callback`);
   }
@@ -117,7 +114,7 @@ export function renderWGSystem(game, definition, frame) {
 
 export function actWGSystem(game, definition, frame, command) {
   const systemId = definition.system?.id;
-  const system = getWGStorySystem(systemId);
+  const system = getWGStorySystem(systemId, game.features);
   if (typeof system.act !== "function") {
     fail(`WG story system '${systemId}' has no act callback`);
   }
@@ -147,7 +144,7 @@ export function actWGSystem(game, definition, frame, command) {
     fail(`WG story system '${systemId}' effects must be an array`);
   }
   for (const effect of outcome.effects || []) {
-    validateWGEffectReferences(effect, WG_RUNTIME_EFFECT_CATALOG, {
+    validateWGEffectReferences(effect, getWGRuntimeEffectCatalog(game.features), {
       fail: (message) => fail(`WG story system '${systemId}' returned ${message}`),
     });
   }

@@ -20,7 +20,6 @@ import {
     NPC_SCHEDULE_PHASE,
     OBLIGATION_EARLY_ARRIVAL_MINUTES,
 } from "./behavior.js";
-import { getSchoolDayPlan } from "../player/schedule.js";
 import { DAY_KEYS, MS_PER_MINUTE, MS_PER_DAY } from "../../world/data/time.js";
 import { getPlaceTransitionMinutes } from "../../world/data/travel.js";
 
@@ -916,11 +915,11 @@ export class NPCBrain {
 
         for (let offset = -daysBefore; offset <= daysAfter; offset++) {
             const anchor = utcDayStart(around, offset);
-            const schoolDay = rule?.when?.schoolDay;
-            if (
-                typeof schoolDay === "boolean" &&
-                getSchoolDayPlan(game, { date: anchor }).hasSchool !== schoolDay
-            ) {
+            if (!game.features.matchesNPCScheduleConditions(
+                game,
+                rule?.when,
+                { date: anchor, npc: this.npc, rule },
+            )) {
                 continue;
             }
 

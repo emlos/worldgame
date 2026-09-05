@@ -12,8 +12,9 @@ import {
   SUBJECT_ACHIEVEMENT_MAX,
   SUBJECT_GRADES,
   initialPlayerEducation,
-} from "../src/characters/player/education.js";
+} from "../src/features/school/education.js";
 import { getPlayerSkillCheckValue } from "../src/game/scene/skillChecks.js";
+import { DEFAULT_FEATURE_CATALOG } from "../src/features/index.js";
 import { WG_BUNDLE } from "../src/story/wg/generated/scenes.js";
 import { compileStorySources } from "../tools/wg/compiler/storyCompiler.js";
 
@@ -77,18 +78,24 @@ test("negative achievement demotes grades and both ends clamp", () => {
 
 test("grade checks use combined letter grade and progress", () => {
   const player = new Player();
-  assert.equal(getPlayerSkillCheckValue(player, "grade", "science"), 0);
+  assert.equal(
+    getPlayerSkillCheckValue(player, "grade", "science", DEFAULT_FEATURE_CATALOG),
+    0,
+  );
 
   player.setSubjectGrade("science", "C");
   assert.equal(
-    getPlayerSkillCheckValue(player, "grade", "science"),
+    getPlayerSkillCheckValue(player, "grade", "science", DEFAULT_FEATURE_CATALOG),
     (100 / SUBJECT_ACHIEVEMENT_MAX) * 10,
   );
 
   player.setSubjectGrade("science", "A");
   player.setSubjectProgress("science", 99);
   assert.equal(player.getSubjectAchievement("science"), 399);
-  assert.equal(getPlayerSkillCheckValue(player, "grade", "science"), 10);
+  assert.equal(
+    getPlayerSkillCheckValue(player, "grade", "science", DEFAULT_FEATURE_CATALOG),
+    10,
+  );
 });
 
 test("WG effects, expression context, and the phone expose progress", () => {
@@ -105,17 +112,18 @@ test("WG effects, expression context, and the phone expose progress", () => {
   });
   assert.deepEqual(createWGRuntimeContext(game).player.education.history, subject);
 
-  const phoneSubject = buildPhonePlayerStatsView(game).education.find(
-    (entry) => entry.id === "history",
+  const schoolSection = buildPhonePlayerStatsView(game).featureSections.find(
+    (section) => section.id === "school-grades",
   );
+  const phoneSubject = schoolSection.entries.find((entry) => entry.id === "history");
   assert.deepEqual(phoneSubject, {
     id: "history",
-    label: "History",
-    achievement: 100,
-    grade: "C",
-    progress: 0,
-    achievementMax: SUBJECT_ACHIEVEMENT_MAX,
-    attendedSegments: 0,
+    kind: "grade",
+    label: "History · 0 segments attended",
+    value: 100,
+    min: 0,
+    max: SUBJECT_ACHIEVEMENT_MAX,
+    valueLabel: "C · 0/100",
   });
 });
 

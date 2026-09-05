@@ -26,32 +26,6 @@ import {
 } from "../../story/wg/runtime/sceneMaterializer.js";
 import { getWGScene } from "../../story/wg/runtime/storyRuntime.js";
 import { materializeWGLocationContributions } from "../../story/wg/runtime/locationContributions.js";
-import {
-  BUS_BOARDING_SCENE_ID,
-  BUS_STOP_KEY,
-  BUS_TIMETABLE_SCENE_ID,
-  getBusFare,
-  getBusSchedulePeriods,
-  getCurrentBusStop,
-  getNextBusDeparture,
-  getUpcomingBusDepartures,
-  listBusTravelOptions,
-} from "../busTransit.js";
-
-function formatBusFare(fare) {
-  return `£${fare.toFixed(2)}`;
-}
-
-function formatClockTime(date) {
-  return `${String(date.getUTCHours()).padStart(2, "0")}:${String(
-    date.getUTCMinutes(),
-  ).padStart(2, "0")}`;
-}
-
-function capitalize(value) {
-  const text = String(value || "");
-  return text ? text[0].toUpperCase() + text.slice(1) : text;
-}
 
 function paragraphBlock(text) {
   return { type: "paragraph", text };
@@ -59,119 +33,6 @@ function paragraphBlock(text) {
 
 function paragraphBlocks(values) {
   return values.map(paragraphBlock);
-}
-
-function decorateBusStopHub(game, authored) {
-  const place = getCurrentBusStop(game);
-  if (!place) throw new Error("Bus-stop hub requires the player to be at a bus stop");
-
-  const fare = getBusFare(place);
-  const nextDeparture = getNextBusDeparture(place, game.now);
-  const canAfford = game.player.money >= fare;
-  let foundWaitChoice = false;
-  const sections = authored.sections.map((section) => ({
-    ...section,
-    choices: section.choices.map((choice) => {
-      if (choice.id !== "wait") return choice;
-      foundWaitChoice = true;
-      return createChoice({
-        ...choice,
-        durationMinutes: nextDeparture.waitMinutes,
-        enabled: choice.enabled && canAfford,
-        disabledReason: !choice.enabled
-          ? choice.disabledReason
-          : canAfford
-            ? null
-            : `You need ${formatBusFare(fare)} for a bus ticket.`,
-      });
-    }),
-  }));
-  if (!foundWaitChoice) {
-    throw new Error("Authored bus-stop hub requires a 'wait' choice");
-  }
-
-  return {
-    ...authored,
-    content: [
-      ...authored.content,
-      paragraphBlock(`A single bus ticket costs ${formatBusFare(fare)}.`),
-    ],
-    sections,
-  };
-}
-
-function decorateBusTimetableScene(game, authored) {
-  const place = getCurrentBusStop(game);
-  if (!place) throw new Error("Bus timetable requires the player to be at a bus stop");
-
-  const periods = getBusSchedulePeriods(place);
-  const periodText = periods.map(
-    (period) =>
-      `${capitalize(period.label)} service runs ${period.from}–${period.to}, ` +
-      `with a bus every ${period.everyMinutes} minutes.`,
-  );
-  const departures = getUpcomingBusDepartures(place, game.now, { count: 4 });
-  const departureText = departures.map((entry) => formatClockTime(entry.at)).join(", ");
-
-  return {
-    ...authored,
-    content: [
-      ...authored.content,
-      ...paragraphBlocks(periodText),
-      paragraphBlock(`The next departures are ${departureText}.`),
-    ],
-  };
-}
-
-function decorateBusBoardingScene(game, authored) {
-  const place = getCurrentBusStop(game);
-  if (!place) throw new Error("Bus boarding requires the player to be at a bus stop");
-
-  const fare = getBusFare(place);
-  const canAfford = game.player.money >= fare;
-  const destinations = listBusTravelOptions(game, place).map((destination) =>
-    createChoice({
-      id: `bus-travel:${destination.place.id}`,
-      icon: destination.place.props?.icon || "🚌",
-      label: `${destination.location.name} — ${destination.place.name}`,
-      durationMinutes: destination.travelMinutes,
-      costs: [
-        {
-          type: "money",
-          amount: fare,
-          label: formatBusFare(fare),
-          currency: "GBP",
-        },
-      ],
-      enabled: canAfford,
-      disabledReason: canAfford
-        ? null
-        : `You need ${formatBusFare(fare)} for a bus ticket.`,
-      action: {
-        type: SCENE_ACTION_TYPE.busTravel,
-        targetPlaceId: String(destination.place.id),
-      },
-    }),
-  );
-
-  const sections = authored.sections.length
-    ? authored.sections.map((section, index) =>
-        index === 0
-          ? { ...section, choices: [...destinations, ...section.choices] }
-          : section,
-      )
-    : [{ id: "choices", heading: "Destinations", choices: destinations }];
-  return { ...authored, sections };
-}
-
-function decorateRuntimeWGScene(game, definitionId, authored) {
-  if (definitionId === BUS_TIMETABLE_SCENE_ID) {
-    return decorateBusTimetableScene(game, authored);
-  }
-  if (definitionId === BUS_BOARDING_SCENE_ID) {
-    return decorateBusBoardingScene(game, authored);
-  }
-  return authored;
 }
 
 function stablePick(lines, game, key) {
@@ -325,7 +186,6 @@ function buildPlaceScene(game, activeDefinition = null) {
         ],
         sections: [],
       });
-  if (place.key === BUS_STOP_KEY) authored = decorateBusStopHub(game, authored);
   const people = game.getNPCsAtCurrentPosition();
   const eventScenes = getWGOfferScenes(game, {
     type: WG_OFFER_TYPE.place,
@@ -387,8 +247,9 @@ function buildPlaceScene(game, activeDefinition = null) {
 
 export function buildScene(game) {
   let scene;
+  let definition = null;
   if (game.currentStory) {
-    const definition = getWGScene(game.currentStory.id);
+    definition = getWGScene(game.currentStory.id);
     if (!definition) {
       throw new Error(`Unknown active WG scene: ${game.currentStory.id}`);
     }
@@ -397,11 +258,7 @@ export function buildScene(game) {
     } else if (definition.kind === "place") {
       scene = buildPlaceScene(game, definition);
     } else {
-      scene = decorateRuntimeWGScene(
-        game,
-        definition.id,
-        materializeWGScene(game, definition, game.currentStory.passageId),
-      );
+      scene = materializeWGScene(game, definition, game.currentStory.passageId);
     }
   } else {
     scene = game.currentPlace
@@ -409,6 +266,7 @@ export function buildScene(game) {
       : buildLocationScene(game);
   }
 
+  scene = game.features.decorateScene(game, scene, { definition });
   return createScene({
     ...scene,
     alerts: buildGlobalSceneAlerts(game),

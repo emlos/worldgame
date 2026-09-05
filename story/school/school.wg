@@ -172,7 +172,7 @@ The school has closed for the day.
 
 
 :: school.class.english -> @exit
-@school-class english
+@behavior school.class {"subject":"english"}
 @heading "English Class"
 @choices "Class activity"
 
@@ -245,7 +245,7 @@ The students look bored as the teacher wraps up the lesson. You have a few minut
 @endchoice
 
 :: school.class.math -> @exit
-@school-class math
+@behavior school.class {"subject":"math"}
 @heading "Mathematics Class"
 @choices "Class activity"
 
@@ -315,7 +315,7 @@ The final segment of Mathematics class gets underway.
 @endchoice
 
 :: school.class.history -> @exit
-@school-class history
+@behavior school.class {"subject":"history"}
 @heading "History Class"
 @choices "Class activity"
 
@@ -386,7 +386,7 @@ The final segment of History class gets underway.
 @endchoice
 
 :: school.class.science -> @exit
-@school-class science
+@behavior school.class {"subject":"science"}
 @heading "Science Class"
 @choices "Class activity"
 
@@ -457,7 +457,7 @@ The final segment of Science class gets underway.
 @endchoice
 
 :: school.class.art -> @exit
-@school-class art
+@behavior school.class {"subject":"art"}
 @heading "Art Class"
 @choices "Class activity"
 
@@ -529,7 +529,7 @@ The final segment of Art class gets underway.
 @endchoice
 
 :: school.class.physical-education -> @exit
-@school-class physical_education
+@behavior school.class {"subject":"physical_education"}
 @heading "Physical Education"
 @choices "Class activity"
 

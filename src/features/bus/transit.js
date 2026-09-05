@@ -1,9 +1,5 @@
-import { parseTimeToMinutes } from "../shared/util/date.js";
-import { isPlaceUnlocked } from "../world/model/place.js";
-
-export const BUS_STOP_KEY = "bus_stop";
-export const BUS_BOARDING_SCENE_ID = "transit.bus-boarding";
-export const BUS_TIMETABLE_SCENE_ID = "transit.bus-timetable";
+import { parseTimeToMinutes } from "../../shared/util/date.js";
+import { BUS_SERVICE, BUS_STOP_KEY } from "./config.js";
 
 const MS_PER_MINUTE = 60_000;
 const MINUTES_PER_DAY = 24 * 60;
@@ -40,15 +36,7 @@ export function getBusSchedulePeriods(place) {
   if (place?.key !== BUS_STOP_KEY) {
     throw new TypeError("Bus schedule access requires a bus stop");
   }
-  const schedule = place.props?.schedule;
-  if (schedule?.type !== "frequency" || !Array.isArray(schedule.periods)) {
-    throw new TypeError(`Bus stop '${String(place.id)}' has no frequency schedule`);
-  }
-  if (!schedule.periods.length) {
-    throw new TypeError(`Bus stop '${String(place.id)}' has an empty frequency schedule`);
-  }
-
-  return schedule.periods.map((period, index) => {
+  return BUS_SERVICE.periods.map((period, index) => {
     const path = `Bus schedule period ${index + 1}`;
     const from = String(period?.from ?? "");
     const to = String(period?.to ?? "");
@@ -127,7 +115,7 @@ export function getBusFare(place) {
   if (place?.key !== BUS_STOP_KEY) {
     throw new TypeError("Bus fare access requires a bus stop");
   }
-  return requireFiniteNumber(place.props?.busCost, "Bus fare", { min: 0 });
+  return requireFiniteNumber(BUS_SERVICE.fare, "Bus fare", { min: 0 });
 }
 
 export function getBusTravelTimeMultiplier(place) {
@@ -135,7 +123,7 @@ export function getBusTravelTimeMultiplier(place) {
     throw new TypeError("Bus travel-time access requires a bus stop");
   }
   return requireFiniteNumber(
-    place.props?.travelTimeMult,
+    BUS_SERVICE.travelTimeMultiplier,
     "Bus travel-time multiplier",
     { min: 0, exclusiveMin: true },
   );
@@ -148,7 +136,7 @@ export function listBusStops(game) {
   const stops = [];
   for (const location of game.world.locations.values()) {
     for (const place of location.places || []) {
-      if (isPlaceUnlocked(place) && place.key === BUS_STOP_KEY) {
+      if (place?.unlocked === true && place.key === BUS_STOP_KEY) {
         stops.push({ place, location });
       }
     }

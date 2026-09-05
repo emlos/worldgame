@@ -1,8 +1,4 @@
 import { SKILLS, STATS } from "../../characters/player/stats.js";
-import {
-  SCHOOL_SUBJECTS,
-  SUBJECT_ACHIEVEMENT_MAX,
-} from "../../characters/player/education.js";
 import { WearSlot } from "../../characters/core/clothing.js";
 import { listNavigationDestinations } from "../navigation.js";
 import { collectReminders } from "../reminders.js";
@@ -68,12 +64,12 @@ export function buildPhoneGpsView(game) {
           nextLocationId: route.nextLocationId,
         }
       : null,
-    destinations: listNavigationDestinations(game).map((destination) => ({
-      ...destination,
-      active: destination.placeId === activePlaceId,
-      alreadyHere: destination.locationId === currentLocationId,
-      recommended: destination.placeKey === "high_school",
-    })),
+    destinations: listNavigationDestinations(game).map((destination) =>
+      game.features.decorateNavigationDestination(game, {
+        ...destination,
+        active: destination.placeId === activePlaceId,
+        alreadyHere: destination.locationId === currentLocationId,
+      })),
   };
 }
 
@@ -105,18 +101,7 @@ export function buildPhonePlayerStatsView(game) {
       min: definition.min,
       max: definition.max,
     })),
-    education: Object.entries(SCHOOL_SUBJECTS).map(([id, definition]) => {
-      const subject = player.getSubjectRecord(id);
-      return {
-        id,
-        label: definition.label,
-        grade: subject.grade,
-        progress: subject.progress,
-        achievement: subject.achievement,
-        achievementMax: SUBJECT_ACHIEVEMENT_MAX,
-        attendedSegments: subject.attendedSegments,
-      };
-    }),
+    featureSections: game.features.buildPlayerStatsSections(game),
     body: {
       health: player.body?.getTotalHealth() ?? 0,
       maxHealth: player.body?.getMaximumHealth() ?? 0,

@@ -473,7 +473,7 @@ Taylor looks up from the textbook.
   scene renders without an `<h1>` heading.
 - `@choices "..."` labels the default section for ungrouped choices and
   defaults to `"Choices"`.
-- `@kind`, `@heading`, `@choices`, `@school-class`, `@system`, `@onenter`, and
+- `@kind`, `@heading`, `@choices`, `@behavior`, `@system`, `@onenter`, and
   all exposure directives are scene metadata. They must appear before prose,
   passages, conditionals, or choices. Single-value directives may appear only
   once.
@@ -610,8 +610,8 @@ WG bundle as ordinary data:
 @system school.quiz {"bank":"math.core","questions":3}
 ```
 
-System-backed scenes cannot contain authored passages or use
-`@school-class`. Their registered system creates serializable instance state
+System-backed scenes cannot contain authored passages or use `@behavior`.
+Their registered system creates serializable instance state
 once on entry, renders ordinary scene and choice contracts from that state,
 and handles JSON command objects from its choices. Rendering must be pure:
 random selection belongs in system creation so repeated renders and save/load
@@ -621,9 +621,9 @@ declared final target, including pooled-event `@return` continuations.
 WG stores only the system ID, config, and current JSON state. JavaScript
 callbacks remain in the runtime registry and are never emitted into generated
 story data or save files.
-The shared school quiz system currently resolves `math.core` and
-`english.core` through `src/story/systems/schoolQuiz/banks/index.js`; add new subject banks
-there without changing the runtime story system.
+The school quiz feature currently resolves `math.core` and `english.core`
+through `src/features/school/quiz/banks/index.js`; add new subject banks there
+without changing the generic WG runtime.
 
 ### Named passages and local targets
 
@@ -664,14 +664,20 @@ Ordinary choices inside passages keep their normal effects, duration, skill
 checks, and requirements. Choice IDs must be unique within their passage.
 Local `.passage` targets are valid in every scene.
 
-### School class scenes
+### Runtime story behaviors
 
-Use `@school-class <subject-id>` on a scene to make its initial passage
-follow the active school timetable segment:
+Use `@behavior <behavior-id> [config]` when a registered feature needs to
+augment an otherwise authored scene. The optional config is a JSON object.
+Unlike `@system`, the scene keeps its WG prose, passages, choices, and effects.
+Its feature-owned behavior can validate the definition, choose the starting
+passage, expose additional context, and respond to scene lifecycle events.
+
+For example, the school feature uses `school.class` to follow the active
+timetable segment:
 
 ```wg
 :: school.class.english -> @exit
-@school-class english
+@behavior school.class {"subject":"english"}
 @heading "English Class"
 
 @passage segment-1
@@ -684,7 +690,7 @@ The second segment is underway.
 The final segment is underway.
 ```
 
-School class passages must be named consecutively in source order, starting
+This behavior's class passages must be named consecutively in source order, starting
 with `segment-1`. Entry is allowed only while the player is at school during a
 class for the declared subject. The runtime opens the passage matching
 `school.segment`; for a 45-minute, three-segment class, arrival at 0–14 minutes
@@ -813,7 +819,7 @@ The currently exposed paths are:
   are ISO strings or `null`.
   `currentClass` is the active class's subject ID or `null`; `nextClass` is
   the next class that starts later on the current school day, or `null`.
-- During an active `@school-class` scene: `school.arrival.periodId`,
+- During an active `@behavior school.class` scene: `school.arrival.periodId`,
   `.subjectId`, `.scheduledAt`, `.arrivedAt`, `.minutesLate`, and
   `.startingSegment`. These remain available inside an interrupting pooled
   event.
@@ -1373,8 +1379,9 @@ This uses the same saved, irreversible unlock state as other places.
 
 ### Timers
 
-Named definitions live in `src/game/timerDefinitions.js`; the generic scheduling
-engine lives in `src/game/timers.js`. Definitions may use elapsed
+Named definitions belong to the feature that owns them (for example,
+`src/features/rent/timerDefinitions.js`); the generic scheduling engine lives
+in `src/game/timers.js`. Definitions may use elapsed
 `interval` schedules in hours or days, UTC `weekly` and `monthly` calendar
 schedules, or a one-shot `once` schedule. Repeating deadlines are always
 calculated from the previous deadline, so late processing cannot make them
@@ -1571,7 +1578,7 @@ not implemented.
 | Top level | `:: <scene-id> [tags...] [-> <final-target>]`, `@chat ... @endchat`, `@location ... @endlocation`, `@reminder ... @endreminder`, `@#` |
 | Reminder definition | `required @text`, `optional @tone`, `@priority` |
 | Location contribution | `leading @when conditions`, `prose`, `interpolation`, `@br`, `conditionals`, `@random ... @or ... @endrandom`, `@choicegroup ... @endchoicegroup`, `@choice ... @endchoice` |
-| Scene metadata | `@kind`, `@heading`, `@choices`, `@school-class`, `@system`, `@onenter`, `@hub`, `@place-key`, `@place-tag`, `@location-tag`, `@offer`, `@auto`, `@pool`, `@when`, `@label`, `@icon`, `@hub-text`, `@priority`, `@chance`, `@weight` |
+| Scene metadata | `@kind`, `@heading`, `@choices`, `@behavior`, `@system`, `@onenter`, `@hub`, `@place-key`, `@place-tag`, `@location-tag`, `@offer`, `@auto`, `@pool`, `@when`, `@label`, `@icon`, `@hub-text`, `@priority`, `@chance`, `@weight` |
 | Passage/navigation | `@passage`, `@next` |
 | Scene or passage body | `prose`, `@br`, `trailing inline @change`, `inline and block @if / @elseif / @else / @endif`, `@random / @or / @endrandom`, `passive @check / @success / @failure / @endcheck`, `@effect`, `@change`, `@choicegroup ... @endchoicegroup`, `@choice ... @endchoice` |
 | Direct choice | `@icon`, `@time`, `@time-until`, `@event-pool`, `@event-chance`, `@when`, `@require`, `@warning`, `@response ... @endresponse`, `@preview`, `@effect`, `@change` |

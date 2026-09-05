@@ -5,14 +5,13 @@ import {
   parseWGEffectDirective,
 } from "./effects/effectParsers.js";
 import { SKILLS } from "../../../src/characters/player/stats.js";
-import { SCHOOL_SUBJECTS } from "../../../src/characters/player/education.js";
+import { DEFAULT_FEATURE_CATALOG } from "../../../src/features/index.js";
 import { PLACE_REGISTRY } from "../../../src/world/data/place.js";
 import { NPC_REGISTRY } from "../../../src/characters/npc/npcs.js";
 import { SKILL_CHECK_DIFFICULTIES } from "../../../src/game/scene/skillChecks.js";
 import {
   WG_AUTO_TRIGGERS,
   WG_CHAT_CHOICE_DIRECTIVES,
-  WG_CHECK_TARGET_TYPES,
   WG_CHOICE_SINGLE_DIRECTIVES,
   WG_DOTTED_PATH_PATTERN,
   WG_DIRECTIVE_NAME_PATTERN,
@@ -110,6 +109,19 @@ function parseSystemMetadata(text, file, line) {
   };
 }
 
+function parseBehaviorMetadata(text, file, line) {
+  const location = lineLocation(file, line);
+  const systemSyntax = text.replace(/^@behavior\b/, "@system");
+  try {
+    return parseSystemMetadata(systemSyntax, file, line);
+  } catch (error) {
+    if (error?.name === "WGCompileError") {
+      failWG(error.detail.replaceAll("@system", "@behavior"), location);
+    }
+    throw error;
+  }
+}
+
 function directiveArgument(text, directive, location) {
   const prefix = `@${directive}`;
   const argument = text.slice(prefix.length).trim();
@@ -117,7 +129,7 @@ function directiveArgument(text, directive, location) {
   return argument;
 }
 
-function parseCheck(argument, location) {
+function parseCheck(argument, location, features) {
   const match = argument.match(
     new RegExp(`^(${ID_PATTERN})\\s+(${ID_PATTERN})\\s+(${ID_PATTERN})$`),
   );
@@ -126,14 +138,18 @@ function parseCheck(argument, location) {
   }
 
   const [, targetType, targetId, difficultyId] = match;
-  if (!WG_CHECK_TARGET_TYPES.includes(targetType)) {
-    failWG("@check target type must be 'skill' or 'grade'", location);
+  const targetTypes = ["skill", ...features.skillCheckTargetTypes];
+  if (!targetTypes.includes(targetType)) {
+    failWG(`@check target type must be one of: ${targetTypes.join(", ")}`, location);
   }
   if (targetType === "skill" && !SKILLS[targetId]) {
     failWG(`@check references unknown skill '${targetId}'`, location);
   }
-  if (targetType === "grade" && !SCHOOL_SUBJECTS[targetId]) {
-    failWG(`@check references unknown school subject '${targetId}'`, location);
+  if (
+    targetType !== "skill" &&
+    !features.getSkillCheckTargetDefinition(targetType, targetId)
+  ) {
+    failWG(`@check references unknown ${targetType} target '${targetId}'`, location);
   }
   if (!SKILL_CHECK_DIFFICULTIES[difficultyId]) {
     failWG(`@check references unknown difficulty '${difficultyId}'`, location);
@@ -487,11 +503,12 @@ function paragraphPartsContainChange(parts) {
 }
 
 class SceneBodyParser {
-  constructor(file, lines, startIndex = 0, chat = false) {
+  constructor(file, lines, startIndex = 0, chat = false, features = DEFAULT_FEATURE_CATALOG) {
     this.file = file;
     this.lines = lines;
     this.index = startIndex;
     this.chat = chat;
+    this.features = features;
   }
 
   current() {
@@ -750,7 +767,7 @@ class SceneBodyParser {
     const opening = this.current();
     const location = lineLocation(this.file, opening.line);
     const argument = directiveArgument(opening.text.trim(), "check", location);
-    const check = parseCheck(argument, location);
+    const check = parseCheck(argument, location, this.features);
 
     this.index += 1;
     const preamble = this.parseNodes(new Set(["success", "failure", "endcheck"]));
@@ -1100,7 +1117,7 @@ class SceneBodyParser {
       } else if (name === "check") {
         const argument = directiveArgument(text, "check", location);
         choice.check = {
-          ...parseCheck(argument, location),
+          ...parseCheck(argument, location, this.features),
           source: nodeSource(this.file, line.line),
         };
       } else if (name === "require") {
@@ -1242,14 +1259,14 @@ function parseNext(text, file, line) {
   };
 }
 
-function parseSceneChunk(file, chunk) {
+function parseSceneChunk(file, chunk, features) {
   const scene = {
     id: chunk.id,
     finalTarget: chunk.finalTarget,
     kind: "event",
     heading: null,
     choiceHeading: "Choices",
-    schoolClass: null,
+    behavior: null,
     system: null,
     onEnter: [],
     passages: [],
@@ -1314,22 +1331,8 @@ function parseSceneChunk(file, chunk) {
         "Choice section heading",
       );
       index += 1;
-    } else if (name === "school-class") {
-      const subjectId = directiveArgument(
-        text,
-        "school-class",
-        location,
-      );
-      if (!ID_REGEX.test(subjectId) || !SCHOOL_SUBJECTS[subjectId]) {
-        failWG(
-          `@school-class references unknown school subject '${subjectId}'`,
-          location,
-        );
-      }
-      scene.schoolClass = {
-        subjectId,
-        source: nodeSource(file, line.line),
-      };
+    } else if (name === "behavior") {
+      scene.behavior = parseBehaviorMetadata(text, file, line.line);
       index += 1;
     } else if (name === "system") {
       scene.system = parseSystemMetadata(text, file, line.line);
@@ -1499,16 +1502,16 @@ function parseSceneChunk(file, chunk) {
     }
 
     if (!currentPassage) currentPassage = startPassage(nextAnonymousId(), line.line);
-    const bodyParser = new SceneBodyParser(file, chunk.lines, index);
+    const bodyParser = new SceneBodyParser(file, chunk.lines, index, false, features);
     currentPassage.body.push(
       ...bodyParser.parseNodes(new Set(["passage", "next"])),
     );
     index = bodyParser.index;
   }
 
-  if (scene.system && scene.schoolClass) {
+  if (scene.system && scene.behavior) {
     failWG(
-      "@system and @school-class cannot be used on the same scene",
+      "@system and @behavior cannot be used on the same scene",
       lineLocation(file, chunk.headerLine),
     );
   }
@@ -1591,7 +1594,7 @@ function parseSceneChunk(file, chunk) {
   return scene;
 }
 
-function parseLocationBlock(file, lines, startIndex) {
+function parseLocationBlock(file, lines, startIndex, features) {
   const opening = lines[startIndex];
   const header = opening.text.trim().match(new RegExp(`^@location\\s+(${ID_PATTERN})\\s*$`));
   if (!header) failWG("Malformed @location header", lineLocation(file, opening.line));
@@ -1617,7 +1620,13 @@ function parseLocationBlock(file, lines, startIndex) {
   while (index < lines.length) {
     const text = lines[index].text.trim();
     if (text === "@endlocation") {
-      const body = new SceneBodyParser(file, lines.slice(bodyStart, index)).parseNodes();
+      const body = new SceneBodyParser(
+        file,
+        lines.slice(bodyStart, index),
+        0,
+        false,
+        features,
+      ).parseNodes();
       if (!body.length) {
         failWG("Location contribution requires prose or choices", lineLocation(file, opening.line));
       }
@@ -1679,7 +1688,7 @@ function parseReminderBlock(file, lines, startIndex) {
   failWG("Unclosed @reminder block", lineLocation(file, opening.line));
 }
 
-function parseChatBlock(file, lines, startIndex) {
+function parseChatBlock(file, lines, startIndex, features) {
   const opening = lines[startIndex];
   const match = opening.text.trim().match(new RegExp(`^@chat\\s+(${ID_PATTERN})$`));
   if (!match) failWG("Expected @chat <id>", lineLocation(file, opening.line));
@@ -1687,7 +1696,7 @@ function parseChatBlock(file, lines, startIndex) {
   let passage = null;
   const finishPassage = () => {
     if (!passage) return;
-    const parser = new SceneBodyParser(file, passage.lines, 0, true);
+    const parser = new SceneBodyParser(file, passage.lines, 0, true, features);
     chat.passages.push({ id: passage.id, body: parser.parseNodes(), source: passage.source });
   };
   for (let index = startIndex + 1; index < lines.length; index += 1) {
@@ -1718,7 +1727,10 @@ function parseChatBlock(file, lines, startIndex) {
   failWG("Unclosed @chat block", lineLocation(file, opening.line));
 }
 
-export function parseWGDocument({ file = "<wg>", source }) {
+export function parseWGDocument(
+  { file = "<wg>", source },
+  { features = DEFAULT_FEATURE_CATALOG } = {},
+) {
   if (typeof source !== "string") {
     failWG("WG source must be text", lineLocation(normalizeFile(file), 1));
   }
@@ -1738,7 +1750,7 @@ export function parseWGDocument({ file = "<wg>", source }) {
 
     if (trimmed.startsWith("@chat")) {
       currentChunk = null;
-      const parsed = parseChatBlock(normalizedFile, lines, index);
+      const parsed = parseChatBlock(normalizedFile, lines, index, features);
       chats.push(parsed.chat);
       index = parsed.nextIndex;
       continue;
@@ -1753,7 +1765,7 @@ export function parseWGDocument({ file = "<wg>", source }) {
     }
     if (trimmed.startsWith("@location")) {
       currentChunk = null;
-      const parsed = parseLocationBlock(normalizedFile, lines, index);
+      const parsed = parseLocationBlock(normalizedFile, lines, index, features);
       locationContributions.push(parsed.contribution);
       index = parsed.nextIndex;
       continue;
@@ -1802,13 +1814,13 @@ export function parseWGDocument({ file = "<wg>", source }) {
   }
 
   return {
-    scenes: chunks.map((chunk) => parseSceneChunk(normalizedFile, chunk)),
+    scenes: chunks.map((chunk) => parseSceneChunk(normalizedFile, chunk, features)),
     locationContributions,
     reminders,
     chats,
   };
 }
 
-export function parseWGSource(input) {
-  return parseWGDocument(input).scenes;
+export function parseWGSource(input, options) {
+  return parseWGDocument(input, options).scenes;
 }

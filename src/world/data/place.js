@@ -1,5 +1,13 @@
-import { DAY_KEYS } from "./time.js";
 import { LOCATION_TAGS } from "./location.js";
+import { FEATURE_PLACE_DEFINITIONS } from "../../features/placeContributions.js";
+import {
+  emptySchedule,
+  hoursAllDay,
+  hoursEveryDay,
+  hoursWeekdays,
+} from "./openingHours.js";
+
+export { emptySchedule } from "./openingHours.js";
 
 function pick(arr, rnd) {
   return arr[(rnd() * arr.length) | 0];
@@ -7,10 +15,6 @@ function pick(arr, rnd) {
 function has(tags, t) {
   return (tags || []).includes(t);
 }
-function seqName(base, { index }) {
-  return `${base} ${index + 1}`;
-}
-
 export const PLACE_DISTRIBUTION_KIND = Object.freeze({
   graphCoverage: "graph-coverage",
 });
@@ -156,33 +160,6 @@ export const PLACE_REGISTRY = [
     nameFn: ({ tags }) =>
       has(tags, LOCATION_TAGS.urban) ? "Central Station" : "Train Station",
     unlocked: false,
-  },
-  {
-    key: "bus_stop",
-    label: "Bus Stop",
-    distribution: {
-      kind: PLACE_DISTRIBUTION_KIND.graphCoverage,
-      locationsPerInstance: { min: 2, max: 4 },
-      maxGraphDistance: 2,
-    },
-    allowedTags: [
-      ...Object.values(LOCATION_TAGS), //bus stops can be everywhere
-    ],
-    props: {
-      icon: "🚌",
-      category: [PLACE_TAGS.transport],
-      travelTimeMult: 0.4, //how much faster travel is when using bus
-      busCost: 2.5,
-      schedule: {
-        type: "frequency",
-        periods: [
-          { label: "day", from: "06:00", to: "22:00", everyMinutes: 15 },
-          { label: "night", from: "22:00", to: "06:00", everyMinutes: 35 },
-        ],
-      },
-    },
-    nameFn: ({ index }) => seqName("Bus Stop", { index }),
-    unlocked: true,
   },
   {
     key: "boulevard",
@@ -895,80 +872,6 @@ export const PLACE_REGISTRY = [
     nameFn: ({ rnd }) =>
       `Middle School no. ${pick([1, 2, 3, 4, 5, 6, 7, 8, 9], rnd)}`,
     unlocked: false,
-  },
-  {
-    key: "high_school",
-    label: "High School",
-    allowedTags: [
-      LOCATION_TAGS.urban,
-      LOCATION_TAGS.suburban,
-      LOCATION_TAGS.urban_edge,
-      LOCATION_TAGS.suburban_hub,
-      LOCATION_TAGS.residential,
-    ],
-    props: {
-      icon: "🏫",
-      category: [PLACE_TAGS.education],
-      ejectAtClose: true,
-      semesters: [
-        { name: "Fall", start: "09-01", end: "12-15" },
-        { name: "Spring", start: "01-10", end: "05-20" },
-      ],
-      timetable: [
-        {
-          id: "english",
-          kind: "class",
-          subjectId: "english",
-          start: "09:00",
-          end: "09:45",
-          segments: 3,
-        },
-        {
-          id: "math",
-          kind: "class",
-          subjectId: "math",
-          start: "10:00",
-          end: "10:45",
-          segments: 3,
-        },
-        {
-          id: "history",
-          kind: "class",
-          subjectId: "history",
-          start: "11:00",
-          end: "11:45",
-          segments: 3,
-        },
-        { id: "lunch", kind: "lunch", start: "11:45", end: "13:00" },
-        {
-          id: "science",
-          kind: "class",
-          subjectId: "science",
-          start: "13:00",
-          end: "13:45",
-          segments: 3,
-        },
-        {
-          id: "art",
-          kind: "class",
-          subjectId: "art",
-          start: "14:00",
-          end: "14:45",
-          segments: 3,
-        },
-        {
-          id: "physical_education",
-          kind: "class",
-          subjectId: "physical_education",
-          start: "15:00",
-          end: "15:45",
-          segments: 3,
-        },
-      ],
-    },
-    nameFn: ({ rnd }) =>
-      `${pick(["St. Genevieve's High School", "Riverside High", "Docktown High"], rnd)}`,
-    unlocked: true,
   },
   {
     key: "university",
@@ -1687,58 +1590,10 @@ export const PLACE_REGISTRY = [
       `${pick(["Sunset", "Valley", "River", "Golden"], rnd)} Estate Winery`,
     unlocked: false,
   },
+  ...FEATURE_PLACE_DEFINITIONS,
 ];
 
 // ---- reusable opening-hour patterns --------------------------------
-
-export function emptySchedule() {
-  return {
-    mon: [],
-    tue: [],
-    wed: [],
-    thu: [],
-    fri: [],
-    sat: [],
-    sun: [],
-  };
-}
-
-function hoursEveryDay(from, to) {
-  const s = emptySchedule();
-  for (const d of Object.keys(s)) {
-    s[d].push({ from, to });
-  }
-  return s;
-}
-
-function hoursAllDay() {
-  return hoursEveryDay("00:00", "24:00");
-}
-
-function hoursWeekdays({
-  from = "08:00",
-  to = "16:00",
-  saturday,
-  sunday,
-} = {}) {
-  const s = emptySchedule();
-  for (const d of [
-    DAY_KEYS[1],
-    DAY_KEYS[2],
-    DAY_KEYS[3],
-    DAY_KEYS[4],
-    DAY_KEYS[5],
-  ]) {
-    s[d].push({ from, to });
-  }
-  if (saturday && saturday.from && saturday.to) {
-    s.sat.push({ from: saturday.from, to: saturday.to });
-  }
-  if (sunday && sunday.from && sunday.to) {
-    s.sun.push({ from: sunday.from, to: sunday.to });
-  }
-  return s;
-}
 
 // Category defaults (broad strokes, override by key if needed)
 export const DEFAULT_OPENING_HOURS_BY_CATEGORY = {
@@ -1785,13 +1640,11 @@ export const DEFAULT_OPENING_HOURS = hoursAllDay();
 
 // Per-place overrides
 const SCHOOL_HOURS = hoursWeekdays({ from: "08:00", to: "17:00" });
-const HIGH_SCHOOL_HOURS = hoursWeekdays({ from: "07:00", to: "17:00" });
 
 export const DEFAULT_OPENING_HOURS_BY_KEY = {
   // 24/7 LOCATIONS
   park: hoursAllDay(),
   town_square: hoursAllDay(),
-  bus_stop: hoursAllDay(),
   train_station: hoursAllDay(),
   boulevard: hoursAllDay(),
   parking_garage: hoursAllDay(),
@@ -1886,7 +1739,6 @@ export const DEFAULT_OPENING_HOURS_BY_KEY = {
   // SCHOOLS
   primary_school: SCHOOL_HOURS,
   middle_school: SCHOOL_HOURS,
-  high_school: HIGH_SCHOOL_HOURS,
   university: hoursWeekdays({ from: "08:00", to: "22:00" }), // Late classes/library access
 
   // LUXURY

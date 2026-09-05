@@ -1,4 +1,3 @@
-import { getSchoolDayState } from "../../../characters/player/schedule.js";
 import { isPlaceUnlocked } from "../../../world/model/place.js";
 
 function placeKeys(places) {
@@ -119,17 +118,8 @@ export function createWGRuntimeContext(game) {
   const daily = {};
   for (const flag of game.dailyFlags) daily[flag] = true;
 
-  const school = getSchoolDayState(game);
   const activeContinuation = game.storyContinuations.at(-1) || null;
-  const schoolClass =
-    game.currentStory?.schoolClass
-      ? game.currentStory.schoolClass
-      : activeContinuation?.schoolClass;
-  if (schoolClass) {
-    school.arrival = { ...schoolClass };
-  }
-
-  return {
+  const context = {
     story: game.story,
     player: playerContext(game.player),
     home: homeContext(game, game.homeLocationId),
@@ -137,7 +127,6 @@ export function createWGRuntimeContext(game) {
     flags,
     daily,
     time: timeContext(game.now, game.startedAt),
-    school,
     event: activeContinuation
       ? {
           poolId: activeContinuation.poolId,
@@ -173,4 +162,5 @@ export function createWGRuntimeContext(game) {
         }
       : null,
   };
+  return Object.assign(context, game.features.createWGContext(game));
 }

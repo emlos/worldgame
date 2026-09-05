@@ -34,7 +34,7 @@ import {
     SUBJECT_ACHIEVEMENT_MAX,
     SUBJECT_ACHIEVEMENT_MIN,
     SUBJECT_GRADE_RANGE,
-} from "./education.js";
+} from "../../features/school/education.js";
 
 const SKILL_PRECISION = 1_000_000;
 

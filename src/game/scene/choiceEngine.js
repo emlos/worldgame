@@ -24,56 +24,14 @@ import {
 import { keyedRandom01 } from "../../shared/util/random.js";
 import { actWGSystem } from "../../story/wg/runtime/storySystemRegistry.js";
 import {
-  getBusFare,
-  getCurrentBusStop,
-  resolveBusTravelOption,
-} from "../busTransit.js";
-import {
-  finalizeWGInterruptCheckpoint,
-  resolveWGInterruptCheckpoint,
-} from "../../story/wg/runtime/interrupts.js";
+  CHOICE_ERROR_CODE,
+  ChoiceError,
+  actionResult,
+  failChoice as fail,
+  runChoiceAction,
+} from "./choiceRuntime.js";
 
-export const CHOICE_ERROR_CODE = Object.freeze({
-  invalidRequest: "invalid-request",
-  staleScene: "stale-scene",
-  unavailableChoice: "unavailable-choice",
-  disabledChoice: "disabled-choice",
-  invalidAction: "invalid-action",
-  unsupportedAction: "unsupported-action",
-});
-
-export class ChoiceError extends Error {
-  constructor(code, message) {
-    super(message);
-    this.name = "ChoiceError";
-    this.code = code;
-  }
-}
-
-function fail(code, message) {
-  throw new ChoiceError(code, message);
-}
-
-function actionResult({ notice = "", paragraphs = [] } = {}) {
-  return { notice, paragraphs };
-}
-
-function runChoiceAction(game, options) {
-  const deferForScene = Boolean(game.currentStory);
-  return game.runAction({
-    ...options,
-    interrupt(currentGame, stage, timeChange) {
-      if (stage === "before-after") {
-        const interrupted = resolveWGInterruptCheckpoint(currentGame, {
-          deferForScene,
-        });
-        return Boolean(timeChange?.ejectedFrom) || interrupted;
-      }
-      finalizeWGInterruptCheckpoint(currentGame);
-      return false;
-    },
-  });
-}
+export { CHOICE_ERROR_CODE, ChoiceError };
 
 function selectWGResponse(
   game,
@@ -248,52 +206,6 @@ function performLoiter(game, choice, minutes) {
   return actionResult();
 }
 
-function performBusTravel(game, choice, minutes) {
-  const source = getCurrentBusStop(game);
-  if (!source) {
-    fail(
-      CHOICE_ERROR_CODE.invalidAction,
-      "Bus travel is unavailable unless the player is at a bus stop",
-    );
-  }
-
-  const destination = resolveBusTravelOption(game, choice.action.targetPlaceId);
-  if (!destination) {
-    fail(
-      CHOICE_ERROR_CODE.invalidAction,
-      `Bus stop '${String(choice.action.targetPlaceId)}' is not a valid destination`,
-    );
-  }
-  if (minutes !== destination.travelMinutes) {
-    fail(
-      CHOICE_ERROR_CODE.invalidAction,
-      "The selected bus journey has an invalid travel time",
-    );
-  }
-
-  const fare = getBusFare(source);
-  if (game.player.money < fare) {
-    fail(
-      CHOICE_ERROR_CODE.disabledChoice,
-      `The player needs £${fare.toFixed(2)} for a bus ticket`,
-    );
-  }
-
-  runChoiceAction(game, {
-    label: `Take the bus to ${destination.location.name}`,
-    minutes,
-    apply(currentGame) {
-      currentGame.player.adjustMoney(-fare);
-      currentGame.moveTo(String(destination.location.id));
-      currentGame.setCurrentPlace({ placeId: destination.place.id });
-    },
-    after(currentGame) {
-      resolveWGAutomaticScene(currentGame, WG_AUTO_TRIGGER.enterPlace);
-    },
-  });
-  return actionResult();
-}
-
 function enterWGOutcome(game, outcome, eventPool, choiceId, sourceSceneId = null) {
   const selected = eventPool
     ? resolveWGPoolScene(game, eventPool.id, eventPool.chance)
@@ -435,6 +347,7 @@ function performSkillCheck(game, choice, _minutes, scene) {
   const definition = getSkillCheckTargetDefinition(
     check.targetType,
     check.targetId,
+    game.features,
   );
   if (!definition) {
     fail(
@@ -450,7 +363,12 @@ function performSkillCheck(game, choice, _minutes, scene) {
   let chance;
   try {
     chance = calculateSkillCheckChance(
-      getPlayerSkillCheckValue(game.player, check.targetType, check.targetId),
+      getPlayerSkillCheckValue(
+        game.player,
+        check.targetType,
+        check.targetId,
+        game.features,
+      ),
       check.difficultyId,
       definition,
     );
@@ -529,7 +447,6 @@ function performSkillCheck(game, choice, _minutes, scene) {
 
 const ACTION_HANDLERS = Object.freeze({
   [SCENE_ACTION_TYPE.travel]: performTravel,
-  [SCENE_ACTION_TYPE.busTravel]: performBusTravel,
   [SCENE_ACTION_TYPE.enter]: performEnter,
   [SCENE_ACTION_TYPE.leave]: performLeave,
   [SCENE_ACTION_TYPE.loiter]: performLoiter,
@@ -566,7 +483,7 @@ export function performChoice(game, request) {
   }
 
   const actionType = choice.action?.type;
-  const handler = ACTION_HANDLERS[actionType];
+  const handler = ACTION_HANDLERS[actionType] ?? game.features.getActionHandler(actionType);
   if (!handler) {
     fail(
       CHOICE_ERROR_CODE.unsupportedAction,

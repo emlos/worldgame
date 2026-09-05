@@ -1,26 +1,6 @@
-import {
-  SCHOOL_SUBJECTS,
-  SUBJECT_ACHIEVEMENT_MAX,
-} from "../../characters/player/education.js";
 import { SKILLS } from "../../characters/player/stats.js";
 
-export const SKILL_CHECK_TARGET_TYPE = Object.freeze({
-  skill: "skill",
-  grade: "grade",
-});
-
-const GRADE_CHECK_TARGETS = Object.freeze(
-  Object.fromEntries(
-    Object.entries(SCHOOL_SUBJECTS).map(([id, subject]) => [
-      id,
-      Object.freeze({
-        label: `${subject.label} Grade`,
-        min: 0,
-        max: 10,
-      }),
-    ]),
-  ),
-);
+export const SKILL_CHECK_TARGET_TYPE = Object.freeze({ skill: "skill" });
 
 export const SKILL_CHECK_DIFFICULTIES = Object.freeze({
   trivial: Object.freeze({ label: "Trivial", chance: 1 }),
@@ -37,30 +17,23 @@ export function getSkillCheckDifficulty(id) {
   return SKILL_CHECK_DIFFICULTIES[String(id)] ?? null;
 }
 
-export function getSkillCheckTargetDefinition(targetType, targetId) {
+export function getSkillCheckTargetDefinition(targetType, targetId, features = null) {
   const type = String(targetType);
   const id = String(targetId);
   if (type === SKILL_CHECK_TARGET_TYPE.skill) return SKILLS[id] ?? null;
-  if (type === SKILL_CHECK_TARGET_TYPE.grade) {
-    return GRADE_CHECK_TARGETS[id] ?? null;
-  }
-  return null;
+  return features?.getSkillCheckTargetDefinition(type, id) ?? null;
 }
 
-export function getPlayerSkillCheckValue(player, targetType, targetId) {
+export function getPlayerSkillCheckValue(player, targetType, targetId, features = null) {
   const type = String(targetType);
   const id = String(targetId);
-  if (!getSkillCheckTargetDefinition(type, id)) {
+  if (!getSkillCheckTargetDefinition(type, id, features)) {
     throw new RangeError(`Unknown skill-check target '${type}.${id}'`);
   }
   if (type === SKILL_CHECK_TARGET_TYPE.skill) {
     return player.getSkillValue(id);
   }
-
-  return (
-    player.getSubjectAchievement(id) /
-    SUBJECT_ACHIEVEMENT_MAX
-  ) * 10;
+  return features.getSkillCheckTargetValue(player, type, id);
 }
 
 export function skillLevelForCheck(value, { min = 0, max = 10 } = {}) {

@@ -7,6 +7,7 @@ import {
   saveString,
 } from "../shared/util/saveValidation.js";
 import { collectReminders, isKnownReminderItem } from "./reminders.js";
+import { DEFAULT_FEATURE_CATALOG } from "../features/index.js";
 
 const ANNOUNCEMENT_TONES = new Set(["info", "warning"]);
 
@@ -25,7 +26,7 @@ export function announcementDayKey(value) {
 
 export function validateDailyAnnouncementsSave(
   value,
-  { path = "save.dailyAnnouncements", gameTime },
+  { path = "save.dailyAnnouncements", gameTime, features = DEFAULT_FEATURE_CATALOG },
 ) {
   const batch = saveRecord(value, path);
   const day = saveString(requiredSaveField(batch, "day", path), `${path}.day`, {
@@ -50,7 +51,7 @@ export function validateDailyAnnouncementsSave(
         nonEmpty: true,
       });
       if (ids.has(id)) failSave(`${itemPath}.id`, `duplicates announcement '${id}'`);
-      if (!isKnownReminderItem(id)) failSave(`${itemPath}.id`, `unknown reminder '${id}'`);
+      if (!isKnownReminderItem(id, features)) failSave(`${itemPath}.id`, `unknown reminder '${id}'`);
       ids.add(id);
       const tone = saveString(
         requiredSaveField(item, "tone", itemPath),

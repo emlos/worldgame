@@ -31,6 +31,7 @@ function passiveChance(game, node) {
   const definition = getSkillCheckTargetDefinition(
     node.check?.targetType,
     node.check?.targetId,
+    game.features,
   );
   if (!definition) fail("Passive check has invalid target metadata", node.source);
 
@@ -41,6 +42,7 @@ function passiveChance(game, node) {
         game.player,
         node.check.targetType,
         node.check.targetId,
+        game.features,
       ),
       node.check.difficultyId,
       definition,

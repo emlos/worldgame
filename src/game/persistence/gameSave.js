@@ -44,7 +44,7 @@ export function serializeGame(game) {
 }
 
 export function hydrateGame(game, data) {
-  validateGameSave(data);
+  validateGameSave(data, { features: game.features });
 
   game.seed = data.seed;
   game.random = RandomStreams.fromJSON(data.random);

@@ -1,5 +1,5 @@
 import { WG_BUNDLE } from "../story/wg/generated/scenes.js";
-import { getSchoolDayPlan } from "../characters/player/schedule.js";
+import { DEFAULT_FEATURE_CATALOG } from "../features/index.js";
 import {
   failSave,
   requiredSaveField,
@@ -21,7 +21,10 @@ export function authoredReminderId(id) {
   return `authored:${id}`;
 }
 
-export function validateRemindersSave(save, { path = "save" } = {}) {
+export function validateRemindersSave(
+  save,
+  { path = "save", features = DEFAULT_FEATURE_CATALOG } = {},
+) {
   const remindersPath = `${path}.reminders`;
   const reminders = saveUniqueStrings(
     requiredSaveField(save, "reminders", path),
@@ -56,25 +59,9 @@ export function clearReminder(game, id) {
   );
 }
 
-/** Built-in reminders are declared and activated by their authoritative systems. */
-export const AUTOMATIC_REMINDERS = Object.freeze([
-  Object.freeze({
-    id: "system:school-day",
-    group: "today",
-    priority: 100,
-    tone: "info",
-    text(game, date) {
-      const schoolDay = getSchoolDayPlan(game, { date });
-      if (!schoolDay.hasSchool) return null;
-      return "[warning]Today is a school day. Classes start at " +
-        `${schoolDay.school.start}.[/warning]`;
-    },
-  }),
-]);
-
-export function isKnownReminderItem(id) {
+export function isKnownReminderItem(id, features = DEFAULT_FEATURE_CATALOG) {
   return typeof id === "string" && (
-    AUTOMATIC_REMINDERS.some((definition) => definition.id === id) ||
+    features.automaticReminders.some((definition) => definition.id === id) ||
     (id.startsWith("authored:") && getAuthoredReminder(id.slice("authored:".length)) !== null)
   );
 }
@@ -93,7 +80,7 @@ export function collectReminders(game, date = game.now) {
       group: "todo",
     });
   }
-  for (const definition of AUTOMATIC_REMINDERS) {
+  for (const definition of game.features.automaticReminders) {
     const text = definition.text(game, date);
     if (text === null) continue;
     items.push({ id: definition.id, text, tone: definition.tone, priority: definition.priority, group: definition.group });
