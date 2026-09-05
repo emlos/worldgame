@@ -1,21 +1,17 @@
 import { failWG } from "./diagnostic.js";
+import {
+  WG_EXPRESSION_BINARY_PRECEDENCE,
+  WG_EXPRESSION_DOUBLE_OPERATORS,
+  WG_EXPRESSION_LITERALS,
+  WG_EXPRESSION_SINGLE_OPERATORS,
+  WG_EXPRESSION_UNARY_OPERATORS,
+  WG_EXPRESSION_WORD_OPERATORS,
+  WG_PATH_SEGMENT_PATTERN,
+} from "../../../src/story/wg/shared/language.js";
 
-const BINARY_PRECEDENCE = Object.freeze({
-  or: 1,
-  and: 2,
-  "==": 3,
-  "!=": 3,
-  in: 4,
-  "<": 4,
-  "<=": 4,
-  ">": 4,
-  ">=": 4,
-  "+": 5,
-  "-": 5,
-  "*": 6,
-  "/": 6,
-  "%": 6,
-});
+const EXPRESSION_PATH_REGEX = new RegExp(
+  `^${WG_PATH_SEGMENT_PATTERN}(?:\\.${WG_PATH_SEGMENT_PATTERN})*`,
+);
 
 function tokenize(expression, location) {
   const tokens = [];
@@ -79,12 +75,10 @@ function tokenize(expression, location) {
       continue;
     }
 
-    const identifierMatch = remaining.match(
-      /^[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*/,
-    );
+    const identifierMatch = remaining.match(EXPRESSION_PATH_REGEX);
     if (identifierMatch) {
       const value = identifierMatch[0];
-      if (value === "true" || value === "false") {
+      if (WG_EXPRESSION_LITERALS.includes(value) && value !== "null") {
         tokens.push({
           type: "literal",
           value: value === "true",
@@ -92,7 +86,7 @@ function tokenize(expression, location) {
         });
       } else if (value === "null") {
         tokens.push({ type: "literal", value: null, column: tokenColumn });
-      } else if (["and", "or", "not", "in"].includes(value)) {
+      } else if (WG_EXPRESSION_WORD_OPERATORS.includes(value)) {
         tokens.push({ type: "operator", value, column: tokenColumn });
       } else {
         tokens.push({
@@ -106,13 +100,13 @@ function tokenize(expression, location) {
     }
 
     const doubleOperator = expression.slice(index, index + 2);
-    if (["==", "!=", "<=", ">="].includes(doubleOperator)) {
+    if (WG_EXPRESSION_DOUBLE_OPERATORS.includes(doubleOperator)) {
       tokens.push({ type: "operator", value: doubleOperator, column: tokenColumn });
       index += 2;
       continue;
     }
 
-    if (["<", ">", "+", "-", "*", "/", "%"].includes(character)) {
+    if (WG_EXPRESSION_SINGLE_OPERATORS.includes(character)) {
       tokens.push({ type: "operator", value: character, column: tokenColumn });
       index += 1;
       continue;
@@ -207,7 +201,7 @@ export function parseExpression(expression, location = {}) {
     const token = current();
     if (
       token.type === "operator" &&
-      (token.value === "not" || token.value === "-")
+      WG_EXPRESSION_UNARY_OPERATORS.includes(token.value)
     ) {
       index += 1;
       return { type: "unary", operator: token.value, value: parseUnary() };
@@ -220,7 +214,9 @@ export function parseExpression(expression, location = {}) {
     while (true) {
       const token = current();
       const precedence =
-        token.type === "operator" ? BINARY_PRECEDENCE[token.value] : undefined;
+        token.type === "operator"
+          ? WG_EXPRESSION_BINARY_PRECEDENCE[token.value]
+          : undefined;
       if (precedence === undefined || precedence < minimumPrecedence) break;
 
       index += 1;

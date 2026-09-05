@@ -1,13 +1,10 @@
 import { WG_BUNDLE } from "../generated/scenes.js";
+import { WG_AUTO_TRIGGER } from "../shared/language.js";
 import { evaluateWGExpression } from "./expressionEvaluator.js";
 import { createWGRuntimeContext } from "./runtimeContext.js";
 import { enterWGTarget, resolveActiveWGStory } from "./storyRuntime.js";
 
-export const WG_AUTO_TRIGGER = Object.freeze({
-  enterPlace: "enter-place",
-  enterLocation: "enter-location",
-  leavePlace: "leave-place",
-});
+export { WG_AUTO_TRIGGER };
 
 export const WG_OFFER_TYPE = Object.freeze({
   place: "place",

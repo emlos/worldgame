@@ -4,6 +4,11 @@ This zero-build extension associates `*.wg` files with the Worldgame WG
 language and provides syntax highlighting, comments, indentation, bracket
 pairing, and block folding.
 
+The TextMate grammar and language configuration are generated from
+`src/story/wg/shared/language.js`. Regenerate them with
+`node tools/wg/compile.mjs`; `node tools/wg/compile.mjs --check` verifies that
+the compiler, editor support, and directive index are synchronized.
+
 Install or update it for the current Windows user from the repository root:
 
 ```powershell

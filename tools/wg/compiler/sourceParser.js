@@ -9,16 +9,40 @@ import { SCHOOL_SUBJECTS } from "../../../src/characters/player/education.js";
 import { PLACE_REGISTRY } from "../../../src/world/data/place.js";
 import { NPC_REGISTRY } from "../../../src/characters/npc/npcs.js";
 import { SKILL_CHECK_DIFFICULTIES } from "../../../src/game/scene/skillChecks.js";
+import {
+  WG_AUTO_TRIGGERS,
+  WG_CHAT_CHOICE_DIRECTIVES,
+  WG_CHECK_TARGET_TYPES,
+  WG_CHOICE_SINGLE_DIRECTIVES,
+  WG_DOTTED_PATH_PATTERN,
+  WG_DIRECTIVE_NAME_PATTERN,
+  WG_DURATION_PATTERN,
+  WG_DURATION_UNITS,
+  WG_ID_PATTERN,
+  WG_PASSAGE_ID_PATTERN,
+  WG_PERCENTAGE_PATTERN,
+  WG_PROBABILITY_DECIMAL_PATTERN,
+  WG_QUOTED_STRING_PATTERN,
+  WG_REMINDER_TONES,
+  WG_SCENE_FINAL_TARGET_PATTERN,
+  WG_SCENE_KINDS,
+  WG_SCENE_METADATA_DIRECTIVES,
+  WG_SIMPLE_ID_PATTERN,
+  WG_SINGLE_SCENE_METADATA_DIRECTIVES,
+  WG_STORY_TARGET_PATTERN,
+  WG_NEXT_TARGET_PATTERN,
+  WG_TAG_PATTERN,
+} from "../../../src/story/wg/shared/language.js";
 
-const ID_PATTERN = "[a-z][a-z0-9_.-]*";
-const SIMPLE_ID_PATTERN = "[a-z][a-z0-9_-]*";
+const ID_PATTERN = WG_ID_PATTERN;
+const SIMPLE_ID_PATTERN = WG_SIMPLE_ID_PATTERN;
 const RELATIONSHIP_TARGET_PATTERN = `(${SIMPLE_ID_PATTERN})\\.(${SIMPLE_ID_PATTERN})`;
 const ID_REGEX = new RegExp(`^${ID_PATTERN}$`);
-const PASSAGE_ID_PATTERN = "[a-z][a-z0-9_-]*";
-const STORY_TARGET_PATTERN = `(?:@exit|@return|@leave-place|\\.${PASSAGE_ID_PATTERN}|${ID_PATTERN})`;
-const TAG_REGEX = /^[a-z][a-z0-9_-]*$/;
-const PATH_REGEX = /^[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)+$/;
-const QUOTED_PATTERN = '"(?:\\\\.|[^"\\\\])*"';
+const PASSAGE_ID_PATTERN = WG_PASSAGE_ID_PATTERN;
+const STORY_TARGET_PATTERN = WG_STORY_TARGET_PATTERN;
+const TAG_REGEX = new RegExp(`^${WG_TAG_PATTERN}$`);
+const PATH_REGEX = new RegExp(`^${WG_DOTTED_PATH_PATTERN}$`);
+const QUOTED_PATTERN = WG_QUOTED_STRING_PATTERN;
 
 function relationshipMeterDefinition(npcId, meterId, location) {
   const npc = NPC_REGISTRY.find((entry) => entry.id === npcId);
@@ -102,7 +126,7 @@ function parseCheck(argument, location) {
   }
 
   const [, targetType, targetId, difficultyId] = match;
-  if (targetType !== "skill" && targetType !== "grade") {
+  if (!WG_CHECK_TARGET_TYPES.includes(targetType)) {
     failWG("@check target type must be 'skill' or 'grade'", location);
   }
   if (targetType === "skill" && !SKILLS[targetId]) {
@@ -118,7 +142,7 @@ function parseCheck(argument, location) {
 }
 
 function directiveName(text) {
-  return text.match(/^@([a-z][a-z-]*)/)?.[1] ?? null;
+  return text.match(new RegExp(`^@(${WG_DIRECTIVE_NAME_PATTERN})`))?.[1] ?? null;
 }
 
 function isComment(text) {
@@ -185,18 +209,16 @@ function parseInterpolationParts(text, location) {
 
 export function parseDuration(value, location = {}) {
   const text = String(value).trim();
-  const match = text.match(
-    /^(?:(\d+(?:\.\d+)?)d)?(?:(\d+(?:\.\d+)?)h)?(?:(\d+(?:\.\d+)?)m)?(?:(\d+(?:\.\d+)?)s)?$/,
-  );
-  if (!match || !match.slice(1).some((part) => part !== undefined)) {
+  const match = text.match(new RegExp(`^${WG_DURATION_PATTERN}$`));
+  if (!match || !Object.values(match.groups || {}).some((part) => part !== undefined)) {
     failWG(`Invalid duration '${text}'`, location);
   }
 
-  const minutes =
-    Number(match[1] || 0) * 1440 +
-    Number(match[2] || 0) * 60 +
-    Number(match[3] || 0) +
-    Number(match[4] || 0) / 60;
+  const minutes = WG_DURATION_UNITS.reduce(
+    (total, { name, minutes: multiplier }) =>
+      total + Number(match.groups[name] || 0) * multiplier,
+    0,
+  );
   if (!Number.isFinite(minutes) || minutes < 0) {
     failWG(`Invalid duration '${text}'`, location);
   }
@@ -237,12 +259,12 @@ function parseTime(value, location) {
 
 function parseProbability(value, location, directive) {
   const text = String(value).trim();
-  const percent = text.match(/^(\d+(?:\.\d+)?)%$/);
-  const decimal = text.match(/^(?:0(?:\.\d+)?|1(?:\.0+)?)$/);
+  const percent = new RegExp(`^${WG_PERCENTAGE_PATTERN}$`).test(text);
+  const decimal = new RegExp(`^${WG_PROBABILITY_DECIMAL_PATTERN}$`).test(text);
   if (!percent && !decimal) {
     failWG(`@${directive} must be between 0 and 1 or a percentage`, location);
   }
-  const probability = percent ? Number(percent[1]) / 100 : Number(text);
+  const probability = percent ? Number(text.slice(0, -1)) / 100 : Number(text);
   if (probability < 0 || probability > 1) {
     failWG(`@${directive} must be between 0 and 1 or a percentage`, location);
   }
@@ -1012,7 +1034,7 @@ class SceneBodyParser {
         failWG("Choice blocks may contain only choice directives", location);
       }
 
-      if (this.chat && !["send", "when", "require", "effect"].includes(name)) {
+      if (this.chat && !WG_CHAT_CHOICE_DIRECTIVES.includes(name)) {
         failWG("Chat choices support only @send, @when, @require, and @effect; texting takes no time", location);
       }
       if (this.chat && name === "send") {
@@ -1030,14 +1052,7 @@ class SceneBodyParser {
       }
 
       if (
-        [
-          "icon",
-          "when",
-          "warning",
-          "check",
-          "event-pool",
-          "event-chance",
-        ].includes(name)
+        WG_CHOICE_SINGLE_DIRECTIVES.includes(name)
       ) {
         if (singleFields.has(name)) failWG(`Duplicate @${name}`, location);
         singleFields.add(name);
@@ -1212,9 +1227,9 @@ function parseOnEnter(file, lines, startIndex, openingLine) {
 function parseNext(text, file, line) {
   const location = lineLocation(file, line);
   const match = text.match(
-    new RegExp(`^@next(?:\\s+(${QUOTED_PATTERN}))?(?:\\s+->\\s+(${STORY_TARGET_PATTERN}))?\\s*$`),
+    new RegExp(`^@next(?:\\s+(${QUOTED_PATTERN}))?(?:\\s+->\\s+(${WG_NEXT_TARGET_PATTERN}))?\\s*$`),
   );
-  if (!match || match[2] === "@leave-place") {
+  if (!match) {
     failWG("Malformed @next", location);
   }
   const label = match[1]
@@ -1269,47 +1284,11 @@ function parseSceneChunk(file, chunk) {
     }
     const name = directiveName(text);
     if (
-      ![
-        "kind",
-        "heading",
-        "choices",
-        "school-class",
-        "system",
-        "onenter",
-        "hub",
-        "place-key",
-        "place-tag",
-        "location-tag",
-        "offer",
-        "auto",
-        "pool",
-        "when",
-        "label",
-        "icon",
-        "hub-text",
-        "priority",
-        "chance",
-        "weight",
-      ].includes(name)
+      !WG_SCENE_METADATA_DIRECTIVES.includes(name)
     ) break;
     const location = lineLocation(file, line.line);
     if (
-      [
-        "kind",
-        "heading",
-        "choices",
-        "school-class",
-        "system",
-        "onenter",
-        "hub",
-        "offer",
-        "label",
-        "icon",
-        "hub-text",
-        "priority",
-        "chance",
-        "weight",
-      ].includes(name)
+      WG_SINGLE_SCENE_METADATA_DIRECTIVES.includes(name)
     ) {
       if (singleFields.has(name)) failWG(`Duplicate @${name}`, location);
       singleFields.add(name);
@@ -1317,8 +1296,8 @@ function parseSceneChunk(file, chunk) {
 
     if (name === "kind") {
       scene.kind = directiveArgument(text, "kind", location);
-      if (!ID_REGEX.test(scene.kind)) {
-        failWG("Scene kind must be a lowercase identifier", location);
+      if (!WG_SCENE_KINDS.includes(scene.kind)) {
+        failWG(`Scene kind must be one of: ${WG_SCENE_KINDS.join(", ")}`, location);
       }
       index += 1;
     } else if (name === "heading") {
@@ -1405,10 +1384,10 @@ function parseSceneChunk(file, chunk) {
     } else if (name === "auto") {
       const trigger = directiveArgument(text, "auto", location);
       if (
-        !["enter-place", "enter-location", "leave-place"].includes(trigger)
+        !WG_AUTO_TRIGGERS.includes(trigger)
       ) {
         failWG(
-          "@auto must be 'enter-place', 'enter-location', or 'leave-place'",
+          `@auto must be one of: ${WG_AUTO_TRIGGERS.join(", ")}`,
           location,
         );
       }
@@ -1686,7 +1665,9 @@ function parseReminderBlock(file, lines, startIndex) {
         failWG("Reminder text is literal; interpolation is not supported", location);
       }
     } else if (name === "tone") {
-      if (!["info", "warning"].includes(value)) failWG("@tone must be info or warning", location);
+      if (!WG_REMINDER_TONES.includes(value)) {
+        failWG(`@tone must be one of: ${WG_REMINDER_TONES.join(", ")}`, location);
+      }
       reminder.tone = value;
     } else {
       if (!/^[+-]?\d+$/.test(value) || !Number.isSafeInteger(Number(value))) {
@@ -1780,7 +1761,7 @@ export function parseWGDocument({ file = "<wg>", source }) {
     if (trimmed.startsWith("::")) {
       const header = trimmed.match(
         new RegExp(
-          `^::\\s+(${ID_PATTERN})(?:\\s+\\[([^\\]]*)\\])?(?:\\s+->\\s+(@exit|@return|${ID_PATTERN}))?\\s*$`,
+          `^::\\s+(${ID_PATTERN})(?:\\s+\\[([^\\]]*)\\])?(?:\\s+->\\s+(${WG_SCENE_FINAL_TARGET_PATTERN}))?\\s*$`,
         ),
       );
       if (!header) {

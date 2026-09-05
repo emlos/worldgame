@@ -12,6 +12,7 @@ import {
   validateWGEffectReferences,
 } from "../../../src/story/wg/shared/effects/registry.js";
 import { walkWGDefinitionEffects } from "../../../src/story/wg/shared/effects/traversal.js";
+import { WG_STORY_TARGETS } from "../../../src/story/wg/shared/language.js";
 import { walkWGNodes } from "../../../src/story/wg/shared/tree.js";
 
 function compareText(left, right) {
@@ -139,7 +140,7 @@ export function compileStorySources(sources) {
 
   const hasGlobalTarget = (target) => sceneMap.has(target);
   const validateTarget = (target, source, { scene = null, choiceId = null } = {}) => {
-    if (["@exit", "@return", "@leave-place"].includes(target)) return;
+    if (Object.values(WG_STORY_TARGETS).includes(target)) return;
     if (target?.startsWith(".")) {
       const passageId = target.slice(1);
       if (!scene) {
@@ -239,7 +240,7 @@ export function compileStorySources(sources) {
         const targets = node.check
           ? [node.outcomes?.success, node.outcomes?.failure].map((outcome) => outcome?.target)
           : [node.target];
-        if (scene.hub?.type === "place" && targets.includes("@leave-place")) {
+        if (scene.hub?.type === "place" && targets.includes(WG_STORY_TARGETS.leavePlace)) {
           failWG(
             "Place hubs already provide an implicit Leave choice",
             atSource(node.source),
@@ -279,7 +280,10 @@ export function compileStorySources(sources) {
       }
       const outcomes = node.check ? [node.outcomes.success, node.outcomes.failure] : [node];
       for (const outcome of outcomes) {
-        if (["@return", "@leave-place"].includes(outcome.target) || outcome.target.startsWith(".")) {
+        if (
+          [WG_STORY_TARGETS.return, WG_STORY_TARGETS.leavePlace].includes(outcome.target) ||
+          outcome.target.startsWith(".")
+        ) {
           failWG("Location contribution choices must target @exit or a global scene", atSource(outcome.source));
         }
         validateTarget(outcome.target, outcome.source, { choiceId: node.id });

@@ -3,13 +3,19 @@ import { parseExpression } from "../expressionParser.js";
 import {
   supportsWGChange,
   validateWGEffectShape,
+  WG_EFFECT_KEYWORDS,
 } from "../../../../src/story/wg/shared/effects/registry.js";
+import {
+  WG_ID_PATTERN,
+  WG_QUOTED_STRING_PATTERN,
+  WG_SIMPLE_ID_PATTERN,
+} from "../../../../src/story/wg/shared/language.js";
 
-const ID_PATTERN = "[a-z][a-z0-9_.-]*";
-const SIMPLE_ID_PATTERN = "[a-z][a-z0-9_-]*";
+const ID_PATTERN = WG_ID_PATTERN;
+const SIMPLE_ID_PATTERN = WG_SIMPLE_ID_PATTERN;
 const RELATIONSHIP_TARGET_PATTERN = `(${SIMPLE_ID_PATTERN})\\.(${SIMPLE_ID_PATTERN})`;
 const ID_REGEX = new RegExp(`^${ID_PATTERN}$`);
-const QUOTED_PATTERN = '"(?:\\\\.|[^"\\\\])*"';
+const QUOTED_PATTERN = WG_QUOTED_STRING_PATTERN;
 const CHANGE_LABELS = new WeakMap();
 
 function location(file, line) {
@@ -198,9 +204,21 @@ const EFFECT_PARSERS = new Map([
   ["unlock", effectParser("unlock-place", parseUnlock)],
 ]);
 
+for (const keyword of WG_EFFECT_KEYWORDS) {
+  if (!EFFECT_PARSERS.has(keyword)) {
+    throw new Error(`WG effect keyword '${keyword}' has no compiler parser`);
+  }
+}
+for (const keyword of EFFECT_PARSERS.keys()) {
+  if (!WG_EFFECT_KEYWORDS.includes(keyword)) {
+    throw new Error(`WG effect parser '${keyword}' has no language specification`);
+  }
+}
+
 export const WG_EFFECT_PARSER_OPS = Object.freeze(
   [...new Set([...EFFECT_PARSERS.values()].map((parser) => parser.op))],
 );
+export const WG_EFFECT_PARSER_KEYWORDS = Object.freeze([...EFFECT_PARSERS.keys()]);
 
 function directiveArgument(text, directive, at) {
   const prefix = `@${directive}`;

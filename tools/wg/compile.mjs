@@ -4,11 +4,25 @@ import { fileURLToPath } from "node:url";
 import { WGCompileError } from "./compiler/diagnostic.js";
 import { emitStoryModule } from "./compiler/emitter.js";
 import { compileStorySources } from "./compiler/storyCompiler.js";
+import {
+  buildWGLanguageConfiguration,
+  buildWGTextMateGrammar,
+  updateWGDirectiveIndex,
+} from "./supportGenerator.js";
 
 const SCRIPT_DIRECTORY = path.dirname(fileURLToPath(import.meta.url));
 const PROJECT_ROOT = path.resolve(SCRIPT_DIRECTORY, "../..");
 const STORY_ROOT = path.join(PROJECT_ROOT, "story");
 const OUTPUT_FILE = path.join(PROJECT_ROOT, "src/story/wg/generated/scenes.js");
+const TEXTMATE_FILE = path.join(
+  PROJECT_ROOT,
+  "tools/vscode-wg/syntaxes/wg.tmLanguage.json",
+);
+const LANGUAGE_CONFIGURATION_FILE = path.join(
+  PROJECT_ROOT,
+  "tools/vscode-wg/language-configuration.json",
+);
+const LANGUAGE_DOCUMENTATION_FILE = path.join(PROJECT_ROOT, "docs/wg-language.md");
 
 function compareNames(left, right) {
   return left.name < right.name ? -1 : left.name > right.name ? 1 : 0;
@@ -35,9 +49,9 @@ async function readSources() {
   );
 }
 
-async function readExistingOutput() {
+async function readExistingOutput(file = OUTPUT_FILE) {
   try {
-    return await fs.readFile(OUTPUT_FILE, "utf8");
+    return await fs.readFile(file, "utf8");
   } catch (error) {
     if (error?.code === "ENOENT") return null;
     throw error;
@@ -45,24 +59,55 @@ async function readExistingOutput() {
 }
 
 export async function compileProject({ check = false } = {}) {
-  const output = emitStoryModule(compileStorySources(await readSources()));
-  const existing = await readExistingOutput();
+  const documentation = await fs.readFile(LANGUAGE_DOCUMENTATION_FILE, "utf8");
+  const artifacts = [
+    {
+      file: OUTPUT_FILE,
+      content: emitStoryModule(compileStorySources(await readSources())),
+    },
+    { file: TEXTMATE_FILE, content: buildWGTextMateGrammar() },
+    {
+      file: LANGUAGE_CONFIGURATION_FILE,
+      content: buildWGLanguageConfiguration(),
+    },
+    {
+      file: LANGUAGE_DOCUMENTATION_FILE,
+      content: updateWGDirectiveIndex(documentation),
+    },
+  ];
+  const existing = await Promise.all(
+    artifacts.map(({ file }) => readExistingOutput(file)),
+  );
+  const changedArtifacts = artifacts.filter(
+    ({ content }, index) => existing[index] !== content,
+  );
 
   if (check) {
-    if (existing !== output) {
+    if (changedArtifacts.length) {
+      const stale = changedArtifacts
+        .map(({ file }) => path.relative(PROJECT_ROOT, file).split(path.sep).join("/"))
+        .join(", ");
       throw new Error(
-        "Generated WG output is missing or stale. Run: node tools/wg/compile.mjs",
+        `Generated WG artifacts are missing or stale (${stale}). ` +
+          "Run: node tools/wg/compile.mjs",
       );
     }
     return { changed: false, checked: true, outputFile: OUTPUT_FILE };
   }
 
-  if (existing === output) {
+  if (!changedArtifacts.length) {
     return { changed: false, checked: false, outputFile: OUTPUT_FILE };
   }
-  await fs.mkdir(path.dirname(OUTPUT_FILE), { recursive: true });
-  await fs.writeFile(OUTPUT_FILE, output, "utf8");
-  return { changed: true, checked: false, outputFile: OUTPUT_FILE };
+  for (const { file, content } of changedArtifacts) {
+    await fs.mkdir(path.dirname(file), { recursive: true });
+    await fs.writeFile(file, content, "utf8");
+  }
+  return {
+    changed: true,
+    checked: false,
+    outputFile: OUTPUT_FILE,
+    changedFiles: changedArtifacts.map(({ file }) => file),
+  };
 }
 
 async function main() {
@@ -73,10 +118,14 @@ async function main() {
   }
 
   const result = await compileProject({ check: argumentsList.includes("--check") });
-  const relativeOutput = path.relative(PROJECT_ROOT, result.outputFile).split(path.sep).join("/");
-  if (result.checked) console.log(`WG output is current: ${relativeOutput}`);
-  else if (result.changed) console.log(`Generated ${relativeOutput}`);
-  else console.log(`WG output unchanged: ${relativeOutput}`);
+  if (result.checked) console.log("WG generated artifacts are current.");
+  else if (result.changed) {
+    const files = result.changedFiles
+      .map((file) => path.relative(PROJECT_ROOT, file).split(path.sep).join("/"))
+      .join(", ");
+    console.log(`Generated WG artifacts: ${files}`);
+  }
+  else console.log("WG generated artifacts are unchanged.");
 }
 
 if (path.resolve(process.argv[1] || "") === fileURLToPath(import.meta.url)) {

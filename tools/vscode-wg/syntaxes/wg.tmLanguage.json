@@ -3,47 +3,136 @@
   "name": "Worldgame WG",
   "scopeName": "source.wg",
   "patterns": [
-    { "include": "#comments" },
-    { "include": "#escaped-markers" },
-    { "include": "#scene-header" },
-    { "include": "#location-header" },
-    { "include": "#reminder-header" },
-    { "include": "#chat-directives" },
-    { "include": "#passage-header" },
-    { "include": "#next-directive" },
-    { "include": "#choicegroup-header" },
-    { "include": "#choice-header" },
-    { "include": "#outcome-header" },
-    { "include": "#response-header" },
-    { "include": "#random-directives" },
-    { "include": "#condition-directives" },
-    { "include": "#effect-directives" },
-    { "include": "#property-directives" },
-    { "include": "#block-directives" },
-    { "include": "#inline-conditionals" },
-    { "include": "#interpolation" },
-    { "include": "#inline-change" },
-    { "include": "#prose-break" },
-    { "include": "#unknown-directives" }
+    {
+      "include": "#comments"
+    },
+    {
+      "include": "#escaped-markers"
+    },
+    {
+      "include": "#scene-header"
+    },
+    {
+      "include": "#chat-directives"
+    },
+    {
+      "include": "#location-header"
+    },
+    {
+      "include": "#reminder-header"
+    },
+    {
+      "include": "#passage-header"
+    },
+    {
+      "include": "#next-directive"
+    },
+    {
+      "include": "#choicegroup-header"
+    },
+    {
+      "include": "#choice-header"
+    },
+    {
+      "include": "#outcome-header"
+    },
+    {
+      "include": "#response-header"
+    },
+    {
+      "include": "#random-directives"
+    },
+    {
+      "include": "#condition-directives"
+    },
+    {
+      "include": "#effect-directives"
+    },
+    {
+      "include": "#property-directives"
+    },
+    {
+      "include": "#bare-block-directives"
+    },
+    {
+      "include": "#block-directives"
+    },
+    {
+      "include": "#inline-conditionals"
+    },
+    {
+      "include": "#interpolation"
+    },
+    {
+      "include": "#inline-change"
+    },
+    {
+      "include": "#prose-break"
+    },
+    {
+      "include": "#unknown-directives"
+    }
   ],
   "repository": {
     "chat-directives": {
       "patterns": [
         {
-          "match": "^(\\s*)(@(chat|message|npc))\\s+([a-z][a-z0-9_.-]*)\\s*$",
-          "captures": { "2": { "name": "keyword.control.block.wg" }, "4": { "name": "entity.name.type.chat.wg" } }
+          "match": "^(\\s*)(@(chat|npc))\\s+([a-z][a-z0-9_.-]*)\\s*$",
+          "captures": {
+            "2": {
+              "name": "keyword.control.block.wg"
+            },
+            "4": {
+              "name": "entity.name.type.chat.wg"
+            }
+          }
+        },
+        {
+          "match": "^(\\s*)(@message)\\s+([a-z][a-z0-9_-]*)\\s*$",
+          "captures": {
+            "2": {
+              "name": "keyword.control.block.wg"
+            },
+            "3": {
+              "name": "entity.name.type.chat.wg"
+            }
+          }
         },
         {
           "begin": "^\\s*(@send)\\b",
-          "beginCaptures": { "1": { "name": "keyword.control.wg" } },
+          "beginCaptures": {
+            "1": {
+              "name": "keyword.control.wg"
+            }
+          },
           "end": "$",
-          "patterns": [{ "include": "#expression" }]
+          "patterns": [
+            {
+              "include": "#expression"
+            }
+          ]
         },
         {
           "match": "^\\s*(@wait)\\s+(\\S+)\\s+(->)\\s+(\\.[a-z][a-z0-9_-]*)\\s*$",
-          "captures": { "1": { "name": "keyword.control.wg" }, "2": { "name": "constant.numeric.duration.wg" }, "3": { "name": "keyword.operator.arrow.wg" }, "4": { "name": "entity.name.section.reference.wg" } }
+          "captures": {
+            "1": {
+              "name": "keyword.control.wg"
+            },
+            "2": {
+              "name": "constant.numeric.duration.wg"
+            },
+            "3": {
+              "name": "keyword.operator.arrow.wg"
+            },
+            "4": {
+              "name": "entity.name.section.reference.wg"
+            }
+          }
         },
-        { "name": "keyword.control.block.wg", "match": "^\\s*@(endchat|endmessage|finish)\\s*$" }
+        {
+          "name": "keyword.control.block.wg",
+          "match": "^\\s*@(endchat|endmessage|finish)\\s*$"
+        }
       ]
     },
     "reminder-header": {
@@ -52,22 +141,33 @@
           "name": "meta.reminder.header.wg",
           "match": "^(\\s*)(@reminder)\\s+([a-z][a-z0-9_.-]*)\\s*$",
           "captures": {
-            "2": { "name": "keyword.control.block.begin.wg" },
-            "3": { "name": "entity.name.type.reminder.wg" }
+            "2": {
+              "name": "keyword.control.block.begin.wg"
+            },
+            "3": {
+              "name": "entity.name.type.reminder.wg"
+            }
           }
         }
       ]
     },
     "comments": {
       "patterns": [
-        { "name": "comment.line.number-sign.wg", "match": "^\\s*@#.*$" }
+        {
+          "name": "comment.line.number-sign.wg",
+          "match": "^\\s*@#.*$"
+        }
       ]
     },
     "escaped-markers": {
       "patterns": [
         {
           "match": "^(\\s*)(\\\\)(?=@|::)",
-          "captures": { "2": { "name": "constant.character.escape.wg" } }
+          "captures": {
+            "2": {
+              "name": "constant.character.escape.wg"
+            }
+          }
         },
         {
           "name": "constant.character.escape.wg",
@@ -79,15 +179,29 @@
       "patterns": [
         {
           "name": "meta.scene.header.wg",
-          "match": "^(\\s*)(::)(\\s+)([a-z][a-z0-9_.-]*)(?:\\s+(\\[)([^\\]]*)(\\]))?(?:\\s+(->)\\s+(@exit|@return|[a-z][a-z0-9_.-]*))?\\s*$",
+          "match": "^(\\s*)(::)(\\s+)([a-z][a-z0-9_.-]*)(?:\\s+(\\[)([^\\]]*)(\\]))?(?:\\s+(->)\\s+((?:@exit|@return|[a-z][a-z0-9_.-]*)))?\\s*$",
           "captures": {
-            "2": { "name": "keyword.control.section.wg" },
-            "4": { "name": "entity.name.section.wg" },
-            "5": { "name": "punctuation.definition.annotation.begin.wg" },
-            "6": { "name": "storage.modifier.scene-tag.wg" },
-            "7": { "name": "punctuation.definition.annotation.end.wg" },
-            "8": { "name": "keyword.operator.arrow.wg" },
-            "9": { "name": "entity.name.section.reference.wg" }
+            "2": {
+              "name": "keyword.control.section.wg"
+            },
+            "4": {
+              "name": "entity.name.section.wg"
+            },
+            "5": {
+              "name": "punctuation.definition.annotation.begin.wg"
+            },
+            "6": {
+              "name": "storage.modifier.scene-tag.wg"
+            },
+            "7": {
+              "name": "punctuation.definition.annotation.end.wg"
+            },
+            "8": {
+              "name": "keyword.operator.arrow.wg"
+            },
+            "9": {
+              "name": "entity.name.section.reference.wg"
+            }
           }
         }
       ]
@@ -98,8 +212,12 @@
           "name": "meta.location.header.wg",
           "match": "^(\\s*)(@location)\\s+([a-z][a-z0-9_.-]*)\\s*$",
           "captures": {
-            "2": { "name": "keyword.control.block.begin.wg" },
-            "3": { "name": "entity.name.type.location.wg" }
+            "2": {
+              "name": "keyword.control.block.begin.wg"
+            },
+            "3": {
+              "name": "entity.name.type.location.wg"
+            }
           }
         }
       ]
@@ -110,8 +228,12 @@
           "name": "meta.passage.header.wg",
           "match": "^(\\s*)(@passage)\\s+([a-z][a-z0-9_-]*)\\s*$",
           "captures": {
-            "2": { "name": "keyword.control.section.wg" },
-            "3": { "name": "entity.name.section.wg" }
+            "2": {
+              "name": "keyword.control.section.wg"
+            },
+            "3": {
+              "name": "entity.name.section.wg"
+            }
           }
         }
       ]
@@ -120,12 +242,20 @@
       "patterns": [
         {
           "name": "meta.next.directive.wg",
-          "match": "^(\\s*)(@next)(?:\\s+(\"(?:\\\\.|[^\"\\\\])*\"))?(?:\\s+(->)\\s+(@exit|@return|\\.[a-z][a-z0-9_-]*|[a-z][a-z0-9_.-]*))?\\s*$",
+          "match": "^(\\s*)(@next)(?:\\s+(\"(?:\\\\.|[^\"\\\\])*\"))?(?:\\s+(->)\\s+((?:@exit|@return|\\.[a-z][a-z0-9_-]*|[a-z][a-z0-9_.-]*)))?\\s*$",
           "captures": {
-            "2": { "name": "keyword.control.flow.wg" },
-            "3": { "name": "string.quoted.double.wg" },
-            "4": { "name": "keyword.operator.arrow.wg" },
-            "5": { "name": "entity.name.section.reference.wg" }
+            "2": {
+              "name": "keyword.control.flow.wg"
+            },
+            "3": {
+              "name": "string.quoted.double.wg"
+            },
+            "4": {
+              "name": "keyword.operator.arrow.wg"
+            },
+            "5": {
+              "name": "entity.name.section.reference.wg"
+            }
           }
         }
       ]
@@ -134,13 +264,23 @@
       "patterns": [
         {
           "name": "meta.choice.header.wg",
-          "match": "^(\\s*)(@choice)\\s+([a-z0-9_][a-z0-9_.-]*)\\s+(\"(?:\\\\.|[^\"\\\\])*\")(?:\\s+(->)\\s+(@exit|@return|@leave-place|\\.[a-z][a-z0-9_-]*|[a-z0-9_][a-z0-9_.-]*))?\\s*$",
+          "match": "^(\\s*)(@choice)\\s+([a-z][a-z0-9_.-]*)\\s+(\"(?:\\\\.|[^\"\\\\])*\")(?:\\s+(->)\\s+((?:@exit|@return|@leave-place|\\.[a-z][a-z0-9_-]*|[a-z][a-z0-9_.-]*)))?\\s*$",
           "captures": {
-            "2": { "name": "keyword.control.block.begin.wg" },
-            "3": { "name": "entity.name.function.choice.wg" },
-            "4": { "name": "string.quoted.double.wg" },
-            "5": { "name": "keyword.operator.arrow.wg" },
-            "6": { "name": "entity.name.section.reference.wg" }
+            "2": {
+              "name": "keyword.control.block.begin.wg"
+            },
+            "3": {
+              "name": "entity.name.function.choice.wg"
+            },
+            "4": {
+              "name": "string.quoted.double.wg"
+            },
+            "5": {
+              "name": "keyword.operator.arrow.wg"
+            },
+            "6": {
+              "name": "entity.name.section.reference.wg"
+            }
           }
         }
       ]
@@ -151,9 +291,15 @@
           "name": "meta.choicegroup.header.wg",
           "match": "^(\\s*)(@choicegroup)\\s+([a-z][a-z0-9_.-]*)\\s+(\"(?:\\\\.|[^\"\\\\])*\")\\s*$",
           "captures": {
-            "2": { "name": "keyword.control.block.begin.wg" },
-            "3": { "name": "entity.name.type.choicegroup.wg" },
-            "4": { "name": "string.quoted.double.wg" }
+            "2": {
+              "name": "keyword.control.block.begin.wg"
+            },
+            "3": {
+              "name": "entity.name.type.choicegroup.wg"
+            },
+            "4": {
+              "name": "string.quoted.double.wg"
+            }
           }
         }
       ]
@@ -162,11 +308,17 @@
       "patterns": [
         {
           "name": "meta.choice.outcome.header.wg",
-          "match": "^(\\s*)(@(success|failure))\\s+(->)\\s+(@exit|@return|@leave-place|\\.[a-z][a-z0-9_-]*|[a-z0-9_][a-z0-9_.-]*)\\s*$",
+          "match": "^(\\s*)(@(success|failure))\\s+(->)\\s+((?:@exit|@return|@leave-place|\\.[a-z][a-z0-9_-]*|[a-z][a-z0-9_.-]*))\\s*$",
           "captures": {
-            "2": { "name": "keyword.control.block.begin.wg" },
-            "4": { "name": "keyword.operator.arrow.wg" },
-            "5": { "name": "entity.name.section.reference.wg" }
+            "2": {
+              "name": "keyword.control.block.begin.wg"
+            },
+            "4": {
+              "name": "keyword.operator.arrow.wg"
+            },
+            "5": {
+              "name": "entity.name.section.reference.wg"
+            }
           }
         }
       ]
@@ -177,7 +329,9 @@
           "name": "meta.choice.response.header.wg",
           "match": "^(\\s*)(@response)\\s*$",
           "captures": {
-            "2": { "name": "keyword.control.block.begin.wg" }
+            "2": {
+              "name": "keyword.control.block.begin.wg"
+            }
           }
         }
       ]
@@ -195,9 +349,17 @@
         {
           "name": "meta.expression.directive.wg",
           "begin": "^(\\s*)(@(if|elseif|when|require))\\b",
-          "beginCaptures": { "2": { "name": "keyword.control.conditional.wg" } },
+          "beginCaptures": {
+            "2": {
+              "name": "keyword.control.conditional.wg"
+            }
+          },
           "end": "$",
-          "patterns": [{ "include": "#expression" }]
+          "patterns": [
+            {
+              "include": "#expression"
+            }
+          ]
         }
       ]
     },
@@ -206,11 +368,20 @@
         {
           "name": "meta.effect.directive.wg",
           "begin": "^(\\s*)(@(effect|change))\\b",
-          "beginCaptures": { "2": { "name": "keyword.control.effect.wg" } },
+          "beginCaptures": {
+            "2": {
+              "name": "keyword.control.effect.wg"
+            }
+          },
           "end": "$",
           "patterns": [
-            { "name": "storage.type.effect.wg", "match": "\\b(?:set|add|clear|contact|chat|start|restart|stop|timer|reminder|flag|daily-flag|relationship|money|skill|stat|grade|attendance|unlock|place|relocate|home|nearest-place)\\b" },
-            { "include": "#expression" }
+            {
+              "name": "storage.type.effect.wg",
+              "match": "\\b(?:contact|add|chat|start|set|flag|daily-flag|reminder|clear|timer|restart|stop|unlock|place|relocate|home|nearest-place|relationship|money|skill|stat|grade|attendance)\\b"
+            },
+            {
+              "include": "#expression"
+            }
           ]
         }
       ]
@@ -220,12 +391,24 @@
         {
           "name": "meta.effect.inline.wg",
           "begin": "(?<!\\\\)(@change)(?=\\s|$)",
-          "beginCaptures": { "1": { "name": "keyword.control.effect.wg" } },
+          "beginCaptures": {
+            "1": {
+              "name": "keyword.control.effect.wg"
+            }
+          },
           "end": "$",
           "patterns": [
-            { "name": "keyword.control.effect.wg", "match": "@change(?=\\s|$)" },
-            { "name": "storage.type.effect.wg", "match": "\\b(?:relationship|money|skill|stat|grade|attendance)\\b" },
-            { "include": "#expression" }
+            {
+              "name": "keyword.control.effect.wg",
+              "match": "@change(?=\\s|$)"
+            },
+            {
+              "name": "storage.type.effect.wg",
+              "match": "\\b(?:contact|add|chat|start|set|flag|daily-flag|reminder|clear|timer|restart|stop|unlock|place|relocate|home|nearest-place|relationship|money|skill|stat|grade|attendance)\\b"
+            },
+            {
+              "include": "#expression"
+            }
           ]
         }
       ]
@@ -235,7 +418,9 @@
         {
           "match": "^(\\s*)(@br)\\s*$",
           "captures": {
-            "2": { "name": "keyword.control.prose-break.wg" }
+            "2": {
+              "name": "keyword.control.prose-break.wg"
+            }
           }
         },
         {
@@ -248,10 +433,18 @@
       "patterns": [
         {
           "name": "meta.property.directive.wg",
-          "begin": "^(\\s*)(@(text|tone|kind|heading|choices|school-class|system|place-key|place-tag|location-tag|hub|offer|label|icon|hub-text|auto|pool|priority|chance|weight|time|time-until|event-pool|event-chance|warning|preview|check))\\b",
-          "beginCaptures": { "2": { "name": "keyword.other.directive.wg" } },
+          "begin": "^(\\s*)(@(text|tone|kind|heading|choices|school-class|system|hub|place-key|place-tag|location-tag|offer|auto|pool|when|label|icon|hub-text|priority|chance|weight|time|time-until|event-pool|event-chance|warning|preview|check))\\b",
+          "beginCaptures": {
+            "2": {
+              "name": "keyword.other.directive.wg"
+            }
+          },
           "end": "$",
-          "patterns": [{ "include": "#expression" }]
+          "patterns": [
+            {
+              "include": "#expression"
+            }
+          ]
         }
       ]
     },
@@ -259,7 +452,15 @@
       "patterns": [
         {
           "name": "keyword.control.block.wg",
-          "match": "^\\s*(@(?:else|endif|endreminder|endlocation|endchoice|endchoicegroup|success|endsuccess|failure|endfailure|endcheck|response|endresponse|endrandom|onenter|endonenter))\\s*$"
+          "match": "^\\s*(@(?:endchat|endmessage|endreminder|endlocation|endchoice|endchoicegroup|endif|elseif|else|endsuccess|endfailure|endresponse|endrandom|or|endonenter|endcheck|success|failure))\\s*$"
+        }
+      ]
+    },
+    "bare-block-directives": {
+      "patterns": [
+        {
+          "name": "keyword.control.block.begin.wg",
+          "match": "^\\s*(@(?:onenter))\\s*$"
         }
       ]
     },
@@ -269,22 +470,38 @@
           "name": "meta.inline-conditional.wg",
           "begin": "(\\{\\{)(\\s*)(@(if|elseif))\\b",
           "beginCaptures": {
-            "1": { "name": "punctuation.section.inline-conditional.begin.wg" },
-            "3": { "name": "keyword.control.conditional.wg" }
+            "1": {
+              "name": "punctuation.section.inline-conditional.begin.wg"
+            },
+            "3": {
+              "name": "keyword.control.conditional.wg"
+            }
           },
           "end": "\\}\\}",
           "endCaptures": {
-            "0": { "name": "punctuation.section.inline-conditional.end.wg" }
+            "0": {
+              "name": "punctuation.section.inline-conditional.end.wg"
+            }
           },
-          "patterns": [{ "include": "#expression" }]
+          "patterns": [
+            {
+              "include": "#expression"
+            }
+          ]
         },
         {
           "name": "meta.inline-conditional.wg",
           "match": "(\\{\\{)(\\s*)(@(else|endif))(\\s*)(\\}\\})",
           "captures": {
-            "1": { "name": "punctuation.section.inline-conditional.begin.wg" },
-            "3": { "name": "keyword.control.conditional.wg" },
-            "6": { "name": "punctuation.section.inline-conditional.end.wg" }
+            "1": {
+              "name": "punctuation.section.inline-conditional.begin.wg"
+            },
+            "3": {
+              "name": "keyword.control.conditional.wg"
+            },
+            "6": {
+              "name": "punctuation.section.inline-conditional.end.wg"
+            }
           }
         }
       ]
@@ -294,18 +511,32 @@
         {
           "name": "meta.interpolation.wg",
           "begin": "\\{\\{",
-          "beginCaptures": { "0": { "name": "punctuation.section.interpolation.begin.wg" } },
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.section.interpolation.begin.wg"
+            }
+          },
           "end": "\\}\\}",
-          "endCaptures": { "0": { "name": "punctuation.section.interpolation.end.wg" } },
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.section.interpolation.end.wg"
+            }
+          },
           "patterns": [
             {
               "match": "(\\|)(cap)\\b",
               "captures": {
-                "1": { "name": "punctuation.separator.modifier.wg" },
-                "2": { "name": "support.function.modifier.wg" }
+                "1": {
+                  "name": "punctuation.separator.modifier.wg"
+                },
+                "2": {
+                  "name": "support.function.modifier.wg"
+                }
               }
             },
-            { "include": "#expression" }
+            {
+              "include": "#expression"
+            }
           ]
         }
       ]
@@ -320,17 +551,50 @@
     },
     "expression": {
       "patterns": [
-        { "name": "string.quoted.double.wg", "match": "\"(?:\\\\.|[^\"\\\\])*\"" },
-        { "name": "constant.numeric.duration.wg", "match": "\\b(?:[0-9]+(?:\\.[0-9]+)?[hms])+\\b" },
-        { "name": "constant.numeric.percentage.wg", "match": "\\b[0-9]+(?:\\.[0-9]+)?%(?![A-Za-z0-9_])" },
-        { "name": "constant.numeric.wg", "match": "\\b[0-9]+(?:\\.[0-9]+)?\\b" },
-        { "name": "constant.language.wg", "match": "\\b(?:true|false|null)\\b|@(?:exit|leave-place)\\b" },
-        { "name": "variable.other.object.wg", "match": "\\b(?:story|player|npc|flags|daily|time|school|place|location)(?:\\.[A-Za-z_][A-Za-z0-9_-]*)+\\b" },
-        { "name": "keyword.operator.logical.wg", "match": "\\b(?:and|or|not|in)\\b" },
-        { "name": "keyword.operator.comparison.wg", "match": "==|!=|<=|>=|<|>" },
-        { "name": "keyword.operator.arithmetic.wg", "match": "[+*/%-]" },
-        { "name": "punctuation.definition.list.wg", "match": "[\\[\\],()]" },
-        { "name": "variable.other.identifier.wg", "match": "\\b[A-Za-z_][A-Za-z0-9_.-]*\\b" }
+        {
+          "name": "string.quoted.double.wg",
+          "match": "\"(?:\\\\.|[^\"\\\\])*\""
+        },
+        {
+          "name": "constant.numeric.duration.wg",
+          "match": "\\b(?:(?=\\d+(?:\\.\\d+)?[dhms])(?:\\d+(?:\\.\\d+)?d)?(?:\\d+(?:\\.\\d+)?h)?(?:\\d+(?:\\.\\d+)?m)?(?:\\d+(?:\\.\\d+)?s)?)\\b"
+        },
+        {
+          "name": "constant.numeric.percentage.wg",
+          "match": "\\b\\d+(?:\\.\\d+)?%(?![A-Za-z0-9_])"
+        },
+        {
+          "name": "constant.numeric.wg",
+          "match": "\\b\\d+(?:\\.\\d+)?\\b"
+        },
+        {
+          "name": "constant.language.wg",
+          "match": "\\b(?:true|false|null)\\b|(?:@exit|@return|@leave-place)\\b"
+        },
+        {
+          "name": "variable.other.object.wg",
+          "match": "\\b(?:story|player|npc|flags|daily|time|school|place|location)(?:\\.[A-Za-z_][A-Za-z0-9_]*)+\\b"
+        },
+        {
+          "name": "keyword.operator.logical.wg",
+          "match": "\\b(?:and|or|not|in)\\b"
+        },
+        {
+          "name": "keyword.operator.comparison.wg",
+          "match": "==|!=|<=|>=|<|>"
+        },
+        {
+          "name": "keyword.operator.arithmetic.wg",
+          "match": "[\\+\\-\\*\\/\\%]"
+        },
+        {
+          "name": "punctuation.definition.list.wg",
+          "match": "[\\[\\],()]"
+        },
+        {
+          "name": "variable.other.identifier.wg",
+          "match": "\\b(?:[A-Za-z_][A-Za-z0-9_]*(?:\\.[A-Za-z_][A-Za-z0-9_]*)+|[a-z][a-z0-9_.-]*)\\b"
+        }
       ]
     }
   }

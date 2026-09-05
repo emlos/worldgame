@@ -1,24 +1,17 @@
-const EFFECT_ID_PATTERN = /^[a-z][a-z0-9_.-]*$/;
-const SIMPLE_EFFECT_ID_PATTERN = /^[a-z][a-z0-9_-]*$/;
-const STORY_PATH_SEGMENT_PATTERN = /^[A-Za-z_][A-Za-z0-9_]*$/;
+import {
+  WG_EXPRESSION_BINARY_PRECEDENCE,
+  WG_EXPRESSION_UNARY_OPERATORS,
+  WG_ID_PATTERN,
+  WG_PATH_SEGMENT_PATTERN,
+  WG_SIMPLE_ID_PATTERN,
+} from "../languageCore.js";
+
+const EFFECT_ID_PATTERN = new RegExp(`^${WG_ID_PATTERN}$`);
+const SIMPLE_EFFECT_ID_PATTERN = new RegExp(`^${WG_SIMPLE_ID_PATTERN}$`);
+const STORY_PATH_SEGMENT_PATTERN = new RegExp(`^${WG_PATH_SEGMENT_PATTERN}$`);
 const DIRECTIONS = new Set(["increase", "decrease", "neutral"]);
-const UNARY_OPERATORS = new Set(["not", "-"]);
-const BINARY_OPERATORS = new Set([
-  "or",
-  "and",
-  "==",
-  "!=",
-  "in",
-  "<",
-  "<=",
-  ">",
-  ">=",
-  "+",
-  "-",
-  "*",
-  "/",
-  "%",
-]);
+const UNARY_OPERATORS = new Set(WG_EXPRESSION_UNARY_OPERATORS);
+const BINARY_OPERATORS = new Set(Object.keys(WG_EXPRESSION_BINARY_PRECEDENCE));
 
 export class WGEffectContractError extends TypeError {
   constructor(message) {
@@ -220,6 +213,7 @@ function labeledFeedback(labelFromCatalog, suffix = "") {
 const EFFECT_DEFINITIONS = [
   {
     op: "contact",
+    syntax: "contact add",
     allowedInChat: false,
     validate(effect, fail) {
       validateBaseEffect(effect, ["action", "npcId"], [], fail);
@@ -234,6 +228,7 @@ const EFFECT_DEFINITIONS = [
   },
   {
     op: "chat",
+    syntax: "chat start",
     allowedInChat: false,
     validate(effect, fail) {
       validateBaseEffect(effect, ["action", "id"], [], fail);
@@ -246,6 +241,7 @@ const EFFECT_DEFINITIONS = [
   },
   ...["set", "add"].map((op) => ({
     op,
+    syntax: op,
     validate(effect, fail) {
       validateBaseEffect(effect, ["path", "value"], [], fail);
       if (
@@ -263,6 +259,7 @@ const EFFECT_DEFINITIONS = [
   })),
   ...["flag", "daily-flag"].map((op) => ({
     op,
+    syntax: op,
     validate(effect, fail) {
       validateBaseEffect(effect, ["flag", "value"], [], fail);
       validateId(effect.flag, `WG ${op} id`, fail);
@@ -271,6 +268,7 @@ const EFFECT_DEFINITIONS = [
   })),
   {
     op: "reminder",
+    syntax: ["reminder add", "reminder clear"],
     validate(effect, fail) {
       validateBaseEffect(effect, ["action", "id"], [], fail);
       validateAction(effect, ["add", "clear"], fail);
@@ -282,6 +280,7 @@ const EFFECT_DEFINITIONS = [
   },
   {
     op: "timer",
+    syntax: ["timer start", "timer restart", "timer stop"],
     validate(effect, fail) {
       validateBaseEffect(effect, ["action", "id"], [], fail);
       validateAction(effect, ["start", "restart", "stop"], fail);
@@ -295,6 +294,8 @@ const EFFECT_DEFINITIONS = [
   },
   {
     op: "unlock-place",
+    keyword: "unlock",
+    syntax: "unlock place",
     validate(effect, fail) {
       validateBaseEffect(effect, ["placeKey"], [], fail);
       validateId(effect.placeKey, "WG unlock place key", fail, { simple: true });
@@ -307,6 +308,7 @@ const EFFECT_DEFINITIONS = [
   },
   {
     op: "relocate",
+    syntax: ["relocate home", "relocate nearest-place"],
     validate(effect, fail) {
       validateBaseEffect(effect, ["destination"], [], fail);
       if (!isRecord(effect.destination)) fail("WG relocate destination must be an object");
@@ -341,6 +343,7 @@ const EFFECT_DEFINITIONS = [
   },
   {
     op: "relationship",
+    syntax: "relationship",
     validate(effect, fail) {
       validateBaseEffect(effect, ["npcId", "meterId", "amount"], [], fail);
       validateId(effect.npcId, "WG relationship NPC id", fail, { simple: true });
@@ -376,6 +379,7 @@ const EFFECT_DEFINITIONS = [
   },
   {
     op: "money",
+    syntax: "money",
     validate(effect, fail) {
       validateBaseEffect(effect, ["amount"], [], fail);
       validateAmount(effect.amount, "WG money effect", fail);
@@ -384,6 +388,7 @@ const EFFECT_DEFINITIONS = [
   },
   {
     op: "skill",
+    syntax: "skill",
     implicitSkillChange: true,
     validate(effect, fail) {
       validateBaseEffect(effect, ["id", "amount"], [], fail);
@@ -401,6 +406,7 @@ const EFFECT_DEFINITIONS = [
   },
   {
     op: "stat",
+    syntax: "stat",
     validate(effect, fail) {
       validateBaseEffect(effect, ["id", "amount"], [], fail);
       validateId(effect.id, "WG stat id", fail);
@@ -420,6 +426,7 @@ const EFFECT_DEFINITIONS = [
   },
   {
     op: "grade",
+    syntax: "grade",
     validate(effect, fail) {
       validateBaseEffect(effect, ["id", "amount"], [], fail);
       validateId(effect.id, "WG grade subject id", fail);
@@ -438,6 +445,7 @@ const EFFECT_DEFINITIONS = [
   },
   {
     op: "attendance",
+    syntax: "attendance",
     validate(effect, fail) {
       validateBaseEffect(effect, ["id", "amount"], [], fail);
       validateId(effect.id, "WG attendance subject id", fail);
@@ -462,10 +470,24 @@ for (const definition of EFFECT_DEFINITIONS) {
   if (EFFECT_REGISTRY.has(definition.op)) {
     throw new Error(`Duplicate WG effect definition '${definition.op}'`);
   }
-  EFFECT_REGISTRY.set(definition.op, Object.freeze({ authored: true, ...definition }));
+  EFFECT_REGISTRY.set(
+    definition.op,
+    Object.freeze({ authored: true, keyword: definition.op, ...definition }),
+  );
 }
 
 export const WG_EFFECT_OPS = Object.freeze([...EFFECT_REGISTRY.keys()]);
+export const WG_EFFECT_KEYWORDS = Object.freeze(
+  [...EFFECT_REGISTRY.values()].map((definition) => definition.keyword),
+);
+export const WG_EFFECT_SYNTAX = Object.freeze(
+  [...EFFECT_REGISTRY.values()].flatMap((definition) =>
+    Array.isArray(definition.syntax) ? definition.syntax : [definition.syntax],
+  ),
+);
+export const WG_EFFECT_SYNTAX_WORDS = Object.freeze([
+  ...new Set(WG_EFFECT_SYNTAX.flatMap((syntax) => syntax.split(/\s+/))),
+]);
 
 export function getWGEffectSpec(op) {
   return EFFECT_REGISTRY.get(op) || null;

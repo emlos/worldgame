@@ -1564,20 +1564,23 @@ same installation notes.
 This index is the complete accepted WG surface. A directive not listed here is
 not implemented.
 
+<!-- WG-DIRECTIVE-INDEX:START -->
+<!-- Generated from src/story/wg/shared/language.js. -->
 | Context | Directives |
 | --- | --- |
 | Top level | `:: <scene-id> [tags...] [-> <final-target>]`, `@chat ... @endchat`, `@location ... @endlocation`, `@reminder ... @endreminder`, `@#` |
-| Reminder definition | required `@text`, optional `@tone`, `@priority` |
-| Location contribution | leading `@when` conditions, prose, interpolation, `@br`, conditionals, `@random` / `@or` / `@endrandom`, `@choicegroup ... @endchoicegroup`, `@choice ... @endchoice`; choices use the restrictions above |
-| Scene metadata | `@kind`, `@heading`, `@choices`, `@school-class`, `@system`, `@onenter ... @endonenter`, `@hub <place-key>`, `@offer`, `@auto` (`enter-place`, `enter-location`, or `leave-place`), `@pool`, `@place-key`, `@place-tag`, `@location-tag`, `@when`, `@label`, `@icon`, `@hub-text`, `@priority`, `@chance`, `@weight` |
+| Reminder definition | `required @text`, `optional @tone`, `@priority` |
+| Location contribution | `leading @when conditions`, `prose`, `interpolation`, `@br`, `conditionals`, `@random ... @or ... @endrandom`, `@choicegroup ... @endchoicegroup`, `@choice ... @endchoice` |
+| Scene metadata | `@kind`, `@heading`, `@choices`, `@school-class`, `@system`, `@onenter`, `@hub`, `@place-key`, `@place-tag`, `@location-tag`, `@offer`, `@auto`, `@pool`, `@when`, `@label`, `@icon`, `@hub-text`, `@priority`, `@chance`, `@weight` |
 | Passage/navigation | `@passage`, `@next` |
-| Scene or passage body | prose, `@br`, trailing inline `@change`, `{{@if ...}} ... {{@elseif ...}} ... {{@else}} ... {{@endif}}`, `@if` / `@elseif` / `@else` / `@endif`, `@random` / `@or` / `@endrandom`, passive `@check` / `@success` / `@failure` / `@endcheck`, `@effect`, `@change`, `@choicegroup ... @endchoicegroup`, `@choice ... @endchoice` |
+| Scene or passage body | `prose`, `@br`, `trailing inline @change`, `inline and block @if / @elseif / @else / @endif`, `@random / @or / @endrandom`, `passive @check / @success / @failure / @endcheck`, `@effect`, `@change`, `@choicegroup ... @endchoicegroup`, `@choice ... @endchoice` |
 | Direct choice | `@icon`, `@time`, `@time-until`, `@event-pool`, `@event-chance`, `@when`, `@require`, `@warning`, `@response ... @endresponse`, `@preview`, `@effect`, `@change` |
 | Checked choice | `@icon`, `@event-pool`, `@event-chance`, `@when`, `@require`, `@warning`, `@check`, `@success ... @endsuccess`, `@failure ... @endfailure` |
 | Check outcome | `@time`, `@response ... @endresponse`, `@effect` |
 | On-enter block | `@effect` |
-| Effect operations | `contact add`, `chat start`, `set`, `add`, `flag`, `daily-flag`, `relationship`, `money`, `skill`, `stat`, `grade`, `attendance`, `reminder add`, `reminder clear`, `timer start`, `timer restart`, `timer stop`, `unlock place`, `relocate home`, `relocate nearest-place` |
-| Story targets | global scene ID, local `.passage`, `@return`, `@exit`, `@leave-place` (`@next` and scene final targets have the narrower rules documented above) |
+| Effect operations | `contact add`, `chat start`, `set`, `add`, `flag`, `daily-flag`, `reminder add`, `reminder clear`, `timer start`, `timer restart`, `timer stop`, `unlock place`, `relocate home`, `relocate nearest-place`, `relationship`, `money`, `skill`, `stat`, `grade`, `attendance` |
+| Story targets | `global scene ID`, `local .passage`, `@exit`, `@return`, `@leave-place` |
+<!-- WG-DIRECTIVE-INDEX:END -->
 
 ## Not supported by WG
 

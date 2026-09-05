@@ -1,13 +1,73 @@
 {
-  "comments": { "lineComment": "@#" },
-  "brackets": [["[", "]"], ["(", ")"], ["{{", "}}"]],
-  "autoClosingPairs": [
-    { "open": "\"", "close": "\"", "notIn": ["string", "comment"] },
-    { "open": "[", "close": "]", "notIn": ["string", "comment"] },
-    { "open": "(", "close": ")", "notIn": ["string", "comment"] },
-    { "open": "{{", "close": "}}", "notIn": ["string", "comment"] }
+  "comments": {
+    "lineComment": "@#"
+  },
+  "brackets": [
+    [
+      "[",
+      "]"
+    ],
+    [
+      "(",
+      ")"
+    ],
+    [
+      "{{",
+      "}}"
+    ]
   ],
-  "surroundingPairs": [["\"", "\""], ["[", "]"], ["(", ")"], ["{{", "}}"]],
+  "autoClosingPairs": [
+    {
+      "open": "\"",
+      "close": "\"",
+      "notIn": [
+        "string",
+        "comment"
+      ]
+    },
+    {
+      "open": "[",
+      "close": "]",
+      "notIn": [
+        "string",
+        "comment"
+      ]
+    },
+    {
+      "open": "(",
+      "close": ")",
+      "notIn": [
+        "string",
+        "comment"
+      ]
+    },
+    {
+      "open": "{{",
+      "close": "}}",
+      "notIn": [
+        "string",
+        "comment"
+      ]
+    }
+  ],
+  "surroundingPairs": [
+    [
+      "\"",
+      "\""
+    ],
+    [
+      "[",
+      "]"
+    ],
+    [
+      "(",
+      ")"
+    ],
+    [
+      "{{",
+      "}}"
+    ]
+  ],
   "folding": {
     "markers": {
       "start": "^\\s*@(chat|message|reminder|location|choice|choicegroup|if|success|failure|response|random|onenter)\\b",
@@ -15,7 +75,7 @@
     }
   },
   "indentationRules": {
-    "increaseIndentPattern": "^\\s*@(chat|message|reminder|location|choice|choicegroup|if|elseif|else|success|failure|response|random|or|onenter)\\b.*$",
+    "increaseIndentPattern": "^\\s*@(chat|message|reminder|location|choice|choicegroup|if|success|failure|response|random|onenter|elseif|else|or)\\b.*$",
     "decreaseIndentPattern": "^\\s*@(endchat|endmessage|endreminder|endlocation|endchoice|endchoicegroup|endif|endsuccess|endfailure|endresponse|endrandom|endonenter|elseif|else|or)\\b.*$"
   }
 }
