@@ -1,6 +1,50 @@
 import { clearActiveStory } from "../story/storyState.js";
 import { isPlaceUnlocked } from "../world/model/place.js";
+import {
+  failSave,
+  requiredSaveField,
+  saveNullableString,
+  saveString,
+} from "../shared/util/saveValidation.js";
 import { emitGameEvent } from "./events.js";
+
+function validateSavedPosition(save, prefix, path, mapIndex) {
+  const locationPath = `${path}.${prefix}LocationId`;
+  const placePath = `${path}.${prefix}PlaceId`;
+  const locationId = saveString(
+    requiredSaveField(save, `${prefix}LocationId`, path),
+    locationPath,
+    { nonEmpty: true },
+  );
+  if (!mapIndex.locations.has(locationId)) {
+    failSave(locationPath, `references unknown location '${locationId}'`);
+  }
+  const placeId = saveNullableString(
+    requiredSaveField(save, `${prefix}PlaceId`, path),
+    placePath,
+  );
+  const place = mapIndex.placeAt(locationId, placeId, placePath);
+  return { locationId, placeId, place };
+}
+
+export function validateSavedPlayerPosition(save, { path = "save", mapIndex }) {
+  const home = validateSavedPosition(save, "home", path, mapIndex);
+  const current = validateSavedPosition(save, "current", path, mapIndex);
+  const currentPlaceKey = saveNullableString(
+    requiredSaveField(save, "currentPlaceKey", path),
+    `${path}.currentPlaceKey`,
+    { nonEmpty: false },
+  );
+  if (current.place) {
+    if (!current.place.unlocked) {
+      failSave(`${path}.currentPlaceId`, "references a locked place");
+    }
+    if (currentPlaceKey !== current.place.key) {
+      failSave(`${path}.currentPlaceKey`, "must match the current place key");
+    }
+  }
+  return { home, current, currentPlaceKey };
+}
 
 export function movePlayerTo(game, locationId, { preserveStory = false } = {}) {
   if (!game.world.locations.has(locationId)) {

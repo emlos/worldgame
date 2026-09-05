@@ -1,5 +1,10 @@
 import { WG_BUNDLE } from "../story/wg/generated/scenes.js";
 import { getSchoolDayPlan } from "../characters/player/schedule.js";
+import {
+  failSave,
+  requiredSaveField,
+  saveUniqueStrings,
+} from "../shared/util/saveValidation.js";
 
 // Authored content is immutable; only its active IDs belong in a save.
 const definitions = Object.freeze(Object.fromEntries(
@@ -14,6 +19,21 @@ export function getAuthoredReminder(id) {
 
 export function authoredReminderId(id) {
   return `authored:${id}`;
+}
+
+export function validateRemindersSave(save, { path = "save" } = {}) {
+  const remindersPath = `${path}.reminders`;
+  const reminders = saveUniqueStrings(
+    requiredSaveField(save, "reminders", path),
+    remindersPath,
+    { nonEmpty: true },
+  );
+  for (const id of reminders) {
+    if (!getAuthoredReminder(id)) {
+      failSave(remindersPath, `unknown authored reminder '${id}'`);
+    }
+  }
+  return reminders;
 }
 
 /** Activate authored content once; automatic reminders cannot be manually added. */

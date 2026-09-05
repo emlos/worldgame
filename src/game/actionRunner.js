@@ -1,8 +1,39 @@
 import { PLAYER_ENERGY_RECOVERY_PER_MINUTE } from "../characters/player/stats.js";
+import {
+  failSave,
+  requiredSaveField,
+  saveArray,
+  saveDateMilliseconds,
+  saveInteger,
+  saveRecord,
+  saveString,
+} from "../shared/util/saveValidation.js";
 import { dismissDailyAnnouncements } from "./announcements.js";
 import { advanceGameTime } from "./timeline.js";
 
 const ENERGY_PRECISION = 1_000_000;
+
+export function validateActionHistorySave(save, { path = "save", gameTime }) {
+  saveInteger(
+    requiredSaveField(save, "actionRevision", path),
+    `${path}.actionRevision`,
+    { min: 0 },
+  );
+  const log = saveArray(requiredSaveField(save, "log", path), `${path}.log`);
+  log.forEach((entryData, index) => {
+    const entryPath = `${path}.log[${index}]`;
+    const entry = saveRecord(entryData, entryPath);
+    const timestamp = saveDateMilliseconds(
+      requiredSaveField(entry, "t", entryPath),
+      `${entryPath}.t`,
+    );
+    if (timestamp > gameTime) failSave(`${entryPath}.t`, "cannot be after the game clock");
+    saveString(requiredSaveField(entry, "label", entryPath), `${entryPath}.label`, {
+      nonEmpty: true,
+    });
+  });
+  return log;
+}
 
 export function runGameAction(
   game,

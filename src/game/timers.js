@@ -1,6 +1,13 @@
 import { TIMER_DEFINITIONS } from "./timerDefinitions.js";
 import { validateWGEffectShape } from "../story/wg/shared/effects/registry.js";
 import { applyWGEffects } from "../story/wg/runtime/effectRuntime.js";
+import {
+  failSave,
+  requiredSaveField,
+  saveDateMilliseconds,
+  saveInteger,
+  saveRecord,
+} from "../shared/util/saveValidation.js";
 
 const MS_PER_HOUR = 60 * 60 * 1000;
 const MS_PER_DAY = 24 * MS_PER_HOUR;
@@ -130,6 +137,31 @@ export function getTimerDefinition(id) {
   return Object.prototype.hasOwnProperty.call(TIMER_DEFINITIONS, key)
     ? TIMER_DEFINITIONS[key]
     : null;
+}
+
+export function validateTimerStateSave(
+  value,
+  { path = "save.timers", gameTime },
+) {
+  const timers = saveRecord(value, path);
+  for (const [id, stateData] of Object.entries(timers)) {
+    const timerPath = `${path}.${id}`;
+    if (!getTimerDefinition(id)) failSave(timerPath, `references unknown timer '${id}'`);
+    const state = saveRecord(stateData, timerPath);
+    const dueAt = saveDateMilliseconds(
+      requiredSaveField(state, "dueAt", timerPath),
+      `${timerPath}.dueAt`,
+    );
+    if (dueAt <= gameTime) {
+      failSave(`${timerPath}.dueAt`, "must be after the current game clock");
+    }
+    saveInteger(
+      requiredSaveField(state, "occurrences", timerPath),
+      `${timerPath}.occurrences`,
+      { min: 0, max: Number.MAX_SAFE_INTEGER },
+    );
+  }
+  return timers;
 }
 
 function requireTimerDefinition(id) {

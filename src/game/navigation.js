@@ -1,4 +1,39 @@
 import { isPlaceUnlocked } from "../world/model/place.js";
+import {
+  failSave,
+  requiredSaveField,
+  saveRecord,
+  saveString,
+} from "../shared/util/saveValidation.js";
+
+export function validateGpsTargetSave(
+  value,
+  { path = "save.gpsTarget", mapIndex, currentLocationId },
+) {
+  if (value === null) return null;
+  const gpsTarget = saveRecord(value, path);
+  const locationId = saveString(
+    requiredSaveField(gpsTarget, "locationId", path),
+    `${path}.locationId`,
+    { nonEmpty: true },
+  );
+  const placeId = saveString(
+    requiredSaveField(gpsTarget, "placeId", path),
+    `${path}.placeId`,
+    { nonEmpty: true },
+  );
+  const location = mapIndex.locations.get(locationId);
+  if (!location) failSave(`${path}.locationId`, `references unknown location '${locationId}'`);
+  const place = location.places.get(placeId);
+  if (!place) {
+    failSave(`${path}.placeId`, `references unknown place '${placeId}' in location '${locationId}'`);
+  }
+  if (!place.unlocked) failSave(`${path}.placeId`, "references a locked place");
+  if (locationId === currentLocationId) {
+    failSave(`${path}.locationId`, "must disengage after reaching the target location");
+  }
+  return gpsTarget;
+}
 
 function requireGameWorld(game) {
   if (

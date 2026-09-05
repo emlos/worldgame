@@ -1,3 +1,12 @@
+import {
+    failSave,
+    requiredSaveField,
+    requireSameSaveValue,
+    saveRecord,
+    saveString,
+    saveUint32,
+} from "./saveValidation.js";
+
 const UINT32_RANGE = 0x100000000;
 
 /** Normalize any numeric seed to an unsigned 32-bit integer. */
@@ -180,4 +189,28 @@ export function ruleWeight(rule, error = "Invalid rule weight") {
         throw new TypeError(typeof error === "function" ? error(rule.weight) : error);
     }
     return weight;
+}
+
+export function validateRandomStreamsSave(
+    data,
+    { path, expectedSeed, requiredStreams = [] },
+) {
+    const random = saveRecord(data, path);
+    const seed = saveUint32(requiredSaveField(random, "seed", path), `${path}.seed`);
+    requireSameSaveValue(seed, expectedSeed, `${path}.seed`, "the owning seed");
+
+    const states = saveRecord(
+        requiredSaveField(random, "states", path),
+        `${path}.states`,
+    );
+    for (const [name, state] of Object.entries(states)) {
+        saveString(name, `${path}.states key`, { nonEmpty: true });
+        saveUint32(state, `${path}.states.${name}`);
+    }
+    for (const name of requiredStreams) {
+        if (!Object.prototype.hasOwnProperty.call(states, name)) {
+            failSave(`${path}.states.${name}`, "is required for an initialized random stream");
+        }
+    }
+    return random;
 }

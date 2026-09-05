@@ -11,17 +11,18 @@ story/                         Authored `.wg` source
 src/
   characters/
     core/                      Character value objects shared by player and NPCs
-    player/                    Player model, stats, education, and schedule
-    npc/                       NPC model, AI, definitions, and behavior constants
+    player/                    Player model, stats, education, schedule, and save validation
+    npc/                       NPC model, AI, definitions, behavior, and save validation
       roster.js                NPC creation, home assignment, and brain startup
       presence.js              NPC location and interaction queries
   world/
     data/                      Static world definitions and tuning values
     model/                     Calendar, places, weather, and map implementation
     world.js                   World aggregate
+    saveValidation.js          World, calendar, weather, place, and map save rules
   game/
     chat/                      Chat state, validation, and read models
-    persistence/               Save serialization, hydration, and validation
+    persistence/               Save serialization, hydration, and validation orchestration
     scene/                     Scene assembly, choice execution, and scene contracts
     game.js                    Top-level mutable game state and public facade
     actionRunner.js            Ordered player-action transaction
@@ -34,6 +35,7 @@ src/
     timerDefinitions.js        Named timer content
   story/
     storyState.js              Flags and active-story lifecycle primitives
+    saveValidation.js          Active story, continuation, and interrupt save rules
     systems/                   JavaScript-backed story systems
     wg/
       generated/               Compiler output; never edit by hand
@@ -55,6 +57,10 @@ tests/                         Runtime, compiler, and diagnostic-page tests
   on. They must not import the `Game` class or retain a game instance globally.
 - Fresh-game bootstrap and save hydration are separate code paths. Loading a
   save must not generate and discard a temporary world or NPC roster.
+- Save validation follows state ownership. Character, world, story, and game
+  services define their own rules; `game/persistence/saveValidation.js` only
+  validates the root envelope and coordinates cross-subsystem checks before
+  hydration begins.
 - `story/wg/shared` is independent of both compiler and runtime. The compiler
   and runtime may depend on it, but not on each other.
 - `story/wg/generated` contains data only. Runtime behavior stays in
