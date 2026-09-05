@@ -11,7 +11,9 @@ node tools/wg/compile.mjs --check
 
 The normal command updates the generated module only when its contents change.
 `--check` writes nothing and fails if the committed generated module is missing
-or out of date. Never edit the generated module by hand.
+or out of date. The generated module is deliberately formatted as readable
+JavaScript and retains WG file, line, and column locations for runtime errors.
+Never edit the generated module by hand.
 
 ## Phone chats
 
