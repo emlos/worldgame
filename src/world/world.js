@@ -143,6 +143,34 @@ export class World {
     return this.locations.get(id);
   }
 
+  getPlace(locationId, placeId) {
+    if (placeId == null) return null;
+    const location = this.getLocation(locationId);
+    return (location?.places || []).find((place) => place.id === placeId) || null;
+  }
+
+  findFirstPlaceByKey(placeKey) {
+    const key = String(placeKey);
+    for (const location of this.locations.values()) {
+      for (const place of location.places || []) {
+        if (place?.key === key) return place;
+      }
+    }
+    return null;
+  }
+  unlockPlacesByKey(placeKey) {
+    const key = String(placeKey ?? "");
+    if (!key) throw new TypeError("Unlocking places requires a place key");
+
+    let unlocked = 0;
+    for (const location of this.locations.values()) {
+      for (const place of location.places || []) {
+        if (String(place.key) === key && place.unlock()) unlocked += 1;
+      }
+    }
+    return unlocked;
+  }
+
   getTravelEdge(fromId, toId) {
     return this.locations.get(fromId)?.neighbors.get(toId) || null;
   }

@@ -94,3 +94,35 @@ export function buildGpsRoute(game) {
     nextLocationId: travel.locations[1] == null ? null : String(travel.locations[1]),
   };
 }
+
+export function setGpsTarget(game, placeId) {
+  const destination = resolveNavigationDestination(game, placeId);
+  if (!destination) {
+    throw new Error(`Unknown GPS destination: ${String(placeId)}`);
+  }
+
+  if (destination.locationId === String(game.currentLocationId)) {
+    game.gpsTarget = null;
+    return { active: false, alreadyThere: true, destination };
+  }
+
+  const route = game.world.map.getTravelTotal(
+    game.currentLocationId,
+    destination.locationId,
+  );
+  if (!route) {
+    throw new Error(`No route to GPS destination '${destination.name}'`);
+  }
+
+  game.gpsTarget = {
+    placeId: destination.placeId,
+    locationId: destination.locationId,
+  };
+  return { active: true, alreadyThere: false, route: buildGpsRoute(game) };
+}
+
+export function clearGpsTarget(game) {
+  const wasActive = game.gpsTarget !== null;
+  game.gpsTarget = null;
+  return wasActive;
+}

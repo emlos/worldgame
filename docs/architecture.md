@@ -13,18 +13,27 @@ src/
     core/                      Character value objects shared by player and NPCs
     player/                    Player model, stats, education, and schedule
     npc/                       NPC model, AI, definitions, and behavior constants
+      roster.js                NPC creation, home assignment, and brain startup
+      presence.js              NPC location and interaction queries
   world/
     data/                      Static world definitions and tuning values
     model/                     Calendar, places, weather, and map implementation
     world.js                   World aggregate
   game/
     chat/                      Chat state, validation, and read models
-    persistence/               Save-shape validation boundary
+    persistence/               Save serialization, hydration, and validation
     scene/                     Scene assembly, choice execution, and scene contracts
     game.js                    Top-level mutable game state and public facade
+    actionRunner.js            Ordered player-action transaction
+    bootstrap.js               Fresh-game construction only
+    events.js                  Runtime-only game subscriptions
+    movement.js                Player position, place access, and relocation
+    navigation.js              GPS destinations and routes
+    timeline.js                Simulation and resynchronization of game time
     timers.js                  Timer runtime
     timerDefinitions.js        Named timer content
   story/
+    storyState.js              Flags and active-story lifecycle primitives
     systems/                   JavaScript-backed story systems
     wg/
       generated/               Compiler output; never edit by hand
@@ -42,6 +51,10 @@ tests/                         Runtime, compiler, and diagnostic-page tests
 - `characters` and `world` may use shared utilities and their own modules.
 - `game` coordinates character and world state and exposes the mutation facade
   used by choices, effects, saves, timers, and chats.
+- Game services are stateless functions that accept the aggregate they operate
+  on. They must not import the `Game` class or retain a game instance globally.
+- Fresh-game bootstrap and save hydration are separate code paths. Loading a
+  save must not generate and discard a temporary world or NPC roster.
 - `story/wg/shared` is independent of both compiler and runtime. The compiler
   and runtime may depend on it, but not on each other.
 - `story/wg/generated` contains data only. Runtime behavior stays in
@@ -61,8 +74,9 @@ instead of making them import each other's implementation internals.
    in `world/data`; player and NPC definitions belong in their character folder.
 2. Put WG syntax and tree contracts in `story/wg/shared`, WG execution in
    `story/wg/runtime`, and authored gameplay callbacks in `story/systems`.
-3. Keep the `Game` class as the stateful facade. New UI and WG effects should
-   call a named game operation instead of editing nested state directly.
+3. Keep the `Game` class as the small stateful facade. Multi-step behavior
+   belongs in a feature module; new UI and WG effects should call a named game
+   operation instead of editing nested state directly.
 4. Do not add forwarding modules or old-path aliases while the project is in
    active development. Update imports and tests with a move.
 5. Treat generated WG output as a build artifact. Change `.wg` sources or the

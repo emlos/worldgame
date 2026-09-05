@@ -25,3 +25,12 @@ export function collectDailyAnnouncements(game, date = game.now) {
 export function emptyDailyAnnouncements(date) {
   return { day: announcementDayKey(date), items: [] };
 }
+
+/** Dismiss the visible batch without changing its source reminders. */
+export function dismissDailyAnnouncements(game) {
+  const dismissed = game.dailyAnnouncements.items.length;
+  if (dismissed > 0) {
+    game.dailyAnnouncements = emptyDailyAnnouncements(game.now);
+  }
+  return dismissed;
+}

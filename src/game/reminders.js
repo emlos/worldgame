@@ -16,6 +16,26 @@ export function authoredReminderId(id) {
   return `authored:${id}`;
 }
 
+/** Activate authored content once; automatic reminders cannot be manually added. */
+export function addReminder(game, id) {
+  if (!getAuthoredReminder(id)) {
+    throw new Error(`Unknown authored reminder '${String(id)}'`);
+  }
+  game.reminders.add(id);
+}
+
+/** Also remove pending text if a story effect resolves this reminder. */
+export function clearReminder(game, id) {
+  if (!getAuthoredReminder(id)) {
+    throw new Error(`Unknown authored reminder '${String(id)}'`);
+  }
+  game.reminders.delete(id);
+  const itemId = authoredReminderId(id);
+  game.dailyAnnouncements.items = game.dailyAnnouncements.items.filter(
+    (item) => item.id !== itemId,
+  );
+}
+
 /** Built-in reminders are declared and activated by their authoritative systems. */
 export const AUTOMATIC_REMINDERS = Object.freeze([
   Object.freeze({

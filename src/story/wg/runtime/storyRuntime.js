@@ -2,6 +2,7 @@ import { WG_BUNDLE } from "../generated/scenes.js";
 import { applyWGEffects } from "./effectRuntime.js";
 import { resolveWGBody } from "./storyResolver.js";
 import { createWGSystemState } from "./storySystemRegistry.js";
+import { clearActiveStory } from "../../storyState.js";
 import {
   getSchoolDayState,
   SCHOOL_PHASE,
@@ -216,9 +217,7 @@ export function returnWGStory(game) {
 }
 
 export function exitWGStory(game) {
-  game.currentStory = null;
-  game.storyContinuations.length = 0;
-  game.storyRevision += 1;
+  clearActiveStory(game);
 }
 
 export function enterWGTarget(
