@@ -3,14 +3,13 @@
 @place-key high_school
 @when not flags.school_first_visit_seen
 @priority 1000
-@heading "Your first day at school"
 @onenter
   @effect set flags.school_first_visit_seen
 @endonenter
 
 You pause inside the entrance as students move around you with the confidence of people who already know where they are going. Classroom signs point deeper into the building, and the day's schedule is waiting in your diary.
 
-[info]The school's Current Activities section shows what is happening now. Attending class records your attendance and can improve that subject. Open the Diary button or press D to review the full timetable, grades, and attendance.[/info]
+[info]The school's Current Activities section shows what is happening now. Attending class records your attendance and can improve that subject. Open the Planner button to review the full timetable, grades, and attendance.[/info]
 
 You are not locked into the school day. You can attend the current lesson, explore the building, wait for the schedule to advance, or leave.
 
@@ -191,7 +190,6 @@ The school has closed for the day.
 
 :: school.class.english -> @exit
 @behavior school.class {"subject":"english"}
-@heading "English Class"
 @choices "Class activity"
 
 @passage segment-1
@@ -261,7 +259,6 @@ The students look bored as the teacher wraps up the lesson. You have a few minut
 
 :: school.class.math -> @exit
 @behavior school.class {"subject":"math"}
-@heading "Mathematics Class"
 @choices "Class activity"
 
 @passage segment-1
@@ -328,7 +325,6 @@ The final segment of Mathematics class gets underway.
 
 :: school.class.history -> @exit
 @behavior school.class {"subject":"history"}
-@heading "History Class"
 @choices "Class activity"
 
 @passage segment-1
@@ -396,7 +392,6 @@ The final segment of History class gets underway.
 
 :: school.class.science -> @exit
 @behavior school.class {"subject":"science"}
-@heading "Science Class"
 @choices "Class activity"
 
 @passage segment-1
@@ -464,7 +459,6 @@ The final segment of Science class gets underway.
 
 :: school.class.art -> @exit
 @behavior school.class {"subject":"art"}
-@heading "Art Class"
 @choices "Class activity"
 
 @passage segment-1
@@ -533,7 +527,6 @@ The final segment of Art class gets underway.
 
 :: school.class.physical-education -> @exit
 @behavior school.class {"subject":"physical_education"}
-@heading "Physical Education"
 @choices "Class activity"
 
 @passage segment-1
@@ -604,7 +597,6 @@ The final segment of Physical Education gets underway.
 @endchoice
 
 :: place.high-school.cafeteria
-@heading "Cafeteria"
 
 @if school.phase == "lunch" or school.phase == "break"
 The cafeteria is open, and students are eating and socialising.
@@ -634,7 +626,6 @@ The few students in the cafeteria are eating quietly. It seems kind of empty.
 @endchoice
 
 :: place.high-school.english-classroom
-@heading "English Classroom"
 
 @if school.phase == "lunch" or school.phase == "break"
 The classroom is open, and students are studying and socialising.
@@ -653,7 +644,6 @@ Everyone looks at you as you enter the classroom. The teacher is at the front of
 @endchoice
 
 :: place.high-school.math-classroom
-@heading "Maths Classroom"
 
 @if school.phase == "lunch" or school.phase == "break"
 The classroom is open, and students are studying and socialising.
@@ -674,7 +664,6 @@ Everyone looks at you as you enter the classroom. The teacher is at the front of
 @endchoice
 
 :: place.high-school.science-classroom
-@heading "Science Classroom"
 
 @if school.phase == "lunch" or school.phase == "break"
 The classroom is open, and students are studying and socialising.
@@ -695,7 +684,6 @@ Everyone looks at you as you enter the classroom. The teacher is at the front of
 @endchoice
 
 :: place.high-school.history-classroom
-@heading "History Classroom"
 
 @if school.phase == "lunch" or school.phase == "break"
 The classroom is open, and students are studying and socialising.
@@ -716,7 +704,6 @@ Everyone looks at you as you enter the classroom. The teacher is at the front of
 @endchoice
 
 :: place.high-school.art-classroom
-@heading "Art Classroom"
 
 @if school.phase == "lunch" or school.phase == "break"
 The classroom is open, and students are studying and socialising.
@@ -737,7 +724,6 @@ Everyone looks at you as you enter the classroom. The teacher is at the front of
 @endchoice
 
 :: place.high-school.gym
-@heading "Gym"
 
 @if school.phase == "lunch" or school.phase == "break"
 The gym is open, and students are exercising and socialising.
@@ -758,7 +744,6 @@ Everyone looks at you as you enter the gym. The teacher is at the front of the r
 @endchoice
 
 :: place.high-school.student-council-room
-@heading "Student Council Office"
 
 @if school.phase == "after-school"
 "Yes?" the student council president asks as they look up from their paperwork.
@@ -773,7 +758,6 @@ Nobody answers your knock. The office is closed during class time.
 @endchoice
 
 :: place.high-school.nurse-office
-@heading "School Nurse's Office"
 
 @if npc.caro.present
   @if school.phase == "class"

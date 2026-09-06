@@ -29,7 +29,6 @@ Kim is sitting at {{npc.kim.dependent}} desk. {{npc.kim.subject | cap}} looks up
   @when not story.rent.active
   @when not flags.rent_landlord_visit_seen
   @priority 200
-  @heading "Your landlord finds you"
   @choices "There is no more putting this off"
   @onenter
     @effect set local.atOffice place.key == "home_kim"
@@ -215,7 +214,6 @@ Kim is sitting at {{npc.kim.dependent}} desk. {{npc.kim.subject | cap}} looks up
   @when story.rent.active
   @when story.rent.debt >= 1200
   @when not flags.rent_debt_escalation_seen
-  @heading "The rent cannot be ignored"
   @onenter
     @effect set flags.rent_debt_escalation_seen
   @endonenter

@@ -78,9 +78,12 @@ export async function compileProject({ check = false } = {}) {
   const existing = await Promise.all(
     artifacts.map(({ file }) => readExistingOutput(file)),
   );
-  const changedArtifacts = artifacts.filter(
-    ({ content }, index) => existing[index] !== content,
-  );
+  const normalizeNewlines = (value) => value?.replace(/\r\n/g, "\n") ?? null;
+  const changedArtifacts = artifacts
+    .map((artifact, index) => ({ ...artifact, existing: existing[index] }))
+    .filter(({ content, existing: previous }) =>
+      normalizeNewlines(previous) !== normalizeNewlines(content),
+    );
 
   if (check) {
     if (changedArtifacts.length) {
@@ -98,9 +101,11 @@ export async function compileProject({ check = false } = {}) {
   if (!changedArtifacts.length) {
     return { changed: false, checked: false, outputFile: OUTPUT_FILE };
   }
-  for (const { file, content } of changedArtifacts) {
+  for (const { file, content, existing: previous } of changedArtifacts) {
+    const newline = previous?.includes("\r\n") ? "\r\n" : "\n";
+    const output = content.replace(/\r?\n/g, newline);
     await fs.mkdir(path.dirname(file), { recursive: true });
-    await fs.writeFile(file, content, "utf8");
+    await fs.writeFile(file, output, "utf8");
   }
   return {
     changed: true,

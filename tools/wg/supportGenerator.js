@@ -38,6 +38,7 @@ export function buildWGTextMateGrammar() {
       { include: "#comments" },
       { include: "#escaped-markers" },
       { include: "#scene-header" },
+      { include: "#journal-header" },
       { include: "#chat-directives" },
       { include: "#location-header" },
       { include: "#reminder-header" },
@@ -60,6 +61,16 @@ export function buildWGTextMateGrammar() {
       { include: "#unknown-directives" },
     ],
     repository: {
+      "journal-header": {
+        patterns: [{
+          name: "meta.journal.header.wg",
+          match: `^(\\s*)(@journal)\\s+(${quotedString})\\s*$`,
+          captures: {
+            2: { name: "keyword.control.block.begin.wg" },
+            3: { name: "string.quoted.double.wg" },
+          },
+        }],
+      },
       "chat-directives": {
         patterns: [
           {

@@ -4,7 +4,6 @@
   @place-key player_home
   @auto enter-place
   @when not story.homeEvents.forgottenMugPlayed
-@heading "An abandoned mug"
 
 @onenter
   @effect set story.homeEvents.forgottenMugPlayed true
@@ -19,7 +18,6 @@ A half-finished mug of tea waits on the kitchen counter. It has gone completely 
   @place-key player_home
   @auto enter-place
   @when not story.homeEvents.openWindowPlayed
-@heading "An open window"
 
 @onenter
   @effect set story.homeEvents.openWindowPlayed true
@@ -36,7 +34,6 @@ One of the windows is cracked open. A faint breeze stirs the curtains and carrie
   @when not story.homeEvents.lateBreakfastPlayed
   @when time.minutesSinceMidnight >= 600
   @when time.minutesSinceMidnight <= 780
-@heading "The remains of breakfast"
 
 @onenter
   @effect set story.homeEvents.lateBreakfastPlayed true

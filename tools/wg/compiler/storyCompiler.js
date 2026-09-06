@@ -1,6 +1,7 @@
 import { failWG } from "./diagnostic.js";
 import { parseWGDocument } from "./sourceParser.js";
 import { validateChat } from "./chatValidation.js";
+import { validateJournal } from "./journalValidation.js";
 import { createCompilerEffectCatalog } from "./effects/effectCatalog.js";
 import {
   isParsedWGChange,
@@ -105,10 +106,19 @@ export function compileStorySources(sources, { features = DEFAULT_FEATURE_CATALO
   const locationMap = new Map();
   const reminderMap = new Map();
   const chatMap = new Map();
+  const journalMap = new Map();
+  let journalOrdinal = 0;
   const npcIds = new Set(NPC_REGISTRY.map((npc) => npc.id));
 
   for (const source of orderedSources) {
     const document = parseWGDocument(source, { features });
+    for (const journal of document.journals) {
+      journalOrdinal += 1;
+      journal.id = `journal-${journalOrdinal}`;
+      for (const passage of journal.passages) assignAuthoredNodeIds(passage.body);
+      validateJournal(journal, assignRuntimeNodeIds);
+      journalMap.set(journal.id, journal);
+    }
     for (const chat of document.chats) {
       assignChatNodeIds(chat);
       if (chatMap.has(chat.id)) failWG(`Duplicate chat '${chat.id}'`, atSource(chat.source));
@@ -150,8 +160,8 @@ export function compileStorySources(sources, { features = DEFAULT_FEATURE_CATALO
     }
   }
 
-  if (sceneMap.size === 0 && locationMap.size === 0 && reminderMap.size === 0 && chatMap.size === 0) {
-    failWG("No WG scenes, location contributions, reminders, or chats were found", { file: "story", line: 1, column: 1 });
+  if (sceneMap.size === 0 && locationMap.size === 0 && reminderMap.size === 0 && chatMap.size === 0 && journalMap.size === 0) {
+    failWG("No WG scenes, location contributions, reminders, chats, or journals were found", { file: "story", line: 1, column: 1 });
   }
 
   const effectCatalog = createCompilerEffectCatalog({
@@ -159,7 +169,7 @@ export function compileStorySources(sources, { features = DEFAULT_FEATURE_CATALO
     chatMap,
     features,
   });
-  for (const definition of [...sceneMap.values(), ...locationMap.values(), ...chatMap.values()]) {
+  for (const definition of [...sceneMap.values(), ...locationMap.values(), ...chatMap.values(), ...journalMap.values()]) {
     walkWGDefinitionEffects(definition, (effect) => {
       const options = {
         fail: (message) => failWG(message, atSource(effect?.source)),
@@ -321,5 +331,8 @@ export function compileStorySources(sources, { features = DEFAULT_FEATURE_CATALO
     [...reminderMap.entries()].sort(([left], [right]) => compareText(left, right)),
   );
   const chats = Object.fromEntries([...chatMap.entries()].sort(([left], [right]) => compareText(left, right)));
-  return { formatVersion: 32, scenes, locationContributions, reminders, chats };
+  const journals = Object.fromEntries(
+    [...journalMap.entries()].sort(([left], [right]) => compareText(left, right)),
+  );
+  return { formatVersion: 33, scenes, locationContributions, reminders, chats, journals };
 }

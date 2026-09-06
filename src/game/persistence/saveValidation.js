@@ -17,6 +17,7 @@ import { validateWorldSave } from "../../world/saveValidation.js";
 import { validateActionHistorySave } from "../actionRunner.js";
 import { validateDailyAnnouncementsSave } from "../announcements.js";
 import { validateChatState } from "../chat/validation.js";
+import { validateJournalState } from "../journal/validation.js";
 import { validateSavedPlayerPosition } from "../movement.js";
 import { validateGpsTargetSave } from "../navigation.js";
 import { validateRemindersSave } from "../reminders.js";
@@ -30,9 +31,9 @@ export function validateGameSave(data, { features = DEFAULT_FEATURE_CATALOG } = 
   const save = saveRecord(data, "save");
   requireSameSaveValue(
     saveInteger(requiredSaveField(save, "saveVersion", "save"), "save.saveVersion"),
-    34,
+    35,
     "save.saveVersion",
-    "version 34",
+    "version 35",
   );
 
   const seed = saveUint32(requiredSaveField(save, "seed", "save"), "save.seed");
@@ -65,6 +66,7 @@ export function validateGameSave(data, { features = DEFAULT_FEATURE_CATALOG } = 
   } catch (error) {
     failSave("save.chats", error.message);
   }
+  validateJournalState(requiredSaveField(save, "journal", "save"), { gameTime });
   validateTimerStateSave(requiredSaveField(save, "timers", "save"), { gameTime, features });
   validatePlayerSave(requiredSaveField(save, "player", "save"), {
     npcProfiles,

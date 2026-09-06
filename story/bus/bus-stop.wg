@@ -17,7 +17,6 @@ The route display at {{place.name}} is covered with times and destination names.
 
 
 :: transit.bus-timetable
-@heading "Bus Timetable"
 @choices "Timetable"
 
 The timetable lists the shared service used by every bus stop in the city.
@@ -27,7 +26,6 @@ The timetable lists the shared service used by every bus stop in the city.
 @endchoice
 
 :: transit.bus-boarding
-@heading "The Bus Arrives"
 @choices "Destinations"
 
 The bus pulls up and its doors fold open.

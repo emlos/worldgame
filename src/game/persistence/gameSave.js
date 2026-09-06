@@ -12,13 +12,14 @@ function clone(value) {
 
 export function serializeGame(game) {
   return {
-    saveVersion: 34,
+    saveVersion: 35,
     seed: game.seed,
     random: game.random.toJSON(),
     time: game.now.toISOString(),
     startedAt: game.startedAt,
     reminders: [...game.reminders].sort(),
     chats: clone(game.chats),
+    journal: clone(game.journal),
     timers: clone(game.timers),
     world: game.world.toJSON(),
     player: game.player.toJSON(),
@@ -53,6 +54,7 @@ export function hydrateGame(game, data) {
   game.startedAt = data.startedAt;
   game.reminders = new Set(data.reminders);
   game.chats = clone(data.chats);
+  game.journal = clone(data.journal);
   game.timers = clone(data.timers);
 
   game.player = Player.fromJSON(data.player || {});

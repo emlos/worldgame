@@ -22,6 +22,11 @@ import {
   finishChat as finishGameChat,
   startChat as startGameChat,
 } from "./chat/runtime.js";
+import {
+  chooseJournalOption as chooseGameJournalOption,
+  refreshJournalAvailability as refreshGameJournalAvailability,
+  startJournalDraft as startGameJournalDraft,
+} from "./journal/runtime.js";
 import { emitGameEvent, subscribeGameEvent } from "./events.js";
 import {
   getPlaceAccess,
@@ -88,6 +93,18 @@ export class Game {
 
   finishChat(chatId) {
     return finishGameChat(this, chatId);
+  }
+
+  refreshJournalAvailability() {
+    return refreshGameJournalAvailability(this);
+  }
+
+  startJournalDraft(definitionId) {
+    return startGameJournalDraft(this, definitionId);
+  }
+
+  chooseJournalOption(request) {
+    return chooseGameJournalOption(this, request);
   }
 
   advanceMinutes(minutes, options = {}) {

@@ -500,11 +500,12 @@ function paragraphPartsContainChange(parts) {
 }
 
 class SceneBodyParser {
-  constructor(file, lines, startIndex = 0, chat = false, features = DEFAULT_FEATURE_CATALOG) {
+  constructor(file, lines, startIndex = 0, mode = null, features = DEFAULT_FEATURE_CATALOG) {
     this.file = file;
     this.lines = lines;
     this.index = startIndex;
-    this.chat = chat;
+    this.chat = mode === true || mode === "chat";
+    this.journal = mode === "journal";
     this.features = features;
   }
 
@@ -578,7 +579,7 @@ class SceneBodyParser {
         nodes.push({ type: "message", id: null, body, source: nodeSource(this.file, line.line) });
         continue;
       }
-      if (this.chat && (name === "wait" || name === "finish")) {
+      if ((this.chat && name === "wait") || ((this.chat || this.journal) && name === "finish")) {
         flushParagraph();
         if (name === "finish") {
           if (trimmed !== "@finish") failWG("@finish takes no arguments", lineLocation(this.file, line.line));
@@ -1051,6 +1052,9 @@ class SceneBodyParser {
 
       if (this.chat && !WG_CHAT_CHOICE_DIRECTIVES.includes(name)) {
         failWG("Chat choices support only @send, @when, @require, and @effect; texting takes no time", location);
+      }
+      if (this.journal && !["when", "require", "effect"].includes(name)) {
+        failWG("Journal choices support only @when, @require, and @effect", location);
       }
       if (this.chat && name === "send") {
         if (choice.send) failWG("Duplicate @send", location);
@@ -1667,6 +1671,71 @@ function parseReminderBlock(file, lines, startIndex) {
   failWG("Unclosed @reminder block", lineLocation(file, opening.line));
 }
 
+function parseJournalBlock(file, lines, startIndex, features) {
+  const opening = lines[startIndex];
+  const location = lineLocation(file, opening.line);
+  const match = opening.text.trim().match(
+    new RegExp(`^@journal\\s+(${QUOTED_PATTERN})\\s*$`),
+  );
+  if (!match) failWG('Expected @journal "<prompt>"', location);
+
+  const journal = {
+    id: null,
+    prompt: parseInterpolationParts(
+      parseQuotedString(match[1], location, "Journal prompt"),
+      location,
+    ),
+    conditions: [],
+    passages: [],
+    source: nodeSource(file, opening.line),
+  };
+  let passage = null;
+  let sawPassage = false;
+  const finishPassage = () => {
+    if (!passage) return;
+    const parser = new SceneBodyParser(file, passage.lines, 0, "journal", features);
+    journal.passages.push({ id: passage.id, body: parser.parseNodes(), source: passage.source });
+  };
+
+  for (let index = startIndex + 1; index < lines.length; index += 1) {
+    const line = lines[index];
+    const text = line.text.trim();
+    if (!text || isComment(text)) {
+      if (passage) passage.lines.push(line);
+      continue;
+    }
+    if (text === "@endjournal") {
+      finishPassage();
+      if (!journal.passages.length) {
+        failWG("Journal requires at least one @passage", location);
+      }
+      return { journal, nextIndex: index + 1 };
+    }
+    if (directiveName(text) === "when" && !sawPassage) {
+      journal.conditions.push(parseExpression(
+        directiveArgument(text, "when", lineLocation(file, line.line)),
+        lineLocation(file, line.line),
+      ));
+      continue;
+    }
+    if (text.startsWith("@passage")) {
+      finishPassage();
+      const id = directiveArgument(text, "passage", lineLocation(file, line.line));
+      if (!new RegExp(`^${PASSAGE_ID_PATTERN}$`).test(id)) {
+        failWG("Invalid journal passage id", lineLocation(file, line.line));
+      }
+      passage = { id, lines: [], source: nodeSource(file, line.line) };
+      sawPassage = true;
+      continue;
+    }
+    if (!passage) {
+      failWG("Journal content requires @passage; only leading @when directives may precede it", lineLocation(file, line.line));
+    }
+    passage.lines.push(line);
+  }
+  failWG("Unclosed @journal block", location);
+}
+
 function parseChatBlock(file, lines, startIndex, features) {
   const opening = lines[startIndex];
   const match = opening.text.trim().match(new RegExp(`^@chat\\s+(${ID_PATTERN})$`));
@@ -1720,12 +1789,21 @@ export function parseWGDocument(
   const locationContributions = [];
   const reminders = [];
   const chats = [];
+  const journals = [];
   let currentChunk = null;
   let index = 0;
 
   while (index < lines.length) {
     const line = lines[index];
     const trimmed = line.text.trim();
+
+    if (trimmed.startsWith("@journal")) {
+      currentChunk = null;
+      const parsed = parseJournalBlock(normalizedFile, lines, index, features);
+      journals.push(parsed.journal);
+      index = parsed.nextIndex;
+      continue;
+    }
 
     if (trimmed.startsWith("@chat")) {
       currentChunk = null;
@@ -1775,7 +1853,7 @@ export function parseWGDocument(
         continue;
       }
       failWG(
-        "Content appears outside a scene, location, reminder, or chat block",
+        "Content appears outside a scene, location, reminder, chat, or journal block",
         lineLocation(normalizedFile, line.line),
       );
     }
@@ -1788,6 +1866,7 @@ export function parseWGDocument(
     locationContributions,
     reminders,
     chats,
+    journals,
   };
 }
 

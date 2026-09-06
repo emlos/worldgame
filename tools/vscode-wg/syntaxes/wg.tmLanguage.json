@@ -13,6 +13,9 @@
       "include": "#scene-header"
     },
     {
+      "include": "#journal-header"
+    },
+    {
       "include": "#chat-directives"
     },
     {
@@ -74,6 +77,22 @@
     }
   ],
   "repository": {
+    "journal-header": {
+      "patterns": [
+        {
+          "name": "meta.journal.header.wg",
+          "match": "^(\\s*)(@journal)\\s+(\"(?:\\\\.|[^\"\\\\])*\")\\s*$",
+          "captures": {
+            "2": {
+              "name": "keyword.control.block.begin.wg"
+            },
+            "3": {
+              "name": "string.quoted.double.wg"
+            }
+          }
+        }
+      ]
+    },
     "chat-directives": {
       "patterns": [
         {
@@ -434,7 +453,7 @@
       "patterns": [
         {
           "name": "keyword.control.block.wg",
-          "match": "^\\s*(@(?:endchat|endmessage|endreminder|endlocation|endchoice|endchoicegroup|endif|elseif|else|endsuccess|endfailure|endresponse|endrandom|or|endonenter|endcheck|success|failure))\\s*$"
+          "match": "^\\s*(@(?:endjournal|endchat|endmessage|endreminder|endlocation|endchoice|endchoicegroup|endif|elseif|else|endsuccess|endfailure|endresponse|endrandom|or|endonenter|endcheck|success|failure))\\s*$"
         }
       ]
     },

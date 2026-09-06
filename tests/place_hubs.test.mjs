@@ -103,7 +103,7 @@ The event runs outside.
     },
   ]);
 
-  assert.equal(bundle.formatVersion, 32);
+  assert.equal(bundle.formatVersion, 33);
   assert.equal(bundle.scenes["fixture.cafe-hub"].kind, "place");
   assert.deepEqual(bundle.scenes["fixture.cafe-hub"].placeKeys, ["cafe"]);
   assert.deepEqual(

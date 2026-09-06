@@ -127,6 +127,7 @@ export const WG_PROPERTY_DIRECTIVES = freezeList([
 ]);
 
 export const WG_BLOCKS = Object.freeze([
+  { open: "journal", close: "endjournal" },
   { open: "chat", close: "endchat" },
   { open: "message", close: "endmessage" },
   { open: "reminder", close: "endreminder" },
@@ -147,10 +148,25 @@ export const WG_DIRECTIVE_CONTEXTS = Object.freeze([
     label: "Top level",
     syntax: [
       ":: <scene-id> [-> <final-target>]",
+      "@journal ... @endjournal",
       "@chat ... @endchat",
       "@location ... @endlocation",
       "@reminder ... @endreminder",
       "@#",
+    ],
+  },
+  {
+    label: "Journal definition",
+    syntax: [
+      '@journal "<prompt>" ... @endjournal',
+      "leading @when conditions",
+      "@passage",
+      "prose and interpolation",
+      "@if / @elseif / @else / @endif",
+      "@random / @or / @endrandom",
+      "@choicegroup ... @endchoicegroup",
+      "@choice ... @endchoice",
+      "@finish",
     ],
   },
   {

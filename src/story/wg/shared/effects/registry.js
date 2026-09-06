@@ -302,6 +302,9 @@ const EFFECT_DEFINITIONS = [
       ) {
         fail("WG unset effect requires a valid flags.<path>");
       }
+      if (effect.path[1] === "journal") {
+        fail("flags.journal.* flags are irreversible and cannot be unset");
+      }
     },
   },
   {

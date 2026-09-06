@@ -91,7 +91,7 @@ Chats app.
   reruns effects. Editing authored wording changes the reconstructed wording;
   inserting, removing, or reordering chat messages may change their generated
   references and invalidate development saves. Game save format is
-  currently 34; the separately versioned compiled WG bundle format is 32.
+  currently 35; the separately versioned compiled WG bundle format is 33.
 - Unread counts include incoming messages after each contact's saved read
   position. Opening the contact list does not mark messages read. Reading to the
   end of a visible thread does. The app badge totals all contacts.
@@ -104,6 +104,52 @@ Kim's working example is `story/chats/kim.wg`, activated by the final contact
 passage of the civil-office quest. The project compiler checks its authoring and
 cross-references. Dedicated chat timing, save, branch, and unread-state runtime
 tests have not been added yet.
+
+## Personal journal
+
+Journal definitions are anonymous branching documents. The compiler assigns
+`journal-1`, `journal-2`, and so on in deterministic source order; authors do
+not write journal IDs. They use normal passage IDs only for local branching.
+
+```wg
+@journal "I keep thinking about Taylor."
+@when npc.taylor.relationship.friendship != 0
+
+@passage start
+Taylor seems really...
+
+@choice "strange" -> .strange
+  @effect set local.impression "strange"
+@endchoice
+
+@passage strange
+{{npc.taylor.subject | cap}} is definitely unusual.
+@effect set flags.journal.taylor_strange
+@finish
+@endjournal
+```
+
+- Leading `@when` directives control when a topic first becomes available.
+  Availability is latched after successful game actions: once a topic enters
+  the backlog, later state changes do not remove it. The writing UI shows the
+  five oldest unwritten topics.
+- Journal passages support prose, interpolation, `@if`, `@random`,
+  `@choicegroup`, local-target `@choice`, and terminal `@finish`. Journal
+  choices support only `@when`, `@require`, and `@effect`; they take no time
+  and cannot navigate into world scenes or use skill checks.
+- Journal effects are deliberately narrow: `set`/`add` on `local.*`, or
+  `set flags.journal.*`. Journal flags are monotonic and cannot be unset,
+  including through the `Game` flag facade. Use them only for facts the rest
+  of the game should later react to.
+- Saves store the chosen path, journal locals, and frozen `@random` decisions,
+  not rendered prose. Interpolation and `@if` are evaluated against current
+  game state whenever the entry is read, so live character properties such as
+  pronouns can change old entries retroactively. Historical facts should use
+  persistent story flags if they must not change.
+- An unfinished draft is saved and resumes from its current passage. Completed
+  entries are grouped by the in-game date on which they were written. Editing
+  authored journal ordering can change generated IDs and invalidate development
+  saves; no compatibility guarantee is provided for that during development.
 
 ## Minimal authored event
 
@@ -128,7 +174,7 @@ Taylor looks up from the textbook.
 @endchoice
 ```
 
-Files are UTF-8 and may contain any number of top-level scene, chat,
+Files are UTF-8 and may contain any number of top-level scene, journal, chat,
 location-contribution, and reminder blocks.
 
 ## Core syntax and identifiers
@@ -154,9 +200,9 @@ their own logical lines, except for prose `@br` markers, trailing inline
 - `@icon` accepts either a quoted string or the non-empty remainder of its line,
   which makes a bare emoji convenient.
 
-Only blank lines, comments, and top-level `@chat`, `@location`, `@reminder`, or
-`::` scene declarations may appear outside a block. Chats, location
-contributions, and reminders have explicit closing directives. A scene ends at
+Only blank lines, comments, and top-level `@journal`, `@chat`, `@location`,
+`@reminder`, or `::` scene declarations may appear outside a block. Journals,
+chats, location contributions, and reminders have explicit closing directives. A scene ends at
 the next top-level declaration or at the end of its file. Source files and emitted object keys are sorted
 deterministically, so compiling unchanged sources produces an unchanged
 module.
@@ -1523,7 +1569,7 @@ Only active authored IDs are saved; automatic school reminders are derived
 from the schedule. The built-in and authored namespaces cannot collide.
 Game save format 34 includes scene-local state, reminder state, and the
 game-start date; older saves are intentionally unsupported. The compiled WG
-bundle has its own format version, currently 32.
+bundle has its own format version, currently 33.
 
 Reminder lifecycle integration is covered by
 `node --test tests/timers.test.mjs tests/cafe_job.test.mjs`; all authored reminder
@@ -1602,7 +1648,8 @@ not implemented.
 <!-- Generated from src/story/wg/shared/language.js. -->
 | Context | Directives |
 | --- | --- |
-| Top level | `:: <scene-id> [-> <final-target>]`, `@chat ... @endchat`, `@location ... @endlocation`, `@reminder ... @endreminder`, `@#` |
+| Top level | `:: <scene-id> [-> <final-target>]`, `@journal ... @endjournal`, `@chat ... @endchat`, `@location ... @endlocation`, `@reminder ... @endreminder`, `@#` |
+| Journal definition | `@journal "<prompt>" ... @endjournal`, `leading @when conditions`, `@passage`, `prose and interpolation`, `@if / @elseif / @else / @endif`, `@random / @or / @endrandom`, `@choicegroup ... @endchoicegroup`, `@choice ... @endchoice`, `@finish` |
 | Reminder definition | `required @text`, `optional @tone`, `@priority` |
 | Location contribution | `leading @when conditions`, `prose`, `interpolation`, `@br`, `conditionals`, `@random ... @or ... @endrandom`, `@choicegroup ... @endchoicegroup`, `@choice ... @endchoice` |
 | Scene metadata | `@heading`, `@choices`, `@behavior`, `@system`, `@onenter`, `@hub`, `@place-key`, `@place-tag`, `@location-tag`, `@offer`, `@auto`, `@pool`, `@when`, `@label`, `@icon`, `@hub-text`, `@priority`, `@chance`, `@weight` |

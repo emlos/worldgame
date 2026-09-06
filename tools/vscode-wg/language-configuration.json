@@ -70,12 +70,12 @@
   ],
   "folding": {
     "markers": {
-      "start": "^\\s*@(chat|message|reminder|location|choice|choicegroup|if|success|failure|response|random|onenter)\\b",
-      "end": "^\\s*@(endchat|endmessage|endreminder|endlocation|endchoice|endchoicegroup|endif|endsuccess|endfailure|endresponse|endrandom|endonenter)\\b"
+      "start": "^\\s*@(journal|chat|message|reminder|location|choice|choicegroup|if|success|failure|response|random|onenter)\\b",
+      "end": "^\\s*@(endjournal|endchat|endmessage|endreminder|endlocation|endchoice|endchoicegroup|endif|endsuccess|endfailure|endresponse|endrandom|endonenter)\\b"
     }
   },
   "indentationRules": {
-    "increaseIndentPattern": "^\\s*@(chat|message|reminder|location|choice|choicegroup|if|success|failure|response|random|onenter|elseif|else|or)\\b.*$",
-    "decreaseIndentPattern": "^\\s*@(endchat|endmessage|endreminder|endlocation|endchoice|endchoicegroup|endif|endsuccess|endfailure|endresponse|endrandom|endonenter|elseif|else|or)\\b.*$"
+    "increaseIndentPattern": "^\\s*@(journal|chat|message|reminder|location|choice|choicegroup|if|success|failure|response|random|onenter|elseif|else|or)\\b.*$",
+    "decreaseIndentPattern": "^\\s*@(endjournal|endchat|endmessage|endreminder|endlocation|endchoice|endchoicegroup|endif|endsuccess|endfailure|endresponse|endrandom|endonenter|elseif|else|or)\\b.*$"
   }
 }

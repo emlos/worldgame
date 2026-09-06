@@ -11,6 +11,7 @@ import {
 import { World } from "../world/world.js";
 import { collectDailyAnnouncements } from "./announcements.js";
 import { createChatState } from "./chat/runtime.js";
+import { createJournalState, refreshJournalAvailability } from "./journal/runtime.js";
 import { createGameEventListeners } from "./events.js";
 
 export function initializeNewGame(
@@ -35,6 +36,7 @@ export function initializeNewGame(
   game.startedAt = game.now.toISOString();
   game.reminders = new Set();
   game.chats = createChatState();
+  game.journal = createJournalState();
   game.timers = {};
 
   game.player = new Player(playerOptions);
@@ -108,6 +110,7 @@ export function initializeNewGame(
   game.log = [];
   game._listeners = createGameEventListeners();
   game.dailyAnnouncements = collectDailyAnnouncements(game, game.now);
+  refreshJournalAvailability(game);
   return game;
 }
 

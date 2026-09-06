@@ -57,9 +57,10 @@ test("checked-in editor support and directive documentation match the schema", a
     readFile(new URL("docs/wg-language.md", ROOT), "utf8"),
   ]);
 
-  assert.equal(grammar, buildWGTextMateGrammar());
-  assert.equal(configuration, buildWGLanguageConfiguration());
-  assert.equal(documentation, updateWGDirectiveIndex(documentation));
+  const normalizeNewlines = (value) => value.replace(/\r\n/g, "\n");
+  assert.equal(normalizeNewlines(grammar), normalizeNewlines(buildWGTextMateGrammar()));
+  assert.equal(normalizeNewlines(configuration), normalizeNewlines(buildWGLanguageConfiguration()));
+  assert.equal(normalizeNewlines(documentation), normalizeNewlines(updateWGDirectiveIndex(documentation)));
 });
 
 test("generated highlighter patterns share contextual target and identifier rules", () => {

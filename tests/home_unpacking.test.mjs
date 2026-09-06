@@ -54,7 +54,7 @@ test("unpacking advances in timed stages and reveals home activities", () => {
   assert.ok(choiceWithLabel(home, "Unpack"));
   assert.ok(choiceWithLabel(home, "Go to Bed"));
   assert.equal(choiceWithLabel(home, "Take a shower"), undefined);
-  assert.equal(choiceWithLabel(home, "Choose an outfit"), undefined);
+  assert.equal(choiceWithLabel(home, "Closet"), undefined);
 
   const startedAt = game.now.getTime();
   choose(game, "Unpack");
@@ -77,7 +77,7 @@ test("unpacking advances in timed stages and reveals home activities", () => {
     finishUnpackingStep(game);
   }
   home = buildScene(game);
-  assert.ok(choiceWithLabel(home, "Choose an outfit"));
+  assert.ok(choiceWithLabel(home, "Closet"));
   assert.ok(choiceWithLabel(home, "Sit down with your diary"));
 
   while (game.story.home.unpack < 10) {

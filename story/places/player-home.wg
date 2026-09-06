@@ -184,9 +184,9 @@ Your clothes are sorted and within easy reach. Once the clothing system is in pl
 
 :: home.diary -> @exit
 
-You sit at the cleared table. Once the journal is ready, you will be able to write about experiences that have stayed on your mind.
+You sit at the cleared table, pull your diary closer, and turn to a fresh page.
 
-@next -> @exit
+@next "Put the diary away" -> @exit
 
 
 :: home.receptacle -> @exit

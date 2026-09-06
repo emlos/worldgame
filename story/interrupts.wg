@@ -5,7 +5,6 @@
   @place-key high_school
   @when player.energy <= 0
   @priority 100
-  @heading "Everything goes dark"
 
   @passage collapse
 
@@ -27,7 +26,6 @@
   @place-key player_home
   @when player.energy <= 0
   @priority 100
-  @heading "Everything goes dark"
 
   @passage collapse
 
@@ -47,7 +45,6 @@
 :: interrupt.exhaustion.hospital -> @exit
   @pool interrupt
   @when player.energy <= 0
-  @heading "Everything goes dark"
 
   @passage collapse
 

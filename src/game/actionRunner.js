@@ -10,6 +10,7 @@ import {
 } from "../shared/util/saveValidation.js";
 import { dismissDailyAnnouncements } from "./announcements.js";
 import { advanceGameTime } from "./timeline.js";
+import { refreshJournalAvailability } from "./journal/runtime.js";
 
 const ENERGY_PRECISION = 1_000_000;
 
@@ -102,5 +103,6 @@ export function runGameAction(
   if (typeof label === "string" && label) {
     game.log.push({ t: startedAt, label });
   }
+  refreshJournalAvailability(game);
   return { timeChange };
 }

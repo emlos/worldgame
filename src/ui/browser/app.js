@@ -6,6 +6,11 @@ import {
 } from "../../game/debugCommands.js";
 import { buildScene } from "../../game/scene/sceneEngine.js";
 import { performChoice } from "../../game/scene/choiceEngine.js";
+import { SCENE_ACTION_TYPE } from "../../game/scene/actions.js";
+import {
+  buildJournalReadView,
+  buildJournalWritingView,
+} from "../../game/journal/view.js";
 import {
   resolveWGAutomaticScene,
   WG_AUTO_TRIGGER,
@@ -50,6 +55,17 @@ const closeDiaryButton = document.querySelector("#close-diary");
 const playerDiaryDialog = document.querySelector("#player-diary-dialog");
 const playerDiaryDate = document.querySelector("#player-diary-date");
 const playerDiaryContent = document.querySelector("#player-diary-content");
+const journalWritePanel = document.querySelector("#journal-write-panel");
+const journalWriteIntro = document.querySelector("#journal-write-intro");
+const journalWriteChoices = document.querySelector("#journal-write-choices");
+const journalStopWritingButton = document.querySelector("#journal-stop-writing");
+const journalPrevPageButton = document.querySelector("#journal-prev-page");
+const journalNextPageButton = document.querySelector("#journal-next-page");
+const playerPlannerButton = document.querySelector("#player-planner-btn");
+const playerPlannerDialog = document.querySelector("#player-planner-dialog");
+const closePlannerButton = document.querySelector("#close-planner");
+const playerPlannerDate = document.querySelector("#player-planner-date");
+const playerPlannerContent = document.querySelector("#player-planner-content");
 const openMapButton = document.querySelector("#open-map");
 const closeMapButton = document.querySelector("#close-map");
 const fullMapDialog = document.querySelector("#full-map-dialog");
@@ -113,6 +129,9 @@ let currentScene = null;
 let currentSceneVisualElement = null;
 let choiceButtons = [];
 let choiceButtonsById = new Map();
+let journalDialogMode = "read";
+let journalPageIndex = 0;
+let exitingJournalWritingScene = false;
 
 function createGame() {
   const newGame = new Game({
@@ -364,10 +383,148 @@ function renderFullMap() {
   });
 }
 
-function renderPlayerDiary() {
+function makeJournalEntryElement(entry) {
+  const article = document.createElement("article");
+  article.className = "journal-entry";
+  const heading = document.createElement("h3");
+  heading.textContent = entry.title;
+  article.append(heading);
+  for (const text of entry.paragraphs) {
+    const paragraph = document.createElement("p");
+    paragraph.textContent = text;
+    article.append(paragraph);
+  }
+  return article;
+}
+
+function renderJournalReadPage() {
+  const view = buildJournalReadView(game);
+  journalDialogMode = "read";
+  playerDiaryDialog.dataset.mode = "read";
+  journalWritePanel.hidden = true;
+  journalPrevPageButton.hidden = false;
+  journalNextPageButton.hidden = false;
+
+  if (!view.pages.length) {
+    journalPageIndex = 0;
+    playerDiaryDate.textContent = "Nothing written yet";
+    const empty = document.createElement("p");
+    empty.className = "journal-empty-page";
+    empty.textContent = "The pages are still blank.";
+    playerDiaryContent.replaceChildren(empty);
+    journalPrevPageButton.disabled = true;
+    journalNextPageButton.disabled = true;
+    return;
+  }
+
+  journalPageIndex = Math.max(0, Math.min(journalPageIndex, view.pages.length - 1));
+  const page = view.pages[journalPageIndex];
+  playerDiaryDate.textContent = diaryDateFormatter.format(
+    new Date(`${page.date}T12:00:00.000Z`),
+  );
+  playerDiaryContent.replaceChildren(...page.entries.map(makeJournalEntryElement));
+  journalPrevPageButton.disabled = journalPageIndex <= 0;
+  journalNextPageButton.disabled = journalPageIndex >= view.pages.length - 1;
+}
+
+function makeJournalWritingChoice(label, onClick, disabledReason = null) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "journal-write-choice";
+  button.textContent = label;
+  button.disabled = Boolean(disabledReason);
+  if (disabledReason) button.title = disabledReason;
+  button.addEventListener("click", onClick);
+  return button;
+}
+
+function renderJournalWritingPage() {
+  const view = buildJournalWritingView(game);
+  journalDialogMode = "write";
+  playerDiaryDialog.dataset.mode = "write";
+  journalWritePanel.hidden = false;
+  playerDiaryDate.textContent = diaryDateFormatter.format(game.now);
+
+  if (view.mode === "topics") {
+    journalWriteIntro.textContent = "you think about all the things that happened recently...";
+    journalWriteChoices.replaceChildren(...view.topics.map((topic) =>
+      makeJournalWritingChoice(`...${topic.label}`, () => {
+        try {
+          game.startJournalDraft(topic.definitionId);
+          renderJournalWritingPage();
+          renderPlayerPanel();
+        } catch (error) {
+          noticeElement.textContent = error.message;
+          noticeElement.className = "notice error";
+        }
+      })));
+
+    const readView = buildJournalReadView(game);
+    const latest = readView.pages.at(-1);
+    if (latest) {
+      playerDiaryContent.replaceChildren(...latest.entries.map(makeJournalEntryElement));
+    } else {
+      const blank = document.createElement("p");
+      blank.className = "journal-empty-page";
+      blank.textContent = "Pick something from the left page to begin writing.";
+      playerDiaryContent.replaceChildren(blank);
+    }
+    return;
+  }
+
+  journalWriteIntro.textContent = "how do you want to put it?";
+  journalWriteChoices.replaceChildren(...view.choices.map((choice) =>
+    makeJournalWritingChoice(choice.label, () => {
+      try {
+        game.chooseJournalOption({
+          ...view.token,
+          choiceId: choice.id,
+        });
+        renderJournalWritingPage();
+        renderPlayerPanel();
+      } catch (error) {
+        noticeElement.textContent = error.message;
+        noticeElement.className = "notice error";
+      }
+    }, choice.disabledReason)));
+  playerDiaryContent.replaceChildren(makeJournalEntryElement(view.draft));
+}
+
+function openPlayerDiary(mode = "read") {
+  if (mode === "write") renderJournalWritingPage();
+  else renderJournalReadPage();
+  if (!playerDiaryDialog.open) playerDiaryDialog.showModal();
+}
+
+function journalWritingSceneActive() {
+  return game.currentStory?.id === "home.diary";
+}
+
+function exitJournalWritingScene() {
+  if (!journalWritingSceneActive() || exitingJournalWritingScene) return;
+  exitingJournalWritingScene = true;
+  try {
+    const scene = buildScene(game);
+    const closeChoice = scene.sections
+      .flatMap((section) => section.choices)
+      .find((choice) => choice.action?.type === SCENE_ACTION_TYPE.wgNext);
+    if (closeChoice) {
+      performChoice(game, { sceneId: scene.id, choiceId: closeChoice.id });
+    }
+    render();
+  } catch (error) {
+    noticeElement.textContent = error.message;
+    noticeElement.className = "notice error";
+    render();
+  } finally {
+    exitingJournalWritingScene = false;
+  }
+}
+
+function renderPlayerPlanner() {
   renderSchoolDiary(game, {
-    dateElement: playerDiaryDate,
-    contentElement: playerDiaryContent,
+    dateElement: playerPlannerDate,
+    contentElement: playerPlannerContent,
     formatDate: (date) => diaryDateFormatter.format(date),
   });
 }
@@ -1015,6 +1172,9 @@ function renderScene(preludeParagraphs = []) {
   if (currentScene.map) renderLocalMap(currentScene.map);
   renderDebugPanel();
   chatsUI?.refresh();
+  if (journalWritingSceneActive() && !playerDiaryDialog.open) {
+    openPlayerDiary("write");
+  }
 }
 
 async function choose(sceneId, choiceId) {
@@ -1090,13 +1250,34 @@ restartButton.addEventListener("click", () => {
 });
 
 playerDiaryButton.addEventListener("click", () => {
-  renderPlayerDiary();
-  playerDiaryDialog.showModal();
+  journalPageIndex = Math.max(0, buildJournalReadView(game).pages.length - 1);
+  openPlayerDiary("read");
 });
 
+journalPrevPageButton.addEventListener("click", () => {
+  journalPageIndex -= 1;
+  renderJournalReadPage();
+});
+journalNextPageButton.addEventListener("click", () => {
+  journalPageIndex += 1;
+  renderJournalReadPage();
+});
+journalStopWritingButton.addEventListener("click", () => playerDiaryDialog.close());
 closeDiaryButton.addEventListener("click", () => playerDiaryDialog.close());
 playerDiaryDialog.addEventListener("click", (event) => {
   if (event.target === playerDiaryDialog) playerDiaryDialog.close();
+});
+playerDiaryDialog.addEventListener("close", () => {
+  if (journalDialogMode === "write") exitJournalWritingScene();
+});
+
+playerPlannerButton.addEventListener("click", () => {
+  renderPlayerPlanner();
+  playerPlannerDialog.showModal();
+});
+closePlannerButton.addEventListener("click", () => playerPlannerDialog.close());
+playerPlannerDialog.addEventListener("click", (event) => {
+  if (event.target === playerPlannerDialog) playerPlannerDialog.close();
 });
 
 openMapButton.addEventListener("click", () => {

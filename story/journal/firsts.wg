@@ -1,0 +1,274 @@
+@journal "I've met someone at school that I keep thinking about."
+@when npc.taylor.relationship.friendship != 0
+
+@passage start
+
+There's this person at school, Taylor, who seems really...
+
+@choice "interesting" -> .interesting
+  @effect set local.taylor_impression "interesting"
+@endchoice
+
+@choice "strange" -> .strange
+  @effect set local.taylor_impression "strange"
+@endchoice
+
+@choice "annoying" -> .annoying
+  @effect set local.taylor_impression "annoying"
+@endchoice
+
+@choice "attractive" -> .attractive
+  @effect set local.taylor_impression "attractive"
+  @effect set flags.journal.taylor_attractive
+@endchoice
+
+@passage interesting
+
+...interesting. {{npc.taylor.subject | cap}} has this way of standing out without seeming like {{npc.taylor.subject}} is trying to.
+
+I'm hoping to...
+
+@choice "get to know Taylor better" -> .friend
+  @effect set local.taylor_intent "friend"
+@endchoice
+
+@choice "get closer to Taylor" -> .closer
+  @effect set local.taylor_intent "closer"
+  @effect set flags.journal.wants_to_get_closer_to_taylor
+@endchoice
+
+@choice "keep my distance for now" -> .distance
+  @effect set local.taylor_intent "distance"
+@endchoice
+
+@passage strange
+
+...strange, honestly. I haven't decided whether {{npc.taylor.subject}} is the good kind of weird yet.
+
+Still, I'm hoping to...
+
+@choice "get to know Taylor better" -> .friend
+  @effect set local.taylor_intent "friend"
+@endchoice
+
+@choice "flirt a little and see what happens" -> .closer
+  @effect set local.taylor_intent "closer"
+  @effect set flags.journal.wants_to_get_closer_to_taylor
+@endchoice
+
+@choice "avoid Taylor when I can" -> .distance
+  @effect set local.taylor_intent "distance"
+@endchoice
+
+@passage annoying
+
+...annoying. Maybe that's unfair this early, but Taylor has already managed to get under my skin.
+
+For now I think I'll...
+
+@choice "give Taylor another chance" -> .friend
+  @effect set local.taylor_intent "friend"
+@endchoice
+
+@choice "see if the irritation is actually chemistry" -> .closer
+  @effect set local.taylor_intent "closer"
+  @effect set flags.journal.wants_to_get_closer_to_taylor
+@endchoice
+
+@choice "stay out of Taylor's way" -> .distance
+  @effect set local.taylor_intent "distance"
+@endchoice
+
+@passage attractive
+
+...really attractive. There, I wrote it down. Taylor is hot. That's probably going to make school more complicated than it needs to be.
+
+Maybe I should...
+
+@choice "get to know Taylor normally first" -> .friend
+  @effect set local.taylor_intent "friend"
+@endchoice
+
+@choice "flirt and see where it goes" -> .closer
+  @effect set local.taylor_intent "closer"
+  @effect set flags.journal.wants_to_get_closer_to_taylor
+@endchoice
+
+@choice "not make a thing out of it" -> .distance
+  @effect set local.taylor_intent "distance"
+@endchoice
+
+@passage friend
+
+...actually get to know {{npc.taylor.object}} better. No point deciding what Taylor is like from one impression.
+
+@finish
+
+@passage closer
+
+...get a little closer to {{npc.taylor.object}}, y'know, see where things go. Maybe there's something there. Maybe not. It could be fun finding out.
+
+@finish
+
+@passage distance
+
+...keep some distance and see what happens. First impressions aren't everything, but I don't have to force myself to like everyone I meet.
+
+@finish
+@endjournal
+
+
+@journal "I actually got a job."
+@when flags.cafe_employee
+
+@passage start
+
+@random
+  I got hired at the cafe. It's not exactly glamorous, but having somewhere I can turn an hour into money feels pretty important right now.
+@or
+  So, apparently I work at the cafe now. It isn't glamorous, but having somewhere I can turn an hour into money feels pretty important right now.
+@endrandom
+
+The part I'm most worried about is...
+
+@choice "dealing with customers" -> .customers
+  @effect set local.cafe_worry "customers"
+@endchoice
+
+@choice "messing something up" -> .mistakes
+  @effect set local.cafe_worry "mistakes"
+@endchoice
+
+@choice "getting bored out of my mind" -> .boredom
+  @effect set local.cafe_worry "boredom"
+@endchoice
+
+@choice "nothing, really" -> .fine
+  @effect set local.cafe_worry "nothing"
+@endchoice
+
+@passage customers
+
+Customers, definitely. One rude person can turn an easy shift into an hour that feels five times longer. I'll just have to learn how to deal with them.
+
+@finish
+
+@passage mistakes
+
+Messing something up. Everyone screws up at a new job, obviously, but knowing that doesn't make the idea of doing it in front of a customer any nicer.
+
+@finish
+
+@passage boredom
+
+Getting bored. I can already imagine staring at the clock during a dead hour and wondering how sixty minutes can possibly take that long.
+
+@finish
+
+@passage fine
+
+Nothing in particular. It's a casual cafe job, not a life-or-death commitment. I can show up, work, get paid, and go home.
+
+@finish
+@endjournal
+
+
+@journal "The rent situation is completely ridiculous."
+@when flags.rent_intro_2 or flags.rent_landlord_visit_seen or flags.rent_intro_bypassed
+
+@passage start
+
+Apparently I owe rent from before I even properly settled in here. Somehow that has become my problem.
+
+Right now I mostly feel...
+
+@choice "angry" -> .angry
+  @effect set local.rent_feeling "angry"
+@endchoice
+
+@choice "worried" -> .worried
+  @effect set local.rent_feeling "worried"
+@endchoice
+
+@choice "confused" -> .confused
+  @effect set local.rent_feeling "confused"
+@endchoice
+
+@choice "resigned" -> .resigned
+  @effect set local.rent_feeling "resigned"
+@endchoice
+
+@passage angry
+
+Angry. I just moved in and I'm already being chased over money. I don't care how tidy the paperwork looks; it still feels absurd.
+
+@finish
+
+@passage worried
+
+Worried. Rent isn't optional, and neither is having somewhere to live. I need to make sure this doesn't get bad enough to threaten that.
+
+@finish
+
+@passage confused
+
+Confused. The dates, the notice, the whole situation feel like they belong to somebody else's life and somehow landed on my doorstep.
+
+@finish
+
+@passage resigned
+
+Resigned, mostly. Whether it makes sense or not, arguing with the amount won't magically make it disappear. I need money and a plan.
+
+@finish
+@endjournal
+
+@journal "I found something strange in my room."
+@when flags.quest.receptacles.start
+
+@passage start
+
+There is some kind of seamless receptacle sitting in my room now. I found it while unpacking, and I still have no idea what it is or why it was here.
+
+My first reaction is mostly...
+
+@choice "curiosity" -> .curious
+  @effect set local.receptacle_reaction "curious"
+@endchoice
+
+@choice "unease" -> .uneasy
+  @effect set local.receptacle_reaction "uneasy"
+@endchoice
+
+@choice "annoyance" -> .annoyed
+  @effect set local.receptacle_reaction "annoyed"
+@endchoice
+
+@choice "nothing much" -> .shrug
+  @effect set local.receptacle_reaction "indifferent"
+@endchoice
+
+@passage curious
+
+Curiosity. Something that strange does not just end up in a room by accident. I want to figure out what it does, even if I have no idea where to start.
+
+@finish
+
+@passage uneasy
+
+Unease. An object I cannot open, move, or explain is not exactly what I wanted to discover in my new home. I would feel better if I knew what it was for.
+
+@finish
+
+@passage annoyed
+
+Annoyance. I finally finished unpacking and immediately inherited a new problem that apparently cannot even be moved out of the way.
+
+@finish
+
+@passage shrug
+
+Not much, really. It is weird, but until it actually does something, it can sit there and be weird on its own time.
+
+@finish
+@endjournal

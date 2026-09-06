@@ -1,5 +1,5 @@
 {
-  "formatVersion": 32,
+  "formatVersion": 33,
   "scenes": {
     "fixture.followup": {
       "id": "fixture.followup",
@@ -162,7 +162,7 @@
                 }
               ],
               "target": "fixture.followup",
-              "icon": "➡️",
+              "icon": "\u27a1\ufe0f",
               "durationMinutes": 15,
               "durationRangeMinutes": null,
               "timeUntilPath": null,
@@ -279,7 +279,7 @@
         }
       ],
       "label": "Open the fixture",
-      "icon": "🧪",
+      "icon": "\ud83e\uddea",
       "hubText": "A compiler fixture is ready.",
       "priority": 0,
       "chance": 1,
@@ -295,5 +295,6 @@
       "text": "The compiler fixture reminder is active."
     }
   },
-  "chats": {}
+  "chats": {},
+  "journals": {}
 }

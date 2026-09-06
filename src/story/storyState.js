@@ -7,12 +7,19 @@ export function clearActiveStory(game) {
 
 export function setStoryFlag(game, flag, value = true) {
   const key = String(flag);
+  if (!value && (key === "journal" || key.startsWith("journal."))) {
+    throw new Error(`Journal flag ${key} is irreversible and cannot be unset.`);
+  }
   if (value) game.flags.add(key);
   else game.flags.delete(key);
 }
 
 export function clearStoryFlag(game, flag) {
-  game.flags.delete(String(flag));
+  const key = String(flag);
+  if (key === "journal" || key.startsWith("journal.")) {
+    throw new Error(`Journal flag ${key} is irreversible and cannot be unset.`);
+  }
+  game.flags.delete(key);
 }
 
 export function hasStoryFlag(game, flag) {
