@@ -244,11 +244,13 @@ const EFFECT_DEFINITIONS = [
     syntax: "set",
     validate(effect, fail) {
       const isFlag = Array.isArray(effect.path) &&
-        effect.path.length === 2 && effect.path[0] === "flags";
+        effect.path.length >= 2 && effect.path[0] === "flags";
       validateBaseEffect(effect, isFlag ? ["path"] : ["path", "value"], [], fail);
       if (isFlag) {
-        if (!STORY_PATH_SEGMENT_PATTERN.test(effect.path[1])) {
-          fail("WG set effect requires a valid flags.<name> path");
+        if (effect.path.some((segment) =>
+          typeof segment !== "string" || !STORY_PATH_SEGMENT_PATTERN.test(segment)
+        )) {
+          fail("WG set effect requires a valid flags.<path>");
         }
         return;
       }
@@ -261,7 +263,7 @@ const EFFECT_DEFINITIONS = [
         )
       ) {
         fail(
-          "WG set effect requires a valid story.* or local.* path and value, or flags.<name>",
+          "WG set effect requires a valid story.* or local.* path and value, or flags.<path>",
         );
       }
       validateExpression(effect.value, fail);
@@ -292,12 +294,13 @@ const EFFECT_DEFINITIONS = [
       validateBaseEffect(effect, ["path"], [], fail);
       if (
         !Array.isArray(effect.path) ||
-        effect.path.length !== 2 ||
+        effect.path.length < 2 ||
         effect.path[0] !== "flags" ||
-        typeof effect.path[1] !== "string" ||
-        !STORY_PATH_SEGMENT_PATTERN.test(effect.path[1])
+        effect.path.some((segment) =>
+          typeof segment !== "string" || !STORY_PATH_SEGMENT_PATTERN.test(segment)
+        )
       ) {
-        fail("WG unset effect requires a valid flags.<name> path");
+        fail("WG unset effect requires a valid flags.<path>");
       }
     },
   },

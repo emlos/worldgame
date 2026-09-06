@@ -53,7 +53,7 @@ function applyChatEffect(game, effect) {
 
 function applyMutation(game, effect, options) {
   if (effect.path[0] === "flags") {
-    game.setFlag(effect.path[1]);
+    game.setFlag(effect.path.slice(1).join("."));
     return;
   }
   const context = createWGRuntimeContext(game, options);
@@ -74,7 +74,7 @@ function applyMutation(game, effect, options) {
 }
 
 function applyUnsetEffect(game, effect) {
-  game.clearFlag(effect.path[1]);
+  game.clearFlag(effect.path.slice(1).join("."));
 }
 
 function applyReminderEffect(game, effect) {

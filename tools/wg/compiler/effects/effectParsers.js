@@ -132,7 +132,7 @@ function parseMutation(argument, file, line, at, op) {
   if (!match) failWG("Unknown or malformed @effect", at);
   const path = match[1].split(".");
 
-  if (op === "set" && path[0] === "flags" && path.length === 2 && match[2] === undefined) {
+  if (op === "set" && path[0] === "flags" && path.length >= 2 && match[2] === undefined) {
     return { op, path, source: source(file, line) };
   }
   if (
@@ -152,9 +152,9 @@ function parseMutation(argument, file, line, at, op) {
 
 function parseUnset(argument, file, line, at) {
   const match = argument.match(
-    /^unset\s+(flags\.[A-Za-z_][A-Za-z0-9_]*)$/,
+    /^unset\s+(flags(?:\.[A-Za-z_][A-Za-z0-9_]*)+)$/,
   );
-  if (!match) failWG("@effect unset requires a flags.<name> path", at);
+  if (!match) failWG("@effect unset requires a flags.<path>", at);
   return {
     op: "unset",
     path: match[1].split("."),

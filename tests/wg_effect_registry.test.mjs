@@ -11,6 +11,8 @@ import {
   getWGEffectHandlerOps,
 } from "../src/story/wg/runtime/effectRuntime.js";
 import { materializeWGScene } from "../src/story/wg/runtime/sceneMaterializer.js";
+import { resolveWGPath } from "../src/story/wg/runtime/expressionEvaluator.js";
+import { createWGRuntimeContext } from "../src/story/wg/runtime/runtimeContext.js";
 import {
   enterWGScene,
   resolveActiveWGStory,
@@ -117,8 +119,8 @@ test("set and unset use namespaces to mutate story values and global flags", () 
       '  @effect set story.fixture.label "ready"',
       "  @effect set local.fixture.count 1",
       "  @effect add local.fixture.count 2",
-      "  @effect set flags.fixture_ready",
-      "  @effect unset flags.fixture_old",
+      "  @effect set flags.fixture.ready",
+      "  @effect unset flags.fixture.old",
       "@endonenter",
       "",
       "Ready.",
@@ -141,19 +143,31 @@ test("set and unset use namespaces to mutate story values and global flags", () 
       path: ["local", "fixture", "count"],
       value: { type: "literal", value: 2 },
     },
-    { op: "set", path: ["flags", "fixture_ready"] },
-    { op: "unset", path: ["flags", "fixture_old"] },
+    { op: "set", path: ["flags", "fixture", "ready"] },
+    { op: "unset", path: ["flags", "fixture", "old"] },
   ]);
 
   const game = new Game({ seed: 903 });
   enterWGScene(game, "example.passage-scene");
   resolveActiveWGStory(game);
-  game.setFlag("fixture_old");
+  game.setFlag("fixture.old");
   applyWGEffects(game, effects);
   assert.equal(game.story.fixture.label, "ready");
   assert.equal(game.currentStory.locals.fixture.count, 3);
-  assert.equal(game.hasFlag("fixture_ready"), true);
-  assert.equal(game.hasFlag("fixture_old"), false);
+  assert.equal(game.hasFlag("fixture.ready"), true);
+  assert.equal(game.hasFlag("fixture.old"), false);
+});
+
+test("dotted flags remain exact when one flag is another flag's namespace", () => {
+  const game = new Game({ seed: 904 });
+  game.setFlag("quest.receptacles.start");
+  const context = createWGRuntimeContext(game);
+
+  assert.equal(
+    resolveWGPath(context, ["flags", "quest", "receptacles", "start"]),
+    true,
+  );
+  assert.equal(resolveWGPath(context, ["flags", "quest"]), undefined);
 });
 
 test("removed and malformed global flag mutations are rejected", () => {
@@ -161,7 +175,7 @@ test("removed and malformed global flag mutations are rejected", () => {
     ["@effect flag old_flag true", /Unknown or malformed @effect/],
     ["@effect set flags.named true", /requires a story\.\* or local\.\* path and value/],
     ["@effect set local.named", /requires a story\.\* or local\.\* path and value/],
-    ["@effect unset story.named", /requires a flags\.<name> path/],
+    ["@effect unset story.named", /requires a flags\.<path>/],
   ]) {
     assert.throws(
       () => compileStorySources([{

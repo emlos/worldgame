@@ -5,6 +5,8 @@ export class WGExpressionError extends TypeError {
   }
 }
 
+const WG_FLAG_VALUE = Symbol.for("worldgame.wg.flag-value");
+
 function fail(message) {
   throw new WGExpressionError(message);
 }
@@ -49,6 +51,9 @@ export function resolveWGPath(context, path) {
       return undefined;
     }
     value = value[segment];
+  }
+  if (path[0] === "flags" && isRecord(value)) {
+    return value[WG_FLAG_VALUE] === true ? true : undefined;
   }
   return value;
 }

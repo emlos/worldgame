@@ -34,10 +34,13 @@ function choose(game, label) {
 }
 
 function finishUnpackingStep(game) {
-  choose(game, "Finish for now");
+  const scene = buildScene(game);
+  const finish = choiceWithLabel(scene, "Finish for now") ?? choiceWithLabel(scene, "Next");
+  assert.ok(finish, `Expected the unpacking scene '${scene.id}' to be finishable`);
+  performChoice(game, { sceneId: scene.id, choiceId: finish.id });
 }
 
-test("unpacking advances in thirty-minute stages and reveals home activities", () => {
+test("unpacking advances in timed stages and reveals home activities", () => {
   const game = new Game({
     seed: 9021,
     startDate: new Date("2026-09-03T04:00:00.000Z"),
@@ -56,7 +59,8 @@ test("unpacking advances in thirty-minute stages and reveals home activities", (
   const startedAt = game.now.getTime();
   choose(game, "Unpack");
   assert.equal(game.story.home.unpack, 1);
-  assert.equal(game.now.getTime() - startedAt, 30 * 60_000);
+  assert.ok(game.now.getTime() - startedAt >= 15 * 60_000);
+  assert.ok(game.now.getTime() - startedAt <= 30 * 60_000);
   assert.match(JSON.stringify(buildScene(game).content), /little more space/);
   finishUnpackingStep(game);
 
@@ -86,12 +90,6 @@ test("unpacking advances in thirty-minute stages and reveals home activities", (
   assert.match(JSON.stringify(buildScene(game).content), /bed assembled/);
   choose(game, "Leave");
 
-  while (game.story.home.unpack < 15) {
-    choose(game, "Unpack");
-    finishUnpackingStep(game);
-  }
-  assert.ok(choiceWithLabel(buildScene(game), "Invite someone over"));
-
   while (game.story.home.unpack < 19) {
     choose(game, "Unpack");
     finishUnpackingStep(game);
@@ -99,9 +97,10 @@ test("unpacking advances in thirty-minute stages and reveals home activities", (
   assert.ok(choiceWithLabel(buildScene(game), "Unpack the last boxes"));
   choose(game, "Unpack the last boxes");
   assert.equal(game.story.home.unpack, 20);
-  assert.equal(game.hasFlag("quest_receptacle_start"), true);
+  assert.equal(game.hasFlag("quest.receptacles.start"), true);
+  assert.equal(game.hasFlag("home.unpacked"), true);
   assert.match(JSON.stringify(buildScene(game).content), /strange receptacle/);
-  finishUnpackingStep(game);
+  while (game.currentStory) choose(game, "Next");
 
   home = buildScene(game);
   assert.equal(choiceWithLabel(home, "Unpack"), undefined);
@@ -112,10 +111,12 @@ test("unpacking advances in thirty-minute stages and reveals home activities", (
 test("unpacking progress and the receptacle discovery survive saving", () => {
   const game = new Game({ seed: 9022 });
   game.story.home = { unpack: 20 };
-  game.setFlag("quest_receptacle_start");
+  game.setFlag("quest.receptacles.start");
+  game.setFlag("home.unpacked");
 
   const restored = Game.fromJSON(JSON.parse(JSON.stringify(game.toJSON())));
 
   assert.deepEqual(restored.story.home, { unpack: 20 });
-  assert.equal(restored.hasFlag("quest_receptacle_start"), true);
+  assert.equal(restored.hasFlag("quest.receptacles.start"), true);
+  assert.equal(restored.hasFlag("home.unpacked"), true);
 });

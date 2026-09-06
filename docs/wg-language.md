@@ -807,8 +807,9 @@ The currently exposed paths are:
 - `npc.<id>.flags.<flag>` for that NPC's stored boolean flags.
 - `npc.<id>.schedule.phase`, `.obligationId`, `.startsAt`,
   `.requiredArrivalAt`, `.earlyArrivalMinutes`, and `.minutesUntilStart`.
-- `flags.<id>` for active game flags. Inactive flags are absent, so
-  `not flags.some_flag` is the normal negative check.
+- `flags.<path>` for active game flags. Flag names may use dot-separated
+  namespaces, such as `flags.quest.receptacles.start`. Inactive flags are
+  absent, so `not flags.some_flag` is the normal negative check.
 - `daily.<id>` for active daily flags. Inactive flags are absent. Daily flags
   are saved normally and are cleared automatically when forward game time
   crosses UTC midnight.
@@ -871,7 +872,7 @@ use these semantic values rather than comparing clock strings themselves.
 
 Expression path segments use letters, numbers, and `_`, and cannot start with
 a number. Global flag names used by WG therefore follow the same rule so they
-can be read and changed through `flags.<name>` paths.
+can be read and changed through `flags.<path>` paths.
 
 A missing expression path evaluates to `undefined`, which is false when used
 directly as a condition. The compiler checks expression syntax but does not
@@ -1349,9 +1350,9 @@ Implemented effects are:
   automatically. `add` treats a missing or `null` final value as zero and
   requires both values to be finite numbers. Neither operation can write
   through an existing scalar or list used as an intermediate path segment.
-- `set flags.<name>` enables a global game flag; `unset flags.<name>` removes
-  it. Flag names are expression path segments, so they may contain letters,
-  numbers, and `_`, but cannot start with a number.
+- `set flags.<path>` enables a global game flag; `unset flags.<path>` removes
+  it. Flag paths contain one or more expression path segments, so each segment
+  may contain letters, numbers, and `_`, but cannot start with a number.
 - `daily-flag <id> true|false` enables or removes a daily flag. All daily flags
   are cleared together when forward game time crosses UTC midnight. Use
   `not daily.<id>` to gate a once-per-day choice.
