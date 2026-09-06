@@ -105,6 +105,16 @@ content:
     reward the player with lore/unlocking extra locations/amenities/abilities -> reason to explorer
     first receptacle in player home?
 
+- unpacking action at home: stages, story.home.unpack == 0 at start, picking this choice takes 30 minutes plays one of three short scenes based on current unpack stage
+    unpack 2 gives access to shower/teeth/hygiene options
+    unpack 5 gives access to the clothes/table to use the journal
+    unpack 10 increases comfort/energy gained from sleeping in bed
+    unpack 15 allows the player to ivite npcs back to their home (placeholder option)
+    unpack 20 finishes the unpacking and uncovers the first mysterious receptacle. flag.quest.receptacle-start == true
+
+    each unpacking milestone should slightly change the home flavor text
+
+
 design [important]:
 
 - npc characterisation + purpose needs to be decided

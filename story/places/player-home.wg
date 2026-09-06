@@ -47,7 +47,19 @@ School is waiting, but what you do next is your decision. You can get ready, lea
 
 :: place.player-home
 @hub player_home
-You are back in the privacy of your four walls.
+@if not story.home.unpack or story.home.unpack < 2
+  You are back in the privacy of your four walls. Cardboard boxes crowd the little open floor space, and most of the flat still feels borrowed rather than lived in.
+@elseif story.home.unpack < 5
+  You are back in the privacy of your four walls. The bathroom is usable now, though unopened boxes still line the walls.
+@elseif story.home.unpack < 10
+  You are back in the privacy of your four walls. Your clothes are put away and the table is clear, giving the flat the beginnings of a routine.
+@elseif story.home.unpack < 15
+  You are back in the privacy of your four walls. With the bed properly assembled, the bedroom finally looks like somewhere you can recover at the end of the day.
+@elseif story.home.unpack < 20
+  You are back in the privacy of your four walls. Most of the flat is ready for company; only a stubborn cluster of boxes remains.
+@else
+  You are back in the privacy of your four walls. Everything has found a place, apart from the strange receptacle uncovered beside the wall.
+@endif
 
 @choicegroup "Bedroom"
 
@@ -58,23 +70,117 @@ You are back in the privacy of your four walls.
 @endchoicegroup
 
 @choicegroup "Activities"
-@choice "Lift weights" -> @exit
-  @time 5m
-  @when not daily.home_weightlifting
-  @change skill strength 0.1
-  @effect daily-flag home_weightlifting true
-@endchoice
+
+  @choice "Unpack" -> home.unpack
+    @when not story.home.unpack or story.home.unpack < 19
+    @time 30m
+    @effect add story.home.unpack 1
+  @endchoice
+
+  @choice "Unpack the last boxes" -> home.unpack
+    @when story.home.unpack == 19
+    @time 30m
+    @effect add story.home.unpack 1
+    @effect set flags.quest_receptacle_start
+  @endchoice
+
+  @choice "Lift weights" -> @exit
+    @time 5m
+    @when not daily.home_weightlifting
+    @change skill strength 0.1
+    @effect daily-flag home_weightlifting true
+  @endchoice
+
+  @choice "Choose an outfit" -> home.clothes
+    @when story.home.unpack >= 5
+  @endchoice
+
+  @choice "Sit down with your diary" -> home.diary
+    @when story.home.unpack >= 5
+  @endchoice
+
+  @choice "Invite someone over" -> home.invite
+    @when story.home.unpack >= 15
+  @endchoice
+
+  @choice "Examine the strange receptacle" -> home.receptacle
+    @when flags.quest_receptacle_start
+  @endchoice
+
 @endchoicegroup
 
 @choicegroup "Bathroom"
 
-@choice "Take a shower" -> @exit
-  @time 15m
-  @change stat hygiene +50
-  @change stat energy -5
-@endchoice
+  @choice "Take a shower" -> @exit
+    @when story.home.unpack >= 2
+    @time 15m
+    @change stat hygiene +50
+    @change stat energy -5
+  @endchoice
+
+  @choice "Brush your teeth" -> @exit
+    @when story.home.unpack >= 2
+    @time 5m
+    @change stat hygiene +5
+  @endchoice
 
 @endchoicegroup
+
+
+:: home.unpack -> @exit
+@heading "Making the place your own"
+
+@if story.home.unpack == 2
+  You empty the bathroom boxes, stack your toiletries by the sink, and clear enough clutter to use the shower without climbing over anything.
+@elseif story.home.unpack == 5
+  You finish sorting your clothes and clear the table beneath the window. There is finally somewhere to sit, think, and write.
+@elseif story.home.unpack == 10
+  The pieces of the bed frame emerge from behind a wall of cardboard. Once it is assembled and the mattress is lifted into place, the bedroom immediately feels more comfortable.
+@elseif story.home.unpack == 15
+  You arrange the remaining furniture and make room for another person to sit. The flat is no longer too embarrassing to invite someone into.
+@elseif story.home.unpack == 20
+  At the bottom of the final box, wrapped in material you do not remember packing, you find a strange receptacle. Its surface is cool and seamless, with no obvious way to open it.
+@elseif story.home.unpack < 5
+  You open another box and sort its contents into rough piles. The room is still crowded, but there is a little more space to move.
+@elseif story.home.unpack < 15
+  Another armful of belongings finds a proper place. Bit by bit, the anonymous rooms are beginning to look like yours.
+@else
+  You flatten more cardboard and deal with the awkward things you kept putting off. Only a few boxes remain now.
+@endif
+
+@next "Finish for now" -> @exit
+
+
+:: home.clothes -> @exit
+@heading "Your clothes"
+
+Your clothes are sorted and within easy reach. Once the clothing system is in place, this is where you will be able to choose what to wear.
+
+@next -> @exit
+
+
+:: home.diary -> @exit
+@heading "A quiet place to write"
+
+You sit at the cleared table. Once the journal is ready, you will be able to write about experiences that have stayed on your mind.
+
+@next -> @exit
+
+
+:: home.invite -> @exit
+@heading "Room for company"
+
+The flat is presentable enough for a guest. Once home visits are implemented, this is where you will be able to invite someone over.
+
+@next -> @exit
+
+
+:: home.receptacle -> @exit
+@heading "Something unfamiliar"
+
+You turn the strange receptacle over in your hands, but cannot find a seam, switch, or recognizable marking. Whatever it is, unpacking has only raised a new question.
+
+@next -> @exit
 
 
 :: menu.player.home.rest -> @exit
@@ -82,6 +188,11 @@ You are back in the privacy of your four walls.
   @choicegroup "Set your alarm to:"
 
 You set your alarm and climb into bed. The soft sheets and warm blankets are a welcome comfort.
+@if not story.home.unpack or story.home.unpack < 10
+  For now, the mattress is still on the floor and the unopened bedroom boxes make the space feel cramped.
+@else
+  With the bed assembled and the bedroom cleared, settling down is noticeably easier.
+@endif
 How long will you sleep for?
 
 @choice "8 hours" -> .wake-up

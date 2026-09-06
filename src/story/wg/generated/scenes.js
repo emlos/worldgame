@@ -1416,6 +1416,213 @@ export const WG_BUNDLE = {
         "column": 1
       }
     },
+    "home.clothes": {
+      "id": "home.clothes",
+      "finalTarget": "@exit",
+      "kind": "event",
+      "heading": "Your clothes",
+      "choiceHeading": "Choices",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Your clothes are sorted and within easy reach. Once the clothing system is in place, this is where you will be able to choose what to wear."
+                }
+              ],
+              "source": {
+                "file": "story/places/player-home.wg",
+                "line": 157,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@exit",
+            "source": {
+              "file": "story/places/player-home.wg",
+              "line": 159,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/places/player-home.wg",
+            "line": 157,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [],
+      "conditions": [],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/places/player-home.wg",
+        "line": 154,
+        "column": 1
+      }
+    },
+    "home.diary": {
+      "id": "home.diary",
+      "finalTarget": "@exit",
+      "kind": "event",
+      "heading": "A quiet place to write",
+      "choiceHeading": "Choices",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You sit at the cleared table. Once the journal is ready, you will be able to write about experiences that have stayed on your mind."
+                }
+              ],
+              "source": {
+                "file": "story/places/player-home.wg",
+                "line": 165,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@exit",
+            "source": {
+              "file": "story/places/player-home.wg",
+              "line": 167,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/places/player-home.wg",
+            "line": 165,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [],
+      "conditions": [],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/places/player-home.wg",
+        "line": 162,
+        "column": 1
+      }
+    },
+    "home.invite": {
+      "id": "home.invite",
+      "finalTarget": "@exit",
+      "kind": "event",
+      "heading": "Room for company",
+      "choiceHeading": "Choices",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The flat is presentable enough for a guest. Once home visits are implemented, this is where you will be able to invite someone over."
+                }
+              ],
+              "source": {
+                "file": "story/places/player-home.wg",
+                "line": 173,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@exit",
+            "source": {
+              "file": "story/places/player-home.wg",
+              "line": 175,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/places/player-home.wg",
+            "line": 173,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [],
+      "conditions": [],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/places/player-home.wg",
+        "line": 170,
+        "column": 1
+      }
+    },
     "home.random.forgotten-mug": {
       "id": "home.random.forgotten-mug",
       "finalTarget": null,
@@ -1797,6 +2004,430 @@ export const WG_BUNDLE = {
       "source": {
         "file": "story/random-events.wg",
         "line": 18,
+        "column": 1
+      }
+    },
+    "home.receptacle": {
+      "id": "home.receptacle",
+      "finalTarget": "@exit",
+      "kind": "event",
+      "heading": "Something unfamiliar",
+      "choiceHeading": "Choices",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You turn the strange receptacle over in your hands, but cannot find a seam, switch, or recognizable marking. Whatever it is, unpacking has only raised a new question."
+                }
+              ],
+              "source": {
+                "file": "story/places/player-home.wg",
+                "line": 181,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@exit",
+            "source": {
+              "file": "story/places/player-home.wg",
+              "line": 183,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/places/player-home.wg",
+            "line": 181,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [],
+      "conditions": [],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/places/player-home.wg",
+        "line": 178,
+        "column": 1
+      }
+    },
+    "home.unpack": {
+      "id": "home.unpack",
+      "finalTarget": "@exit",
+      "kind": "event",
+      "heading": "Making the place your own",
+      "choiceHeading": "Choices",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "if",
+              "branches": [
+                {
+                  "test": {
+                    "type": "binary",
+                    "operator": "==",
+                    "left": {
+                      "type": "path",
+                      "value": [
+                        "story",
+                        "home",
+                        "unpack"
+                      ]
+                    },
+                    "right": {
+                      "type": "literal",
+                      "value": 2
+                    }
+                  },
+                  "nodes": [
+                    {
+                      "type": "paragraph",
+                      "parts": [
+                        {
+                          "type": "text",
+                          "value": "You empty the bathroom boxes, stack your toiletries by the sink, and clear enough clutter to use the shower without climbing over anything."
+                        }
+                      ],
+                      "source": {
+                        "file": "story/places/player-home.wg",
+                        "line": 134,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "source": {
+                    "file": "story/places/player-home.wg",
+                    "line": 133,
+                    "column": 1
+                  }
+                },
+                {
+                  "test": {
+                    "type": "binary",
+                    "operator": "==",
+                    "left": {
+                      "type": "path",
+                      "value": [
+                        "story",
+                        "home",
+                        "unpack"
+                      ]
+                    },
+                    "right": {
+                      "type": "literal",
+                      "value": 5
+                    }
+                  },
+                  "nodes": [
+                    {
+                      "type": "paragraph",
+                      "parts": [
+                        {
+                          "type": "text",
+                          "value": "You finish sorting your clothes and clear the table beneath the window. There is finally somewhere to sit, think, and write."
+                        }
+                      ],
+                      "source": {
+                        "file": "story/places/player-home.wg",
+                        "line": 136,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "source": {
+                    "file": "story/places/player-home.wg",
+                    "line": 135,
+                    "column": 1
+                  }
+                },
+                {
+                  "test": {
+                    "type": "binary",
+                    "operator": "==",
+                    "left": {
+                      "type": "path",
+                      "value": [
+                        "story",
+                        "home",
+                        "unpack"
+                      ]
+                    },
+                    "right": {
+                      "type": "literal",
+                      "value": 10
+                    }
+                  },
+                  "nodes": [
+                    {
+                      "type": "paragraph",
+                      "parts": [
+                        {
+                          "type": "text",
+                          "value": "The pieces of the bed frame emerge from behind a wall of cardboard. Once it is assembled and the mattress is lifted into place, the bedroom immediately feels more comfortable."
+                        }
+                      ],
+                      "source": {
+                        "file": "story/places/player-home.wg",
+                        "line": 138,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "source": {
+                    "file": "story/places/player-home.wg",
+                    "line": 137,
+                    "column": 1
+                  }
+                },
+                {
+                  "test": {
+                    "type": "binary",
+                    "operator": "==",
+                    "left": {
+                      "type": "path",
+                      "value": [
+                        "story",
+                        "home",
+                        "unpack"
+                      ]
+                    },
+                    "right": {
+                      "type": "literal",
+                      "value": 15
+                    }
+                  },
+                  "nodes": [
+                    {
+                      "type": "paragraph",
+                      "parts": [
+                        {
+                          "type": "text",
+                          "value": "You arrange the remaining furniture and make room for another person to sit. The flat is no longer too embarrassing to invite someone into."
+                        }
+                      ],
+                      "source": {
+                        "file": "story/places/player-home.wg",
+                        "line": 140,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "source": {
+                    "file": "story/places/player-home.wg",
+                    "line": 139,
+                    "column": 1
+                  }
+                },
+                {
+                  "test": {
+                    "type": "binary",
+                    "operator": "==",
+                    "left": {
+                      "type": "path",
+                      "value": [
+                        "story",
+                        "home",
+                        "unpack"
+                      ]
+                    },
+                    "right": {
+                      "type": "literal",
+                      "value": 20
+                    }
+                  },
+                  "nodes": [
+                    {
+                      "type": "paragraph",
+                      "parts": [
+                        {
+                          "type": "text",
+                          "value": "At the bottom of the final box, wrapped in material you do not remember packing, you find a strange receptacle. Its surface is cool and seamless, with no obvious way to open it."
+                        }
+                      ],
+                      "source": {
+                        "file": "story/places/player-home.wg",
+                        "line": 142,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "source": {
+                    "file": "story/places/player-home.wg",
+                    "line": 141,
+                    "column": 1
+                  }
+                },
+                {
+                  "test": {
+                    "type": "binary",
+                    "operator": "<",
+                    "left": {
+                      "type": "path",
+                      "value": [
+                        "story",
+                        "home",
+                        "unpack"
+                      ]
+                    },
+                    "right": {
+                      "type": "literal",
+                      "value": 5
+                    }
+                  },
+                  "nodes": [
+                    {
+                      "type": "paragraph",
+                      "parts": [
+                        {
+                          "type": "text",
+                          "value": "You open another box and sort its contents into rough piles. The room is still crowded, but there is a little more space to move."
+                        }
+                      ],
+                      "source": {
+                        "file": "story/places/player-home.wg",
+                        "line": 144,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "source": {
+                    "file": "story/places/player-home.wg",
+                    "line": 143,
+                    "column": 1
+                  }
+                },
+                {
+                  "test": {
+                    "type": "binary",
+                    "operator": "<",
+                    "left": {
+                      "type": "path",
+                      "value": [
+                        "story",
+                        "home",
+                        "unpack"
+                      ]
+                    },
+                    "right": {
+                      "type": "literal",
+                      "value": 15
+                    }
+                  },
+                  "nodes": [
+                    {
+                      "type": "paragraph",
+                      "parts": [
+                        {
+                          "type": "text",
+                          "value": "Another armful of belongings finds a proper place. Bit by bit, the anonymous rooms are beginning to look like yours."
+                        }
+                      ],
+                      "source": {
+                        "file": "story/places/player-home.wg",
+                        "line": 146,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "source": {
+                    "file": "story/places/player-home.wg",
+                    "line": 145,
+                    "column": 1
+                  }
+                }
+              ],
+              "elseNodes": [
+                {
+                  "type": "paragraph",
+                  "parts": [
+                    {
+                      "type": "text",
+                      "value": "You flatten more cardboard and deal with the awkward things you kept putting off. Only a few boxes remain now."
+                    }
+                  ],
+                  "source": {
+                    "file": "story/places/player-home.wg",
+                    "line": 148,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/places/player-home.wg",
+                "line": 133,
+                "column": 1
+              },
+              "runtimeId": 0
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Finish for now"
+              }
+            ],
+            "target": "@exit",
+            "source": {
+              "file": "story/places/player-home.wg",
+              "line": 151,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/places/player-home.wg",
+            "line": 133,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [],
+      "conditions": [],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/places/player-home.wg",
+        "line": 130,
         "column": 1
       }
     },
@@ -2313,11 +2944,99 @@ export const WG_BUNDLE = {
                     {
                       "type": "text",
                       "value": "You set your alarm and climb into bed. The soft sheets and warm blankets are a welcome comfort."
-                    },
+                    }
+                  ],
+                  "source": {
+                    "file": "story/places/player-home.wg",
+                    "line": 190,
+                    "column": 1
+                  }
+                },
+                {
+                  "type": "if",
+                  "branches": [
                     {
-                      "type": "text",
-                      "value": " "
-                    },
+                      "test": {
+                        "type": "binary",
+                        "operator": "or",
+                        "left": {
+                          "type": "unary",
+                          "operator": "not",
+                          "value": {
+                            "type": "path",
+                            "value": [
+                              "story",
+                              "home",
+                              "unpack"
+                            ]
+                          }
+                        },
+                        "right": {
+                          "type": "binary",
+                          "operator": "<",
+                          "left": {
+                            "type": "path",
+                            "value": [
+                              "story",
+                              "home",
+                              "unpack"
+                            ]
+                          },
+                          "right": {
+                            "type": "literal",
+                            "value": 10
+                          }
+                        }
+                      },
+                      "nodes": [
+                        {
+                          "type": "paragraph",
+                          "parts": [
+                            {
+                              "type": "text",
+                              "value": "For now, the mattress is still on the floor and the unopened bedroom boxes make the space feel cramped."
+                            }
+                          ],
+                          "source": {
+                            "file": "story/places/player-home.wg",
+                            "line": 192,
+                            "column": 1
+                          }
+                        }
+                      ],
+                      "source": {
+                        "file": "story/places/player-home.wg",
+                        "line": 191,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "elseNodes": [
+                    {
+                      "type": "paragraph",
+                      "parts": [
+                        {
+                          "type": "text",
+                          "value": "With the bed assembled and the bedroom cleared, settling down is noticeably easier."
+                        }
+                      ],
+                      "source": {
+                        "file": "story/places/player-home.wg",
+                        "line": 194,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "source": {
+                    "file": "story/places/player-home.wg",
+                    "line": 191,
+                    "column": 1
+                  },
+                  "runtimeId": 0
+                },
+                {
+                  "type": "paragraph",
+                  "parts": [
                     {
                       "type": "text",
                       "value": "How long will you sleep for?"
@@ -2325,7 +3044,7 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 84,
+                    "line": 196,
                     "column": 1
                   }
                 },
@@ -2356,14 +3075,14 @@ export const WG_BUNDLE = {
                       "amount": -5,
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 89,
+                        "line": 200,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 87,
+                    "line": 198,
                     "column": 1
                   }
                 },
@@ -2394,14 +3113,14 @@ export const WG_BUNDLE = {
                       "amount": -4.5,
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 94,
+                        "line": 205,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 92,
+                    "line": 203,
                     "column": 1
                   }
                 },
@@ -2432,14 +3151,14 @@ export const WG_BUNDLE = {
                       "amount": -4,
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 99,
+                        "line": 210,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 97,
+                    "line": 208,
                     "column": 1
                   }
                 },
@@ -2470,14 +3189,14 @@ export const WG_BUNDLE = {
                       "amount": -3.5,
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 104,
+                        "line": 215,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 102,
+                    "line": 213,
                     "column": 1
                   }
                 },
@@ -2508,14 +3227,14 @@ export const WG_BUNDLE = {
                       "amount": -3,
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 109,
+                        "line": 220,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 107,
+                    "line": 218,
                     "column": 1
                   }
                 },
@@ -2546,14 +3265,14 @@ export const WG_BUNDLE = {
                       "amount": -2.5,
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 114,
+                        "line": 225,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 112,
+                    "line": 223,
                     "column": 1
                   }
                 },
@@ -2584,14 +3303,14 @@ export const WG_BUNDLE = {
                       "amount": -2,
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 119,
+                        "line": 230,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 117,
+                    "line": 228,
                     "column": 1
                   }
                 },
@@ -2622,21 +3341,21 @@ export const WG_BUNDLE = {
                       "amount": -1.5,
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 124,
+                        "line": 235,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 122,
+                    "line": 233,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/player-home.wg",
-                "line": 82,
+                "line": 188,
                 "column": 1
               }
             }
@@ -2651,13 +3370,13 @@ export const WG_BUNDLE = {
             "target": "@exit",
             "source": {
               "file": "story/places/player-home.wg",
-              "line": 129,
+              "line": 240,
               "column": 1
             }
           },
           "source": {
             "file": "story/places/player-home.wg",
-            "line": 81,
+            "line": 187,
             "column": 1
           }
         },
@@ -2674,7 +3393,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/player-home.wg",
-                "line": 135,
+                "line": 246,
                 "column": 1
               }
             },
@@ -2708,14 +3427,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 137,
+                        "line": 248,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 136,
+                    "line": 247,
                     "column": 1
                   }
                 },
@@ -2746,14 +3465,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 139,
+                        "line": 250,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 138,
+                    "line": 249,
                     "column": 1
                   }
                 }
@@ -2769,14 +3488,14 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 141,
+                    "line": 252,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/player-home.wg",
-                "line": 136,
+                "line": 247,
                 "column": 1
               },
               "runtimeId": 0
@@ -2792,13 +3511,13 @@ export const WG_BUNDLE = {
             "target": "@exit",
             "source": {
               "file": "story/places/player-home.wg",
-              "line": 144,
+              "line": 255,
               "column": 1
             }
           },
           "source": {
             "file": "story/places/player-home.wg",
-            "line": 133,
+            "line": 244,
             "column": 1
           }
         }
@@ -2819,7 +3538,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/places/player-home.wg",
-        "line": 80,
+        "line": 186,
         "column": 1
       }
     },
@@ -7307,18 +8026,242 @@ export const WG_BUNDLE = {
           "id": "p1",
           "body": [
             {
-              "type": "paragraph",
-              "parts": [
+              "type": "if",
+              "branches": [
                 {
-                  "type": "text",
-                  "value": "You are back in the privacy of your four walls."
+                  "test": {
+                    "type": "binary",
+                    "operator": "or",
+                    "left": {
+                      "type": "unary",
+                      "operator": "not",
+                      "value": {
+                        "type": "path",
+                        "value": [
+                          "story",
+                          "home",
+                          "unpack"
+                        ]
+                      }
+                    },
+                    "right": {
+                      "type": "binary",
+                      "operator": "<",
+                      "left": {
+                        "type": "path",
+                        "value": [
+                          "story",
+                          "home",
+                          "unpack"
+                        ]
+                      },
+                      "right": {
+                        "type": "literal",
+                        "value": 2
+                      }
+                    }
+                  },
+                  "nodes": [
+                    {
+                      "type": "paragraph",
+                      "parts": [
+                        {
+                          "type": "text",
+                          "value": "You are back in the privacy of your four walls. Cardboard boxes crowd the little open floor space, and most of the flat still feels borrowed rather than lived in."
+                        }
+                      ],
+                      "source": {
+                        "file": "story/places/player-home.wg",
+                        "line": 51,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "source": {
+                    "file": "story/places/player-home.wg",
+                    "line": 50,
+                    "column": 1
+                  }
+                },
+                {
+                  "test": {
+                    "type": "binary",
+                    "operator": "<",
+                    "left": {
+                      "type": "path",
+                      "value": [
+                        "story",
+                        "home",
+                        "unpack"
+                      ]
+                    },
+                    "right": {
+                      "type": "literal",
+                      "value": 5
+                    }
+                  },
+                  "nodes": [
+                    {
+                      "type": "paragraph",
+                      "parts": [
+                        {
+                          "type": "text",
+                          "value": "You are back in the privacy of your four walls. The bathroom is usable now, though unopened boxes still line the walls."
+                        }
+                      ],
+                      "source": {
+                        "file": "story/places/player-home.wg",
+                        "line": 53,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "source": {
+                    "file": "story/places/player-home.wg",
+                    "line": 52,
+                    "column": 1
+                  }
+                },
+                {
+                  "test": {
+                    "type": "binary",
+                    "operator": "<",
+                    "left": {
+                      "type": "path",
+                      "value": [
+                        "story",
+                        "home",
+                        "unpack"
+                      ]
+                    },
+                    "right": {
+                      "type": "literal",
+                      "value": 10
+                    }
+                  },
+                  "nodes": [
+                    {
+                      "type": "paragraph",
+                      "parts": [
+                        {
+                          "type": "text",
+                          "value": "You are back in the privacy of your four walls. Your clothes are put away and the table is clear, giving the flat the beginnings of a routine."
+                        }
+                      ],
+                      "source": {
+                        "file": "story/places/player-home.wg",
+                        "line": 55,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "source": {
+                    "file": "story/places/player-home.wg",
+                    "line": 54,
+                    "column": 1
+                  }
+                },
+                {
+                  "test": {
+                    "type": "binary",
+                    "operator": "<",
+                    "left": {
+                      "type": "path",
+                      "value": [
+                        "story",
+                        "home",
+                        "unpack"
+                      ]
+                    },
+                    "right": {
+                      "type": "literal",
+                      "value": 15
+                    }
+                  },
+                  "nodes": [
+                    {
+                      "type": "paragraph",
+                      "parts": [
+                        {
+                          "type": "text",
+                          "value": "You are back in the privacy of your four walls. With the bed properly assembled, the bedroom finally looks like somewhere you can recover at the end of the day."
+                        }
+                      ],
+                      "source": {
+                        "file": "story/places/player-home.wg",
+                        "line": 57,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "source": {
+                    "file": "story/places/player-home.wg",
+                    "line": 56,
+                    "column": 1
+                  }
+                },
+                {
+                  "test": {
+                    "type": "binary",
+                    "operator": "<",
+                    "left": {
+                      "type": "path",
+                      "value": [
+                        "story",
+                        "home",
+                        "unpack"
+                      ]
+                    },
+                    "right": {
+                      "type": "literal",
+                      "value": 20
+                    }
+                  },
+                  "nodes": [
+                    {
+                      "type": "paragraph",
+                      "parts": [
+                        {
+                          "type": "text",
+                          "value": "You are back in the privacy of your four walls. Most of the flat is ready for company; only a stubborn cluster of boxes remains."
+                        }
+                      ],
+                      "source": {
+                        "file": "story/places/player-home.wg",
+                        "line": 59,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "source": {
+                    "file": "story/places/player-home.wg",
+                    "line": 58,
+                    "column": 1
+                  }
+                }
+              ],
+              "elseNodes": [
+                {
+                  "type": "paragraph",
+                  "parts": [
+                    {
+                      "type": "text",
+                      "value": "You are back in the privacy of your four walls. Everything has found a place, apart from the strange receptacle uncovered beside the wall."
+                    }
+                  ],
+                  "source": {
+                    "file": "story/places/player-home.wg",
+                    "line": 61,
+                    "column": 1
+                  }
                 }
               ],
               "source": {
                 "file": "story/places/player-home.wg",
                 "line": 50,
                 "column": 1
-              }
+              },
+              "runtimeId": 0
             },
             {
               "type": "choice-group",
@@ -7351,7 +8294,7 @@ export const WG_BUNDLE = {
                       "label": "++Energy",
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 55,
+                        "line": 67,
                         "column": 1
                       }
                     }
@@ -7359,14 +8302,14 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 54,
+                    "line": 66,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/player-home.wg",
-                "line": 52,
+                "line": 64,
                 "column": 1
               }
             },
@@ -7378,6 +8321,154 @@ export const WG_BUNDLE = {
                 {
                   "type": "choice",
                   "id": "choice-2",
+                  "label": [
+                    {
+                      "type": "text",
+                      "value": "Unpack"
+                    }
+                  ],
+                  "target": "home.unpack",
+                  "icon": null,
+                  "durationMinutes": 30,
+                  "durationRangeMinutes": null,
+                  "timeUntilPath": null,
+                  "energyFree": false,
+                  "resting": false,
+                  "when": {
+                    "type": "binary",
+                    "operator": "or",
+                    "left": {
+                      "type": "unary",
+                      "operator": "not",
+                      "value": {
+                        "type": "path",
+                        "value": [
+                          "story",
+                          "home",
+                          "unpack"
+                        ]
+                      }
+                    },
+                    "right": {
+                      "type": "binary",
+                      "operator": "<",
+                      "left": {
+                        "type": "path",
+                        "value": [
+                          "story",
+                          "home",
+                          "unpack"
+                        ]
+                      },
+                      "right": {
+                        "type": "literal",
+                        "value": 19
+                      }
+                    }
+                  },
+                  "requirements": [],
+                  "warning": null,
+                  "hints": [],
+                  "effects": [
+                    {
+                      "op": "add",
+                      "path": [
+                        "story",
+                        "home",
+                        "unpack"
+                      ],
+                      "value": {
+                        "type": "literal",
+                        "value": 1
+                      },
+                      "source": {
+                        "file": "story/places/player-home.wg",
+                        "line": 77,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "source": {
+                    "file": "story/places/player-home.wg",
+                    "line": 74,
+                    "column": 1
+                  }
+                },
+                {
+                  "type": "choice",
+                  "id": "choice-3",
+                  "label": [
+                    {
+                      "type": "text",
+                      "value": "Unpack the last boxes"
+                    }
+                  ],
+                  "target": "home.unpack",
+                  "icon": null,
+                  "durationMinutes": 30,
+                  "durationRangeMinutes": null,
+                  "timeUntilPath": null,
+                  "energyFree": false,
+                  "resting": false,
+                  "when": {
+                    "type": "binary",
+                    "operator": "==",
+                    "left": {
+                      "type": "path",
+                      "value": [
+                        "story",
+                        "home",
+                        "unpack"
+                      ]
+                    },
+                    "right": {
+                      "type": "literal",
+                      "value": 19
+                    }
+                  },
+                  "requirements": [],
+                  "warning": null,
+                  "hints": [],
+                  "effects": [
+                    {
+                      "op": "add",
+                      "path": [
+                        "story",
+                        "home",
+                        "unpack"
+                      ],
+                      "value": {
+                        "type": "literal",
+                        "value": 1
+                      },
+                      "source": {
+                        "file": "story/places/player-home.wg",
+                        "line": 83,
+                        "column": 1
+                      }
+                    },
+                    {
+                      "op": "set",
+                      "path": [
+                        "flags",
+                        "quest_receptacle_start"
+                      ],
+                      "source": {
+                        "file": "story/places/player-home.wg",
+                        "line": 84,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "source": {
+                    "file": "story/places/player-home.wg",
+                    "line": 80,
+                    "column": 1
+                  }
+                },
+                {
+                  "type": "choice",
+                  "id": "choice-4",
                   "label": [
                     {
                       "type": "text",
@@ -7412,7 +8503,7 @@ export const WG_BUNDLE = {
                       "amount": 0.1,
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 64,
+                        "line": 90,
                         "column": 1
                       },
                       "feedback": {
@@ -7428,21 +8519,180 @@ export const WG_BUNDLE = {
                       "value": true,
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 65,
+                        "line": 91,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 61,
+                    "line": 87,
+                    "column": 1
+                  }
+                },
+                {
+                  "type": "choice",
+                  "id": "choice-5",
+                  "label": [
+                    {
+                      "type": "text",
+                      "value": "Choose an outfit"
+                    }
+                  ],
+                  "target": "home.clothes",
+                  "icon": null,
+                  "durationMinutes": 0,
+                  "durationRangeMinutes": null,
+                  "timeUntilPath": null,
+                  "energyFree": false,
+                  "resting": false,
+                  "when": {
+                    "type": "binary",
+                    "operator": ">=",
+                    "left": {
+                      "type": "path",
+                      "value": [
+                        "story",
+                        "home",
+                        "unpack"
+                      ]
+                    },
+                    "right": {
+                      "type": "literal",
+                      "value": 5
+                    }
+                  },
+                  "requirements": [],
+                  "warning": null,
+                  "hints": [],
+                  "effects": [],
+                  "source": {
+                    "file": "story/places/player-home.wg",
+                    "line": 94,
+                    "column": 1
+                  }
+                },
+                {
+                  "type": "choice",
+                  "id": "choice-6",
+                  "label": [
+                    {
+                      "type": "text",
+                      "value": "Sit down with your diary"
+                    }
+                  ],
+                  "target": "home.diary",
+                  "icon": null,
+                  "durationMinutes": 0,
+                  "durationRangeMinutes": null,
+                  "timeUntilPath": null,
+                  "energyFree": false,
+                  "resting": false,
+                  "when": {
+                    "type": "binary",
+                    "operator": ">=",
+                    "left": {
+                      "type": "path",
+                      "value": [
+                        "story",
+                        "home",
+                        "unpack"
+                      ]
+                    },
+                    "right": {
+                      "type": "literal",
+                      "value": 5
+                    }
+                  },
+                  "requirements": [],
+                  "warning": null,
+                  "hints": [],
+                  "effects": [],
+                  "source": {
+                    "file": "story/places/player-home.wg",
+                    "line": 98,
+                    "column": 1
+                  }
+                },
+                {
+                  "type": "choice",
+                  "id": "choice-7",
+                  "label": [
+                    {
+                      "type": "text",
+                      "value": "Invite someone over"
+                    }
+                  ],
+                  "target": "home.invite",
+                  "icon": null,
+                  "durationMinutes": 0,
+                  "durationRangeMinutes": null,
+                  "timeUntilPath": null,
+                  "energyFree": false,
+                  "resting": false,
+                  "when": {
+                    "type": "binary",
+                    "operator": ">=",
+                    "left": {
+                      "type": "path",
+                      "value": [
+                        "story",
+                        "home",
+                        "unpack"
+                      ]
+                    },
+                    "right": {
+                      "type": "literal",
+                      "value": 15
+                    }
+                  },
+                  "requirements": [],
+                  "warning": null,
+                  "hints": [],
+                  "effects": [],
+                  "source": {
+                    "file": "story/places/player-home.wg",
+                    "line": 102,
+                    "column": 1
+                  }
+                },
+                {
+                  "type": "choice",
+                  "id": "choice-8",
+                  "label": [
+                    {
+                      "type": "text",
+                      "value": "Examine the strange receptacle"
+                    }
+                  ],
+                  "target": "home.receptacle",
+                  "icon": null,
+                  "durationMinutes": 0,
+                  "durationRangeMinutes": null,
+                  "timeUntilPath": null,
+                  "energyFree": false,
+                  "resting": false,
+                  "when": {
+                    "type": "path",
+                    "value": [
+                      "flags",
+                      "quest_receptacle_start"
+                    ]
+                  },
+                  "requirements": [],
+                  "warning": null,
+                  "hints": [],
+                  "effects": [],
+                  "source": {
+                    "file": "story/places/player-home.wg",
+                    "line": 106,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/player-home.wg",
-                "line": 60,
+                "line": 72,
                 "column": 1
               }
             },
@@ -7453,7 +8703,7 @@ export const WG_BUNDLE = {
               "nodes": [
                 {
                   "type": "choice",
-                  "id": "choice-3",
+                  "id": "choice-9",
                   "label": [
                     {
                       "type": "text",
@@ -7467,7 +8717,22 @@ export const WG_BUNDLE = {
                   "timeUntilPath": null,
                   "energyFree": false,
                   "resting": false,
-                  "when": null,
+                  "when": {
+                    "type": "binary",
+                    "operator": ">=",
+                    "left": {
+                      "type": "path",
+                      "value": [
+                        "story",
+                        "home",
+                        "unpack"
+                      ]
+                    },
+                    "right": {
+                      "type": "literal",
+                      "value": 2
+                    }
+                  },
                   "requirements": [],
                   "warning": null,
                   "hints": [],
@@ -7478,7 +8743,7 @@ export const WG_BUNDLE = {
                       "amount": 50,
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 73,
+                        "line": 117,
                         "column": 1
                       },
                       "feedback": {
@@ -7494,7 +8759,7 @@ export const WG_BUNDLE = {
                       "amount": -5,
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 74,
+                        "line": 118,
                         "column": 1
                       },
                       "feedback": {
@@ -7507,14 +8772,73 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 71,
+                    "line": 114,
+                    "column": 1
+                  }
+                },
+                {
+                  "type": "choice",
+                  "id": "choice-10",
+                  "label": [
+                    {
+                      "type": "text",
+                      "value": "Brush your teeth"
+                    }
+                  ],
+                  "target": "@exit",
+                  "icon": null,
+                  "durationMinutes": 5,
+                  "durationRangeMinutes": null,
+                  "timeUntilPath": null,
+                  "energyFree": false,
+                  "resting": false,
+                  "when": {
+                    "type": "binary",
+                    "operator": ">=",
+                    "left": {
+                      "type": "path",
+                      "value": [
+                        "story",
+                        "home",
+                        "unpack"
+                      ]
+                    },
+                    "right": {
+                      "type": "literal",
+                      "value": 2
+                    }
+                  },
+                  "requirements": [],
+                  "warning": null,
+                  "hints": [],
+                  "effects": [
+                    {
+                      "op": "stat",
+                      "id": "hygiene",
+                      "amount": 5,
+                      "source": {
+                        "file": "story/places/player-home.wg",
+                        "line": 124,
+                        "column": 1
+                      },
+                      "feedback": {
+                        "type": "stat",
+                        "amount": 5,
+                        "label": "+Hygiene",
+                        "direction": "increase"
+                      }
+                    }
+                  ],
+                  "source": {
+                    "file": "story/places/player-home.wg",
+                    "line": 121,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/player-home.wg",
-                "line": 69,
+                "line": 112,
                 "column": 1
               }
             }
