@@ -15,6 +15,11 @@ import {
   LOCATION_HUB_VISUAL_WIDTH,
 } from "../src/game/scene/locationHubVisual.js";
 import { LOCATION_REGISTRY } from "../src/world/data/location.js";
+import { Season } from "../src/world/data/season.js";
+import {
+  getDaylightAt,
+  getDaylightWindow,
+} from "../src/world/model/daylight.js";
 
 function assetUrl(path) {
   return new URL(`../${path}`, import.meta.url);
@@ -49,20 +54,55 @@ test("every district and celestial frame has a canonical 256x64 asset", () => {
   }
 });
 
-test("celestial frames travel left-to-right across fixed day and night periods", () => {
+test("each season has its configured daylight window", () => {
+  const examples = [
+    ["2026-01-15T12:00:00.000Z", Season.WINTER, 8, 16],
+    ["2026-04-15T12:00:00.000Z", Season.SPRING, 6, 19],
+    ["2026-07-15T12:00:00.000Z", Season.SUMMER, 5, 21],
+    ["2026-10-15T12:00:00.000Z", Season.AUTUMN, 7, 18],
+  ];
+
+  for (const [timestamp, season, sunriseHour, sunsetHour] of examples) {
+    const result = getDaylightWindow(new Date(timestamp));
+    assert.equal(result.season, season, timestamp);
+    assert.equal(result.sunrise.getUTCHours(), sunriseHour, timestamp);
+    assert.equal(result.sunset.getUTCHours(), sunsetHour, timestamp);
+  }
+});
+
+test("seasonal daylight resolves transitions and nights across calendar boundaries", () => {
+  assert.equal(getDaylightAt("2026-01-15T07:59:59.999Z").period, "night");
+  assert.equal(getDaylightAt("2026-01-15T08:00:00.000Z").period, "day");
+  assert.equal(getDaylightAt("2026-01-15T15:59:59.999Z").period, "day");
+  assert.equal(getDaylightAt("2026-01-15T16:00:00.000Z").period, "night");
+
+  assert.equal(getDaylightAt("2026-01-15T17:00:00.000Z").period, "night");
+  assert.equal(getDaylightAt("2026-07-15T17:00:00.000Z").period, "day");
+
+  const boundaryNight = getDaylightAt("2026-03-01T00:00:00.000Z");
+  assert.equal(boundaryNight.season, Season.SPRING);
+  assert.equal(boundaryNight.period, "night");
+  assert.equal(boundaryNight.startsAt.toISOString(), "2026-02-28T16:00:00.000Z");
+  assert.equal(boundaryNight.endsAt.toISOString(), "2026-03-01T06:00:00.000Z");
+  assert.equal(boundaryNight.progress, 8 / 14);
+
+  assert.throws(() => getDaylightAt("not-a-date"), /Invalid daylight date/);
+});
+
+test("celestial frames travel left-to-right through seasonal day and night periods", () => {
   const examples = [
     ["2026-09-01T05:59:59.999Z", "moon", 1],
-    ["2026-09-01T06:00:00.000Z", "sun", 5],
-    ["2026-09-01T09:00:00.000Z", "sun", 4],
-    ["2026-09-01T12:00:00.000Z", "sun", 3],
-    ["2026-09-01T15:00:00.000Z", "sun", 2],
+    ["2026-09-01T07:00:00.000Z", "sun", 5],
+    ["2026-09-01T09:45:00.000Z", "sun", 4],
+    ["2026-09-01T12:30:00.000Z", "sun", 3],
+    ["2026-09-01T15:15:00.000Z", "sun", 2],
     ["2026-09-01T17:59:59.999Z", "sun", 1],
     ["2026-09-01T18:00:00.000Z", "moon", 5],
     ["2026-09-02T00:00:00.000Z", "moon", 3],
   ];
 
   for (const [timestamp, kind, frame] of examples) {
-    const result = getCelestialVisualFrame(new Date(timestamp));
+    const result = getCelestialVisualFrame(getDaylightAt(timestamp));
     assert.equal(result.kind, kind, timestamp);
     assert.equal(result.frame, frame, timestamp);
     assert.equal(

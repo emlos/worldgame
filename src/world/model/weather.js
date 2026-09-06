@@ -5,7 +5,8 @@ import {
   rollSeed,
 } from "../../shared/util/random.js";
 import { clamp01 } from "../../shared/util/util.js";
-import { WeatherType, Season } from "../data/weather.js";
+import { Season, seasonForDate } from "../data/season.js";
+import { WeatherType } from "../data/weather.js";
 
 const HOUR_MS = 60 * 60 * 1000;
 const WEATHER_SAVE_VERSION = 2;
@@ -128,7 +129,7 @@ export class Weather {
     const d = asValidDate(date, "temperature date");
     const kind =
       weatherKind == null ? this.stateAt(d).kind : String(weatherKind);
-    const season = Weather.monthToSeason(d.getUTCMonth() + 1);
+    const season = seasonForDate(d);
     const [tMin, tMax] = Weather._seasonalTempBand(season);
 
     // Asymmetric daily cycle: exact minimum at 04:00, maximum at 15:00.
@@ -200,18 +201,10 @@ export class Weather {
     return weather;
   }
 
-  /** Expose a static helper so World can compute season without duplicating logic. */
-  static monthToSeason(month) {
-    if (month === 12 || month <= 2) return Season.WINTER;
-    if (month <= 5) return Season.SPRING;
-    if (month <= 8) return Season.SUMMER;
-    return Season.AUTUMN;
-  }
-
   // --- Internals -------------------------------------------------------------
 
   _initialWeatherAt(date) {
-    const season = Weather.monthToSeason(date.getUTCMonth() + 1);
+    const season = seasonForDate(date);
     const epochHour = Math.floor(date.getTime() / HOUR_MS);
     const roll = keyedRandom01(
       this._seed,
@@ -270,7 +263,7 @@ export class Weather {
 
   _transitionAt(snapshot, boundaryDate) {
     const epochHour = Math.floor(boundaryDate.getTime() / HOUR_MS);
-    const season = Weather.monthToSeason(boundaryDate.getUTCMonth() + 1);
+    const season = seasonForDate(boundaryDate);
     const roll = keyedRandom01(
       this._seed,
       `weather:v${WEATHER_ALGORITHM_VERSION}:transition:${epochHour}`,

@@ -2,8 +2,10 @@ import { Moon } from "./model/moon.js";
 import { WorldTime } from "./model/time.js";
 import { Calendar } from "./model/calendar.js";
 import { Weather } from "./model/weather.js";
+import { getDaylightAt } from "./model/daylight.js";
 import { WorldMap } from "./model/worldmap.js";
 import { RandomStreams, rollSeed } from "../shared/util/random.js";
+import { seasonForDate } from "./data/season.js";
 // --------------------------
 // World
 // --------------------------
@@ -111,9 +113,13 @@ export class World {
     const weatherState = this.weather.stateAt(d);
     const weather = weatherState.kind;
     const temperature = this.weather.computeTemperature(d, weather);
-    const season = Weather.monthToSeason(d.getUTCMonth() + 1);
+    const season = seasonForDate(d);
 
     return { weather, temperature, season };
+  }
+
+  getDaylightAt(date = this.time.date) {
+    return getDaylightAt(date);
   }
 
   // --- Queries ---
@@ -187,7 +193,7 @@ export class World {
   }
 
   get season() {
-    return Weather.monthToSeason(this.time.date.getUTCMonth() + 1);
+    return seasonForDate(this.time.date);
   }
 
   get temperature() {

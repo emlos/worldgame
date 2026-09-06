@@ -3,46 +3,24 @@ import { createLayeredImageVisual } from "./layeredImage.js";
 
 export const LOCATION_HUB_VISUAL_WIDTH = 256;
 export const LOCATION_HUB_VISUAL_HEIGHT = 64;
-export const DAY_START_MINUTES = 6 * 60;
-export const NIGHT_START_MINUTES = 18 * 60;
 
-const PERIOD_MINUTES = 12 * 60;
 const SKY_POSITION_COUNT = 5;
 const DISTRICT_KEYS = new Set(LOCATION_REGISTRY.map(({ key }) => key));
 
-function validDate(value) {
-  const date = value instanceof Date ? new Date(value.getTime()) : new Date(value);
-  if (!Number.isFinite(date.getTime())) {
-    throw new TypeError(`Invalid sky visual date: ${String(value)}`);
+/** Select the closest of five left-to-right positions within a day/night period. */
+export function getCelestialVisualFrame(daylight) {
+  if (!daylight || !["day", "night"].includes(daylight.period)) {
+    throw new TypeError("A celestial visual requires a valid daylight period");
   }
-  return date;
-}
-
-function minutesSinceMidnight(date) {
-  return (
-    date.getUTCHours() * 60 +
-    date.getUTCMinutes() +
-    date.getUTCSeconds() / 60 +
-    date.getUTCMilliseconds() / 60_000
-  );
-}
-
-/** Select the closest of five left-to-right positions during a 12-hour period. */
-export function getCelestialVisualFrame(value) {
-  const date = validDate(value);
-  const minutes = minutesSinceMidnight(date);
-  const daytime = minutes >= DAY_START_MINUTES && minutes < NIGHT_START_MINUTES;
-  const elapsed = daytime
-    ? minutes - DAY_START_MINUTES
-    : minutes >= NIGHT_START_MINUTES
-      ? minutes - NIGHT_START_MINUTES
-      : minutes + 24 * 60 - NIGHT_START_MINUTES;
+  if (!Number.isFinite(daylight.progress) || daylight.progress < 0 || daylight.progress > 1) {
+    throw new RangeError("Daylight progress must be between 0 and 1");
+  }
   const position = Math.min(
     SKY_POSITION_COUNT - 1,
-    Math.round((elapsed / PERIOD_MINUTES) * (SKY_POSITION_COUNT - 1)),
+    Math.round(daylight.progress * (SKY_POSITION_COUNT - 1)),
   );
   const frame = SKY_POSITION_COUNT - position;
-  const kind = daytime ? "sun" : "moon";
+  const kind = daylight.period === "day" ? "sun" : "moon";
   const frameLabel = String(frame).padStart(2, "0");
 
   return {
@@ -63,7 +41,7 @@ export function districtBaseVisualSource(districtKey) {
 export function buildLocationHubVisual(game) {
   const location = game?.location;
   if (!location) throw new Error("A location hub visual requires a current location");
-  const celestial = getCelestialVisualFrame(game.now);
+  const celestial = getCelestialVisualFrame(game.world.getDaylightAt(game.now));
 
   return createLayeredImageVisual({
     width: LOCATION_HUB_VISUAL_WIDTH,
