@@ -28,7 +28,7 @@ test("waiting until school closes leaves a valid outdoor scene", () => {
   const schoolScene = buildScene(game);
   const waitChoice = schoolScene.sections
     .flatMap((section) => section.choices)
-    .find((choice) => choice.id === "after-school-wait");
+    .find((choice) => choice.label === "Stay until school closes");
 
   assert.ok(waitChoice, "expected the after-school waiting choice");
   assert.equal(waitChoice.durationMinutes, 60);

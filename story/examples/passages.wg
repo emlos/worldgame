@@ -14,10 +14,10 @@ The first passage is displayed without requiring a standalone scene.
 
 The second passage can offer ordinary authored choices.
 
-@choice stay "Read this passage again" -> .decision
+@choice "Read this passage again" -> .decision
 @endchoice
 
-@choice finish "Continue to the ending" -> .ending
+@choice "Continue to the ending" -> .ending
   @effect set story.examples.passageSceneFinished true
 @endchoice
 

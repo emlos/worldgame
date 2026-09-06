@@ -88,13 +88,10 @@
           }
         },
         {
-          "match": "^(\\s*)(@message)\\s+([a-z][a-z0-9_-]*)\\s*$",
+          "match": "^(\\s*)(@message)\\s*$",
           "captures": {
             "2": {
               "name": "keyword.control.block.wg"
-            },
-            "3": {
-              "name": "entity.name.type.chat.wg"
             }
           }
         },
@@ -255,21 +252,18 @@
       "patterns": [
         {
           "name": "meta.choice.header.wg",
-          "match": "^(\\s*)(@choice)\\s+([a-z][a-z0-9_.-]*)\\s+(\"(?:\\\\.|[^\"\\\\])*\")(?:\\s+(->)\\s+((?:@exit|@return|@leave-place|\\.[a-z][a-z0-9_-]*|[a-z][a-z0-9_.-]*)))?\\s*$",
+          "match": "^(\\s*)(@choice)\\s+(\"(?:\\\\.|[^\"\\\\])*\")(?:\\s+(->)\\s+((?:@exit|@return|@leave-place|\\.[a-z][a-z0-9_-]*|[a-z][a-z0-9_.-]*)))?\\s*$",
           "captures": {
             "2": {
               "name": "keyword.control.block.begin.wg"
             },
             "3": {
-              "name": "entity.name.function.choice.wg"
-            },
-            "4": {
               "name": "string.quoted.double.wg"
             },
-            "5": {
+            "4": {
               "name": "keyword.operator.arrow.wg"
             },
-            "6": {
+            "5": {
               "name": "entity.name.section.reference.wg"
             }
           }
@@ -280,15 +274,12 @@
       "patterns": [
         {
           "name": "meta.choicegroup.header.wg",
-          "match": "^(\\s*)(@choicegroup)\\s+([a-z][a-z0-9_.-]*)\\s+(\"(?:\\\\.|[^\"\\\\])*\")\\s*$",
+          "match": "^(\\s*)(@choicegroup)\\s+(\"(?:\\\\.|[^\"\\\\])*\")\\s*$",
           "captures": {
             "2": {
               "name": "keyword.control.block.begin.wg"
             },
             "3": {
-              "name": "entity.name.type.choicegroup.wg"
-            },
-            "4": {
               "name": "string.quoted.double.wg"
             }
           }

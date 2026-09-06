@@ -37,18 +37,18 @@ contact queues until the active one finishes. Contacts appear in the Chats app.
   @npc kim
 
   @passage opening
-  @choice ask "Ask about the notice" -> .checking
+  @choice "Ask about the notice" -> .checking
     @send "Hi. Could you check this rent notice?"
   @endchoice
 
   @passage checking
-  @message promise
+  @message
     I'll look into it and get back to you.
   @endmessage
   @wait 3h -> .followup
 
   @passage followup
-  @message answer
+  @message
     It's sorted. You can ignore that notice.
   @endmessage
   @effect flag kim_rent_corrected true
@@ -58,12 +58,12 @@ contact queues until the active one finishes. Contacts appear in the Chats app.
 
 - `@npc` names a registered NPC and precedes all passages. The first passage is
   the entry point. All targets stay within this chat and use `.passage-id`.
-- `@message <id> ... @endmessage` makes one incoming bubble. Message IDs are unique
-  throughout the chat. Paragraphs, interpolation, `@br`, `@if`, and `@random` are
+- `@message ... @endmessage` makes one incoming bubble. The compiler generates
+  its internal ID. Paragraphs, interpolation, `@br`, `@if`, and `@random` are
   supported inside messages. Effects belong outside message blocks.
 - Chat choices require `@send "..."`: this is the outgoing text sent immediately
-  when clicked. The choice label is the short button label. Choice IDs are unique
-  within their passage. `@when`, `@require`, and `@effect` are supported;
+  when clicked. The choice label is the short button label; its internal ID is
+  generated. `@when`, `@require`, and `@effect` are supported;
   timing, checks, and ordinary scene response directives are rejected.
 - Passages end with reply choices, `@wait`, or `@finish`. Wait/finish directives
   must be the final top-level node, without choices in that passage. Conditions
@@ -84,8 +84,9 @@ contact queues until the active one finishes. Contacts appear in the Chats app.
 - Saves store message references, frozen random/conditional choices, and captured
   interpolation values, not transcript bodies. Rendering/loading history never
   reruns effects. Editing authored wording changes the reconstructed wording;
-  renamed/removed references invalidate development saves. Game save format is
-  currently 32; the separately versioned compiled WG bundle format is 29.
+  inserting, removing, or reordering chat messages may change their generated
+  references and invalidate development saves. Game save format is
+  currently 32; the separately versioned compiled WG bundle format is 30.
 - Unread counts include incoming messages after each contact's saved read
   position. Opening the contact list does not mark messages read. Reading to the
   end of a visible thread does. The app badge totals all contacts.
@@ -118,7 +119,7 @@ the current place's “Things to do” section:
 
 Taylor looks up from the textbook.
 
-@choice leave "Leave Taylor to study" -> @exit
+@choice "Leave Taylor to study" -> @exit
 @endchoice
 ```
 
@@ -132,7 +133,7 @@ directive is recognized, so indentation is for readability. Directives occupy
 their own logical lines, except for prose `@br` markers, trailing inline
 `@change`, and delimited inline conditionals, described below.
 
-- Scene, chat, location-contribution, reminder, choice, and choice-group IDs start with a
+- Scene, chat, location-contribution, and reminder IDs start with a
   lowercase letter and may then contain lowercase letters, numbers, `_`, `-`,
   or `.`.
 - Passage IDs use the same rules but do not allow `.`. A local
@@ -184,7 +185,7 @@ Author a hub only when a place needs its own prose or choices:
 
 Rows of bookshelves divide the quiet room.
 
-@choice study "Study for a while" -> library.study
+@choice "Study for a while" -> library.study
   @time 1h
 @endchoice
 ```
@@ -308,7 +309,7 @@ conditions, and priorities:
 
 You wake in the school nurse's office.
 
-@choice recover "Rest" -> @exit
+@choice "Rest" -> @exit
   @time 1h rest
 @endchoice
 ```
@@ -384,8 +385,8 @@ files in a separate namespace and are not valid scene targets.
 
 You live at this juncture.
 
-@choicegroup notices ""
-  @choice read "Check the notice on the door" -> @exit
+@choicegroup ""
+  @choice "Check the notice on the door" -> @exit
     @when not flags.home_notice_read
     @time 1m
     @effect flag home_notice_read true
@@ -423,10 +424,11 @@ Matching contributions are ordered by ID. Their prose is appended after the
 ordinary outdoor introduction; their sections precede **Places of interest**.
 All prose still renders before all choice sections, as in scenes. Within each
 contribution, sections follow the source order of their first visible choice.
-Ungrouped choices have no heading; use `@choicegroup <id> "Heading"` for a
+Ungrouped choices have no heading; use `@choicegroup "Heading"` for a
 title or `""` for a separate heading-free group. Empty visible groups disappear,
 but independent prose remains. Runtime choice and section IDs are prefixed
-with `location:<contribution-id>:` so separate contributions can reuse local IDs.
+with `location:<contribution-id>:`. Authored choices and groups receive generated
+IDs in source order.
 
 The body supports prose, interpolation, `@br`, conditionals, deterministic
 `@random` variants, choice groups, and ordinary or checked choices. Rendering
@@ -484,24 +486,24 @@ place-kind scene; ordinary places need no WG scene at all.
 Use a choice group when one screen needs multiple choice headings:
 
 ```wg
-@choicegroup rooms "Rooms"
-@choice cafeteria "Go to the cafeteria" -> school.cafeteria
+@choicegroup "Rooms"
+@choice "Go to the cafeteria" -> school.cafeteria
 @endchoice
-@choice gym "Go to the school gym" -> school.gym
+@choice "Go to the school gym" -> school.gym
 @endchoice
 @endchoicegroup
 
-@choicegroup current "Current Activities"
+@choicegroup "Current Activities"
 @if school.phase == "class"
 Class is currently in progress.
-@choice attend "Attend class" -> school.class.english
+@choice "Attend class" -> school.class.english
 @endchoice
 @endif
 @endchoicegroup
 ```
 
-A group begins with `@choicegroup <id> "<heading>"` and ends with
-`@endchoicegroup`. Group IDs must be unique within their scene passage. Groups
+A group begins with `@choicegroup "<heading>"` and ends with
+`@endchoicegroup`. Its internal ID is generated within the passage. Groups
 cannot be nested, and each group must contain at least one
 authored choice somewhere in its direct, conditional, or random content.
 
@@ -516,8 +518,8 @@ To keep a separate group without displaying a heading, use an empty quoted
 heading. This works in every scene passage:
 
 ```wg
-@choicegroup navigation ""
-@choice back "Go back" -> @exit
+@choicegroup ""
+@choice "Go back" -> @exit
 @endchoice
 @endchoicegroup
 ```
@@ -541,7 +543,7 @@ when prose should be paced behind one or more zero-time Next buttons without
 creating a separate global scene and choice for every screen:
 
 ```wg
-@choice inspect "Inspect the room" -> example.inspection
+@choice "Inspect the room" -> example.inspection
   @icon 👀
   @time 5m
 @endchoice
@@ -637,11 +639,11 @@ targeting it:
 
 Taylor remains focused on the textbook.
 
-@choice study "Return to studying" -> .studying
+@choice "Return to studying" -> .studying
   @time 1h
 @endchoice
 
-@choice leave "Give up" -> @exit
+@choice "Give up" -> @exit
 @endchoice
 
 @passage studying
@@ -657,7 +659,7 @@ scene. `@next` cannot perform `@leave-place`; use an ordinary
 choice for an authoritative place exit.
 
 Ordinary choices inside passages keep their normal effects, duration, skill
-checks, and requirements. Choice IDs must be unique within their passage.
+checks, and requirements. Their internal IDs are generated within the passage.
 Local `.passage` targets are valid in every scene.
 
 ### Runtime story behaviors
@@ -752,7 +754,7 @@ outcome-colour markers as prose. Interpolation resolves before the markers are
 rendered, so both features may be combined:
 
 ```wg
-@choice pay "[warning]Pay £{{player.money}}[/warning]" -> .paid
+@choice "[warning]Pay £{{player.money}}[/warning]" -> .paid
 @endchoice
 
 @next "[good]Continue with {{npc.taylor.object}}[/good]" -> .continue
@@ -1066,7 +1068,7 @@ outcome in a targeted event scene passage instead.
 ## Choices
 
 ```wg
-@choice mess "Mess with Taylor" -> taylor.study.mess
+@choice "Mess with Taylor" -> taylor.study.mess
   @icon 😈
   @time 5m
   @when npc.taylor.present
@@ -1080,9 +1082,9 @@ outcome in a targeted event scene passage instead.
 ```
 
 A direct choice header has the form
-`@choice <id> "<label>" -> <target>` and ends with `@endchoice`. Choice IDs
-must be unique throughout their current scene passage, including
-mutually exclusive conditional branches. A choice block may contain only
+`@choice "<label>" -> <target>` and ends with `@endchoice`. The compiler assigns
+an internal passage-local ID in authored traversal order, including choices in
+conditional and random branches. A choice block may contain only
 choice directives; put prose and conditionals outside it.
 
 The target may be:
@@ -1167,7 +1169,7 @@ any part of the action fails, its state changes and log entry are rolled back.
 A scheduled classroom wait therefore looks like:
 
 ```wg
-@choice wait-for-class "Wait for class" -> school.class.english
+@choice "Wait for class" -> school.class.english
   @time-until school.nextClassStartsAt
   @when school.phase != "class" and school.nextClass == "english"
 @endchoice
@@ -1179,7 +1181,7 @@ the clock or update NPC simulation state.
 For example, an eight-hour rest uses:
 
 ```wg
-@choice rest "Rest" -> @exit
+@choice "Rest" -> @exit
   @time 8h rest
 @endchoice
 ```
@@ -1190,7 +1192,7 @@ Skills follow the same hint, change, and effect rules as other changeable
 values. Use `@change` when the player should see the change:
 
 ```wg
-@choice lift-weights "Lift weights" -> @exit
+@choice "Lift weights" -> @exit
   @time 5m
   @change skill strength 0.1
 @endchoice
@@ -1206,7 +1208,7 @@ A checked choice omits the arrow from its choice header and supplies a target,
 difficulty, and two outcome blocks:
 
 ```wg
-@choice open-jar "Open a stubborn jar"
+@choice "Open a stubborn jar"
   @check skill strength tricky
 
   @success -> home.jar-opened
@@ -1407,7 +1409,7 @@ Use `@effect unlock place <place-key>` to reveal every generated
 instance of a registered place key or an NPC home key (`home_<npc-id>`):
 
 ```wg
-@choice directions "Ask for directions to the civil office" -> @exit
+@choice "Ask for directions to the civil office" -> @exit
   @effect unlock place civil_office
 @endchoice
 ```
@@ -1495,7 +1497,7 @@ Only active authored IDs are saved; automatic school reminders are derived
 from the schedule. The built-in and authored namespaces cannot collide.
 Game save format 32 includes the reminder state and game-start date; older saves
 are intentionally unsupported. The compiled WG bundle has its own format version,
-currently 29.
+currently 30.
 
 Reminder lifecycle integration is covered by
 `node --test tests/timers.test.mjs tests/cafe_job.test.mjs`; all authored reminder
@@ -1531,8 +1533,7 @@ Within prose, `\@` also escapes inline markers such as `\@br` and `\@change`.
 ## Validation and editor support
 
 The compiler rejects malformed directives, duplicate single-value fields,
-unclosed blocks, duplicate scene, passage, location-contribution, choice, or
-choice-group IDs,
+unclosed blocks, duplicate scene, passage, or location-contribution IDs,
 invalid expressions and durations, unknown global and local targets, unknown
 skill-check target types, target IDs, and difficulties, unknown registered
 effect references, hub place keys, explicit hub leave choices, and duplicate
@@ -1542,11 +1543,11 @@ runtime timestamp value exists. It does not validate other general runtime
 paths.
 
 Compilation is whole-project rather than file-local. Scene IDs have one global
-namespace. Location-contribution IDs have their own global namespace. Their local choice
-and choice-group IDs are validated across all conditional and random branches.
-Choice and choice-group IDs are checked across all conditional and random
-branches separately within each scene passage. Passage IDs are local to one
-scene. The compiler validates all global and local
+namespace. Location-contribution IDs have their own global namespace. Choice
+and choice-group IDs are generated in authored traversal order, separately
+within each scene passage or location contribution. Chat choice IDs reset per
+passage, while generated message IDs are unique across their chat. Passage IDs
+are local to one scene. The compiler validates all global and local
 targets even if their branch is unreachable at runtime.
 
 Effect contracts are centralized in `src/story/wg/shared/effects/registry.js`.

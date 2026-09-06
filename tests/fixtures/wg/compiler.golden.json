@@ -1,5 +1,5 @@
 {
-  "formatVersion": 29,
+  "formatVersion": 30,
   "scenes": {
     "fixture.followup": {
       "id": "fixture.followup",
@@ -152,7 +152,7 @@
             },
             {
               "type": "choice",
-              "id": "proceed",
+              "id": "choice-1",
               "label": [
                 {
                   "type": "text",
@@ -224,7 +224,7 @@
             },
             {
               "type": "choice",
-              "id": "leave",
+              "id": "choice-2",
               "label": [
                 {
                   "type": "text",

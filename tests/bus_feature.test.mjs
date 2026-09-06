@@ -18,10 +18,10 @@ function placePlayerAtFirstBusStop(game) {
   throw new Error("The generated test world has no bus stop");
 }
 
-function findChoice(scene, id) {
+function findChoice(scene, label) {
   return scene.sections
     .flatMap((section) => section.choices)
-    .find((choice) => choice.id === id);
+    .find((choice) => choice.label === label);
 }
 
 function createBusGame() {
@@ -38,7 +38,7 @@ function createBusGame() {
 test("the bus feature decorates its authored hub and boarding scene", () => {
   const game = createBusGame();
   const hub = buildScene(game);
-  const wait = findChoice(hub, "wait");
+  const wait = findChoice(hub, "Wait for a bus");
 
   assert.match(hub.content.at(-1).text, /single bus ticket costs £2\.50/);
   assert.equal(wait.durationMinutes, 8);
@@ -58,7 +58,8 @@ test("the bus feature decorates its authored hub and boarding scene", () => {
 test("registered bus travel charges, advances time, relocates, and exits boarding", () => {
   const game = createBusGame();
   let scene = buildScene(game);
-  performChoice(game, { sceneId: scene.id, choiceId: "wait" });
+  const wait = findChoice(scene, "Wait for a bus");
+  performChoice(game, { sceneId: scene.id, choiceId: wait.id });
   scene = buildScene(game);
   const travel = scene.sections
     .flatMap((section) => section.choices)
@@ -82,7 +83,7 @@ test("registered bus travel charges, advances time, relocates, and exits boardin
 test("bus choices become unavailable when the fare cannot be paid", () => {
   const game = createBusGame();
   game.player.adjustMoney(-game.player.money);
-  const wait = findChoice(buildScene(game), "wait");
+  const wait = findChoice(buildScene(game), "Wait for a bus");
 
   assert.equal(wait.enabled, false);
   assert.match(wait.disabledReason, /need £2\.50/);

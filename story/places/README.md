@@ -22,7 +22,7 @@ corresponding place selector. Do not author a Leave choice.
 
 Rows of bookshelves divide the quiet room.
 
-@choice study "Study for a while" -> library.study
+@choice "Study for a while" -> library.study
   @icon 📝
   @time 1h
 @endchoice
@@ -32,7 +32,7 @@ Rows of bookshelves divide the quiet room.
 
 You settle down with your notes.
 
-@choice back "Finish studying" -> @exit
+@choice "Finish studying" -> @exit
 @endchoice
 ```
 

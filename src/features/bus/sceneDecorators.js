@@ -45,7 +45,7 @@ function decorateBusStopHub({ game, scene }) {
   const sections = scene.sections.map((section) => ({
     ...section,
     choices: section.choices.map((choice) => {
-      if (choice.id !== "wait") return choice;
+      if (choice.action?.target !== BUS_BOARDING_SCENE_ID) return choice;
       foundWaitChoice = true;
       return createChoice({
         ...choice,
@@ -59,7 +59,7 @@ function decorateBusStopHub({ game, scene }) {
       });
     }),
   }));
-  if (!foundWaitChoice) throw new Error("Authored bus-stop hub requires a 'wait' choice");
+  if (!foundWaitChoice) throw new Error("Authored bus-stop hub requires a choice targeting the boarding scene");
 
   return {
     ...scene,

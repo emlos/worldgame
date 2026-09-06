@@ -13,13 +13,13 @@ import { compileStorySources } from "../tools/wg/compiler/storyCompiler.js";
 
 const DAY_MINUTES = 24 * 60;
 
-function choose(game, id) {
+function choose(game, identity) {
   const scene = buildScene(game);
   const choice = scene.sections
     .flatMap((section) => section.choices)
-    .find((candidate) => candidate.id === id);
-  assert.ok(choice, `expected choice '${id}' in '${scene.id}'`);
-  performChoice(game, { sceneId: scene.id, choiceId: id });
+    .find((candidate) => candidate.id === identity || candidate.label === identity);
+  assert.ok(choice, `expected choice '${identity}' in '${scene.id}'`);
+  performChoice(game, { sceneId: scene.id, choiceId: choice.id });
 }
 
 function placePlayerAtKimOffice(game) {
@@ -153,7 +153,7 @@ test("WG timer effects compile and preserve their lifecycle semantics", () => {
     source: [
       ":: test-timer",
       "",
-      '@choice begin "Begin" -> @exit',
+      '@choice "Begin" -> @exit',
       "  @effect timer start rent.weekly",
       "@endchoice",
     ].join("\n"),
@@ -202,7 +202,7 @@ test("the authored rent flow starts weekly charges and accepts £200 payments", 
   game.setFlag("rent_intro_2", true);
   game.player.adjustMoney(800);
 
-  choose(game, "rent-intro");
+  choose(game, "Ask about the rent");
   assert.deepEqual(game.story.rent, {
     active: true,
     debt: 800,
@@ -210,13 +210,13 @@ test("the authored rent flow starts weekly charges and accepts £200 payments", 
   });
   assert.equal(game.reminders.has("rent_due"), true);
 
-  choose(game, "worried");
+  choose(game, '"I don\'t have £800"');
   choose(game, "__wg_next");
   assert.ok(game.timers["rent.weekly"]);
   choose(game, "__wg_next");
 
   for (let payment = 0; payment < 4; payment += 1) {
-    choose(game, "pay-rent");
+    choose(game, "Pay £200 toward rent");
     choose(game, "__wg_next");
   }
 

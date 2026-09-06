@@ -9,12 +9,12 @@ Kim is sitting at {{npc.kim.dependent}} desk. {{npc.kim.subject | cap}} looks up
   It looks like you've paid off your rent... for now.
 @endif
 
-@choicegroup rent ""
-  @choice rent-intro "Ask about the rent" -> story.rent.intro.2
+@choicegroup ""
+  @choice "Ask about the rent" -> story.rent.intro.2
     @when flags.rent_intro_2
   @endchoice
 
-  @choice pay-rent "Pay £200 toward rent" -> story.rent.payment
+  @choice "Pay £200 toward rent" -> story.rent.payment
     @when story.rent.active and story.rent.debt >= 200 and player.money >= 200
     @change money -200 "£200 rent payment"
     @effect add story.rent.debt -200
@@ -38,14 +38,14 @@ Kim is sitting at {{npc.kim.dependent}} desk. {{npc.kim.subject | cap}} looks up
   "Hello. You muste be from {{home.location.name}}, yes?" Kim turns the lease toward you. "The account starts with the two missed monthly payments: £800. I collect payments in £200 weekly instalments."
 
 
-   @choice explain "Try to explain" -> .explain
+   @choice "Try to explain" -> .explain
     @endchoice
 
-  @choice worried "\"I don't have £800\"" -> .no-money
+  @choice "\"I don't have £800\"" -> .no-money
   @endchoice
 
 
-  @choice has-money "Pay (800£)" -> .pay
+  @choice "Pay (800£)" -> .pay
     @when player.money >= 800
     @change money -800
     @effect add story.rent.debt -800
@@ -57,11 +57,11 @@ Kim is sitting at {{npc.kim.dependent}} desk. {{npc.kim.subject | cap}} looks up
 
   Kim's expression doesn't change. "I don't make mistakes," {{npc.kim.subject}} says. "I keep a thorough record of *all* my tenants. The property at {{home.location.name}} has been registered for two months, and I am not in the business of charity." @change stat stress 5
 
-  @choice worried2 "\"I don't have £800\"" -> .no-money
+  @choice "\"I don't have £800\"" -> .no-money
   @endchoice
 
 
-  @choice has-money2 "Pay (800£)" -> .pay
+  @choice "Pay (800£)" -> .pay
     @when player.money >= 800
     @change money -800
     @effect add story.rent.debt -800
@@ -92,10 +92,10 @@ Kim is sitting at {{npc.kim.dependent}} desk. {{npc.kim.subject | cap}} looks up
 
   "Now, was there something else?" Kim looks at you expectantly. {{npc.kim.dependent | cap}} teeth are very white as {{npc.kim.subject}} smiles widely.
 
-  @choice leave "Leave" -> .leave
+  @choice "Leave" -> .leave
   @endchoice
 
-  @choice flirt "Flatter {{npc.kim.object}}?" -> .flirt
+  @choice "Flatter {{npc.kim.object}}?" -> .flirt
     @hint relationship kim.affection 5 "+Affection?"
   @endchoice
 

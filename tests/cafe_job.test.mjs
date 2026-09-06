@@ -38,17 +38,17 @@ function choices(game) {
   return buildScene(game).sections.flatMap((section) => section.choices);
 }
 
-function choice(game, id) {
-  return choices(game).find((candidate) => candidate.id === id) || null;
+function choice(game, label) {
+  return choices(game).find((candidate) => candidate.label === label) || null;
 }
 
-function choose(game, id) {
+function choose(game, label) {
   const scene = buildScene(game);
   const selected = scene.sections
     .flatMap((section) => section.choices)
-    .find((candidate) => candidate.id === id);
-  assert.ok(selected, `expected choice '${id}' in '${scene.id}'`);
-  performChoice(game, { sceneId: scene.id, choiceId: id });
+    .find((candidate) => candidate.label === label);
+  assert.ok(selected, `expected choice '${label}' in '${scene.id}'`);
+  performChoice(game, { sceneId: scene.id, choiceId: selected.id });
 }
 
 function continueScene(game) {
@@ -61,40 +61,40 @@ function continueScene(game) {
 test("the cafe offers unemployed players a job they can decline", () => {
   const game = createCafeGame();
 
-  assert.ok(choice(game, "ask-for-work"));
-  assert.equal(choice(game, "work-shift"), null);
+  assert.ok(choice(game, "Ask about a job"));
+  assert.equal(choice(game, "Work for one hour"), null);
 
-  choose(game, "ask-for-work");
-  assert.ok(choice(game, "accept"));
-  assert.ok(choice(game, "decline"));
-  choose(game, "decline");
+  choose(game, "Ask about a job");
+  assert.ok(choice(game, "Accept the job"));
+  assert.ok(choice(game, "Decline the offer"));
+  choose(game, "Decline the offer");
 
   assert.equal(game.flags.has("cafe_employee"), false);
   assert.equal(game.reminders.has("cafe_job"), false);
 
   continueScene(game);
-  assert.ok(choice(game, "ask-for-work"), "declining should leave the offer open");
+  assert.ok(choice(game, "Ask about a job"), "declining should leave the offer open");
 });
 
 test("accepting the cafe job adds its reminder and enables paid one-hour shifts", () => {
   const game = createCafeGame();
 
-  choose(game, "ask-for-work");
-  choose(game, "accept");
+  choose(game, "Ask about a job");
+  choose(game, "Accept the job");
 
   assert.equal(game.flags.has("cafe_employee"), true);
   assert.equal(game.reminders.has("cafe_job"), true);
 
   continueScene(game);
-  assert.equal(choice(game, "ask-for-work"), null);
-  assert.ok(choice(game, "work-shift"));
+  assert.equal(choice(game, "Ask about a job"), null);
+  assert.ok(choice(game, "Work for one hour"));
 
   const cafeId = game.currentPlace.id;
   game.setCurrentPlace();
   game.setCurrentPlace({ placeId: cafeId });
   assert.equal(game.currentStory, null, "re-entering should exercise the normal place-hub path");
 
-  const work = choice(game, "work-shift");
+  const work = choice(game, "Work for one hour");
   assert.ok(work);
   assert.equal(work.durationMinutes, 60);
   assert.deepEqual(work.effectsPreview, [
@@ -107,7 +107,7 @@ test("accepting the cafe job adds its reminder and enables paid one-hour shifts"
   ]);
 
   const before = game.now.getTime();
-  choose(game, "work-shift");
+  choose(game, "Work for one hour");
 
   assert.equal(game.now.getTime() - before, 60 * 60_000);
   assert.equal(game.player.money, 7);
@@ -145,6 +145,6 @@ test("cafe shifts can start from 07:00 through exactly 21:00", () => {
   for (const [at, expected] of cases) {
     const game = createCafeGame(at);
     game.setFlag("cafe_employee", true);
-    assert.equal(Boolean(choice(game, "work-shift")), expected, at);
+    assert.equal(Boolean(choice(game, "Work for one hour")), expected, at);
   }
 });

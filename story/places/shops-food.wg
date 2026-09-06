@@ -5,13 +5,13 @@
 
 The quiet clatter of cups fills {{place.name}}.
 
-@choicegroup cafe-menu ""
+@choicegroup ""
   
-@choice ask-for-work "Ask about a job" -> cafe.job.application
+@choice "Ask about a job" -> cafe.job.application
   @when not flags.cafe_employee
 @endchoice
 
-@choice work-shift "Work for one hour" -> @exit
+@choice "Work for one hour" -> @exit
   @time 1h
   @event-pool cafe.job.shift
   @when flags.cafe_employee and time.minutesSinceMidnight >= 420 and time.minutesSinceMidnight <= 1260

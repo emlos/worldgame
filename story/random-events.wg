@@ -12,7 +12,7 @@
 
 A half-finished mug of tea waits on the kitchen counter. It has gone completely cold, and you cannot remember leaving it there.
 
-@choice next "Next" -> @exit
+@choice "Next" -> @exit
 @endchoice
 
 :: home.random.open-window
@@ -27,7 +27,7 @@ A half-finished mug of tea waits on the kitchen counter. It has gone completely 
 
 One of the windows is cracked open. A faint breeze stirs the curtains and carries the distant noise of the street through the room.
 
-@choice next "Next" -> @exit
+@choice "Next" -> @exit
 @endchoice
 
 :: home.random.late-breakfast
@@ -44,5 +44,5 @@ One of the windows is cracked open. A faint breeze stirs the curtains and carrie
 
 The kitchen still smells faintly of toast. A few crumbs remain on the table, catching the late-morning light.
 
-@choice next "Next" -> @exit
+@choice "Next" -> @exit
 @endchoice

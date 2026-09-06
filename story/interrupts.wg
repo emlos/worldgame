@@ -11,7 +11,7 @@
 
   You're so tired... you can't stay awake.
 
-  @choice darkness "Next" -> .wake
+  @choice "Next" -> .wake
     @time 1h..3h rest
   @endchoice
 
@@ -33,7 +33,7 @@
 
   You're so tired... you can't stay awake.
 
-  @choice darkness "Next" -> .wake
+  @choice "Next" -> .wake
     @time 1h..3h rest
   @endchoice
 
@@ -53,7 +53,7 @@
 
   You're so tired... you can't stay awake.
 
-  @choice darkness "Next" -> .wake
+  @choice "Next" -> .wake
     @time 1h..3h rest
   @endchoice
 

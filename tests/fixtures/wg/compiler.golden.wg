@@ -25,7 +25,7 @@ Hello, {{player.name}}.
   The default branch is active.
 @endif
 
-@choice proceed "Proceed" -> fixture.followup
+@choice "Proceed" -> fixture.followup
   @icon ➡️
   @time 15m
   @when player.energy >= 5
@@ -34,7 +34,7 @@ Hello, {{player.name}}.
   @effect reminder add compiler_notice
 @endchoice
 
-@choice leave "Leave" -> @exit
+@choice "Leave" -> @exit
 @endchoice
 
 :: fixture.followup -> @exit

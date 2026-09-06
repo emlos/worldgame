@@ -11,6 +11,7 @@ import {
 } from "../src/story/wg/shared/language.js";
 import { WG_EFFECT_KEYWORDS } from "../src/story/wg/shared/effects/registry.js";
 import { WG_EFFECT_PARSER_KEYWORDS } from "../tools/wg/compiler/effects/effectParsers.js";
+import { compileStorySources } from "../tools/wg/compiler/storyCompiler.js";
 import {
   buildWGLanguageConfiguration,
   buildWGTextMateGrammar,
@@ -70,9 +71,71 @@ test("generated highlighter patterns share contextual target and identifier rule
   const next = new RegExp(nextPattern);
   const bareBlock = new RegExp(bareBlockPattern);
 
-  assert.ok(choice.test('@choice valid-id "Valid" -> @leave-place'));
+  assert.ok(choice.test('@choice "Valid" -> @leave-place'));
   assert.ok(!choice.test('@choice 1invalid "Invalid" -> @exit'));
   assert.ok(next.test('@next "Continue" -> .local-passage'));
   assert.ok(!next.test('@next -> @leave-place'));
   assert.ok(bareBlock.test("@onenter"));
+});
+
+test("the compiler generates choice, choice-group, and chat message ids", () => {
+  const bundle = compileStorySources([{
+    file: "generated-ids.wg",
+    source: [
+      ":: fixture.generated-ids",
+      "@hub player_home",
+      "",
+      '@choicegroup "Actions"',
+      '@choice "First" -> @exit',
+      "@endchoice",
+      '@choice "Second" -> @exit',
+      "@endchoice",
+      "@endchoicegroup",
+      "",
+      "@chat fixture.generated-chat",
+      "@npc kim",
+      "@passage opening",
+      "@message",
+      "Hello.",
+      "@endmessage",
+      '@choice "Reply" -> .done',
+      '@send "Hello."',
+      "@endchoice",
+      "@passage done",
+      "@message",
+      "Goodbye.",
+      "@endmessage",
+      "@finish",
+      "@endchat",
+    ].join("\n"),
+  }]);
+
+  const group = bundle.scenes["fixture.generated-ids"].passages[0].body[0];
+  assert.equal(group.id, "group-1");
+  assert.deepEqual(group.nodes.map((choice) => choice.id), ["choice-1", "choice-2"]);
+
+  const chat = bundle.chats["fixture.generated-chat"];
+  assert.equal(chat.passages[0].body[0].id, "message-1");
+  assert.equal(chat.passages[0].body[1].id, "choice-1");
+  assert.equal(chat.passages[1].body[0].id, "message-2");
+});
+
+test("authored ids on choices, groups, and messages are rejected", () => {
+  const compile = (body) => compileStorySources([{
+    file: "removed-authored-id.wg",
+    source: body,
+  }]);
+
+  assert.throws(
+    () => compile(':: fixture.old-choice\n\n@choice old "Old" -> @exit\n@endchoice'),
+    /Malformed @choice header/,
+  );
+  assert.throws(
+    () => compile(':: fixture.old-group\n\n@choicegroup old "Old"\n@choice "Choice" -> @exit\n@endchoice\n@endchoicegroup'),
+    /Malformed @choicegroup header/,
+  );
+  assert.throws(
+    () => compile('@chat fixture.old-message\n@npc kim\n@passage opening\n@message old\nOld.\n@endmessage\n@finish\n@endchat'),
+    /@message takes no arguments/,
+  );
 });

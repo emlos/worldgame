@@ -7,12 +7,12 @@
 
   The pay is £7 an hour. You can come in for shifts as long as the cafe is open.
 
-  @choice accept "Accept the job" -> .accepted
+  @choice "Accept the job" -> .accepted
     @effect flag cafe_employee true
     @effect reminder add cafe_job
   @endchoice
 
-  @choice decline "Decline the offer" -> .declined
+  @choice "Decline the offer" -> .declined
   @endchoice
 
   @passage accepted
@@ -34,10 +34,10 @@
 
   A tray clips the corner of a table. Two drinks hit the floor, splashing coffee across the tiles and the bottom of your apron.
 
-  @choice clean-thoroughly "Clean it thoroughly" -> .thorough
+  @choice "Clean it thoroughly" -> .thorough
   @endchoice
 
-  @choice clean-quickly "Clean the worst of it quickly" -> .quick
+  @choice "Clean the worst of it quickly" -> .quick
   @endchoice
 
   @passage thorough
@@ -59,7 +59,7 @@
 
   You realize that you entered an order incorrectly just as the wrong drinks reach the table. The customers look from the cups to you, waiting for an explanation.
 
-  @choice own-mistake "Admit the mistake"
+  @choice "Admit the mistake"
     @check skill resolve tricky
 
     @success -> .owned
@@ -69,7 +69,7 @@
     @endfailure
   @endchoice
 
-  @choice fix-quietly "Try to replace it quietly" -> .quiet
+  @choice "Try to replace it quietly" -> .quiet
   @endchoice
 
   @passage owned
@@ -104,7 +104,7 @@
 
   A customer starts complaining loudly about their order. Their voice carries across the cafe, and the other customers are beginning to stare.
 
-  @choice calm-customer "Try to calm them down"
+  @choice "Try to calm them down"
     @check skill speech tricky
 
     @success -> .calmed
@@ -114,7 +114,7 @@
     @endfailure
   @endchoice
 
-  @choice get-manager "Get the manager" -> .manager
+  @choice "Get the manager" -> .manager
   @endchoice
 
   @passage calmed

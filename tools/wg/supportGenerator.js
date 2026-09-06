@@ -70,10 +70,9 @@ export function buildWGTextMateGrammar() {
             },
           },
           {
-            match: `^(\\s*)(@message)\\s+(${passageId})\\s*$`,
+            match: "^(\\s*)(@message)\\s*$",
             captures: {
               2: { name: "keyword.control.block.wg" },
-              3: { name: "entity.name.type.chat.wg" },
             },
           },
           {
@@ -166,24 +165,22 @@ export function buildWGTextMateGrammar() {
       "choice-header": {
         patterns: [{
           name: "meta.choice.header.wg",
-          match: `^(\\s*)(@choice)\\s+(${id})\\s+(${quotedString})(?:\\s+(->)\\s+(${storyTarget}))?\\s*$`,
+          match: `^(\\s*)(@choice)\\s+(${quotedString})(?:\\s+(->)\\s+(${storyTarget}))?\\s*$`,
           captures: {
             2: { name: "keyword.control.block.begin.wg" },
-            3: { name: "entity.name.function.choice.wg" },
-            4: { name: "string.quoted.double.wg" },
-            5: { name: "keyword.operator.arrow.wg" },
-            6: { name: "entity.name.section.reference.wg" },
+            3: { name: "string.quoted.double.wg" },
+            4: { name: "keyword.operator.arrow.wg" },
+            5: { name: "entity.name.section.reference.wg" },
           },
         }],
       },
       "choicegroup-header": {
         patterns: [{
           name: "meta.choicegroup.header.wg",
-          match: `^(\\s*)(@choicegroup)\\s+(${id})\\s+(${quotedString})\\s*$`,
+          match: `^(\\s*)(@choicegroup)\\s+(${quotedString})\\s*$`,
           captures: {
             2: { name: "keyword.control.block.begin.wg" },
-            3: { name: "entity.name.type.choicegroup.wg" },
-            4: { name: "string.quoted.double.wg" },
+            3: { name: "string.quoted.double.wg" },
           },
         }],
       },

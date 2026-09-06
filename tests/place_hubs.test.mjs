@@ -103,7 +103,7 @@ The event runs outside.
     },
   ]);
 
-  assert.equal(bundle.formatVersion, 29);
+  assert.equal(bundle.formatVersion, 30);
   assert.equal(bundle.scenes["fixture.cafe-hub"].kind, "place");
   assert.deepEqual(bundle.scenes["fixture.cafe-hub"].placeKeys, ["cafe"]);
   assert.deepEqual(
@@ -154,11 +154,11 @@ test("authored hubs cannot add their own Leave choice", () => {
 
 The cafe has custom content.
 
-@choice leave "Leave" -> @leave-place
+@choice "Leave" -> @leave-place
 @endchoice
 `,
         },
       ]),
-    /reserved by the implicit place-hub navigation/,
+    /already provide an implicit Leave choice/,
   );
 });

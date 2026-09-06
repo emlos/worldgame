@@ -22,19 +22,19 @@ Taylor catches your eye and smiles.
 Taylor remains focused on the textbook.
 @endif
 
-@choice study "Study" -> taylor.study.back
+@choice "Study" -> taylor.study.back
   @icon 📚
   @time 1h
 @endchoice
 
-@choice mess "Mess with Taylor" -> taylor.study.mess
+@choice "Mess with Taylor" -> taylor.study.mess
   @icon 😈
   @#require player.energy >= 10 "You are too tired."
   @warning "This may annoy Taylor."
   @change relationship taylor.friendship -2
 @endchoice
 
-@choice leave "Give up on studying" -> @exit
+@choice "Give up on studying" -> @exit
 @endchoice
 
 :: taylor.study.back
@@ -46,7 +46,7 @@ Taylor remains focused on the textbook.
 
 You return your attention to the textbook.
 
-@choice continue "Continue studying" -> taylor.study.peek
+@choice "Continue studying" -> taylor.study.peek
   @time 1h
 @endchoice
 
@@ -55,9 +55,9 @@ You return your attention to the textbook.
 
 You reach across the desk and interrupt Taylor's careful notes.
 
-@choice apologise "Apologise" -> taylor.study.peek
+@choice "Apologise" -> taylor.study.peek
   @effect relationship taylor.friendship 2
 @endchoice
 
-@choice leave "Roll your eyes" -> taylor.study.peek
+@choice "Roll your eyes" -> taylor.study.peek
 @endchoice

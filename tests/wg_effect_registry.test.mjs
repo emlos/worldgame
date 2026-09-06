@@ -41,7 +41,7 @@ test("the compiler registry parses every effect without changing the effect IR",
     "@chat registry.chat",
     "@npc kim",
     "@passage start",
-    "@message hello",
+    "@message",
     "Hello.",
     "@endmessage",
     "@finish",
@@ -98,15 +98,15 @@ test("skills use the ordinary hint, change, and silent-effect behavior", () => {
       ":: fixture.skill-feedback",
       "@hub player_home",
       "",
-      '@choice hint-only "Hint only" -> @exit',
+      '@choice "Hint only" -> @exit',
       '  @hint strength 0.1 "+Strength?"',
       "@endchoice",
       "",
-      '@choice visible-change "Visible change" -> @exit',
+      '@choice "Visible change" -> @exit',
       "  @change skill strength 0.1",
       "@endchoice",
       "",
-      '@choice silent-effect "Silent effect" -> @exit',
+      '@choice "Silent effect" -> @exit',
       "  @effect skill strength 0.1",
       "@endchoice",
     ].join("\n"),
@@ -114,14 +114,14 @@ test("skills use the ordinary hint, change, and silent-effect behavior", () => {
   const game = new Game({ seed: 902 });
   const scene = materializeWGScene(game, bundle.scenes["fixture.skill-feedback"]);
   const choices = Object.fromEntries(
-    scene.sections.flatMap((section) => section.choices).map((choice) => [choice.id, choice]),
+    scene.sections.flatMap((section) => section.choices).map((choice) => [choice.label, choice]),
   );
 
-  assert.deepEqual(choices["hint-only"].effectsPreview, [
+  assert.deepEqual(choices["Hint only"].effectsPreview, [
     { type: "strength", amount: 0.1, label: "+Strength?" },
   ]);
-  assert.deepEqual(choices["hint-only"].action.effects, []);
-  assert.deepEqual(choices["visible-change"].effectsPreview, [
+  assert.deepEqual(choices["Hint only"].action.effects, []);
+  assert.deepEqual(choices["Visible change"].effectsPreview, [
     {
       type: "skill",
       amount: 0.1,
@@ -129,10 +129,10 @@ test("skills use the ordinary hint, change, and silent-effect behavior", () => {
       direction: "increase",
     },
   ]);
-  assert.equal(choices["visible-change"].action.effects[0].op, "skill");
-  assert.deepEqual(choices["silent-effect"].effectsPreview, []);
-  assert.equal(choices["silent-effect"].action.effects[0].op, "skill");
-  assert.equal("skillChanges" in choices["silent-effect"], false);
+  assert.equal(choices["Visible change"].action.effects[0].op, "skill");
+  assert.deepEqual(choices["Silent effect"].effectsPreview, []);
+  assert.equal(choices["Silent effect"].action.effects[0].op, "skill");
+  assert.equal("skillChanges" in choices["Silent effect"], false);
 });
 
 test("the removed @preview directive is rejected", () => {
@@ -143,7 +143,7 @@ test("the removed @preview directive is rejected", () => {
         ":: fixture.removed-preview",
         "@hub player_home",
         "",
-        '@choice old-syntax "Old syntax" -> @exit',
+        '@choice "Old syntax" -> @exit',
         '  @preview strength 0.1 "+Strength"',
         "@endchoice",
       ].join("\n"),
@@ -209,7 +209,7 @@ test("effect references are validated uniformly after all source files are parse
       source: [
         ":: forward-reference",
         "",
-        '@choice begin "Begin" -> @exit',
+        '@choice "Begin" -> @exit',
         "  @effect reminder add future.notice",
         "  @effect chat start future.chat",
         "@endchoice",
@@ -225,7 +225,7 @@ test("effect references are validated uniformly after all source files are parse
         "@chat future.chat",
         "@npc kim",
         "@passage start",
-        "@message hello",
+        "@message",
         "Hello.",
         "@endmessage",
         "@finish",

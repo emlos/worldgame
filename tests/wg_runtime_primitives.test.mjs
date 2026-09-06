@@ -174,7 +174,7 @@ test("contact and chat WG effects use the Game facade and chat snapshots survive
   ]);
 
   let view = buildChatThreadView(game, "kim");
-  const reply = view.choices.find((choice) => choice.id === "polite");
+  const reply = view.choices.find((choice) => choice.label === "Ask about the notice");
   assert.ok(reply);
   sendChatReply(game, { ...view.replyToken, choiceId: reply.id });
 

@@ -28,7 +28,7 @@ test("compacted zero-duration checked outcomes materialize as zero", () => {
   const scene = buildScene(game);
   const choice = scene.sections
     .flatMap((section) => section.choices)
-    .find((candidate) => candidate.id === "reading-volunteer");
+    .find((candidate) => candidate.label === "Volunteer to read");
 
   assert.ok(choice, "expected the checked reading-volunteer choice");
   assert.equal(choice.durationMinutes, 0);

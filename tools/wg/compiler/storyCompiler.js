@@ -36,6 +36,36 @@ function assignRuntimeNodeIds(nodes) {
   });
 }
 
+function assignAuthoredNodeIds(
+  nodes,
+  counters = { choice: 0, choiceGroup: 0, message: 0 },
+) {
+  walkWGNodes(nodes, (node) => {
+    if (node.type === "choice") {
+      counters.choice += 1;
+      node.id = `choice-${counters.choice}`;
+    } else if (node.type === "choice-group") {
+      counters.choiceGroup += 1;
+      node.id = `group-${counters.choiceGroup}`;
+    } else if (node.type === "message") {
+      counters.message += 1;
+      node.id = `message-${counters.message}`;
+    }
+  });
+  return counters;
+}
+
+function assignChatNodeIds(chat) {
+  let message = 0;
+  for (const passage of chat.passages) {
+    ({ message } = assignAuthoredNodeIds(passage.body, {
+      choice: 0,
+      choiceGroup: 0,
+      message,
+    }));
+  }
+}
+
 function atSource(source) {
   return {
     file: source?.file || "<wg>",
@@ -80,6 +110,7 @@ export function compileStorySources(sources, { features = DEFAULT_FEATURE_CATALO
   for (const source of orderedSources) {
     const document = parseWGDocument(source, { features });
     for (const chat of document.chats) {
+      assignChatNodeIds(chat);
       if (chatMap.has(chat.id)) failWG(`Duplicate chat '${chat.id}'`, atSource(chat.source));
       if (!npcIds.has(chat.npcId)) failWG(`Unknown chat NPC '${chat.npcId}'`, atSource(chat.source));
       validateChat(chat, assignRuntimeNodeIds);
@@ -96,6 +127,7 @@ export function compileStorySources(sources, { features = DEFAULT_FEATURE_CATALO
       reminderMap.set(reminder.id, reminder);
     }
     for (const scene of document.scenes) {
+      for (const passage of scene.passages) assignAuthoredNodeIds(passage.body);
       const previous = sceneMap.get(scene.id);
       if (previous) {
         failWG(
@@ -106,6 +138,7 @@ export function compileStorySources(sources, { features = DEFAULT_FEATURE_CATALO
       sceneMap.set(scene.id, scene);
     }
     for (const contribution of document.locationContributions) {
+      assignAuthoredNodeIds(contribution.body);
       const previous = locationMap.get(contribution.id);
       if (previous) {
         failWG(
@@ -207,8 +240,6 @@ export function compileStorySources(sources, { features = DEFAULT_FEATURE_CATALO
       }
     }
     for (const passage of scene.passages) {
-      const choiceIds = new Map();
-      const choiceGroupIds = new Map();
       walkWGNodes(passage.body, (node) => {
         if (scene.kind === "place" && hasPersistentProseMutation(node)) {
           failWG(
@@ -216,32 +247,8 @@ export function compileStorySources(sources, { features = DEFAULT_FEATURE_CATALO
             atSource(node.source),
           );
         }
-        if (node.type === "choice-group") {
-          const previous = choiceGroupIds.get(node.id);
-          if (previous) {
-            failWG(
-              `Duplicate choice-group id '${node.id}' in passage '${passage.id}' of scene '${scene.id}' (first declared at ${previous.file}:${previous.line})`,
-              atSource(node.source),
-            );
-          }
-          choiceGroupIds.set(node.id, node.source);
-          return;
-        }
+        if (node.type === "choice-group") return;
         if (node.type !== "choice") return;
-        if (scene.hub?.type === "place" && node.id === "leave") {
-          failWG(
-            "Choice id 'leave' is reserved by the implicit place-hub navigation",
-            atSource(node.source),
-          );
-        }
-        const previous = choiceIds.get(node.id);
-        if (previous) {
-          failWG(
-            `Duplicate choice id '${node.id}' in passage '${passage.id}' of scene '${scene.id}' (first declared at ${previous.file}:${previous.line})`,
-            atSource(node.source),
-          );
-        }
-        choiceIds.set(node.id, node.source);
         validateChoicePool(node);
         const targets = node.check
           ? [node.outcomes?.success, node.outcomes?.failure].map((outcome) => outcome?.target)
@@ -263,22 +270,9 @@ export function compileStorySources(sources, { features = DEFAULT_FEATURE_CATALO
   }
 
   for (const contribution of locationMap.values()) {
-    const choiceIds = new Map();
-    const groupIds = new Map();
     walkWGNodes(contribution.body, (node) => {
       if (hasPersistentProseMutation(node)) {
         failWG("Location contributions cannot contain prose effects or passive checks; put effects inside choices", atSource(node.source));
-      }
-      if (node.type === "choice-group" || node.type === "choice") {
-        const ids = node.type === "choice" ? choiceIds : groupIds;
-        const previous = ids.get(node.id);
-        if (previous) {
-          failWG(
-            `Duplicate ${node.type} id '${node.id}' in location contribution '${contribution.id}' (first declared at ${previous.file}:${previous.line})`,
-            atSource(node.source),
-          );
-        }
-        ids.set(node.id, node.source);
       }
       if (node.type !== "choice") return;
       if (node.eventPool) {
@@ -327,5 +321,5 @@ export function compileStorySources(sources, { features = DEFAULT_FEATURE_CATALO
     [...reminderMap.entries()].sort(([left], [right]) => compareText(left, right)),
   );
   const chats = Object.fromEntries([...chatMap.entries()].sort(([left], [right]) => compareText(left, right)));
-  return { formatVersion: 29, scenes, locationContributions, reminders, chats };
+  return { formatVersion: 30, scenes, locationContributions, reminders, chats };
 }

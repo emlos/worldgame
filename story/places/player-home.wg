@@ -2,16 +2,16 @@
 @hub player_home
 You are back in the privacy of your four walls.
 
-@choicegroup bedroom-menu "Bedroom"
+@choicegroup "Bedroom"
 
-  @choice rest "Go to Bed" -> menu.player.home.rest
+  @choice "Go to Bed" -> menu.player.home.rest
     @hint energy 1 "++Energy"
   @endchoice
 
 @endchoicegroup
 
-@choicegroup activity-menu "Activities"
-@choice lift-weights "Lift weights" -> @exit
+@choicegroup "Activities"
+@choice "Lift weights" -> @exit
   @time 5m
   @when not daily.home_weightlifting
   @change skill strength 0.1
@@ -19,9 +19,9 @@ You are back in the privacy of your four walls.
 @endchoice
 @endchoicegroup
 
-@choicegroup bathroom-menu "Bathroom"
+@choicegroup "Bathroom"
 
-@choice shower "Take a shower" -> @exit
+@choice "Take a shower" -> @exit
   @time 15m
   @change stat hygiene +50
   @change stat energy -5
@@ -32,47 +32,47 @@ You are back in the privacy of your four walls.
 
 :: menu.player.home.rest -> @exit
   @passage rest-menu
-  @choicegroup sleep-menu "Set your alarm to:"
+  @choicegroup "Set your alarm to:"
 
 You set your alarm and climb into bed. The soft sheets and warm blankets are a welcome comfort.
 How long will you sleep for?
 
-@choice sleep-8h "8 hours" -> .wake-up
+@choice "8 hours" -> .wake-up
   @time 8h rest
   @effect stat hygiene -5
 @endchoice
 
-@choice sleep-7h "7 hours" -> .wake-up
+@choice "7 hours" -> .wake-up
   @time 7h rest
   @effect stat hygiene -4.5
 @endchoice
 
-@choice sleep-6h "6 hours" -> .wake-up
+@choice "6 hours" -> .wake-up
   @time 6h rest
   @effect stat hygiene -4
 @endchoice
 
-@choice sleep-5h "5 hours" -> .wake-up
+@choice "5 hours" -> .wake-up
   @time 5h rest
   @effect stat hygiene -3.5
 @endchoice
 
-@choice sleep-4h "4 hours" -> .wake-up
+@choice "4 hours" -> .wake-up
   @time 4h rest
   @effect stat hygiene -3
 @endchoice
 
-@choice sleep-3h "3 hours" -> .wake-up
+@choice "3 hours" -> .wake-up
   @time 3h rest
   @effect stat hygiene -2.5
 @endchoice
 
-@choice sleep-2h "2 hours" -> .wake-up
+@choice "2 hours" -> .wake-up
   @time 2h rest
   @effect stat hygiene -2
 @endchoice
 
-@choice sleep-1h "1 hour" -> .wake-up
+@choice "1 hour" -> .wake-up
   @time 1h rest
   @effect stat hygiene -1.5
 @endchoice

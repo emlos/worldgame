@@ -5,8 +5,8 @@
     You are standing in front of your home. A notice has been pinned to your front door.
   @endif
 
-@choicegroup notices ""
-  @choice read "Check the notice on the door" -> @exit
+@choicegroup ""
+  @choice "Check the notice on the door" -> @exit
     @when not flags.home_notice_read and (time.day > 1 or (time.day == 1 and time.hour >= 13))
     @time 1m
     @effect flag home_notice_read true

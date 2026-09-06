@@ -7,11 +7,11 @@
 
 The route display at {{place.name}} is covered with times and destination names.
 
-@choice timetable "Check the timetable" -> transit.bus-timetable
+@choice "Check the timetable" -> transit.bus-timetable
 
 @endchoice
 
-@choice wait "Wait for a bus" -> transit.bus-boarding
+@choice "Wait for a bus" -> transit.bus-boarding
 
 @endchoice
 
@@ -22,7 +22,7 @@ The route display at {{place.name}} is covered with times and destination names.
 
 The timetable lists the shared service used by every bus stop in the city.
 
-@choice back "Return to the bus stop" -> @exit
+@choice "Return to the bus stop" -> @exit
 
 @endchoice
 
@@ -32,5 +32,5 @@ The timetable lists the shared service used by every bus stop in the city.
 
 The bus pulls up and its doors fold open.
 
-@choice step-away "Step away" -> @exit
+@choice "Step away" -> @exit
 @endchoice

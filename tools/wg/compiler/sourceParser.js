@@ -568,13 +568,14 @@ class SceneBodyParser {
 
       if (this.chat && name === "message") {
         flushParagraph();
-        const match = trimmed.match(new RegExp(`^@message\\s+(${PASSAGE_ID_PATTERN})$`));
-        if (!match) failWG("Expected @message <id>", lineLocation(this.file, line.line));
+        if (trimmed !== "@message") {
+          failWG("@message takes no arguments; its id is generated", lineLocation(this.file, line.line));
+        }
         this.index += 1;
         const body = this.parseNodes(new Set(["endmessage"]));
         if (this.current()?.text.trim() !== "@endmessage") failWG("Unclosed @message", lineLocation(this.file, line.line));
         this.index += 1;
-        nodes.push({ type: "message", id: match[1], body, source: nodeSource(this.file, line.line) });
+        nodes.push({ type: "message", id: null, body, source: nodeSource(this.file, line.line) });
         continue;
       }
       if (this.chat && (name === "wait" || name === "finish")) {
@@ -654,11 +655,11 @@ class SceneBodyParser {
     const opening = this.current();
     const openingText = opening.text.trim();
     const match = openingText.match(
-      new RegExp(`^@choicegroup\\s+(${ID_PATTERN})\\s+(${QUOTED_PATTERN})\\s*$`),
+      new RegExp(`^@choicegroup\\s+(${QUOTED_PATTERN})\\s*$`),
     );
     if (!match) {
       failWG(
-        'Malformed @choicegroup header; expected @choicegroup <id> "<heading>"',
+        'Malformed @choicegroup header; expected @choicegroup "<heading>"',
         lineLocation(this.file, opening.line),
       );
     }
@@ -702,9 +703,9 @@ class SceneBodyParser {
 
     return {
       type: "choice-group",
-      id: match[1],
+      id: null,
       heading: parseQuotedString(
-        match[2],
+        match[1],
         lineLocation(this.file, opening.line),
         "Choice-group heading",
         { allowEmpty: true },
@@ -989,25 +990,25 @@ class SceneBodyParser {
     const opening = this.current();
     const openingText = opening.text.trim();
     const match = openingText.match(
-      new RegExp(`^@choice\\s+(${ID_PATTERN})\\s+(${QUOTED_PATTERN})(?:\\s+->\\s+(${STORY_TARGET_PATTERN}))?\\s*$`),
+      new RegExp(`^@choice\\s+(${QUOTED_PATTERN})(?:\\s+->\\s+(${STORY_TARGET_PATTERN}))?\\s*$`),
     );
     if (!match) {
       failWG("Malformed @choice header", lineLocation(this.file, opening.line));
     }
 
     const choiceLabel = parseQuotedString(
-      match[2],
+      match[1],
       lineLocation(this.file, opening.line),
       "Choice label",
     );
     const choice = {
       type: "choice",
-      id: match[1],
+      id: null,
       label: parseInterpolationParts(
         choiceLabel,
         lineLocation(this.file, opening.line),
       ),
-      target: match[3] ?? null,
+      target: match[2] ?? null,
       check: null,
       outcomes: { success: null, failure: null },
       icon: null,

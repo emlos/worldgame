@@ -10,16 +10,16 @@ import {
 } from "../src/story/wg/runtime/storyRuntime.js";
 
 const FINAL_SEGMENTS = [
-  { subject: "english", at: "09:30", choiceId: "english-3-study" },
-  { subject: "math", at: "10:30", choiceId: "math-3-study" },
-  { subject: "history", at: "11:30", choiceId: "history-3-study" },
-  { subject: "science", at: "13:30", choiceId: "science-3-study" },
-  { subject: "art", at: "14:30", choiceId: "art-3-study" },
+  { subject: "english", at: "09:30", choiceLabel: "Study hard" },
+  { subject: "math", at: "10:30", choiceLabel: "Study hard" },
+  { subject: "history", at: "11:30", choiceLabel: "Study hard" },
+  { subject: "science", at: "13:30", choiceLabel: "Study hard" },
+  { subject: "art", at: "14:30", choiceLabel: "Study hard" },
   {
     subject: "physical_education",
     storySubject: "physical-education",
     at: "15:30",
-    choiceId: "physical-education-3-study",
+    choiceLabel: "Train hard",
   },
 ];
 
@@ -50,16 +50,14 @@ for (const fixture of FINAL_SEGMENTS) {
 
     const classScene = buildScene(game);
     assert.equal(game.currentStory?.passageId, "segment-3");
-    assert.ok(
-      classScene.sections
-        .flatMap((section) => section.choices)
-        .some((choice) => choice.id === fixture.choiceId),
-      `expected final-segment choice '${fixture.choiceId}'`,
-    );
+    const choice = classScene.sections
+      .flatMap((section) => section.choices)
+      .find((candidate) => candidate.label === fixture.choiceLabel);
+    assert.ok(choice, `expected final-segment choice '${fixture.choiceLabel}'`);
 
     performChoice(game, {
       sceneId: classScene.id,
-      choiceId: fixture.choiceId,
+      choiceId: choice.id,
     });
 
     assert.equal(game.storyContinuations.length, 1);

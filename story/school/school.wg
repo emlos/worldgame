@@ -3,13 +3,13 @@
 @choices "Travel"
 
 
-@choicegroup current-activities "Current Activities"
+@choicegroup "Current Activities"
 
 @if school.phase == "before_school"
 
 The halls of {{place.name}} are open, though lessons have not begun yet. You can see groups of students move in the hallways.
 
-@choice wait-for-first-class "Wait for the first class" -> @exit
+@choice "Wait for the first class" -> @exit
   
   @time-until school.nextBoundaryAt
 @endchoice
@@ -18,7 +18,7 @@ The halls of {{place.name}} are open, though lessons have not begun yet. You can
 
 English class is in progress. You can still attend or keep exploring the school.
 
-@choice attend-english "Attend English class" -> school.class.english
+@choice "Attend English class" -> school.class.english
   
 @endchoice
 
@@ -26,7 +26,7 @@ English class is in progress. You can still attend or keep exploring the school.
 
 Mathematics class is in progress. You can still attend or keep exploring the school.
 
-@choice attend-math "Attend Mathematics class" -> school.class.math
+@choice "Attend Mathematics class" -> school.class.math
   
 @endchoice
 
@@ -34,7 +34,7 @@ Mathematics class is in progress. You can still attend or keep exploring the sch
 
 History class is in progress. You can still attend or keep exploring the school.
 
-@choice attend-history "Attend History class" -> school.class.history
+@choice "Attend History class" -> school.class.history
   
 @endchoice
 
@@ -42,12 +42,12 @@ History class is in progress. You can still attend or keep exploring the school.
 
 Lunch break is underway. The cafeteria is open until afternoon classes begin.
 
-@choice lunch-cafeteria "Go to the cafeteria" -> @exit
+@choice "Go to the cafeteria" -> @exit
   
   @time-until school.nextBoundaryAt
 @endchoice
 
-@choice lunch-wait "Wait for the next class" -> @exit
+@choice "Wait for the next class" -> @exit
   
   @time-until school.nextBoundaryAt
 @endchoice
@@ -56,7 +56,7 @@ Lunch break is underway. The cafeteria is open until afternoon classes begin.
 
 Science class is in progress. You can still attend or keep exploring the school.
 
-@choice attend-science "Attend Science class" -> school.class.science
+@choice "Attend Science class" -> school.class.science
   
 @endchoice
 
@@ -64,7 +64,7 @@ Science class is in progress. You can still attend or keep exploring the school.
 
 Art class is in progress. You can still attend or keep exploring the school.
 
-@choice attend-art "Attend Art class" -> school.class.art
+@choice "Attend Art class" -> school.class.art
   
 @endchoice
 
@@ -72,7 +72,7 @@ Art class is in progress. You can still attend or keep exploring the school.
 
 Physical education is in progress. You can still attend or keep exploring the school.
 
-@choice attend-physical-education "Attend Physical Education" -> school.class.physical-education
+@choice "Attend Physical Education" -> school.class.physical-education
   
 @endchoice
 
@@ -80,12 +80,12 @@ Physical education is in progress. You can still attend or keep exploring the sc
 
 There is a short break before the next class begins.
 
-@choice break-cafeteria "Go to the cafeteria" -> @exit
+@choice "Go to the cafeteria" -> @exit
   
   @time-until school.nextBoundaryAt
 @endchoice
 
-@choice break-wait "Wait for the next class" -> @exit
+@choice "Wait for the next class" -> @exit
   
   @time-until school.nextBoundaryAt
 @endchoice
@@ -94,7 +94,7 @@ There is a short break before the next class begins.
 
 Lessons are over, but {{place.name}} remains open until 17:00.
 
-@choice after-school-wait "Stay until school closes" -> @exit
+@choice "Stay until school closes" -> @exit
   
   @time-until school.nextBoundaryAt
 @endchoice
@@ -103,12 +103,12 @@ Lessons are over, but {{place.name}} remains open until 17:00.
 
 There are no lessons today, though the administrative areas remain open.
 
-@choice no-school-office "Visit the school office" -> @exit
+@choice "Visit the school office" -> @exit
   @icon 🏫
   @time 15m
 @endchoice
 
-@choice no-school-notices "Read the school notices" -> @exit
+@choice "Read the school notices" -> @exit
   @icon 📌
   @time 5m
 @endchoice
@@ -121,49 +121,49 @@ The school has closed for the day.
 
 @endchoicegroup
 
-@choicegroup activities "Activities"
+@choicegroup "Activities"
 
-@choice cafeteria-room "Go to the cafeteria" -> place.high-school.cafeteria
+@choice "Go to the cafeteria" -> place.high-school.cafeteria
   @icon 🍽️
   @time 1m
 @endchoice
 
-@choice math-classroom "Go to the math classroom" -> place.high-school.math-classroom
+@choice "Go to the math classroom" -> place.high-school.math-classroom
   @icon 🧮
   @time 1m
 @endchoice
 
-@choice english-classroom "Go to the english classroom" -> place.high-school.english-classroom
+@choice "Go to the english classroom" -> place.high-school.english-classroom
   @icon 📖
   @time 1m
 @endchoice
 
-@choice history-classroom "Go to the history classroom" -> place.high-school.history-classroom
+@choice "Go to the history classroom" -> place.high-school.history-classroom
   @icon 📜
   @time 1m
 @endchoice
 
-@choice science-classroom "Go to the science classroom" -> place.high-school.science-classroom
+@choice "Go to the science classroom" -> place.high-school.science-classroom
   @icon 🔬
   @time 2m
 @endchoice
 
-@choice art-classroom "Go to the art classroom" -> place.high-school.art-classroom
+@choice "Go to the art classroom" -> place.high-school.art-classroom
   @icon 🎨
   @time 2m
 @endchoice
 
-@choice school-gym "Go to the school gym" -> place.high-school.gym
+@choice "Go to the school gym" -> place.high-school.gym
   @icon 🏃
   @time 5m
 @endchoice
 
-@choice school-nurse-office "Go to the school nurse's office" -> place.high-school.nurse-office
+@choice "Go to the school nurse's office" -> place.high-school.nurse-office
   @icon 🏥
   @time 2m
 @endchoice
 
-@choice student-council-room "Visit the student council office" -> place.high-school.student-council-room
+@choice "Visit the student council office" -> place.high-school.student-council-room
   @icon 🏫
   @time 5m
 @endchoice
@@ -180,7 +180,7 @@ The school has closed for the day.
 
 The students fill the classroom and take their seats. The teacher begins the lesson, and you focus on the material.
 
-@choice english-1-taylor "Chat with Taylor" -> .segment-2
+@choice "Chat with Taylor" -> .segment-2
   
   @time-until school.nextBoundaryAt
   @event-pool school.class.english
@@ -190,7 +190,7 @@ The students fill the classroom and take their seats. The teacher begins the les
   @change relationship taylor.friendship 1
 @endchoice
 
-@choice english-1-study "Study hard" -> .segment-2
+@choice "Study hard" -> .segment-2
   
   @time-until school.nextBoundaryAt
   @event-pool school.class.english
@@ -203,7 +203,7 @@ The students fill the classroom and take their seats. The teacher begins the les
 
 The teacher continues the lesson, and you take notes diligently. The class is going well so far.
 
-@choice english-2-taylor "Chat with Taylor" -> .segment-3
+@choice "Chat with Taylor" -> .segment-3
   @time-until school.nextBoundaryAt
   @event-pool school.class.english
   @when npc.taylor.present
@@ -211,7 +211,7 @@ The teacher continues the lesson, and you take notes diligently. The class is go
   @change relationship taylor.friendship 1
 @endchoice
 
-@choice english-2-study "Study hard" -> .segment-3
+@choice "Study hard" -> .segment-3
   @time-until school.nextBoundaryAt
   @event-pool school.class.english
 
@@ -223,7 +223,7 @@ The teacher continues the lesson, and you take notes diligently. The class is go
 
 The students look bored as the teacher wraps up the lesson. You have a few minutes before the class ends.
 
-@choice english-3-taylor "Chat with Taylor" -> @exit
+@choice "Chat with Taylor" -> @exit
   
   @time-until school.nextBoundaryAt
   @event-pool school.class.english
@@ -232,7 +232,7 @@ The students look bored as the teacher wraps up the lesson. You have a few minut
   @change relationship taylor.friendship 1
 @endchoice
 
-@choice english-3-study "Study hard" -> @exit
+@choice "Study hard" -> @exit
   
   @time-until school.nextBoundaryAt
   @event-pool school.class.english
@@ -250,7 +250,7 @@ The students look bored as the teacher wraps up the lesson. You have a few minut
 
 The first segment of Mathematics class begins.
 
-@choice math-1-taylor "Chat with Taylor" -> .segment-2
+@choice "Chat with Taylor" -> .segment-2
   @event-pool school.class.math
   
   @time-until school.nextBoundaryAt
@@ -259,7 +259,7 @@ The first segment of Mathematics class begins.
   @change relationship taylor.friendship 1
 @endchoice
 
-@choice math-1-study "Study hard" -> .segment-2
+@choice "Study hard" -> .segment-2
   @event-pool school.class.math
   
   @time-until school.nextBoundaryAt
@@ -271,7 +271,7 @@ The first segment of Mathematics class begins.
 
 Mathematics class continues into its second segment.
 
-@choice math-2-taylor "Chat with Taylor" -> .segment-3
+@choice "Chat with Taylor" -> .segment-3
   @event-pool school.class.math
   
   @time-until school.nextBoundaryAt
@@ -280,7 +280,7 @@ Mathematics class continues into its second segment.
   @change relationship taylor.friendship 1
 @endchoice
 
-@choice math-2-study "Study hard" -> .segment-3
+@choice "Study hard" -> .segment-3
   @event-pool school.class.math
   
   @time-until school.nextBoundaryAt
@@ -292,7 +292,7 @@ Mathematics class continues into its second segment.
 
 The final segment of Mathematics class gets underway.
 
-@choice math-3-taylor "Chat with Taylor" -> @exit
+@choice "Chat with Taylor" -> @exit
   @event-pool school.class.math
   
   @time-until school.nextBoundaryAt
@@ -301,7 +301,7 @@ The final segment of Mathematics class gets underway.
   @change relationship taylor.friendship 1
 @endchoice
 
-@choice math-3-study "Study hard" -> @exit
+@choice "Study hard" -> @exit
   @event-pool school.class.math
   @time-until school.nextBoundaryAt
   @effect attendance math 1
@@ -317,7 +317,7 @@ The final segment of Mathematics class gets underway.
 
 The first segment of History class begins.
 
-@choice history-1-taylor "Chat with Taylor" -> .segment-2
+@choice "Chat with Taylor" -> .segment-2
   
   @time-until school.nextBoundaryAt
   @event-pool school.class.history
@@ -326,7 +326,7 @@ The first segment of History class begins.
   @change relationship taylor.friendship 1
 @endchoice
 
-@choice history-1-study "Study hard" -> .segment-2
+@choice "Study hard" -> .segment-2
   
   @time-until school.nextBoundaryAt
   @event-pool school.class.history
@@ -338,7 +338,7 @@ The first segment of History class begins.
 
 History class continues into its second segment.
 
-@choice history-2-taylor "Chat with Taylor" -> .segment-3
+@choice "Chat with Taylor" -> .segment-3
   
   @time-until school.nextBoundaryAt
   @event-pool school.class.history
@@ -347,7 +347,7 @@ History class continues into its second segment.
   @change relationship taylor.friendship 1
 @endchoice
 
-@choice history-2-study "Study hard" -> .segment-3
+@choice "Study hard" -> .segment-3
   
   @time-until school.nextBoundaryAt
   @event-pool school.class.history
@@ -359,7 +359,7 @@ History class continues into its second segment.
 
 The final segment of History class gets underway.
 
-@choice history-3-taylor "Chat with Taylor" -> @exit
+@choice "Chat with Taylor" -> @exit
   
   @time-until school.nextBoundaryAt
   @event-pool school.class.history
@@ -368,7 +368,7 @@ The final segment of History class gets underway.
   @change relationship taylor.friendship 1
 @endchoice
 
-@choice history-3-study "Study hard" -> @exit
+@choice "Study hard" -> @exit
   
   @time-until school.nextBoundaryAt
   @event-pool school.class.history
@@ -385,7 +385,7 @@ The final segment of History class gets underway.
 
 The first segment of Science class begins.
 
-@choice science-1-taylor "Chat with Taylor" -> .segment-2
+@choice "Chat with Taylor" -> .segment-2
   
   @time-until school.nextBoundaryAt
   @event-pool school.class.science
@@ -394,7 +394,7 @@ The first segment of Science class begins.
   @change relationship taylor.friendship 1
 @endchoice
 
-@choice science-1-study "Study hard" -> .segment-2
+@choice "Study hard" -> .segment-2
   
   @time-until school.nextBoundaryAt
   @event-pool school.class.science
@@ -406,7 +406,7 @@ The first segment of Science class begins.
 
 Science class continues into its second segment.
 
-@choice science-2-taylor "Chat with Taylor" -> .segment-3
+@choice "Chat with Taylor" -> .segment-3
   
   @time-until school.nextBoundaryAt
   @event-pool school.class.science
@@ -415,7 +415,7 @@ Science class continues into its second segment.
   @change relationship taylor.friendship 1
 @endchoice
 
-@choice science-2-study "Study hard" -> .segment-3
+@choice "Study hard" -> .segment-3
   
   @time-until school.nextBoundaryAt
   @event-pool school.class.science
@@ -427,7 +427,7 @@ Science class continues into its second segment.
 
 The final segment of Science class gets underway.
 
-@choice science-3-taylor "Chat with Taylor" -> @exit
+@choice "Chat with Taylor" -> @exit
   
   @time-until school.nextBoundaryAt
   @event-pool school.class.science
@@ -436,7 +436,7 @@ The final segment of Science class gets underway.
   @change relationship taylor.friendship 1
 @endchoice
 
-@choice science-3-study "Study hard" -> @exit
+@choice "Study hard" -> @exit
   
   @time-until school.nextBoundaryAt
   @event-pool school.class.science
@@ -453,7 +453,7 @@ The final segment of Science class gets underway.
 
 The first segment of Art class begins.
 
-@choice art-1-taylor "Chat with Taylor" -> .segment-2
+@choice "Chat with Taylor" -> .segment-2
   
   @time-until school.nextBoundaryAt
   @event-pool school.class.art
@@ -462,7 +462,7 @@ The first segment of Art class begins.
   @change relationship taylor.friendship 1
 @endchoice
 
-@choice art-1-study "Study hard" -> .segment-2
+@choice "Study hard" -> .segment-2
   
   @time-until school.nextBoundaryAt
   @event-pool school.class.art
@@ -474,7 +474,7 @@ The first segment of Art class begins.
 
 Art class continues into its second segment.
 
-@choice art-2-taylor "Chat with Taylor" -> .segment-3
+@choice "Chat with Taylor" -> .segment-3
   
   @time-until school.nextBoundaryAt
   @event-pool school.class.art
@@ -483,7 +483,7 @@ Art class continues into its second segment.
   @change relationship taylor.friendship 1
 @endchoice
 
-@choice art-2-study "Study hard" -> .segment-3
+@choice "Study hard" -> .segment-3
   
   @time-until school.nextBoundaryAt
   @event-pool school.class.art
@@ -496,7 +496,7 @@ Art class continues into its second segment.
 The final segment of Art class gets underway.
 
 
-@choice art-3-taylor "Chat with Taylor" -> @exit
+@choice "Chat with Taylor" -> @exit
   
   @time-until school.nextBoundaryAt
   @event-pool school.class.art
@@ -505,7 +505,7 @@ The final segment of Art class gets underway.
   @change relationship taylor.friendship 1
 @endchoice
 
-@choice art-3-study "Study hard" -> @exit
+@choice "Study hard" -> @exit
   
   @time-until school.nextBoundaryAt
   @event-pool school.class.art
@@ -523,7 +523,7 @@ The final segment of Art class gets underway.
 The first segment of Physical Education begins.
 
 
-@choice physical-education-1-taylor "Chat with Taylor" -> .segment-2
+@choice "Chat with Taylor" -> .segment-2
   
   @time-until school.nextBoundaryAt
   @event-pool school.class.physical-education
@@ -532,7 +532,7 @@ The first segment of Physical Education begins.
   @change relationship taylor.friendship 1
 @endchoice
 
-@choice physical-education-1-study "Train hard" -> .segment-2
+@choice "Train hard" -> .segment-2
   
   @time-until school.nextBoundaryAt
   @event-pool school.class.physical-education
@@ -545,7 +545,7 @@ The first segment of Physical Education begins.
 
 Physical Education continues into its second segment.
 
-@choice physical-education-2-taylor "Chat with Taylor" -> .segment-3
+@choice "Chat with Taylor" -> .segment-3
   
   @time-until school.nextBoundaryAt
   @event-pool school.class.physical-education
@@ -554,7 +554,7 @@ Physical Education continues into its second segment.
   @change relationship taylor.friendship 1
 @endchoice
 
-@choice physical-education-2-study "Train hard" -> .segment-3
+@choice "Train hard" -> .segment-3
   
   @time-until school.nextBoundaryAt
   @event-pool school.class.physical-education
@@ -567,7 +567,7 @@ Physical Education continues into its second segment.
 
 The final segment of Physical Education gets underway.
 
-@choice physical-education-3-taylor "Chat with Taylor" -> @exit
+@choice "Chat with Taylor" -> @exit
   
   @time-until school.nextBoundaryAt
   @event-pool school.class.physical-education
@@ -576,7 +576,7 @@ The final segment of Physical Education gets underway.
   @change relationship taylor.friendship 1
 @endchoice
 
-@choice physical-education-3-study "Train hard" -> @exit
+@choice "Train hard" -> @exit
   
   @time-until school.nextBoundaryAt
   @event-pool school.class.physical-education
@@ -594,7 +594,7 @@ The cafeteria is open, and students are eating and socialising.
 The few students in the cafeteria are eating quietly. It seems kind of empty.
 @endif
 
-@choice before-school-taylor "Talk with Taylor before class" -> place.high-school.cafeteria
+@choice "Talk with Taylor before class" -> place.high-school.cafeteria
   
   @time 15m
   @when npc.taylor.present and not daily.school_before_taylor and school.phase != "class"
@@ -611,7 +611,7 @@ The few students in the cafeteria are eating quietly. It seems kind of empty.
   @effect daily-flag school_before_taylor true
 @endchoice
 
-@choice leave "Leave" -> @exit
+@choice "Leave" -> @exit
   @time 1m
 @endchoice
 
@@ -624,13 +624,13 @@ The classroom is open, and students are studying and socialising.
 Everyone looks at you as you enter the classroom. The teacher is at the front of the room, and students are seated at their desks.
 @endif
 
-@choice wait-for-class "Wait for class" -> school.class.english
+@choice "Wait for class" -> school.class.english
   
   @time-until school.nextClassStartsAt
   @when school.phase != "class" and school.nextClass == "english"
 @endchoice
 
-@choice leave "Leave" -> @exit
+@choice "Leave" -> @exit
   @time 1m
 @endchoice
 
@@ -645,13 +645,13 @@ Everyone looks at you as you enter the classroom. The teacher is at the front of
   There's nobody here.
 @endif
 
-@choice wait-for-class "Wait for class" -> school.class.math
+@choice "Wait for class" -> school.class.math
   
   @time-until school.nextClassStartsAt
   @when school.phase != "class" and school.nextClass == "math"
 @endchoice
 
-@choice leave "Leave" -> @exit
+@choice "Leave" -> @exit
   @time 1m
 @endchoice
 
@@ -666,13 +666,13 @@ Everyone looks at you as you enter the classroom. The teacher is at the front of
   There's nobody here.
 @endif
 
-@choice wait-for-class "Wait for class" -> school.class.science
+@choice "Wait for class" -> school.class.science
   
   @time-until school.nextClassStartsAt
   @when school.phase != "class" and school.nextClass == "science"
 @endchoice
 
-@choice leave "Leave" -> @exit
+@choice "Leave" -> @exit
   @time 1m
 @endchoice
 
@@ -687,13 +687,13 @@ Everyone looks at you as you enter the classroom. The teacher is at the front of
   There's nobody here.
 @endif
 
-@choice wait-for-class "Wait for class" -> school.class.history
+@choice "Wait for class" -> school.class.history
   
   @time-until school.nextClassStartsAt
   @when school.phase != "class" and school.nextClass == "history"
 @endchoice
 
-@choice leave "Leave" -> @exit
+@choice "Leave" -> @exit
   @time 2m
 @endchoice
 
@@ -708,13 +708,13 @@ Everyone looks at you as you enter the classroom. The teacher is at the front of
   There's nobody here.
 @endif
 
-@choice wait-for-class "Wait for class" -> school.class.art
+@choice "Wait for class" -> school.class.art
   
   @time-until school.nextClassStartsAt
   @when school.phase != "class" and school.nextClass == "art"
 @endchoice
 
-@choice leave "Leave" -> @exit
+@choice "Leave" -> @exit
   @time 2m
 @endchoice
 
@@ -729,13 +729,13 @@ Everyone looks at you as you enter the gym. The teacher is at the front of the r
   There's a lone student here practicing basketball.
 @endif
 
-@choice wait-for-class "Wait for class" -> school.class.physical-education
+@choice "Wait for class" -> school.class.physical-education
   
   @time-until school.nextClassStartsAt
   @when school.phase != "class" and school.nextClass == "physical_education"
 @endchoice
 
-@choice leave "Leave" -> @exit
+@choice "Leave" -> @exit
   @time 5m
 @endchoice
 
@@ -750,7 +750,7 @@ Nobody answers your knock. The office is closed during class time.
   There's nobody here.
 @endif
 
-@choice leave "Leave" -> @exit
+@choice "Leave" -> @exit
   @time 5m
 @endchoice
 
@@ -768,7 +768,7 @@ Nobody answers your knock. The office is closed during class time.
 @endif
 
 
-@choice school-nurse-checkup "Ask the school nurse for a checkup" -> place.high-school.nurse-office
+@choice "Ask the school nurse for a checkup" -> place.high-school.nurse-office
   @time 2m
   @when npc.caro.present and school.phase != "class"
   @response
@@ -776,7 +776,7 @@ Nobody answers your knock. The office is closed during class time.
   @endresponse
 @endchoice
 
-@choice leave "Leave" -> @exit
+@choice "Leave" -> @exit
   @time 2m
 @endchoice
 
