@@ -5,28 +5,27 @@
 
   @choice "Ask about the notice" -> .checking
     @send "hi kim! im the tenant from {{home.location.name}}! theres a notice on my door saying i owe two months rent, but ive only just moved in. could you check it?"
-    @#replace with local flag/var
-    @effect set story.kim.rentReply "polite"
+    @effect set local.rentReply "polite"
   @endchoice
 
   @choice "Explain you're worried" -> .checking
     @send "hi, i live at {{home.location.name}}. the civil office said i could be evicted over unpaid rent. i just moved in. is there a mistake??"
-    @effect set story.kim.rentReply "worried"
+    @effect set local.rentReply "worried"
   @endchoice
 
   @choice "Challenge the charge" -> .checking
     @send "why am I being charged for two months when i wasnt even living here?"
-    @effect set story.kim.rentReply "blunt"
+    @effect set local.rentReply "blunt"
     @effect relationship kim.intimidation -2
   @endchoice
 
   @passage checking
 
-  @if story.kim.rentReply == "blunt"
+  @if local.rentReply == "blunt"
     @message
       Hello. I understand you're frustrated. Give me a chance to check the records first...
     @endmessage
-  @elseif story.kim.rentReply == "worried"
+  @elseif local.rentReply == "worried"
     @message
       Don't panic... Let me look into it before you do anything else.
     @endmessage

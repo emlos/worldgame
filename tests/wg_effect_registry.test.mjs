@@ -11,6 +11,10 @@ import {
   getWGEffectHandlerOps,
 } from "../src/story/wg/runtime/effectRuntime.js";
 import { materializeWGScene } from "../src/story/wg/runtime/sceneMaterializer.js";
+import {
+  enterWGScene,
+  resolveActiveWGStory,
+} from "../src/story/wg/runtime/storyRuntime.js";
 import { DEFAULT_FEATURE_CATALOG } from "../src/features/index.js";
 import {
   validateWGEffectShape,
@@ -99,6 +103,8 @@ test("set and unset use namespaces to mutate story values and global flags", () 
       ":: fixture.namespaced-mutations",
       "@onenter",
       '  @effect set story.fixture.label "ready"',
+      "  @effect set local.fixture.count 1",
+      "  @effect add local.fixture.count 2",
       "  @effect set flags.fixture_ready",
       "  @effect unset flags.fixture_old",
       "@endonenter",
@@ -113,14 +119,27 @@ test("set and unset use namespaces to mutate story values and global flags", () 
       path: ["story", "fixture", "label"],
       value: { type: "literal", value: "ready" },
     },
+    {
+      op: "set",
+      path: ["local", "fixture", "count"],
+      value: { type: "literal", value: 1 },
+    },
+    {
+      op: "add",
+      path: ["local", "fixture", "count"],
+      value: { type: "literal", value: 2 },
+    },
     { op: "set", path: ["flags", "fixture_ready"] },
     { op: "unset", path: ["flags", "fixture_old"] },
   ]);
 
   const game = new Game({ seed: 903 });
+  enterWGScene(game, "example.passage-scene");
+  resolveActiveWGStory(game);
   game.setFlag("fixture_old");
   applyWGEffects(game, effects);
   assert.equal(game.story.fixture.label, "ready");
+  assert.equal(game.currentStory.locals.fixture.count, 3);
   assert.equal(game.hasFlag("fixture_ready"), true);
   assert.equal(game.hasFlag("fixture_old"), false);
 });
@@ -128,7 +147,8 @@ test("set and unset use namespaces to mutate story values and global flags", () 
 test("removed and malformed global flag mutations are rejected", () => {
   for (const [directive, expected] of [
     ["@effect flag old_flag true", /Unknown or malformed @effect/],
-    ["@effect set flags.named true", /requires a story\.\* path and value/],
+    ["@effect set flags.named true", /requires a story\.\* or local\.\* path and value/],
+    ["@effect set local.named", /requires a story\.\* or local\.\* path and value/],
     ["@effect unset story.named", /requires a flags\.<name> path/],
   ]) {
     assert.throws(

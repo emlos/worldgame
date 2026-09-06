@@ -113,8 +113,12 @@ function parseMutation(argument, file, line, at, op) {
   if (op === "set" && path[0] === "flags" && path.length === 2 && match[2] === undefined) {
     return { op, path, source: source(file, line) };
   }
-  if (path[0] !== "story" || path.length < 2 || match[2] === undefined) {
-    failWG(`@effect ${op} requires a story.* path and value`, at);
+  if (
+    !["story", "local"].includes(path[0]) ||
+    path.length < 2 ||
+    match[2] === undefined
+  ) {
+    failWG(`@effect ${op} requires a story.* or local.* path and value`, at);
   }
   return {
     op,

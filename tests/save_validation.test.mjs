@@ -47,7 +47,7 @@ test("save validation is pure and valid saves still round-trip exactly", () => {
 
 test("root and random-stream corruption retain precise save paths", async (t) => {
   const cases = [
-    ["schema version", (save) => { save.saveVersion = 31; }, "save.saveVersion"],
+    ["schema version", (save) => { save.saveVersion = 32; }, "save.saveVersion"],
     ["non-JSON value", (save) => { save.player.money = Number.NaN; }, "save.player.money"],
     ["gameplay stream", (save) => { delete save.random.states.gameplay; }, "save.random.states.gameplay"],
     ["game clock", (save) => { save.time = "not-a-date"; }, "save.time"],
@@ -165,6 +165,7 @@ test("story corruption is rejected by the story subsystem", async (t) => {
     sourceSceneId: "test.source",
     sourceChoiceId: "test.choice",
     behavior: null,
+    locals: {},
   };
   const cases = [
     ["orphaned continuation", (save) => { save.storyContinuations.push(continuation); }, "save.storyContinuations"],

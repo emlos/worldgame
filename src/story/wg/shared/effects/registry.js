@@ -255,12 +255,14 @@ const EFFECT_DEFINITIONS = [
       if (
         !Array.isArray(effect.path) ||
         effect.path.length < 2 ||
-        effect.path[0] !== "story" ||
+        !["story", "local"].includes(effect.path[0]) ||
         effect.path.some((segment) =>
           typeof segment !== "string" || !STORY_PATH_SEGMENT_PATTERN.test(segment)
         )
       ) {
-        fail("WG set effect requires a valid story.* path and value, or flags.<name>");
+        fail(
+          "WG set effect requires a valid story.* or local.* path and value, or flags.<name>",
+        );
       }
       validateExpression(effect.value, fail);
     },
@@ -273,12 +275,12 @@ const EFFECT_DEFINITIONS = [
       if (
         !Array.isArray(effect.path) ||
         effect.path.length < 2 ||
-        effect.path[0] !== "story" ||
+        !["story", "local"].includes(effect.path[0]) ||
         effect.path.some((segment) =>
           typeof segment !== "string" || !STORY_PATH_SEGMENT_PATTERN.test(segment)
         )
       ) {
-        fail("WG add effect requires a valid story.* path and value");
+        fail("WG add effect requires a valid story.* or local.* path and value");
       }
       validateExpression(effect.value, fail);
     },

@@ -321,5 +321,5 @@ export function compileStorySources(sources, { features = DEFAULT_FEATURE_CATALO
     [...reminderMap.entries()].sort(([left], [right]) => compareText(left, right)),
   );
   const chats = Object.fromEntries([...chatMap.entries()].sort(([left], [right]) => compareText(left, right)));
-  return { formatVersion: 31, scenes, locationContributions, reminders, chats };
+  return { formatVersion: 32, scenes, locationContributions, reminders, chats };
 }

@@ -86,7 +86,7 @@ contact queues until the active one finishes. Contacts appear in the Chats app.
   reruns effects. Editing authored wording changes the reconstructed wording;
   inserting, removing, or reordering chat messages may change their generated
   references and invalidate development saves. Game save format is
-  currently 32; the separately versioned compiled WG bundle format is 31.
+  currently 33; the separately versioned compiled WG bundle format is 32.
 - Unread counts include incoming messages after each contact's saved read
   position. Opening the contact list does not mark messages read. Reading to the
   end of a visible thread does. The app badge totals all contacts.
@@ -767,7 +767,11 @@ labels remain literal strings.
 
 The currently exposed paths are:
 
-- `story.*`: authored story state created by WG effects.
+- `story.*`: persistent authored story state created by WG effects.
+- `local.*`: state belonging to the active scene or chat. Scene locals survive
+  local passage changes, temporary event suspension, and saving/loading, then
+  are discarded when the scene exits or another scene replaces it. Chat locals
+  likewise survive passages, waits, and saves, then are discarded on `@finish`.
 - `player.health`, `player.mind`, `player.stress`, `player.energy`,
   `player.trauma`, `player.hygiene`, and `player.fear`: evaluated player stats.
 - `player.subject`, `player.object`, `player.dependent`,
@@ -1303,6 +1307,8 @@ Implemented effects are:
 @effect set story.some.path true
 @effect set story.some.snapshot player.energy
 @effect add story.some.counter 1
+@effect set local.some.path "temporary"
+@effect add local.some.counter 1
 @effect set flags.met_taylor
 @effect unset flags.met_taylor
 @effect daily-flag home_weightlifting true
@@ -1327,11 +1333,15 @@ Implemented effects are:
 ```
 
 - `set story.<path> <value>` and `add story.<path> <value>` mutate persistent
-  story data. Their values are expressions, and missing intermediate story
-  objects are created automatically. `add` treats a missing or `null` final
-  value as zero and requires both values to be finite numbers. Neither
-  operation can write through an existing scalar or list used as an
-  intermediate path segment.
+  story data. The matching `local.<path>` forms mutate only the active scene or
+  chat's temporary data. Scene-local values survive passage changes, event
+  suspension, and mid-scene saves, but are discarded when the scene exits or
+  is replaced. Chat-local values survive passages, waits, and saves until the
+  chat reaches `@finish`.
+  Both namespaces accept expressions and create missing intermediate objects
+  automatically. `add` treats a missing or `null` final value as zero and
+  requires both values to be finite numbers. Neither operation can write
+  through an existing scalar or list used as an intermediate path segment.
 - `set flags.<name>` enables a global game flag; `unset flags.<name>` removes
   it. Flag names are expression path segments, so they may contain letters,
   numbers, and `_`, but cannot start with a number.
@@ -1498,9 +1508,9 @@ destination day's batch, and a backward date change clears the batch.
 
 Only active authored IDs are saved; automatic school reminders are derived
 from the schedule. The built-in and authored namespaces cannot collide.
-Game save format 32 includes the reminder state and game-start date; older saves
-are intentionally unsupported. The compiled WG bundle has its own format version,
-currently 31.
+Game save format 33 includes scene-local state, reminder state, and the
+game-start date; older saves are intentionally unsupported. The compiled WG
+bundle has its own format version, currently 32.
 
 Reminder lifecycle integration is covered by
 `node --test tests/timers.test.mjs tests/cafe_job.test.mjs`; all authored reminder

@@ -37,6 +37,9 @@ function validateCurrentStorySave(value, path, gameTime, features) {
   saveString(requiredSaveField(frame, "instanceKey", path), `${path}.instanceKey`, {
     nonEmpty: true,
   });
+  const localsPath = `${path}.locals`;
+  const locals = saveRecord(requiredSaveField(frame, "locals", path), localsPath);
+  validateJsonValue(locals, localsPath);
   const hasSystem = Object.prototype.hasOwnProperty.call(frame, "system");
   if (hasSystem) {
     if (Object.prototype.hasOwnProperty.call(frame, "passageId")) {
@@ -151,6 +154,9 @@ function validateStoryContinuationsSave(value, path, gameTime, features) {
     if (behavior !== null) {
       validateBehaviorSave(behavior, `${itemPath}.behavior`, gameTime, features);
     }
+    const localsPath = `${itemPath}.locals`;
+    const locals = saveRecord(requiredSaveField(item, "locals", itemPath), localsPath);
+    validateJsonValue(locals, localsPath);
     return item;
   });
 }

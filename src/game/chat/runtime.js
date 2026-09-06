@@ -26,13 +26,19 @@ export function addContact(game, npcId) {
   game.chats.threads[npcId] = { history: [], readThrough: 0, active: null, completed: [], queue: [] };
 }
 
-export function chatDecisionSession(game, mode, decisions, instanceKey = "") {
+export function chatDecisionSession(
+  game,
+  mode,
+  decisions,
+  instanceKey = "",
+  locals = null,
+) {
   return createWGDecisionSession({
     mode,
     decisions,
     seed: game?.seed ?? 0,
     instanceKey,
-    getContext: game ? () => createWGRuntimeContext(game) : null,
+    getContext: game ? () => createWGRuntimeContext(game, { locals }) : null,
     randomNamespace: "chat",
   });
 }
@@ -41,7 +47,7 @@ function appendMessage(game, thread, node, outgoing = false) {
   const active = thread.active;
   const decisions = {};
   const key = `${active.chatId}:${active.passageId}:${thread.history.length + 1}`;
-  const session = chatDecisionSession(game, "record", decisions, key);
+  const session = chatDecisionSession(game, "record", decisions, key, active.locals);
   const paragraphs = outgoing
     ? [{ parts: node.send }]
     : [...iterateSelectedWGNodes(node.body, session)];
@@ -56,7 +62,11 @@ function appendMessage(game, thread, node, outgoing = false) {
     nodeId: node.id,
     sentAt: game.now.toISOString(),
     decisions,
-    bindings: captureWGTextBindings(parts, createWGRuntimeContext(game), node.source),
+    bindings: captureWGTextBindings(
+      parts,
+      createWGRuntimeContext(game, { locals: active.locals }),
+      node.source,
+    ),
   });
 }
 
@@ -67,11 +77,13 @@ function enterPassage(game, thread, passageId) {
   active.choices = [];
   active.wait = null;
   const key = `${chat.id}:${passageId}:${thread.history.length + 1}`;
-  const session = chatDecisionSession(game, "record", {}, key);
+  const session = chatDecisionSession(game, "record", {}, key, active.locals);
   function visit(nodes) {
     for (const node of iterateSelectedWGNodes(nodes, session)) {
       if (node.type === "message") appendMessage(game, thread, node);
-      else if (node.type === "effect") applyWGEffects(game, [node.effect]);
+      else if (node.type === "effect") {
+        applyWGEffects(game, [node.effect], { locals: active.locals });
+      }
       else if (node.type === "choice") active.choices.push(node.id);
       else if (node.type === "wait") {
         active.wait = { target: node.target.slice(1), dueAt: new Date(game.now.getTime() + Math.round(node.minutes * 60000)).toISOString() };
@@ -87,7 +99,13 @@ function enterPassage(game, thread, passageId) {
 }
 
 function activateChat(game, thread, chatId) {
-  thread.active = { chatId, passageId: chatDefinition(chatId).passages[0].id, choices: [], wait: null };
+  thread.active = {
+    chatId,
+    passageId: chatDefinition(chatId).passages[0].id,
+    choices: [],
+    wait: null,
+    locals: {},
+  };
   enterPassage(game, thread, thread.active.passageId);
 }
 
@@ -121,7 +139,7 @@ function sendBlockReason(game) {
 
 export function availableChatChoices(game, thread) {
   if (!thread.active || thread.active.wait) return [];
-  const context = createWGRuntimeContext(game);
+  const context = createWGRuntimeContext(game, { locals: thread.active.locals });
   const nodes = collectWGNodes(
     chatPassage(chatDefinition(thread.active.chatId), thread.active.passageId).body,
   );
@@ -148,7 +166,7 @@ export function sendChatReply(game, { npcId, chatId, passageId, historyLength, c
     label: `chat:${chatId}:${choiceId}`,
     apply() {
       appendMessage(game, thread, choice, true);
-      applyWGEffects(game, choice.effects || []);
+      applyWGEffects(game, choice.effects || [], { locals: thread.active.locals });
       enterPassage(game, thread, choice.target.slice(1));
     },
   });

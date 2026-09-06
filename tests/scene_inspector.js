@@ -405,6 +405,7 @@ function seedInspectorReturn(entry) {
     target: "@exit",
     sceneId: null,
     behavior: null,
+    locals: {},
     poolId: "scene-inspector",
     eventSceneId: entry.id,
     sourceSceneId: entry.id,

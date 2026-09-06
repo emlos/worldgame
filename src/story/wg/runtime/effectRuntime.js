@@ -17,13 +17,25 @@ function fail(message) {
   throw new WGEffectError(message);
 }
 
-function storyParent(game, path) {
-  let parent = game.story;
+function mutationParent(game, path, { locals = null } = {}) {
+  let parent;
+  if (path[0] === "story") {
+    parent = game.story;
+  } else if (path[0] === "local") {
+    parent = locals ?? game.currentStory?.locals;
+    if (!parent) {
+      fail(
+        `Cannot mutate local path '${path.join(".")}' without an active scene or chat`,
+      );
+    }
+  } else {
+    fail(`Unknown mutable WG namespace '${String(path[0])}'`);
+  }
   for (const segment of path.slice(1, -1)) {
     const current = parent[segment];
     if (current === undefined) parent[segment] = {};
     else if (!current || typeof current !== "object" || Array.isArray(current)) {
-      fail(`Cannot write through non-object story path '${path.join(".")}'`);
+      fail(`Cannot write through non-object ${path[0]} path '${path.join(".")}'`);
     }
     parent = parent[segment];
   }
@@ -38,14 +50,14 @@ function applyChatEffect(game, effect) {
   game.startChat(effect.id);
 }
 
-function applyStoryMutation(game, effect) {
+function applyMutation(game, effect, options) {
   if (effect.path[0] === "flags") {
     game.setFlag(effect.path[1]);
     return;
   }
-  const context = createWGRuntimeContext(game);
+  const context = createWGRuntimeContext(game, options);
   const value = evaluateWGExpression(effect.value, context);
-  const { parent, key } = storyParent(game, effect.path);
+  const { parent, key } = mutationParent(game, effect.path, options);
   if (effect.op === "set") {
     parent[key] = value;
     return;
@@ -134,8 +146,8 @@ function applyStatEffect(game, effect) {
 const EFFECT_HANDLERS = new Map([
   ["contact", applyContactEffect],
   ["chat", applyChatEffect],
-  ["set", applyStoryMutation],
-  ["add", applyStoryMutation],
+  ["set", applyMutation],
+  ["add", applyMutation],
   ["unset", applyUnsetEffect],
   ["reminder", applyReminderEffect],
   ["timer", applyTimerEffect],
@@ -168,14 +180,14 @@ function runtimeHandler(game, effect) {
   return handler;
 }
 
-export function applyWGEffect(game, effect) {
-  runtimeHandler(game, effect)(game, effect);
+export function applyWGEffect(game, effect, options = {}) {
+  runtimeHandler(game, effect)(game, effect, options);
 }
 
-export function applyWGEffects(game, effects) {
+export function applyWGEffects(game, effects, options = {}) {
   if (!Array.isArray(effects)) fail("WG effect collections must be arrays");
   const handlers = effects.map((effect) => runtimeHandler(game, effect));
   for (let index = 0; index < effects.length; index += 1) {
-    handlers[index](game, effects[index]);
+    handlers[index](game, effects[index], options);
   }
 }

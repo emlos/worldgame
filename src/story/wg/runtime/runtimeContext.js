@@ -108,7 +108,7 @@ function npcContext(game, npc) {
   };
 }
 
-export function createWGRuntimeContext(game) {
+export function createWGRuntimeContext(game, { locals = null } = {}) {
   const npcs = {};
   for (const [id, npc] of game.npcs) npcs[id] = npcContext(game, npc);
 
@@ -126,6 +126,7 @@ export function createWGRuntimeContext(game) {
     npc: npcs,
     flags,
     daily,
+    local: locals ?? game.currentStory?.locals ?? {},
     time: timeContext(game.now, game.startedAt),
     event: activeContinuation
       ? {

@@ -7,8 +7,12 @@ import { buildChatThreadView } from "../src/game/chat/view.js";
 import { applyWGEffects } from "../src/story/wg/runtime/effectRuntime.js";
 import {
   enterWGScene,
+  enterWGTarget,
   resolveActiveWGStory,
+  returnWGStory,
+  suspendWGContinuation,
 } from "../src/story/wg/runtime/storyRuntime.js";
+import { createWGRuntimeContext } from "../src/story/wg/runtime/runtimeContext.js";
 import { materializeWGResponse } from "../src/story/wg/runtime/sceneMaterializer.js";
 import {
   createWGDecisionSession,
@@ -172,6 +176,13 @@ test("contact and chat WG effects use the Game facade and chat snapshots survive
     { op: "contact", action: "add", npcId: "kim" },
     { op: "chat", action: "start", id: "kim.rent" },
   ]);
+  enterWGScene(game, "place.player-home");
+  resolveActiveWGStory(game);
+  applyWGEffects(game, [{
+    op: "set",
+    path: ["local", "scene_marker"],
+    value: { type: "literal", value: "unchanged" },
+  }]);
 
   let view = buildChatThreadView(game, "kim");
   const reply = view.choices.find((choice) => choice.label === "Ask about the notice");
@@ -183,12 +194,17 @@ test("contact and chat WG effects use the Game facade and chat snapshots survive
   assert.match(view.messages[0].text, /tenant from/);
   assert.equal(view.messages[1].text, "Hi. That doesn't sound right. Thanks for letting me know...");
   assert.equal(view.waiting, true);
+  assert.deepEqual(game.chats.threads.kim.active.locals, { rentReply: "polite" });
+  assert.deepEqual(game.currentStory.locals, { scene_marker: "unchanged" });
+  assert.equal(game.story.kim, undefined);
 
   const restored = Game.fromJSON(JSON.parse(JSON.stringify(game.toJSON())));
   assert.deepEqual(
     buildChatThreadView(restored, "kim").messages,
     view.messages,
   );
+  assert.deepEqual(restored.chats.threads.kim.active.locals, { rentReply: "polite" });
+  assert.deepEqual(restored.currentStory.locals, { scene_marker: "unchanged" });
 });
 
 test("active WG passages persist one shared instance key", () => {
@@ -201,8 +217,78 @@ test("active WG passages persist one shared instance key", () => {
 
   const key = game.currentStory.instanceKey;
   assert.match(key, /^scene:taylor\.study\.peek:/);
-  const restored = Game.fromJSON(JSON.parse(JSON.stringify(game.toJSON())));
+  const saved = JSON.parse(JSON.stringify(game.toJSON()));
+  const missingLocals = structuredClone(saved);
+  delete missingLocals.currentStory.locals;
+  assert.throws(() => Game.fromJSON(missingLocals), /currentStory\.locals.*required/);
+
+  const restored = Game.fromJSON(saved);
   assert.equal(restored.currentStory.instanceKey, key);
+});
+
+test("scene locals survive passages, saves, and suspension, then clear on exit", () => {
+  const game = new Game({
+    seed: 9904,
+    startDate: new Date("2026-09-04T12:00:00.000Z"),
+  });
+  enterWGScene(game, "example.passage-scene");
+  resolveActiveWGStory(game);
+  applyWGEffects(game, [
+    {
+      op: "set",
+      path: ["local", "route", "name"],
+      value: { type: "literal", value: "careful" },
+    },
+    {
+      op: "set",
+      path: ["local", "steps"],
+      value: { type: "literal", value: 1 },
+    },
+    {
+      op: "add",
+      path: ["local", "steps"],
+      value: { type: "literal", value: 2 },
+    },
+  ]);
+  assert.deepEqual(createWGRuntimeContext(game).local, {
+    route: { name: "careful" },
+    steps: 3,
+  });
+
+  const restored = Game.fromJSON(JSON.parse(JSON.stringify(game.toJSON())));
+  enterWGTarget(restored, ".decision", { sceneId: "example.passage-scene" });
+  resolveActiveWGStory(restored);
+  assert.deepEqual(restored.currentStory.locals, game.currentStory.locals);
+
+  suspendWGContinuation(
+    restored,
+    { target: ".ending", sceneId: "example.passage-scene" },
+    {
+      poolId: "test.pool",
+      eventSceneId: "taylor.study.peek",
+      choiceId: "test-choice",
+    },
+  );
+  enterWGScene(restored, "taylor.study.peek");
+  resolveActiveWGStory(restored);
+  assert.deepEqual(restored.currentStory.locals, {});
+
+  const interruptedSave = JSON.parse(JSON.stringify(restored.toJSON()));
+  assert.deepEqual(interruptedSave.storyContinuations[0].locals, {
+    route: { name: "careful" },
+    steps: 3,
+  });
+  const interrupted = Game.fromJSON(interruptedSave);
+  returnWGStory(interrupted);
+  resolveActiveWGStory(interrupted);
+  assert.deepEqual(interrupted.currentStory.locals, {
+    route: { name: "careful" },
+    steps: 3,
+  });
+
+  enterWGTarget(interrupted, "@exit");
+  assert.equal(interrupted.currentStory, null);
+  assert.deepEqual(createWGRuntimeContext(interrupted).local, {});
 });
 
 test("system-backed WG scenes use the same frame-level instance key", () => {

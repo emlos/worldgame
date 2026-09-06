@@ -69,7 +69,8 @@ export function validateChatState(state, npcIds) {
 
     if (thread.active) {
       const active = thread.active;
-      object(active, ["chatId", "passageId", "choices", "wait"]);
+      object(active, ["chatId", "passageId", "choices", "wait", "locals"]);
+      object(active.locals, Object.keys(active.locals));
       const passage = chatPassage(chatDefinition(active.chatId), active.passageId);
       const choices = collectWGNodes(passage.body, (node) => node.type === "choice");
       strings(active.choices);

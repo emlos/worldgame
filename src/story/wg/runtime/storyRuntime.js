@@ -89,6 +89,7 @@ export function enterWGScene(
     const revision = game.storyRevision + 1;
     game.currentStory = {
       id: definition.id,
+      locals: {},
       instanceKey: [
         "wg-system-v1",
         definition.id,
@@ -106,6 +107,7 @@ export function enterWGScene(
     return;
   }
 
+  const previousFrame = game.currentStory;
   let resolvedPassageId = passageId ?? definition.passages?.[0]?.id;
   let behavior = null;
   if (definition.behavior && runOnEnter) {
@@ -114,10 +116,10 @@ export function enterWGScene(
     behavior = entered.behavior;
   } else if (
     !runOnEnter &&
-    game.currentStory?.id === definition.id &&
-    game.currentStory.behavior
+    previousFrame?.id === definition.id &&
+    previousFrame.behavior
   ) {
-    behavior = structuredClone(game.currentStory.behavior);
+    behavior = structuredClone(previousFrame.behavior);
   }
 
   if (!definition.passages?.some((passage) => passage.id === resolvedPassageId)) {
@@ -128,6 +130,9 @@ export function enterWGScene(
   game.currentStory = {
     id: definition.id,
     passageId: resolvedPassageId,
+    locals: !runOnEnter && previousFrame?.id === definition.id
+      ? previousFrame.locals
+      : {},
     instanceKey: [
       "scene",
       definition.id,
@@ -160,6 +165,7 @@ export function suspendWGContinuation(
     target,
     sceneId: outcome.sceneId || null,
     behavior: frame?.behavior ? structuredClone(frame.behavior) : null,
+    locals: frame?.locals ? structuredClone(frame.locals) : {},
     poolId: String(poolId),
     eventSceneId: String(eventSceneId),
     sourceSceneId: String(resolvedSourceSceneId),
@@ -179,6 +185,7 @@ export function returnWGStory(game) {
     game.currentStory = {
       id: continuation.sceneId,
       passageId: continuation.sourcePassageId,
+      locals: structuredClone(continuation.locals),
       ...(continuation.behavior
         ? { behavior: structuredClone(continuation.behavior) }
         : {}),
