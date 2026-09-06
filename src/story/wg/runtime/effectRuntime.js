@@ -39,6 +39,10 @@ function applyChatEffect(game, effect) {
 }
 
 function applyStoryMutation(game, effect) {
+  if (effect.path[0] === "flags") {
+    game.setFlag(effect.path[1]);
+    return;
+  }
   const context = createWGRuntimeContext(game);
   const value = evaluateWGExpression(effect.value, context);
   const { parent, key } = storyParent(game, effect.path);
@@ -56,8 +60,8 @@ function applyStoryMutation(game, effect) {
   parent[key] = result;
 }
 
-function applyFlagEffect(game, effect) {
-  game.setFlag(effect.flag, effect.value);
+function applyUnsetEffect(game, effect) {
+  game.clearFlag(effect.path[1]);
 }
 
 function applyReminderEffect(game, effect) {
@@ -132,7 +136,7 @@ const EFFECT_HANDLERS = new Map([
   ["chat", applyChatEffect],
   ["set", applyStoryMutation],
   ["add", applyStoryMutation],
-  ["flag", applyFlagEffect],
+  ["unset", applyUnsetEffect],
   ["reminder", applyReminderEffect],
   ["timer", applyTimerEffect],
   ["daily-flag", applyDailyFlagEffect],

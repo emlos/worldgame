@@ -110,7 +110,7 @@ Kim is sitting at {{npc.kim.dependent}} desk. {{npc.kim.subject | cap}} looks up
 
   @passage leave
 
-  @effect flag rent_intro_2 false
+  @effect unset flags.rent_intro_2
   @effect timer start rent.weekly
 
   You leave the office with a copy of the account. {{@if story.rent.debt >= 800}}The £800 balance is overdue, and {{@else}}You have paid the outstanding amount, but {{@endif}}another £200 charge will be added every seven days.
@@ -138,7 +138,7 @@ Kim is sitting at {{npc.kim.dependent}} desk. {{npc.kim.subject | cap}} looks up
   @when not flags.rent_debt_escalation_seen
   @heading "The rent cannot be ignored"
   @onenter
-    @effect flag rent_debt_escalation_seen true
+    @effect set flags.rent_debt_escalation_seen
   @endonenter
 
   @passage warning

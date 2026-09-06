@@ -51,7 +51,7 @@ contact queues until the active one finishes. Contacts appear in the Chats app.
   @message
     It's sorted. You can ignore that notice.
   @endmessage
-  @effect flag kim_rent_corrected true
+  @effect set flags.kim_rent_corrected
   @finish
 @endchat
 ```
@@ -86,7 +86,7 @@ contact queues until the active one finishes. Contacts appear in the Chats app.
   reruns effects. Editing authored wording changes the reconstructed wording;
   inserting, removing, or reordering chat messages may change their generated
   references and invalidate development saves. Game save format is
-  currently 32; the separately versioned compiled WG bundle format is 30.
+  currently 32; the separately versioned compiled WG bundle format is 31.
 - Unread counts include incoming messages after each contact's saved read
   position. Opening the contact list does not mark messages read. Reading to the
   end of a visible thread does. The app badge totals all contacts.
@@ -240,7 +240,7 @@ particular place:
 @place-key library
 @when not flags.library_closing_seen
 @onenter
-  @effect flag library_closing_seen true
+  @effect set flags.library_closing_seen
 @endonenter
 
 Someone calls after you as the library door closes.
@@ -389,7 +389,7 @@ You live at this juncture.
   @choice "Check the notice on the door" -> @exit
     @when not flags.home_notice_read
     @time 1m
-    @effect flag home_notice_read true
+    @effect set flags.home_notice_read
     @response
       A notice has been pinned to your front door.
       Someone is asking you to contact the civil office.
@@ -861,8 +861,8 @@ school place definition determines periods and segment boundaries; WG scenes
 use these semantic values rather than comparing clock strings themselves.
 
 Expression path segments use letters, numbers, and `_`, and cannot start with
-a number. IDs containing `-` can be used by directives such as `@effect flag`,
-but cannot currently be read through a dotted expression path.
+a number. Global flag names used by WG therefore follow the same rule so they
+can be read and changed through `flags.<name>` paths.
 
 A missing expression path evaluates to `undefined`, which is false when used
 directly as a condition. The compiler checks expression syntax but does not
@@ -1216,7 +1216,7 @@ difficulty, and two outcome blocks:
     @response
       The lid pops open.
     @endresponse
-    @effect flag jar_opened true
+    @effect set flags.jar_opened
   @endsuccess
 
   @failure -> home.jar-stuck
@@ -1303,8 +1303,8 @@ Implemented effects are:
 @effect set story.some.path true
 @effect set story.some.snapshot player.energy
 @effect add story.some.counter 1
-@effect flag met-taylor true
-@effect flag met-taylor false
+@effect set flags.met_taylor
+@effect unset flags.met_taylor
 @effect daily-flag home_weightlifting true
 @effect daily-flag home_weightlifting false
 @effect relationship taylor.friendship 2
@@ -1326,12 +1326,15 @@ Implemented effects are:
 @effect relocate nearest-place hospital
 ```
 
-- `set` and `add` target only `story.*`. Their values are expressions, and
-  missing intermediate story objects are created automatically. `add` treats a
-  missing or `null` final value as zero and requires both values to be finite
-  numbers. Neither operation can write through an existing scalar or list used
-  as an intermediate path segment.
-- `flag <id> true|false` enables or removes a game flag.
+- `set story.<path> <value>` and `add story.<path> <value>` mutate persistent
+  story data. Their values are expressions, and missing intermediate story
+  objects are created automatically. `add` treats a missing or `null` final
+  value as zero and requires both values to be finite numbers. Neither
+  operation can write through an existing scalar or list used as an
+  intermediate path segment.
+- `set flags.<name>` enables a global game flag; `unset flags.<name>` removes
+  it. Flag names are expression path segments, so they may contain letters,
+  numbers, and `_`, but cannot start with a number.
 - `daily-flag <id> true|false` enables or removes a daily flag. All daily flags
   are cleared together when forward game time crosses UTC midnight. Use
   `not daily.<id>` to gate a once-per-day choice.
@@ -1497,7 +1500,7 @@ Only active authored IDs are saved; automatic school reminders are derived
 from the schedule. The built-in and authored namespaces cannot collide.
 Game save format 32 includes the reminder state and game-start date; older saves
 are intentionally unsupported. The compiled WG bundle has its own format version,
-currently 30.
+currently 31.
 
 Reminder lifecycle integration is covered by
 `node --test tests/timers.test.mjs tests/cafe_job.test.mjs`; all authored reminder
@@ -1586,7 +1589,7 @@ not implemented.
 | Checked choice | `@icon`, `@event-pool`, `@event-chance`, `@when`, `@require`, `@warning`, `@check`, `@success ... @endsuccess`, `@failure ... @endfailure` |
 | Check outcome | `@time`, `@response ... @endresponse`, `@effect` |
 | On-enter block | `@effect` |
-| Effect operations | `contact add`, `chat start`, `set`, `add`, `flag`, `daily-flag`, `reminder add`, `reminder clear`, `timer start`, `timer restart`, `timer stop`, `unlock place`, `relocate home`, `relocate nearest-place`, `relationship`, `money`, `skill`, `stat`, `grade`, `attendance` |
+| Effect operations | `contact add`, `chat start`, `set`, `add`, `unset`, `daily-flag`, `reminder add`, `reminder clear`, `timer start`, `timer restart`, `timer stop`, `unlock place`, `relocate home`, `relocate nearest-place`, `relationship`, `money`, `skill`, `stat`, `grade`, `attendance` |
 | Story targets | `global scene ID`, `local .passage`, `@exit`, `@return`, `@leave-place` |
 <!-- WG-DIRECTIVE-INDEX:END -->
 

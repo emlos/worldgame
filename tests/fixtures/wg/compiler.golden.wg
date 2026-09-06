@@ -14,7 +14,7 @@
 @heading "Compiler fixture"
 @choices "What next?"
 @onenter
-  @effect flag compiler_fixture_started true
+  @effect set flags.compiler_fixture_started
 @endonenter
 
 Hello, {{player.name}}.

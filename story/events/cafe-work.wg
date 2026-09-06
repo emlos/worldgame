@@ -8,7 +8,7 @@
   The pay is £7 an hour. You can come in for shifts as long as the cafe is open.
 
   @choice "Accept the job" -> .accepted
-    @effect flag cafe_employee true
+    @effect set flags.cafe_employee
     @effect reminder add cafe_job
   @endchoice
 

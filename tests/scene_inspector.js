@@ -802,7 +802,12 @@ function referencedFlagIds(entry) {
         if (root === "daily" && segments.length) found.daily.add(segments.join("."));
       }
       const effect = node.effect && typeof node.effect === "object" ? node.effect : node;
-      if (effect.op === "flag" && effect.flag) found.flag.add(effect.flag);
+      if (
+        (effect.op === "set" || effect.op === "unset") &&
+        effect.path?.[0] === "flags" && effect.path[1]
+      ) {
+        found.flag.add(effect.path[1]);
+      }
       if (effect.op === "daily-flag" && effect.flag) found.daily.add(effect.flag);
     });
   }

@@ -239,9 +239,35 @@ const EFFECT_DEFINITIONS = [
       if (!catalogHas(catalog.chats, effect.id)) fail(`Unknown chat '${effect.id}'`);
     },
   },
-  ...["set", "add"].map((op) => ({
-    op,
-    syntax: op,
+  {
+    op: "set",
+    syntax: "set",
+    validate(effect, fail) {
+      const isFlag = Array.isArray(effect.path) &&
+        effect.path.length === 2 && effect.path[0] === "flags";
+      validateBaseEffect(effect, isFlag ? ["path"] : ["path", "value"], [], fail);
+      if (isFlag) {
+        if (!STORY_PATH_SEGMENT_PATTERN.test(effect.path[1])) {
+          fail("WG set effect requires a valid flags.<name> path");
+        }
+        return;
+      }
+      if (
+        !Array.isArray(effect.path) ||
+        effect.path.length < 2 ||
+        effect.path[0] !== "story" ||
+        effect.path.some((segment) =>
+          typeof segment !== "string" || !STORY_PATH_SEGMENT_PATTERN.test(segment)
+        )
+      ) {
+        fail("WG set effect requires a valid story.* path and value, or flags.<name>");
+      }
+      validateExpression(effect.value, fail);
+    },
+  },
+  {
+    op: "add",
+    syntax: "add",
     validate(effect, fail) {
       validateBaseEffect(effect, ["path", "value"], [], fail);
       if (
@@ -252,20 +278,38 @@ const EFFECT_DEFINITIONS = [
           typeof segment !== "string" || !STORY_PATH_SEGMENT_PATTERN.test(segment)
         )
       ) {
-        fail(`WG ${op} effect may only target a valid story.* path`);
+        fail("WG add effect requires a valid story.* path and value");
       }
       validateExpression(effect.value, fail);
     },
-  })),
-  ...["flag", "daily-flag"].map((op) => ({
-    op,
-    syntax: op,
+  },
+  {
+    op: "unset",
+    syntax: "unset",
+    validate(effect, fail) {
+      validateBaseEffect(effect, ["path"], [], fail);
+      if (
+        !Array.isArray(effect.path) ||
+        effect.path.length !== 2 ||
+        effect.path[0] !== "flags" ||
+        typeof effect.path[1] !== "string" ||
+        !STORY_PATH_SEGMENT_PATTERN.test(effect.path[1])
+      ) {
+        fail("WG unset effect requires a valid flags.<name> path");
+      }
+    },
+  },
+  {
+    op: "daily-flag",
+    syntax: "daily-flag",
     validate(effect, fail) {
       validateBaseEffect(effect, ["flag", "value"], [], fail);
-      validateId(effect.flag, `WG ${op} id`, fail);
-      if (typeof effect.value !== "boolean") fail(`WG ${op} effect requires a boolean`);
+      validateId(effect.flag, "WG daily-flag id", fail);
+      if (typeof effect.value !== "boolean") {
+        fail("WG daily-flag effect requires a boolean");
+      }
     },
-  })),
+  },
   {
     op: "reminder",
     syntax: ["reminder add", "reminder clear"],

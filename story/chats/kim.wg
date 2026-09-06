@@ -106,7 +106,7 @@
   @endmessage
 
   @effect unlock place home_kim
-  @effect flag rent_intro_2 true
+  @effect set flags.rent_intro_2
 
   @finish
 @endchat

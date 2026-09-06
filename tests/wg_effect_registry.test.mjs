@@ -53,7 +53,8 @@ test("the compiler registry parses every effect without changing the effect IR",
     "  @effect chat start registry.chat",
     "  @effect set story.registry.value 1",
     "  @effect add story.registry.value 2",
-    "  @effect flag registry_flag true",
+    "  @effect set flags.registry_flag",
+    "  @effect unset flags.registry_old_flag",
     "  @effect daily-flag registry_daily true",
     "  @effect reminder add registry.notice",
     "  @effect timer start rent.weekly",
@@ -72,7 +73,7 @@ test("the compiler registry parses every effect without changing the effect IR",
 
   const bundle = compileStorySources([{ file: "registry.wg", source }]);
   const scene = bundle.scenes["registry.effects"];
-  assert.deepEqual(sorted(scene.onEnter.map((effect) => effect.op)), sorted(WG_EFFECT_OPS));
+  assert.deepEqual(sorted(new Set(scene.onEnter.map((effect) => effect.op))), sorted(WG_EFFECT_OPS));
 
   const change = scene.passages[0].body[0].parts.find((part) => part.type === "change");
   assert.deepEqual(change.effect.feedback, {
@@ -86,9 +87,59 @@ test("the compiler registry parses every effect without changing the effect IR",
     {
       op: "unlock-place",
       placeKey: "civil_office",
-      source: { file: "registry.wg", line: 24, column: 1 },
+      source: { file: "registry.wg", line: 25, column: 1 },
     },
   );
+});
+
+test("set and unset use namespaces to mutate story values and global flags", () => {
+  const bundle = compileStorySources([{
+    file: "namespaced-mutations.wg",
+    source: [
+      ":: fixture.namespaced-mutations",
+      "@onenter",
+      '  @effect set story.fixture.label "ready"',
+      "  @effect set flags.fixture_ready",
+      "  @effect unset flags.fixture_old",
+      "@endonenter",
+      "",
+      "Ready.",
+    ].join("\n"),
+  }]);
+  const effects = bundle.scenes["fixture.namespaced-mutations"].onEnter;
+  assert.deepEqual(effects.map(({ source: _source, ...effect }) => effect), [
+    {
+      op: "set",
+      path: ["story", "fixture", "label"],
+      value: { type: "literal", value: "ready" },
+    },
+    { op: "set", path: ["flags", "fixture_ready"] },
+    { op: "unset", path: ["flags", "fixture_old"] },
+  ]);
+
+  const game = new Game({ seed: 903 });
+  game.setFlag("fixture_old");
+  applyWGEffects(game, effects);
+  assert.equal(game.story.fixture.label, "ready");
+  assert.equal(game.hasFlag("fixture_ready"), true);
+  assert.equal(game.hasFlag("fixture_old"), false);
+});
+
+test("removed and malformed global flag mutations are rejected", () => {
+  for (const [directive, expected] of [
+    ["@effect flag old_flag true", /Unknown or malformed @effect/],
+    ["@effect set flags.named true", /requires a story\.\* path and value/],
+    ["@effect unset story.named", /requires a flags\.<name> path/],
+  ]) {
+    assert.throws(
+      () => compileStorySources([{
+        file: "invalid-flag-mutation.wg",
+        source: `:: invalid-flag-mutation\n\n${directive}`,
+      }]),
+      expected,
+      directive,
+    );
+  }
 });
 
 test("skills use the ordinary hint, change, and silent-effect behavior", () => {
@@ -153,7 +204,7 @@ test("the removed @preview directive is rejected", () => {
 });
 
 test("effect traversal covers every legal effect container exactly once", () => {
-  const effect = (id) => ({ op: "flag", flag: id, value: true });
+  const effect = (id) => ({ op: "set", path: ["flags", id] });
   const definition = {
     onEnter: [effect("on-enter")],
     body: [
@@ -186,7 +237,7 @@ test("effect traversal covers every legal effect container exactly once", () => 
     passages: [{ body: [{ type: "effect", effect: effect("passage") }] }],
   };
   const visited = [];
-  walkWGDefinitionEffects(definition, (candidate) => visited.push(candidate.flag));
+  walkWGDefinitionEffects(definition, (candidate) => visited.push(candidate.path[1]));
   assert.deepEqual(visited, [
     "on-enter",
     "inline",

@@ -1,5 +1,5 @@
 {
-  "formatVersion": 30,
+  "formatVersion": 31,
   "scenes": {
     "fixture.followup": {
       "id": "fixture.followup",
@@ -83,9 +83,11 @@
       "system": null,
       "onEnter": [
         {
-          "op": "flag",
-          "flag": "compiler_fixture_started",
-          "value": true
+          "op": "set",
+          "path": [
+            "flags",
+            "compiler_fixture_started"
+          ]
         }
       ],
       "passages": [

@@ -103,19 +103,35 @@ function parseTimer(argument, file, line, at) {
   };
 }
 
-function parseStoryMutation(argument, file, line, at, op) {
+function parseMutation(argument, file, line, at, op) {
   const match = argument.match(
-    new RegExp(`^${op}\\s+([A-Za-z_][A-Za-z0-9_]*(?:\\.[A-Za-z_][A-Za-z0-9_]*)+)\\s+(.+)$`),
+    new RegExp(`^${op}\\s+([A-Za-z_][A-Za-z0-9_]*(?:\\.[A-Za-z_][A-Za-z0-9_]*)+)(?:\\s+(.+))?$`),
   );
   if (!match) failWG("Unknown or malformed @effect", at);
   const path = match[1].split(".");
-  if (path[0] !== "story" || path.length < 2) {
-    failWG(`@effect ${op} may only target story.*`, at);
+
+  if (op === "set" && path[0] === "flags" && path.length === 2 && match[2] === undefined) {
+    return { op, path, source: source(file, line) };
+  }
+  if (path[0] !== "story" || path.length < 2 || match[2] === undefined) {
+    failWG(`@effect ${op} requires a story.* path and value`, at);
   }
   return {
     op,
     path,
     value: parseExpression(match[2], at),
+    source: source(file, line),
+  };
+}
+
+function parseUnset(argument, file, line, at) {
+  const match = argument.match(
+    /^unset\s+(flags\.[A-Za-z_][A-Za-z0-9_]*)$/,
+  );
+  if (!match) failWG("@effect unset requires a flags.<name> path", at);
+  return {
+    op: "unset",
+    path: match[1].split("."),
     source: source(file, line),
   };
 }
@@ -183,11 +199,10 @@ const EFFECT_PARSERS = new Map([
   ["reminder", effectParser("reminder", parseReminder)],
   ["timer", effectParser("timer", parseTimer)],
   ["set", effectParser("set", (argument, file, line, at) =>
-    parseStoryMutation(argument, file, line, at, "set"))],
+    parseMutation(argument, file, line, at, "set"))],
   ["add", effectParser("add", (argument, file, line, at) =>
-    parseStoryMutation(argument, file, line, at, "add"))],
-  ["flag", effectParser("flag", (argument, file, line, at) =>
-    parseFlag(argument, file, line, at, "flag"))],
+    parseMutation(argument, file, line, at, "add"))],
+  ["unset", effectParser("unset", parseUnset)],
   ["daily-flag", effectParser("daily-flag", (argument, file, line, at) =>
     parseFlag(argument, file, line, at, "daily-flag"))],
   ["relationship", effectParser("relationship", parseRelationship)],
