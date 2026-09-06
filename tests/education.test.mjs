@@ -127,14 +127,14 @@ test("WG effects, expression context, and the phone expose progress", () => {
   });
 });
 
-test("save version 33 round-trips canonical subject achievement", () => {
+test("save version 34 round-trips canonical subject achievement", () => {
   const game = new Game({ seed: 117 });
   game.player.setSubjectGrade("art", "B");
   game.player.setSubjectProgress("art", 42);
   game.player.recordSubjectAttendance("art", 3);
 
   const save = game.toJSON();
-  assert.equal(save.saveVersion, 33);
+  assert.equal(save.saveVersion, 34);
   assert.deepEqual(save.player.education.subjects.art, {
     achievement: 242,
     attendedSegments: 3,

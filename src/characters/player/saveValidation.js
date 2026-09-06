@@ -89,6 +89,11 @@ export function validatePlayerSave(data, { path = "save.player", npcProfiles, ga
   const player = saveRecord(data, path);
   validateCharacterCoreSave(player, path);
   const storedStats = saveRecord(requiredSaveField(player, "stats", path), `${path}.stats`);
+  for (const name of Object.keys(storedStats)) {
+    if (!Object.prototype.hasOwnProperty.call(STATS, name)) {
+      failSave(`${path}.stats.${name}`, `references unknown player stat '${name}'`);
+    }
+  }
   for (const [name, definition] of Object.entries(STATS)) {
     const present = Object.prototype.hasOwnProperty.call(storedStats, name);
     if (definition.derived && present) {

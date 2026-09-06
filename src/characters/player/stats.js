@@ -8,13 +8,6 @@ export const STATS = {
     derived: true,
     higherIsBetter: true,
   },
-  mind: {
-    label: "Mind",
-    max: 100,
-    min: -100,
-    initial: 0,
-    higherIsBetter: true,
-  },
   stress: {
     label: "Stress",
     max: 100,
@@ -29,26 +22,12 @@ export const STATS = {
     initial: 100,
     higherIsBetter: true,
   },
-  trauma: {
-    label: "Trauma",
-    max: 100,
-    min: 0,
-    initial: 0,
-    higherIsBetter: false,
-  },
   hygiene: {
     label: "Hygiene",
     max: 100,
     min: 0,
     initial: 100,
     higherIsBetter: true,
-  },
-  fear: {
-    label: "Fear",
-    max: 100,
-    min: 0,
-    initial: 0,
-    higherIsBetter: false,
   },
 };
 

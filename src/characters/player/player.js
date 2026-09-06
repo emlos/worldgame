@@ -520,8 +520,9 @@ export class Player {
         });
 
         player.stats = {};
-        for (const [name, statData] of Object.entries(data?.stats || {})) {
-            player.stats[name] = Stat.fromJSON(statData);
+        for (const [name, definition] of Object.entries(STATS)) {
+            if (definition.derived) continue;
+            player.stats[name] = Stat.fromJSON(data.stats[name]);
         }
 
         player.relationships = new Map();

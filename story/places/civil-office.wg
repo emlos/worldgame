@@ -20,7 +20,7 @@ Counters, forms, and noticeboards fill {{place.name}}.
 
   @next
 
-  "What? That can't be right! I just moved here!" you say. @change stat mind -10
+  "What? That can't be right! I just moved here!" you say.
 
   "Well, the notice is clear. You have not paid your rent for the last two months. You need to pay it as soon as possible, or you will be evicted," the receptionist says.
   "Frankly, I don't know what to tell you. You should probably check your records and make sure that you have paid your rent. If you have, then you should contact the landlord and let them know.", she shurgs, unsympathetic.

@@ -471,7 +471,7 @@
 
   @passage official
 
-  You argue that the official document is more dependable because it was written for the public record. The teacher asks who controlled that record and why.  @change stat mind 1
+  You argue that the official document is more dependable because it was written for the public record. The teacher asks who controlled that record and why.
 
   @next -> @return
 
@@ -542,7 +542,7 @@
 
   @passage consequences
 
-  The teacher reveals the historical outcome. Every available option carried a cost, and the class spends the final minutes comparing those costs with its own decisions.  @change stat mind 1
+  The teacher reveals the historical outcome. Every available option carried a cost, and the class spends the final minutes comparing those costs with its own decisions.
 
   @next -> @return
 :: school.history.event.disputed-map -> @return
@@ -583,7 +583,7 @@
 
   @passage map-critical
 
-  You point out that every version places its preferred border in the strongest colour. The teacher uses your observation to discuss maps as political arguments.  @change grade history 1  @change stat mind 1
+  You point out that every version places its preferred border in the strongest colour. The teacher uses your observation to discuss maps as political arguments.  @change grade history 1
 
   @next -> @return
 
@@ -703,7 +703,7 @@
 
   @passage sample-methodical
 
-  You work through the test sheet in order and eliminate each alternative. It takes longer, but your conclusion is difficult to dispute.  @change grade science 2  @change stat mind 1
+  You work through the test sheet in order and eliminate each alternative. It takes longer, but your conclusion is difficult to dispute.  @change grade science 2
 
   @next -> @return
 
@@ -818,7 +818,7 @@
 
   @passage result-explained
 
-  On the second run, you notice condensation collecting beneath the lid before weighing. The supposedly closed experiment was trapping water from the air.  @change grade science 2  @change stat mind 1
+  On the second run, you notice condensation collecting beneath the lid before weighing. The supposedly closed experiment was trapping water from the air.  @change grade science 2
 
   @next -> @return
 

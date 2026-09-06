@@ -15891,25 +15891,6 @@ export const WG_BUNDLE = {
                 {
                   "type": "text",
                   "value": "The teacher reveals the historical outcome. Every available option carried a cost, and the class spends the final minutes comparing those costs with its own decisions."
-                },
-                {
-                  "type": "change",
-                  "effect": {
-                    "op": "stat",
-                    "id": "mind",
-                    "amount": 1,
-                    "source": {
-                      "file": "story/school/events.wg",
-                      "line": 545,
-                      "column": 1
-                    },
-                    "feedback": {
-                      "type": "stat",
-                      "amount": 1,
-                      "label": "+Mind",
-                      "direction": "increase"
-                    }
-                  }
                 }
               ],
               "source": {
@@ -16292,25 +16273,6 @@ export const WG_BUNDLE = {
                       "type": "grade",
                       "amount": 1,
                       "label": "+History",
-                      "direction": "increase"
-                    }
-                  }
-                },
-                {
-                  "type": "change",
-                  "effect": {
-                    "op": "stat",
-                    "id": "mind",
-                    "amount": 1,
-                    "source": {
-                      "file": "story/school/events.wg",
-                      "line": 586,
-                      "column": 1
-                    },
-                    "feedback": {
-                      "type": "stat",
-                      "amount": 1,
-                      "label": "+Mind",
                       "direction": "increase"
                     }
                   }
@@ -17852,25 +17814,6 @@ export const WG_BUNDLE = {
                 {
                   "type": "text",
                   "value": "You argue that the official document is more dependable because it was written for the public record. The teacher asks who controlled that record and why."
-                },
-                {
-                  "type": "change",
-                  "effect": {
-                    "op": "stat",
-                    "id": "mind",
-                    "amount": 1,
-                    "source": {
-                      "file": "story/school/events.wg",
-                      "line": 474,
-                      "column": 1
-                    },
-                    "feedback": {
-                      "type": "stat",
-                      "amount": 1,
-                      "label": "+Mind",
-                      "direction": "increase"
-                    }
-                  }
                 }
               ],
               "source": {
@@ -24279,25 +24222,6 @@ export const WG_BUNDLE = {
                       "direction": "increase"
                     }
                   }
-                },
-                {
-                  "type": "change",
-                  "effect": {
-                    "op": "stat",
-                    "id": "mind",
-                    "amount": 1,
-                    "source": {
-                      "file": "story/school/events.wg",
-                      "line": 821,
-                      "column": 1
-                    },
-                    "feedback": {
-                      "type": "stat",
-                      "amount": 1,
-                      "label": "+Mind",
-                      "direction": "increase"
-                    }
-                  }
                 }
               ],
               "source": {
@@ -24934,25 +24858,6 @@ export const WG_BUNDLE = {
                       "type": "grade",
                       "amount": 2,
                       "label": "+Science",
-                      "direction": "increase"
-                    }
-                  }
-                },
-                {
-                  "type": "change",
-                  "effect": {
-                    "op": "stat",
-                    "id": "mind",
-                    "amount": 1,
-                    "source": {
-                      "file": "story/school/events.wg",
-                      "line": 706,
-                      "column": 1
-                    },
-                    "feedback": {
-                      "type": "stat",
-                      "amount": 1,
-                      "label": "+Mind",
                       "direction": "increase"
                     }
                   }
@@ -26223,25 +26128,6 @@ export const WG_BUNDLE = {
                 {
                   "type": "text",
                   "value": "\"What? That can't be right! I just moved here!\" you say."
-                },
-                {
-                  "type": "change",
-                  "effect": {
-                    "op": "stat",
-                    "id": "mind",
-                    "amount": -10,
-                    "source": {
-                      "file": "story/places/civil-office.wg",
-                      "line": 23,
-                      "column": 1
-                    },
-                    "feedback": {
-                      "type": "stat",
-                      "amount": -10,
-                      "label": "-Mind",
-                      "direction": "decrease"
-                    }
-                  }
                 }
               ],
               "source": {

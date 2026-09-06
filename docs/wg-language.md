@@ -86,7 +86,7 @@ contact queues until the active one finishes. Contacts appear in the Chats app.
   reruns effects. Editing authored wording changes the reconstructed wording;
   inserting, removing, or reordering chat messages may change their generated
   references and invalidate development saves. Game save format is
-  currently 33; the separately versioned compiled WG bundle format is 32.
+  currently 34; the separately versioned compiled WG bundle format is 32.
 - Unread counts include incoming messages after each contact's saved read
   position. Opening the contact list does not mark messages read. Reading to the
   end of a visible thread does. The app badge totals all contacts.
@@ -772,8 +772,8 @@ The currently exposed paths are:
   local passage changes, temporary event suspension, and saving/loading, then
   are discarded when the scene exits or another scene replaces it. Chat locals
   likewise survive passages, waits, and saves, then are discarded on `@finish`.
-- `player.health`, `player.mind`, `player.stress`, `player.energy`,
-  `player.trauma`, `player.hygiene`, and `player.fear`: evaluated player stats.
+- `player.health`, `player.energy`, `player.stress`, and `player.hygiene`:
+  evaluated player stats.
 - `player.subject`, `player.object`, `player.dependent`,
   `player.independent`, and `player.reflexive`: player pronouns.
 - `player.gender`, `player.age`, `player.money`, and `player.temperature`. Temperature is one
@@ -1005,8 +1005,8 @@ registered data. Add an optional quoted label to override that text:
 ```
 
 Stat feedback follows the stat's `higherIsBetter` definition, including when
-the label is overridden: reducing stress, fear, or trauma is green; increasing
-them uses the bad-outcome colour. Zero changes are neutral.
+the label is overridden: reducing stress is green; increasing it uses the
+bad-outcome colour. Zero changes are neutral.
 
 Put `@change` at the end of a prose source line to attach its coloured feedback
 to that sentence:
@@ -1366,7 +1366,7 @@ Implemented effects are:
 - `skill <skill-id> <signed-number>` adjusts and clamps a registered player
   skill while preserving fractional progress.
 - `stat <stat-id> <signed-number>` adjusts and clamps a registered player stat:
-  `health`, `mind`, `stress`, `energy`, `trauma`, `hygiene`, or `fear`.
+  `health`, `energy`, `stress`, or `hygiene`.
   `health` routes through the player's body health rather than an ordinary
   stored base-stat meter.
 - `grade <subject-id> <signed-whole-number>` adjusts a registered school
@@ -1508,7 +1508,7 @@ destination day's batch, and a backward date change clears the batch.
 
 Only active authored IDs are saved; automatic school reminders are derived
 from the schedule. The built-in and authored namespaces cannot collide.
-Game save format 33 includes scene-local state, reminder state, and the
+Game save format 34 includes scene-local state, reminder state, and the
 game-start date; older saves are intentionally unsupported. The compiled WG
 bundle has its own format version, currently 32.
 

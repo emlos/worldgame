@@ -85,6 +85,9 @@ test("world corruption is rejected by the world subsystem", async (t) => {
 test("character corruption is rejected by its owning subsystem", async (t) => {
   const cases = [
     ["player stat", (save) => { save.player.stats.energy.base = "full"; }, "save.player.stats.energy.base"],
+    ["unknown player stat", (save) => {
+      save.player.stats.mind = { base: 0, add: [], mult: [] };
+    }, "save.player.stats.mind"],
     ["player age", (save) => { save.player.age += 1; }, "save.player.age"],
     ["missing skill", (save) => { save.player.skills.pop(); }, "save.player.skills"],
     ["unknown relationship", (save) => {
