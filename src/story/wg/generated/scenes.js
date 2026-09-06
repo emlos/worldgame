@@ -26451,7 +26451,7 @@ export const WG_BUNDLE = {
           ],
           "source": {
             "file": "story/places/kim-home.wg",
-            "line": 206,
+            "line": 220,
             "column": 1
           }
         }
@@ -26496,7 +26496,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/kim-home.wg",
-                "line": 211,
+                "line": 225,
                 "column": 1
               }
             },
@@ -26510,7 +26510,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/kim-home.wg",
-                "line": 213,
+                "line": 227,
                 "column": 1
               }
             }
@@ -26525,13 +26525,13 @@ export const WG_BUNDLE = {
             "target": "@exit",
             "source": {
               "file": "story/places/kim-home.wg",
-              "line": 215,
+              "line": 229,
               "column": 1
             }
           },
           "source": {
             "file": "story/places/kim-home.wg",
-            "line": 209,
+            "line": 223,
             "column": 1
           }
         }
@@ -26590,7 +26590,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/places/kim-home.wg",
-        "line": 198,
+        "line": 212,
         "column": 1
       }
     },
@@ -26887,7 +26887,7 @@ export const WG_BUNDLE = {
           },
           "source": {
             "file": "story/places/kim-home.wg",
-            "line": 80,
+            "line": 94,
             "column": 1
           }
         },
@@ -26904,7 +26904,7 @@ export const WG_BUNDLE = {
           },
           "source": {
             "file": "story/places/kim-home.wg",
-            "line": 81,
+            "line": 95,
             "column": 1
           }
         },
@@ -26921,7 +26921,7 @@ export const WG_BUNDLE = {
           },
           "source": {
             "file": "story/places/kim-home.wg",
-            "line": 82,
+            "line": 96,
             "column": 1
           }
         },
@@ -26931,7 +26931,7 @@ export const WG_BUNDLE = {
           "id": "home_rent_notice_1",
           "source": {
             "file": "story/places/kim-home.wg",
-            "line": 83,
+            "line": 97,
             "column": 1
           }
         },
@@ -26941,7 +26941,7 @@ export const WG_BUNDLE = {
           "id": "rent_due",
           "source": {
             "file": "story/places/kim-home.wg",
-            "line": 84,
+            "line": 98,
             "column": 1
           }
         },
@@ -26951,7 +26951,7 @@ export const WG_BUNDLE = {
           "destination": "home",
           "source": {
             "file": "story/places/kim-home.wg",
-            "line": 85,
+            "line": 99,
             "column": 1
           }
         }
@@ -26995,7 +26995,7 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/places/kim-home.wg",
-                        "line": 91,
+                        "line": 105,
                         "column": 1
                       }
                     },
@@ -27022,14 +27022,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/places/kim-home.wg",
-                        "line": 93,
+                        "line": 107,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/kim-home.wg",
-                    "line": 90,
+                    "line": 104,
                     "column": 1
                   }
                 }
@@ -27070,7 +27070,7 @@ export const WG_BUNDLE = {
                           ],
                           "source": {
                             "file": "story/places/kim-home.wg",
-                            "line": 95,
+                            "line": 109,
                             "column": 171
                           }
                         }
@@ -27083,7 +27083,7 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/places/kim-home.wg",
-                        "line": 95,
+                        "line": 109,
                         "column": 171
                       },
                       "runtimeId": 1
@@ -27110,7 +27110,7 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/places/kim-home.wg",
-                    "line": 95,
+                    "line": 109,
                     "column": 1
                   }
                 },
@@ -27137,14 +27137,14 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/places/kim-home.wg",
-                    "line": 97,
+                    "line": 111,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/kim-home.wg",
-                "line": 90,
+                "line": 104,
                 "column": 1
               },
               "runtimeId": 0
@@ -27172,7 +27172,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/places/kim-home.wg",
-                "line": 101,
+                "line": 115,
                 "column": 1
               }
             },
@@ -27199,7 +27199,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/places/kim-home.wg",
-                "line": 104,
+                "line": 118,
                 "column": 1
               }
             },
@@ -27243,7 +27243,7 @@ export const WG_BUNDLE = {
                   "amount": -800,
                   "source": {
                     "file": "story/places/kim-home.wg",
-                    "line": 110,
+                    "line": 124,
                     "column": 1
                   },
                   "feedback": {
@@ -27270,14 +27270,14 @@ export const WG_BUNDLE = {
                   },
                   "source": {
                     "file": "story/places/kim-home.wg",
-                    "line": 111,
+                    "line": 125,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/kim-home.wg",
-                "line": 108,
+                "line": 122,
                 "column": 1
               }
             }
@@ -27285,7 +27285,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/places/kim-home.wg",
-            "line": 88,
+            "line": 102,
             "column": 1
           }
         },
@@ -27314,14 +27314,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/places/kim-home.wg",
-                        "line": 117,
+                        "line": 131,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/kim-home.wg",
-                    "line": 116,
+                    "line": 130,
                     "column": 1
                   }
                 }
@@ -27337,14 +27337,14 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/places/kim-home.wg",
-                    "line": 119,
+                    "line": 133,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/kim-home.wg",
-                "line": 116,
+                "line": 130,
                 "column": 1
               },
               "runtimeId": 0
@@ -27390,7 +27390,7 @@ export const WG_BUNDLE = {
                     "amount": 5,
                     "source": {
                       "file": "story/places/kim-home.wg",
-                      "line": 122,
+                      "line": 136,
                       "column": 1
                     },
                     "feedback": {
@@ -27404,7 +27404,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/kim-home.wg",
-                "line": 122,
+                "line": 136,
                 "column": 1
               }
             },
@@ -27431,7 +27431,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/places/kim-home.wg",
-                "line": 124,
+                "line": 138,
                 "column": 1
               }
             },
@@ -27475,7 +27475,7 @@ export const WG_BUNDLE = {
                   "amount": -800,
                   "source": {
                     "file": "story/places/kim-home.wg",
-                    "line": 130,
+                    "line": 144,
                     "column": 1
                   },
                   "feedback": {
@@ -27502,14 +27502,14 @@ export const WG_BUNDLE = {
                   },
                   "source": {
                     "file": "story/places/kim-home.wg",
-                    "line": 131,
+                    "line": 145,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/kim-home.wg",
-                "line": 128,
+                "line": 142,
                 "column": 1
               }
             }
@@ -27517,7 +27517,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/places/kim-home.wg",
-            "line": 114,
+            "line": 128,
             "column": 1
           }
         },
@@ -27554,14 +27554,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/places/kim-home.wg",
-                        "line": 137,
+                        "line": 151,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/kim-home.wg",
-                    "line": 136,
+                    "line": 150,
                     "column": 1
                   }
                 }
@@ -27577,14 +27577,14 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/places/kim-home.wg",
-                    "line": 139,
+                    "line": 153,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/kim-home.wg",
-                "line": 136,
+                "line": 150,
                 "column": 1
               },
               "runtimeId": 0
@@ -27638,7 +27638,7 @@ export const WG_BUNDLE = {
                     "amount": 8,
                     "source": {
                       "file": "story/places/kim-home.wg",
-                      "line": 143,
+                      "line": 157,
                       "column": 1
                     },
                     "feedback": {
@@ -27652,7 +27652,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/kim-home.wg",
-                "line": 142,
+                "line": 156,
                 "column": 1
               }
             }
@@ -27667,13 +27667,13 @@ export const WG_BUNDLE = {
             "target": ".leave",
             "source": {
               "file": "story/places/kim-home.wg",
-              "line": 145,
+              "line": 159,
               "column": 1
             }
           },
           "source": {
             "file": "story/places/kim-home.wg",
-            "line": 134,
+            "line": 148,
             "column": 1
           }
         },
@@ -27705,7 +27705,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/kim-home.wg",
-                "line": 149,
+                "line": 163,
                 "column": 1
               }
             },
@@ -27737,7 +27737,7 @@ export const WG_BUNDLE = {
                     "amount": 5,
                     "source": {
                       "file": "story/places/kim-home.wg",
-                      "line": 151,
+                      "line": 165,
                       "column": 1
                     },
                     "feedback": {
@@ -27751,7 +27751,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/kim-home.wg",
-                "line": 151,
+                "line": 165,
                 "column": 1
               }
             },
@@ -27791,7 +27791,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/kim-home.wg",
-                "line": 153,
+                "line": 167,
                 "column": 1
               }
             }
@@ -27806,13 +27806,13 @@ export const WG_BUNDLE = {
             "target": ".p1",
             "source": {
               "file": "story/places/kim-home.wg",
-              "line": 155,
+              "line": 169,
               "column": 1
             }
           },
           "source": {
             "file": "story/places/kim-home.wg",
-            "line": 147,
+            "line": 161,
             "column": 1
           }
         },
@@ -27857,7 +27857,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/kim-home.wg",
-                "line": 157,
+                "line": 171,
                 "column": 1
               }
             },
@@ -27884,7 +27884,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/places/kim-home.wg",
-                "line": 159,
+                "line": 173,
                 "column": 1
               }
             },
@@ -27930,7 +27930,7 @@ export const WG_BUNDLE = {
                   "label": "+Affection?",
                   "source": {
                     "file": "story/places/kim-home.wg",
-                    "line": 163,
+                    "line": 177,
                     "column": 1
                   }
                 }
@@ -27938,7 +27938,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/places/kim-home.wg",
-                "line": 162,
+                "line": 176,
                 "column": 1
               }
             }
@@ -27946,7 +27946,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/places/kim-home.wg",
-            "line": 157,
+            "line": 171,
             "column": 1
           }
         },
@@ -28016,7 +28016,7 @@ export const WG_BUNDLE = {
                     "amount": 10,
                     "source": {
                       "file": "story/places/kim-home.wg",
-                      "line": 169,
+                      "line": 183,
                       "column": 1
                     },
                     "feedback": {
@@ -28033,7 +28033,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/kim-home.wg",
-                "line": 168,
+                "line": 182,
                 "column": 1
               }
             },
@@ -28058,7 +28058,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/kim-home.wg",
-                "line": 171,
+                "line": 185,
                 "column": 1
               }
             }
@@ -28073,13 +28073,13 @@ export const WG_BUNDLE = {
             "target": ".leave",
             "source": {
               "file": "story/places/kim-home.wg",
-              "line": 173,
+              "line": 187,
               "column": 1
             }
           },
           "source": {
             "file": "story/places/kim-home.wg",
-            "line": 166,
+            "line": 180,
             "column": 1
           }
         },
@@ -28096,13 +28096,13 @@ export const WG_BUNDLE = {
                 ],
                 "source": {
                   "file": "story/places/kim-home.wg",
-                  "line": 177,
+                  "line": 191,
                   "column": 1
                 }
               },
               "source": {
                 "file": "story/places/kim-home.wg",
-                "line": 177,
+                "line": 191,
                 "column": 1
               }
             },
@@ -28114,13 +28114,13 @@ export const WG_BUNDLE = {
                 "destination": "home",
                 "source": {
                   "file": "story/places/kim-home.wg",
-                  "line": 178,
+                  "line": 192,
                   "column": 1
                 }
               },
               "source": {
                 "file": "story/places/kim-home.wg",
-                "line": 178,
+                "line": 192,
                 "column": 1
               }
             },
@@ -28132,13 +28132,13 @@ export const WG_BUNDLE = {
                 "id": "rent.weekly",
                 "source": {
                   "file": "story/places/kim-home.wg",
-                  "line": 179,
+                  "line": 193,
                   "column": 1
                 }
               },
               "source": {
                 "file": "story/places/kim-home.wg",
-                "line": 179,
+                "line": 193,
                 "column": 1
               }
             },
@@ -28177,7 +28177,7 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/places/kim-home.wg",
-                        "line": 181,
+                        "line": 195,
                         "column": 50
                       }
                     }
@@ -28190,7 +28190,7 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/places/kim-home.wg",
-                    "line": 181,
+                    "line": 195,
                     "column": 50
                   },
                   "runtimeId": 0
@@ -28202,7 +28202,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/kim-home.wg",
-                "line": 181,
+                "line": 195,
                 "column": 1
               }
             }
@@ -28217,13 +28217,13 @@ export const WG_BUNDLE = {
             "target": "@exit",
             "source": {
               "file": "story/places/kim-home.wg",
-              "line": 183,
+              "line": 197,
               "column": 1
             }
           },
           "source": {
             "file": "story/places/kim-home.wg",
-            "line": 175,
+            "line": 189,
             "column": 1
           }
         }
@@ -28244,7 +28244,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/places/kim-home.wg",
-        "line": 78,
+        "line": 92,
         "column": 1
       }
     },
@@ -28257,6 +28257,33 @@ export const WG_BUNDLE = {
       "behavior": null,
       "system": null,
       "onEnter": [
+        {
+          "op": "set",
+          "path": [
+            "local",
+            "atOffice"
+          ],
+          "value": {
+            "type": "binary",
+            "operator": "==",
+            "left": {
+              "type": "path",
+              "value": [
+                "place",
+                "key"
+              ]
+            },
+            "right": {
+              "type": "literal",
+              "value": "home_kim"
+            }
+          },
+          "source": {
+            "file": "story/places/kim-home.wg",
+            "line": 35,
+            "column": 1
+          }
+        },
         {
           "op": "set",
           "path": [
@@ -28423,6 +28450,49 @@ export const WG_BUNDLE = {
               "branches": [
                 {
                   "test": {
+                    "type": "path",
+                    "value": [
+                      "local",
+                      "atOffice"
+                    ]
+                  },
+                  "nodes": [
+                    {
+                      "type": "paragraph",
+                      "parts": [
+                        {
+                          "type": "text",
+                          "value": "Before you can turn around or pretend you came for some other reason, Kim rises from behind "
+                        },
+                        {
+                          "type": "interpolation",
+                          "path": [
+                            "npc",
+                            "kim",
+                            "dependent"
+                          ],
+                          "filters": []
+                        },
+                        {
+                          "type": "text",
+                          "value": " desk and closes the office door."
+                        }
+                      ],
+                      "source": {
+                        "file": "story/places/kim-home.wg",
+                        "line": 51,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "source": {
+                    "file": "story/places/kim-home.wg",
+                    "line": 50,
+                    "column": 1
+                  }
+                },
+                {
+                  "test": {
                     "type": "binary",
                     "operator": "==",
                     "left": {
@@ -28448,14 +28518,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/places/kim-home.wg",
-                        "line": 51,
+                        "line": 53,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/kim-home.wg",
-                    "line": 50,
+                    "line": 52,
                     "column": 1
                   }
                 },
@@ -28478,14 +28548,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/places/kim-home.wg",
-                        "line": 53,
+                        "line": 55,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/kim-home.wg",
-                    "line": 52,
+                    "line": 54,
                     "column": 1
                   }
                 }
@@ -28501,7 +28571,7 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/places/kim-home.wg",
-                    "line": 55,
+                    "line": 57,
                     "column": 1
                   }
                 }
@@ -28536,13 +28606,43 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/kim-home.wg",
-                "line": 58,
+                "line": 60,
                 "column": 1
               }
             },
             {
               "type": "if",
               "branches": [
+                {
+                  "test": {
+                    "type": "path",
+                    "value": [
+                      "local",
+                      "atOffice"
+                    ]
+                  },
+                  "nodes": [
+                    {
+                      "type": "paragraph",
+                      "parts": [
+                        {
+                          "type": "text",
+                          "value": "\"You are here about the rent,\" Kim says. \"Sit down. We are settling the account now.\""
+                        }
+                      ],
+                      "source": {
+                        "file": "story/places/kim-home.wg",
+                        "line": 63,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "source": {
+                    "file": "story/places/kim-home.wg",
+                    "line": 62,
+                    "column": 1
+                  }
+                },
                 {
                   "test": {
                     "type": "path",
@@ -28562,14 +28662,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/places/kim-home.wg",
-                        "line": 61,
+                        "line": 65,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/kim-home.wg",
-                    "line": 60,
+                    "line": 64,
                     "column": 1
                   }
                 },
@@ -28592,14 +28692,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/places/kim-home.wg",
-                        "line": 63,
+                        "line": 67,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/kim-home.wg",
-                    "line": 62,
+                    "line": 66,
                     "column": 1
                   }
                 },
@@ -28622,14 +28722,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/places/kim-home.wg",
-                        "line": 65,
+                        "line": 69,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/kim-home.wg",
-                    "line": 64,
+                    "line": 68,
                     "column": 1
                   }
                 }
@@ -28645,63 +28745,163 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/places/kim-home.wg",
-                    "line": 67,
+                    "line": 71,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/kim-home.wg",
-                "line": 60,
+                "line": 62,
                 "column": 1
               },
               "runtimeId": 1
             },
             {
-              "type": "paragraph",
-              "parts": [
+              "type": "if",
+              "branches": [
                 {
-                  "type": "text",
-                  "value": "Kim does not make the request sound optional. A few minutes later, you are on your way to "
-                },
-                {
-                  "type": "interpolation",
-                  "path": [
-                    "npc",
-                    "kim",
-                    "home",
-                    "location",
-                    "name"
+                  "test": {
+                    "type": "path",
+                    "value": [
+                      "local",
+                      "atOffice"
+                    ]
+                  },
+                  "nodes": [
+                    {
+                      "type": "paragraph",
+                      "parts": [
+                        {
+                          "type": "text",
+                          "value": "Kim points to the chair across from "
+                        },
+                        {
+                          "type": "interpolation",
+                          "path": [
+                            "npc",
+                            "kim",
+                            "dependent"
+                          ],
+                          "filters": []
+                        },
+                        {
+                          "type": "text",
+                          "value": " desk. The invitation does not sound optional."
+                        }
+                      ],
+                      "source": {
+                        "file": "story/places/kim-home.wg",
+                        "line": 75,
+                        "column": 1
+                      }
+                    }
                   ],
-                  "filters": []
-                },
+                  "source": {
+                    "file": "story/places/kim-home.wg",
+                    "line": 74,
+                    "column": 1
+                  }
+                }
+              ],
+              "elseNodes": [
                 {
-                  "type": "text",
-                  "value": " with "
-                },
-                {
-                  "type": "interpolation",
-                  "path": [
-                    "npc",
-                    "kim",
-                    "object"
+                  "type": "paragraph",
+                  "parts": [
+                    {
+                      "type": "text",
+                      "value": "Kim does not make the request sound optional. A few minutes later, you are on your way to "
+                    },
+                    {
+                      "type": "interpolation",
+                      "path": [
+                        "npc",
+                        "kim",
+                        "home",
+                        "location",
+                        "name"
+                      ],
+                      "filters": []
+                    },
+                    {
+                      "type": "text",
+                      "value": " with "
+                    },
+                    {
+                      "type": "interpolation",
+                      "path": [
+                        "npc",
+                        "kim",
+                        "object"
+                      ],
+                      "filters": []
+                    },
+                    {
+                      "type": "text",
+                      "value": "."
+                    }
                   ],
-                  "filters": []
-                },
-                {
-                  "type": "text",
-                  "value": "."
+                  "source": {
+                    "file": "story/places/kim-home.wg",
+                    "line": 77,
+                    "column": 1
+                  }
                 }
               ],
               "source": {
                 "file": "story/places/kim-home.wg",
-                "line": 70,
+                "line": 74,
+                "column": 1
+              },
+              "runtimeId": 2
+            },
+            {
+              "type": "choice",
+              "id": "choice-1",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Sit down with Kim"
+                }
+              ],
+              "target": "story.rent.intro.2",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": {
+                "type": "path",
+                "value": [
+                  "local",
+                  "atOffice"
+                ]
+              },
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [
+                {
+                  "op": "teleport-npc",
+                  "npcId": "kim",
+                  "destination": "home",
+                  "source": {
+                    "file": "story/places/kim-home.wg",
+                    "line": 82,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/places/kim-home.wg",
+                "line": 80,
                 "column": 1
               }
             },
             {
               "type": "choice",
-              "id": "choice-1",
+              "id": "choice-2",
               "label": [
                 {
                   "type": "text",
@@ -28715,7 +28915,17 @@ export const WG_BUNDLE = {
               "timeUntilPath": null,
               "energyFree": false,
               "resting": false,
-              "when": null,
+              "when": {
+                "type": "unary",
+                "operator": "not",
+                "value": {
+                  "type": "path",
+                  "value": [
+                    "local",
+                    "atOffice"
+                  ]
+                }
+              },
               "requirements": [],
               "warning": null,
               "hints": [],
@@ -28726,7 +28936,7 @@ export const WG_BUNDLE = {
                   "destination": "home",
                   "source": {
                     "file": "story/places/kim-home.wg",
-                    "line": 73,
+                    "line": 87,
                     "column": 1
                   }
                 },
@@ -28738,14 +28948,14 @@ export const WG_BUNDLE = {
                   },
                   "source": {
                     "file": "story/places/kim-home.wg",
-                    "line": 74,
+                    "line": 88,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/kim-home.wg",
-                "line": 72,
+                "line": 85,
                 "column": 1
               }
             }
@@ -28812,21 +29022,6 @@ export const WG_BUNDLE = {
               "rent_landlord_visit_seen"
             ]
           }
-        },
-        {
-          "type": "binary",
-          "operator": "!=",
-          "left": {
-            "type": "path",
-            "value": [
-              "place",
-              "key"
-            ]
-          },
-          "right": {
-            "type": "literal",
-            "value": "home_kim"
-          }
         }
       ],
       "label": null,
@@ -28879,7 +29074,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/kim-home.wg",
-                "line": 187,
+                "line": 201,
                 "column": 1
               }
             },
@@ -28912,13 +29107,13 @@ export const WG_BUNDLE = {
                         "id": "rent_due",
                         "source": {
                           "file": "story/places/kim-home.wg",
-                          "line": 190,
+                          "line": 204,
                           "column": 1
                         }
                       },
                       "source": {
                         "file": "story/places/kim-home.wg",
-                        "line": 190,
+                        "line": 204,
                         "column": 1
                       }
                     },
@@ -28932,14 +29127,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/places/kim-home.wg",
-                        "line": 191,
+                        "line": 205,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/kim-home.wg",
-                    "line": 189,
+                    "line": 203,
                     "column": 1
                   }
                 }
@@ -28968,14 +29163,14 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/places/kim-home.wg",
-                    "line": 193,
+                    "line": 207,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/kim-home.wg",
-                "line": 189,
+                "line": 203,
                 "column": 1
               },
               "runtimeId": 0
@@ -28991,13 +29186,13 @@ export const WG_BUNDLE = {
             "target": "@exit",
             "source": {
               "file": "story/places/kim-home.wg",
-              "line": 196,
+              "line": 210,
               "column": 1
             }
           },
           "source": {
             "file": "story/places/kim-home.wg",
-            "line": 185,
+            "line": 199,
             "column": 1
           }
         }
@@ -29018,7 +29213,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/places/kim-home.wg",
-        "line": 184,
+        "line": 198,
         "column": 1
       }
     },

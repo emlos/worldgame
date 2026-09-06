@@ -28,11 +28,11 @@ Kim is sitting at {{npc.kim.dependent}} desk. {{npc.kim.subject | cap}} looks up
   @when time.minutesSinceMidnight >= 960
   @when not story.rent.active
   @when not flags.rent_landlord_visit_seen
-  @when place.key != "home_kim"
   @priority 200
   @heading "Your landlord finds you"
   @choices "There is no more putting this off"
   @onenter
+    @effect set local.atOffice place.key == "home_kim"
     @effect set local.hadOfficeAddress flags.rent_intro_2 == true
     @effect set local.contactedKim flags.home_notice_resolved == true
     @effect set local.readNotice flags.home_notice_read == true
@@ -47,7 +47,9 @@ Kim is sitting at {{npc.kim.dependent}} desk. {{npc.kim.subject | cap}} looks up
 
   @passage found
 
-  @if place.key == "player_home"
+  @if local.atOffice
+    Before you can turn around or pretend you came for some other reason, Kim rises from behind {{npc.kim.dependent}} desk and closes the office door.
+  @elseif place.key == "player_home"
     A firm knock rattles your front door. When you open it, a neatly dressed woman is waiting in the hall with a folder tucked beneath one arm.
   @elseif place.id
     A neatly dressed woman steps inside and calls your name. She spots you before you have time to wonder how she found you.
@@ -57,7 +59,9 @@ Kim is sitting at {{npc.kim.dependent}} desk. {{npc.kim.subject | cap}} looks up
 
   "I'm Kim Johnson, your landlord. We need to discuss the account for {{home.location.name}}."
 
-  @if local.hadOfficeAddress
+  @if local.atOffice
+    "You are here about the rent," Kim says. "Sit down. We are settling the account now."
+  @elseif local.hadOfficeAddress
     "I gave you my office address. Since you haven't come to see me, I've come to collect you instead."
   @elseif local.contactedKim
     "This has gone far enough by message. You're coming to my office so that we can settle it properly."
@@ -67,9 +71,19 @@ Kim is sitting at {{npc.kim.dependent}} desk. {{npc.kim.subject | cap}} looks up
     "A notice was left on your door this afternoon. You haven't even looked at it, so I'm handling this in person."
   @endif
 
-  Kim does not make the request sound optional. A few minutes later, you are on your way to {{npc.kim.home.location.name}} with {{npc.kim.object}}.
+  @if local.atOffice
+    Kim points to the chair across from {{npc.kim.dependent}} desk. The invitation does not sound optional.
+  @else
+    Kim does not make the request sound optional. A few minutes later, you are on your way to {{npc.kim.home.location.name}} with {{npc.kim.object}}.
+  @endif
+
+  @choice "Sit down with Kim" -> story.rent.intro.2
+    @when local.atOffice
+    @effect teleport npc kim home
+  @endchoice
 
   @choice "Go with Kim" -> story.rent.intro.2
+    @when not local.atOffice
     @effect teleport npc kim home
     @effect relocate nearest-place home_kim
   @endchoice

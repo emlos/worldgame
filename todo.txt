@@ -79,10 +79,7 @@ game systems:
     player mechanics:
     - smoking/drinking mechanic + addiction? stat penalty?
 
-    - combat system
-    - better injury system
-
-    - npc timers - every week smth is supposed to happen (i.e) paying rent, if not a flag is set/an event plays/stats change etc. example in timers.js
+    - combat system + better injury system (smth a.la fear and hunger?)
 
     -texting: spam messages/groupchats, letting the player leave, sending messages at random intervals/randomly generated users
     - cinema system:
@@ -93,6 +90,8 @@ game systems:
 
     - theres catacombs under the city, multiple locations, with a randomly generated maze [maze changed every two weeks? supernatural reasons]
 
+    - diary system:
+        major events can add/update diary passages, for vertical slice: meeting taylor for the first time, being forced to pay overdue rent, first job [at cafe for now, when cinema implemented then that.]
 
     
 content:

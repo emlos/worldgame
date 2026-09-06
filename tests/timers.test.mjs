@@ -318,6 +318,51 @@ test("Kim comes in person when the player ignores the rent notice", () => {
   );
 });
 
+test("sleeping at home cannot skip Kim's post-16:00 knock", () => {
+  const game = new Game({
+    seed: 711,
+    startDate: new Date("2026-09-01T07:00:00.000Z"),
+  });
+  game.setFlag("opening_seen");
+
+  choose(game, "Go to Bed");
+  choose(game, "8 hours");
+  choose(game, "__wg_next");
+  assert.equal(game.now.toISOString(), "2026-09-01T15:00:00.000Z");
+  assert.equal(game.currentStory, null);
+
+  choose(game, "Go to Bed");
+  choose(game, "1 hour");
+  assert.equal(game.currentStory?.id, "menu.player.home.rest");
+  assert.equal(game.interruptState.pending?.sceneId, "story.rent.landlord-visit");
+
+  choose(game, "__wg_next");
+  assert.equal(game.currentStory?.id, "story.rent.landlord-visit");
+  assert.match(JSON.stringify(buildScene(game).content), /knock rattles your front door/);
+});
+
+test("entering Kim's office after 16:00 cannot bypass the rent discussion", () => {
+  const game = new Game({
+    seed: 712,
+    startDate: new Date("2026-09-01T16:05:00.000Z"),
+    playerOptions: { startPlaceId: null },
+  });
+  game.setFlag("opening_seen");
+  game.setFlag("rent_intro_2");
+  game.unlockPlacesByKey("home_kim");
+  const { location, place } = findPlaceByKey(game, "home_kim");
+  game.moveTo(String(location.id));
+
+  choose(game, `enter:${place.id}`);
+
+  assert.equal(game.currentStory?.id, "story.rent.landlord-visit");
+  assert.equal(game.currentPlace?.key, "home_kim");
+  assert.match(JSON.stringify(buildScene(game).content), /settling the account now/);
+  choose(game, "Sit down with Kim");
+  assert.equal(game.currentStory?.id, "story.rent.intro.2");
+  assert.equal(game.story.rent.active, true);
+});
+
 test("rent debt unlocks the authored one-shot escalation interrupt", () => {
   const game = new Game({
     seed: 708,
