@@ -45,8 +45,11 @@ School is waiting, but what you do next is your decision. You can get ready, lea
 
 @next "Get up" -> @exit
 
+@#==============================================================================================
+
 :: place.player-home
 @hub player_home
+
 @if not story.home.unpack or story.home.unpack < 2
   You are back in the privacy of your four walls. Cardboard boxes crowd the little open floor space, and most of the flat still feels borrowed rather than lived in.
 @elseif story.home.unpack < 5
@@ -67,45 +70,46 @@ School is waiting, but what you do next is your decision. You can get ready, lea
     @hint energy 1 "++Energy"
   @endchoice
 
-@endchoicegroup
-
-@choicegroup "Activities"
-
-  @choice "Unpack" -> home.unpack
-    @when not story.home.unpack or story.home.unpack < 19
-    @time 30m
-    @effect add story.home.unpack 1
-  @endchoice
-
-  @choice "Unpack the last boxes" -> home.unpack
-    @when story.home.unpack == 19
-    @time 30m
-    @effect add story.home.unpack 1
-    @effect set flags.quest_receptacle_start
-  @endchoice
-
   @choice "Lift weights" -> @exit
     @time 5m
-    @when not daily.home_weightlifting
+    @when not daily.home_weightlifting and story.home.unpack >= 10
     @change skill strength 0.1
     @effect daily-flag home_weightlifting true
-  @endchoice
-
-  @choice "Choose an outfit" -> home.clothes
-    @when story.home.unpack >= 5
   @endchoice
 
   @choice "Sit down with your diary" -> home.diary
     @when story.home.unpack >= 5
   @endchoice
 
-  @choice "Invite someone over" -> home.invite
-    @when story.home.unpack >= 15
+  
+  @choice "Closet" -> home.clothes
+    @when story.home.unpack >= 5
   @endchoice
 
-  @choice "Examine the strange receptacle" -> home.receptacle
-    @when flags.quest_receptacle_start
+@endchoicegroup
+
+@choicegroup "Activities"
+
+  @choice "Unpack" -> home.unpack
+    @when not story.home.unpack or story.home.unpack < 19
+    @time 15m..30m
+    @effect add story.home.unpack 1
   @endchoice
+
+  @choice "Unpack the last boxes" -> home.unpack.receptacle
+    @when story.home.unpack == 19
+    @time 15m..30m
+    @effect add story.home.unpack 1
+    @effect set flags.quest.receptacles.start
+    @effect set flags.home.unpacked
+  @endchoice
+
+
+
+
+
+
+
 
 @endchoicegroup
 
@@ -126,21 +130,16 @@ School is waiting, but what you do next is your decision. You can get ready, lea
 
 @endchoicegroup
 
+@choicegroup ""
+  @choice "Examine the strange receptacle" -> home.receptacle
+    @when flags.quest.receptacles.start
+  @endchoice
+@endchoicegroup
+
 
 :: home.unpack -> @exit
-@heading "Making the place your own"
 
-@if story.home.unpack == 2
-  You empty the bathroom boxes, stack your toiletries by the sink, and clear enough clutter to use the shower without climbing over anything.
-@elseif story.home.unpack == 5
-  You finish sorting your clothes and clear the table beneath the window. There is finally somewhere to sit, think, and write.
-@elseif story.home.unpack == 10
-  The pieces of the bed frame emerge from behind a wall of cardboard. Once it is assembled and the mattress is lifted into place, the bedroom immediately feels more comfortable.
-@elseif story.home.unpack == 15
-  You arrange the remaining furniture and make room for another person to sit. The flat is no longer too embarrassing to invite someone into.
-@elseif story.home.unpack == 20
-  At the bottom of the final box, wrapped in material you do not remember packing, you find a strange receptacle. Its surface is cool and seamless, with no obvious way to open it.
-@elseif story.home.unpack < 5
+@if story.home.unpack < 5
   You open another box and sort its contents into rough piles. The room is still crowded, but there is a little more space to move.
 @elseif story.home.unpack < 15
   Another armful of belongings finds a proper place. Bit by bit, the anonymous rooms are beginning to look like yours.
@@ -148,11 +147,35 @@ School is waiting, but what you do next is your decision. You can get ready, lea
   You flatten more cardboard and deal with the awkward things you kept putting off. Only a few boxes remain now.
 @endif
 
-@next "Finish for now" -> @exit
+@if story.home.unpack == 2
+  You empty the bathroom boxes, stack your toiletries by the sink, and clear enough clutter to use the shower without climbing over anything. Now you can get clean - about time, too.
+@elseif story.home.unpack == 5
+  You finish sorting your clothes and clear the table beneath the window. There is finally somewhere to sit, think, and write.
+@elseif story.home.unpack == 10
+  The pieces of the bed frame emerge from behind a wall of cardboard. Once it is assembled and the mattress is lifted into place, the bedroom immediately feels more comfortable.
+  Hey, that box has some of your knicknacks too! You put the weights in the bedroom and the small decorations on the shelves. The flat is starting to feel like home.
+@elseif story.home.unpack == 15
+  You arrange the remaining furniture and make room for another person to sit. The flat is no longer too embarrassing to invite someone into.
+@endif
+
+@next -> @exit
+
+:: home.unpack.receptacle -> @exit
+  After you put away the final box, you notice a strange receptacle wrapped in a dusty material. Its surface is cool and seamless, with no obvious way to open it.
+  It reminds you of the strange plinths in that movie you watched... the space one.
+
+  @next
+
+  You try moving it, to no avail. It's either heavy or bolted to the floor. You wonder if it is some kind of puzzle, or if it is just a decorative piece. Either way, you have no idea what to do with it.
+
+  @next
+
+  Guess you'll just have to live with your new roommate for now. You trash the final cartboard box and take a moment to admire the newly cleared space. The flat is finally starting to feel like home.
+
+  @next -> @exit
 
 
 :: home.clothes -> @exit
-@heading "Your clothes"
 
 Your clothes are sorted and within easy reach. Once the clothing system is in place, this is where you will be able to choose what to wear.
 
@@ -160,25 +183,15 @@ Your clothes are sorted and within easy reach. Once the clothing system is in pl
 
 
 :: home.diary -> @exit
-@heading "A quiet place to write"
 
 You sit at the cleared table. Once the journal is ready, you will be able to write about experiences that have stayed on your mind.
 
 @next -> @exit
 
 
-:: home.invite -> @exit
-@heading "Room for company"
-
-The flat is presentable enough for a guest. Once home visits are implemented, this is where you will be able to invite someone over.
-
-@next -> @exit
-
-
 :: home.receptacle -> @exit
-@heading "Something unfamiliar"
 
-You turn the strange receptacle over in your hands, but cannot find a seam, switch, or recognizable marking. Whatever it is, unpacking has only raised a new question.
+You press your hands to the receptacle thingy, but cannot find a seam, switch, or recognizable marking. Whatever it is, unpacking has only raised a new question.
 
 @next -> @exit
 
