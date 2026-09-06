@@ -19,7 +19,10 @@ import { STATS } from "../../characters/player/stats.js";
 import { renderMap as renderGraphMap } from "./renderMap.js";
 import { createSceneTransition } from "./sceneTransition.js";
 import { createChoiceSection, renderSceneContent } from "./sceneContent.js";
-import { createSceneVisualElement } from "./sceneVisual.js";
+import {
+  createSceneVisualElement,
+  destroySceneVisualElement,
+} from "./sceneVisual.js";
 import { MENU_HOTKEYS, choiceHotkeyLabel, resolveKeyboardAction } from "./keyboard.js";
 import {
   OUTCOME,
@@ -32,10 +35,8 @@ import {
 const statusElement = document.querySelector("#status");
 const noticeElement = document.querySelector("#notice");
 const sceneElement = document.querySelector("#scene");
-const sceneTransition = createSceneTransition(
-  sceneElement,
-  window.matchMedia("(prefers-reduced-motion: reduce)"),
-);
+const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
+const sceneTransition = createSceneTransition(sceneElement, motionPreference);
 const playerMoneyElement = document.querySelector("#player-money");
 const playerTemperatureElement = document.querySelector("#player-temperature");
 const playerStatsElement = document.querySelector("#player-stats");
@@ -105,6 +106,7 @@ debugPanel.hidden = !debugEnabled;
 let game = createGame();
 let chatsUI;
 let currentScene = null;
+let currentSceneVisualElement = null;
 let choiceButtons = [];
 let choiceButtonsById = new Map();
 
@@ -959,6 +961,8 @@ function renderScene(preludeParagraphs = []) {
   choiceButtonsById = new Map();
   statusElement.textContent = formatStatus(currentScene.status);
   renderPlayerPanel();
+  destroySceneVisualElement(currentSceneVisualElement);
+  currentSceneVisualElement = null;
   sceneElement.replaceChildren();
 
   if (currentScene.heading !== null) {
@@ -968,7 +972,12 @@ function renderScene(preludeParagraphs = []) {
   }
 
   if (currentScene.visual !== null) {
-    sceneElement.append(createSceneVisualElement(document, currentScene.visual));
+    currentSceneVisualElement = createSceneVisualElement(
+      document,
+      currentScene.visual,
+      { motionPreference },
+    );
+    sceneElement.append(currentSceneVisualElement);
   }
 
   for (const alert of currentScene.alerts) {

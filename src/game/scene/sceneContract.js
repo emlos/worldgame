@@ -1,5 +1,5 @@
 import { validateChoice } from "./choiceContract.js";
-import { validateLayeredImageVisual } from "./layeredImage.js";
+import { validateCanvasVisual } from "./canvasVisual.js";
 
 const SCENE_KINDS = new Set(["location", "place", "event"]);
 const ALERT_TONES = new Set(["info", "warning"]);
@@ -75,7 +75,7 @@ function validateAlerts(alerts) {
 
 function validateVisual(visual) {
   if (visual === null) return;
-  validateLayeredImageVisual(visual);
+  validateCanvasVisual(visual);
 }
 
 function validateChange(change, path) {

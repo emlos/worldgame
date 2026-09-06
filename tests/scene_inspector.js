@@ -16,7 +16,10 @@ import {
 import { getSchoolDayState } from "../src/features/school/timetable.js";
 import { createWGRuntimeContext } from "../src/story/wg/runtime/runtimeContext.js";
 import { createChoiceSection, renderSceneContent } from "../src/ui/browser/sceneContent.js";
-import { createSceneVisualElement } from "../src/ui/browser/sceneVisual.js";
+import {
+  createSceneVisualElement,
+  destroySceneVisualElement,
+} from "../src/ui/browser/sceneVisual.js";
 import { setOutcomeText } from "../src/ui/browser/outcomes.js";
 
 const SANDBOX_SEED = 117;
@@ -91,6 +94,7 @@ let game = createGame();
 let selectedKey = null;
 let activeCatalogEntry = null;
 let currentScene = null;
+let currentSceneVisualElement = null;
 let trace = [];
 let preludeParagraphs = [];
 let undoStack = [];
@@ -547,6 +551,8 @@ function makeChoiceButton(sceneId, choice) {
 }
 
 function renderPreview() {
+  destroySceneVisualElement(currentSceneVisualElement);
+  currentSceneVisualElement = null;
   elements.scenePreview.replaceChildren();
   if (!currentScene) {
     const empty = document.createElement("p");
@@ -562,9 +568,14 @@ function renderPreview() {
     elements.scenePreview.append(heading);
   }
   if (currentScene.visual !== null) {
-    elements.scenePreview.append(
-      createSceneVisualElement(document, currentScene.visual),
+    currentSceneVisualElement = createSceneVisualElement(
+      document,
+      currentScene.visual,
+      {
+        motionPreference: window.matchMedia("(prefers-reduced-motion: reduce)"),
+      },
     );
+    elements.scenePreview.append(currentSceneVisualElement);
   }
   for (const alert of currentScene.alerts || []) {
     const alertElement = document.createElement("p");
