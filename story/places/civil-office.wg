@@ -6,7 +6,7 @@ Counters, forms, and noticeboards fill {{place.name}}.
 @choicegroup ""
 @choice "Ask about the notice" -> story.rent.intro.1
     @time 10m
-    @when flags.home_notice_read and not flags.home_notice_resolved
+    @when flags.home_notice_read and not flags.home_notice_resolved and not flags.rent_intro_bypassed
     @effect set flags.home_notice_resolved
     @effect reminder clear home_rent_notice_1
 @endchoice

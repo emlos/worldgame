@@ -25,12 +25,17 @@ They keep their own conversation state; opening the phone never replaces the
 ```wg
 @effect contact add "kim"
 @effect chat start kim.rent
+@effect chat finish kim.rent
 ```
 
-Add the contact before starting the exchange. Having a number does not mark the
-NPC as met. Both effects are idempotent. Exchanges are one-time: restarting an
+Add the contact before starting an exchange. Having a number does not mark the
+NPC as met. Starting is idempotent, and exchanges are one-time: restarting an
 active, queued, or completed exchange does nothing. A second exchange for a busy
-contact queues until the active one finishes. Contacts appear in the Chats app.
+contact queues until the active one finishes. `chat finish` ends that exchange
+whether it is active or queued, preserves its history, and marks it completed; it
+does nothing if the contact or exchange has not been started. Chat effects are
+available in world scenes, not inside chat definitions. Contacts appear in the
+Chats app.
 
 ```wg
 @chat kim.rent
@@ -1330,6 +1335,8 @@ Implemented effects are:
 @effect unlock place civil_office
 @effect relocate home
 @effect relocate nearest-place hospital
+@effect teleport npc kim player
+@effect teleport npc kim home
 ```
 
 - `set story.<path> <value>` and `add story.<path> <value>` mutate persistent
@@ -1381,6 +1388,11 @@ Implemented effects are:
   generated place with that key. Relocation is intended for authoritative story
   transitions such as recovery, arrest, or forced transport; follow it with a
   target scene belonging to the destination place.
+- `teleport npc <npc-id> player` immediately puts an NPC at the player's exact
+  location and place. `teleport npc <npc-id> home` returns the NPC to their
+  generated residence. An NPC with scheduled behaviour may move normally again
+  when its schedule next updates; an unscheduled NPC remains there. Unknown NPC
+  IDs fail during WG compilation and again at runtime.
 
 Effects and changes run sequentially, so a later mutation, condition, or
 passive check can read state changed by an earlier one. Warnings, hints,
@@ -1599,7 +1611,7 @@ not implemented.
 | Checked choice | `@icon`, `@event-pool`, `@event-chance`, `@when`, `@require`, `@warning`, `@check`, `@success ... @endsuccess`, `@failure ... @endfailure` |
 | Check outcome | `@time`, `@response ... @endresponse`, `@effect` |
 | On-enter block | `@effect` |
-| Effect operations | `contact add`, `chat start`, `set`, `add`, `unset`, `daily-flag`, `reminder add`, `reminder clear`, `timer start`, `timer restart`, `timer stop`, `unlock place`, `relocate home`, `relocate nearest-place`, `relationship`, `money`, `skill`, `stat`, `grade`, `attendance` |
+| Effect operations | `contact add`, `chat start`, `chat finish`, `set`, `add`, `unset`, `daily-flag`, `reminder add`, `reminder clear`, `timer start`, `timer restart`, `timer stop`, `unlock place`, `relocate home`, `relocate nearest-place`, `teleport npc`, `relationship`, `money`, `skill`, `stat`, `grade`, `attendance` |
 | Story targets | `global scene ID`, `local .passage`, `@exit`, `@return`, `@leave-place` |
 <!-- WG-DIRECTIVE-INDEX:END -->
 

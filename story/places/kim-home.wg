@@ -11,7 +11,7 @@ Kim is sitting at {{npc.kim.dependent}} desk. {{npc.kim.subject | cap}} looks up
 
 @choicegroup ""
   @choice "Ask about the rent" -> story.rent.intro.2
-    @when flags.rent_intro_2
+    @when flags.rent_intro_2 and not flags.rent_intro_bypassed
   @endchoice
 
   @choice "Pay £200 toward rent" -> story.rent.payment
@@ -22,6 +22,59 @@ Kim is sitting at {{npc.kim.dependent}} desk. {{npc.kim.subject | cap}} looks up
 @endchoicegroup
 
 
+:: story.rent.landlord-visit -> story.rent.intro.2
+  @pool interrupt
+  @when flags.opening_seen
+  @when time.minutesSinceMidnight >= 960
+  @when not story.rent.active
+  @when not flags.rent_landlord_visit_seen
+  @when place.key != "home_kim"
+  @priority 200
+  @heading "Your landlord finds you"
+  @choices "There is no more putting this off"
+  @onenter
+    @effect set local.hadOfficeAddress flags.rent_intro_2 == true
+    @effect set local.contactedKim flags.home_notice_resolved == true
+    @effect set local.readNotice flags.home_notice_read == true
+    @effect set flags.rent_landlord_visit_seen
+    @effect set flags.rent_intro_bypassed
+    @effect unset flags.rent_intro_2
+    @effect reminder clear home_rent_notice_1
+    @effect chat finish kim.rent
+    @effect unlock place home_kim
+    @effect teleport npc kim player
+  @endonenter
+
+  @passage found
+
+  @if place.key == "player_home"
+    A firm knock rattles your front door. When you open it, a neatly dressed woman is waiting in the hall with a folder tucked beneath one arm.
+  @elseif place.id
+    A neatly dressed woman steps inside and calls your name. She spots you before you have time to wonder how she found you.
+  @else
+    A neatly dressed woman calls your name from behind you. She is carrying a folder and wearing the expression of someone who has already run out of patience.
+  @endif
+
+  "I'm Kim Johnson, your landlord. We need to discuss the account for {{home.location.name}}."
+
+  @if local.hadOfficeAddress
+    "I gave you my office address. Since you haven't come to see me, I've come to collect you instead."
+  @elseif local.contactedKim
+    "This has gone far enough by message. You're coming to my office so that we can settle it properly."
+  @elseif local.readNotice
+    "You saw the notice, but you never followed it up. I'm not leaving the account unresolved."
+  @else
+    "A notice was left on your door this afternoon. You haven't even looked at it, so I'm handling this in person."
+  @endif
+
+  Kim does not make the request sound optional. A few minutes later, you are on your way to {{npc.kim.home.location.name}} with {{npc.kim.object}}.
+
+  @choice "Go with Kim" -> story.rent.intro.2
+    @effect teleport npc kim home
+    @effect relocate nearest-place home_kim
+  @endchoice
+
+
 :: story.rent.intro.2 -> @exit
   @onenter
     @effect set story.rent.active true
@@ -29,13 +82,20 @@ Kim is sitting at {{npc.kim.dependent}} desk. {{npc.kim.subject | cap}} looks up
     @effect set story.rent.chargesIssued 0
     @effect reminder clear home_rent_notice_1
     @effect reminder add rent_due
+    @effect teleport npc kim home
   @endonenter
 
   @passage account
 
-  You look around the office. Stacks of paper crowd Kim's desk, and the light from a computer monitor flickers across the files. Kim is sitting in a chair behind the desk, {{@if npc.kim.gender == "female"}}wearing a smart business suit and glasses{{@else}}wearing an ironed white shirt and glasses{{@endif}}. {{npc.kim.dependent | cap}} eyes are brown, and they follow you as you open your mouth to speak.
+  @if flags.rent_intro_bypassed
+    Kim leads you into a cramped office and closes the door. Stacks of paper crowd {{npc.kim.dependent}} desk, and the light from a computer monitor flickers across rows of carefully labelled files.
 
-  "Hello. You muste be from {{home.location.name}}, yes?" Kim turns the lease toward you. "The account starts with the two missed monthly payments: £800. I collect payments in £200 weekly instalments."
+    "Now that I finally have your attention, we can deal with this properly." Kim sits down and turns a lease toward you. "The account for {{home.location.name}} starts with two missed monthly payments: £800. I collect payments in £200 weekly instalments."
+  @else
+    You look around the office. Stacks of paper crowd Kim's desk, and the light from a computer monitor flickers across the files. Kim is sitting in a chair behind the desk, {{@if npc.kim.gender == "female"}}wearing a smart business suit and glasses{{@else}}wearing an ironed white shirt and glasses{{@endif}}. {{npc.kim.dependent | cap}} eyes are brown, and they follow you as you open your mouth to speak.
+
+    "Hello. You must be from {{home.location.name}}, yes?" Kim turns the lease toward you. "The account starts with the two missed monthly payments: £800. I collect payments in £200 weekly instalments."
+  @endif
 
 
    @choice "Try to explain" -> .explain
@@ -53,7 +113,11 @@ Kim is sitting at {{npc.kim.dependent}} desk. {{npc.kim.subject | cap}} looks up
 
   @passage explain
 
-  "As I said in my message, this must be some mistake." You start. You try to not get intimidated by the way Kim is sitting completely straight. "I've only moved here very recently, and I haven't even had a chance to pay rent yet. I don't know how this could have happened."
+  @if flags.rent_intro_bypassed
+    "There has to be some mistake," you say. You try not to be intimidated by the way Kim is sitting completely straight. "I've only just moved here. I haven't even had a chance to pay rent yet."
+  @else
+    "As I said in my message, this must be some mistake," you begin. You try not to be intimidated by the way Kim is sitting completely straight. "I've only moved here very recently, and I haven't even had a chance to pay rent yet. I don't know how this could have happened."
+  @endif
 
   Kim's expression doesn't change. "I don't make mistakes," {{npc.kim.subject}} says. "I keep a thorough record of *all* my tenants. The property at {{home.location.name}} has been registered for two months, and I am not in the business of charity." @change stat stress 5
 
@@ -111,6 +175,7 @@ Kim is sitting at {{npc.kim.dependent}} desk. {{npc.kim.subject | cap}} looks up
   @passage leave
 
   @effect unset flags.rent_intro_2
+  @effect teleport npc kim home
   @effect timer start rent.weekly
 
   You leave the office with a copy of the account. {{@if story.rent.debt >= 800}}The £800 balance is overdue, and {{@else}}You have paid the outstanding amount, but {{@endif}}another £200 charge will be added every seven days.

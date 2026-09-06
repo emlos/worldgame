@@ -228,11 +228,11 @@ const EFFECT_DEFINITIONS = [
   },
   {
     op: "chat",
-    syntax: "chat start",
+    syntax: ["chat start", "chat finish"],
     allowedInChat: false,
     validate(effect, fail) {
       validateBaseEffect(effect, ["action", "id"], [], fail);
-      validateAction(effect, ["start"], fail);
+      validateAction(effect, ["start", "finish"], fail);
       validateId(effect.id, "WG chat id", fail);
     },
     validateReferences(effect, catalog, fail) {
@@ -384,6 +384,24 @@ const EFFECT_DEFINITIONS = [
         !catalogHas(catalog.places, effect.destination.placeKey)
       ) {
         fail(`@effect relocate references unknown place '${effect.destination.placeKey}'`);
+      }
+    },
+  },
+  {
+    op: "teleport-npc",
+    keyword: "teleport",
+    syntax: "teleport npc",
+    allowedInChat: false,
+    validate(effect, fail) {
+      validateBaseEffect(effect, ["npcId", "destination"], [], fail);
+      validateId(effect.npcId, "WG teleport NPC id", fail, { simple: true });
+      if (!["player", "home"].includes(effect.destination)) {
+        fail("WG teleport NPC destination must be player or home");
+      }
+    },
+    validateReferences(effect, catalog, fail) {
+      if (!catalogHas(catalog.npcs, effect.npcId)) {
+        fail(`Unknown teleport NPC '${effect.npcId}'`);
       }
     },
   },

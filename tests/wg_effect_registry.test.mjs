@@ -55,6 +55,7 @@ test("the compiler registry parses every effect without changing the effect IR",
     "@onenter",
     "  @effect contact add kim",
     "  @effect chat start registry.chat",
+    "  @effect chat finish registry.chat",
     "  @effect set story.registry.value 1",
     "  @effect add story.registry.value 2",
     "  @effect set flags.registry_flag",
@@ -64,6 +65,8 @@ test("the compiler registry parses every effect without changing the effect IR",
     "  @effect timer start rent.weekly",
     "  @effect unlock place civil_office",
     "  @effect relocate nearest-place hospital",
+    "  @effect teleport npc kim player",
+    "  @effect teleport npc kim home",
     "  @effect relationship kim.intimidation -2",
     "  @effect money 3",
     "  @effect skill strength 0.1",
@@ -91,8 +94,17 @@ test("the compiler registry parses every effect without changing the effect IR",
     {
       op: "unlock-place",
       placeKey: "civil_office",
-      source: { file: "registry.wg", line: 25, column: 1 },
+      source: { file: "registry.wg", line: 26, column: 1 },
     },
+  );
+  assert.deepEqual(
+    scene.onEnter
+      .filter((effect) => effect.op === "teleport-npc")
+      .map(({ source: _source, ...effect }) => effect),
+    [
+      { op: "teleport-npc", npcId: "kim", destination: "player" },
+      { op: "teleport-npc", npcId: "kim", destination: "home" },
+    ],
   );
 });
 
@@ -313,6 +325,7 @@ test("effect references are validated uniformly after all source files are parse
     ["@effect timer start missing.timer", /unknown timer 'missing\.timer'/i],
     ["@effect unlock place missing", /unknown place 'missing'/i],
     ["@effect relocate nearest-place missing", /unknown place 'missing'/i],
+    ["@effect teleport npc missing player", /unknown teleport NPC 'missing'/i],
     ["@effect relationship missing.friendship 1", /Unknown relationship NPC 'missing'/],
     ["@effect relationship kim.missing 1", /Unknown relationship meter 'kim\.missing'/],
     ["@effect skill missing 1", /unknown skill 'missing'/i],

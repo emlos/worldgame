@@ -47,7 +47,8 @@ function applyContactEffect(game, effect) {
 }
 
 function applyChatEffect(game, effect) {
-  game.startChat(effect.id);
+  if (effect.action === "start") game.startChat(effect.id);
+  else game.finishChat(effect.id);
 }
 
 function applyMutation(game, effect, options) {
@@ -111,6 +112,14 @@ function applyRelocateEffect(game, effect) {
   }
 }
 
+function applyTeleportNPCEffect(game, effect) {
+  try {
+    game.teleportNPC(effect.npcId, effect.destination);
+  } catch (error) {
+    fail(error.message);
+  }
+}
+
 function applyRelationshipEffect(game, effect) {
   const npc = game.npcs.get(String(effect.npcId));
   if (!npc) {
@@ -154,6 +163,7 @@ const EFFECT_HANDLERS = new Map([
   ["daily-flag", applyDailyFlagEffect],
   ["unlock-place", applyUnlockPlaceEffect],
   ["relocate", applyRelocateEffect],
+  ["teleport-npc", applyTeleportNPCEffect],
   ["relationship", applyRelationshipEffect],
   ["money", applyMoneyEffect],
   ["skill", applySkillEffect],

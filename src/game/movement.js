@@ -144,6 +144,40 @@ export function relocatePlayer(game, destination) {
   };
 }
 
+export function teleportNPC(game, npcId, destination) {
+  const id = String(npcId);
+  const npc = game.npcs.get(id);
+  if (!npc) throw new Error(`Unknown NPC '${id}'`);
+
+  let locationId;
+  let placeId;
+  if (destination === "player") {
+    locationId = game.currentLocationId;
+    placeId = game.currentPlaceId;
+  } else if (destination === "home") {
+    locationId = npc.homeLocationId;
+    placeId = npc.homePlaceId;
+  } else {
+    throw new Error(`Unknown NPC teleport destination '${String(destination)}'`);
+  }
+
+  if (!locationId || !game.world.locations.has(String(locationId))) {
+    throw new Error(`NPC '${id}' has no valid ${destination} destination`);
+  }
+  if (
+    placeId != null &&
+    !game.world.getPlace(String(locationId), String(placeId))
+  ) {
+    throw new Error(`NPC '${id}' teleport references an unknown place`);
+  }
+
+  npc.setLocationAndPlace(
+    String(locationId),
+    placeId == null ? null : String(placeId),
+  );
+  return npc;
+}
+
 export function getPlaceAccess(game, placeOrId, { at = game.now } = {}) {
   if (!(at instanceof Date) || !Number.isFinite(at.getTime())) {
     throw new TypeError("Game.getPlaceAccess requires a valid Date");

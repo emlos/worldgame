@@ -1,13 +1,13 @@
 @location home-door
   @when "player_home" in location.visiblePlaceKeys
 
-  @if not flags.home_notice_read and (time.day > 1 or (time.day == 1 and time.hour >= 13))
+  @if not flags.rent_intro_bypassed and not flags.home_notice_read and (time.day > 1 or (time.day == 1 and time.hour >= 13))
     You are standing in front of your home. A notice has been pinned to your front door.
   @endif
 
 @choicegroup ""
   @choice "Check the notice on the door" -> @exit
-    @when not flags.home_notice_read and (time.day > 1 or (time.day == 1 and time.hour >= 13))
+    @when not flags.rent_intro_bypassed and not flags.home_notice_read and (time.day > 1 or (time.day == 1 and time.hour >= 13))
     @time 1m
     @effect set flags.home_notice_read
     @effect reminder add home_rent_notice_1

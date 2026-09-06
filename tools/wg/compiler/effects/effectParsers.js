@@ -72,9 +72,31 @@ function parseContact(argument, file, line, at) {
 }
 
 function parseChat(argument, file, line, at) {
-  const match = argument.match(new RegExp(`^chat\\s+start\\s+(${ID_PATTERN})$`));
+  const match = argument.match(
+    new RegExp(`^chat\\s+(start|finish)\\s+(${ID_PATTERN})$`),
+  );
   if (!match) failWG("Unknown or malformed @effect", at);
-  return { op: "chat", action: "start", id: match[1], source: source(file, line) };
+  return {
+    op: "chat",
+    action: match[1],
+    id: match[2],
+    source: source(file, line),
+  };
+}
+
+function parseTeleport(argument, file, line, at) {
+  const match = argument.match(
+    new RegExp(`^teleport\\s+npc\\s+(${SIMPLE_ID_PATTERN})\\s+(player|home)$`),
+  );
+  if (!match) {
+    failWG("Expected @effect teleport npc <npc-id> player|home", at);
+  }
+  return {
+    op: "teleport-npc",
+    npcId: match[1],
+    destination: match[2],
+    source: source(file, line),
+  };
 }
 
 function parseReminder(argument, file, line, at) {
@@ -198,6 +220,7 @@ function parseUnlock(argument, file, line, at) {
 
 const EFFECT_PARSERS = new Map([
   ["relocate", effectParser("relocate", parseRelocate)],
+  ["teleport", effectParser("teleport-npc", parseTeleport)],
   ["contact", effectParser("contact", parseContact)],
   ["chat", effectParser("chat", parseChat)],
   ["reminder", effectParser("reminder", parseReminder)],

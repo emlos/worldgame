@@ -359,7 +359,7 @@
           "patterns": [
             {
               "name": "storage.type.effect.wg",
-              "match": "\\b(?:contact|add|chat|start|set|unset|daily-flag|reminder|clear|timer|restart|stop|unlock|place|relocate|home|nearest-place|relationship|money|skill|stat|grade|attendance)\\b"
+              "match": "\\b(?:contact|add|chat|start|finish|set|unset|daily-flag|reminder|clear|timer|restart|stop|unlock|place|relocate|home|nearest-place|teleport|npc|relationship|money|skill|stat|grade|attendance)\\b"
             },
             {
               "include": "#expression"
@@ -386,7 +386,7 @@
             },
             {
               "name": "storage.type.effect.wg",
-              "match": "\\b(?:contact|add|chat|start|set|unset|daily-flag|reminder|clear|timer|restart|stop|unlock|place|relocate|home|nearest-place|relationship|money|skill|stat|grade|attendance)\\b"
+              "match": "\\b(?:contact|add|chat|start|finish|set|unset|daily-flag|reminder|clear|timer|restart|stop|unlock|place|relocate|home|nearest-place|teleport|npc|relationship|money|skill|stat|grade|attendance)\\b"
             },
             {
               "include": "#expression"

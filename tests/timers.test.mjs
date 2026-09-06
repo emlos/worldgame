@@ -22,18 +22,21 @@ function choose(game, identity) {
   performChoice(game, { sceneId: scene.id, choiceId: choice.id });
 }
 
+function findPlaceByKey(game, placeKey) {
+  for (const location of game.world.locations.values()) {
+    const place = location.places.find((candidate) => candidate.key === placeKey);
+    if (place) return { location, place };
+  }
+  throw new Error(`The generated test world has no '${placeKey}' place`);
+}
+
 function placePlayerAtKimOffice(game) {
   game.unlockPlacesByKey("home_kim");
-  for (const location of game.world.locations.values()) {
-    const office = location.places.find((place) => place.key === "home_kim");
-    if (!office) continue;
-    if (String(location.id) !== String(game.currentLocationId)) {
-      game.moveTo(String(location.id));
-    }
-    game.setCurrentPlace({ placeId: String(office.id) });
-    return;
+  const { location, place } = findPlaceByKey(game, "home_kim");
+  if (String(location.id) !== String(game.currentLocationId)) {
+    game.moveTo(String(location.id));
   }
-  throw new Error("The generated test world has no Kim office");
+  game.setCurrentPlace({ placeId: String(place.id) });
 }
 
 test("timer schedule calculations use UTC calendar boundaries", () => {
@@ -224,6 +227,95 @@ test("the authored rent flow starts weekly charges and accepts £200 payments", 
   assert.equal(game.story.rent.debt, 0);
   assert.equal(game.reminders.has("rent_due"), false);
   assert.ok(game.timers["rent.weekly"], "clearing debt must not stop weekly rent");
+});
+
+test("Kim intercepts an unfinished rent introduction after 16:00", () => {
+  const game = new Game({
+    seed: 709,
+    startDate: new Date("2026-09-01T15:50:00.000Z"),
+    playerOptions: { startPlaceId: null },
+  });
+  game.setFlag("opening_seen");
+  game.setFlag("home_notice_read");
+  game.setFlag("home_notice_resolved");
+  game.addContact("kim");
+  game.startChat("kim.rent");
+
+  const kim = game.npcs.get("kim");
+  const thread = game.chats.threads.kim;
+  assert.equal(thread.active?.chatId, "kim.rent");
+
+  choose(game, "loiter:15");
+
+  assert.equal(game.currentStory?.id, "story.rent.landlord-visit");
+  assert.equal(game.hasFlag("rent_intro_bypassed"), true);
+  assert.equal(game.hasFlag("rent_landlord_visit_seen"), true);
+  assert.equal(kim.locationId, game.currentLocationId);
+  assert.equal(kim.currentPlaceId, game.currentPlaceId);
+  assert.equal(thread.active, null);
+  assert.ok(thread.completed.includes("kim.rent"));
+  assert.match(
+    JSON.stringify(buildScene(game).content),
+    /gone far enough by message/,
+  );
+
+  choose(game, "Go with Kim");
+
+  assert.equal(game.currentStory?.id, "story.rent.intro.2");
+  assert.equal(game.currentPlace?.key, "home_kim");
+  assert.equal(game.currentLocationId, kim.homeLocationId);
+  assert.equal(game.currentPlaceId, kim.homePlaceId);
+  assert.equal(kim.locationId, kim.homeLocationId);
+  assert.equal(kim.currentPlaceId, kim.homePlaceId);
+  assert.deepEqual(game.story.rent, {
+    active: true,
+    debt: 800,
+    chargesIssued: 0,
+  });
+  assert.match(
+    JSON.stringify(buildScene(game).content),
+    /finally have your attention/,
+  );
+
+  choose(game, '"I don\'t have £800"');
+  choose(game, "__wg_next");
+  assert.ok(game.timers["rent.weekly"]);
+  choose(game, "__wg_next");
+
+  game.advanceMinutes(24 * 60);
+  assert.equal(kim.locationId, kim.homeLocationId);
+  assert.equal(kim.currentPlaceId, kim.homePlaceId);
+
+  const home = findPlaceByKey(game, "player_home");
+  game.moveTo(String(home.location.id));
+  game.setCurrentPlace();
+  const outsideHome = buildScene(game);
+  assert.equal(
+    outsideHome.sections
+      .flatMap((section) => section.choices)
+      .some((choice) => choice.label === "Check the notice on the door"),
+    false,
+  );
+});
+
+test("Kim comes in person when the player ignores the rent notice", () => {
+  const game = new Game({
+    seed: 710,
+    startDate: new Date("2026-09-01T15:50:00.000Z"),
+    playerOptions: { startPlaceId: null },
+  });
+  game.setFlag("opening_seen");
+
+  choose(game, "loiter:15");
+
+  assert.equal(game.currentStory?.id, "story.rent.landlord-visit");
+  assert.equal(game.hasFlag("home_notice_read"), false);
+  assert.equal(game.hasFlag("rent_intro_bypassed"), true);
+  assert.equal(game.chats.threads.kim, undefined);
+  assert.match(
+    JSON.stringify(buildScene(game).content),
+    /haven't even looked at it/,
+  );
 });
 
 test("rent debt unlocks the authored one-shot escalation interrupt", () => {

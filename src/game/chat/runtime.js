@@ -119,6 +119,33 @@ export function startChat(game, chatId) {
   else activateChat(game, thread, chatId);
 }
 
+/** Close a one-time exchange while preserving any messages already delivered. */
+export function finishChat(game, chatId) {
+  const chat = chatDefinition(chatId);
+  const thread = game.chats.threads[chat.npcId];
+  if (!thread) return false;
+
+  let changed = false;
+  if (thread.active?.chatId === chat.id) {
+    thread.active = null;
+    changed = true;
+  }
+
+  const queued = thread.queue.filter((id) => id !== chat.id);
+  if (queued.length !== thread.queue.length) {
+    thread.queue = queued;
+    changed = true;
+  }
+
+  if (changed && !thread.completed.includes(chat.id)) {
+    thread.completed.push(chat.id);
+  }
+  if (!thread.active && thread.queue.length) {
+    activateChat(game, thread, thread.queue.shift());
+  }
+  return changed;
+}
+
 export function nextChatDeadline(game) {
   return Math.min(Infinity, ...Object.values(game.chats.threads).flatMap((thread) => thread.active?.wait ? [Date.parse(thread.active.wait.dueAt)] : []));
 }

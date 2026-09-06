@@ -19,6 +19,7 @@ import {
 import { initializeNewGame } from "./bootstrap.js";
 import {
   addContact as addGameContact,
+  finishChat as finishGameChat,
   startChat as startGameChat,
 } from "./chat/runtime.js";
 import { emitGameEvent, subscribeGameEvent } from "./events.js";
@@ -27,6 +28,7 @@ import {
   movePlayerTo,
   relocatePlayer,
   setPlayerPlace,
+  teleportNPC as teleportGameNPC,
 } from "./movement.js";
 import {
   buildGpsRoute,
@@ -84,6 +86,10 @@ export class Game {
     return startGameChat(this, chatId);
   }
 
+  finishChat(chatId) {
+    return finishGameChat(this, chatId);
+  }
+
   advanceMinutes(minutes, options = {}) {
     return advanceGameTime(this, minutes, options);
   }
@@ -118,6 +124,10 @@ export class Game {
 
   relocatePlayer(destination) {
     return relocatePlayer(this, destination);
+  }
+
+  teleportNPC(npcId, destination) {
+    return teleportGameNPC(this, npcId, destination);
   }
 
   setDailyFlag(flag, value = true) {
