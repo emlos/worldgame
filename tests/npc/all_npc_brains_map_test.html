@@ -487,7 +487,7 @@
     <div class="topbar">
       <div>
         <h1>All NPC brains – live map test</h1>
-        <small>50×50 generated world · all active NPCs · real NPCBrain behavior</small>
+        <small>50×50 generated world | all active NPCs | real NPCBrain behavior</small>
       </div>
 
       <div class="controls">
@@ -530,7 +530,7 @@
           </div>
           <div id="npcLegend" class="legend"></div>
           <p class="muted">
-            Solid circle = NPC · dashed ring = current target · faint square = home · dashed line = current route.
+            Solid circle = NPC | dashed ring = current target | faint square = home | dashed line = current route.
             Click an NPC marker or table row to highlight it.
           </p>
         </div>
@@ -716,8 +716,8 @@
     function currentWhere(npc) {
       const loc = locationName(npc.locationId);
       const place = placeName(npc.locationId, npc.currentPlaceId);
-      if (place) return `${place} · ${loc}`;
-      if (npc.brain?.currentAction?.type === "travel") return `${loc} · travelling`;
+      if (place) return `${place} | ${loc}`;
+      if (npc.brain?.currentAction?.type === "travel") return `${loc} | travelling`;
       return loc;
     }
 
@@ -725,7 +725,7 @@
       if (!goal) return "—";
       const loc = locationName(goal.targetLocationId);
       const place = placeName(goal.targetLocationId, goal.targetPlaceId);
-      return place ? `${place} · ${loc}` : loc;
+      return place ? `${place} | ${loc}` : loc;
     }
 
     function actionEndLabel(npc) {
@@ -959,7 +959,7 @@
 
       svg.appendChild(markerGroup);
       $("mapInfo").textContent =
-        `${game.world.locations.size} locations · ${seen.size} streets · ${MAP_WIDTH}×${MAP_HEIGHT}`;
+        `${game.world.locations.size} locations | ${seen.size} streets | ${MAP_WIDTH}×${MAP_HEIGHT}`;
     }
 
     function markerOffsets() {
@@ -1092,12 +1092,12 @@
       const placesHtml = (loc.places || []).map((place) => {
         const open = typeof place.isOpen === "function" ? place.isOpen(game.now) : null;
         const state = open === null ? "" : open ? "open" : "closed";
-        return `<li><strong>${esc(place.name)}</strong> <code>${esc(place.key)}</code>${state ? ` · ${state}` : ""}</li>`;
+        return `<li><strong>${esc(place.name)}</strong> <code>${esc(place.key)}</code>${state ? ` | ${state}` : ""}</li>`;
       }).join("");
 
       $("selectedLocation").innerHTML = `
         <div><strong>${esc(loc.name)}</strong></div>
-        <p class="muted">id <code>${esc(loc.id)}</code> · ${esc((loc.tags || []).join(", ") || "no tags")}</p>
+        <p class="muted">id <code>${esc(loc.id)}</code> | ${esc((loc.tags || []).join(", ") || "no tags")}</p>
         ${peopleHtml}
         <h3>Places at current simulation time</h3>
         ${placesHtml ? `<ul>${placesHtml}</ul>` : `<p class="muted">No places.</p>`}
@@ -1125,7 +1125,7 @@
       const route = action?.route?.locations || [];
       const routeIndex = Number(action?.route?.currentLegIndex) || 0;
       const routeText = route.length
-        ? `${routeIndex + 1}/${route.length} · ${route.map(locationName).join(" → ")}`
+        ? `${routeIndex + 1}/${route.length} | ${route.map(locationName).join(" → ")}`
         : "—";
 
       $("selectedNpc").className = "";
@@ -1317,7 +1317,7 @@
       const day = game.world.getDayInfo(game.now);
       $("dayInfo").textContent = day?.kind || "day";
       $("weatherInfo").textContent =
-        `${game.world.currentWeather} · ${Number(game.world.temperature).toFixed(1)}°C`;
+        `${game.world.currentWeather} | ${Number(game.world.temperature).toFixed(1)}°C`;
       $("npcCount").textContent = `${npcs.length} NPCs`;
 
       updateNpcTable();

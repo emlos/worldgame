@@ -8,6 +8,12 @@
   --outcome-warning: #f2c14e;
   --outcome-bad: #e78c6a;
   --outcome-dire: #ff6b81;
+  --outcome-info:#bcbcbc;
+}
+
+[data-outcome="info"] {
+  font-style:italic;
+  --outcome-color: var(--outcome-info);
 }
 
 [data-outcome="very-good"] {
@@ -32,7 +38,7 @@
 
 .outcome-text {
   color: var(--outcome-color, inherit);
-  font-weight: 600;
+  font-weight: inherit;
 }
 
 * {

@@ -26329,7 +26329,14 @@ export const WG_BUNDLE = {
               "parts": [
                 {
                   "type": "text",
-                  "value": "You add it to your contacts. You can message Kim through the Chats app on your phone."
+                  "value": "You add it to your contacts."
+                },
+                {
+                  "type": "break"
+                },
+                {
+                  "type": "text",
+                  "value": "[info] You can message Kim through the Chats app on your phone. Use the C key to open the chats menu directly.[/info]"
                 }
               ],
               "source": {
@@ -26346,13 +26353,13 @@ export const WG_BUNDLE = {
                 "npcId": "kim",
                 "source": {
                   "file": "story/places/civil-office.wg",
-                  "line": 35,
+                  "line": 37,
                   "column": 1
                 }
               },
               "source": {
                 "file": "story/places/civil-office.wg",
-                "line": 35,
+                "line": 37,
                 "column": 1
               }
             },
@@ -26364,13 +26371,13 @@ export const WG_BUNDLE = {
                 "id": "kim.rent",
                 "source": {
                   "file": "story/places/civil-office.wg",
-                  "line": 36,
+                  "line": 38,
                   "column": 1
                 }
               },
               "source": {
                 "file": "story/places/civil-office.wg",
-                "line": 36,
+                "line": 38,
                 "column": 1
               }
             }
@@ -26385,7 +26392,7 @@ export const WG_BUNDLE = {
             "target": "@exit",
             "source": {
               "file": "story/places/civil-office.wg",
-              "line": 38,
+              "line": 40,
               "column": 1
             }
           },
@@ -28837,7 +28844,7 @@ export const WG_BUNDLE = {
       "priority": 100,
       "source": {
         "file": "story/reminders.wg",
-        "line": 25,
+        "line": 26,
         "column": 1
       },
       "text": "You can work one-hour shifts at the cafe from 07:00. The last shift starts at 21:00."
@@ -28848,7 +28855,7 @@ export const WG_BUNDLE = {
       "priority": 999,
       "source": {
         "file": "story/reminders.wg",
-        "line": 13,
+        "line": 14,
         "column": 1
       },
       "text": "You should make your way to the civil office as soon as possible."
@@ -28859,7 +28866,7 @@ export const WG_BUNDLE = {
       "priority": 220,
       "source": {
         "file": "story/reminders.wg",
-        "line": 19,
+        "line": 20,
         "column": 1
       },
       "text": "You have overdue rent. Kim accepts £200 payments at the office."
@@ -28870,7 +28877,7 @@ export const WG_BUNDLE = {
       "priority": 210,
       "source": {
         "file": "story/reminders.wg",
-        "line": 7,
+        "line": 8,
         "column": 1
       },
       "text": "Today is the last day to present your school project!"

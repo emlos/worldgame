@@ -78,7 +78,7 @@ const catalog = [
     title: titleForDefinition(id, definition),
     detail: definition.system
       ? `${definition.system.id} system scene`
-      : `${definition.kind} scene · ${definition.passages?.length || 0} passage${definition.passages?.length === 1 ? "" : "s"}`,
+      : `${definition.kind} scene | ${definition.passages?.length || 0} passage${definition.passages?.length === 1 ? "" : "s"}`,
   })),
 ].sort((left, right) =>
   left.type.localeCompare(right.type) ||
@@ -282,7 +282,7 @@ function renderTrace() {
       const label = document.createElement("strong");
       label.textContent = entry.label;
       const changes = document.createElement("small");
-      changes.textContent = entry.changes.join(" · ");
+      changes.textContent = entry.changes.join(" | ");
       item.append(label, changes);
       return item;
     }),
@@ -514,7 +514,7 @@ function choiceMeta(choice) {
   }
   if (choice.warning) details.push(`⚠ ${choice.warning}`);
   if (!choice.enabled && choice.disabledReason) details.push(choice.disabledReason);
-  return details.join(" · ");
+  return details.join(" | ");
 }
 
 function makeChoiceButton(sceneId, choice) {
@@ -904,7 +904,7 @@ function renderRelationships() {
     for (const [meterId, definition] of Object.entries(npc.relationshipProfile.meters)) {
       const meter = profile.meters.get(meterId);
       const key = `${npc.id}.${meterId}`;
-      const label = `${npc.meta?.shortName || npc.name} · ${definition.label}`;
+      const label = `${npc.meta?.shortName || npc.name} | ${definition.label}`;
       fields.push(
         makeNumberField({
           id: `state-relationship-${npc.id}-${meterId}`,
@@ -1019,8 +1019,8 @@ function renderStorySurface({ syncStoryEditor = true } = {}) {
     if (currentScene?.status) {
       const date = new Date(currentScene.status.now);
       elements.sceneStatus.textContent =
-        `${date.toISOString().slice(0, 16).replace("T", " ")} UTC · ` +
-        `${currentScene.status.weather} · ${Math.round(currentScene.status.temperatureC)}°C`;
+        `${date.toISOString().slice(0, 16).replace("T", " ")} UTC | ` +
+        `${currentScene.status.weather} | ${Math.round(currentScene.status.temperatureC)}°C`;
     } else {
       elements.sceneStatus.textContent = "";
     }

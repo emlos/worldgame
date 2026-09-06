@@ -224,7 +224,7 @@ function formatStatus(status) {
     timeZone: "UTC",
   }).format(date);
 
-  return `${dateText} · ${status.weather} · ${Math.round(status.temperatureC)}°C`;
+  return `${dateText} | ${status.weather} | ${Math.round(status.temperatureC)}°C`;
 }
 
 function makeChoiceButton(sceneId, choice, number) {
@@ -301,7 +301,7 @@ function locationSummary(node) {
   const places = node.places.length
     ? node.places
         .map((place) => `${place.icon || ""} ${place.name}`)
-        .join(" · ")
+        .join(" | ")
     : "No marked places";
   return `${node.name} — ${places}`;
 }
@@ -320,7 +320,7 @@ function renderLocalMap(mapView) {
   details.className = "map-details";
   const currentNode = mapView.nodes.find((node) => node.current);
   details.textContent = currentNode
-    ? `You are in ${currentNode.name}. Select an adjacent location to focus its travel choice.` +
+    ? `You are in ${currentNode.name}. ` +
       (mapView.gps
         ? ` The route to ${mapView.gps.destinationName} is highlighted in yellow.`
         : "")
@@ -577,7 +577,7 @@ function makePhoneBodyPart(part) {
   const condition = part.conditions.length
     ? part.conditions.map(formatPhoneLabel).join(", ")
     : "Healthy";
-  detail.textContent = `${formatPhoneLabel(part.region)} · Pain ${formatStatValue(part.pain)} · ${condition}`;
+  detail.textContent = `${formatPhoneLabel(part.region)} | Pain ${formatStatValue(part.pain)} | ${condition}`;
 
   item.append(header, meter, detail);
   return item;
@@ -680,7 +680,7 @@ function renderPhoneStats() {
       view.clothing.map(({ slot, item }) => ({
         label: formatPhoneLabel(slot),
         value: item
-          ? `${formatPhoneLabel(item.id)} · ${Math.round(item.durability * 100)}% durability · ${Math.round(item.wetness * 100)}% wet`
+          ? `${formatPhoneLabel(item.id)} | ${Math.round(item.durability * 100)}% durability | ${Math.round(item.wetness * 100)}% wet`
           : "Not equipped",
         color: item?.color,
       })),
@@ -724,7 +724,7 @@ function makePhoneGpsDestination(entry) {
   if (entry.recommended) labels.push("School");
   if (entry.alreadyHere) labels.push("Current district");
   if (entry.active) labels.push("Navigating");
-  district.textContent = labels.join(" · ");
+  district.textContent = labels.join(" | ");
 
   button.append(name, district);
   button.addEventListener("click", () => {
@@ -756,7 +756,7 @@ function renderPhoneGps() {
   if (view.activeRoute) {
     phoneGpsStatus.textContent =
       `Navigating to ${view.activeRoute.destination.name} in ` +
-      `${view.activeRoute.destination.districtName} · ` +
+      `${view.activeRoute.destination.districtName} | ` +
       `${formatDuration(view.activeRoute.totalMinutes)} remaining`;
     phoneGpsStopButton.hidden = false;
   } else {

@@ -1371,9 +1371,9 @@ Implemented effects are:
   stored base-stat meter.
 - `grade <subject-id> <signed-whole-number>` adjusts a registered school
   subject's achievement. Crossing a hundred-point boundary changes the letter
-  grade in either direction and carries the remainder: `D · 99 + 1` becomes
-  `C · 0`, while `B · 3 - 10` becomes `C · 93`. Achievement clamps at
-  `D · 0` and `A · 99`.
+  grade in either direction and carries the remainder: `D | 99 + 1` becomes
+  `C | 0`, while `B | 3 - 10` becomes `C | 93`. Achievement clamps at
+  `D | 0` and `A | 99`.
 - `attendance <subject-id> <positive-whole-number>` records completed class
   segments for a registered school subject.
 - `relocate home` immediately moves the player into their generated home.

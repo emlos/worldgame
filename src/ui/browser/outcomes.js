@@ -6,9 +6,10 @@ export const OUTCOME = Object.freeze({
   WARNING: "warning",
   BAD: "bad",
   DIRE: "dire",
+  INFO: "info",
 });
 
-const MARKER_PATTERN = /\[(good|ok|warning|bad|dire)\]([\s\S]*?)\[\/\1\]/gi;
+const MARKER_PATTERN = /\[(good|ok|warning|bad|dire|info)\]([\s\S]*?)\[\/\1\]/gi;
 
 function canonicalOutcomeTag(tag) {
   const compact = String(tag).toLowerCase();
@@ -62,7 +63,7 @@ export function outcomeForChange({ type, statId, amount, higherIsBetter }) {
 /**
  * Split passage prose into plain and outcome-coloured runs.
  *
- * Supported markers are [good], [ok], [warning], [bad], and [dire]. Unclosed
+ * Supported markers are [good], [ok], [warning], [bad], [dire], and [info]. Unclosed
  * or mismatched markers remain ordinary visible text.
  */
 export function parseOutcomeText(value) {

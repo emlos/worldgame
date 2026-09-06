@@ -199,7 +199,7 @@ function render() {
 
     $("timeCard").textContent = game.now.toISOString().slice(0, 16).replace("T", " ");
     $("weatherCard").textContent = environment.weather;
-    $("temperatureCard").textContent = `${environment.temperature.toFixed(1)}°C · ${environment.season}`;
+    $("temperatureCard").textContent = `${environment.temperature.toFixed(1)}°C | ${environment.season}`;
     $("calendarCard").textContent = day.kind;
     $("holidayCard").textContent = holidays.join(", ") || "no holiday";
     $("locationCard").textContent = location?.name || game.currentLocationId || "—";
@@ -208,7 +208,7 @@ function render() {
     $("npcCard").textContent = String(game.npcsArray.length);
     $("activeBrainsCard").textContent = `${activeBrains} active brain${activeBrains === 1 ? "" : "s"}`;
     $("mapCard").textContent = `${game.world.locations.size} locations`;
-    $("placeCountCard").textContent = `${game.world.edges.length} streets · ${placeCount} places`;
+    $("placeCountCard").textContent = `${game.world.edges.length} streets | ${placeCount} places`;
     $("schemaCard").textContent = `v${save.saveVersion}`;
     $("saveSizeCard").textContent = formatBytes(new Blob([compactSave]).size);
 

@@ -31,7 +31,9 @@ Counters, forms, and noticeboards fill {{place.name}}.
 
   Inspecting the notice, you see a phone number at the bottom. Is that your landlord? 
 
-  You add it to your contacts. You can message Kim through the Chats app on your phone.
+  You add it to your contacts. 
+  @br
+  [info] You can message Kim through the Chats app on your phone. Use the C key to open the chats menu directly.[/info]
   @effect contact add "kim"
   @effect chat start kim.rent
   

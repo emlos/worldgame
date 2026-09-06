@@ -1,6 +1,7 @@
 @# Authored reminders are activated and cleared by story effects.
 @reminder vega_station
   @text "Vega expects you at the station at [warning]12:00[/warning] today."
+  @tone info
   @priority 200
 @endreminder
 
@@ -24,5 +25,6 @@
 
 @reminder cafe_job
   @text "You can work one-hour shifts at the cafe from 07:00. The last shift starts at 21:00."
+  @tone info
   @priority 100
 @endreminder

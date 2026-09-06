@@ -99,7 +99,7 @@ export function createPhoneChats({ getGame, openScreen, onChange }) {
     for (const message of view.messages.filter((message) => message.id <= revealThrough)) {
       const at = new Date(message.sentAt);
       if (!previousAt || at - previousAt >= 5 * 60000 || at.toISOString().slice(0, 10) !== previousAt.toISOString().slice(0, 10)) {
-        const stamp = element("p", "chat-time", `${dateFormat.format(at)} · ${timeFormat.format(at)}`);
+        const stamp = element("p", "chat-time", `${dateFormat.format(at)} | ${timeFormat.format(at)}`);
         history.append(stamp);
       }
       const bubble = element("div", `chat-bubble chat-bubble--${message.kind}`, message.text);

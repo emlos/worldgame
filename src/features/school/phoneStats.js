@@ -9,13 +9,13 @@ export function buildSchoolPhoneStats(game) {
       return {
         id,
         kind: "grade",
-        label: `${definition.label} · ${subject.attendedSegments} segments attended`,
+        label: `${definition.label} | ${subject.attendedSegments} segments attended`,
         value: subject.achievement,
         min: 0,
         max: SUBJECT_ACHIEVEMENT_MAX,
         valueLabel: subject.grade === "A"
-          ? `A · mastery ${subject.progress}/99`
-          : `${subject.grade} · ${subject.progress}/100`,
+          ? `A | mastery ${subject.progress}/99`
+          : `${subject.grade} | ${subject.progress}/100`,
       };
     }),
   };

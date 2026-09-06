@@ -119,11 +119,11 @@ test("WG effects, expression context, and the phone expose progress", () => {
   assert.deepEqual(phoneSubject, {
     id: "history",
     kind: "grade",
-    label: "History · 0 segments attended",
+    label: "History | 0 segments attended",
     value: 100,
     min: 0,
     max: SUBJECT_ACHIEVEMENT_MAX,
-    valueLabel: "C · 0/100",
+    valueLabel: "C | 0/100",
   });
 });
 

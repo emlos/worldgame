@@ -25,7 +25,7 @@ export const SCENE_TEXT = Object.freeze({
   }),
 
   locationHeading(streetName, locationName) {
-    return streetName ? `${streetName} · ${locationName}` : locationName;
+    return streetName ? `${streetName} | ${locationName}` : locationName;
   },
 
   locationIntroduction(streetName, locationName) {

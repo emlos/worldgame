@@ -434,7 +434,7 @@
     <div class="topbar">
       <div>
         <h1>NPC Brain – live map test</h1>
-        <small>50×50 generated world · Taylor only · real NPCBrain behavior</small>
+        <small>50×50 generated world | Taylor only | real NPCBrain behavior</small>
       </div>
       <div class="controls">
         <div class="control">
@@ -664,7 +664,7 @@
       if (!goal) return "—";
       const loc = locationName(goal.targetLocationId);
       const place = placeName(goal.targetLocationId, goal.targetPlaceId);
-      return place ? `${place} · ${loc}` : loc;
+      return place ? `${place} | ${loc}` : loc;
     }
 
     function createTestGame(seed) {
@@ -763,7 +763,7 @@
             class: "street",
           });
           const title = svgEl("title");
-          title.textContent = `${edge?.streetName || "street"} · ${edge?.minutes ?? "?"} min`;
+          title.textContent = `${edge?.streetName || "street"} | ${edge?.minutes ?? "?"} min`;
           line.appendChild(title);
           edgeGroup.appendChild(line);
         }
@@ -806,7 +806,7 @@
 
       const locations = game.world.locations.size;
       const places = [...game.world.locations.values()].reduce((n, loc) => n + (loc.places?.length || 0), 0);
-      $("mapInfo").textContent = `${MAP_WIDTH}×${MAP_HEIGHT} · ${locations} locations · ${places} places`;
+      $("mapInfo").textContent = `${MAP_WIDTH}×${MAP_HEIGHT} | ${locations} locations | ${places} places`;
     }
 
     function updateDynamicMap() {
@@ -860,12 +860,12 @@
       const places = (loc.places || []).map((p) => {
         const open = typeof p.isOpen === "function" ? p.isOpen(game.now) : null;
         const state = open === null ? "" : open ? "open" : "closed";
-        return `<li><strong>${esc(p.name)}</strong> <code>${esc(p.key)}</code>${state ? ` · ${state}` : ""}</li>`;
+        return `<li><strong>${esc(p.name)}</strong> <code>${esc(p.key)}</code>${state ? ` | ${state}` : ""}</li>`;
       }).join("");
 
       $("selectedLocation").innerHTML = `
         <div class="big-value">${esc(loc.name)}</div>
-        <p class="muted">id <code>${esc(loc.id)}</code> · ${esc((loc.tags || []).join(", ") || "no tags")}</p>
+        <p class="muted">id <code>${esc(loc.id)}</code> | ${esc((loc.tags || []).join(", ") || "no tags")}</p>
         <h3>Places at current simulation time</h3>
         ${places ? `<ul>${places}</ul>` : `<p class="muted">No places.</p>`}
       `;
@@ -915,7 +915,7 @@
         fmtDate(game.now),
         goal ? `${goal.ruleId} (${goal.type})` : "—",
         actionDescription(action),
-        place ? `${place} · ${loc}` : loc,
+        place ? `${place} | ${loc}` : loc,
         actionEndLabel(action),
       ];
       for (const value of cells) {
@@ -940,7 +940,7 @@
       $("clock").textContent = fmtDate(game.now);
       const day = game.world.getDayInfo(game.now);
       $("dayInfo").textContent = day?.kind || "day";
-      $("weatherInfo").textContent = `${game.world.currentWeather} · ${Number(game.world.temperature).toFixed(1)}°C`;
+      $("weatherInfo").textContent = `${game.world.currentWeather} | ${Number(game.world.temperature).toFixed(1)}°C`;
 
       $("currentLocation").textContent = loc?.name || String(taylor.locationId ?? "—");
       $("currentPlace").textContent = place ? place.name : action?.type === "travel" ? "between places / travelling" : "no place";
@@ -951,7 +951,7 @@
       $("currentAction").textContent = action ? action.type : "none";
       $("currentAction").className = `big-value ${action?.type || ""}`;
       if (action?.type === "travel") {
-        $("actionDetail").textContent = `to ${placeName(action.targetLocationId, action.targetPlaceId) || locationName(action.targetLocationId)} · ETA ${fmtTime(action.arrivalAt)}`;
+        $("actionDetail").textContent = `to ${placeName(action.targetLocationId, action.targetPlaceId) || locationName(action.targetLocationId)} | ETA ${fmtTime(action.arrivalAt)}`;
       } else if (action?.type === "stay") {
         $("actionDetail").textContent = `until ${fmtTime(action.until)}`;
       } else {
@@ -971,12 +971,12 @@
 
       $("rawNext").textContent = fmtDate(b.nextDecisionAt);
       $("rawUpdated").textContent = fmtDate(b.lastUpdatedAt);
-      $("rawHome").textContent = `${placeName(taylor.homeLocationId, taylor.homePlaceId) || taylor.homePlaceId} · ${locationName(taylor.homeLocationId)}`;
+      $("rawHome").textContent = `${placeName(taylor.homeLocationId, taylor.homePlaceId) || taylor.homePlaceId} | ${locationName(taylor.homeLocationId)}`;
 
       const route = action?.route;
       if (route?.locations?.length) {
         const idx = Number(route.currentLegIndex) || 0;
-        $("rawRoute").textContent = `${idx + 1}/${route.locations.length} · ${route.locations.map(locationName).join(" → ")}`;
+        $("rawRoute").textContent = `${idx + 1}/${route.locations.length} | ${route.locations.map(locationName).join(" → ")}`;
       } else {
         $("rawRoute").textContent = "—";
       }
