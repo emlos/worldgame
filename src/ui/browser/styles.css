@@ -359,14 +359,6 @@ p {
   color: var(--outcome-color);
 }
 
-.choice-skill-increase {
-  color: var(--outcome-very-good);
-}
-
-.choice-skill-decrease {
-  color: var(--outcome-bad);
-}
-
 .choice-skill-check {
   color: var(--outcome-warning);
 }

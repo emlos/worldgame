@@ -1185,18 +1185,21 @@ For example, an eight-hour rest uses:
 
 ## Skill changes and checks
 
-A direct skill effect changes a registered fractional `0` through `10` skill:
+Skills follow the same preview, change, and effect rules as other changeable
+values. Use `@change` when the player should see the change:
 
 ```wg
 @choice lift-weights "Lift weights" -> @exit
   @time 5m
-  @effect skill strength 0.1
+  @change skill strength 0.1
 @endchoice
 ```
 
-The runtime clamps the result to the skill's range. A direct positive change
-automatically displays green `+Strength`; a negative change displays red
-`-Strength`. The exact amount is never included in the display metadata.
+This applies the skill effect and derives a signed `Strength` preview. Use
+`@effect skill strength 0.1` to apply the same change silently, or
+`@preview strength 0.1 "+Strength"` to display a preview without applying a
+change. The runtime clamps applied results to the skill's `0` through `10`
+range.
 
 A checked choice omits the arrow from its choice header and supplies a target,
 difficulty, and two outcome blocks:

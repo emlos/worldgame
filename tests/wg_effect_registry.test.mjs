@@ -10,6 +10,7 @@ import {
   applyWGEffects,
   getWGEffectHandlerOps,
 } from "../src/story/wg/runtime/effectRuntime.js";
+import { materializeWGScene } from "../src/story/wg/runtime/sceneMaterializer.js";
 import { DEFAULT_FEATURE_CATALOG } from "../src/features/index.js";
 import {
   validateWGEffectShape,
@@ -88,6 +89,50 @@ test("the compiler registry parses every effect without changing the effect IR",
       source: { file: "registry.wg", line: 24, column: 1 },
     },
   );
+});
+
+test("skills use the ordinary preview, change, and silent-effect behavior", () => {
+  const bundle = compileStorySources([{
+    file: "skill-feedback.wg",
+    source: [
+      ":: fixture.skill-feedback",
+      "@hub player_home",
+      "",
+      '@choice preview-only "Preview only" -> @exit',
+      '  @preview strength 0.1 "+Strength"',
+      "@endchoice",
+      "",
+      '@choice visible-change "Visible change" -> @exit',
+      "  @change skill strength 0.1",
+      "@endchoice",
+      "",
+      '@choice silent-effect "Silent effect" -> @exit',
+      "  @effect skill strength 0.1",
+      "@endchoice",
+    ].join("\n"),
+  }]);
+  const game = new Game({ seed: 902 });
+  const scene = materializeWGScene(game, bundle.scenes["fixture.skill-feedback"]);
+  const choices = Object.fromEntries(
+    scene.sections.flatMap((section) => section.choices).map((choice) => [choice.id, choice]),
+  );
+
+  assert.deepEqual(choices["preview-only"].effectsPreview, [
+    { type: "strength", amount: 0.1, label: "+Strength" },
+  ]);
+  assert.deepEqual(choices["preview-only"].action.effects, []);
+  assert.deepEqual(choices["visible-change"].effectsPreview, [
+    {
+      type: "skill",
+      amount: 0.1,
+      label: "+Strength",
+      direction: "increase",
+    },
+  ]);
+  assert.equal(choices["visible-change"].action.effects[0].op, "skill");
+  assert.deepEqual(choices["silent-effect"].effectsPreview, []);
+  assert.equal(choices["silent-effect"].action.effects[0].op, "skill");
+  assert.equal("skillChanges" in choices["silent-effect"], false);
 });
 
 test("effect traversal covers every legal effect container exactly once", () => {

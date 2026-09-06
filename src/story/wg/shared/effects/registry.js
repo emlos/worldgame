@@ -389,7 +389,6 @@ const EFFECT_DEFINITIONS = [
   {
     op: "skill",
     syntax: "skill",
-    implicitSkillChange: true,
     validate(effect, fail) {
       validateBaseEffect(effect, ["id", "amount"], [], fail);
       validateId(effect.id, "WG skill id", fail);
@@ -545,8 +544,4 @@ export function materializeWGEffectFeedback(effect) {
   return definition?.materializeFeedback
     ? definition.materializeFeedback(effect)
     : { ...effect.feedback };
-}
-
-export function hasImplicitWGSkillChange(effect) {
-  return getWGEffectSpec(effect?.op)?.implicitSkillChange === true;
 }

@@ -554,7 +554,7 @@ The first segment of Physical Education begins.
   @preview grade 1 "+Physical Education"
   @effect attendance physical_education 1
   @effect grade physical_education 1
-  @effect skill strength 1.5
+  @change skill strength 1.5
 @endchoice
 
 @passage segment-2
@@ -577,7 +577,7 @@ Physical Education continues into its second segment.
   @preview grade 1 "+Physical Education"
   @effect attendance physical_education 1
   @effect grade physical_education 1
-  @effect skill strength 1.5
+  @change skill strength 1.5
 @endchoice
 
 @passage segment-3
@@ -600,7 +600,7 @@ The final segment of Physical Education gets underway.
   @preview grade 1 "+Physical Education"
   @effect attendance physical_education 1
   @effect grade physical_education 1
-  @effect skill strength 1.5
+  @change skill strength 1.5
 @endchoice
 
 :: place.high-school.cafeteria

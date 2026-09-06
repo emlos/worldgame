@@ -47,22 +47,6 @@ function validateMetadataList(value, path, { isCost = false } = {}) {
   });
 }
 
-function validateSkillChanges(value, path) {
-  if (!Array.isArray(value)) fail(`${path} must be an array`);
-  value.forEach((entry, index) => {
-    const entryPath = `${path}[${index}]`;
-    requireRecord(entry, entryPath);
-    requireText(entry.skillId, `${entryPath}.skillId`);
-    requireText(entry.label, `${entryPath}.label`);
-    if (!['increase', 'decrease'].includes(entry.direction)) {
-      fail(`${entryPath}.direction must be 'increase' or 'decrease'`);
-    }
-    if (Object.prototype.hasOwnProperty.call(entry, "amount")) {
-      fail(`${entryPath}.amount must not expose the skill-change amount`);
-    }
-  });
-}
-
 function validateSkillCheck(value, path) {
   if (value === null) return;
   requireRecord(value, path);
@@ -150,7 +134,6 @@ export function validateChoice(choice, path = "choice") {
   validateNavigation(choice.navigation, `${path}.navigation`);
   validateMetadataList(choice.costs, `${path}.costs`, { isCost: true });
   validateMetadataList(choice.effectsPreview, `${path}.effectsPreview`);
-  validateSkillChanges(choice.skillChanges, `${path}.skillChanges`);
   validateSkillCheck(choice.skillCheck, `${path}.skillCheck`);
 
   requireRecord(choice.action, `${path}.action`);
@@ -183,7 +166,6 @@ export function createChoice(input) {
     resting,
     costs,
     effectsPreview,
-    skillChanges,
     skillCheck,
     enabled,
     disabledReason,
@@ -204,7 +186,6 @@ export function createChoice(input) {
     effectsPreview: copyMetadataList(
       effectsPreview === undefined ? [] : effectsPreview,
     ),
-    skillChanges: copyMetadataList(skillChanges === undefined ? [] : skillChanges),
     skillCheck: skillCheck === undefined || skillCheck === null ? null : { ...skillCheck },
     enabled: enabled === undefined ? true : enabled,
     disabledReason: disabledReason === undefined ? null : disabledReason,

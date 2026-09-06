@@ -265,13 +265,6 @@ function makeChoiceButton(sceneId, choice, number) {
     detail.dataset.outcome = outcomeForChange(effect);
     details.append(detail);
   }
-  for (const change of choice.skillChanges) {
-    const className =
-      change.direction === "increase"
-        ? "choice-skill-increase"
-        : "choice-skill-decrease";
-    details.append(makeChoiceDetail(className, change.label));
-  }
   if (choice.skillCheck) {
     details.append(
       makeChoiceDetail(

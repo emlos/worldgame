@@ -12965,6 +12965,12 @@ export const WG_BUNDLE = {
                     "file": "story/school/school.wg",
                     "line": 557,
                     "column": 1
+                  },
+                  "feedback": {
+                    "type": "skill",
+                    "amount": 1.5,
+                    "label": "+Strength",
+                    "direction": "increase"
                   }
                 }
               ],
@@ -13134,6 +13140,12 @@ export const WG_BUNDLE = {
                     "file": "story/school/school.wg",
                     "line": 580,
                     "column": 1
+                  },
+                  "feedback": {
+                    "type": "skill",
+                    "amount": 1.5,
+                    "label": "+Strength",
+                    "direction": "increase"
                   }
                 }
               ],
@@ -13303,6 +13315,12 @@ export const WG_BUNDLE = {
                     "file": "story/school/school.wg",
                     "line": 603,
                     "column": 1
+                  },
+                  "feedback": {
+                    "type": "skill",
+                    "amount": 1.5,
+                    "label": "+Strength",
+                    "direction": "increase"
                   }
                 }
               ],

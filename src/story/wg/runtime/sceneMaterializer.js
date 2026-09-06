@@ -5,16 +5,12 @@ import { createScene } from "../../../game/scene/sceneContract.js";
 import { evaluateWGExpression, resolveWGPath } from "./expressionEvaluator.js";
 import { createWGRuntimeContext } from "./runtimeContext.js";
 import { renderWGInterpolation, renderWGText } from "./textRuntime.js";
-import { SKILLS } from "../../../characters/player/stats.js";
 import {
   getSkillCheckDifficulty,
   getSkillCheckTargetDefinition,
 } from "../../../game/scene/skillChecks.js";
 import { keyedRandom01 } from "../../../shared/util/random.js";
-import {
-  hasImplicitWGSkillChange,
-  materializeWGEffectFeedback,
-} from "../shared/effects/registry.js";
+import { materializeWGEffectFeedback } from "../shared/effects/registry.js";
 import {
   createWGDecisionSession,
   iterateSelectedWGNodes,
@@ -90,25 +86,6 @@ export function materializeWGResponse(game, response) {
     renderParagraph(paragraph, context, { decisionSession })
       .map((part) => part.type === "break" ? "\n" : part.text).join(""),
   );
-}
-
-function materializeSkillChanges(effects) {
-  const totals = new Map();
-  for (const effect of effects || []) {
-    if (
-      !hasImplicitWGSkillChange(effect) ||
-      effect.feedback ||
-      !Number.isFinite(effect.amount)
-    ) continue;
-    totals.set(effect.id, (totals.get(effect.id) || 0) + effect.amount);
-  }
-  return [...totals.entries()]
-    .filter(([, amount]) => amount !== 0)
-    .map(([skillId, amount]) => ({
-      skillId,
-      label: (amount > 0 ? "+" : "-") + (SKILLS[skillId]?.label || skillId),
-      direction: amount > 0 ? "increase" : "decrease",
-    }));
 }
 
 function materializeChangeFeedback(effect) {
@@ -264,7 +241,6 @@ function materializeChoice(node, context, options = {}) {
       ...(node.previews || []).map(({ source: _source, ...preview }) => preview),
       ...materializeVisibleEffects(node.effects),
     ],
-    skillChanges: node.check ? [] : materializeSkillChanges(node.effects),
     skillCheck,
     action,
   });
