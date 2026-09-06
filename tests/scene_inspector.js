@@ -16,6 +16,7 @@ import {
 import { getSchoolDayState } from "../src/features/school/timetable.js";
 import { createWGRuntimeContext } from "../src/story/wg/runtime/runtimeContext.js";
 import { createChoiceSection, renderSceneContent } from "../src/ui/browser/sceneContent.js";
+import { createSceneVisualElement } from "../src/ui/browser/sceneVisual.js";
 import { setOutcomeText } from "../src/ui/browser/outcomes.js";
 
 const SANDBOX_SEED = 117;
@@ -559,6 +560,11 @@ function renderPreview() {
     const heading = document.createElement("h1");
     heading.textContent = currentScene.heading;
     elements.scenePreview.append(heading);
+  }
+  if (currentScene.visual !== null) {
+    elements.scenePreview.append(
+      createSceneVisualElement(document, currentScene.visual),
+    );
   }
   for (const alert of currentScene.alerts || []) {
     const alertElement = document.createElement("p");

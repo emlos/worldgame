@@ -16,28 +16,52 @@ wg script:
 
 game systems:
     player stats:
-    - basic energy drain implemented - other stats should change
-    - stats subject to being reworked
-    - stat descriptions:
-        stress: raised when effort is required, embarrassing uncomfortable situations, combat
-        health: damage to the body, calculated based on body parts
-        mind: calmness in stressful situations, stress recovery?
-        energy: expended throughout the day, stat forcing the player to rest and consume timeline
-        trauma: stress^2 - combat, graphic events, maybe turn it into a special stage-based stat?
-        hygiene: lowered throughout the day/by unsanitary/sweat inducing/outdoor actions
-        fear: raised at night, dynamic stat, maybe fear points -> influencing persistent fears that add traits/add flags
-    - arousal? -> sex scenes eventually as romance culmination? sex as a general mechanic
-    - stats should influence each other (example): 
-        - low energy slowly raises stress over time [how low?]
-        - high stress increases trauma gain
-        - low hygiene raising stress over time
-        - high stress lowers mind over time?
-        - high stress increses energy loss from sctions taken by the player
-        - high fear increases energy gains + increases stress over time
-        - high trauma increases stress gains, fear gains
-        - low health increases stress over time, increses hygiene losses
-        - very low health increses trauma over time
-    - i was putting in stats at random - which ones are actually necessary?
+    - postpone the full stats rework until there is enough content to exercise and balance it
+    - do not restore the mind stat; it overlaps with stress, fear, trauma, energy, and resolve
+    - keep four baseline meters permanently visible:
+        - health: physical damage, derived from the condition of individual body parts
+        - energy: the basic currency for interacting with the world; spent by time and effort and restored by rest
+        - stress: accumulated difficulty coping; rises and recovers over hours or days rather than behaving like a momentary emotion
+        - hygiene: bodily cleanliness; changed mainly by tagged activities rather than uniform passive decay
+    - show other states only while relevant:
+        - pain: derived from body-part injuries rather than stored independently
+        - comfort: derived from temperature, weather, wetness, clothing, hygiene, pain, shelter, furniture, and sleeping conditions
+        - fear: a fast-changing response to an identifiable threat; darkness alone should not automatically cause it
+        - anger: a fast-changing emotional state that can be useful as well as harmful
+        - arousal: a temporary physiological state used by intimate/sexual content
+        - air: a scene-local emergency resource for underwater, choking, and suffocation situations
+    - represent lasting trauma as specific experiences, memories, triggers, and traits instead of a generic 0-100 meter
+        - example: nearly drowned -> deep-water/breath-restraint triggers, fear gain, avoidance, intrusive memories
+        - severe stress can increase vulnerability, but ordinary accumulated stress should not automatically become trauma
+        - allow traumatic experiences to be processed through time, support, therapy, or authored events
+    - stress incentives and possible bands:
+        - 0-29 settled: normal function and good emotional recovery
+        - 30-59 strained: fear and anger accumulate slightly faster
+        - 60-79 overwhelmed: concentration suffers and relaxation/sleep become less effective
+        - 80-99 near breaking: contextual crisis responses are threatened
+        - 100 breaking point: trigger an appropriate interrupt such as panic, shutdown, flight, or an outburst
+        - do not reward maintaining exactly zero; the goal is to keep stress manageable
+        - provide dependable recovery through sleep, quiet activities, entertainment, exercise, supportive conversations, and resolving responsibilities
+    - hygiene incentives and possible bands:
+        - 70-100 clean: no penalty and occasional contextual benefits
+        - 40-69 presentable: ordinary state
+        - 15-39 dirty: noticeable reactions during close social situations
+        - 0-14 filthy: strong reactions, problems with customer-facing work, and increased wound-infection risk
+        - low hygiene should influence NPC reactions, intimacy, jobs/school, comfort, wound care, and contextual prose
+        - eventually consider separate internal body hygiene and clothing cleanliness while presenting one general status
+    - stat/state interplay:
+        - low energy can raise stress when the player continues exerting themself
+        - stress amplifies fear and anger gain and slows their recovery
+        - relevant trauma triggers amplify fear/stress; unrelated trauma should not penalize every threatening scene
+        - pain increases physical-action energy costs, disrupts sleep/concentration, and raises stress when prolonged
+        - adrenaline from fear can temporarily mask pain or effort, followed by an energy cost; fear should not directly generate energy
+        - anger can enable intimidation, confrontation, or decisive action and temporarily suppress fear/pain, while harming precision, empathy, and de-escalation
+        - low comfort hinders stress recovery; high comfort supports relaxation and sleep
+        - low hygiene affects stress through discomfort or social context rather than constantly adding stress in every situation
+        - very low air first raises fear, then causes impairment, unconsciousness, and physical damage
+        - arousal affects physiological responses and intimate-scene progression but is never equivalent to consent, attraction, enjoyment, or willingness
+    - preserve player agency: fear, anger, and stress may change available approaches or threaten consequences, but should only force involuntary behavior at clearly telegraphed extremes
+    - if a single value is needed for a pressured action, derive composure from resolve, support, comfort, stress, fear, and pain instead of storing another stat
 
     -autoplay scenes - when the player passes out in combat etc, have parts of the text fade in one after another slowly, as if they were concussed [needs combat system first]
 

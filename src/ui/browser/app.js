@@ -19,6 +19,7 @@ import { STATS } from "../../characters/player/stats.js";
 import { renderMap as renderGraphMap } from "./renderMap.js";
 import { createSceneTransition } from "./sceneTransition.js";
 import { createChoiceSection, renderSceneContent } from "./sceneContent.js";
+import { createSceneVisualElement } from "./sceneVisual.js";
 import { MENU_HOTKEYS, choiceHotkeyLabel, resolveKeyboardAction } from "./keyboard.js";
 import {
   OUTCOME,
@@ -964,6 +965,10 @@ function renderScene(preludeParagraphs = []) {
     const heading = document.createElement("h1");
     heading.textContent = currentScene.heading;
     sceneElement.append(heading);
+  }
+
+  if (currentScene.visual !== null) {
+    sceneElement.append(createSceneVisualElement(document, currentScene.visual));
   }
 
   for (const alert of currentScene.alerts) {

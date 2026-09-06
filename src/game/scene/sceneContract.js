@@ -1,4 +1,5 @@
 import { validateChoice } from "./choiceContract.js";
+import { validateLayeredImageVisual } from "./layeredImage.js";
 
 const SCENE_KINDS = new Set(["location", "place", "event"]);
 const ALERT_TONES = new Set(["info", "warning"]);
@@ -72,6 +73,11 @@ function validateAlerts(alerts) {
   });
 }
 
+function validateVisual(visual) {
+  if (visual === null) return;
+  validateLayeredImageVisual(visual);
+}
+
 function validateChange(change, path) {
   requireRecord(change, path);
   requireText(change.type, `${path}.type`);
@@ -139,6 +145,7 @@ export function validateScene(scene) {
   validateOptionalText(scene.heading, "scene.heading");
   validateStatus(scene.status);
   validateMap(scene.map);
+  validateVisual(scene.visual);
   validateAlerts(scene.alerts);
 
   validateContent(scene.content);
@@ -179,6 +186,7 @@ export function createScene(input) {
     ...input,
     heading: input.heading === undefined ? null : input.heading,
     map: input.map === undefined ? null : input.map,
+    visual: input.visual === undefined ? null : input.visual,
     alerts: input.alerts === undefined ? [] : input.alerts,
   };
   return validateScene(scene);

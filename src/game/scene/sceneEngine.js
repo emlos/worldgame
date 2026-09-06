@@ -15,6 +15,7 @@ import { buildSceneStatus } from "./sceneContext.js";
 import { createChoice } from "./choiceContract.js";
 import { createScene } from "./sceneContract.js";
 import { buildGlobalSceneAlerts } from "./sceneAlerts.js";
+import { buildLocationHubVisual } from "./locationHubVisual.js";
 import {
   getWGOfferScenes,
   getWGPlaceHubScene,
@@ -112,6 +113,7 @@ function buildLocationScene(game) {
     heading: SCENE_TEXT.locationHeading(nearbyStreet, location.name),
     status: buildSceneStatus(game),
     map: buildLocalMapView(game),
+    visual: buildLocationHubVisual(game),
     content: [
       paragraphBlock(SCENE_TEXT.locationIntroduction(nearbyStreet, location.name)),
       paragraphBlock(stablePick(LOCATION_DESCRIPTIONS, game, `location:${location.id}`)),
