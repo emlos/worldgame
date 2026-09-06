@@ -1,5 +1,5 @@
 {
-  "formatVersion": 28,
+  "formatVersion": 29,
   "scenes": {
     "fixture.followup": {
       "id": "fixture.followup",
@@ -202,18 +202,18 @@
                 }
               ],
               "warning": null,
-              "previews": [
-                {
-                  "type": "energy",
-                  "amount": -2,
-                  "label": "-Energy"
-                }
-              ],
+              "hints": [],
               "effects": [
                 {
                   "op": "stat",
                   "id": "energy",
-                  "amount": -2
+                  "amount": -2,
+                  "feedback": {
+                    "type": "stat",
+                    "amount": -2,
+                    "label": "-Energy",
+                    "direction": "decrease"
+                  }
                 },
                 {
                   "op": "reminder",
@@ -241,7 +241,7 @@
               "when": null,
               "requirements": [],
               "warning": null,
-              "previews": [],
+              "hints": [],
               "effects": []
             }
           ],

@@ -5,7 +5,7 @@ You are back in the privacy of your four walls.
 @choicegroup bedroom-menu "Bedroom"
 
   @choice rest "Go to Bed" -> menu.player.home.rest
-    @preview energy 1 "++Energy"
+    @hint energy 1 "++Energy"
   @endchoice
 
 @endchoicegroup

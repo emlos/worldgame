@@ -91,15 +91,15 @@ test("the compiler registry parses every effect without changing the effect IR",
   );
 });
 
-test("skills use the ordinary preview, change, and silent-effect behavior", () => {
+test("skills use the ordinary hint, change, and silent-effect behavior", () => {
   const bundle = compileStorySources([{
     file: "skill-feedback.wg",
     source: [
       ":: fixture.skill-feedback",
       "@hub player_home",
       "",
-      '@choice preview-only "Preview only" -> @exit',
-      '  @preview strength 0.1 "+Strength"',
+      '@choice hint-only "Hint only" -> @exit',
+      '  @hint strength 0.1 "+Strength?"',
       "@endchoice",
       "",
       '@choice visible-change "Visible change" -> @exit',
@@ -117,10 +117,10 @@ test("skills use the ordinary preview, change, and silent-effect behavior", () =
     scene.sections.flatMap((section) => section.choices).map((choice) => [choice.id, choice]),
   );
 
-  assert.deepEqual(choices["preview-only"].effectsPreview, [
-    { type: "strength", amount: 0.1, label: "+Strength" },
+  assert.deepEqual(choices["hint-only"].effectsPreview, [
+    { type: "strength", amount: 0.1, label: "+Strength?" },
   ]);
-  assert.deepEqual(choices["preview-only"].action.effects, []);
+  assert.deepEqual(choices["hint-only"].action.effects, []);
   assert.deepEqual(choices["visible-change"].effectsPreview, [
     {
       type: "skill",
@@ -133,6 +133,23 @@ test("skills use the ordinary preview, change, and silent-effect behavior", () =
   assert.deepEqual(choices["silent-effect"].effectsPreview, []);
   assert.equal(choices["silent-effect"].action.effects[0].op, "skill");
   assert.equal("skillChanges" in choices["silent-effect"], false);
+});
+
+test("the removed @preview directive is rejected", () => {
+  assert.throws(
+    () => compileStorySources([{
+      file: "removed-preview.wg",
+      source: [
+        ":: fixture.removed-preview",
+        "@hub player_home",
+        "",
+        '@choice old-syntax "Old syntax" -> @exit',
+        '  @preview strength 0.1 "+Strength"',
+        "@endchoice",
+      ].join("\n"),
+    }]),
+    /Unknown choice directive @preview/,
+  );
 });
 
 test("effect traversal covers every legal effect container exactly once", () => {

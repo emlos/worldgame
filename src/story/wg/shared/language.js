@@ -122,7 +122,7 @@ export const WG_PROPERTY_DIRECTIVES = freezeList([
   "event-pool",
   "event-chance",
   "warning",
-  "preview",
+  "hint",
   "check",
 ]);
 
@@ -202,7 +202,7 @@ export const WG_DIRECTIVE_CONTEXTS = Object.freeze([
       "@require",
       "@warning",
       "@response ... @endresponse",
-      "@preview",
+      "@hint",
       "@effect",
       "@change",
     ],
@@ -255,7 +255,7 @@ export const WG_DIRECTIVE_NAMES = freezeList(new Set([
   "tone",
   "require",
   "warning",
-  "preview",
+  "hint",
   "effect",
   "change",
   "time",

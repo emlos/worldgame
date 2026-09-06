@@ -195,9 +195,8 @@ The students fill the classroom and take their seats. The teacher begins the les
   @time-until school.nextBoundaryAt
   @event-pool school.class.english
   
-  @preview grade 1 "+English"
   @effect attendance english 1
-  @effect grade english 1
+  @change grade english 1
 @endchoice
 
 @passage segment-2
@@ -216,9 +215,8 @@ The teacher continues the lesson, and you take notes diligently. The class is go
   @time-until school.nextBoundaryAt
   @event-pool school.class.english
 
-  @preview grade 1 "+English"
   @effect attendance english 1
-  @effect grade english 1
+  @change grade english 1
 @endchoice
 
 @passage segment-3
@@ -239,9 +237,8 @@ The students look bored as the teacher wraps up the lesson. You have a few minut
   @time-until school.nextBoundaryAt
   @event-pool school.class.english
   
-  @preview grade 1 "+English"
   @effect attendance english 1
-  @effect grade english 1
+  @change grade english 1
 @endchoice
 
 :: school.class.math -> @exit
@@ -266,9 +263,8 @@ The first segment of Mathematics class begins.
   @event-pool school.class.math
   
   @time-until school.nextBoundaryAt
-  @preview grade 1 "+Mathematics"
   @effect attendance math 1
-  @effect grade math 1
+  @change grade math 1
 @endchoice
 
 @passage segment-2
@@ -288,9 +284,8 @@ Mathematics class continues into its second segment.
   @event-pool school.class.math
   
   @time-until school.nextBoundaryAt
-  @preview grade 1 "+Mathematics"
   @effect attendance math 1
-  @effect grade math 1
+  @change grade math 1
 @endchoice
 
 @passage segment-3
@@ -309,9 +304,8 @@ The final segment of Mathematics class gets underway.
 @choice math-3-study "Study hard" -> @exit
   @event-pool school.class.math
   @time-until school.nextBoundaryAt
-  @preview grade 1 "+Mathematics"
   @effect attendance math 1
-  @effect grade math 1
+  @change grade math 1
 @endchoice
 
 :: school.class.history -> @exit
@@ -336,9 +330,8 @@ The first segment of History class begins.
   
   @time-until school.nextBoundaryAt
   @event-pool school.class.history
-  @preview grade 1 "+History"
   @effect attendance history 1
-  @effect grade history 1
+  @change grade history 1
 @endchoice
 
 @passage segment-2
@@ -358,9 +351,8 @@ History class continues into its second segment.
   
   @time-until school.nextBoundaryAt
   @event-pool school.class.history
-  @preview grade 1 "+History"
   @effect attendance history 1
-  @effect grade history 1
+  @change grade history 1
 @endchoice
 
 @passage segment-3
@@ -380,9 +372,8 @@ The final segment of History class gets underway.
   
   @time-until school.nextBoundaryAt
   @event-pool school.class.history
-  @preview grade 1 "+History"
   @effect attendance history 1
-  @effect grade history 1
+  @change grade history 1
 @endchoice
 
 :: school.class.science -> @exit
@@ -407,9 +398,8 @@ The first segment of Science class begins.
   
   @time-until school.nextBoundaryAt
   @event-pool school.class.science
-  @preview grade 1 "+Science"
   @effect attendance science 1
-  @effect grade science 1
+  @change grade science 1
 @endchoice
 
 @passage segment-2
@@ -429,9 +419,8 @@ Science class continues into its second segment.
   
   @time-until school.nextBoundaryAt
   @event-pool school.class.science
-  @preview grade 1 "+Science"
   @effect attendance science 1
-  @effect grade science 1
+  @change grade science 1
 @endchoice
 
 @passage segment-3
@@ -451,9 +440,8 @@ The final segment of Science class gets underway.
   
   @time-until school.nextBoundaryAt
   @event-pool school.class.science
-  @preview grade 1 "+Science"
   @effect attendance science 1
-  @effect grade science 1
+  @change grade science 1
 @endchoice
 
 :: school.class.art -> @exit
@@ -478,9 +466,8 @@ The first segment of Art class begins.
   
   @time-until school.nextBoundaryAt
   @event-pool school.class.art
-  @preview grade 1 "+Art"
   @effect attendance art 1
-  @effect grade art 1
+  @change grade art 1
 @endchoice
 
 @passage segment-2
@@ -500,9 +487,8 @@ Art class continues into its second segment.
   
   @time-until school.nextBoundaryAt
   @event-pool school.class.art
-  @preview grade 1 "+Art"
   @effect attendance art 1
-  @effect grade art 1
+  @change grade art 1
 @endchoice
 
 @passage segment-3
@@ -523,9 +509,8 @@ The final segment of Art class gets underway.
   
   @time-until school.nextBoundaryAt
   @event-pool school.class.art
-  @preview grade 1 "+Art"
   @effect attendance art 1
-  @effect grade art 1
+  @change grade art 1
 @endchoice
 
 :: school.class.physical-education -> @exit
@@ -551,9 +536,8 @@ The first segment of Physical Education begins.
   
   @time-until school.nextBoundaryAt
   @event-pool school.class.physical-education
-  @preview grade 1 "+Physical Education"
   @effect attendance physical_education 1
-  @effect grade physical_education 1
+  @change grade physical_education 1
   @change skill strength 1.5
 @endchoice
 
@@ -574,9 +558,8 @@ Physical Education continues into its second segment.
   
   @time-until school.nextBoundaryAt
   @event-pool school.class.physical-education
-  @preview grade 1 "+Physical Education"
   @effect attendance physical_education 1
-  @effect grade physical_education 1
+  @change grade physical_education 1
   @change skill strength 1.5
 @endchoice
 
@@ -597,9 +580,8 @@ The final segment of Physical Education gets underway.
   
   @time-until school.nextBoundaryAt
   @event-pool school.class.physical-education
-  @preview grade 1 "+Physical Education"
   @effect attendance physical_education 1
-  @effect grade physical_education 1
+  @change grade physical_education 1
   @change skill strength 1.5
 @endchoice
 

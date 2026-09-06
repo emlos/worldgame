@@ -424,7 +424,7 @@
       "patterns": [
         {
           "name": "meta.property.directive.wg",
-          "begin": "^(\\s*)(@(text|tone|heading|choices|behavior|system|hub|place-key|place-tag|location-tag|offer|auto|pool|when|label|icon|hub-text|priority|chance|weight|time|time-until|event-pool|event-chance|warning|preview|check))\\b",
+          "begin": "^(\\s*)(@(text|tone|heading|choices|behavior|system|hub|place-key|place-tag|location-tag|offer|auto|pool|when|label|icon|hub-text|priority|chance|weight|time|time-until|event-pool|event-chance|warning|hint|check))\\b",
           "beginCaptures": {
             "2": {
               "name": "keyword.other.directive.wg"

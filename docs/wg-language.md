@@ -85,7 +85,7 @@ contact queues until the active one finishes. Contacts appear in the Chats app.
   interpolation values, not transcript bodies. Rendering/loading history never
   reruns effects. Editing authored wording changes the reconstructed wording;
   renamed/removed references invalidate development saves. Game save format is
-  currently 32; the separately versioned compiled WG bundle format is 28.
+  currently 32; the separately versioned compiled WG bundle format is 29.
 - Unread counts include incoming messages after each contact's saved read
   position. Opening the contact list does not mark messages read. Reading to the
   end of a visible thread does. The app badge totals all contacts.
@@ -431,7 +431,7 @@ with `location:<contribution-id>:` so separate contributions can reuse local IDs
 The body supports prose, interpolation, `@br`, conditionals, deterministic
 `@random` variants, choice groups, and ordinary or checked choices. Rendering
 and choice revalidation are pure: no state changes or random-stream advancement.
-Choice effects, skill checks, requirements, time, previews, unlocks, and responses
+Choice effects, skill checks, requirements, time, hints, unlocks, and responses
 use the same execution order as other WG choices. Runtime errors propagate and
 do not restore earlier state; reload a previous save after a fatal error.
 A successful `@exit` choice stays at the outdoor hub; a global scene
@@ -758,7 +758,7 @@ rendered, so both features may be combined:
 @next "[good]Continue with {{npc.taylor.object}}[/good]" -> .continue
 ```
 
-Headings, scene labels, hub text, warnings, requirement reasons, and preview
+Headings, scene labels, hub text, warnings, requirement reasons, and hint
 labels remain literal strings.
 
 ## Runtime values available to expressions and prose
@@ -1035,8 +1035,8 @@ save/load do not reapply them. Like standalone body effects, they are forbidden
 in authored `@hub` scenes. They are also forbidden in presentation-only
 `@response` blocks. Write `\@change` to display that marker literally.
 
-A body-level `@preview` is invalid:
-previews describe an uncommitted choice, while a prose change has already been
+A body-level `@hint` is invalid:
+hints describe an uncommitted choice, while a prose change has already been
 committed.
 
 A body-level `@check` opens a passive, targetless skill check:
@@ -1075,8 +1075,7 @@ outcome in a targeted event scene passage instead.
   @endresponse
   @require player.energy >= 10 "You are too tired."
   @warning "This may annoy Taylor."
-  @preview relationship taylor.friendship -2 "-Friendship"
-  @effect relationship taylor.friendship -2
+  @change relationship taylor.friendship -2
 @endchoice
 ```
 
@@ -1147,12 +1146,14 @@ Choice directives are:
   flags or save data, so a later render does not show them again. Interpolation
   is evaluated against the completed post-effect, post-transition, and
   post-time state.
-- `@preview <type> <signed-number> "<label>"`: repeatable display-only effect
-  preview. Use the stat ID as the type for stat-aware colours, for example
-  `@preview stress -2 "-Stress"`. A preview never applies or validates a real effect.
+- `@hint <type> <signed-number> "<label>"`: repeatable display-only guidance.
+  Use the stat ID as the type for stat-aware colours, for example
+  `@hint energy 1 "++Energy"`. A hint is deliberately non-authoritative: it
+  never applies or validates an effect and may summarize an uncertain or
+  variable outcome. Use `@change` when the displayed value is an exact change.
 - `@effect ...`: repeatable authoritative effect, described below.
-- `@change ... ["<label>"]`: an authoritative effect with a derived or custom
-  preview. It is valid in direct choices for the same player-facing operations
+- `@change ... ["<label>"]`: an authoritative effect with derived or custom
+  visible feedback. It is valid in direct choices for the same player-facing operations
   supported by prose changes.
 
 Before an action runs, the game rebuilds the current scene and rechecks that
@@ -1185,7 +1186,7 @@ For example, an eight-hour rest uses:
 
 ## Skill changes and checks
 
-Skills follow the same preview, change, and effect rules as other changeable
+Skills follow the same hint, change, and effect rules as other changeable
 values. Use `@change` when the player should see the change:
 
 ```wg
@@ -1195,10 +1196,10 @@ values. Use `@change` when the player should see the change:
 @endchoice
 ```
 
-This applies the skill effect and derives a signed `Strength` preview. Use
+This applies the skill effect and derives signed `Strength` feedback. Use
 `@effect skill strength 0.1` to apply the same change silently, or
-`@preview strength 0.1 "+Strength"` to display a preview without applying a
-change. The runtime clamps applied results to the skill's `0` through `10`
+`@hint strength 0.1 "+Strength?"` to display non-authoritative guidance without
+applying a change. The runtime clamps applied results to the skill's `0` through `10`
 range.
 
 A checked choice omits the arrow from its choice header and supplies a target,
@@ -1225,8 +1226,8 @@ difficulty, and two outcome blocks:
 
 The player sees only the choice label and orange `Strength: Tricky`. The UI
 does not display a probability, roll, selected outcome, branch duration, or
-sanitized preview of branch effects. Checked choices cannot use choice-level
-`@time`, `@response`, `@effect`, `@change`, or `@preview`; put time,
+sanitized feedback for branch effects. Checked choices cannot use choice-level
+`@time`, `@response`, `@effect`, `@change`, or `@hint`; put time,
 responses, and silent effects inside each outcome.
 They may still use one `@icon`, `@when`, `@warning`, and `@check`, plus repeated
 `@require` directives. Both outcomes are required and may target another scene,
@@ -1242,7 +1243,7 @@ near `7.5`; progress fills the space within each letter grade.
 Each `@success` or `@failure` block may contain at most one `@time`, including
 the optional `free` suffix, and any number of `@response` and `@effect`
 directives. It cannot contain `@time-until`, conditions, requirements,
-warnings, previews, icons, nested checks, or ordinary prose outside a response
+warnings, hints, icons, nested checks, or ordinary prose outside a response
 block.
 
 Implemented difficulty IDs are:
@@ -1367,7 +1368,7 @@ Implemented effects are:
   target scene belonging to the destination place.
 
 Effects and changes run sequentially, so a later mutation, condition, or
-passive check can read state changed by an earlier one. Warnings, previews,
+passive check can read state changed by an earlier one. Warnings, hints,
 requirements, and time costs do not create implicit effects or resource costs.
 
 All generated NPC residences start with `unlocked: false`. They remain
@@ -1420,7 +1421,7 @@ place-hub prose and presentation-only `@response` blocks cannot. In a checked
 choice, put the unlock inside `@success` or `@failure`, not at choice level.
 
 - Unlocking is silent: author the discovery text yourself. It does not add
-  automatic feedback, a choice preview, a time cost, or move the player.
+  automatic feedback, a choice hint, a time cost, or move the player.
 - It uses the normal effect order. Body unlocks run once per entered passage,
   never during rendering or choice revalidation.
 - A committed unlock is saved and irreversible. Repeating it is harmless.
@@ -1494,7 +1495,7 @@ Only active authored IDs are saved; automatic school reminders are derived
 from the schedule. The built-in and authored namespaces cannot collide.
 Game save format 32 includes the reminder state and game-start date; older saves
 are intentionally unsupported. The compiled WG bundle has its own format version,
-currently 28.
+currently 29.
 
 Reminder lifecycle integration is covered by
 `node --test tests/timers.test.mjs tests/cafe_job.test.mjs`; all authored reminder
@@ -1580,7 +1581,7 @@ not implemented.
 | Scene metadata | `@heading`, `@choices`, `@behavior`, `@system`, `@onenter`, `@hub`, `@place-key`, `@place-tag`, `@location-tag`, `@offer`, `@auto`, `@pool`, `@when`, `@label`, `@icon`, `@hub-text`, `@priority`, `@chance`, `@weight` |
 | Passage/navigation | `@passage`, `@next` |
 | Scene or passage body | `prose`, `@br`, `trailing inline @change`, `inline and block @if / @elseif / @else / @endif`, `@random / @or / @endrandom`, `passive @check / @success / @failure / @endcheck`, `@effect`, `@change`, `@choicegroup ... @endchoicegroup`, `@choice ... @endchoice` |
-| Direct choice | `@icon`, `@time`, `@time-until`, `@event-pool`, `@event-chance`, `@when`, `@require`, `@warning`, `@response ... @endresponse`, `@preview`, `@effect`, `@change` |
+| Direct choice | `@icon`, `@time`, `@time-until`, `@event-pool`, `@event-chance`, `@when`, `@require`, `@warning`, `@response ... @endresponse`, `@hint`, `@effect`, `@change` |
 | Checked choice | `@icon`, `@event-pool`, `@event-chance`, `@when`, `@require`, `@warning`, `@check`, `@success ... @endsuccess`, `@failure ... @endfailure` |
 | Check outcome | `@time`, `@response ... @endresponse`, `@effect` |
 | On-enter block | `@effect` |

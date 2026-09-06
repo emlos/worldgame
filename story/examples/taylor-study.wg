@@ -31,8 +31,7 @@ Taylor remains focused on the textbook.
   @icon 😈
   @#require player.energy >= 10 "You are too tired."
   @warning "This may annoy Taylor."
-  @preview relationship taylor.friendship -2 "-Friendship"
-  @effect relationship taylor.friendship -2
+  @change relationship taylor.friendship -2
 @endchoice
 
 @choice leave "Give up on studying" -> @exit

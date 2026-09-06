@@ -52,7 +52,7 @@ export function outcomeForRelationship(score, { higherIsBetter = true } = {}) {
 export function outcomeForChange({ type, statId, amount, higherIsBetter }) {
   if (!Number.isFinite(amount) || amount === 0) return OUTCOME.OK;
 
-  // @change identifies its stat separately; @preview uses the stat as its type.
+  // @change identifies its stat separately; @hint uses the stat as its type.
   const definition = STATS[type === "stat" ? statId : type];
   const preferredDirection = higherIsBetter ?? definition?.higherIsBetter;
   const beneficial = preferredDirection === false ? amount < 0 : amount > 0;

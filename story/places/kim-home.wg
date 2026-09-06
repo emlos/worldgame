@@ -96,7 +96,7 @@ Kim is sitting at {{npc.kim.dependent}} desk. {{npc.kim.subject | cap}} looks up
   @endchoice
 
   @choice flirt "Flatter {{npc.kim.object}}?" -> .flirt
-    @preview relationship kim.affection 5 "+Affection?"
+    @hint relationship kim.affection 5 "+Affection?"
   @endchoice
 
     @passage flirt

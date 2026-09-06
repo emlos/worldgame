@@ -30,8 +30,7 @@ Hello, {{player.name}}.
   @time 15m
   @when player.energy >= 5
   @require player.money >= 2 "You need more money."
-  @preview energy -2 "-Energy"
-  @effect stat energy -2
+  @change stat energy -2
   @effect reminder add compiler_notice
 @endchoice
 

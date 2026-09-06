@@ -238,7 +238,7 @@ function materializeChoice(node, context, options = {}) {
     disabledReason,
     warning: node.warning,
     effectsPreview: [
-      ...(node.previews || []).map(({ source: _source, ...preview }) => preview),
+      ...(node.hints || []).map(({ source: _source, ...hint }) => hint),
       ...materializeVisibleEffects(node.effects),
     ],
     skillCheck,

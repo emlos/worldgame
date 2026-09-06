@@ -954,10 +954,10 @@ class SceneBodyParser {
       singleFields.has("timing") ||
       choice.responses.length ||
       choice.effects.length ||
-      choice.previews.length
+      choice.hints.length
     ) {
       failWG(
-        "Checked choices keep @time, @response, and @effect inside outcome blocks and cannot use @change or @preview",
+        "Checked choices keep @time, @response, and @effect inside outcome blocks and cannot use @change or @hint",
         location,
       );
     }
@@ -979,7 +979,7 @@ class SceneBodyParser {
     delete choice.timeUntilPath;
     delete choice.energyFree;
     delete choice.resting;
-    delete choice.previews;
+    delete choice.hints;
     delete choice.effects;
     delete choice.responses;
     return choice;
@@ -1022,7 +1022,7 @@ class SceneBodyParser {
       eventPool: null,
       eventChance: 1,
       responses: [],
-      previews: [],
+      hints: [],
       effects: [],
       source: nodeSource(this.file, opening.line),
     };
@@ -1139,35 +1139,35 @@ class SceneBodyParser {
       } else if (name === "response") {
         choice.responses.push(this.parseResponse());
         continue;
-      } else if (name === "preview") {
-        const argument = directiveArgument(text, "preview", location);
-        const relationshipPreview = argument.match(
+      } else if (name === "hint") {
+        const argument = directiveArgument(text, "hint", location);
+        const relationshipHint = argument.match(
           new RegExp(`^relationship\\s+${RELATIONSHIP_TARGET_PATTERN}\\s+([+-]?\\d+(?:\\.\\d+)?)\\s+(${QUOTED_PATTERN})$`),
         );
-        if (relationshipPreview) {
+        if (relationshipHint) {
           const definition = relationshipMeterDefinition(
-            relationshipPreview[1],
-            relationshipPreview[2],
+            relationshipHint[1],
+            relationshipHint[2],
             location,
           );
-          choice.previews.push({
+          choice.hints.push({
             type: "relationship",
-            npcId: relationshipPreview[1],
-            meterId: relationshipPreview[2],
+            npcId: relationshipHint[1],
+            meterId: relationshipHint[2],
             higherIsBetter: definition.higherIsBetter !== false,
-            amount: Number(relationshipPreview[3]),
-            label: parseQuotedString(relationshipPreview[4], location, "Preview label"),
+            amount: Number(relationshipHint[3]),
+            label: parseQuotedString(relationshipHint[4], location, "Hint label"),
             source: nodeSource(this.file, line.line),
           });
         } else {
-          const preview = argument.match(
+          const hint = argument.match(
             new RegExp(`^(${ID_PATTERN})\\s+([+-]?\\d+(?:\\.\\d+)?)\\s+(${QUOTED_PATTERN})$`),
           );
-          if (!preview) failWG("Malformed @preview", location);
-          choice.previews.push({
-            type: preview[1],
-            amount: Number(preview[2]),
-            label: parseQuotedString(preview[3], location, "Preview label"),
+          if (!hint) failWG("Malformed @hint", location);
+          choice.hints.push({
+            type: hint[1],
+            amount: Number(hint[2]),
+            label: parseQuotedString(hint[3], location, "Hint label"),
             source: nodeSource(this.file, line.line),
           });
         }
