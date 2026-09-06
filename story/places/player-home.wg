@@ -1,3 +1,50 @@
+:: story.opening.new-home -> @exit
+@auto enter-place
+@place-key player_home
+@when not flags.opening_seen
+@priority 1000
+@heading "A new beginning"
+@choices "How do you feel about the day ahead?"
+@onenter
+  @effect set flags.opening_seen
+@endonenter
+
+@passage wake-up
+
+Pale morning light falls across a room filled with cardboard boxes. Most of your clothes are still packed, the kitchen contains almost nothing, and the key to your new home is lying beside the mattress.
+
+You moved in yesterday. Today is supposed to be your first proper day in the city.
+
+Your phone vibrates against the floor. The school has sent you another reminder: your first class begins at 09:00. If you intend to arrive on time, you should get moving soon.
+
+@choice "Maybe this is a fresh start" -> .get-moving
+  @effect set local.outlook "hopeful"
+@endchoice
+
+@choice "I already hate this place" -> .get-moving
+  @effect set local.outlook "resentful"
+@endchoice
+
+@choice "Just get through today" -> .get-moving
+  @effect set local.outlook "guarded"
+@endchoice
+
+@passage get-moving
+
+@if local.outlook == "hopeful"
+  A new home, a new school, and a city where nobody knows you yet. Perhaps that can be a good thing.
+@elseif local.outlook == "resentful"
+  New walls and a different school do not make this feel like home. For now, getting through the day will have to be enough.
+@else
+  You push the unopened boxes from your mind. One thing at a time: get ready, find the school, and make it through the day.
+@endif
+
+[info]Your phone is always available from the Phone button or by pressing P. Reminders tracks obligations such as school, while GPS lists known destinations and can guide you through the city. Opening the phone does not advance time.[/info]
+
+School is waiting, but what you do next is your decision. You can get ready, leave immediately, or ignore it and spend the day another way.
+
+@next "Get up" -> @exit
+
 :: place.player-home
 @hub player_home
 You are back in the privacy of your four walls.

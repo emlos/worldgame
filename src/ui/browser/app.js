@@ -6,6 +6,10 @@ import {
 } from "../../game/debugCommands.js";
 import { buildScene } from "../../game/scene/sceneEngine.js";
 import { performChoice } from "../../game/scene/choiceEngine.js";
+import {
+  resolveWGAutomaticScene,
+  WG_AUTO_TRIGGER,
+} from "../../story/wg/runtime/sceneExposure.js";
 import { renderSchoolDiary } from "../../features/school/browserDiary.js";
 import { teleportPlayerToSchool } from "../../features/school/debug.js";
 import { buildFullMapView } from "../../game/scene/mapView.js";
@@ -111,11 +115,12 @@ let choiceButtons = [];
 let choiceButtonsById = new Map();
 
 function createGame() {
-  return new Game({
+  const newGame = new Game({
     seed: 117,
     startDate: new Date("2026-09-01T07:00:00.000Z"),
-    playerOptions: { startPlaceId: null },
   });
+  resolveWGAutomaticScene(newGame, WG_AUTO_TRIGGER.enterPlace);
+  return newGame;
 }
 
 const moneyFormatter = new Intl.NumberFormat("en-GB", {

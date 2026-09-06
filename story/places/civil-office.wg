@@ -33,7 +33,7 @@ Counters, forms, and noticeboards fill {{place.name}}.
 
   You add it to your contacts. 
   @br
-  [info] You can message Kim through the Chats app on your phone. Use the C key to open the chats menu directly.[/info]
+  [info]Kim is now available in the Chats app on your phone. Select Phone and then Chats, or press C to open it directly. Opening the phone and reading messages does not advance time.[/info]
   @effect contact add "kim"
   @effect chat start kim.rent
   

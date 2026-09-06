@@ -1,3 +1,21 @@
+:: school.first-visit -> @exit
+@auto enter-place
+@place-key high_school
+@when not flags.school_first_visit_seen
+@priority 1000
+@heading "Your first day at school"
+@onenter
+  @effect set flags.school_first_visit_seen
+@endonenter
+
+You pause inside the entrance as students move around you with the confidence of people who already know where they are going. Classroom signs point deeper into the building, and the day's schedule is waiting in your diary.
+
+[info]The school's Current Activities section shows what is happening now. Attending class records your attendance and can improve that subject. Open the Diary button or press D to review the full timetable, grades, and attendance.[/info]
+
+You are not locked into the school day. You can attend the current lesson, explore the building, wait for the schedule to advance, or leave.
+
+@next "Look around" -> @exit
+
 :: place.high-school
 @hub high_school
 @choices "Travel"
