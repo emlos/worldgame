@@ -1920,13 +1920,6 @@ p {
   margin-bottom: 0;
 }
 
-.journal-entry h3 {
-  margin: 0 0 12px;
-  color: #8ea1b7;
-  font-size: 0.86rem;
-  font-weight: 600;
-}
-
 .journal-entry p {
   margin: 0 0 15px;
   white-space: pre-line;

@@ -138,6 +138,43 @@ test("journal prose resolves live character pronouns when an old entry is reread
   assert.doesNotMatch(after, /She has this way/);
 });
 
+test("journal choices complete continuation prose without headings or ellipses", () => {
+  const game = writableGame();
+  const taylor = game.npcs.get("taylor");
+  game.runAction({
+    label: "unlock journal examples",
+    apply(currentGame) {
+      currentGame.player.adjustRelationshipMeter(
+        "taylor",
+        "friendship",
+        1,
+        taylor.relationshipProfile,
+      );
+      currentGame.setFlag("rent_intro_2");
+    },
+  });
+
+  game.startJournalDraft("journal-3");
+  chooseByLabel(game, "resigned");
+  game.startJournalDraft("journal-1");
+  chooseByLabel(game, "Taylor");
+  chooseByLabel(game, "strange");
+  chooseByLabel(game, "flirt a little and see what happens");
+
+  const entries = buildJournalReadView(game).pages[0].entries;
+  assert.equal(Object.hasOwn(entries[0], "title"), false);
+  assert.deepEqual(entries.map((entry) => entry.paragraphs), [
+    [
+      "Apparently I owe rent from before I even properly settled in here. Somehow that has become my problem.",
+      "Right now I mostly feel Resigned, mostly. Whether it makes sense or not, arguing with the amount won't magically make it disappear. I need money and a plan.",
+    ],
+    [
+      "There's this person at school, Taylor, who seems really strange, honestly. I haven't decided whether she is the good kind of weird yet.",
+      "Still, I'm hoping to get a little closer to her, y'know, see where things go. Maybe there's something there. Maybe not. It could be fun finding out.",
+    ],
+  ]);
+});
+
 test("journal flags cannot be cleared through the game facade", () => {
   const game = writableGame();
   game.setFlag("journal.example");

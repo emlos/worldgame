@@ -51,7 +51,6 @@ const playerTemperatureElement = document.querySelector("#player-temperature");
 const playerStatsElement = document.querySelector("#player-stats");
 const restartButton = document.querySelector("#restart");
 const playerDiaryButton = document.querySelector("#player-diary-btn");
-const closeDiaryButton = document.querySelector("#close-diary");
 const playerDiaryDialog = document.querySelector("#player-diary-dialog");
 const playerDiaryDate = document.querySelector("#player-diary-date");
 const playerDiaryContent = document.querySelector("#player-diary-content");
@@ -386,9 +385,6 @@ function renderFullMap() {
 function makeJournalEntryElement(entry) {
   const article = document.createElement("article");
   article.className = "journal-entry";
-  const heading = document.createElement("h3");
-  heading.textContent = entry.title;
-  article.append(heading);
   for (const text of entry.paragraphs) {
     const paragraph = document.createElement("p");
     paragraph.textContent = text;
@@ -443,6 +439,7 @@ function renderJournalWritingPage() {
   journalDialogMode = "write";
   playerDiaryDialog.dataset.mode = "write";
   journalWritePanel.hidden = false;
+  journalStopWritingButton.hidden = view.mode !== "topics";
   playerDiaryDate.textContent = diaryDateFormatter.format(game.now);
 
   if (view.mode === "topics") {
@@ -1263,7 +1260,6 @@ journalNextPageButton.addEventListener("click", () => {
   renderJournalReadPage();
 });
 journalStopWritingButton.addEventListener("click", () => playerDiaryDialog.close());
-closeDiaryButton.addEventListener("click", () => playerDiaryDialog.close());
 playerDiaryDialog.addEventListener("click", (event) => {
   if (event.target === playerDiaryDialog) playerDiaryDialog.close();
 });

@@ -43,6 +43,18 @@ function passageProse(game, record, passage) {
     .map((node) => renderParagraph(node, context, session));
 }
 
+const TRAILING_CONTINUATION = /(?:\.\.\.|…)\s*$/u;
+const LEADING_CONTINUATION = /^\s*(?:\.\.\.|…)\s*/u;
+
+function joinContinuation(left, right) {
+  if (!TRAILING_CONTINUATION.test(left) && !LEADING_CONTINUATION.test(right)) {
+    return null;
+  }
+  const before = left.replace(TRAILING_CONTINUATION, "").trimEnd();
+  const after = right.replace(LEADING_CONTINUATION, "").trimStart();
+  return `${before}${before && after ? " " : ""}${after}`;
+}
+
 function visitedPassages(record) {
   const definition = journalDefinition(record.definitionId);
   const passages = [definition.passages[0]];
@@ -60,13 +72,22 @@ function visitedPassages(record) {
 }
 
 export function renderJournalRecord(game, record) {
-  const context = createWGRuntimeContext(game, { locals: record.locals });
   const definition = journalDefinition(record.definitionId);
+  const paragraphs = [];
+  for (const passage of visitedPassages(record)) {
+    const passageParagraphs = passageProse(game, record, passage);
+    if (paragraphs.length && passageParagraphs.length) {
+      const joined = joinContinuation(paragraphs.at(-1), passageParagraphs[0]);
+      if (joined !== null) {
+        paragraphs[paragraphs.length - 1] = joined;
+        passageParagraphs.shift();
+      }
+    }
+    paragraphs.push(...passageParagraphs);
+  }
   return {
     definitionId: definition.id,
-    title: renderWGText(definition.prompt, context, definition.source),
-    paragraphs: visitedPassages(record).flatMap((passage) =>
-      passageProse(game, record, passage)),
+    paragraphs,
   };
 }
 
