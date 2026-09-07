@@ -186,6 +186,13 @@ Your clothes are sorted and within easy reach. Once the clothing system is in pl
 
 You sit at the cleared table, pull your diary closer, and turn to a fresh page.
 
+@if not flags.diary.tutorial
+  @effect set flags.diary.tutorial
+  [info]You can write in your diary to record your thoughts and feelings about the various events that happen. 
+  You can also read past entries. Writing in your diary does not advance time.[/info]
+
+@endif
+
 @next "Put the diary away" -> @exit
 
 

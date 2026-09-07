@@ -126,11 +126,14 @@ function npcContext(game, npc) {
   };
 }
 
-export function createWGRuntimeContext(game, { locals = null } = {}) {
+export function createWGRuntimeContext(
+  game,
+  { locals = null, additionalFlags = [] } = {},
+) {
   const npcs = {};
   for (const [id, npc] of game.npcs) npcs[id] = npcContext(game, npc);
 
-  const flags = flagValues(game.flags);
+  const flags = flagValues([...game.flags, ...additionalFlags]);
 
   const daily = {};
   for (const flag of game.dailyFlags) daily[flag] = true;

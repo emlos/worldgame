@@ -67,6 +67,27 @@ function validateDecisions(value, journal, path) {
   }
 }
 
+function validateDeferredFlags(value, journal, path) {
+  const allowed = new Set();
+  for (const passage of journal.passages) {
+    for (const node of collectWGNodes(passage.body)) {
+      const effects = node.type === "effect" ? [node.effect] : node.effects || [];
+      for (const effect of effects) {
+        if (effect.op === "set" && effect.path?.[0] === "flags") {
+          allowed.add(effect.path.slice(1).join("."));
+        }
+      }
+    }
+  }
+
+  const flags = saveUniqueStrings(value, path, { nonEmpty: true });
+  for (const flag of flags) {
+    if (!flag.startsWith("journal.") || !allowed.has(flag)) {
+      failSave(path, `references journal flag '${flag}' not set by this definition`);
+    }
+  }
+}
+
 function validatePending(recordData, path, gameTime) {
   const record = saveRecord(recordData, path);
   exactFields(record, ["definitionId", "availableAt"], path);
@@ -80,7 +101,15 @@ function validateDraft(recordData, path, gameTime) {
   const record = saveRecord(recordData, path);
   exactFields(
     record,
-    ["definitionId", "availableAt", "startedAt", "choices", "locals", "decisions"],
+    [
+      "definitionId",
+      "availableAt",
+      "startedAt",
+      "choices",
+      "locals",
+      "decisions",
+      "deferredFlags",
+    ],
     path,
   );
   const id = saveString(record.definitionId, `${path}.definitionId`, { nonEmpty: true });
@@ -95,6 +124,7 @@ function validateDraft(recordData, path, gameTime) {
   validateJsonValue(record.locals, `${path}.locals`);
   saveRecord(record.locals, `${path}.locals`);
   validateDecisions(record.decisions, journal, `${path}.decisions`);
+  validateDeferredFlags(record.deferredFlags, journal, `${path}.deferredFlags`);
   return id;
 }
 
@@ -122,7 +152,7 @@ function validateEntry(recordData, path, gameTime) {
 
 export function validateJournalState(value, { path = "save.journal", gameTime } = {}) {
   const state = saveRecord(value, path);
-  exactFields(state, ["pending", "draft", "entries"], path);
+  exactFields(state, ["pending", "draft", "entries", "dismissed"], path);
   const ids = [];
   saveArray(state.pending, `${path}.pending`).forEach((record, index) => {
     ids.push(validatePending(record, `${path}.pending[${index}]`, gameTime));
@@ -130,6 +160,11 @@ export function validateJournalState(value, { path = "save.journal", gameTime } 
   if (state.draft !== null) ids.push(validateDraft(state.draft, `${path}.draft`, gameTime));
   saveArray(state.entries, `${path}.entries`).forEach((record, index) => {
     ids.push(validateEntry(record, `${path}.entries[${index}]`, gameTime));
+  });
+  saveUniqueStrings(state.dismissed, `${path}.dismissed`, { nonEmpty: true });
+  state.dismissed.forEach((id, index) => {
+    definition(id, `${path}.dismissed[${index}]`);
+    ids.push(id);
   });
   saveUniqueStrings(ids, `${path} definition ids`, { nonEmpty: true });
   return state;

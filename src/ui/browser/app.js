@@ -439,7 +439,10 @@ function renderJournalWritingPage() {
   journalDialogMode = "write";
   playerDiaryDialog.dataset.mode = "write";
   journalWritePanel.hidden = false;
-  journalStopWritingButton.hidden = view.mode !== "topics";
+  journalStopWritingButton.hidden = false;
+  journalStopWritingButton.textContent = view.mode === "draft"
+    ? "actually, this doesn't seem worth writing about (dismiss permanently)"
+    : "actually, nothing comes to mind right now";
   playerDiaryDate.textContent = diaryDateFormatter.format(game.now);
 
   if (view.mode === "topics") {
@@ -498,6 +501,10 @@ function openPlayerDiary(mode = "read") {
 
 function journalWritingSceneActive() {
   return game.currentStory?.id === "home.diary";
+}
+
+function journalDraftMustBeResolved() {
+  return journalDialogMode === "write" && Boolean(game.journal.draft);
 }
 
 function exitJournalWritingScene() {
@@ -1238,7 +1245,9 @@ window.addEventListener("keydown", (event) => {
   if (action.type === "choice") choiceButtons[action.index].click();
   else if (action.type === "menu") menuActions[action.id]();
   else if (action.type === "phone-home") { if (!chatsUI.back()) showPhoneHomeScreen(); }
-  else if (action.type === "close-dialog") dialog.close();
+  else if (action.type === "close-dialog") {
+    if (dialog !== playerDiaryDialog || !journalDraftMustBeResolved()) dialog.close();
+  }
 });
 
 restartButton.addEventListener("click", () => {
@@ -1262,9 +1271,27 @@ journalNextPageButton.addEventListener("click", () => {
   journalPageIndex += 1;
   renderJournalReadPage();
 });
-journalStopWritingButton.addEventListener("click", () => playerDiaryDialog.close());
+journalStopWritingButton.addEventListener("click", () => {
+  if (!game.journal.draft) {
+    playerDiaryDialog.close();
+    return;
+  }
+  try {
+    game.dismissJournalDraft();
+    renderJournalWritingPage();
+    renderPlayerPanel();
+  } catch (error) {
+    noticeElement.textContent = error.message;
+    noticeElement.className = "notice error";
+  }
+});
 playerDiaryDialog.addEventListener("click", (event) => {
-  if (event.target === playerDiaryDialog) playerDiaryDialog.close();
+  if (event.target === playerDiaryDialog && !journalDraftMustBeResolved()) {
+    playerDiaryDialog.close();
+  }
+});
+playerDiaryDialog.addEventListener("cancel", (event) => {
+  if (journalDraftMustBeResolved()) event.preventDefault();
 });
 playerDiaryDialog.addEventListener("close", () => {
   if (journalDialogMode === "write") exitJournalWritingScene();

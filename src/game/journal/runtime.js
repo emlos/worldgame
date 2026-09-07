@@ -15,7 +15,7 @@ export const journalPassage = (journal, id) =>
   journalFail(`unknown journal passage '${id}'`);
 
 export function createJournalState() {
-  return { pending: [], draft: null, entries: [] };
+  return { pending: [], draft: null, entries: [], dismissed: [] };
 }
 
 function journalRecordIds(state) {
@@ -23,6 +23,7 @@ function journalRecordIds(state) {
     ...state.pending.map((record) => record.definitionId),
     ...(state.draft ? [state.draft.definitionId] : []),
     ...state.entries.map((record) => record.definitionId),
+    ...state.dismissed,
   ]);
 }
 
@@ -62,7 +63,10 @@ export function canWriteJournal(game) {
 }
 
 function journalDecisionSession(game, record, passage, { recordRandom = false } = {}) {
-  const context = () => createWGRuntimeContext(game, { locals: record.locals });
+  const context = () => createWGRuntimeContext(game, {
+    locals: record.locals,
+    additionalFlags: record.deferredFlags || [],
+  });
   return {
     decision(node) {
       if (node.type === "if" || node.type === "inline-if") {
@@ -80,6 +84,20 @@ function journalDecisionSession(game, record, passage, { recordRandom = false } 
       return value;
     },
   };
+}
+
+function applyJournalEffects(game, draft, effects) {
+  for (const effect of effects || []) {
+    if (effect.op === "set" && effect.path?.[0] === "flags") {
+      const flag = effect.path.slice(1).join(".");
+      if (!draft.deferredFlags.includes(flag)) draft.deferredFlags.push(flag);
+      continue;
+    }
+    applyWGEffects(game, [effect], {
+      locals: draft.locals,
+      additionalFlags: draft.deferredFlags,
+    });
+  }
 }
 
 function selectedBranch(node, session) {
@@ -114,7 +132,7 @@ function enterDraftPassage(game, draft) {
   const session = journalDecisionSession(game, draft, passage, { recordRandom: true });
   for (const node of selectedJournalNodes(passage.body, session)) {
     if (node.type === "effect") {
-      applyWGEffects(game, [node.effect], { locals: draft.locals });
+      applyJournalEffects(game, draft, [node.effect]);
     }
   }
   return definition;
@@ -153,6 +171,7 @@ export function startJournalDraft(game, definitionId) {
         choices: [],
         locals: {},
         decisions: {},
+        deferredFlags: [],
       };
       enterDraftPassage(game, game.journal.draft);
       finishDraftIfNeeded(game);
@@ -172,7 +191,10 @@ export function availableJournalChoices(game) {
   const draft = game.journal.draft;
   if (!draft) return [];
   const passage = currentDraftPassage(draft);
-  const context = createWGRuntimeContext(game, { locals: draft.locals });
+  const context = createWGRuntimeContext(game, {
+    locals: draft.locals,
+    additionalFlags: draft.deferredFlags,
+  });
   const session = journalDecisionSession(game, draft, passage, { recordRandom: true });
   return selectedJournalNodes(passage.body, session)
     .filter((node) => node.type === "choice")
@@ -192,6 +214,7 @@ function finishDraftIfNeeded(game) {
   const selected = selectedJournalNodes(passage.body, session);
   const finished = selected.at(-1)?.type === "finish";
   if (!finished) return false;
+  for (const flag of draft.deferredFlags) game.setFlag(flag);
   game.journal.entries.push({
     definitionId: draft.definitionId,
     availableAt: draft.availableAt,
@@ -220,13 +243,28 @@ export function chooseJournalOption(game, { definitionId, revision, choiceId }) 
   game.runAction({
     label: `journal:${definitionId}:${choiceId}`,
     apply() {
-      applyWGEffects(game, choice.effects || [], { locals: draft.locals });
+      applyJournalEffects(game, draft, choice.effects || []);
       draft.choices.push(choice.id);
       enterDraftPassage(game, draft);
       finishDraftIfNeeded(game);
     },
   });
   return { finished: game.journal.draft === null };
+}
+
+export function dismissJournalDraft(game) {
+  if (!canWriteJournal(game)) journalFail("journal writing is only available at your desk at home");
+  const draft = game.journal.draft;
+  if (!draft) journalFail("there is no journal draft to dismiss");
+
+  game.runAction({
+    label: `journal:${draft.definitionId}:dismiss`,
+    apply() {
+      game.journal.dismissed.push(draft.definitionId);
+      game.journal.draft = null;
+    },
+  });
+  return draft.definitionId;
 }
 
 export function resumeJournalDraft(game) {

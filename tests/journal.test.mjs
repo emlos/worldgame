@@ -129,6 +129,110 @@ test("journal availability latches and completed entries save decisions instead 
   assert.equal(afterReload, beforeReload);
 });
 
+test("partial journal drafts survive saves and can be dismissed permanently", () => {
+  const game = writableGame();
+  const taylor = game.npcs.get("taylor");
+  game.runAction({
+    label: "meet Taylor",
+    apply(currentGame) {
+      currentGame.player.adjustRelationshipMeter(
+        "taylor",
+        "friendship",
+        1,
+        taylor.relationshipProfile,
+      );
+    },
+  });
+
+  game.startJournalDraft("journal-1");
+  chooseByLabel(game, "Taylor");
+  chooseByLabel(game, "attractive");
+  assert.equal(game.hasFlag("journal.taylor_attractive"), false);
+
+  const saved = JSON.parse(JSON.stringify(game.toJSON()));
+  const restored = Game.fromJSON(saved);
+  assert.deepEqual(restored.journal.draft.choices, game.journal.draft.choices);
+  assert.deepEqual(
+    restored.journal.draft.deferredFlags,
+    ["journal.taylor_attractive"],
+  );
+  assert.deepEqual(
+    buildJournalWritingView(restored).choices.map((choice) => choice.label),
+    [
+      "get to know Taylor normally first",
+      "flirt and see where it goes",
+      "not make a thing out of it",
+    ],
+  );
+
+  assert.equal(restored.dismissJournalDraft(), "journal-1");
+  assert.equal(restored.journal.draft, null);
+  assert.deepEqual(restored.journal.dismissed, ["journal-1"]);
+  assert.equal(restored.hasFlag("journal.taylor_attractive"), false);
+  restored.refreshJournalAvailability();
+  assert.equal(
+    restored.journal.pending.some((record) => record.definitionId === "journal-1"),
+    false,
+  );
+  assert.throws(
+    () => restored.startJournalDraft("journal-1"),
+    /topic is no longer available/,
+  );
+});
+
+test("journal flags commit only when the entry is finished", () => {
+  const game = writableGame();
+  const taylor = game.npcs.get("taylor");
+  game.player.adjustRelationshipMeter(
+    "taylor",
+    "friendship",
+    1,
+    taylor.relationshipProfile,
+  );
+  game.refreshJournalAvailability();
+
+  game.startJournalDraft("journal-1");
+  chooseByLabel(game, "Taylor");
+  chooseByLabel(game, "attractive");
+  assert.equal(game.hasFlag("journal.taylor_attractive"), false);
+  chooseByLabel(game, "flirt and see where it goes");
+
+  assert.equal(game.journal.draft, null);
+  assert.equal(game.hasFlag("journal.taylor_attractive"), true);
+  assert.equal(game.hasFlag("journal.wants_to_get_closer_to_taylor"), true);
+});
+
+test("dismissing an old topic lets a newer topic enter the visible backlog", () => {
+  const game = writableGame();
+  const taylor = game.npcs.get("taylor");
+  game.runAction({
+    label: "unlock three journal topics",
+    apply(currentGame) {
+      currentGame.player.adjustRelationshipMeter(
+        "taylor",
+        "friendship",
+        1,
+        taylor.relationshipProfile,
+      );
+      currentGame.setFlag("cafe_employee");
+      currentGame.setFlag("rent_intro_2");
+    },
+  });
+
+  assert.deepEqual(
+    buildJournalWritingView(game, { limit: 2 }).topics
+      .map((topic) => topic.definitionId),
+    ["journal-1", "journal-2"],
+  );
+  game.startJournalDraft("journal-1");
+  game.dismissJournalDraft();
+  assert.deepEqual(
+    buildJournalWritingView(game, { limit: 2 }).topics
+      .map((topic) => topic.definitionId),
+    ["journal-2", "journal-3"],
+  );
+});
+
 test("journal writing shows only entries completed on the current game day", () => {
   const game = writableGame();
   game.runAction({

@@ -146,10 +146,15 @@ Taylor seems really...
   game state whenever the entry is read, so live character properties such as
   pronouns can change old entries retroactively. Historical facts should use
   persistent story flags if they must not change.
-- An unfinished draft is saved and resumes from its current passage. Completed
-  entries are grouped by the in-game date on which they were written. Editing
-  authored journal ordering can change generated IDs and invalidate development
-  saves; no compatibility guarantee is provided for that during development.
+- An unfinished draft is saved and resumes from its current passage. While a
+  draft is active, the writing view cannot be closed: the player must finish it
+  or permanently dismiss that topic. Dismissal discards the draft, including
+  uncommitted `flags.journal.*` effects, and prevents the topic from returning.
+  Journal flags commit only when the entry reaches `@finish`.
+- Completed entries are grouped by the in-game date on which they were written.
+  Editing authored journal ordering can change generated IDs and invalidate
+  development saves; no compatibility guarantee is provided for that during
+  development.
 
 ## Minimal authored event
 

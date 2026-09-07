@@ -148,6 +148,9 @@ test("game service corruption is rejected by the owning service", async (t) => {
       save.gpsTarget = { locationId: "missing", placeId: "missing" };
     }, "save.gpsTarget.locationId"],
     ["announcement day", (save) => { save.dailyAnnouncements.day = "2026-09-03"; }, "save.dailyAnnouncements.day"],
+    ["dismissed journal topic", (save) => {
+      save.journal.dismissed.push("journal-999");
+    }, "save.journal.dismissed[0]"],
     ["action revision", (save) => { save.actionRevision = -1; }, "save.actionRevision"],
     ["future log", (save) => {
       save.log.push({ t: "2026-09-05T12:00:00.000Z", label: "future" });

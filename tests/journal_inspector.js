@@ -110,6 +110,7 @@ function definitionAvailable(definition) {
 function recordState(id) {
   if (game.journal.draft?.definitionId === id) return "draft";
   if (game.journal.entries.some((record) => record.definitionId === id)) return "completed";
+  if (game.journal.dismissed.includes(id)) return "dismissed";
   if (game.journal.pending.some((record) => record.definitionId === id)) return "pending";
   return "locked";
 }
@@ -326,7 +327,7 @@ function startSelected() {
     setNotice("Finish the active draft before starting another topic.", "error");
     return;
   }
-  if (recordState(definition.id) === "completed") {
+  if (["completed", "dismissed"].includes(recordState(definition.id))) {
     setNotice("Reset this topic before replaying it.", "error");
     return;
   }
@@ -354,6 +355,9 @@ function resetSelected() {
   );
   game.journal.entries = game.journal.entries.filter(
     (record) => record.definitionId !== definition.id,
+  );
+  game.journal.dismissed = game.journal.dismissed.filter(
+    (definitionId) => definitionId !== definition.id,
   );
   for (const path of inspectDefinition(definition).journalFlags) {
     game.flags.delete(flagId(path));
@@ -443,6 +447,7 @@ function renderSummary() {
     ["State", definition ? recordState(definition.id) : "n/a"],
     ["Pending", game.journal.pending.length],
     ["Completed", game.journal.entries.length],
+    ["Dismissed", game.journal.dismissed.length],
     ["Active choices", game.journal.draft?.choices.length || 0],
   ];
   elements.summary.replaceChildren(...rows.flatMap(([term, description]) => {

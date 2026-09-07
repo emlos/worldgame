@@ -135,3 +135,5 @@ fix:
 - warning should appear in the home hub AFTER the opening scene
 - kim should appear the day AFTER the move in day (sep. 1st) at 4pm
 - diary menu button in the sidebar should only appear after the first entry is made
+- when searchig for place name in current play.html game "high school" yields no results, same with school. upgrade search alg slightly
+- integrate the diary directly into the scene, not as a pop up. @system diary?
