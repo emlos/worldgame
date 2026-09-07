@@ -91,11 +91,23 @@ export function renderJournalRecord(game, record) {
   };
 }
 
+function journalEntriesWrittenOn(game, date) {
+  const day = date.toISOString().slice(0, 10);
+  return game.journal.entries
+    .filter((record) => record.writtenAt.slice(0, 10) === day)
+    .map((record) => ({
+      writtenAt: record.writtenAt,
+      ...renderJournalRecord(game, record),
+    }));
+}
+
 export function buildJournalWritingView(game, { limit = 5 } = {}) {
+  const pageEntries = journalEntriesWrittenOn(game, game.now);
   if (!game.journal.draft) {
     const context = createWGRuntimeContext(game);
     return {
       mode: "topics",
+      pageEntries,
       topics: game.journal.pending.slice(0, limit).map((record) => {
         const definition = journalDefinition(record.definitionId);
         return {
@@ -113,6 +125,7 @@ export function buildJournalWritingView(game, { limit = 5 } = {}) {
   const draft = game.journal.draft;
   return {
     mode: "draft",
+    pageEntries,
     topics: [],
     draft: renderJournalRecord(game, draft),
     currentPassageId: currentDraftPassage(draft).id,

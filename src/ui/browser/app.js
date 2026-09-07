@@ -456,10 +456,10 @@ function renderJournalWritingPage() {
         }
       })));
 
-    const readView = buildJournalReadView(game);
-    const latest = readView.pages.at(-1);
-    if (latest) {
-      playerDiaryContent.replaceChildren(...latest.entries.map(makeJournalEntryElement));
+    if (view.pageEntries.length) {
+      playerDiaryContent.replaceChildren(
+        ...view.pageEntries.map(makeJournalEntryElement),
+      );
     } else {
       const blank = document.createElement("p");
       blank.className = "journal-empty-page";
@@ -484,7 +484,10 @@ function renderJournalWritingPage() {
         noticeElement.className = "notice error";
       }
     }, choice.disabledReason)));
-  playerDiaryContent.replaceChildren(makeJournalEntryElement(view.draft));
+  playerDiaryContent.replaceChildren(
+    ...view.pageEntries.map(makeJournalEntryElement),
+    makeJournalEntryElement(view.draft),
+  );
 }
 
 function openPlayerDiary(mode = "read") {

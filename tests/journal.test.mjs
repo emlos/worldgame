@@ -129,6 +129,41 @@ test("journal availability latches and completed entries save decisions instead 
   assert.equal(afterReload, beforeReload);
 });
 
+test("journal writing shows only entries completed on the current game day", () => {
+  const game = writableGame();
+  game.runAction({
+    label: "get cafe job",
+    apply(currentGame) {
+      currentGame.setFlag("cafe_employee");
+    },
+  });
+  game.startJournalDraft("journal-2");
+  chooseByLabel(game, "dealing with customers");
+
+  const previousDayEntry = structuredClone(game.journal.entries[0]);
+  game.runAction({
+    label: "advance to tomorrow",
+    minutes: 24 * 60,
+    energyFree: true,
+  });
+
+  let view = buildJournalWritingView(game);
+  assert.equal(view.mode, "topics");
+  assert.deepEqual(view.pageEntries, []);
+
+  const currentDayEntry = {
+    ...structuredClone(previousDayEntry),
+    writtenAt: game.now.toISOString(),
+  };
+  game.journal.entries.push(currentDayEntry);
+
+  view = buildJournalWritingView(game);
+  assert.deepEqual(
+    view.pageEntries.map((entry) => entry.writtenAt),
+    [currentDayEntry.writtenAt],
+  );
+});
+
 test("journal prose resolves live character pronouns when an old entry is reread", () => {
   const game = writableGame();
   const taylor = game.npcs.get("taylor");
