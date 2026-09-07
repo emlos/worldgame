@@ -1,34 +1,32 @@
 @# The bus stop needs authored controls; other civic/transport hubs are implicit.
 
-
 :: place.bus-stop
-@hub bus_stop
-@choices "Activities"
+  @hub bus_stop
+  @choices "Activities"
 
-The route display at {{place.name}} is covered with times and destination names.
+  The route display at {{place.name}} is covered with times and destination names.
 
-@choice "Check the timetable" -> transit.bus-timetable
+  @choice "Check the timetable" -> transit.bus-timetable
 
-@endchoice
+  @endchoice
 
-@choice "Wait for a bus" -> transit.bus-boarding
+  @choice "Wait for a bus" -> transit.bus-boarding
 
-@endchoice
-
+  @endchoice
 
 :: transit.bus-timetable
-@choices "Timetable"
+  @choices "Timetable"
 
-The timetable lists the shared service used by every bus stop in the city.
+  The timetable lists the shared service used by every bus stop in the city.
 
-@choice "Return to the bus stop" -> @exit
+  @choice "Return to the bus stop" -> @exit
 
-@endchoice
+  @endchoice
 
 :: transit.bus-boarding
-@choices "Destinations"
+  @choices "Destinations"
 
-The bus pulls up and its doors fold open.
+  The bus pulls up and its doors fold open.
 
-@choice "Step away" -> @exit
-@endchoice
+  @choice "Step away" -> @exit
+  @endchoice

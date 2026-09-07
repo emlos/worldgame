@@ -5,20 +5,20 @@
     You are standing in front of your home. A notice has been pinned to your front door.
   @endif
 
-@choicegroup ""
-  @choice "Check the notice on the door" -> @exit
-    @when not flags.rent_intro_bypassed and not flags.home_notice_read and (time.day > 1 or (time.day == 1 and time.hour >= 13))
-    @time 1m
-    @effect set flags.home_notice_read
-    @effect reminder add home_rent_notice_1
-    @response
-      A notice has been pinned to your front door.
-      Someone is asking you to contact the civil office.
-      @br
-      [warning]You should probably go there as soon as possible.[/warning]
-    @endresponse
-    @effect unlock place civil_office
-  @endchoice
-@endchoicegroup
+  @choicegroup ""
+    @choice "Check the notice on the door" -> @exit
+      @when not flags.rent_intro_bypassed and not flags.home_notice_read and (time.day > 1 or (time.day == 1 and time.hour >= 13))
+      @time 1m
+      @effect set flags.home_notice_read
+      @effect reminder add home_rent_notice_1
+      @response
+        A notice has been pinned to your front door.
+        Someone is asking you to contact the civil office.
+        @br
+        [warning]You should probably go there as soon as possible.[/warning]
+      @endresponse
+      @effect unlock place civil_office
+    @endchoice
+  @endchoicegroup
 
 @endlocation

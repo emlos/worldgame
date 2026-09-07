@@ -5,28 +5,28 @@
   @auto enter-place
   @when not story.homeEvents.forgottenMugPlayed
 
-@onenter
-  @effect set story.homeEvents.forgottenMugPlayed true
-@endonenter
+  @onenter
+    @effect set story.homeEvents.forgottenMugPlayed true
+  @endonenter
 
-A half-finished mug of tea waits on the kitchen counter. It has gone completely cold, and you cannot remember leaving it there.
+  A half-finished mug of tea waits on the kitchen counter. It has gone completely cold, and you cannot remember leaving it there.
 
-@choice "Next" -> @exit
-@endchoice
+  @choice "Next" -> @exit
+  @endchoice
 
 :: home.random.open-window
   @place-key player_home
   @auto enter-place
   @when not story.homeEvents.openWindowPlayed
 
-@onenter
-  @effect set story.homeEvents.openWindowPlayed true
-@endonenter
+  @onenter
+    @effect set story.homeEvents.openWindowPlayed true
+  @endonenter
 
-One of the windows is cracked open. A faint breeze stirs the curtains and carries the distant noise of the street through the room.
+  One of the windows is cracked open. A faint breeze stirs the curtains and carries the distant noise of the street through the room.
 
-@choice "Next" -> @exit
-@endchoice
+  @choice "Next" -> @exit
+  @endchoice
 
 :: home.random.late-breakfast
   @place-key player_home
@@ -35,11 +35,11 @@ One of the windows is cracked open. A faint breeze stirs the curtains and carrie
   @when time.minutesSinceMidnight >= 600
   @when time.minutesSinceMidnight <= 780
 
-@onenter
-  @effect set story.homeEvents.lateBreakfastPlayed true
-@endonenter
+  @onenter
+    @effect set story.homeEvents.lateBreakfastPlayed true
+  @endonenter
 
-The kitchen still smells faintly of toast. A few crumbs remain on the table, catching the late-morning light.
+  The kitchen still smells faintly of toast. A few crumbs remain on the table, catching the late-morning light.
 
-@choice "Next" -> @exit
-@endchoice
+  @choice "Next" -> @exit
+  @endchoice

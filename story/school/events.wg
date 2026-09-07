@@ -4,15 +4,14 @@
   @pool school.class.english
   @place-key high_school
   @when school.arrival.subjectId == "english"
-@choices "How do you participate?"
-
+  @choices "How do you participate?"
 
   The teacher closes the textbook and asks the class to discuss whether a narrator can be trustworthy while still being mistaken.
 
   @if npc.taylor.present
-  Taylor turns slightly in your direction, clearly waiting to hear what you think.
+    Taylor turns slightly in your direction, clearly waiting to hear what you think.
   @else
-  The room stays awkwardly quiet while everyone avoids being the first to answer.
+    The room stays awkwardly quiet while everyone avoids being the first to answer.
   @endif
 
   @choice "Offer your own interpretation"
@@ -54,13 +53,12 @@
   @passage taylor
 
   @random
-  You and Taylor quietly compare interpretations before sharing a combined answer with the class.
+    You and Taylor quietly compare interpretations before sharing a combined answer with the class.
   @or
-  You and Taylor disagree on the meaning of the passage, but you both learn from the other's perspective.
+    You and Taylor disagree on the meaning of the passage, but you both learn from the other's perspective.
   @or
-  You and Taylor find that you have similar ideas, and you feel more confident about your own interpretation.
+    You and Taylor find that you have similar ideas, and you feel more confident about your own interpretation.
   @endrandom
-
 
   @next -> @return
 :: school.english.event.reading-aloud -> @return
@@ -69,20 +67,19 @@
   @when school.arrival.subjectId == "english"
   @choices "What do you do?"
 
-
-  The teacher asks for someone to read the next page aloud. It's some 
+  The teacher asks for someone to read the next page aloud. It's some
   @random
     dense prose from a classic novel.
-    @or
+  @or
     poetry that is difficult to read aloud.
-    @or
+  @or
     a passage that is full of unfamiliar phrasing.
   @endrandom
 
   @if player.education.english.grade == "A" or player.education.english.grade == "B"
-  You're pretty sure you've read this passage before, so you know what to expect.
+    You're pretty sure you've read this passage before, so you know what to expect.
   @else
-  The unfamiliar phrasing makes the passage look more intimidating than it sounded a moment ago.
+    The unfamiliar phrasing makes the passage look more intimidating than it sounded a moment ago.
   @endif
 
   @choice "Volunteer to read"
@@ -114,7 +111,7 @@
   A sentence catches you halfway through. You recover, but not before the room hears the hesitation.  @change grade english -1
 
   @if player.education.english.grade == "A" or player.education.english.grade == "B"
-  You feel embarrassed, this shouldn't have been so difficult!
+    You feel embarrassed, this shouldn't have been so difficult!
   @endif
 
   @next  -> @return
@@ -126,7 +123,7 @@
   @next -> @return
 
   @passage taylor
-  Before Taylor can protest you grab {{npc.taylor.dependent}} arm and raise it. 
+  Before Taylor can protest you grab {{npc.taylor.dependent}} arm and raise it.
 
   "W-what are you doing?!" Taylor whispers, but you ignore {{npc.taylor.dependent}} and draw the teacher's attention.
 
@@ -149,7 +146,6 @@
   @when school.arrival.subjectId == "english"
   @choices "What do you do?"
 
-
   A student in the back of the room is making a racket, and the teacher is having trouble keeping the class focused.
 
   @choice "Ignore it" -> .ignored
@@ -167,7 +163,7 @@
 
   @passage ignored
 
-  You keep your head down and focus on your work. It's very hard to focus. 
+  You keep your head down and focus on your work. It's very hard to focus.
   The teacher eventually regains control of the class.  @change grade english -1
 
   @next -> @return
@@ -187,14 +183,13 @@
 
   @next -> @return
 
-@# ------------------------------------- MATH EVENTS -------------------------------------
+  @# ------------------------------------- MATH EVENTS -------------------------------------
 
 :: school.math.event.problem-solving -> @return
   @pool school.class.math
   @place-key high_school
   @when school.arrival.subjectId == "math"
   @choices "How do you approach the problem?"
-
 
   The teacher presents a challenging problem on the board and asks the class to solve it.
 
@@ -223,14 +218,13 @@
 
   @passage listened
   You stay quiet and listen to the other students' solutions. You learn a few new techniques, but you don't get to participate in the discussion.  @change grade math 1
-  
+
   @next -> @return
 :: school.math.event.group-work -> @return
   @pool school.class.math
   @place-key high_school
   @when school.arrival.subjectId == "math"
   @choices "How do you contribute?"
-
 
   The teacher divides the class into small groups to work on a set of problems together.
 
@@ -259,7 +253,7 @@
 
   @passage listened
   You stay quiet and listen to your group members' ideas. You learn a lot, but you don't get to share your own thoughts.  @change grade math 1
-  
+
   @next -> @return
 
 :: school.math.event.surprise-quiz -> @return
@@ -278,12 +272,11 @@
   @when school.arrival.subjectId == "math"
   @choices "How do you respond?"
 
-
   The teacher calls on you to answer a question on the board.
 
   @choice "Answer confidently"
     @when player.education.math.grade == "A" or player.education.math.grade == "B"
-    @check grade math easy 
+    @check grade math easy
     @success -> .correct
     @endsuccess
 
@@ -312,15 +305,14 @@
   @passage incorrect
   You make a mistake in your calculations and the teacher corrects you. You feel embarrassed, but you learn from the experience.  @change grade math -2
 
-   @next -> @return
-  
+  @next -> @return
+
   @passage failure
   You stay at your seat, hoping the teacher will call on someone else. The teacher eventually gives up and moves on, but you feel a bit embarrassed for not participating.
-  
 
   @next -> @return
 
-@# ------------------------------------- HISTORY EVENTS -------------------------------------
+  @# ------------------------------------- HISTORY EVENTS -------------------------------------
 
 :: school.history.event.mock-trial -> @return
   @pool school.class.history
@@ -328,11 +320,10 @@
   @when school.arrival.subjectId == "history"
   @choices "Choose your role"
 
-
   The teacher turns the classroom into a mock tribunal. Your group must judge whether a ruler should be remembered as a reformer or a tyrant.
 
   @if npc.taylor.present
-  Taylor gathers the group's notes and asks which side you want to argue.
+    Taylor gathers the group's notes and asks which side you want to argue.
   @endif
 
   @choice "Argue that the ruler was a reformer"
@@ -434,7 +425,6 @@
   @when school.arrival.subjectId == "history"
   @choices "Which account do you trust?"
 
-
   The teacher distributes two accounts of the same protest: an official report calling it a riot and a private diary describing a peaceful march.
 
   @choice "Inspect both accounts for inconsistencies"
@@ -498,7 +488,6 @@
   @when school.arrival.subjectId == "history"
   @choices "Advise the cabinet"
 
-
   The class role-plays a government facing a blockade. Every group has limited food, an unreliable ally, and only minutes to recommend a response.
 
   @choice "Recommend immediate negotiations"
@@ -551,7 +540,6 @@
   @when school.arrival.subjectId == "history"
   @choices "Interpret the map"
 
-
   A faded map on the projector shows three borders for the same territory, each drawn by a different government.
 
   @choice "Work out which border was drawn first"
@@ -592,7 +580,7 @@
   You trace the borders while Taylor reads the legend. When your interpretations differ, you combine them into a stronger explanation.  @change relationship taylor.friendship 1  @change grade history 1
 
   @next -> @return
-@# ------------------------------------- SCIENCE EVENTS -------------------------------------
+  @# ------------------------------------- SCIENCE EVENTS -------------------------------------
 
 :: school.science.event.runaway-reaction -> @return
   @pool school.class.science
@@ -600,11 +588,10 @@
   @when school.arrival.subjectId == "science"
   @choices "Respond to the reaction"
 
-
   Halfway through a reaction, the liquid in your beaker changes colour too quickly. Foam climbs toward the rim while the instructions insist nothing should happen yet.
 
   @if npc.taylor.present
-  Taylor freezes with the next reagent still in {{npc.taylor.dependent}} hand.
+    Taylor freezes with the next reagent still in {{npc.taylor.dependent}} hand.
   @endif
 
   @choice "Shut the experiment down immediately"
@@ -667,7 +654,6 @@
   @when school.arrival.subjectId == "science"
   @choices "Examine the sample"
 
-
   Each table receives an unlabeled mineral sample. The class must identify it without damaging it or asking the teacher for clues.
 
   @choice "Study its colour, texture, and fracture lines"
@@ -729,7 +715,6 @@
   @place-key high_school
   @when school.arrival.subjectId == "science"
   @choices "Build the bridge"
-
 
   The teacher gives every group paper, tape, and ten minutes to build a bridge capable of holding a stack of textbooks.
 
@@ -798,7 +783,6 @@
   @when school.arrival.subjectId == "science"
   @choices "Handle the result"
 
-
   Your measurements imply that the test object gained mass during a closed experiment. The result contradicts both the lesson and common sense.
 
   @choice "Repeat the experiment from the beginning"
@@ -839,7 +823,7 @@
   Taylor finds a unit conversion copied incorrectly from the board. Correcting it makes every measurement fall into place.  @change relationship taylor.friendship 2  @change grade science 1
 
   @next -> @return
-@# ------------------------------------- ART EVENTS -------------------------------------
+  @# ------------------------------------- ART EVENTS -------------------------------------
 
 :: school.art.event.partner-portrait -> @return
   @pool school.class.art
@@ -847,13 +831,12 @@
   @when school.arrival.subjectId == "art"
   @choices "Choose your approach"
 
-
   The teacher pairs students for quick portraits. You must capture an expression rather than simply copy a face.
 
   @if npc.taylor.present
-  Taylor takes the seat opposite you and tries to hold a serious pose, though the corners of {{npc.taylor.dependent}} mouth keep twitching.
+    Taylor takes the seat opposite you and tries to hold a serious pose, though the corners of {{npc.taylor.dependent}} mouth keep twitching.
   @else
-  A student from the next table sits opposite you and stares past your shoulder with determined stillness.
+    A student from the next table sits opposite you and stares past your shoulder with determined stillness.
   @endif
 
   @choice "Study the details before drawing"
@@ -893,7 +876,7 @@
   You smooth every awkward line and exaggerate the most appealing features. The result is attractive, although it resembles an advertisement more than a person.  @change grade art 1
 
   @if npc.taylor.present
-  Taylor seems pleased at first, then studies the drawing as if wondering what you chose not to include.  @change relationship taylor.friendship 1
+    Taylor seems pleased at first, then studies the drawing as if wondering what you chose not to include.  @change relationship taylor.friendship 1
   @endif
 
   @next -> @return
@@ -936,7 +919,6 @@
   @place-key high_school
   @when school.arrival.subjectId == "art"
   @choices "Respond to the critique"
-
 
   Your latest piece is pinned to the board for a class critique. The first comments are polite, but one student calls the composition confused.
 
@@ -1016,7 +998,6 @@
   @when school.arrival.subjectId == "art"
   @choices "Contribute to the mural"
 
-
   The class must turn a blank paper wall into one connected cityscape. Every table has a different idea about where its section should lead.
 
   @choice "Coordinate the competing designs"
@@ -1079,13 +1060,12 @@
   @when school.arrival.subjectId == "art"
   @choices "React to the accident"
 
-
   A jar of cloudy paint water tips across a nearly finished drawing. Dark streams spread through the paper before anyone can lift it from the table.
 
   @if npc.taylor.present
-  It is Taylor's drawing, and {{npc.taylor.subject}} stares at the spreading stain in horror.
+    It is Taylor's drawing, and {{npc.taylor.subject}} stares at the spreading stain in horror.
   @else
-  The student beside you stares at the spreading stain in horror.
+    The student beside you stares at the spreading stain in horror.
   @endif
 
   @choice "Try to turn the stain into part of the piece"
@@ -1108,7 +1088,7 @@
   You tilt the paper and guide the stain through the background. What looked like damage becomes a storm behind the original subject.  @change grade art 2
 
   @if npc.taylor.present
-  Taylor looks from the altered drawing to you with astonished relief.  @change relationship taylor.friendship 2
+    Taylor looks from the altered drawing to you with astonished relief.  @change relationship taylor.friendship 2
   @endif
 
   @next -> @return
@@ -1118,7 +1098,7 @@
   Your added marks muddy the remaining clean areas. The teacher finally separates the soaked page from the table and suggests starting again.  @change grade art -1  @change stat stress 3
 
   @if npc.taylor.present
-  Taylor tries not to look annoyed, without much success.  @change relationship taylor.friendship -1
+    Taylor tries not to look annoyed, without much success.  @change relationship taylor.friendship -1
   @endif
 
   @next -> @return
@@ -1134,14 +1114,13 @@
   You give Taylor your clean paper and help reconstruct the composition from memory. {{npc.taylor.subject | cap}} relaxes once the new version begins taking shape.  @change relationship taylor.friendship 2  @change grade art 1
 
   @next -> @return
-@# ------------------------------------- PHYSICAL EDUCATION EVENTS -------------------------------------
+  @# ------------------------------------- PHYSICAL EDUCATION EVENTS -------------------------------------
 
 :: school.physical-education.event.dodgeball -> @return
   @pool school.class.physical-education
   @place-key high_school
   @when school.arrival.subjectId == "physical_education"
   @choices "Play the round"
-
 
   The teacher divides the class for dodgeball. The opening whistle turns the gym into a storm of bouncing balls and shouted warnings.
 
@@ -1237,13 +1216,12 @@
   @when school.arrival.subjectId == "physical_education"
   @choices "Approach the course"
 
-
   Cones, vaulting boxes, ropes, and balance benches form a timed obstacle course across the gym.
 
   @if npc.taylor.present
-  You and Taylor are assigned as a pair. Your time only counts once both of you cross the line.
+    You and Taylor are assigned as a pair. Your time only counts once both of you cross the line.
   @else
-  You are paired with another student, and your time only counts once both of you cross the line.
+    You are paired with another student, and your time only counts once both of you cross the line.
   @endif
 
   @choice "Set a fast pace from the start"
@@ -1321,7 +1299,7 @@
   You step back onto the bench and offer a hand. Both of you cross together a few seconds later.  @change grade physical_education 1
 
   @if npc.taylor.present
-  Taylor squeezes your hand before letting go.  @change relationship taylor.friendship 2
+    Taylor squeezes your hand before letting go.  @change relationship taylor.friendship 2
   @endif
 
   @next -> @return
@@ -1331,7 +1309,7 @@
   You preserve your own time, but your pair's result does not count until your partner finishes.  @change grade physical_education -1
 
   @if npc.taylor.present
-  Taylor crosses without looking at you.  @change relationship taylor.friendship -1
+    Taylor crosses without looking at you.  @change relationship taylor.friendship -1
   @endif
 
   @next -> @return
@@ -1340,7 +1318,6 @@
   @place-key high_school
   @when school.arrival.subjectId == "physical_education"
   @choices "Run your relay leg"
-
 
   The class lines up for a relay. You are running the final leg, where a clean handoff matters as much as raw speed.
 
@@ -1424,7 +1401,7 @@
   The argument continues after the race. The teacher makes both of you repeat handoff drills while everyone else rests.  @change stat stress 2  @change grade physical_education -1
 
   @if npc.taylor.present
-  Taylor is unimpressed by how quickly you assigned blame.  @change relationship taylor.friendship -1
+    Taylor is unimpressed by how quickly you assigned blame.  @change relationship taylor.friendship -1
   @endif
 
   @next -> @return
@@ -1433,7 +1410,6 @@
   @place-key high_school
   @when school.arrival.subjectId == "physical_education"
   @choices "Handle the rough play"
-
 
   During a small team game, one student keeps making reckless challenges long after the teacher warns everyone to calm down.
 

@@ -1,324 +1,323 @@
 @journal "I've met someone at school that I keep thinking about."
-@when npc.taylor.relationship.friendship != 0
-
-@passage start
-
-@choice "Taylor" -> .taylor
   @when npc.taylor.relationship.friendship != 0
-  @effect set local.school_person "taylor"
-@endchoice
 
-@passage taylor
+  @passage start
 
-There's this person at school, Taylor, who seems really...
+  @choice "Taylor" -> .taylor
+    @when npc.taylor.relationship.friendship != 0
+    @effect set local.school_person "taylor"
+  @endchoice
 
-@choice "interesting" -> .interesting
-  @effect set local.taylor_impression "interesting"
-@endchoice
+  @passage taylor
 
-@choice "strange" -> .strange
-  @effect set local.taylor_impression "strange"
-@endchoice
+  There's this person at school, Taylor, who seems really...
 
-@choice "annoying" -> .annoying
-  @effect set local.taylor_impression "annoying"
-@endchoice
+  @choice "interesting" -> .interesting
+    @effect set local.taylor_impression "interesting"
+  @endchoice
 
-@choice "attractive" -> .attractive
-  @effect set local.taylor_impression "attractive"
-  @effect set flags.journal.taylor_attractive
-@endchoice
+  @choice "strange" -> .strange
+    @effect set local.taylor_impression "strange"
+  @endchoice
 
-@passage interesting
+  @choice "annoying" -> .annoying
+    @effect set local.taylor_impression "annoying"
+  @endchoice
 
-...interesting. {{npc.taylor.subject | cap}} has this way of standing out without seeming like {{npc.taylor.subject}} is trying to.
+  @choice "attractive" -> .attractive
+    @effect set local.taylor_impression "attractive"
+    @effect set flags.journal.taylor_attractive
+  @endchoice
 
-I'm hoping to...
+  @passage interesting
 
-@choice "get to know Taylor better" -> .friend
-  @effect set local.taylor_intent "friend"
-@endchoice
+  ...interesting. {{npc.taylor.subject | cap}} has this way of standing out without seeming like {{npc.taylor.subject}} is trying to.
 
-@choice "get closer to Taylor" -> .closer
-  @effect set local.taylor_intent "closer"
-  @effect set flags.journal.wants_to_get_closer_to_taylor
-@endchoice
+  I'm hoping to...
 
-@choice "keep my distance for now" -> .distance
-  @effect set local.taylor_intent "distance"
-@endchoice
+  @choice "get to know Taylor better" -> .friend
+    @effect set local.taylor_intent "friend"
+  @endchoice
 
-@passage strange
+  @choice "get closer to Taylor" -> .closer
+    @effect set local.taylor_intent "closer"
+    @effect set flags.journal.wants_to_get_closer_to_taylor
+  @endchoice
 
-...strange, honestly. I haven't decided whether {{npc.taylor.subject}} is the good kind of weird yet.
+  @choice "keep my distance for now" -> .distance
+    @effect set local.taylor_intent "distance"
+  @endchoice
 
-Still, I'm hoping to...
+  @passage strange
 
-@choice "get to know Taylor better" -> .friend
-  @effect set local.taylor_intent "friend"
-@endchoice
+  ...strange, honestly. I haven't decided whether {{npc.taylor.subject}} is the good kind of weird yet.
 
-@choice "flirt a little and see what happens" -> .closer
-  @effect set local.taylor_intent "closer"
-  @effect set flags.journal.wants_to_get_closer_to_taylor
-@endchoice
+  Still, I'm hoping to...
 
-@choice "avoid Taylor when I can" -> .distance
-  @effect set local.taylor_intent "distance"
-@endchoice
+  @choice "get to know Taylor better" -> .friend
+    @effect set local.taylor_intent "friend"
+  @endchoice
 
-@passage annoying
+  @choice "flirt a little and see what happens" -> .closer
+    @effect set local.taylor_intent "closer"
+    @effect set flags.journal.wants_to_get_closer_to_taylor
+  @endchoice
 
-...annoying. Maybe that's unfair this early, but Taylor has already managed to get under my skin.
+  @choice "avoid Taylor when I can" -> .distance
+    @effect set local.taylor_intent "distance"
+  @endchoice
 
-For now I think I'll...
+  @passage annoying
 
-@choice "give Taylor another chance" -> .friend
-  @effect set local.taylor_intent "friend"
-@endchoice
+  ...annoying. Maybe that's unfair this early, but Taylor has already managed to get under my skin.
 
-@choice "see if the irritation is actually chemistry" -> .closer
-  @effect set local.taylor_intent "closer"
-  @effect set flags.journal.wants_to_get_closer_to_taylor
-@endchoice
+  For now I think I'll...
 
-@choice "stay out of Taylor's way" -> .distance
-  @effect set local.taylor_intent "distance"
-@endchoice
+  @choice "give Taylor another chance" -> .friend
+    @effect set local.taylor_intent "friend"
+  @endchoice
 
-@passage attractive
+  @choice "see if the irritation is actually chemistry" -> .closer
+    @effect set local.taylor_intent "closer"
+    @effect set flags.journal.wants_to_get_closer_to_taylor
+  @endchoice
 
-...really attractive. There, I wrote it down. Taylor is hot. That's probably going to make school more complicated than it needs to be.
+  @choice "stay out of Taylor's way" -> .distance
+    @effect set local.taylor_intent "distance"
+  @endchoice
 
-Maybe I should...
+  @passage attractive
 
-@choice "get to know Taylor normally first" -> .friend
-  @effect set local.taylor_intent "friend"
-@endchoice
+  ...really attractive. There, I wrote it down. Taylor is hot. That's probably going to make school more complicated than it needs to be.
 
-@choice "flirt and see where it goes" -> .closer
-  @effect set local.taylor_intent "closer"
-  @effect set flags.journal.wants_to_get_closer_to_taylor
-@endchoice
+  Maybe I should...
 
-@choice "not make a thing out of it" -> .distance
-  @effect set local.taylor_intent "distance"
-@endchoice
+  @choice "get to know Taylor normally first" -> .friend
+    @effect set local.taylor_intent "friend"
+  @endchoice
 
-@passage friend
+  @choice "flirt and see where it goes" -> .closer
+    @effect set local.taylor_intent "closer"
+    @effect set flags.journal.wants_to_get_closer_to_taylor
+  @endchoice
 
-...actually get to know {{npc.taylor.object}} better. No point deciding what Taylor is like from one impression.
+  @choice "not make a thing out of it" -> .distance
+    @effect set local.taylor_intent "distance"
+  @endchoice
 
-@finish
+  @passage friend
 
-@passage closer
+  ...actually get to know {{npc.taylor.object}} better. No point deciding what Taylor is like from one impression.
 
-...get a little closer to {{npc.taylor.object}}, y'know, see where things go. Maybe there's something there. Maybe not. It could be fun finding out.
+  @finish
 
-@finish
+  @passage closer
 
-@passage distance
+  ...get a little closer to {{npc.taylor.object}}, y'know, see where things go. Maybe there's something there. Maybe not. It could be fun finding out.
 
-...keep some distance and see what happens. First impressions aren't everything, but I don't have to force myself to like everyone I meet.
+  @finish
 
-@finish
+  @passage distance
+
+  ...keep some distance and see what happens. First impressions aren't everything, but I don't have to force myself to like everyone I meet.
+
+  @finish
 @endjournal
 
 @journal "I actually got a job."
-@when flags.cafe_employee
+  @when flags.cafe_employee
 
-@passage start
+  @passage start
 
-@random
-  I got hired at the cafe. It's not exactly glamorous, but having somewhere I can turn an hour into money feels pretty important right now.
-@or
-  So, apparently I work at the cafe now. It isn't glamorous, but having somewhere I can turn an hour into money feels pretty important right now.
-@endrandom
+  @random
+    I got hired at the cafe. It's not exactly glamorous, but having somewhere I can turn an hour into money feels pretty important right now.
+  @or
+    So, apparently I work at the cafe now. It isn't glamorous, but having somewhere I can turn an hour into money feels pretty important right now.
+  @endrandom
 
-The part I'm most worried about is...
+  The part I'm most worried about is...
 
-@choice "dealing with customers" -> .customers
-  @effect set local.cafe_worry "customers"
-@endchoice
+  @choice "dealing with customers" -> .customers
+    @effect set local.cafe_worry "customers"
+  @endchoice
 
-@choice "messing something up" -> .mistakes
-  @effect set local.cafe_worry "mistakes"
-@endchoice
+  @choice "messing something up" -> .mistakes
+    @effect set local.cafe_worry "mistakes"
+  @endchoice
 
-@choice "getting bored out of my mind" -> .boredom
-  @effect set local.cafe_worry "boredom"
-@endchoice
+  @choice "getting bored out of my mind" -> .boredom
+    @effect set local.cafe_worry "boredom"
+  @endchoice
 
-@choice "nothing, really" -> .fine
-  @effect set local.cafe_worry "nothing"
-@endchoice
+  @choice "nothing, really" -> .fine
+    @effect set local.cafe_worry "nothing"
+  @endchoice
 
-@passage customers
+  @passage customers
 
-Customers, definitely. One rude person can turn an easy shift into an hour that feels five times longer. I'll just have to learn how to deal with them.
+  Customers, definitely. One rude person can turn an easy shift into an hour that feels five times longer. I'll just have to learn how to deal with them.
 
-@finish
+  @finish
 
-@passage mistakes
+  @passage mistakes
 
-Messing something up. Everyone screws up at a new job, obviously, but knowing that doesn't make the idea of doing it in front of a customer any nicer.
+  Messing something up. Everyone screws up at a new job, obviously, but knowing that doesn't make the idea of doing it in front of a customer any nicer.
 
-@finish
+  @finish
 
-@passage boredom
+  @passage boredom
 
-Getting bored. I can already imagine staring at the clock during a dead hour and wondering how sixty minutes can possibly take that long.
+  Getting bored. I can already imagine staring at the clock during a dead hour and wondering how sixty minutes can possibly take that long.
 
-@finish
+  @finish
 
-@passage fine
+  @passage fine
 
-Nothing in particular. It's a casual cafe job, not a life-or-death commitment. I can show up, work, get paid, and go home.
+  Nothing in particular. It's a casual cafe job, not a life-or-death commitment. I can show up, work, get paid, and go home.
 
-@finish
+  @finish
 @endjournal
 
-
 @journal "The rent situation is completely ridiculous."
-@when flags.rent_intro_2 or flags.rent_landlord_visit_seen or flags.rent_intro_bypassed
+  @when flags.rent_intro_2 or flags.rent_landlord_visit_seen or flags.rent_intro_bypassed
 
-@passage start
+  @passage start
 
-Apparently I owe rent from before I even properly settled in here. Somehow that has become my problem.
+  Apparently I owe rent from before I even properly settled in here. Somehow that has become my problem.
 
-Right now I mostly feel...
+  Right now I mostly feel...
 
-@choice "angry" -> .angry
-  @effect set local.rent_feeling "angry"
-@endchoice
+  @choice "angry" -> .angry
+    @effect set local.rent_feeling "angry"
+  @endchoice
 
-@choice "worried" -> .worried
-  @effect set local.rent_feeling "worried"
-@endchoice
+  @choice "worried" -> .worried
+    @effect set local.rent_feeling "worried"
+  @endchoice
 
-@choice "confused" -> .confused
-  @effect set local.rent_feeling "confused"
-@endchoice
+  @choice "confused" -> .confused
+    @effect set local.rent_feeling "confused"
+  @endchoice
 
-@choice "resigned" -> .resigned
-  @effect set local.rent_feeling "resigned"
-@endchoice
+  @choice "resigned" -> .resigned
+    @effect set local.rent_feeling "resigned"
+  @endchoice
 
-@passage angry
+  @passage angry
 
-Angry. I just moved in and I'm already being chased over money. I don't care how tidy the paperwork looks; it still feels absurd.
+  Angry. I just moved in and I'm already being chased over money. I don't care how tidy the paperwork looks; it still feels absurd.
 
-@finish
+  @finish
 
-@passage worried
+  @passage worried
 
-Worried. Rent isn't optional, and neither is having somewhere to live. I need to make sure this doesn't get bad enough to threaten that.
+  Worried. Rent isn't optional, and neither is having somewhere to live. I need to make sure this doesn't get bad enough to threaten that.
 
-@finish
+  @finish
 
-@passage confused
+  @passage confused
 
-Confused. The dates, the notice, the whole situation feel like they belong to somebody else's life and somehow landed on my doorstep.
+  Confused. The dates, the notice, the whole situation feel like they belong to somebody else's life and somehow landed on my doorstep.
 
-@finish
+  @finish
 
-@passage resigned
+  @passage resigned
 
-Resigned, mostly. Whether it makes sense or not, arguing with the amount won't magically make it disappear. I need money and a plan.
+  Resigned, mostly. Whether it makes sense or not, arguing with the amount won't magically make it disappear. I need money and a plan.
 
-@finish
+  @finish
 @endjournal
 
 @journal "I found something strange in my room."
-@when flags.quest.receptacles.start
+  @when flags.quest.receptacles.start
 
-@passage start
+  @passage start
 
-There is some kind of seamless receptacle sitting in my room now. I found it while unpacking, and I still have no idea what it is or why it was here.
+  There is some kind of seamless receptacle sitting in my room now. I found it while unpacking, and I still have no idea what it is or why it was here.
 
-My first reaction is mostly...
+  My first reaction is mostly...
 
-@choice "curiosity" -> .curious
-  @effect set local.receptacle_reaction "curious"
-@endchoice
+  @choice "curiosity" -> .curious
+    @effect set local.receptacle_reaction "curious"
+  @endchoice
 
-@choice "unease" -> .uneasy
-  @effect set local.receptacle_reaction "uneasy"
-@endchoice
+  @choice "unease" -> .uneasy
+    @effect set local.receptacle_reaction "uneasy"
+  @endchoice
 
-@choice "annoyance" -> .annoyed
-  @effect set local.receptacle_reaction "annoyed"
-@endchoice
+  @choice "annoyance" -> .annoyed
+    @effect set local.receptacle_reaction "annoyed"
+  @endchoice
 
-@choice "nothing much" -> .shrug
-  @effect set local.receptacle_reaction "indifferent"
-@endchoice
+  @choice "nothing much" -> .shrug
+    @effect set local.receptacle_reaction "indifferent"
+  @endchoice
 
-@passage curious
+  @passage curious
 
-Curiosity. Something that strange does not just end up in a room by accident. I want to figure out what it does, even if I have no idea where to start.
+  Curiosity. Something that strange does not just end up in a room by accident. I want to figure out what it does, even if I have no idea where to start.
 
-@finish
+  @finish
 
-@passage uneasy
+  @passage uneasy
 
-Unease. An object I cannot open, move, or explain is not exactly what I wanted to discover in my new home. I would feel better if I knew what it was for.
+  Unease. An object I cannot open, move, or explain is not exactly what I wanted to discover in my new home. I would feel better if I knew what it was for.
 
-@finish
+  @finish
 
-@passage annoyed
+  @passage annoyed
 
-Annoyance. I finally finished unpacking and immediately inherited a new problem that apparently cannot even be moved out of the way.
+  Annoyance. I finally finished unpacking and immediately inherited a new problem that apparently cannot even be moved out of the way.
 
-@finish
+  @finish
 
-@passage shrug
+  @passage shrug
 
-Not much, really. It is weird, but until it actually does something, it can sit there and be weird on its own time.
+  Not much, really. It is weird, but until it actually does something, it can sit there and be weird on its own time.
 
-@finish
+  @finish
 @endjournal
 
 @journal "I made it through every class today."
-@when flags.journal.completed_school_first_day or flags.journal.completed_school_day
+  @when flags.journal.completed_school_first_day or flags.journal.completed_school_day
 
-@passage start
+  @passage start
 
-@if flags.journal.completed_school_first_day
-I made it through every class on my very first day of school. I actually followed the whole timetable from beginning to end.
-@else
-I finally made it through a complete day of school. It was not my first day, but this time I attended every class from beginning to end.
-@endif
+  @if flags.journal.completed_school_first_day
+    I made it through every class on my very first day of school. I actually followed the whole timetable from beginning to end.
+  @else
+    I finally made it through a complete day of school. It was not my first day, but this time I attended every class from beginning to end.
+  @endif
 
-By the time the last class ended, I felt...
+  By the time the last class ended, I felt...
 
-@choice "proud of myself" -> .proud
-  @effect set local.full_school_day_feeling "proud"
-@endchoice
+  @choice "proud of myself" -> .proud
+    @effect set local.full_school_day_feeling "proud"
+  @endchoice
 
-@choice "completely exhausted" -> .exhausted
-  @effect set local.full_school_day_feeling "exhausted"
-@endchoice
+  @choice "completely exhausted" -> .exhausted
+    @effect set local.full_school_day_feeling "exhausted"
+  @endchoice
 
-@choice "surprised it was not worse" -> .surprised
-  @effect set local.full_school_day_feeling "surprised"
-@endchoice
+  @choice "surprised it was not worse" -> .surprised
+    @effect set local.full_school_day_feeling "surprised"
+  @endchoice
 
-@passage proud
+  @passage proud
 
-...proud of myself. Showing up for all of it might be ordinary for everyone else, but it still feels like something worth writing down.
+  ...proud of myself. Showing up for all of it might be ordinary for everyone else, but it still feels like something worth writing down.
 
-@finish
+  @finish
 
-@passage exhausted
+  @passage exhausted
 
-...completely exhausted. A full timetable is a lot longer when I actually sit through every part of it.
+  ...completely exhausted. A full timetable is a lot longer when I actually sit through every part of it.
 
-@finish
+  @finish
 
-@passage surprised
+  @passage surprised
 
-...surprised it was not worse. The day was long, but I made it through without wanting to run for the gates.
+  ...surprised it was not worse. The day was long, but I made it through without wanting to run for the gates.
 
-@finish
+  @finish
 @endjournal

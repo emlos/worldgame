@@ -1,20 +1,20 @@
 @# The cafe has authored job actions; other shop and food hubs are implicit.
 
 :: place.cafe
-@hub cafe
+  @hub cafe
 
-The quiet clatter of cups fills {{place.name}}.
+  The quiet clatter of cups fills {{place.name}}.
 
-@choicegroup ""
-  
-@choice "Ask about a job" -> cafe.job.application
-  @when not flags.cafe_employee
-@endchoice
+  @choicegroup ""
 
-@choice "Work for one hour" -> @exit
-  @time 1h
-  @event-pool cafe.job.shift
-  @when flags.cafe_employee and time.minutesSinceMidnight >= 420 and time.minutesSinceMidnight <= 1260
-  @change money 7 "£7 wages"
-@endchoice
-@endchoicegroup
+    @choice "Ask about a job" -> cafe.job.application
+      @when not flags.cafe_employee
+    @endchoice
+
+    @choice "Work for one hour" -> @exit
+      @time 1h
+      @event-pool cafe.job.shift
+      @when flags.cafe_employee and time.minutesSinceMidnight >= 420 and time.minutesSinceMidnight <= 1260
+      @change money 7 "£7 wages"
+    @endchoice
+  @endchoicegroup

@@ -1,164 +1,155 @@
 :: story.opening.new-home -> @exit
-@auto enter-place
-@place-key player_home
-@when not flags.opening_seen
-@priority 1000
-@heading "A new beginning"
-@choices "How do you feel about the day ahead?"
-@onenter
-  @effect set flags.opening_seen
-@endonenter
+  @auto enter-place
+  @place-key player_home
+  @when not flags.opening_seen
+  @priority 1000
+  @heading "A new beginning"
+  @choices "How do you feel about the day ahead?"
+  @onenter
+    @effect set flags.opening_seen
+  @endonenter
 
-@passage wake-up
+  @passage wake-up
 
-Pale morning light falls across a room filled with cardboard boxes. Most of your clothes are still packed, the kitchen contains almost nothing, and the key to your new home is lying beside the mattress.
+  Pale morning light falls across a room filled with cardboard boxes. Most of your clothes are still packed, the kitchen contains almost nothing, and the key to your new home is lying beside the mattress.
 
-You moved in yesterday. Today is supposed to be your first proper day in the city.
+  You moved in yesterday. Today is supposed to be your first proper day in the city.
 
-Your phone vibrates against the floor. The school has sent you another reminder: your first class begins at 09:00. If you intend to arrive on time, you should get moving soon.
+  Your phone vibrates against the floor. The school has sent you another reminder: your first class begins at 09:00. If you intend to arrive on time, you should get moving soon.
 
-@choice "Maybe this is a fresh start" -> .get-moving
-  @effect set local.outlook "hopeful"
-@endchoice
+  @choice "Maybe this is a fresh start" -> .get-moving
+    @effect set local.outlook "hopeful"
+  @endchoice
 
-@choice "I already hate this place" -> .get-moving
-  @effect set local.outlook "resentful"
-@endchoice
+  @choice "I already hate this place" -> .get-moving
+    @effect set local.outlook "resentful"
+  @endchoice
 
-@choice "Just get through today" -> .get-moving
-  @effect set local.outlook "guarded"
-@endchoice
+  @choice "Just get through today" -> .get-moving
+    @effect set local.outlook "guarded"
+  @endchoice
 
-@passage get-moving
+  @passage get-moving
 
-@if local.outlook == "hopeful"
-  A new home, a new school, and a city where nobody knows you yet. Perhaps that can be a good thing.
-@elseif local.outlook == "resentful"
-  New walls and a different school do not make this feel like home. For now, getting through the day will have to be enough.
-@else
-  You push the unopened boxes from your mind. One thing at a time: get ready, find the school, and make it through the day.
-@endif
+  @if local.outlook == "hopeful"
+    A new home, a new school, and a city where nobody knows you yet. Perhaps that can be a good thing.
+  @elseif local.outlook == "resentful"
+    New walls and a different school do not make this feel like home. For now, getting through the day will have to be enough.
+  @else
+    You push the unopened boxes from your mind. One thing at a time: get ready, find the school, and make it through the day.
+  @endif
 
-[info]Your phone is always available from the Phone button or by pressing P. Reminders tracks obligations such as school, while GPS lists known destinations and can guide you through the city. Opening the phone does not advance time.[/info]
+  [info]Your phone is always available from the Phone button or by pressing P. Reminders tracks obligations such as school, while GPS lists known destinations and can guide you through the city. Opening the phone does not advance time.[/info]
 
-School is waiting, but what you do next is your decision. You can get ready, leave immediately, or ignore it and spend the day another way.
+  School is waiting, but what you do next is your decision. You can get ready, leave immediately, or ignore it and spend the day another way.
 
-@next "Get up" -> @exit
+  @next "Get up" -> @exit
 
-@#==============================================================================================
+  @#==============================================================================================
 
 :: place.player-home
-@hub player_home
+  @hub player_home
 
-@if not story.home.unpack or story.home.unpack < 2
-  You are back in the privacy of your four walls. Cardboard boxes crowd the little open floor space, and most of the flat still feels borrowed rather than lived in.
-@elseif story.home.unpack < 5
-  You are back in the privacy of your four walls. The bathroom is usable now, though unopened boxes still line the walls.
-@elseif story.home.unpack < 10
-  You are back in the privacy of your four walls. Your clothes are put away and the table is clear, giving the flat the beginnings of a routine.
-@elseif story.home.unpack < 15
-  You are back in the privacy of your four walls. With the bed properly assembled, the bedroom finally looks like somewhere you can recover at the end of the day.
-@elseif story.home.unpack < 20
-  You are back in the privacy of your four walls. Most of the flat is ready for company; only a stubborn cluster of boxes remains.
-@else
-  You are back in the privacy of your four walls. Everything has found a place, apart from the strange receptacle uncovered beside the wall.
-@endif
+  @if not story.home.unpack or story.home.unpack < 2
+    You are back in the privacy of your four walls. Cardboard boxes crowd the little open floor space, and most of the flat still feels borrowed rather than lived in.
+  @elseif story.home.unpack < 5
+    You are back in the privacy of your four walls. The bathroom is usable now, though unopened boxes still line the walls.
+  @elseif story.home.unpack < 10
+    You are back in the privacy of your four walls. Your clothes are put away and the table is clear, giving the flat the beginnings of a routine.
+  @elseif story.home.unpack < 15
+    You are back in the privacy of your four walls. With the bed properly assembled, the bedroom finally looks like somewhere you can recover at the end of the day.
+  @elseif story.home.unpack < 20
+    You are back in the privacy of your four walls. Most of the flat is ready for company; only a stubborn cluster of boxes remains.
+  @else
+    You are back in the privacy of your four walls. Everything has found a place, apart from the strange receptacle uncovered beside the wall.
+  @endif
 
-@choicegroup "Bedroom"
+  @choicegroup "Bedroom"
 
-  @choice "Go to Bed" -> menu.player.home.rest
-    @hint energy 1 "++Energy"
-  @endchoice
+    @choice "Go to Bed" -> menu.player.home.rest
+      @hint energy 1 "++Energy"
+    @endchoice
 
-  @choice "Lift weights" -> @exit
-    @time 5m
-    @when not daily.home_weightlifting and story.home.unpack >= 10
-    @change skill strength 0.1
-    @effect daily-flag home_weightlifting true
-  @endchoice
+    @choice "Lift weights" -> @exit
+      @time 5m
+      @when not daily.home_weightlifting and story.home.unpack >= 10
+      @change skill strength 0.1
+      @effect daily-flag home_weightlifting true
+    @endchoice
 
-  @choice "Sit down with your diary" -> home.diary
-    @when story.home.unpack >= 5
-  @endchoice
+    @choice "Sit down with your diary" -> home.diary
+      @when story.home.unpack >= 5
+    @endchoice
 
-  
-  @choice "Closet" -> home.clothes
-    @when story.home.unpack >= 5
-  @endchoice
+    @choice "Closet" -> home.clothes
+      @when story.home.unpack >= 5
+    @endchoice
 
-@endchoicegroup
+  @endchoicegroup
 
-@choicegroup "Activities"
+  @choicegroup "Activities"
 
-  @choice "Unpack" -> home.unpack
-    @when not story.home.unpack or story.home.unpack < 19
-    @time 15m..30m
-    @effect add story.home.unpack 1
-  @endchoice
+    @choice "Unpack" -> home.unpack
+      @when not story.home.unpack or story.home.unpack < 19
+      @time 15m..30m
+      @effect add story.home.unpack 1
+    @endchoice
 
-  @choice "Unpack the last boxes" -> home.unpack.receptacle
-    @when story.home.unpack == 19
-    @time 15m..30m
-    @effect add story.home.unpack 1
-    @effect set flags.quest.receptacles.start
-    @effect set flags.home.unpacked
-  @endchoice
+    @choice "Unpack the last boxes" -> home.unpack.receptacle
+      @when story.home.unpack == 19
+      @time 15m..30m
+      @effect add story.home.unpack 1
+      @effect set flags.quest.receptacles.start
+      @effect set flags.home.unpacked
+    @endchoice
 
+  @endchoicegroup
 
+  @choicegroup "Bathroom"
 
+    @choice "Take a shower" -> @exit
+      @when story.home.unpack >= 2
+      @time 15m
+      @change stat hygiene +50
+      @change stat energy -5
+    @endchoice
 
+    @choice "Brush your teeth" -> @exit
+      @when story.home.unpack >= 2
+      @time 5m
+      @change stat hygiene +5
+    @endchoice
 
+  @endchoicegroup
 
-
-
-@endchoicegroup
-
-@choicegroup "Bathroom"
-
-  @choice "Take a shower" -> @exit
-    @when story.home.unpack >= 2
-    @time 15m
-    @change stat hygiene +50
-    @change stat energy -5
-  @endchoice
-
-  @choice "Brush your teeth" -> @exit
-    @when story.home.unpack >= 2
-    @time 5m
-    @change stat hygiene +5
-  @endchoice
-
-@endchoicegroup
-
-@choicegroup ""
-  @choice "Examine the strange receptacle" -> home.receptacle
-    @when flags.quest.receptacles.start
-  @endchoice
-@endchoicegroup
-
+  @choicegroup ""
+    @choice "Examine the strange receptacle" -> home.receptacle
+      @when flags.quest.receptacles.start
+    @endchoice
+  @endchoicegroup
 
 :: home.unpack -> @exit
 
-@if story.home.unpack < 5
-  You open another box and sort its contents into rough piles. The room is still crowded, but there is a little more space to move.
-@elseif story.home.unpack < 15
-  Another armful of belongings finds a proper place. Bit by bit, the anonymous rooms are beginning to look like yours.
-@else
-  You flatten more cardboard and deal with the awkward things you kept putting off. Only a few boxes remain now.
-@endif
+  @if story.home.unpack < 5
+    You open another box and sort its contents into rough piles. The room is still crowded, but there is a little more space to move.
+  @elseif story.home.unpack < 15
+    Another armful of belongings finds a proper place. Bit by bit, the anonymous rooms are beginning to look like yours.
+  @else
+    You flatten more cardboard and deal with the awkward things you kept putting off. Only a few boxes remain now.
+  @endif
 
-@if story.home.unpack == 2
-  You empty the bathroom boxes, stack your toiletries by the sink, and clear enough clutter to use the shower without climbing over anything. Now you can get clean - about time, too.
-@elseif story.home.unpack == 5
-  You finish sorting your clothes and clear the table beneath the window. There is finally somewhere to sit, think, and write.
-@elseif story.home.unpack == 10
-  The pieces of the bed frame emerge from behind a wall of cardboard. Once it is assembled and the mattress is lifted into place, the bedroom immediately feels more comfortable.
-  Hey, that box has some of your knicknacks too! You put the weights in the bedroom and the small decorations on the shelves. The flat is starting to feel like home.
-@elseif story.home.unpack == 15
-  You arrange the remaining furniture and make room for another person to sit. The flat is no longer too embarrassing to invite someone into.
-@endif
+  @if story.home.unpack == 2
+    You empty the bathroom boxes, stack your toiletries by the sink, and clear enough clutter to use the shower without climbing over anything. Now you can get clean - about time, too.
+  @elseif story.home.unpack == 5
+    You finish sorting your clothes and clear the table beneath the window. There is finally somewhere to sit, think, and write.
+  @elseif story.home.unpack == 10
+    The pieces of the bed frame emerge from behind a wall of cardboard. Once it is assembled and the mattress is lifted into place, the bedroom immediately feels more comfortable.
+    Hey, that box has some of your knicknacks too! You put the weights in the bedroom and the small decorations on the shelves. The flat is starting to feel like home.
+  @elseif story.home.unpack == 15
+    You arrange the remaining furniture and make room for another person to sit. The flat is no longer too embarrassing to invite someone into.
+  @endif
 
-@next -> @exit
+  @next -> @exit
 
 :: home.unpack.receptacle -> @exit
   After you put away the final box, you notice a strange receptacle wrapped in a dusty material. Its surface is cool and seamless, with no obvious way to open it.
@@ -174,102 +165,96 @@ School is waiting, but what you do next is your decision. You can get ready, lea
 
   @next -> @exit
 
-
 :: home.clothes -> @exit
 
-Your clothes are sorted and within easy reach. Once the clothing system is in place, this is where you will be able to choose what to wear.
+  Your clothes are sorted and within easy reach. Once the clothing system is in place, this is where you will be able to choose what to wear.
 
-@next -> @exit
-
+  @next -> @exit
 
 :: home.diary -> @exit
 
-You sit at the cleared table, pull your diary closer, and turn to a fresh page.
+  You sit at the cleared table, pull your diary closer, and turn to a fresh page.
 
-@if not flags.diary.tutorial
-  @effect set flags.diary.tutorial
-  [info]You can write in your diary to record your thoughts and feelings about the various events that happen. 
-  You can also read past entries. Writing in your diary does not advance time.[/info]
+  @if not flags.diary.tutorial
+    @effect set flags.diary.tutorial
+    [info]You can write in your diary to record your thoughts and feelings about the various events that happen.
+    You can also read past entries. Writing in your diary does not advance time.[/info]
 
-@endif
+  @endif
 
-@next "Put the diary away" -> @exit
-
+  @next "Put the diary away" -> @exit
 
 :: home.receptacle -> @exit
 
-You press your hands to the receptacle thingy, but cannot find a seam, switch, or recognizable marking. Whatever it is, unpacking has only raised a new question.
+  You press your hands to the receptacle thingy, but cannot find a seam, switch, or recognizable marking. Whatever it is, unpacking has only raised a new question.
 
-@next -> @exit
-
+  @next -> @exit
 
 :: menu.player.home.rest -> @exit
   @passage rest-menu
   @choicegroup "Set your alarm to:"
 
-You set your alarm and climb into bed. The soft sheets and warm blankets are a welcome comfort.
-@if not story.home.unpack or story.home.unpack < 10
-  For now, the mattress is still on the floor and the unopened bedroom boxes make the space feel cramped.
-@else
-  With the bed assembled and the bedroom cleared, settling down is noticeably easier.
-@endif
-How long will you sleep for?
+    You set your alarm and climb into bed. The soft sheets and warm blankets are a welcome comfort.
+    @if not story.home.unpack or story.home.unpack < 10
+      For now, the mattress is still on the floor and the unopened bedroom boxes make the space feel cramped.
+    @else
+      With the bed assembled and the bedroom cleared, settling down is noticeably easier.
+    @endif
+    How long will you sleep for?
 
-@choice "8 hours" -> .wake-up
-  @time 8h rest
-  @effect stat hygiene -5
-@endchoice
+    @choice "8 hours" -> .wake-up
+      @time 8h rest
+      @effect stat hygiene -5
+    @endchoice
 
-@choice "7 hours" -> .wake-up
-  @time 7h rest
-  @effect stat hygiene -4.5
-@endchoice
+    @choice "7 hours" -> .wake-up
+      @time 7h rest
+      @effect stat hygiene -4.5
+    @endchoice
 
-@choice "6 hours" -> .wake-up
-  @time 6h rest
-  @effect stat hygiene -4
-@endchoice
+    @choice "6 hours" -> .wake-up
+      @time 6h rest
+      @effect stat hygiene -4
+    @endchoice
 
-@choice "5 hours" -> .wake-up
-  @time 5h rest
-  @effect stat hygiene -3.5
-@endchoice
+    @choice "5 hours" -> .wake-up
+      @time 5h rest
+      @effect stat hygiene -3.5
+    @endchoice
 
-@choice "4 hours" -> .wake-up
-  @time 4h rest
-  @effect stat hygiene -3
-@endchoice
+    @choice "4 hours" -> .wake-up
+      @time 4h rest
+      @effect stat hygiene -3
+    @endchoice
 
-@choice "3 hours" -> .wake-up
-  @time 3h rest
-  @effect stat hygiene -2.5
-@endchoice
+    @choice "3 hours" -> .wake-up
+      @time 3h rest
+      @effect stat hygiene -2.5
+    @endchoice
 
-@choice "2 hours" -> .wake-up
-  @time 2h rest
-  @effect stat hygiene -2
-@endchoice
+    @choice "2 hours" -> .wake-up
+      @time 2h rest
+      @effect stat hygiene -2
+    @endchoice
 
-@choice "1 hour" -> .wake-up
-  @time 1h rest
-  @effect stat hygiene -1.5
-@endchoice
+    @choice "1 hour" -> .wake-up
+      @time 1h rest
+      @effect stat hygiene -1.5
+    @endchoice
 
-@endchoicegroup
+  @endchoicegroup
 
-@next "Leave" -> @exit
+  @next "Leave" -> @exit
 
+  @passage wake-up
 
+  Your alarm goes off.
+  @if player.energy >= 80
+    You feel well-rested, and you quickly shake off the last remnants of sleepiness.
+  @elseif player.energy >= 50
+    You feel a little groggy, but you manage to get out of bed.
+  @else
+    You feel exhausted, and you wish you'd slept longer. You drag yourself out of bed and get ready for the day.
+  @endif
 
-@passage wake-up
-
-Your alarm goes off.
-@if player.energy >= 80
-  You feel well-rested, and you quickly shake off the last remnants of sleepiness.
-@elseif player.energy >= 50
-  You feel a little groggy, but you manage to get out of bed.
-@else
-  You feel exhausted, and you wish you'd slept longer. You drag yourself out of bed and get ready for the day.
-@endif
-
-@next -> @exit
+  @next -> @exit

@@ -1,785 +1,778 @@
 :: school.first-visit -> @exit
-@auto enter-place
-@place-key high_school
-@when not flags.school_first_visit_seen
-@priority 1000
-@onenter
-  @effect set flags.school_first_visit_seen
-@endonenter
+  @auto enter-place
+  @place-key high_school
+  @when not flags.school_first_visit_seen
+  @priority 1000
+  @onenter
+    @effect set flags.school_first_visit_seen
+  @endonenter
 
-You pause inside the entrance as students move around you with the confidence of people who already know where they are going. Classroom signs point deeper into the building, and the day's schedule is waiting in your diary.
+  You pause inside the entrance as students move around you with the confidence of people who already know where they are going. Classroom signs point deeper into the building, and the day's schedule is waiting in your diary.
 
-[info]The school's Current Activities section shows what is happening now. Attending class records your attendance and can improve that subject. Open the Planner button to review the full timetable, grades, and attendance.[/info]
+  [info]The school's Current Activities section shows what is happening now. Attending class records your attendance and can improve that subject. Open the Planner button to review the full timetable, grades, and attendance.[/info]
 
-You are not locked into the school day. You can attend the current lesson, explore the building, wait for the schedule to advance, or leave.
+  You are not locked into the school day. You can attend the current lesson, explore the building, wait for the schedule to advance, or leave.
 
-@next "Look around" -> @exit
+  @next "Look around" -> @exit
 
 :: place.high-school
-@hub high_school
-@choices "Travel"
+  @hub high_school
+  @choices "Travel"
 
+  @choicegroup "Current Activities"
 
-@choicegroup "Current Activities"
+    @if school.phase == "before_school"
 
-@if school.phase == "before_school"
+      The halls of {{place.name}} are open, though lessons have not begun yet. You can see groups of students move in the hallways.
 
-The halls of {{place.name}} are open, though lessons have not begun yet. You can see groups of students move in the hallways.
+      @choice "Wait for the first class" -> @exit
 
-@choice "Wait for the first class" -> @exit
-  
-  @time-until school.nextBoundaryAt
-@endchoice
+        @time-until school.nextBoundaryAt
+      @endchoice
 
-@elseif school.phase == "class" and school.subjectId == "english"
+    @elseif school.phase == "class" and school.subjectId == "english"
 
-English class is in progress. You can still attend or keep exploring the school.
+      English class is in progress. You can still attend or keep exploring the school.
 
-@choice "Attend English class" -> school.class.english
-  
-@endchoice
+      @choice "Attend English class" -> school.class.english
 
-@elseif school.phase == "class" and school.subjectId == "math"
+      @endchoice
 
-Mathematics class is in progress. You can still attend or keep exploring the school.
+    @elseif school.phase == "class" and school.subjectId == "math"
 
-@choice "Attend Mathematics class" -> school.class.math
-  
-@endchoice
+      Mathematics class is in progress. You can still attend or keep exploring the school.
 
-@elseif school.phase == "class" and school.subjectId == "history"
+      @choice "Attend Mathematics class" -> school.class.math
 
-History class is in progress. You can still attend or keep exploring the school.
+      @endchoice
 
-@choice "Attend History class" -> school.class.history
-  
-@endchoice
+    @elseif school.phase == "class" and school.subjectId == "history"
 
-@elseif school.phase == "lunch"
+      History class is in progress. You can still attend or keep exploring the school.
 
-Lunch break is underway. The cafeteria is open until afternoon classes begin.
+      @choice "Attend History class" -> school.class.history
 
-@choice "Go to the cafeteria" -> @exit
-  
-  @time-until school.nextBoundaryAt
-@endchoice
+      @endchoice
 
-@choice "Wait for the next class" -> @exit
-  
-  @time-until school.nextBoundaryAt
-@endchoice
+    @elseif school.phase == "lunch"
 
-@elseif school.phase == "class" and school.subjectId == "science"
+      Lunch break is underway. The cafeteria is open until afternoon classes begin.
 
-Science class is in progress. You can still attend or keep exploring the school.
+      @choice "Go to the cafeteria" -> @exit
 
-@choice "Attend Science class" -> school.class.science
-  
-@endchoice
+        @time-until school.nextBoundaryAt
+      @endchoice
 
-@elseif school.phase == "class" and school.subjectId == "art"
+      @choice "Wait for the next class" -> @exit
 
-Art class is in progress. You can still attend or keep exploring the school.
+        @time-until school.nextBoundaryAt
+      @endchoice
 
-@choice "Attend Art class" -> school.class.art
-  
-@endchoice
+    @elseif school.phase == "class" and school.subjectId == "science"
 
-@elseif school.phase == "class" and school.subjectId == "physical_education"
+      Science class is in progress. You can still attend or keep exploring the school.
 
-Physical education is in progress. You can still attend or keep exploring the school.
+      @choice "Attend Science class" -> school.class.science
 
-@choice "Attend Physical Education" -> school.class.physical-education
-  
-@endchoice
+      @endchoice
 
-@elseif school.phase == "break"
+    @elseif school.phase == "class" and school.subjectId == "art"
 
-There is a short break before the next class begins.
+      Art class is in progress. You can still attend or keep exploring the school.
 
-@choice "Go to the cafeteria" -> @exit
-  
-  @time-until school.nextBoundaryAt
-@endchoice
+      @choice "Attend Art class" -> school.class.art
 
-@choice "Wait for the next class" -> @exit
-  
-  @time-until school.nextBoundaryAt
-@endchoice
+      @endchoice
 
-@elseif school.phase == "after_school"
+    @elseif school.phase == "class" and school.subjectId == "physical_education"
 
-Lessons are over, but {{place.name}} remains open until 17:00.
+      Physical education is in progress. You can still attend or keep exploring the school.
 
-@choice "Stay until school closes" -> @exit
-  
-  @time-until school.nextBoundaryAt
-@endchoice
+      @choice "Attend Physical Education" -> school.class.physical-education
 
-@elseif school.phase == "no_school"
+      @endchoice
 
-There are no lessons today, though the administrative areas remain open.
+    @elseif school.phase == "break"
 
-@choice "Visit the school office" -> @exit
-  @icon 🏫
-  @time 15m
-@endchoice
+      There is a short break before the next class begins.
 
-@choice "Read the school notices" -> @exit
-  @icon 📌
-  @time 5m
-@endchoice
+      @choice "Go to the cafeteria" -> @exit
 
-@else
+        @time-until school.nextBoundaryAt
+      @endchoice
 
-The school has closed for the day.
+      @choice "Wait for the next class" -> @exit
 
-@endif
+        @time-until school.nextBoundaryAt
+      @endchoice
 
-@endchoicegroup
+    @elseif school.phase == "after_school"
 
-@choicegroup "Activities"
+      Lessons are over, but {{place.name}} remains open until 17:00.
 
-@choice "Go to the cafeteria" -> place.high-school.cafeteria
-  @icon 🍽️
-  @time 1m
-@endchoice
+      @choice "Stay until school closes" -> @exit
 
-@choice "Go to the math classroom" -> place.high-school.math-classroom
-  @icon 🧮
-  @time 1m
-@endchoice
+        @time-until school.nextBoundaryAt
+      @endchoice
 
-@choice "Go to the english classroom" -> place.high-school.english-classroom
-  @icon 📖
-  @time 1m
-@endchoice
+    @elseif school.phase == "no_school"
 
-@choice "Go to the history classroom" -> place.high-school.history-classroom
-  @icon 📜
-  @time 1m
-@endchoice
+      There are no lessons today, though the administrative areas remain open.
 
-@choice "Go to the science classroom" -> place.high-school.science-classroom
-  @icon 🔬
-  @time 2m
-@endchoice
+      @choice "Visit the school office" -> @exit
+        @icon 🏫
+        @time 15m
+      @endchoice
 
-@choice "Go to the art classroom" -> place.high-school.art-classroom
-  @icon 🎨
-  @time 2m
-@endchoice
+      @choice "Read the school notices" -> @exit
+        @icon 📌
+        @time 5m
+      @endchoice
 
-@choice "Go to the school gym" -> place.high-school.gym
-  @icon 🏃
-  @time 5m
-@endchoice
+    @else
 
-@choice "Go to the school nurse's office" -> place.high-school.nurse-office
-  @icon 🏥
-  @time 2m
-@endchoice
+      The school has closed for the day.
 
-@choice "Visit the student council office" -> place.high-school.student-council-room
-  @icon 🏫
-  @time 5m
-@endchoice
+    @endif
 
-@endchoicegroup
+  @endchoicegroup
 
+  @choicegroup "Activities"
+
+    @choice "Go to the cafeteria" -> place.high-school.cafeteria
+      @icon 🍽️
+      @time 1m
+    @endchoice
+
+    @choice "Go to the math classroom" -> place.high-school.math-classroom
+      @icon 🧮
+      @time 1m
+    @endchoice
+
+    @choice "Go to the english classroom" -> place.high-school.english-classroom
+      @icon 📖
+      @time 1m
+    @endchoice
+
+    @choice "Go to the history classroom" -> place.high-school.history-classroom
+      @icon 📜
+      @time 1m
+    @endchoice
+
+    @choice "Go to the science classroom" -> place.high-school.science-classroom
+      @icon 🔬
+      @time 2m
+    @endchoice
+
+    @choice "Go to the art classroom" -> place.high-school.art-classroom
+      @icon 🎨
+      @time 2m
+    @endchoice
+
+    @choice "Go to the school gym" -> place.high-school.gym
+      @icon 🏃
+      @time 5m
+    @endchoice
+
+    @choice "Go to the school nurse's office" -> place.high-school.nurse-office
+      @icon 🏥
+      @time 2m
+    @endchoice
+
+    @choice "Visit the student council office" -> place.high-school.student-council-room
+      @icon 🏫
+      @time 5m
+    @endchoice
+
+  @endchoicegroup
 
 :: school.class.english -> @exit
-@behavior school.class {"subject":"english"}
-@choices "Class activity"
+  @behavior school.class {"subject":"english"}
+  @choices "Class activity"
 
-@passage segment-1
+  @passage segment-1
 
-The students fill the classroom and take their seats. The teacher begins the lesson, and you focus on the material.
+  The students fill the classroom and take their seats. The teacher begins the lesson, and you focus on the material.
 
-@choice "Chat with Taylor" -> .segment-2
-  
-  @time-until school.nextBoundaryAt
-  @event-pool school.class.english
-  
-  @when npc.taylor.present
-  @effect attendance english 1
-  @change relationship taylor.friendship 1
-@endchoice
+  @choice "Chat with Taylor" -> .segment-2
 
-@choice "Study hard" -> .segment-2
-  
-  @time-until school.nextBoundaryAt
-  @event-pool school.class.english
-  
-  @effect attendance english 1
-  @change grade english 1
-@endchoice
+    @time-until school.nextBoundaryAt
+    @event-pool school.class.english
 
-@passage segment-2
+    @when npc.taylor.present
+    @effect attendance english 1
+    @change relationship taylor.friendship 1
+  @endchoice
 
-The teacher continues the lesson, and you take notes diligently. The class is going well so far.
+  @choice "Study hard" -> .segment-2
 
-@choice "Chat with Taylor" -> .segment-3
-  @time-until school.nextBoundaryAt
-  @event-pool school.class.english
-  @when npc.taylor.present
-  @effect attendance english 1
-  @change relationship taylor.friendship 1
-@endchoice
+    @time-until school.nextBoundaryAt
+    @event-pool school.class.english
 
-@choice "Study hard" -> .segment-3
-  @time-until school.nextBoundaryAt
-  @event-pool school.class.english
+    @effect attendance english 1
+    @change grade english 1
+  @endchoice
 
-  @effect attendance english 1
-  @change grade english 1
-@endchoice
+  @passage segment-2
 
-@passage segment-3
+  The teacher continues the lesson, and you take notes diligently. The class is going well so far.
 
-The students look bored as the teacher wraps up the lesson. You have a few minutes before the class ends.
+  @choice "Chat with Taylor" -> .segment-3
+    @time-until school.nextBoundaryAt
+    @event-pool school.class.english
+    @when npc.taylor.present
+    @effect attendance english 1
+    @change relationship taylor.friendship 1
+  @endchoice
 
-@choice "Chat with Taylor" -> @exit
-  
-  @time-until school.nextBoundaryAt
-  @event-pool school.class.english
-  @when npc.taylor.present
-  @effect attendance english 1
-  @change relationship taylor.friendship 1
-@endchoice
+  @choice "Study hard" -> .segment-3
+    @time-until school.nextBoundaryAt
+    @event-pool school.class.english
 
-@choice "Study hard" -> @exit
-  
-  @time-until school.nextBoundaryAt
-  @event-pool school.class.english
-  
-  @effect attendance english 1
-  @change grade english 1
-@endchoice
+    @effect attendance english 1
+    @change grade english 1
+  @endchoice
+
+  @passage segment-3
+
+  The students look bored as the teacher wraps up the lesson. You have a few minutes before the class ends.
+
+  @choice "Chat with Taylor" -> @exit
+
+    @time-until school.nextBoundaryAt
+    @event-pool school.class.english
+    @when npc.taylor.present
+    @effect attendance english 1
+    @change relationship taylor.friendship 1
+  @endchoice
+
+  @choice "Study hard" -> @exit
+
+    @time-until school.nextBoundaryAt
+    @event-pool school.class.english
+
+    @effect attendance english 1
+    @change grade english 1
+  @endchoice
 
 :: school.class.math -> @exit
-@behavior school.class {"subject":"math"}
-@choices "Class activity"
+  @behavior school.class {"subject":"math"}
+  @choices "Class activity"
 
-@passage segment-1
+  @passage segment-1
 
-The first segment of Mathematics class begins.
+  The first segment of Mathematics class begins.
 
-@choice "Chat with Taylor" -> .segment-2
-  @event-pool school.class.math
-  
-  @time-until school.nextBoundaryAt
-  @when npc.taylor.present
-  @effect attendance math 1
-  @change relationship taylor.friendship 1
-@endchoice
+  @choice "Chat with Taylor" -> .segment-2
+    @event-pool school.class.math
 
-@choice "Study hard" -> .segment-2
-  @event-pool school.class.math
-  
-  @time-until school.nextBoundaryAt
-  @effect attendance math 1
-  @change grade math 1
-@endchoice
+    @time-until school.nextBoundaryAt
+    @when npc.taylor.present
+    @effect attendance math 1
+    @change relationship taylor.friendship 1
+  @endchoice
 
-@passage segment-2
+  @choice "Study hard" -> .segment-2
+    @event-pool school.class.math
 
-Mathematics class continues into its second segment.
+    @time-until school.nextBoundaryAt
+    @effect attendance math 1
+    @change grade math 1
+  @endchoice
 
-@choice "Chat with Taylor" -> .segment-3
-  @event-pool school.class.math
-  
-  @time-until school.nextBoundaryAt
-  @when npc.taylor.present
-  @effect attendance math 1
-  @change relationship taylor.friendship 1
-@endchoice
+  @passage segment-2
 
-@choice "Study hard" -> .segment-3
-  @event-pool school.class.math
-  
-  @time-until school.nextBoundaryAt
-  @effect attendance math 1
-  @change grade math 1
-@endchoice
+  Mathematics class continues into its second segment.
 
-@passage segment-3
+  @choice "Chat with Taylor" -> .segment-3
+    @event-pool school.class.math
 
-The final segment of Mathematics class gets underway.
+    @time-until school.nextBoundaryAt
+    @when npc.taylor.present
+    @effect attendance math 1
+    @change relationship taylor.friendship 1
+  @endchoice
 
-@choice "Chat with Taylor" -> @exit
-  @event-pool school.class.math
-  
-  @time-until school.nextBoundaryAt
-  @when npc.taylor.present
-  @effect attendance math 1
-  @change relationship taylor.friendship 1
-@endchoice
+  @choice "Study hard" -> .segment-3
+    @event-pool school.class.math
 
-@choice "Study hard" -> @exit
-  @event-pool school.class.math
-  @time-until school.nextBoundaryAt
-  @effect attendance math 1
-  @change grade math 1
-@endchoice
+    @time-until school.nextBoundaryAt
+    @effect attendance math 1
+    @change grade math 1
+  @endchoice
+
+  @passage segment-3
+
+  The final segment of Mathematics class gets underway.
+
+  @choice "Chat with Taylor" -> @exit
+    @event-pool school.class.math
+
+    @time-until school.nextBoundaryAt
+    @when npc.taylor.present
+    @effect attendance math 1
+    @change relationship taylor.friendship 1
+  @endchoice
+
+  @choice "Study hard" -> @exit
+    @event-pool school.class.math
+    @time-until school.nextBoundaryAt
+    @effect attendance math 1
+    @change grade math 1
+  @endchoice
 
 :: school.class.history -> @exit
-@behavior school.class {"subject":"history"}
-@choices "Class activity"
+  @behavior school.class {"subject":"history"}
+  @choices "Class activity"
 
-@passage segment-1
+  @passage segment-1
 
-The first segment of History class begins.
+  The first segment of History class begins.
 
-@choice "Chat with Taylor" -> .segment-2
-  
-  @time-until school.nextBoundaryAt
-  @event-pool school.class.history
-  @when npc.taylor.present
-  @effect attendance history 1
-  @change relationship taylor.friendship 1
-@endchoice
+  @choice "Chat with Taylor" -> .segment-2
 
-@choice "Study hard" -> .segment-2
-  
-  @time-until school.nextBoundaryAt
-  @event-pool school.class.history
-  @effect attendance history 1
-  @change grade history 1
-@endchoice
+    @time-until school.nextBoundaryAt
+    @event-pool school.class.history
+    @when npc.taylor.present
+    @effect attendance history 1
+    @change relationship taylor.friendship 1
+  @endchoice
 
-@passage segment-2
+  @choice "Study hard" -> .segment-2
 
-History class continues into its second segment.
+    @time-until school.nextBoundaryAt
+    @event-pool school.class.history
+    @effect attendance history 1
+    @change grade history 1
+  @endchoice
 
-@choice "Chat with Taylor" -> .segment-3
-  
-  @time-until school.nextBoundaryAt
-  @event-pool school.class.history
-  @when npc.taylor.present
-  @effect attendance history 1
-  @change relationship taylor.friendship 1
-@endchoice
+  @passage segment-2
 
-@choice "Study hard" -> .segment-3
-  
-  @time-until school.nextBoundaryAt
-  @event-pool school.class.history
-  @effect attendance history 1
-  @change grade history 1
-@endchoice
+  History class continues into its second segment.
 
-@passage segment-3
+  @choice "Chat with Taylor" -> .segment-3
 
-The final segment of History class gets underway.
+    @time-until school.nextBoundaryAt
+    @event-pool school.class.history
+    @when npc.taylor.present
+    @effect attendance history 1
+    @change relationship taylor.friendship 1
+  @endchoice
 
-@choice "Chat with Taylor" -> @exit
-  
-  @time-until school.nextBoundaryAt
-  @event-pool school.class.history
-  @when npc.taylor.present
-  @effect attendance history 1
-  @change relationship taylor.friendship 1
-@endchoice
+  @choice "Study hard" -> .segment-3
 
-@choice "Study hard" -> @exit
-  
-  @time-until school.nextBoundaryAt
-  @event-pool school.class.history
-  @effect attendance history 1
-  @change grade history 1
-@endchoice
+    @time-until school.nextBoundaryAt
+    @event-pool school.class.history
+    @effect attendance history 1
+    @change grade history 1
+  @endchoice
+
+  @passage segment-3
+
+  The final segment of History class gets underway.
+
+  @choice "Chat with Taylor" -> @exit
+
+    @time-until school.nextBoundaryAt
+    @event-pool school.class.history
+    @when npc.taylor.present
+    @effect attendance history 1
+    @change relationship taylor.friendship 1
+  @endchoice
+
+  @choice "Study hard" -> @exit
+
+    @time-until school.nextBoundaryAt
+    @event-pool school.class.history
+    @effect attendance history 1
+    @change grade history 1
+  @endchoice
 
 :: school.class.science -> @exit
-@behavior school.class {"subject":"science"}
-@choices "Class activity"
+  @behavior school.class {"subject":"science"}
+  @choices "Class activity"
 
-@passage segment-1
+  @passage segment-1
 
-The first segment of Science class begins.
+  The first segment of Science class begins.
 
-@choice "Chat with Taylor" -> .segment-2
-  
-  @time-until school.nextBoundaryAt
-  @event-pool school.class.science
-  @when npc.taylor.present
-  @effect attendance science 1
-  @change relationship taylor.friendship 1
-@endchoice
+  @choice "Chat with Taylor" -> .segment-2
 
-@choice "Study hard" -> .segment-2
-  
-  @time-until school.nextBoundaryAt
-  @event-pool school.class.science
-  @effect attendance science 1
-  @change grade science 1
-@endchoice
+    @time-until school.nextBoundaryAt
+    @event-pool school.class.science
+    @when npc.taylor.present
+    @effect attendance science 1
+    @change relationship taylor.friendship 1
+  @endchoice
 
-@passage segment-2
+  @choice "Study hard" -> .segment-2
 
-Science class continues into its second segment.
+    @time-until school.nextBoundaryAt
+    @event-pool school.class.science
+    @effect attendance science 1
+    @change grade science 1
+  @endchoice
 
-@choice "Chat with Taylor" -> .segment-3
-  
-  @time-until school.nextBoundaryAt
-  @event-pool school.class.science
-  @when npc.taylor.present
-  @effect attendance science 1
-  @change relationship taylor.friendship 1
-@endchoice
+  @passage segment-2
 
-@choice "Study hard" -> .segment-3
-  
-  @time-until school.nextBoundaryAt
-  @event-pool school.class.science
-  @effect attendance science 1
-  @change grade science 1
-@endchoice
+  Science class continues into its second segment.
 
-@passage segment-3
+  @choice "Chat with Taylor" -> .segment-3
 
-The final segment of Science class gets underway.
+    @time-until school.nextBoundaryAt
+    @event-pool school.class.science
+    @when npc.taylor.present
+    @effect attendance science 1
+    @change relationship taylor.friendship 1
+  @endchoice
 
-@choice "Chat with Taylor" -> @exit
-  
-  @time-until school.nextBoundaryAt
-  @event-pool school.class.science
-  @when npc.taylor.present
-  @effect attendance science 1
-  @change relationship taylor.friendship 1
-@endchoice
+  @choice "Study hard" -> .segment-3
 
-@choice "Study hard" -> @exit
-  
-  @time-until school.nextBoundaryAt
-  @event-pool school.class.science
-  @effect attendance science 1
-  @change grade science 1
-@endchoice
+    @time-until school.nextBoundaryAt
+    @event-pool school.class.science
+    @effect attendance science 1
+    @change grade science 1
+  @endchoice
+
+  @passage segment-3
+
+  The final segment of Science class gets underway.
+
+  @choice "Chat with Taylor" -> @exit
+
+    @time-until school.nextBoundaryAt
+    @event-pool school.class.science
+    @when npc.taylor.present
+    @effect attendance science 1
+    @change relationship taylor.friendship 1
+  @endchoice
+
+  @choice "Study hard" -> @exit
+
+    @time-until school.nextBoundaryAt
+    @event-pool school.class.science
+    @effect attendance science 1
+    @change grade science 1
+  @endchoice
 
 :: school.class.art -> @exit
-@behavior school.class {"subject":"art"}
-@choices "Class activity"
+  @behavior school.class {"subject":"art"}
+  @choices "Class activity"
 
-@passage segment-1
+  @passage segment-1
 
-The first segment of Art class begins.
+  The first segment of Art class begins.
 
-@choice "Chat with Taylor" -> .segment-2
-  
-  @time-until school.nextBoundaryAt
-  @event-pool school.class.art
-  @when npc.taylor.present
-  @effect attendance art 1
-  @change relationship taylor.friendship 1
-@endchoice
+  @choice "Chat with Taylor" -> .segment-2
 
-@choice "Study hard" -> .segment-2
-  
-  @time-until school.nextBoundaryAt
-  @event-pool school.class.art
-  @effect attendance art 1
-  @change grade art 1
-@endchoice
+    @time-until school.nextBoundaryAt
+    @event-pool school.class.art
+    @when npc.taylor.present
+    @effect attendance art 1
+    @change relationship taylor.friendship 1
+  @endchoice
 
-@passage segment-2
+  @choice "Study hard" -> .segment-2
 
-Art class continues into its second segment.
+    @time-until school.nextBoundaryAt
+    @event-pool school.class.art
+    @effect attendance art 1
+    @change grade art 1
+  @endchoice
 
-@choice "Chat with Taylor" -> .segment-3
-  
-  @time-until school.nextBoundaryAt
-  @event-pool school.class.art
-  @when npc.taylor.present
-  @effect attendance art 1
-  @change relationship taylor.friendship 1
-@endchoice
+  @passage segment-2
 
-@choice "Study hard" -> .segment-3
-  
-  @time-until school.nextBoundaryAt
-  @event-pool school.class.art
-  @effect attendance art 1
-  @change grade art 1
-@endchoice
+  Art class continues into its second segment.
 
-@passage segment-3
+  @choice "Chat with Taylor" -> .segment-3
 
-The final segment of Art class gets underway.
+    @time-until school.nextBoundaryAt
+    @event-pool school.class.art
+    @when npc.taylor.present
+    @effect attendance art 1
+    @change relationship taylor.friendship 1
+  @endchoice
 
+  @choice "Study hard" -> .segment-3
 
-@choice "Chat with Taylor" -> @exit
-  
-  @time-until school.nextBoundaryAt
-  @event-pool school.class.art
-  @when npc.taylor.present
-  @effect attendance art 1
-  @change relationship taylor.friendship 1
-@endchoice
+    @time-until school.nextBoundaryAt
+    @event-pool school.class.art
+    @effect attendance art 1
+    @change grade art 1
+  @endchoice
 
-@choice "Study hard" -> @exit
-  
-  @time-until school.nextBoundaryAt
-  @event-pool school.class.art
-  @effect attendance art 1
-  @change grade art 1
-@endchoice
+  @passage segment-3
+
+  The final segment of Art class gets underway.
+
+  @choice "Chat with Taylor" -> @exit
+
+    @time-until school.nextBoundaryAt
+    @event-pool school.class.art
+    @when npc.taylor.present
+    @effect attendance art 1
+    @change relationship taylor.friendship 1
+  @endchoice
+
+  @choice "Study hard" -> @exit
+
+    @time-until school.nextBoundaryAt
+    @event-pool school.class.art
+    @effect attendance art 1
+    @change grade art 1
+  @endchoice
 
 :: school.class.physical-education -> @exit
-@behavior school.class {"subject":"physical_education"}
-@choices "Class activity"
+  @behavior school.class {"subject":"physical_education"}
+  @choices "Class activity"
 
-@passage segment-1
+  @passage segment-1
 
-The first segment of Physical Education begins.
+  The first segment of Physical Education begins.
 
+  @choice "Chat with Taylor" -> .segment-2
 
-@choice "Chat with Taylor" -> .segment-2
-  
-  @time-until school.nextBoundaryAt
-  @event-pool school.class.physical-education
-  @when npc.taylor.present
-  @effect attendance physical_education 1
-  @change relationship taylor.friendship 1
-@endchoice
+    @time-until school.nextBoundaryAt
+    @event-pool school.class.physical-education
+    @when npc.taylor.present
+    @effect attendance physical_education 1
+    @change relationship taylor.friendship 1
+  @endchoice
 
-@choice "Train hard" -> .segment-2
-  
-  @time-until school.nextBoundaryAt
-  @event-pool school.class.physical-education
-  @effect attendance physical_education 1
-  @change grade physical_education 1
-  @change skill strength 1.5
-@endchoice
+  @choice "Train hard" -> .segment-2
 
-@passage segment-2
+    @time-until school.nextBoundaryAt
+    @event-pool school.class.physical-education
+    @effect attendance physical_education 1
+    @change grade physical_education 1
+    @change skill strength 1.5
+  @endchoice
 
-Physical Education continues into its second segment.
+  @passage segment-2
 
-@choice "Chat with Taylor" -> .segment-3
-  
-  @time-until school.nextBoundaryAt
-  @event-pool school.class.physical-education
-  @when npc.taylor.present
-  @effect attendance physical_education 1
-  @change relationship taylor.friendship 1
-@endchoice
+  Physical Education continues into its second segment.
 
-@choice "Train hard" -> .segment-3
-  
-  @time-until school.nextBoundaryAt
-  @event-pool school.class.physical-education
-  @effect attendance physical_education 1
-  @change grade physical_education 1
-  @change skill strength 1.5
-@endchoice
+  @choice "Chat with Taylor" -> .segment-3
 
-@passage segment-3
+    @time-until school.nextBoundaryAt
+    @event-pool school.class.physical-education
+    @when npc.taylor.present
+    @effect attendance physical_education 1
+    @change relationship taylor.friendship 1
+  @endchoice
 
-The final segment of Physical Education gets underway.
+  @choice "Train hard" -> .segment-3
 
-@choice "Chat with Taylor" -> @exit
-  
-  @time-until school.nextBoundaryAt
-  @event-pool school.class.physical-education
-  @when npc.taylor.present
-  @effect attendance physical_education 1
-  @change relationship taylor.friendship 1
-@endchoice
+    @time-until school.nextBoundaryAt
+    @event-pool school.class.physical-education
+    @effect attendance physical_education 1
+    @change grade physical_education 1
+    @change skill strength 1.5
+  @endchoice
 
-@choice "Train hard" -> @exit
-  
-  @time-until school.nextBoundaryAt
-  @event-pool school.class.physical-education
-  @effect attendance physical_education 1
-  @change grade physical_education 1
-  @change skill strength 1.5
-@endchoice
+  @passage segment-3
+
+  The final segment of Physical Education gets underway.
+
+  @choice "Chat with Taylor" -> @exit
+
+    @time-until school.nextBoundaryAt
+    @event-pool school.class.physical-education
+    @when npc.taylor.present
+    @effect attendance physical_education 1
+    @change relationship taylor.friendship 1
+  @endchoice
+
+  @choice "Train hard" -> @exit
+
+    @time-until school.nextBoundaryAt
+    @event-pool school.class.physical-education
+    @effect attendance physical_education 1
+    @change grade physical_education 1
+    @change skill strength 1.5
+  @endchoice
 
 :: place.high-school.cafeteria
 
-@if school.phase == "lunch" or school.phase == "break"
-The cafeteria is open, and students are eating and socialising.
-@else
-The few students in the cafeteria are eating quietly. It seems kind of empty.
-@endif
+  @if school.phase == "lunch" or school.phase == "break"
+    The cafeteria is open, and students are eating and socialising.
+  @else
+    The few students in the cafeteria are eating quietly. It seems kind of empty.
+  @endif
 
-@choice "Talk with Taylor before class" -> place.high-school.cafeteria
-  
-  @time 15m
-  @when npc.taylor.present and not daily.school_before_taylor and school.phase != "class"
-  @response
-    Taylor giggles. "Have you heard that Prof. Sokolev has uploaded a mixtape on TwoYube? We should totally watch it together after class!"
-  @endresponse
-  @response
-    You spend some time chatting with Taylor before class begins. {{npc.taylor.subject}} seems to be extra cheery today.
-  @endresponse
-  @response
-    You and Taylor get a snack from the vending machine. It's a nice little break before class starts.
-  @endresponse
-  @change relationship taylor.friendship 3
-  @effect daily-flag school_before_taylor true
-@endchoice
+  @choice "Talk with Taylor before class" -> place.high-school.cafeteria
 
-@choice "Leave" -> @exit
-  @time 1m
-@endchoice
+    @time 15m
+    @when npc.taylor.present and not daily.school_before_taylor and school.phase != "class"
+    @response
+      Taylor giggles. "Have you heard that Prof. Sokolev has uploaded a mixtape on TwoYube? We should totally watch it together after class!"
+    @endresponse
+    @response
+      You spend some time chatting with Taylor before class begins. {{npc.taylor.subject}} seems to be extra cheery today.
+    @endresponse
+    @response
+      You and Taylor get a snack from the vending machine. It's a nice little break before class starts.
+    @endresponse
+    @change relationship taylor.friendship 3
+    @effect daily-flag school_before_taylor true
+  @endchoice
+
+  @choice "Leave" -> @exit
+    @time 1m
+  @endchoice
 
 :: place.high-school.english-classroom
 
-@if school.phase == "lunch" or school.phase == "break"
-The classroom is open, and students are studying and socialising.
-@elseif school.phase == "class"
-Everyone looks at you as you enter the classroom. The teacher is at the front of the room, and students are seated at their desks.
-@endif
+  @if school.phase == "lunch" or school.phase == "break"
+    The classroom is open, and students are studying and socialising.
+  @elseif school.phase == "class"
+    Everyone looks at you as you enter the classroom. The teacher is at the front of the room, and students are seated at their desks.
+  @endif
 
-@choice "Wait for class" -> school.class.english
-  
-  @time-until school.nextClassStartsAt
-  @when school.phase != "class" and school.nextClass == "english"
-@endchoice
+  @choice "Wait for class" -> school.class.english
 
-@choice "Leave" -> @exit
-  @time 1m
-@endchoice
+    @time-until school.nextClassStartsAt
+    @when school.phase != "class" and school.nextClass == "english"
+  @endchoice
+
+  @choice "Leave" -> @exit
+    @time 1m
+  @endchoice
 
 :: place.high-school.math-classroom
 
-@if school.phase == "lunch" or school.phase == "break"
-The classroom is open, and students are studying and socialising.
-@elseif school.phase == "class"
-Everyone looks at you as you enter the classroom. The teacher is at the front of the room, and students are seated at their desks.
-@else
-  There's nobody here.
-@endif
+  @if school.phase == "lunch" or school.phase == "break"
+    The classroom is open, and students are studying and socialising.
+  @elseif school.phase == "class"
+    Everyone looks at you as you enter the classroom. The teacher is at the front of the room, and students are seated at their desks.
+  @else
+    There's nobody here.
+  @endif
 
-@choice "Wait for class" -> school.class.math
-  
-  @time-until school.nextClassStartsAt
-  @when school.phase != "class" and school.nextClass == "math"
-@endchoice
+  @choice "Wait for class" -> school.class.math
 
-@choice "Leave" -> @exit
-  @time 1m
-@endchoice
+    @time-until school.nextClassStartsAt
+    @when school.phase != "class" and school.nextClass == "math"
+  @endchoice
+
+  @choice "Leave" -> @exit
+    @time 1m
+  @endchoice
 
 :: place.high-school.science-classroom
 
-@if school.phase == "lunch" or school.phase == "break"
-The classroom is open, and students are studying and socialising.
-@elseif school.phase == "class"
-Everyone looks at you as you enter the classroom. The teacher is at the front of the room, and students are seated at their desks.
-@else
-  There's nobody here.
-@endif
+  @if school.phase == "lunch" or school.phase == "break"
+    The classroom is open, and students are studying and socialising.
+  @elseif school.phase == "class"
+    Everyone looks at you as you enter the classroom. The teacher is at the front of the room, and students are seated at their desks.
+  @else
+    There's nobody here.
+  @endif
 
-@choice "Wait for class" -> school.class.science
-  
-  @time-until school.nextClassStartsAt
-  @when school.phase != "class" and school.nextClass == "science"
-@endchoice
+  @choice "Wait for class" -> school.class.science
 
-@choice "Leave" -> @exit
-  @time 1m
-@endchoice
+    @time-until school.nextClassStartsAt
+    @when school.phase != "class" and school.nextClass == "science"
+  @endchoice
+
+  @choice "Leave" -> @exit
+    @time 1m
+  @endchoice
 
 :: place.high-school.history-classroom
 
-@if school.phase == "lunch" or school.phase == "break"
-The classroom is open, and students are studying and socialising.
-@elseif school.phase == "class"
-Everyone looks at you as you enter the classroom. The teacher is at the front of the room, and students are seated at their desks.
-@else
-  There's nobody here.
-@endif
+  @if school.phase == "lunch" or school.phase == "break"
+    The classroom is open, and students are studying and socialising.
+  @elseif school.phase == "class"
+    Everyone looks at you as you enter the classroom. The teacher is at the front of the room, and students are seated at their desks.
+  @else
+    There's nobody here.
+  @endif
 
-@choice "Wait for class" -> school.class.history
-  
-  @time-until school.nextClassStartsAt
-  @when school.phase != "class" and school.nextClass == "history"
-@endchoice
+  @choice "Wait for class" -> school.class.history
 
-@choice "Leave" -> @exit
-  @time 2m
-@endchoice
+    @time-until school.nextClassStartsAt
+    @when school.phase != "class" and school.nextClass == "history"
+  @endchoice
+
+  @choice "Leave" -> @exit
+    @time 2m
+  @endchoice
 
 :: place.high-school.art-classroom
 
-@if school.phase == "lunch" or school.phase == "break"
-The classroom is open, and students are studying and socialising.
-@elseif school.phase == "class"
-Everyone looks at you as you enter the classroom. The teacher is at the front of the room, and students are seated at their desks.
-@else
-  There's nobody here.
-@endif
+  @if school.phase == "lunch" or school.phase == "break"
+    The classroom is open, and students are studying and socialising.
+  @elseif school.phase == "class"
+    Everyone looks at you as you enter the classroom. The teacher is at the front of the room, and students are seated at their desks.
+  @else
+    There's nobody here.
+  @endif
 
-@choice "Wait for class" -> school.class.art
-  
-  @time-until school.nextClassStartsAt
-  @when school.phase != "class" and school.nextClass == "art"
-@endchoice
+  @choice "Wait for class" -> school.class.art
 
-@choice "Leave" -> @exit
-  @time 2m
-@endchoice
+    @time-until school.nextClassStartsAt
+    @when school.phase != "class" and school.nextClass == "art"
+  @endchoice
+
+  @choice "Leave" -> @exit
+    @time 2m
+  @endchoice
 
 :: place.high-school.gym
 
-@if school.phase == "lunch" or school.phase == "break"
-The gym is open, and students are exercising and socialising.
-@elseif school.phase == "class"
-Everyone looks at you as you enter the gym. The teacher is at the front of the room, and students are exercising.
-@else
-  There's a lone student here practicing basketball.
-@endif
+  @if school.phase == "lunch" or school.phase == "break"
+    The gym is open, and students are exercising and socialising.
+  @elseif school.phase == "class"
+    Everyone looks at you as you enter the gym. The teacher is at the front of the room, and students are exercising.
+  @else
+    There's a lone student here practicing basketball.
+  @endif
 
-@choice "Wait for class" -> school.class.physical-education
-  
-  @time-until school.nextClassStartsAt
-  @when school.phase != "class" and school.nextClass == "physical_education"
-@endchoice
+  @choice "Wait for class" -> school.class.physical-education
 
-@choice "Leave" -> @exit
-  @time 5m
-@endchoice
+    @time-until school.nextClassStartsAt
+    @when school.phase != "class" and school.nextClass == "physical_education"
+  @endchoice
+
+  @choice "Leave" -> @exit
+    @time 5m
+  @endchoice
 
 :: place.high-school.student-council-room
 
-@if school.phase == "after-school"
-"Yes?" the student council president asks as they look up from their paperwork.
-@elseif school.phase == "class"
-Nobody answers your knock. The office is closed during class time.
-@else
-  There's nobody here.
-@endif
+  @if school.phase == "after-school"
+    "Yes?" the student council president asks as they look up from their paperwork.
+  @elseif school.phase == "class"
+    Nobody answers your knock. The office is closed during class time.
+  @else
+    There's nobody here.
+  @endif
 
-@choice "Leave" -> @exit
-  @time 5m
-@endchoice
+  @choice "Leave" -> @exit
+    @time 5m
+  @endchoice
 
 :: place.high-school.nurse-office
 
-@if npc.caro.present
-  @if school.phase == "class"
-    Nobody answers your knock. The office is closed during class time.
+  @if npc.caro.present
+    @if school.phase == "class"
+      Nobody answers your knock. The office is closed during class time.
+    @else
+      Nurse Caro looks up from {{npc.caro.dependent}} paperwork.
+    @endif
   @else
-    Nurse Caro looks up from {{npc.caro.dependent}} paperwork.
+    The office is empty. You can see the nurse's chair pushed back from the desk.
   @endif
-@else
-  The office is empty. You can see the nurse's chair pushed back from the desk.
-@endif
 
+  @choice "Ask the school nurse for a checkup" -> place.high-school.nurse-office
+    @time 2m
+    @when npc.caro.present and school.phase != "class"
+    @response
+      The nurse looks you over and takes your vitals. "Everything looks good," {{npc.caro.subject}} says, "but make sure to get enough sleep and eat well!"
+    @endresponse
+  @endchoice
 
-@choice "Ask the school nurse for a checkup" -> place.high-school.nurse-office
-  @time 2m
-  @when npc.caro.present and school.phase != "class"
-  @response
-    The nurse looks you over and takes your vitals. "Everything looks good," {{npc.caro.subject}} says, "but make sure to get enough sleep and eat well!"
-  @endresponse
-@endchoice
-
-@choice "Leave" -> @exit
-  @time 2m
-@endchoice
-
-
+  @choice "Leave" -> @exit
+    @time 2m
+  @endchoice

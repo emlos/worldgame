@@ -70,14 +70,13 @@
   @endmessage
 
   @message
-    I was trying to contact you about this, but I couldn't reach you. You can see it clearly in the lease agreement. 
+    I was trying to contact you about this, but I couldn't reach you. You can see it clearly in the lease agreement.
     You signed it when you moved in, and it states that you are responsible for paying rent from the start date.
   @endmessage
 
   @choice "So I owe you rent?" -> .rent-explanation
     @send "so i owe you rent retroactively?"
   @endchoice
-
 
   @passage rent-explanation
 

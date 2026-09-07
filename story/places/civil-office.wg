@@ -1,17 +1,16 @@
 :: place.civil-office
-@hub civil_office
+  @hub civil_office
 
-Counters, forms, and noticeboards fill {{place.name}}.
+  Counters, forms, and noticeboards fill {{place.name}}.
 
-@choicegroup ""
-@choice "Ask about the notice" -> story.rent.intro.1
-    @time 10m
-    @when flags.home_notice_read and not flags.home_notice_resolved and not flags.rent_intro_bypassed
-    @effect set flags.home_notice_resolved
-    @effect reminder clear home_rent_notice_1
-@endchoice
-@endchoicegroup
-
+  @choicegroup ""
+    @choice "Ask about the notice" -> story.rent.intro.1
+      @time 10m
+      @when flags.home_notice_read and not flags.home_notice_resolved and not flags.rent_intro_bypassed
+      @effect set flags.home_notice_resolved
+      @effect reminder clear home_rent_notice_1
+    @endchoice
+  @endchoicegroup
 
 :: story.rent.intro.1 -> @exit
   "Um, hello?" You hold the notice up to the receptionist. "I found this on my door. What is it about?"
@@ -29,12 +28,12 @@ Counters, forms, and noticeboards fill {{place.name}}.
 
   @next
 
-  Inspecting the notice, you see a phone number at the bottom. Is that your landlord? 
+  Inspecting the notice, you see a phone number at the bottom. Is that your landlord?
 
-  You add it to your contacts. 
+  You add it to your contacts.
   @br
   [info]Kim is now available in the Chats app on your phone. Select Phone and then Chats, or press C to open it directly. Opening the phone and reading messages does not advance time.[/info]
   @effect contact add "kim"
   @effect chat start kim.rent
-  
+
   @next -> @exit
