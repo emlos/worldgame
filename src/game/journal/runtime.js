@@ -26,6 +26,17 @@ function journalRecordIds(state) {
   ]);
 }
 
+function journalSourceOrdinal(definitionId) {
+  const match = /^journal-(\d+)$/.exec(definitionId);
+  if (!match) journalFail(`invalid generated journal id '${definitionId}'`);
+  return Number(match[1]);
+}
+
+export function compareJournalBacklogRecords(left, right) {
+  return left.availableAt.localeCompare(right.availableAt) ||
+    journalSourceOrdinal(left.definitionId) - journalSourceOrdinal(right.definitionId);
+}
+
 export function refreshJournalAvailability(game) {
   const known = journalRecordIds(game.journal);
   const context = createWGRuntimeContext(game);
@@ -40,9 +51,7 @@ export function refreshJournalAvailability(game) {
       known.add(definition.id);
     }
   }
-  game.journal.pending.sort((left, right) =>
-    left.availableAt.localeCompare(right.availableAt) ||
-    left.definitionId.localeCompare(right.definitionId));
+  game.journal.pending.sort(compareJournalBacklogRecords);
   return game.journal.pending;
 }
 

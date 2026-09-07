@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 
 import { PronounSets } from "../src/characters/core/pronouns.js";
 import { Game } from "../src/game/game.js";
+import { compareJournalBacklogRecords } from "../src/game/journal/runtime.js";
 import {
   buildJournalReadView,
   buildJournalWritingView,
@@ -24,6 +25,21 @@ function chooseByLabel(game, label) {
   assert.ok(choice, `expected journal choice ${JSON.stringify(label)}`);
   return game.chooseJournalOption({ ...view.token, choiceId: choice.id });
 }
+
+test("same-time journal topics retain numeric source order past nine entries", () => {
+  const availableAt = FIXED_START.toISOString();
+  const records = [10, 2, 1, 11, 3].map((ordinal) => ({
+    definitionId: `journal-${ordinal}`,
+    availableAt,
+  }));
+
+  records.sort(compareJournalBacklogRecords);
+
+  assert.deepEqual(
+    records.map((record) => record.definitionId),
+    ["journal-1", "journal-2", "journal-3", "journal-10", "journal-11"],
+  );
+});
 
 test("journal WG blocks are anonymous and receive deterministic generated ids", () => {
   const source = `
