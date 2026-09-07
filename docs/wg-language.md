@@ -141,11 +141,13 @@ Taylor seems really...
   `set flags.journal.*`. Journal flags are monotonic and cannot be unset,
   including through the `Game` flag facade. Use them only for facts the rest
   of the game should later react to.
-- Saves store the chosen path, journal locals, and frozen `@random` decisions,
-  not rendered prose. Interpolation and `@if` are evaluated against current
-  game state whenever the entry is read, so live character properties such as
-  pronouns can change old entries retroactively. Historical facts should use
-  persistent story flags if they must not change.
+- Saves store the chosen path, journal locals, and the selected branches for
+  `@if`, inline `@if`, and `@random`, not rendered prose. Structural branches
+  are frozen when their passage is entered, preserving historical facts.
+  Interpolation is evaluated against current game state whenever the entry is
+  read, so live character properties such as names and pronouns can still
+  change old entries retroactively. Choice `@when` conditions are not frozen;
+  they are evaluated from the current draft context whenever choices are shown.
 - An unfinished draft is saved and resumes from its current passage. While a
   draft is active, the writing view cannot be closed: the player must finish it
   or permanently dismiss that topic. Dismissal discards the draft, including

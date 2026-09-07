@@ -35,6 +35,7 @@ function definition(id, path) {
 function validateChoices(value, journal, path) {
   const choices = saveArray(value, path);
   let passage = journal.passages[0];
+  const visitedPassages = [passage];
   choices.forEach((choiceId, index) => {
     const choicePath = `${path}[${index}]`;
     saveString(choiceId, choicePath, { nonEmpty: true });
@@ -46,24 +47,77 @@ function validateChoices(value, journal, path) {
     const target = choice.target?.slice(1);
     passage = journal.passages.find((candidate) => candidate.id === target);
     if (!passage) failSave(choicePath, `targets unknown journal passage '${target}'`);
+    visitedPassages.push(passage);
   });
-  return passage;
+  return { finalPassage: passage, visitedPassages };
 }
 
-function validateDecisions(value, journal, path) {
+function requiredDecision(decisions, passage, node, path) {
+  const key = journalDecisionKey(passage.id, node);
+  if (!Object.hasOwn(decisions, key)) {
+    failSave(`${path}.${key}`, "is missing a required journal decision");
+  }
+  return decisions[key];
+}
+
+function requireSelectedInlineDecisions(parts, passage, decisions, path) {
+  for (const part of parts || []) {
+    if (part.type !== "inline-if") continue;
+    const decision = requiredDecision(decisions, passage, part, path);
+    const selected = decision < 0
+      ? part.elseParts || []
+      : part.branches[decision]?.parts || [];
+    requireSelectedInlineDecisions(selected, passage, decisions, path);
+  }
+}
+
+function requireSelectedDecisions(nodes, passage, decisions, path) {
+  for (const node of nodes || []) {
+    if (node.type === "if") {
+      const decision = requiredDecision(decisions, passage, node, path);
+      const selected = decision < 0
+        ? node.elseNodes || []
+        : node.branches[decision]?.nodes || [];
+      requireSelectedDecisions(selected, passage, decisions, path);
+    } else if (node.type === "random") {
+      const decision = requiredDecision(decisions, passage, node, path);
+      requireSelectedDecisions(node.variants[decision] || [], passage, decisions, path);
+    } else if (node.type === "choice-group") {
+      requireSelectedDecisions(node.nodes, passage, decisions, path);
+    } else if (node.type === "paragraph") {
+      requireSelectedInlineDecisions(node.parts, passage, decisions, path);
+    }
+  }
+}
+
+function validateDecisions(value, journal, visitedPassages, path) {
   const decisions = saveRecord(value, path);
-  const randoms = new Map();
+  const decisionNodes = new Map();
   for (const passage of journal.passages) {
-    for (const node of collectWGNodes(passage.body, (candidate) => candidate.type === "random")) {
-      randoms.set(journalDecisionKey(passage.id, node), node);
+    for (const node of collectWGNodes(
+      passage.body,
+      (candidate) => ["if", "inline-if", "random"].includes(candidate.type),
+    )) {
+      decisionNodes.set(journalDecisionKey(passage.id, node), node);
     }
   }
   for (const [key, decision] of Object.entries(decisions)) {
-    const node = randoms.get(key);
-    if (!node) failSave(`${path}.${key}`, "references an unknown journal random decision");
-    if (!Number.isInteger(decision) || decision < 0 || decision >= node.variants.length) {
-      failSave(`${path}.${key}`, "has an invalid random alternative");
+    const node = decisionNodes.get(key);
+    if (!node) failSave(`${path}.${key}`, "references an unknown journal decision");
+    if (node.type === "random") {
+      if (!Number.isInteger(decision) || decision < 0 || decision >= node.variants.length) {
+        failSave(`${path}.${key}`, "has an invalid random alternative");
+      }
+    } else if (
+      !Number.isInteger(decision) ||
+      decision < -1 ||
+      decision >= (node.branches || []).length
+    ) {
+      failSave(`${path}.${key}`, "has an invalid conditional branch");
     }
+  }
+  for (const passage of visitedPassages) {
+    requireSelectedDecisions(passage.body, passage, decisions, path);
   }
 }
 
@@ -117,13 +171,17 @@ function validateDraft(recordData, path, gameTime) {
   const availableAt = isoDate(record.availableAt, `${path}.availableAt`, gameTime);
   const startedAt = isoDate(record.startedAt, `${path}.startedAt`, gameTime);
   if (startedAt < availableAt) failSave(`${path}.startedAt`, "cannot precede journal availability");
-  const current = validateChoices(record.choices, journal, `${path}.choices`);
-  if (current.body.at(-1)?.type === "finish") {
+  const { finalPassage, visitedPassages } = validateChoices(
+    record.choices,
+    journal,
+    `${path}.choices`,
+  );
+  if (finalPassage.body.at(-1)?.type === "finish") {
     failSave(`${path}.choices`, "already reaches a completed journal passage");
   }
   validateJsonValue(record.locals, `${path}.locals`);
   saveRecord(record.locals, `${path}.locals`);
-  validateDecisions(record.decisions, journal, `${path}.decisions`);
+  validateDecisions(record.decisions, journal, visitedPassages, `${path}.decisions`);
   validateDeferredFlags(record.deferredFlags, journal, `${path}.deferredFlags`);
   return id;
 }
@@ -140,13 +198,17 @@ function validateEntry(recordData, path, gameTime) {
   const availableAt = isoDate(record.availableAt, `${path}.availableAt`, gameTime);
   const writtenAt = isoDate(record.writtenAt, `${path}.writtenAt`, gameTime);
   if (writtenAt < availableAt) failSave(`${path}.writtenAt`, "cannot precede journal availability");
-  const finalPassage = validateChoices(record.choices, journal, `${path}.choices`);
+  const { finalPassage, visitedPassages } = validateChoices(
+    record.choices,
+    journal,
+    `${path}.choices`,
+  );
   if (finalPassage.body.at(-1)?.type !== "finish") {
     failSave(`${path}.choices`, "does not reach a completed journal passage");
   }
   validateJsonValue(record.locals, `${path}.locals`);
   saveRecord(record.locals, `${path}.locals`);
-  validateDecisions(record.decisions, journal, `${path}.decisions`);
+  validateDecisions(record.decisions, journal, visitedPassages, `${path}.decisions`);
   return id;
 }
 

@@ -137,3 +137,4 @@ fix:
 - diary menu button in the sidebar should only appear after the first entry is made
 - when searchig for place name in current play.html game "high school" yields no results, same with school. upgrade search alg slightly
 - integrate the diary directly into the scene, not as a pop up. @system diary?
+- random chocies for @time n..m should only consume their randomness when used/rll once and persist until used - ex: repeatedly entering and exiting of the player shome rerolls the unpacking time.

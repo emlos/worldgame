@@ -62,28 +62,47 @@ export function canWriteJournal(game) {
     Number(game.story?.home?.unpack || 0) >= 5;
 }
 
-function journalDecisionSession(game, record, passage, { recordRandom = false } = {}) {
+function journalDecisionSession(game, record, passage, { recordDecisions = false } = {}) {
   const context = () => createWGRuntimeContext(game, {
     locals: record.locals,
     additionalFlags: record.deferredFlags || [],
   });
   return {
     decision(node) {
-      if (node.type === "if" || node.type === "inline-if") {
-        return (node.branches || []).findIndex((branch) =>
-          Boolean(evaluateWGExpression(branch.test, context())));
-      }
-      if (node.type !== "random") journalFail(`unsupported decision node '${node.type}'`);
       const key = journalDecisionKey(passage.id, node);
       if (Object.hasOwn(record.decisions, key)) return record.decisions[key];
-      const value = Math.floor(keyedRandom01(
-        game.seed,
-        ["journal", record.definitionId, record.availableAt, key].join(":"),
-      ) * node.variants.length);
-      if (recordRandom) record.decisions[key] = value;
+      if (!recordDecisions) {
+        journalFail(`saved record is missing structural decision '${key}'`);
+      }
+
+      let value;
+      if (node.type === "if" || node.type === "inline-if") {
+        value = (node.branches || []).findIndex((branch) =>
+          Boolean(evaluateWGExpression(branch.test, context())));
+      } else if (node.type === "random") {
+        value = Math.floor(keyedRandom01(
+          game.seed,
+          ["journal", record.definitionId, record.availableAt, key].join(":"),
+        ) * node.variants.length);
+      } else {
+        journalFail(`unsupported decision node '${node.type}'`);
+      }
+
+      record.decisions[key] = value;
       return value;
     },
   };
+}
+
+function captureSelectedInlineDecisions(parts, session) {
+  for (const part of parts || []) {
+    if (part.type !== "inline-if") continue;
+    const decision = session.decision(part);
+    const selected = decision < 0
+      ? part.elseParts || []
+      : part.branches[decision]?.parts || [];
+    captureSelectedInlineDecisions(selected, session);
+  }
 }
 
 function applyJournalEffects(game, draft, effects) {
@@ -129,8 +148,11 @@ export function selectedJournalNodes(nodes, session) {
 function enterDraftPassage(game, draft) {
   const definition = journalDefinition(draft.definitionId);
   const passage = currentDraftPassage(draft);
-  const session = journalDecisionSession(game, draft, passage, { recordRandom: true });
+  const session = journalDecisionSession(game, draft, passage, { recordDecisions: true });
   for (const node of selectedJournalNodes(passage.body, session)) {
+    if (node.type === "paragraph") {
+      captureSelectedInlineDecisions(node.parts, session);
+    }
     if (node.type === "effect") {
       applyJournalEffects(game, draft, [node.effect]);
     }
@@ -182,7 +204,7 @@ export function startJournalDraft(game, definitionId) {
 
 function selectedChoice(game, draft, choiceId) {
   const passage = currentDraftPassage(draft);
-  const session = journalDecisionSession(game, draft, passage, { recordRandom: true });
+  const session = journalDecisionSession(game, draft, passage, { recordDecisions: true });
   return selectedJournalNodes(passage.body, session)
     .find((node) => node.type === "choice" && node.id === choiceId) || null;
 }
@@ -195,7 +217,7 @@ export function availableJournalChoices(game) {
     locals: draft.locals,
     additionalFlags: draft.deferredFlags,
   });
-  const session = journalDecisionSession(game, draft, passage, { recordRandom: true });
+  const session = journalDecisionSession(game, draft, passage, { recordDecisions: true });
   return selectedJournalNodes(passage.body, session)
     .filter((node) => node.type === "choice")
     .filter((choice) => !choice.when || evaluateWGExpression(choice.when, context))
@@ -210,7 +232,7 @@ export function availableJournalChoices(game) {
 function finishDraftIfNeeded(game) {
   const draft = game.journal.draft;
   const passage = currentDraftPassage(draft);
-  const session = journalDecisionSession(game, draft, passage, { recordRandom: true });
+  const session = journalDecisionSession(game, draft, passage, { recordDecisions: true });
   const selected = selectedJournalNodes(passage.body, session);
   const finished = selected.at(-1)?.type === "finish";
   if (!finished) return false;
@@ -274,5 +296,5 @@ export function resumeJournalDraft(game) {
 }
 
 export function journalSessionForRender(game, record, passage) {
-  return journalDecisionSession(game, record, passage, { recordRandom: false });
+  return journalDecisionSession(game, record, passage, { recordDecisions: false });
 }

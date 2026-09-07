@@ -3,10 +3,12 @@ import assert from "node:assert/strict";
 
 import { PronounSets } from "../src/characters/core/pronouns.js";
 import { Game } from "../src/game/game.js";
+import { WG_BUNDLE } from "../src/story/wg/generated/scenes.js";
 import { compareJournalBacklogRecords } from "../src/game/journal/runtime.js";
 import {
   buildJournalReadView,
   buildJournalWritingView,
+  renderJournalRecord,
 } from "../src/game/journal/view.js";
 import { journalDecisionKey } from "../src/game/journal/decisionKey.js";
 import { journalSessionForRender } from "../src/game/journal/runtime.js";
@@ -293,6 +295,86 @@ test("journal prose resolves live character pronouns when an old entry is reread
   const after = buildJournalReadView(game).pages[0].entries[0].paragraphs.join(" ");
   assert.match(after, /He has this way/);
   assert.doesNotMatch(after, /She has this way/);
+});
+
+test("journal conditionals freeze while interpolation remains live", () => {
+  const source = `
+@journal "How did the morning go?"
+@passage start
+@if flags.arrived_early
+I arrived early and it felt {{@if flags.felt_confident}}easy{{@else}}awkward{{@endif}}. {{npc.taylor.subject | cap}} noticed.
+@else
+I arrived late. {{npc.taylor.subject | cap}} noticed.
+@endif
+@choice "Finish" -> .done
+@endchoice
+@passage done
+That is how I remember it.
+@finish
+@endjournal
+`;
+  const compiled = compileStorySources([{ file: "story/frozen-journal.wg", source }]);
+  const definition = compiled.journals["journal-1"];
+  const definitionId = "journal-999";
+  definition.id = definitionId;
+  WG_BUNDLE.journals[definitionId] = definition;
+
+  try {
+    const game = writableGame();
+    game.setFlag("arrived_early");
+    game.setFlag("felt_confident");
+    game.journal.pending.push({
+      definitionId,
+      availableAt: game.now.toISOString(),
+    });
+
+    game.startJournalDraft(definitionId);
+    assert.deepEqual(game.journal.draft.decisions, {
+      "start:if:0": 0,
+      "start:inline-if:1": 0,
+    });
+
+    game.clearFlag("arrived_early");
+    game.clearFlag("felt_confident");
+    game.npcs.get("taylor").pronouns = PronounSets.HE_HIM;
+
+    const draftText = buildJournalWritingView(game).draft.paragraphs.join(" ");
+    assert.match(draftText, /arrived early and it felt easy/);
+    assert.match(draftText, /He noticed/);
+    assert.doesNotMatch(draftText, /arrived late|felt awkward/);
+
+    chooseByLabel(game, "Finish");
+    const entry = game.journal.entries[0];
+    const entryText = renderJournalRecord(game, entry).paragraphs.join(" ");
+    assert.match(entryText, /arrived early and it felt easy/);
+    assert.match(entryText, /He noticed/);
+
+    const serialized = JSON.stringify(game.toJSON());
+    assert.doesNotMatch(serialized, /I arrived early|That is how I remember it/);
+
+    const missingDecision = structuredClone(entry);
+    delete missingDecision.decisions["start:if:0"];
+    assert.throws(
+      () => renderJournalRecord(game, missingDecision),
+      /missing structural decision 'start:if:0'/,
+    );
+
+    const missingDecisionSave = JSON.parse(serialized);
+    delete missingDecisionSave.journal.entries[0].decisions["start:if:0"];
+    assert.throws(
+      () => Game.fromJSON(missingDecisionSave),
+      /is missing a required journal decision/,
+    );
+
+    const invalidSave = JSON.parse(serialized);
+    invalidSave.journal.entries[0].decisions["start:inline-if:1"] = 2;
+    assert.throws(
+      () => Game.fromJSON(invalidSave),
+      /has an invalid conditional branch/,
+    );
+  } finally {
+    delete WG_BUNDLE.journals[definitionId];
+  }
 });
 
 test("journal random decisions are scoped to their passage", () => {
