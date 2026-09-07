@@ -6,7 +6,10 @@ import { Game } from "../src/game/game.js";
 import { performChoice } from "../src/game/scene/choiceEngine.js";
 import { buildScene } from "../src/game/scene/sceneEngine.js";
 import { WG_BUNDLE } from "../src/story/wg/generated/scenes.js";
-import { compareJournalBacklogRecords } from "../src/game/journal/runtime.js";
+import {
+  canReadJournal,
+  compareJournalBacklogRecords,
+} from "../src/game/journal/runtime.js";
 import {
   buildJournalReadView,
   buildJournalWritingView,
@@ -249,6 +252,7 @@ test("journal writing is a normal system scene that can preserve a draft on exit
 
 test("journal availability latches and completed entries save decisions instead of prose", () => {
   const game = writableGame();
+  assert.equal(canReadJournal(game), false);
   game.runAction({
     label: "get cafe job",
     apply(currentGame) {
@@ -266,6 +270,10 @@ test("journal availability latches and completed entries save decisions instead 
   assert.equal(result.finished, true);
   assert.equal(game.journal.draft, null);
   assert.equal(game.journal.entries.length, 1);
+  assert.equal(canReadJournal(game), true);
+  game.story.home.unpack = 4;
+  assert.equal(canReadJournal(game), false);
+  game.story.home.unpack = 5;
   assert.ok(Object.keys(game.journal.entries[0].decisions).length > 0);
 
   const beforeReload = buildJournalReadView(game).pages[0].entries[0].paragraphs.join(" ");
@@ -275,6 +283,7 @@ test("journal availability latches and completed entries save decisions instead 
 
   const saved = JSON.parse(serialized);
   const restored = Game.fromJSON(saved);
+  assert.equal(canReadJournal(restored), true);
   assert.deepEqual(JSON.parse(JSON.stringify(restored.toJSON())), saved);
   const afterReload = buildJournalReadView(restored).pages[0].entries[0].paragraphs.join(" ");
   assert.equal(afterReload, beforeReload);

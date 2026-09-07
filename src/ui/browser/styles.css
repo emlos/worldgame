@@ -221,6 +221,10 @@ body {
   text-align: left;
 }
 
+.player-menu-button[hidden] {
+  display: none;
+}
+
 .player-menu-icon {
   width: 32px;
   height: 32px;

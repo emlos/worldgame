@@ -56,10 +56,18 @@ export function refreshJournalAvailability(game) {
   return game.journal.pending;
 }
 
+export function isJournalUnlocked(game) {
+  return Number(game.story?.home?.unpack || 0) >= 5;
+}
+
+export function canReadJournal(game) {
+  return isJournalUnlocked(game) && game.journal.entries.length > 0;
+}
+
 export function canWriteJournal(game) {
   return game.currentLocationId === game.homeLocationId &&
     game.currentPlaceId === game.homePlaceId &&
-    Number(game.story?.home?.unpack || 0) >= 5;
+    isJournalUnlocked(game);
 }
 
 function journalDecisionSession(game, record, passage, { recordDecisions = false } = {}) {

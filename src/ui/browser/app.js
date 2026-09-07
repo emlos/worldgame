@@ -7,6 +7,7 @@ import {
 import { buildScene } from "../../game/scene/sceneEngine.js";
 import { performChoice } from "../../game/scene/choiceEngine.js";
 import { buildJournalReadView } from "../../game/journal/view.js";
+import { canReadJournal } from "../../game/journal/runtime.js";
 import {
   resolveWGAutomaticScene,
   WG_AUTO_TRIGGER,
@@ -158,6 +159,7 @@ function formatStatValue(value) {
 }
 
 function renderPlayerPanel() {
+  playerDiaryButton.hidden = !canReadJournal(game);
   playerMoneyElement.textContent = moneyFormatter.format(game.player.money);
   playerTemperatureElement.textContent = formatPlayerTemperature(
     game.player.temperature,
@@ -1029,6 +1031,7 @@ function showPhoneStatsScreen() {
 function renderPhoneHotkeys() {
   const sections = new Map();
   for (const hotkey of MENU_HOTKEYS) {
+    if (!menuActionAvailable(hotkey.id)) continue;
     if (!sections.has(hotkey.group)) {
       const section = document.createElement("section");
       section.className = "phone-hotkey-section";
@@ -1184,6 +1187,10 @@ const menuActions = {
   settings: () => openPhone(showPhoneSettingsScreen),
 };
 
+function menuActionAvailable(id) {
+  return id !== "diary" || canReadJournal(game);
+}
+
 const hotkeyButtons = {
   chats: phoneChatsButton,
   phone: playerPhoneButton,
@@ -1215,7 +1222,7 @@ window.addEventListener("keydown", (event) => {
   if (!action) return;
   event.preventDefault();
   if (action.type === "choice") choiceButtons[action.index].click();
-  else if (action.type === "menu") menuActions[action.id]();
+  else if (action.type === "menu" && menuActionAvailable(action.id)) menuActions[action.id]();
   else if (action.type === "phone-home") { if (!chatsUI.back()) showPhoneHomeScreen(); }
   else if (action.type === "close-dialog") dialog.close();
 });
@@ -1229,6 +1236,7 @@ restartButton.addEventListener("click", () => {
 });
 
 playerDiaryButton.addEventListener("click", () => {
+  if (!canReadJournal(game)) return;
   journalPageIndex = Math.max(0, buildJournalReadView(game).pages.length - 1);
   openPlayerDiary();
 });
