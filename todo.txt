@@ -82,6 +82,7 @@ game systems:
         thu		x				x			x					x		
         fri		x		x					x		x					
         -> consideration: how does that affetc journal flags and class duration/start-end times?
+        -> rework or remove the "completed every class" journal topic when this timetable is implemented; attendance must be checked against only the periods scheduled for that day
 
     npcs:
     - pathfinding: allow bus/car travel for select npcs + travel preferences
