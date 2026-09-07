@@ -14,6 +14,7 @@ $syntaxDestination = Join-Path $destination "syntaxes"
 New-Item -ItemType Directory -Path $syntaxDestination -Force | Out-Null
 Copy-Item -LiteralPath (Join-Path $extensionRoot "package.json") -Destination $destination -Force
 Copy-Item -LiteralPath (Join-Path $extensionRoot "language-configuration.json") -Destination $destination -Force
+Copy-Item -LiteralPath (Join-Path $extensionRoot "extension.js") -Destination $destination -Force
 Copy-Item -LiteralPath (Join-Path $extensionRoot "syntaxes\wg.tmLanguage.json") -Destination $syntaxDestination -Force
 
 Write-Host "Installed $($manifest.displayName) $($manifest.version) to:"

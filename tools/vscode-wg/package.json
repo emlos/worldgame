@@ -2,12 +2,14 @@
   "name": "worldgame-wg-language",
   "displayName": "Worldgame WG Language",
   "description": "Private VS Code language support for Worldgame .wg story files.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "publisher": "worldgame-local",
   "private": true,
   "license": "UNLICENSED",
   "engines": { "vscode": ">=1.85.0" },
   "categories": ["Programming Languages"],
+  "main": "./extension.js",
+  "activationEvents": ["onLanguage:wg"],
   "contributes": {
     "languages": [
       {

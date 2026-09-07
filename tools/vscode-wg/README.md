@@ -2,7 +2,10 @@
 
 This zero-build extension associates `*.wg` files with the Worldgame WG
 language and provides syntax highlighting, comments, indentation, bracket
-pairing, and block folding.
+pairing, block folding, scene-target navigation, and scene ID completion.
+Ctrl+click a global scene target after `->` to jump to its `:: scene.id`
+declaration. Scene completion is available for global targets across all
+`*.wg` files in the open workspace.
 
 The TextMate grammar and language configuration are generated from
 `src/story/wg/shared/language.js`. Regenerate them with
