@@ -134,3 +134,4 @@ other:
 fix:
 - warning should appear in the home hub AFTER the opening scene
 - kim should appear the day AFTER the move in day (sep. 1st) at 4pm
+- diary menu button in the sidebar should only appear after the first entry is made

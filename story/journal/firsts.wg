@@ -3,6 +3,13 @@
 
 @passage start
 
+@choice "Taylor" -> .taylor
+  @when npc.taylor.relationship.friendship != 0
+  @effect set local.school_person "taylor"
+@endchoice
+
+@passage taylor
+
 There's this person at school, Taylor, who seems really...
 
 @choice "interesting" -> .interesting

@@ -123,6 +123,9 @@ test("journal prose resolves live character pronouns when an old entry is reread
   game.refreshJournalAvailability();
 
   game.startJournalDraft("journal-1");
+  const personView = buildJournalWritingView(game);
+  assert.deepEqual(personView.choices.map((choice) => choice.label), ["Taylor"]);
+  chooseByLabel(game, "Taylor");
   chooseByLabel(game, "interesting");
   chooseByLabel(game, "get to know Taylor better");
 
