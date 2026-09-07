@@ -425,5 +425,6 @@ export function materializeWGSystem(game, definition) {
     map: rendered.map ?? null,
     content: rendered.content ?? [],
     sections: rendered.sections ?? [],
+    presentation: rendered.presentation ?? null,
   });
 }

@@ -174,29 +174,42 @@ export function currentDraftPassage(draft) {
   return passage;
 }
 
-export function startJournalDraft(game, definitionId) {
+function prepareJournalDraftStart(game, definitionId) {
   if (!canWriteJournal(game)) journalFail("journal writing is only available at your desk at home");
   if (game.journal.draft) journalFail("finish the current journal entry first");
   const pendingIndex = game.journal.pending.findIndex(
     (record) => record.definitionId === definitionId,
   );
   if (pendingIndex < 0) journalFail("that journal topic is no longer available");
+  return pendingIndex;
+}
 
+function applyJournalDraftStart(game, definitionId, pendingIndex) {
+  const pending = game.journal.pending.splice(pendingIndex, 1)[0];
+  game.journal.draft = {
+    definitionId,
+    availableAt: pending.availableAt,
+    startedAt: game.now.toISOString(),
+    choices: [],
+    locals: {},
+    decisions: {},
+    deferredFlags: [],
+  };
+  enterDraftPassage(game, game.journal.draft);
+  finishDraftIfNeeded(game);
+  return game.journal.draft;
+}
+
+export function startJournalDraftWithinAction(game, definitionId) {
+  return applyJournalDraftStart(game, definitionId, prepareJournalDraftStart(game, definitionId));
+}
+
+export function startJournalDraft(game, definitionId) {
+  const pendingIndex = prepareJournalDraftStart(game, definitionId);
   game.runAction({
     label: `journal:${definitionId}:start`,
     apply() {
-      const pending = game.journal.pending.splice(pendingIndex, 1)[0];
-      game.journal.draft = {
-        definitionId,
-        availableAt: pending.availableAt,
-        startedAt: game.now.toISOString(),
-        choices: [],
-        locals: {},
-        decisions: {},
-        deferredFlags: [],
-      };
-      enterDraftPassage(game, game.journal.draft);
-      finishDraftIfNeeded(game);
+      applyJournalDraftStart(game, definitionId, pendingIndex);
     },
   });
   return game.journal.draft;
@@ -249,7 +262,7 @@ function finishDraftIfNeeded(game) {
   return true;
 }
 
-export function chooseJournalOption(game, { definitionId, revision, choiceId }) {
+function prepareJournalChoice(game, { definitionId, revision, choiceId }) {
   if (!canWriteJournal(game)) journalFail("journal writing is only available at your desk at home");
   const draft = game.journal.draft;
   if (!draft || draft.definitionId !== definitionId || draft.choices.length !== revision) {
@@ -261,32 +274,61 @@ export function chooseJournalOption(game, { definitionId, revision, choiceId }) 
   }
   const choice = selectedChoice(game, draft, choiceId);
   if (!choice) journalFail("this journal choice is not available");
+  return { draft, choice };
+}
 
-  game.runAction({
-    label: `journal:${definitionId}:${choiceId}`,
-    apply() {
-      applyJournalEffects(game, draft, choice.effects || []);
-      draft.choices.push(choice.id);
-      enterDraftPassage(game, draft);
-      finishDraftIfNeeded(game);
-    },
-  });
+function applyJournalChoice(game, draft, choice) {
+  applyJournalEffects(game, draft, choice.effects || []);
+  draft.choices.push(choice.id);
+  enterDraftPassage(game, draft);
+  finishDraftIfNeeded(game);
   return { finished: game.journal.draft === null };
 }
 
-export function dismissJournalDraft(game) {
+export function chooseJournalOptionWithinAction(game, request) {
+  const { draft, choice } = prepareJournalChoice(game, request);
+  return applyJournalChoice(game, draft, choice);
+}
+
+export function chooseJournalOption(game, request) {
+  const { draft, choice } = prepareJournalChoice(game, request);
+  let result;
+  game.runAction({
+    label: `journal:${request.definitionId}:${request.choiceId}`,
+    apply() {
+      result = applyJournalChoice(game, draft, choice);
+    },
+  });
+  return result;
+}
+
+function prepareJournalDraftDismissal(game) {
   if (!canWriteJournal(game)) journalFail("journal writing is only available at your desk at home");
   const draft = game.journal.draft;
   if (!draft) journalFail("there is no journal draft to dismiss");
+  return draft;
+}
 
+function applyJournalDraftDismissal(game, draft) {
+  game.journal.dismissed.push(draft.definitionId);
+  game.journal.draft = null;
+  return draft.definitionId;
+}
+
+export function dismissJournalDraftWithinAction(game) {
+  return applyJournalDraftDismissal(game, prepareJournalDraftDismissal(game));
+}
+
+export function dismissJournalDraft(game) {
+  const draft = prepareJournalDraftDismissal(game);
+  let dismissedId;
   game.runAction({
     label: `journal:${draft.definitionId}:dismiss`,
     apply() {
-      game.journal.dismissed.push(draft.definitionId);
-      game.journal.draft = null;
+      dismissedId = applyJournalDraftDismissal(game, draft);
     },
   });
-  return draft.definitionId;
+  return dismissedId;
 }
 
 export function resumeJournalDraft(game) {

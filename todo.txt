@@ -100,10 +100,9 @@ game systems:
      little table banner at the top of cinema hub
 
     - theres catacombs under the city, multiple locations, with a randomly generated maze [maze changed every two weeks? supernatural reasons]
-
-    - diary system:
-        major events can add/update diary passages, for vertical slice: meeting taylor for the first time, being forced to pay overdue rent, first job [at cafe for now, when cinema implemented then that.]
-
+    
+    - computer -> livestreaming system, with procedurally generated chat window [non save persistent/scene local]
+        buy computer from the shopping mall
     
 content:
 - add events/interactions/utility on all unlocked places
@@ -115,15 +114,6 @@ content:
 - progression: theres strange receptacles the player can activate throughout various locations, some easy to access some hard (like in the catacomb maze, appearing after an all night movie marathon, hidden in a statue at the graveyard etc)
     reward the player with lore/unlocking extra locations/amenities/abilities -> reason to explorer
     first receptacle in player home?
-
-- unpacking action at home: stages, story.home.unpack == 0 at start, picking this choice takes 30 minutes plays one of three short scenes based on current unpack stage
-    unpack 2 gives access to shower/teeth/hygiene options
-    unpack 5 gives access to the clothes/table to use the journal
-    unpack 10 increases comfort/energy gained from sleeping in bed
-    unpack 15 allows the player to ivite npcs back to their home (placeholder option)
-    unpack 20 finishes the unpacking and uncovers the first mysterious receptacle. flag.quest.receptacle-start == true
-
-    each unpacking milestone should slightly change the home flavor text
 
 
 design [important]:
@@ -146,5 +136,4 @@ fix:
 - kim should appear the day AFTER the move in day (sep. 1st) at 4pm
 - diary menu button in the sidebar should only appear after the first entry is made
 - when searchig for place name in current play.html game "high school" yields no results, same with school. upgrade search alg slightly
-- integrate the diary directly into the scene, not as a pop up. @system diary?
 - random chocies for @time n..m should only consume their randomness when used/rll once and persist until used - ex: repeatedly entering and exiting of the player shome rerolls the unpacking time.

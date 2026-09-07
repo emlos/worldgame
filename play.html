@@ -221,6 +221,7 @@
       id="player-diary-dialog"
       class="dialog diary-dialog journal-dialog"
       aria-labelledby="player-diary-dialog-heading"
+      data-mode="read"
     >
       <div class="dialog-content journal-dialog-content">
         <header class="dialog-header journal-dialog-header">
@@ -234,13 +235,6 @@
           </div>
         </header>
         <div class="journal-book" aria-live="polite">
-          <section id="journal-write-panel" class="journal-page journal-page--choices" aria-label="Journal writing choices">
-            <p id="journal-write-intro" class="journal-write-intro"></p>
-            <div id="journal-write-choices" class="journal-write-choices"></div>
-            <button id="journal-stop-writing" class="journal-stop-writing" type="button">
-              actually, nothing comes to mind right now
-            </button>
-          </section>
           <section id="player-diary-content" class="journal-page journal-page--prose diary-content" aria-label="Diary page"></section>
         </div>
       </div>

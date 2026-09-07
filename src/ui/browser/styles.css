@@ -1831,6 +1831,16 @@ p {
   box-shadow: 0 18px 50px rgba(0, 0, 0, 0.32);
 }
 
+.journal-scene-date {
+  margin: 0 0 12px;
+  color: #9fa9b5;
+  font-size: 0.9rem;
+}
+
+.journal-scene-book {
+  min-height: 520px;
+}
+
 .journal-dialog[data-mode="read"] .journal-book {
   grid-template-columns: minmax(0, 1fr);
   width: min(700px, 100%);
@@ -1912,6 +1922,15 @@ p {
   padding-top: 14px;
 }
 
+.journal-scene-actions {
+  align-self: end;
+  display: grid;
+}
+
+.journal-scene-exit {
+  margin-top: 20px;
+}
+
 .journal-entry {
   margin-bottom: 28px;
 }
@@ -1942,6 +1961,10 @@ p {
 
   .journal-book {
     grid-template-columns: 1fr;
+  }
+
+  .journal-scene-book {
+    min-height: 0;
   }
 
   .journal-page--choices {

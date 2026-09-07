@@ -6,11 +6,7 @@ import {
 } from "../../game/debugCommands.js";
 import { buildScene } from "../../game/scene/sceneEngine.js";
 import { performChoice } from "../../game/scene/choiceEngine.js";
-import { SCENE_ACTION_TYPE } from "../../game/scene/actions.js";
-import {
-  buildJournalReadView,
-  buildJournalWritingView,
-} from "../../game/journal/view.js";
+import { buildJournalReadView } from "../../game/journal/view.js";
 import {
   resolveWGAutomaticScene,
   WG_AUTO_TRIGGER,
@@ -54,10 +50,6 @@ const playerDiaryButton = document.querySelector("#player-diary-btn");
 const playerDiaryDialog = document.querySelector("#player-diary-dialog");
 const playerDiaryDate = document.querySelector("#player-diary-date");
 const playerDiaryContent = document.querySelector("#player-diary-content");
-const journalWritePanel = document.querySelector("#journal-write-panel");
-const journalWriteIntro = document.querySelector("#journal-write-intro");
-const journalWriteChoices = document.querySelector("#journal-write-choices");
-const journalStopWritingButton = document.querySelector("#journal-stop-writing");
 const journalPrevPageButton = document.querySelector("#journal-prev-page");
 const journalNextPageButton = document.querySelector("#journal-next-page");
 const playerPlannerButton = document.querySelector("#player-planner-btn");
@@ -128,9 +120,7 @@ let currentScene = null;
 let currentSceneVisualElement = null;
 let choiceButtons = [];
 let choiceButtonsById = new Map();
-let journalDialogMode = "read";
 let journalPageIndex = 0;
-let exitingJournalWritingScene = false;
 
 function createGame() {
   const newGame = new Game({
@@ -393,11 +383,91 @@ function makeJournalEntryElement(entry) {
   return article;
 }
 
+function makeEmbeddedJournalChoice(scene, choice, number, className) {
+  const button = makeChoiceButton(scene.id, choice, number);
+  button.className = className;
+  button.querySelector(".choice-icon")?.remove();
+  button.querySelector(".choice-details")?.remove();
+  const label = button.querySelector(".choice-label");
+  if (label) label.textContent = choice.label;
+  if (!choice.enabled && choice.disabledReason) button.title = choice.disabledReason;
+  choiceButtons.push(button);
+  return button;
+}
+
+function renderEmbeddedJournal(scene) {
+  const view = scene.presentation;
+  const writing = scene.sections.find((section) => section.id === "journal-writing");
+  const actions = scene.sections.find((section) => section.id === "journal-actions");
+  if (!writing || !actions) throw new Error("Journal scene is missing its choices");
+  const exitChoice = actions.choices.find((choice) => choice.id === "journal-exit");
+  if (!exitChoice) throw new Error("Journal scene is missing its exit choice");
+
+  const book = document.createElement("div");
+  book.className = "journal-book journal-scene-book";
+  book.setAttribute("aria-live", "polite");
+
+  const choicePage = document.createElement("section");
+  choicePage.className = "journal-page journal-page--choices";
+  choicePage.setAttribute("aria-label", "Journal writing choices");
+  const intro = document.createElement("p");
+  intro.className = "journal-write-intro";
+  intro.textContent = view.intro;
+  const writingChoices = document.createElement("div");
+  writingChoices.className = "journal-write-choices";
+
+  let choiceNumber = 1;
+  writingChoices.append(...writing.choices.map((choice) =>
+    makeEmbeddedJournalChoice(
+      scene,
+      choice,
+      choiceNumber++,
+      "journal-write-choice",
+    )));
+  const actionChoices = document.createElement("div");
+  actionChoices.className = "journal-scene-actions";
+  actionChoices.append(...actions.choices
+    .filter((choice) => choice.id !== exitChoice.id)
+    .map((choice) =>
+    makeEmbeddedJournalChoice(
+      scene,
+      choice,
+      choiceNumber++,
+      "journal-stop-writing",
+    )));
+  choicePage.append(intro, writingChoices, actionChoices);
+
+  const prosePage = document.createElement("section");
+  prosePage.className = "journal-page journal-page--prose diary-content";
+  prosePage.setAttribute("aria-label", "Diary page");
+  const date = document.createElement("p");
+  date.className = "journal-scene-date";
+  date.textContent = diaryDateFormatter.format(new Date(view.date));
+  prosePage.append(date);
+  const entries = [...view.entries];
+  if (view.draft) entries.push(view.draft);
+  if (entries.length) {
+    prosePage.append(...entries.map(makeJournalEntryElement));
+  } else {
+    const blank = document.createElement("p");
+    blank.className = "journal-empty-page";
+    blank.textContent = "Pick something from the left page to begin writing.";
+    prosePage.append(blank);
+  }
+
+  book.append(choicePage, prosePage);
+  const exitButton = makeEmbeddedJournalChoice(
+    scene,
+    exitChoice,
+    choiceNumber,
+    "journal-write-choice journal-scene-exit",
+  );
+  sceneElement.append(book, exitButton);
+}
+
 function renderJournalReadPage() {
   const view = buildJournalReadView(game);
-  journalDialogMode = "read";
   playerDiaryDialog.dataset.mode = "read";
-  journalWritePanel.hidden = true;
   journalPrevPageButton.hidden = false;
   journalNextPageButton.hidden = false;
 
@@ -423,109 +493,9 @@ function renderJournalReadPage() {
   journalNextPageButton.disabled = journalPageIndex >= view.pages.length - 1;
 }
 
-function makeJournalWritingChoice(label, onClick, disabledReason = null) {
-  const button = document.createElement("button");
-  button.type = "button";
-  button.className = "journal-write-choice";
-  button.textContent = label;
-  button.disabled = Boolean(disabledReason);
-  if (disabledReason) button.title = disabledReason;
-  button.addEventListener("click", onClick);
-  return button;
-}
-
-function renderJournalWritingPage() {
-  const view = buildJournalWritingView(game);
-  journalDialogMode = "write";
-  playerDiaryDialog.dataset.mode = "write";
-  journalWritePanel.hidden = false;
-  journalStopWritingButton.hidden = false;
-  journalStopWritingButton.textContent = view.mode === "draft"
-    ? "actually, this doesn't seem worth writing about (dismiss permanently)"
-    : "actually, nothing comes to mind right now";
-  playerDiaryDate.textContent = diaryDateFormatter.format(game.now);
-
-  if (view.mode === "topics") {
-    journalWriteIntro.textContent = "you think about all the things that happened recently...";
-    journalWriteChoices.replaceChildren(...view.topics.map((topic) =>
-      makeJournalWritingChoice(`...${topic.label}`, () => {
-        try {
-          game.startJournalDraft(topic.definitionId);
-          renderJournalWritingPage();
-          renderPlayerPanel();
-        } catch (error) {
-          noticeElement.textContent = error.message;
-          noticeElement.className = "notice error";
-        }
-      })));
-
-    if (view.pageEntries.length) {
-      playerDiaryContent.replaceChildren(
-        ...view.pageEntries.map(makeJournalEntryElement),
-      );
-    } else {
-      const blank = document.createElement("p");
-      blank.className = "journal-empty-page";
-      blank.textContent = "Pick something from the left page to begin writing.";
-      playerDiaryContent.replaceChildren(blank);
-    }
-    return;
-  }
-
-  journalWriteIntro.textContent = "how do you want to put it?";
-  journalWriteChoices.replaceChildren(...view.choices.map((choice) =>
-    makeJournalWritingChoice(choice.label, () => {
-      try {
-        game.chooseJournalOption({
-          ...view.token,
-          choiceId: choice.id,
-        });
-        renderJournalWritingPage();
-        renderPlayerPanel();
-      } catch (error) {
-        noticeElement.textContent = error.message;
-        noticeElement.className = "notice error";
-      }
-    }, choice.disabledReason)));
-  playerDiaryContent.replaceChildren(
-    ...view.pageEntries.map(makeJournalEntryElement),
-    makeJournalEntryElement(view.draft),
-  );
-}
-
-function openPlayerDiary(mode = "read") {
-  if (mode === "write") renderJournalWritingPage();
-  else renderJournalReadPage();
+function openPlayerDiary() {
+  renderJournalReadPage();
   if (!playerDiaryDialog.open) playerDiaryDialog.showModal();
-}
-
-function journalWritingSceneActive() {
-  return game.currentStory?.id === "home.diary";
-}
-
-function journalDraftMustBeResolved() {
-  return journalDialogMode === "write" && Boolean(game.journal.draft);
-}
-
-function exitJournalWritingScene() {
-  if (!journalWritingSceneActive() || exitingJournalWritingScene) return;
-  exitingJournalWritingScene = true;
-  try {
-    const scene = buildScene(game);
-    const closeChoice = scene.sections
-      .flatMap((section) => section.choices)
-      .find((choice) => choice.action?.type === SCENE_ACTION_TYPE.wgNext);
-    if (closeChoice) {
-      performChoice(game, { sceneId: scene.id, choiceId: closeChoice.id });
-    }
-    render();
-  } catch (error) {
-    noticeElement.textContent = error.message;
-    noticeElement.className = "notice error";
-    render();
-  } finally {
-    exitingJournalWritingScene = false;
-  }
 }
 
 function renderPlayerPlanner() {
@@ -1166,22 +1136,23 @@ function renderScene(preludeParagraphs = []) {
 
   renderSceneContent(sceneElement, currentScene.content);
 
-  let choiceNumber = 1;
-  for (const section of currentScene.sections) {
-    const sectionElement = createChoiceSection(document, section, (choice) => {
-      const button = makeChoiceButton(currentScene.id, choice, choiceNumber++);
-      choiceButtons.push(button);
-      return button;
-    });
-    sceneElement.append(sectionElement);
+  if (currentScene.presentation?.type === "journal-writing") {
+    renderEmbeddedJournal(currentScene);
+  } else {
+    let choiceNumber = 1;
+    for (const section of currentScene.sections) {
+      const sectionElement = createChoiceSection(document, section, (choice) => {
+        const button = makeChoiceButton(currentScene.id, choice, choiceNumber++);
+        choiceButtons.push(button);
+        return button;
+      });
+      sceneElement.append(sectionElement);
+    }
   }
 
   if (currentScene.map) renderLocalMap(currentScene.map);
   renderDebugPanel();
   chatsUI?.refresh();
-  if (journalWritingSceneActive() && !playerDiaryDialog.open) {
-    openPlayerDiary("write");
-  }
 }
 
 async function choose(sceneId, choiceId) {
@@ -1260,7 +1231,7 @@ restartButton.addEventListener("click", () => {
 
 playerDiaryButton.addEventListener("click", () => {
   journalPageIndex = Math.max(0, buildJournalReadView(game).pages.length - 1);
-  openPlayerDiary("read");
+  openPlayerDiary();
 });
 
 journalPrevPageButton.addEventListener("click", () => {
@@ -1271,30 +1242,8 @@ journalNextPageButton.addEventListener("click", () => {
   journalPageIndex += 1;
   renderJournalReadPage();
 });
-journalStopWritingButton.addEventListener("click", () => {
-  if (!game.journal.draft) {
-    playerDiaryDialog.close();
-    return;
-  }
-  try {
-    game.dismissJournalDraft();
-    renderJournalWritingPage();
-    renderPlayerPanel();
-  } catch (error) {
-    noticeElement.textContent = error.message;
-    noticeElement.className = "notice error";
-  }
-});
 playerDiaryDialog.addEventListener("click", (event) => {
-  if (event.target === playerDiaryDialog && !journalDraftMustBeResolved()) {
-    playerDiaryDialog.close();
-  }
-});
-playerDiaryDialog.addEventListener("cancel", (event) => {
-  if (journalDraftMustBeResolved()) event.preventDefault();
-});
-playerDiaryDialog.addEventListener("close", () => {
-  if (journalDialogMode === "write") exitJournalWritingScene();
+  if (event.target === playerDiaryDialog) playerDiaryDialog.close();
 });
 
 playerPlannerButton.addEventListener("click", () => {

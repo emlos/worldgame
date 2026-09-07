@@ -1489,127 +1489,20 @@ export const WG_BUNDLE = {
       "id": "home.diary",
       "finalTarget": "@exit",
       "kind": "event",
-      "heading": null,
+      "heading": "Diary",
       "choiceHeading": "Choices",
       "behavior": null,
-      "system": null,
-      "onEnter": [],
-      "passages": [
-        {
-          "id": "p1",
-          "body": [
-            {
-              "type": "paragraph",
-              "parts": [
-                {
-                  "type": "text",
-                  "value": "You sit at the cleared table, pull your diary closer, and turn to a fresh page."
-                }
-              ],
-              "source": {
-                "file": "story/places/player-home.wg",
-                "line": 176,
-                "column": 1
-              }
-            },
-            {
-              "type": "if",
-              "branches": [
-                {
-                  "test": {
-                    "type": "unary",
-                    "operator": "not",
-                    "value": {
-                      "type": "path",
-                      "value": [
-                        "flags",
-                        "diary",
-                        "tutorial"
-                      ]
-                    }
-                  },
-                  "nodes": [
-                    {
-                      "type": "effect",
-                      "effect": {
-                        "op": "set",
-                        "path": [
-                          "flags",
-                          "diary",
-                          "tutorial"
-                        ],
-                        "source": {
-                          "file": "story/places/player-home.wg",
-                          "line": 179,
-                          "column": 1
-                        }
-                      },
-                      "source": {
-                        "file": "story/places/player-home.wg",
-                        "line": 179,
-                        "column": 1
-                      }
-                    },
-                    {
-                      "type": "paragraph",
-                      "parts": [
-                        {
-                          "type": "text",
-                          "value": "[info]You can write in your diary to record your thoughts and feelings about the various events that happen."
-                        },
-                        {
-                          "type": "text",
-                          "value": " "
-                        },
-                        {
-                          "type": "text",
-                          "value": "You can also read past entries. Writing in your diary does not advance time.[/info]"
-                        }
-                      ],
-                      "source": {
-                        "file": "story/places/player-home.wg",
-                        "line": 180,
-                        "column": 1
-                      }
-                    }
-                  ],
-                  "source": {
-                    "file": "story/places/player-home.wg",
-                    "line": 178,
-                    "column": 1
-                  }
-                }
-              ],
-              "elseNodes": null,
-              "source": {
-                "file": "story/places/player-home.wg",
-                "line": 178,
-                "column": 1
-              },
-              "runtimeId": 0
-            }
-          ],
-          "next": {
-            "label": [
-              {
-                "type": "text",
-                "value": "Put the diary away"
-              }
-            ],
-            "target": "@exit",
-            "source": {
-              "file": "story/places/player-home.wg",
-              "line": 185,
-              "column": 1
-            }
-          },
-          "source": {
-            "file": "story/places/player-home.wg",
-            "line": 176,
-            "column": 1
-          }
+      "system": {
+        "id": "journal.diary",
+        "config": {},
+        "source": {
+          "file": "story/places/player-home.wg",
+          "line": 176,
+          "column": 1
         }
-      ],
+      },
+      "onEnter": [],
+      "passages": [],
       "placeKeys": [],
       "placeTags": [],
       "locationTags": [],
@@ -2037,7 +1930,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/player-home.wg",
-                "line": 189,
+                "line": 180,
                 "column": 1
               }
             }
@@ -2052,13 +1945,13 @@ export const WG_BUNDLE = {
             "target": "@exit",
             "source": {
               "file": "story/places/player-home.wg",
-              "line": 191,
+              "line": 182,
               "column": 1
             }
           },
           "source": {
             "file": "story/places/player-home.wg",
-            "line": 189,
+            "line": 180,
             "column": 1
           }
         }
@@ -2079,7 +1972,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/places/player-home.wg",
-        "line": 187,
+        "line": 178,
         "column": 1
       }
     },
@@ -3089,7 +2982,7 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 197,
+                    "line": 188,
                     "column": 1
                   }
                 },
@@ -3140,14 +3033,14 @@ export const WG_BUNDLE = {
                           ],
                           "source": {
                             "file": "story/places/player-home.wg",
-                            "line": 199,
+                            "line": 190,
                             "column": 1
                           }
                         }
                       ],
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 198,
+                        "line": 189,
                         "column": 1
                       }
                     }
@@ -3163,14 +3056,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 201,
+                        "line": 192,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 198,
+                    "line": 189,
                     "column": 1
                   },
                   "runtimeId": 0
@@ -3185,7 +3078,7 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 203,
+                    "line": 194,
                     "column": 1
                   }
                 },
@@ -3216,14 +3109,14 @@ export const WG_BUNDLE = {
                       "amount": -5,
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 207,
+                        "line": 198,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 205,
+                    "line": 196,
                     "column": 1
                   }
                 },
@@ -3254,14 +3147,14 @@ export const WG_BUNDLE = {
                       "amount": -4.5,
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 212,
+                        "line": 203,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 210,
+                    "line": 201,
                     "column": 1
                   }
                 },
@@ -3292,14 +3185,14 @@ export const WG_BUNDLE = {
                       "amount": -4,
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 217,
+                        "line": 208,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 215,
+                    "line": 206,
                     "column": 1
                   }
                 },
@@ -3330,14 +3223,14 @@ export const WG_BUNDLE = {
                       "amount": -3.5,
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 222,
+                        "line": 213,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 220,
+                    "line": 211,
                     "column": 1
                   }
                 },
@@ -3368,14 +3261,14 @@ export const WG_BUNDLE = {
                       "amount": -3,
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 227,
+                        "line": 218,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 225,
+                    "line": 216,
                     "column": 1
                   }
                 },
@@ -3406,14 +3299,14 @@ export const WG_BUNDLE = {
                       "amount": -2.5,
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 232,
+                        "line": 223,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 230,
+                    "line": 221,
                     "column": 1
                   }
                 },
@@ -3444,14 +3337,14 @@ export const WG_BUNDLE = {
                       "amount": -2,
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 237,
+                        "line": 228,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 235,
+                    "line": 226,
                     "column": 1
                   }
                 },
@@ -3482,21 +3375,21 @@ export const WG_BUNDLE = {
                       "amount": -1.5,
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 242,
+                        "line": 233,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 240,
+                    "line": 231,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/player-home.wg",
-                "line": 195,
+                "line": 186,
                 "column": 1
               }
             }
@@ -3511,13 +3404,13 @@ export const WG_BUNDLE = {
             "target": "@exit",
             "source": {
               "file": "story/places/player-home.wg",
-              "line": 247,
+              "line": 238,
               "column": 1
             }
           },
           "source": {
             "file": "story/places/player-home.wg",
-            "line": 194,
+            "line": 185,
             "column": 1
           }
         },
@@ -3534,7 +3427,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/player-home.wg",
-                "line": 251,
+                "line": 242,
                 "column": 1
               }
             },
@@ -3568,14 +3461,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 253,
+                        "line": 244,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 252,
+                    "line": 243,
                     "column": 1
                   }
                 },
@@ -3606,14 +3499,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 255,
+                        "line": 246,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 254,
+                    "line": 245,
                     "column": 1
                   }
                 }
@@ -3629,14 +3522,14 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 257,
+                    "line": 248,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/player-home.wg",
-                "line": 252,
+                "line": 243,
                 "column": 1
               },
               "runtimeId": 0
@@ -3652,13 +3545,13 @@ export const WG_BUNDLE = {
             "target": "@exit",
             "source": {
               "file": "story/places/player-home.wg",
-              "line": 260,
+              "line": 251,
               "column": 1
             }
           },
           "source": {
             "file": "story/places/player-home.wg",
-            "line": 249,
+            "line": 240,
             "column": 1
           }
         }
@@ -3679,7 +3572,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/places/player-home.wg",
-        "line": 193,
+        "line": 184,
         "column": 1
       }
     },

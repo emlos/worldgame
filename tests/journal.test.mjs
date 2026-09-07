@@ -3,6 +3,8 @@ import assert from "node:assert/strict";
 
 import { PronounSets } from "../src/characters/core/pronouns.js";
 import { Game } from "../src/game/game.js";
+import { performChoice } from "../src/game/scene/choiceEngine.js";
+import { buildScene } from "../src/game/scene/sceneEngine.js";
 import { WG_BUNDLE } from "../src/story/wg/generated/scenes.js";
 import { compareJournalBacklogRecords } from "../src/game/journal/runtime.js";
 import {
@@ -12,6 +14,10 @@ import {
 } from "../src/game/journal/view.js";
 import { journalDecisionKey } from "../src/game/journal/decisionKey.js";
 import { journalSessionForRender } from "../src/game/journal/runtime.js";
+import {
+  enterWGScene,
+  resolveActiveWGStory,
+} from "../src/story/wg/runtime/storyRuntime.js";
 import { compileStorySources } from "../tools/wg/compiler/storyCompiler.js";
 
 const FIXED_START = new Date("2026-09-04T12:00:00.000Z");
@@ -28,6 +34,15 @@ function chooseByLabel(game, label) {
   const choice = view.choices.find((candidate) => candidate.label === label);
   assert.ok(choice, `expected journal choice ${JSON.stringify(label)}`);
   return game.chooseJournalOption({ ...view.token, choiceId: choice.id });
+}
+
+function chooseSceneByLabel(game, label) {
+  const scene = buildScene(game);
+  const choice = scene.sections
+    .flatMap((section) => section.choices)
+    .find((candidate) => candidate.label === label);
+  assert.ok(choice, `expected scene choice ${JSON.stringify(label)}`);
+  return performChoice(game, { sceneId: scene.id, choiceId: choice.id });
 }
 
 test("same-time journal topics retain numeric source order past nine entries", () => {
@@ -178,6 +193,45 @@ test("journal WG permits a cycle when every passage can still reach @finish", ()
   }]);
 
   assert.ok(bundle.journals["journal-1"]);
+});
+
+test("journal writing is a normal system scene that can preserve a draft on exit", () => {
+  const game = writableGame();
+  game.runAction({
+    label: "get cafe job",
+    apply(currentGame) {
+      currentGame.setFlag("cafe_employee");
+    },
+  });
+
+  enterWGScene(game, "home.diary");
+  resolveActiveWGStory(game);
+  let scene = buildScene(game);
+  assert.equal(scene.presentation.type, "journal-writing");
+  assert.equal(scene.presentation.mode, "topics");
+  assert.match(
+    scene.content.map((block) => block.text).join(" "),
+    /You can write in your diary/,
+  );
+
+  chooseSceneByLabel(game, "...I actually got a job.");
+  scene = buildScene(game);
+  assert.equal(scene.presentation.mode, "draft");
+  assert.equal(game.journal.draft.definitionId, "journal-2");
+
+  chooseSceneByLabel(game, "Put the diary away");
+  assert.equal(game.currentStory, null);
+  assert.equal(game.journal.draft.definitionId, "journal-2");
+  assert.equal(game.hasFlag("diary.tutorial"), true);
+
+  enterWGScene(game, "home.diary");
+  resolveActiveWGStory(game);
+  scene = buildScene(game);
+  assert.equal(scene.presentation.mode, "draft");
+  assert.doesNotMatch(
+    scene.content.map((block) => block.text).join(" "),
+    /You can write in your diary/,
+  );
 });
 
 test("journal availability latches and completed entries save decisions instead of prose", () => {

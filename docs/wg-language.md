@@ -148,11 +148,13 @@ Taylor seems really...
   read, so live character properties such as names and pronouns can still
   change old entries retroactively. Choice `@when` conditions are not frozen;
   they are evaluated from the current draft context whenever choices are shown.
-- An unfinished draft is saved and resumes from its current passage. While a
-  draft is active, the writing view cannot be closed: the player must finish it
-  or permanently dismiss that topic. Dismissal discards the draft, including
-  uncommitted `flags.journal.*` effects, and prevents the topic from returning.
-  Journal flags commit only when the entry reaches `@finish`.
+- Journal writing is rendered by the `journal.diary` system inside a normal
+  scene. Leaving that scene preserves an unfinished draft, and returning to the
+  diary resumes its current passage. The separate Diary menu is a read-only
+  popup for completed entries.
+- A draft can also be permanently dismissed. Dismissal discards the draft,
+  including uncommitted `flags.journal.*` effects, and prevents the topic from
+  returning. Journal flags commit only when the entry reaches `@finish`.
 - Completed entries are grouped by the in-game date on which they were written.
   Editing authored journal ordering can change generated IDs and invalidate
   development saves; no compatibility guarantee is provided for that during
