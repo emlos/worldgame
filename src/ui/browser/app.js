@@ -13,6 +13,10 @@ import {
   WG_AUTO_TRIGGER,
 } from "../../story/wg/runtime/sceneExposure.js";
 import { renderSchoolDiary } from "../../features/school/browserDiary.js";
+import {
+  makeJournalEntryElement,
+  renderJournalReadPage as renderJournalReadPageUI,
+} from "./journalUI.js";
 import { teleportPlayerToSchool } from "../../features/school/debug.js";
 import { buildFullMapView } from "../../game/scene/mapView.js";
 import {
@@ -375,17 +379,6 @@ function renderFullMap() {
   });
 }
 
-function makeJournalEntryElement(entry) {
-  const article = document.createElement("article");
-  article.className = "journal-entry";
-  for (const text of entry.paragraphs) {
-    const paragraph = document.createElement("p");
-    paragraph.textContent = text;
-    article.append(paragraph);
-  }
-  return article;
-}
-
 function makeEmbeddedJournalChoice(scene, choice, number, className) {
   const button = makeChoiceButton(scene.id, choice, number);
   button.className = className;
@@ -450,7 +443,7 @@ function renderEmbeddedJournal(scene) {
   const entries = [...view.entries];
   if (view.draft) entries.push(view.draft);
   if (entries.length) {
-    prosePage.append(...entries.map(makeJournalEntryElement));
+    prosePage.append(...entries.map((entry) => makeJournalEntryElement(document, entry)));
   } else {
     const blank = document.createElement("p");
     blank.className = "journal-empty-page";
@@ -469,31 +462,17 @@ function renderEmbeddedJournal(scene) {
 }
 
 function renderJournalReadPage() {
-  const view = buildJournalReadView(game);
-  playerDiaryDialog.dataset.mode = "read";
-  journalPrevPageButton.hidden = false;
-  journalNextPageButton.hidden = false;
-
-  if (!view.pages.length) {
-    journalPageIndex = 0;
-    playerDiaryDate.textContent = "Nothing written yet";
-    const empty = document.createElement("p");
-    empty.className = "journal-empty-page";
-    empty.textContent = "The pages are still blank.";
-    playerDiaryContent.replaceChildren(empty);
-    journalPrevPageButton.disabled = true;
-    journalNextPageButton.disabled = true;
-    return;
-  }
-
-  journalPageIndex = Math.max(0, Math.min(journalPageIndex, view.pages.length - 1));
-  const page = view.pages[journalPageIndex];
-  playerDiaryDate.textContent = diaryDateFormatter.format(
-    new Date(`${page.date}T12:00:00.000Z`),
-  );
-  playerDiaryContent.replaceChildren(...page.entries.map(makeJournalEntryElement));
-  journalPrevPageButton.disabled = journalPageIndex <= 0;
-  journalNextPageButton.disabled = journalPageIndex >= view.pages.length - 1;
+  journalPageIndex = renderJournalReadPageUI({
+    game,
+    pageIndex: journalPageIndex,
+    document,
+    dialog: playerDiaryDialog,
+    dateElement: playerDiaryDate,
+    contentElement: playerDiaryContent,
+    previousButton: journalPrevPageButton,
+    nextButton: journalNextPageButton,
+    formatDate: (date) => diaryDateFormatter.format(date),
+  });
 }
 
 function openPlayerDiary() {
