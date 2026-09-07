@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Developer sandbox for testing Worldgame journals." />
+    <title>WG Journal Inspector</title>
+    <link rel="stylesheet" href="../src/ui/browser/styles.css" />
+    <link rel="stylesheet" href="./scene_inspector.css" />
+    <link rel="stylesheet" href="./journal_inspector.css" />
+  </head>
+  <body class="inspector-page">
+    <header class="inspector-topbar">
+      <div>
+        <p class="inspector-eyebrow">Worldgame developer tools</p>
+        <h1>Journal Inspector</h1>
+        <p>Unlock topics, edit their referenced state, and play through journal branches.</p>
+      </div>
+      <a class="inspector-back-link" href="../index.html">← Test index</a>
+    </header>
+
+    <main class="inspector-layout journal-inspector-layout">
+      <aside class="inspector-panel inspector-controls" aria-label="Journal controls">
+        <section class="inspector-section">
+          <div class="inspector-section-heading">
+            <div>
+              <p class="inspector-step">1</p>
+              <h2>Choose journal</h2>
+            </div>
+            <output id="journal-count" class="inspector-count"></output>
+          </div>
+          <label class="inspector-field">
+            <span>Journal topic</span>
+            <select id="journal-select" size="8"></select>
+          </label>
+          <p id="journal-status" class="inspector-help"></p>
+          <div class="inspector-actions inspector-actions--primary">
+            <button id="start-journal" class="inspector-button inspector-button--primary" type="button">
+              Start selected
+            </button>
+            <button id="reset-journal" class="inspector-button" type="button">
+              Reset selected
+            </button>
+          </div>
+          <button id="new-journal-sandbox" class="inspector-text-button" type="button">
+            New clean sandbox
+          </button>
+        </section>
+
+        <section class="inspector-section">
+          <div class="inspector-section-heading">
+            <div>
+              <p class="inspector-step">2</p>
+              <h2>Referenced state</h2>
+            </div>
+          </div>
+          <p class="inspector-help">
+            Controls are derived from the selected journal. Availability latches once its
+            conditions pass; reset the topic to test another combination.
+          </p>
+          <div id="path-controls" class="journal-path-groups"></div>
+        </section>
+      </aside>
+
+      <section class="inspector-preview-column journal-preview-column" aria-label="Journal preview">
+        <header class="inspector-preview-header">
+          <div>
+            <p id="active-journal-state" class="inspector-eyebrow">No draft active</p>
+            <h2 id="active-journal-title">Select a journal topic</h2>
+          </div>
+        </header>
+        <div id="journal-notice" class="inspector-notice" role="status" aria-live="polite"></div>
+        <div class="journal-book journal-inspector-book">
+          <section class="journal-page journal-page--choices">
+            <p id="journal-choice-intro" class="journal-write-intro"></p>
+            <div id="journal-choices" class="journal-write-choices"></div>
+          </section>
+          <section id="journal-prose" class="journal-page journal-page--prose"></section>
+        </div>
+      </section>
+
+      <aside class="inspector-panel inspector-diagnostics" aria-label="Journal diagnostics">
+        <section class="inspector-section">
+          <div class="inspector-section-heading">
+            <div>
+              <p class="inspector-step">3</p>
+              <h2>Progress</h2>
+            </div>
+          </div>
+          <dl id="journal-summary" class="inspector-runtime-summary"></dl>
+        </section>
+
+        <details class="inspector-section inspector-details" open>
+          <summary>Completed journal</summary>
+          <div id="completed-journal" class="journal-completed-pages"></div>
+        </details>
+
+        <details class="inspector-section inspector-details">
+          <summary>Journal state JSON</summary>
+          <pre id="journal-state-json" class="inspector-json"></pre>
+        </details>
+
+        <details class="inspector-section inspector-details">
+          <summary>Selected definition</summary>
+          <pre id="journal-definition-json" class="inspector-json"></pre>
+        </details>
+      </aside>
+    </main>
+
+    <script type="module" src="./journal_inspector.js"></script>
+  </body>
+</html>
