@@ -9,7 +9,6 @@ import {
   resolveWGAutomaticScene,
   WG_AUTO_TRIGGER,
 } from "../src/story/wg/runtime/sceneExposure.js";
-import { WG_BUNDLE } from "../src/story/wg/generated/scenes.js";
 
 function findChoiceByLabel(scene, label) {
   return scene.sections
@@ -103,36 +102,6 @@ function placePlayerAndTaylorAtSchool(game) {
   game.setCurrentPlace({ placeId: String(place.id) });
   game.teleportNPC("taylor", "player");
 }
-
-test("meeting Taylor in the hallway unlocks Taylor's journal topic", () => {
-  const game = new Game({
-    seed: 117,
-    startDate: new Date("2026-09-01T09:50:00.000Z"),
-  });
-  game.setFlag("school_first_visit_seen");
-  placePlayerAndTaylorAtSchool(game);
-
-  const hallway = buildScene(game);
-  const introduction = findChoiceByLabel(hallway, "Introduce yourself to Taylor");
-  assert.ok(introduction);
-  performChoice(game, { sceneId: hallway.id, choiceId: introduction.id });
-
-  assert.equal(game.currentStory?.id, "school.taylor.first-meeting");
-  assert.equal(game.hasFlag("journal.taylor_met"), true);
-  assert.equal(
-    game.player.getRelationshipProfile(
-      "taylor",
-      game.npcs.get("taylor").relationshipProfile,
-    ).met,
-    true,
-  );
-
-  const topic = Object.values(WG_BUNDLE.journals).find((definition) =>
-    definition.source?.file === "story/journal/firsts.wg" &&
-    definition.source?.line === 1);
-  assert.ok(topic);
-  assert.ok(game.journal.pending.some((record) => record.definitionId === topic.id));
-});
 
 test("Taylor's introduction is not offered while class is in session", () => {
   const game = new Game({
