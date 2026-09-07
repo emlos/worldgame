@@ -15,6 +15,25 @@
 
   @next "Look around" -> @exit
 
+:: school.taylor.first-meeting -> @exit
+  @place-key high_school
+  @offer npc taylor
+  @label "Introduce yourself to Taylor"
+  @when school.phase != "class"
+  @when not flags.journal.taylor_met
+  @onenter
+    @effect set flags.journal.taylor_met
+    @effect relationship taylor.friendship 1
+  @endonenter
+
+  Taylor is standing near the lockers, watching the crowd between lessons. When {{npc.taylor.subject}} notices you looking, {{npc.taylor.subject}} gives you a small, uncertain smile.
+
+  "You're new, right?" {{npc.taylor.subject}} asks. "I'm Taylor."
+
+  You introduce yourself. The conversation is brief, but Taylor seems relieved to recognise one more person in the crowded school.
+
+  @next "See you around" -> @exit
+
 :: place.high-school
   @hub high_school
   @choices "Travel"

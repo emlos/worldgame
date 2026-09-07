@@ -1,10 +1,9 @@
 @journal "I've met someone at school that I keep thinking about."
-  @when npc.taylor.relationship.friendship != 0
+  @when flags.journal.taylor_met
 
   @passage start
 
   @choice "Taylor" -> .taylor
-    @when npc.taylor.relationship.friendship != 0
     @effect set local.school_person "taylor"
   @endchoice
 

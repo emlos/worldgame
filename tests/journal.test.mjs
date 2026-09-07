@@ -269,16 +269,10 @@ test("journal availability latches and completed entries save decisions instead 
 
 test("partial journal drafts survive saves and can be dismissed permanently", () => {
   const game = writableGame();
-  const taylor = game.npcs.get("taylor");
   game.runAction({
     label: "meet Taylor",
     apply(currentGame) {
-      currentGame.player.adjustRelationshipMeter(
-        "taylor",
-        "friendship",
-        1,
-        taylor.relationshipProfile,
-      );
+      currentGame.setFlag("journal.taylor_met");
     },
   });
 
@@ -320,13 +314,7 @@ test("partial journal drafts survive saves and can be dismissed permanently", ()
 
 test("journal save validation rejects state not produced by the selected path", () => {
   const game = writableGame();
-  const taylor = game.npcs.get("taylor");
-  game.player.adjustRelationshipMeter(
-    "taylor",
-    "friendship",
-    1,
-    taylor.relationshipProfile,
-  );
+  game.setFlag("journal.taylor_met");
   game.refreshJournalAvailability();
   game.startJournalDraft("journal-1");
   chooseByLabel(game, "Taylor");
@@ -400,13 +388,7 @@ test("journal save validation rejects choices hidden by frozen decisions", () =>
 
 test("journal flags commit only when the entry is finished", () => {
   const game = writableGame();
-  const taylor = game.npcs.get("taylor");
-  game.player.adjustRelationshipMeter(
-    "taylor",
-    "friendship",
-    1,
-    taylor.relationshipProfile,
-  );
+  game.setFlag("journal.taylor_met");
   game.refreshJournalAvailability();
 
   game.startJournalDraft("journal-1");
@@ -422,16 +404,10 @@ test("journal flags commit only when the entry is finished", () => {
 
 test("dismissing an old topic lets a newer topic enter the visible backlog", () => {
   const game = writableGame();
-  const taylor = game.npcs.get("taylor");
   game.runAction({
     label: "unlock three journal topics",
     apply(currentGame) {
-      currentGame.player.adjustRelationshipMeter(
-        "taylor",
-        "friendship",
-        1,
-        taylor.relationshipProfile,
-      );
+      currentGame.setFlag("journal.taylor_met");
       currentGame.setFlag("cafe_employee");
       currentGame.setFlag("rent_intro_2");
     },
@@ -489,12 +465,7 @@ test("journal writing shows only entries completed on the current game day", () 
 test("journal prose resolves live character pronouns when an old entry is reread", () => {
   const game = writableGame();
   const taylor = game.npcs.get("taylor");
-  game.player.adjustRelationshipMeter(
-    "taylor",
-    "friendship",
-    1,
-    taylor.relationshipProfile,
-  );
+  game.setFlag("journal.taylor_met");
   game.refreshJournalAvailability();
 
   game.startJournalDraft("journal-1");
@@ -645,16 +616,10 @@ Third ending.
 
 test("journal choices complete continuation prose without headings or ellipses", () => {
   const game = writableGame();
-  const taylor = game.npcs.get("taylor");
   game.runAction({
     label: "unlock journal examples",
     apply(currentGame) {
-      currentGame.player.adjustRelationshipMeter(
-        "taylor",
-        "friendship",
-        1,
-        taylor.relationshipProfile,
-      );
+      currentGame.setFlag("journal.taylor_met");
       currentGame.setFlag("rent_intro_2");
     },
   });
