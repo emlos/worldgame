@@ -126,6 +126,60 @@ test("journal WG rejects world navigation and mutable journal flags", () => {
   }]), /flags\.journal\.\* flags are irreversible/);
 });
 
+test("journal WG rejects unreachable passages and paths trapped without @finish", () => {
+  assert.throws(() => compileStorySources([{
+    file: "story/unreachable-journal-passage.wg",
+    source: `
+@journal "Unreachable"
+@passage start
+@finish
+@passage forgotten
+@finish
+@endjournal
+`,
+  }]), /passage 'forgotten' is unreachable from entry passage 'start'/);
+
+  assert.throws(() => compileStorySources([{
+    file: "story/looping-journal.wg",
+    source: `
+@journal "Looping"
+@passage start
+@choice "Get stuck" -> .loop
+@endchoice
+@choice "Finish safely" -> .done
+@endchoice
+@passage loop
+@choice "Again" -> .loop
+@endchoice
+@passage done
+@finish
+@endjournal
+`,
+  }]), /passage 'loop' cannot reach a passage ending with @finish/);
+});
+
+test("journal WG permits a cycle when every passage can still reach @finish", () => {
+  const bundle = compileStorySources([{
+    file: "story/escapable-journal-loop.wg",
+    source: `
+@journal "Escapable loop"
+@passage start
+@choice "Go around" -> .loop
+@endchoice
+@passage loop
+@choice "Go around again" -> .loop
+@endchoice
+@choice "Finish" -> .done
+@endchoice
+@passage done
+@finish
+@endjournal
+`,
+  }]);
+
+  assert.ok(bundle.journals["journal-1"]);
+});
+
 test("journal availability latches and completed entries save decisions instead of prose", () => {
   const game = writableGame();
   game.runAction({
