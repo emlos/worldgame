@@ -1,0 +1,48 @@
+attached you can find my game, its pretty robust and im in the features phase as i add content.
+its a text based open world game heavily inspired by the browser game degrees of lewdity, without an underlying engine like sugarcube/twine.
+
+
+important: this is nowhere near done, and not playable in the current state, so things like legacy code, aliases and backwards compatibility do NOT concern me.
+
+
+okay for the diary (from the todo.txt) - lets brainstorm. i imagine the diary to be filled in based on what happens to the player (first fight, first sexual encounter, finding a receptacle etc, meeting someone new)
+that should be unique to each player depending on whata ctiosn they take.
+
+i would like to make the journal interactive. maybe with the unpacking milestones, the player gains the option to journal - where they can choose what to jot down, depending on what they experienced, kind of similarly to the chat ui.
+
+id like it to be paginated maybe? resembling a diary, being able to write down what happened.
+firsts are a good category to start with, for example the first student they meet at school. the oprion could read "i finally met someone new at school" then it would go to a subchoice (depending on who the player has actually met) of for example "taylor" "clara". then that could lead to a choice/series of choices, that the player can choose from, to write down their impressions. so far this shouldnt have any influence on gameplay (though maybe someone the player invites to their home can read through the diary and react appropiately? for later haha) but only be a persistent flavor, to further immerse the player in the world.
+the flow could be something like this (for the met someone new example):
+[left hand panel]
+option: ive met someone at school that im interested in!
+option: [Taylor], clara, any other npc the player has met at school
+[right hand panel]
+journal prose: "There's this person at school who seems really..."
+[left hand panel]
+option: hot/[weird]/annoying/unremarkable
+[right hand panel]
+"There's this person at school who seems really strange honestly, they were kind of weird in class. Still i'm hoping to..."
+[left hand panel]
+options: get to know them more/[get closer to them]/bully them
+[right hand panel]
+"Still I'm hoping to, y'know, flirt a little, see where things go! You never know with weird, maybe theyre a fun kind of freak!"
+
+
+the idea would be that the prose actually written down in the journal could be character specific - different for Taylor and for Clara, along with the choices for the player to choose from. basically - the same branching scene/chat context, with prose passages and player chice passages, but the end result gets preserved as id's flags and reconstructed with each save, as to not save full on plaintext in the (eventual) save file.
+
+the choices should use the normal @when conditions,and the prose should supposer the @if/@elseif/@else struct for example, if the player was never actually in class with Taylor, the prose would change, and it should support journal specific flags, set by options. interpolation etc should work there as well, and be reconstructed on the fly - meaning if the gender of a character changes, so should the journal entries retroactively. the journal passages should have access to story variables/flags just like any other passage. so repurposing the system for branhcing scenes could come in handy here?
+
+okay now as for what i want from the implementation:
+id liek to add as little of new @tags as possible.
+
+maybe, for journal sensitive entries a dedicated journal.* flag, that can be set and cannot be unset - this would allow to simply mark the passages in the script that add a possible journal entry, and a @journal structure, a la chat that would allow to 1. define static prose (with flags) 2. define player inserted prose via choices.
+
+for the first day of school example - finishing all segments on the 1st day of the game should set a journal.school_first_day flag, that can be used to display the "first day" vs "first day finally" prose. if this specific flag example is too complicated/out of the capabilities of the current flag/effect system, thats fine too, just an example.
+
+
+
+id like the journal ui to be slightly different then the normal scene ui - maybe something like on the screenshot i included? just an open journal, with possible tabs for days? or a month division? i imagine the game will be played for years (in game), so a long ass scrolling block of text is not exactly what i imagine is ux friendly. the screenshot would be the 'writing view' accessible from the home choice. the read only view available from the diary menu in the sidebar should only have the right hand panel visible. 
+
+the player should be able to open the diary to view the prose at any time, but editing it should only be possible at home from their desk.
+
+no id's as with the rest of the wg language, but i wanna brainstorm how we should approach it - both ui wise and language wise.

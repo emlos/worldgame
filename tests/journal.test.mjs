@@ -45,6 +45,34 @@ test("same-time journal topics retain numeric source order past nine entries", (
   );
 });
 
+test("the full-school-day topic records whether it happened on the first day", () => {
+  const topic = Object.values(WG_BUNDLE.journals).find((definition) =>
+    definition.prompt.some((part) =>
+      part.type === "text" && part.value === "I made it through every class today."
+    )
+  );
+  assert.ok(topic, "expected the full-school-day journal topic");
+
+  const firstDay = writableGame();
+  firstDay.setFlag("journal.completed_school_day");
+  firstDay.setFlag("journal.completed_school_first_day");
+  firstDay.refreshJournalAvailability();
+  firstDay.startJournalDraft(topic.id);
+  assert.match(
+    buildJournalWritingView(firstDay).draft.paragraphs.join(" "),
+    /very first day of school/,
+  );
+
+  const laterDay = writableGame();
+  laterDay.setFlag("journal.completed_school_day");
+  laterDay.refreshJournalAvailability();
+  laterDay.startJournalDraft(topic.id);
+  assert.match(
+    buildJournalWritingView(laterDay).draft.paragraphs.join(" "),
+    /It was not my first day/,
+  );
+});
+
 test("journal WG blocks are anonymous and receive deterministic generated ids", () => {
   const source = `
 @journal "First thought"

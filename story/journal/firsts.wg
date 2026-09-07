@@ -124,7 +124,6 @@ Maybe I should...
 @finish
 @endjournal
 
-
 @journal "I actually got a job."
 @when flags.cafe_employee
 
@@ -276,6 +275,50 @@ Annoyance. I finally finished unpacking and immediately inherited a new problem 
 @passage shrug
 
 Not much, really. It is weird, but until it actually does something, it can sit there and be weird on its own time.
+
+@finish
+@endjournal
+
+@journal "I made it through every class today."
+@when flags.journal.completed_school_first_day or flags.journal.completed_school_day
+
+@passage start
+
+@if flags.journal.completed_school_first_day
+I made it through every class on my very first day of school. I actually followed the whole timetable from beginning to end.
+@else
+I finally made it through a complete day of school. It was not my first day, but this time I attended every class from beginning to end.
+@endif
+
+By the time the last class ended, I felt...
+
+@choice "proud of myself" -> .proud
+  @effect set local.full_school_day_feeling "proud"
+@endchoice
+
+@choice "completely exhausted" -> .exhausted
+  @effect set local.full_school_day_feeling "exhausted"
+@endchoice
+
+@choice "surprised it was not worse" -> .surprised
+  @effect set local.full_school_day_feeling "surprised"
+@endchoice
+
+@passage proud
+
+...proud of myself. Showing up for all of it might be ordinary for everyone else, but it still feels like something worth writing down.
+
+@finish
+
+@passage exhausted
+
+...completely exhausted. A full timetable is a lot longer when I actually sit through every part of it.
+
+@finish
+
+@passage surprised
+
+...surprised it was not worse. The day was long, but I made it through without wanting to run for the gates.
 
 @finish
 @endjournal

@@ -13,6 +13,7 @@ import {
   SUBJECT_GRADES,
   initialPlayerEducation,
 } from "../src/features/school/education.js";
+import { SCHOOL_TIMETABLE } from "../src/features/school/config.js";
 import { getPlayerSkillCheckValue } from "../src/game/scene/skillChecks.js";
 import { DEFAULT_FEATURE_CATALOG } from "../src/features/index.js";
 import { WG_BUNDLE } from "../src/story/wg/generated/scenes.js";
@@ -125,6 +126,58 @@ test("WG effects, expression context, and the phone expose progress", () => {
     max: SUBJECT_ACHIEVEMENT_MAX,
     valueLabel: "C | 0/100",
   });
+});
+
+function attendConfiguredSchoolDay(game, { leaveLastSegment = false } = {}) {
+  const segments = SCHOOL_TIMETABLE
+    .filter((period) => period.kind === "class")
+    .flatMap((period) => Array.from(
+      { length: period.segments },
+      () => ({ op: "attendance", id: period.subjectId, amount: 1 }),
+    ));
+  const attended = leaveLastSegment ? segments.slice(0, -1) : segments;
+  for (const effect of attended) applyWGEffect(game, effect);
+  return segments.at(-1);
+}
+
+test("a complete school day sets permanent journal flags from daily attendance", () => {
+  const firstDay = new Game({
+    seed: 117,
+    startDate: new Date("2026-09-01T08:00:00.000Z"),
+  });
+  const finalSegment = attendConfiguredSchoolDay(firstDay, { leaveLastSegment: true });
+  assert.equal(firstDay.hasFlag("journal.completed_school_day"), false);
+  assert.equal(firstDay.hasFlag("journal.completed_school_first_day"), false);
+
+  applyWGEffect(firstDay, finalSegment);
+  assert.equal(firstDay.hasFlag("journal.completed_school_day"), true);
+  assert.equal(firstDay.hasFlag("journal.completed_school_first_day"), true);
+
+  const laterDay = new Game({
+    seed: 118,
+    startDate: new Date("2026-09-02T08:00:00.000Z"),
+  });
+  attendConfiguredSchoolDay(laterDay);
+  assert.equal(laterDay.hasFlag("journal.completed_school_day"), true);
+  assert.equal(laterDay.hasFlag("journal.completed_school_first_day"), false);
+});
+
+test("school attendance from different dates does not combine into a complete day", () => {
+  const game = new Game({
+    seed: 119,
+    startDate: new Date("2026-09-01T08:00:00.000Z"),
+  });
+  for (const period of SCHOOL_TIMETABLE.filter((entry) => entry.kind === "class")) {
+    applyWGEffect(game, { op: "attendance", id: period.subjectId, amount: 2 });
+  }
+
+  game.runAction({ label: "cross-midnight", minutes: 24 * 60, energyFree: true });
+  for (const period of SCHOOL_TIMETABLE.filter((entry) => entry.kind === "class")) {
+    applyWGEffect(game, { op: "attendance", id: period.subjectId, amount: 1 });
+  }
+
+  assert.equal(game.hasFlag("journal.completed_school_day"), false);
+  assert.equal(game.hasFlag("journal.completed_school_first_day"), false);
 });
 
 test("save version 37 round-trips canonical subject achievement", () => {

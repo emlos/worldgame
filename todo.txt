@@ -73,6 +73,16 @@ game systems:
     - some sort of school popularity system (status? it feels too similar to what degrees of lewdity implements...)
     - missed classes/bad behavior penalty + detention
 
+    - school timetable:
+
+                 eng 	math 	history 	lunch 	science 	art 	physed	
+        mon		x		x					x		x					x		
+        tue						x			x		x			x
+        wed		x		x		x			x							x
+        thu		x				x			x					x		
+        fri		x		x					x		x					
+        -> consideration: how does that affetc journal flags and class duration/start-end times?
+
     npcs:
     - pathfinding: allow bus/car travel for select npcs + travel preferences
     - luce - needs player-follow behavior definition  -afterward can be implemented
