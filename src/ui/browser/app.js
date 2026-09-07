@@ -47,6 +47,7 @@ const playerTemperatureElement = document.querySelector("#player-temperature");
 const playerStatsElement = document.querySelector("#player-stats");
 const restartButton = document.querySelector("#restart");
 const playerDiaryButton = document.querySelector("#player-diary-btn");
+const closeDiaryButton = document.querySelector("#close-diary");
 const playerDiaryDialog = document.querySelector("#player-diary-dialog");
 const playerDiaryDate = document.querySelector("#player-diary-date");
 const playerDiaryContent = document.querySelector("#player-diary-content");
@@ -1216,9 +1217,7 @@ window.addEventListener("keydown", (event) => {
   if (action.type === "choice") choiceButtons[action.index].click();
   else if (action.type === "menu") menuActions[action.id]();
   else if (action.type === "phone-home") { if (!chatsUI.back()) showPhoneHomeScreen(); }
-  else if (action.type === "close-dialog") {
-    if (dialog !== playerDiaryDialog || !journalDraftMustBeResolved()) dialog.close();
-  }
+  else if (action.type === "close-dialog") dialog.close();
 });
 
 restartButton.addEventListener("click", () => {
@@ -1242,6 +1241,7 @@ journalNextPageButton.addEventListener("click", () => {
   journalPageIndex += 1;
   renderJournalReadPage();
 });
+closeDiaryButton.addEventListener("click", () => playerDiaryDialog.close());
 playerDiaryDialog.addEventListener("click", (event) => {
   if (event.target === playerDiaryDialog) playerDiaryDialog.close();
 });
