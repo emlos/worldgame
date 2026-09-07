@@ -10,6 +10,7 @@ import {
   saveUniqueStrings,
   validateJsonValue,
 } from "../../shared/util/saveValidation.js";
+import { evaluateWGExpression } from "../../story/wg/runtime/expressionEvaluator.js";
 import { journalDecisionKey } from "./decisionKey.js";
 
 function exactFields(record, allowed, path) {
@@ -164,9 +165,7 @@ function selectedPathEffects(visitedPassages, selectedChoices, decisions, decisi
 }
 
 function validateDeferredFlags(value, effects, path) {
-  const expected = [...new Set(effects
-    .filter((effect) => effect.op === "set" && effect.path?.[0] === "flags")
-    .map((effect) => effect.path.slice(1).join(".")))];
+  const expected = journalFlagsFromEffects(effects);
   const flags = saveUniqueStrings(value, path, { nonEmpty: true });
   for (const flag of flags) {
     if (!expected.includes(flag)) {
@@ -176,13 +175,6 @@ function validateDeferredFlags(value, effects, path) {
   for (const flag of expected) {
     if (!flags.has(flag)) failSave(path, `is missing selected journal flag '${flag}'`);
   }
-}
-
-function localLeafPaths(value, prefix = []) {
-  if (!value || typeof value !== "object" || Array.isArray(value)) return [prefix];
-  const entries = Object.entries(value);
-  if (!entries.length) return prefix.length ? [prefix] : [];
-  return entries.flatMap(([key, child]) => localLeafPaths(child, [...prefix, key]));
 }
 
 function requireExactDecisionSet(visitedPassages, decisions, path) {
@@ -195,23 +187,87 @@ function requireExactDecisionSet(visitedPassages, decisions, path) {
   }
 }
 
+function localMutationParent(locals, mutationPath, path) {
+  let parent = locals;
+  for (const segment of mutationPath.slice(0, -1)) {
+    const current = parent[segment];
+    if (current === undefined) parent[segment] = {};
+    else if (!current || typeof current !== "object" || Array.isArray(current)) {
+      failSave(path, `cannot write through non-object local path '${mutationPath.join(".")}'`);
+    }
+    parent = parent[segment];
+  }
+  return { parent, key: mutationPath.at(-1) };
+}
+
+function localValue(locals, mutationPath) {
+  let value = locals;
+  for (const segment of mutationPath) {
+    if (!value || typeof value !== "object") return undefined;
+    value = value[segment];
+  }
+  return value;
+}
+
+function replayJournalLocals(effects, path) {
+  const locals = {};
+  for (const effect of effects) {
+    if (!["set", "add"].includes(effect.op) || effect.path?.[0] !== "local") continue;
+    const mutationPath = effect.path.slice(1);
+    let value;
+    try {
+      value = evaluateWGExpression(effect.value, {});
+    } catch (error) {
+      failSave(path, `cannot replay journal local effect: ${error.message}`);
+    }
+    const { parent, key } = localMutationParent(locals, mutationPath, path);
+    if (effect.op === "set") {
+      parent[key] = value;
+      continue;
+    }
+    const current = localValue(locals, mutationPath) ?? 0;
+    if (!Number.isFinite(current) || !Number.isFinite(value)) {
+      failSave(path, `journal add effect at 'local.${mutationPath.join(".")}' requires numbers`);
+    }
+    const result = current + value;
+    if (!Number.isFinite(result)) failSave(path, "journal add effect produced a non-finite number");
+    parent[key] = result;
+  }
+  return locals;
+}
+
+function sameJsonValue(left, right) {
+  if (Object.is(left, right)) return true;
+  if (Array.isArray(left) || Array.isArray(right)) {
+    return Array.isArray(left) && Array.isArray(right) &&
+      left.length === right.length &&
+      left.every((value, index) => sameJsonValue(value, right[index]));
+  }
+  if (
+    left && right &&
+    typeof left === "object" && typeof right === "object"
+  ) {
+    const leftKeys = Object.keys(left);
+    const rightKeys = Object.keys(right);
+    return leftKeys.length === rightKeys.length &&
+      leftKeys.every((key) => Object.hasOwn(right, key) && sameJsonValue(left[key], right[key]));
+  }
+  return false;
+}
+
 function validateLocals(value, effects, path) {
   validateJsonValue(value, path);
   const locals = saveRecord(value, path);
-  const mutationPaths = effects
-    .filter((effect) => ["set", "add"].includes(effect.op) && effect.path?.[0] === "local")
-    .map((effect) => effect.path.slice(1));
-
-  for (const leaf of localLeafPaths(locals)) {
-    const produced = mutationPaths.some((mutation) =>
-      mutation.length <= leaf.length && mutation.every((segment, index) => leaf[index] === segment));
-    if (!produced) {
-      failSave(
-        `${path}${leaf.map((segment) => `.${segment}`).join("")}`,
-        "was not produced by a local effect on the selected journal path",
-      );
-    }
+  const expected = replayJournalLocals(effects, path);
+  if (!sameJsonValue(locals, expected)) {
+    failSave(path, "does not exactly match the local effects on the selected journal path");
   }
+}
+
+function journalFlagsFromEffects(effects) {
+  return [...new Set(effects
+    .filter((effect) => effect.op === "set" && effect.path?.[0] === "flags")
+    .map((effect) => effect.path.slice(1).join(".")))];
 }
 
 function validatePending(recordData, path, gameTime) {
@@ -292,24 +348,32 @@ function validateEntry(recordData, path, gameTime) {
     failSave(`${path}.choices`, "does not reach a completed journal passage");
   }
   requireExactDecisionSet(visitedPassages, decisions, decisionsPath);
-  validateLocals(
-    record.locals,
-    selectedPathEffects(visitedPassages, selectedChoices, decisions, decisionsPath),
-    `${path}.locals`,
+  const effects = selectedPathEffects(
+    visitedPassages,
+    selectedChoices,
+    decisions,
+    decisionsPath,
   );
-  return id;
+  validateLocals(record.locals, effects, `${path}.locals`);
+  return { id, committedFlags: journalFlagsFromEffects(effects) };
 }
 
-export function validateJournalState(value, { path = "save.journal", gameTime } = {}) {
+export function validateJournalState(
+  value,
+  { path = "save.journal", gameTime, activeFlags = [] } = {},
+) {
   const state = saveRecord(value, path);
   exactFields(state, ["pending", "draft", "entries", "dismissed"], path);
   const ids = [];
+  const requiredCommittedFlags = new Set();
   saveArray(state.pending, `${path}.pending`).forEach((record, index) => {
     ids.push(validatePending(record, `${path}.pending[${index}]`, gameTime));
   });
   if (state.draft !== null) ids.push(validateDraft(state.draft, `${path}.draft`, gameTime));
   saveArray(state.entries, `${path}.entries`).forEach((record, index) => {
-    ids.push(validateEntry(record, `${path}.entries[${index}]`, gameTime));
+    const validated = validateEntry(record, `${path}.entries[${index}]`, gameTime);
+    ids.push(validated.id);
+    for (const flag of validated.committedFlags) requiredCommittedFlags.add(flag);
   });
   saveUniqueStrings(state.dismissed, `${path}.dismissed`, { nonEmpty: true });
   state.dismissed.forEach((id, index) => {
@@ -317,5 +381,11 @@ export function validateJournalState(value, { path = "save.journal", gameTime } 
     ids.push(id);
   });
   saveUniqueStrings(ids, `${path} definition ids`, { nonEmpty: true });
+  const flags = saveUniqueStrings(activeFlags, "save.flags");
+  for (const flag of requiredCommittedFlags) {
+    if (!flags.has(flag)) {
+      failSave("save.flags", `is missing committed journal flag '${flag}'`);
+    }
+  }
   return state;
 }

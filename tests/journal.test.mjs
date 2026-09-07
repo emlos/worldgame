@@ -141,6 +141,19 @@ test("journal WG rejects world navigation and mutable journal flags", () => {
   }]), /flags\.journal\.\* flags are irreversible/);
 });
 
+test("journal WG requires replayable local effect values", () => {
+  assert.throws(() => compileStorySources([{
+    file: "story/dynamic-journal-local.wg",
+    source: `
+@journal "Remember my age"
+@passage start
+@effect set local.age player.age
+@finish
+@endjournal
+`,
+  }]), /local effects require context-free values/i);
+});
+
 test("journal WG rejects unreachable passages and paths trapped without @finish", () => {
   assert.throws(() => compileStorySources([{
     file: "story/unreachable-journal-passage.wg",
@@ -332,8 +345,51 @@ test("journal save validation rejects state not produced by the selected path", 
   injectedLocal.journal.draft.locals.unselected_answer = "forged";
   assert.throws(
     () => Game.fromJSON(injectedLocal),
-    /was not produced by a local effect on the selected journal path/,
+    /does not exactly match the local effects on the selected journal path/,
   );
+
+  const replacedSelectedLocal = JSON.parse(JSON.stringify(game.toJSON()));
+  replacedSelectedLocal.journal.draft.locals.school_person = {
+    forged: ["arbitrary", 999],
+  };
+  assert.throws(
+    () => Game.fromJSON(replacedSelectedLocal),
+    /does not exactly match the local effects on the selected journal path/,
+  );
+});
+
+test("journal save validation replays ordered set and add effects", () => {
+  const compiled = compileStorySources([{
+    file: "story/replayed-journal-locals.wg",
+    source: `
+@journal "Count it"
+@passage start
+@effect set local.nested.count 2
+@effect add local.nested.count 3
+@finish
+@endjournal
+`,
+  }]);
+  const definition = compiled.journals["journal-1"];
+  const definitionId = "journal-998";
+  definition.id = definitionId;
+  WG_BUNDLE.journals[definitionId] = definition;
+
+  try {
+    const game = writableGame();
+    game.startJournalDraft(definitionId);
+    assert.deepEqual(game.journal.entries.at(-1).locals, { nested: { count: 5 } });
+    assert.doesNotThrow(() => Game.fromJSON(JSON.parse(JSON.stringify(game.toJSON()))));
+
+    const tampered = JSON.parse(JSON.stringify(game.toJSON()));
+    tampered.journal.entries.at(-1).locals.nested.count = 6;
+    assert.throws(
+      () => Game.fromJSON(tampered),
+      /does not exactly match the local effects on the selected journal path/,
+    );
+  } finally {
+    delete WG_BUNDLE.journals[definitionId];
+  }
 });
 
 test("journal save validation rejects choices hidden by frozen decisions", () => {
@@ -400,6 +456,32 @@ test("journal flags commit only when the entry is finished", () => {
   assert.equal(game.journal.draft, null);
   assert.equal(game.hasFlag("journal.taylor_attractive"), true);
   assert.equal(game.hasFlag("journal.wants_to_get_closer_to_taylor"), true);
+});
+
+test("journal save validation requires flags committed by completed entries", () => {
+  const game = writableGame();
+  game.setFlag("journal.taylor_met");
+  game.refreshJournalAvailability();
+  game.startJournalDraft("journal-1");
+  chooseByLabel(game, "Taylor");
+  chooseByLabel(game, "attractive");
+  chooseByLabel(game, "flirt and see where it goes");
+
+  const missingFlag = JSON.parse(JSON.stringify(game.toJSON()));
+  missingFlag.flags = missingFlag.flags.filter(
+    (flag) => flag !== "journal.taylor_attractive",
+  );
+  assert.throws(
+    () => Game.fromJSON(missingFlag),
+    /missing committed journal flag 'journal\.taylor_attractive'/,
+  );
+
+  const replacedLocal = JSON.parse(JSON.stringify(game.toJSON()));
+  replacedLocal.journal.entries.at(-1).locals.taylor_intent = "forged";
+  assert.throws(
+    () => Game.fromJSON(replacedLocal),
+    /does not exactly match the local effects on the selected journal path/,
+  );
 });
 
 test("dismissing an old topic lets a newer topic enter the visible backlog", () => {

@@ -66,7 +66,10 @@ export function validateGameSave(data, { features = DEFAULT_FEATURE_CATALOG } = 
   } catch (error) {
     failSave("save.chats", error.message);
   }
-  validateJournalState(requiredSaveField(save, "journal", "save"), { gameTime });
+  validateJournalState(requiredSaveField(save, "journal", "save"), {
+    gameTime,
+    activeFlags: requiredSaveField(save, "flags", "save"),
+  });
   validateTimerStateSave(requiredSaveField(save, "timers", "save"), { gameTime, features });
   validatePlayerSave(requiredSaveField(save, "player", "save"), {
     npcProfiles,

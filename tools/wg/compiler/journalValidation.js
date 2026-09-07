@@ -9,11 +9,33 @@ function journalEffectAllowed(effect) {
   return effect.path?.[0] === "flags" && effect.path?.[1] === "journal";
 }
 
+function contextFreeExpression(expression) {
+  if (!expression || typeof expression !== "object" || Array.isArray(expression)) return false;
+  if (expression.type === "literal") return true;
+  if (expression.type === "list") {
+    return Array.isArray(expression.values) && expression.values.every(contextFreeExpression);
+  }
+  if (expression.type === "unary") return contextFreeExpression(expression.value);
+  if (expression.type === "binary") {
+    return contextFreeExpression(expression.left) && contextFreeExpression(expression.right);
+  }
+  return false;
+}
+
 function validateEffects(node) {
   const effects = node.type === "effect" ? [node.effect] : node.effects || [];
   if (effects.some((effect) => !journalEffectAllowed(effect))) {
     failWG(
       "Journal entries may mutate only local.* values or set irreversible flags.journal.* flags",
+      node.source,
+    );
+  }
+  if (effects.some((effect) =>
+    ["set", "add"].includes(effect.op) &&
+    effect.path?.[0] === "local" &&
+    !contextFreeExpression(effect.value))) {
+    failWG(
+      "Journal local effects require context-free values so saved locals can be validated exactly",
       node.source,
     );
   }

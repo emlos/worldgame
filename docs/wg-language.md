@@ -140,10 +140,14 @@ Taylor seems really...
 - Journal effects are deliberately narrow: `set`/`add` on `local.*`, or
   `set flags.journal.*`. Journal flags are monotonic and cannot be unset,
   including through the `Game` flag facade. Use them only for facts the rest
-  of the game should later react to.
+  of the game should later react to. Local mutation values must be context-free
+  expressions: literals, lists, and calculations that do not read runtime paths.
+  Use a structural `@if` branch when a journal entry must freeze a runtime fact.
 - Saves store the chosen path, journal locals, and the selected branches for
   `@if`, inline `@if`, and `@random`, not rendered prose. Structural branches
   are frozen when their passage is entered, preserving historical facts.
+  Loading replays the selected local effects and requires their exact result;
+  flags produced by completed entries must also exist in the global flag set.
   Interpolation is evaluated against current game state whenever the entry is
   read, so live character properties such as names and pronouns can still
   change old entries retroactively. Choice `@when` conditions are not frozen;
