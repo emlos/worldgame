@@ -8,6 +8,8 @@ import {
   buildJournalReadView,
   buildJournalWritingView,
 } from "../src/game/journal/view.js";
+import { journalDecisionKey } from "../src/game/journal/decisionKey.js";
+import { journalSessionForRender } from "../src/game/journal/runtime.js";
 import { compileStorySources } from "../tools/wg/compiler/storyCompiler.js";
 
 const FIXED_START = new Date("2026-09-04T12:00:00.000Z");
@@ -152,6 +154,56 @@ test("journal prose resolves live character pronouns when an old entry is reread
   const after = buildJournalReadView(game).pages[0].entries[0].paragraphs.join(" ");
   assert.match(after, /He has this way/);
   assert.doesNotMatch(after, /She has this way/);
+});
+
+test("journal random decisions are scoped to their passage", () => {
+  const source = `
+@journal "Random memories"
+@passage start
+@random
+First opening.
+@or
+Second opening.
+@endrandom
+@choice "Continue" -> .done
+@endchoice
+@passage done
+@random
+First ending.
+@or
+Second ending.
+@or
+Third ending.
+@endrandom
+@finish
+@endjournal
+`;
+
+  const bundle = compileStorySources([{ file: "story/random-journal.wg", source }]);
+  const journal = bundle.journals["journal-1"];
+  const [start, done] = journal.passages;
+  const startRandom = start.body.find((node) => node.type === "random");
+  const doneRandom = done.body.find((node) => node.type === "random");
+
+  assert.equal(startRandom.runtimeId, 0);
+  assert.equal(doneRandom.runtimeId, 0);
+
+  const startKey = journalDecisionKey(start.id, startRandom);
+  const doneKey = journalDecisionKey(done.id, doneRandom);
+  assert.notEqual(startKey, doneKey);
+
+  const game = writableGame();
+  const record = {
+    definitionId: journal.id,
+    availableAt: game.now.toISOString(),
+    locals: {},
+    decisions: {
+      [startKey]: 0,
+      [doneKey]: 2,
+    },
+  };
+  assert.equal(journalSessionForRender(game, record, start).decision(startRandom), 0);
+  assert.equal(journalSessionForRender(game, record, done).decision(doneRandom), 2);
 });
 
 test("journal choices complete continuation prose without headings or ellipses", () => {

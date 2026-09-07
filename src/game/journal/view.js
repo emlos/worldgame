@@ -37,7 +37,7 @@ function renderParagraph(node, context, session) {
 
 function passageProse(game, record, passage) {
   const context = createWGRuntimeContext(game, { locals: record.locals });
-  const session = journalSessionForRender(game, record);
+  const session = journalSessionForRender(game, record, passage);
   return selectedJournalNodes(passage.body, session)
     .filter((node) => node.type === "paragraph")
     .map((node) => renderParagraph(node, context, session));

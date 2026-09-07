@@ -4,8 +4,8 @@ import { findWGNode } from "../../story/wg/shared/tree.js";
 import { applyWGEffects } from "../../story/wg/runtime/effectRuntime.js";
 import { evaluateWGExpression } from "../../story/wg/runtime/expressionEvaluator.js";
 import { createWGRuntimeContext } from "../../story/wg/runtime/runtimeContext.js";
-import { wgDecisionKey } from "../../story/wg/runtime/decisionRuntime.js";
 import { renderWGText } from "../../story/wg/runtime/textRuntime.js";
+import { journalDecisionKey } from "./decisionKey.js";
 
 export const journalFail = (message) => { throw new Error(`Journal: ${message}`); };
 export const journalDefinition = (id) =>
@@ -61,7 +61,7 @@ export function canWriteJournal(game) {
     Number(game.story?.home?.unpack || 0) >= 5;
 }
 
-function journalDecisionSession(game, record, { recordRandom = false } = {}) {
+function journalDecisionSession(game, record, passage, { recordRandom = false } = {}) {
   const context = () => createWGRuntimeContext(game, { locals: record.locals });
   return {
     decision(node) {
@@ -70,7 +70,7 @@ function journalDecisionSession(game, record, { recordRandom = false } = {}) {
           Boolean(evaluateWGExpression(branch.test, context())));
       }
       if (node.type !== "random") journalFail(`unsupported decision node '${node.type}'`);
-      const key = wgDecisionKey(node);
+      const key = journalDecisionKey(passage.id, node);
       if (Object.hasOwn(record.decisions, key)) return record.decisions[key];
       const value = Math.floor(keyedRandom01(
         game.seed,
@@ -111,7 +111,7 @@ export function selectedJournalNodes(nodes, session) {
 function enterDraftPassage(game, draft) {
   const definition = journalDefinition(draft.definitionId);
   const passage = currentDraftPassage(draft);
-  const session = journalDecisionSession(game, draft, { recordRandom: true });
+  const session = journalDecisionSession(game, draft, passage, { recordRandom: true });
   for (const node of selectedJournalNodes(passage.body, session)) {
     if (node.type === "effect") {
       applyWGEffects(game, [node.effect], { locals: draft.locals });
@@ -163,7 +163,7 @@ export function startJournalDraft(game, definitionId) {
 
 function selectedChoice(game, draft, choiceId) {
   const passage = currentDraftPassage(draft);
-  const session = journalDecisionSession(game, draft, { recordRandom: true });
+  const session = journalDecisionSession(game, draft, passage, { recordRandom: true });
   return selectedJournalNodes(passage.body, session)
     .find((node) => node.type === "choice" && node.id === choiceId) || null;
 }
@@ -173,7 +173,7 @@ export function availableJournalChoices(game) {
   if (!draft) return [];
   const passage = currentDraftPassage(draft);
   const context = createWGRuntimeContext(game, { locals: draft.locals });
-  const session = journalDecisionSession(game, draft, { recordRandom: true });
+  const session = journalDecisionSession(game, draft, passage, { recordRandom: true });
   return selectedJournalNodes(passage.body, session)
     .filter((node) => node.type === "choice")
     .filter((choice) => !choice.when || evaluateWGExpression(choice.when, context))
@@ -188,7 +188,7 @@ export function availableJournalChoices(game) {
 function finishDraftIfNeeded(game) {
   const draft = game.journal.draft;
   const passage = currentDraftPassage(draft);
-  const session = journalDecisionSession(game, draft, { recordRandom: true });
+  const session = journalDecisionSession(game, draft, passage, { recordRandom: true });
   const selected = selectedJournalNodes(passage.body, session);
   const finished = selected.at(-1)?.type === "finish";
   if (!finished) return false;
@@ -235,6 +235,6 @@ export function resumeJournalDraft(game) {
   return game.journal.draft;
 }
 
-export function journalSessionForRender(game, record) {
-  return journalDecisionSession(game, record, { recordRandom: false });
+export function journalSessionForRender(game, record, passage) {
+  return journalDecisionSession(game, record, passage, { recordRandom: false });
 }

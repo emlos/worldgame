@@ -1,6 +1,5 @@
 import { WG_BUNDLE } from "../../story/wg/generated/scenes.js";
 import { collectWGNodes, findWGNode } from "../../story/wg/shared/tree.js";
-import { wgDecisionKey } from "../../story/wg/runtime/decisionRuntime.js";
 import {
   failSave,
   requiredSaveField,
@@ -11,6 +10,7 @@ import {
   saveUniqueStrings,
   validateJsonValue,
 } from "../../shared/util/saveValidation.js";
+import { journalDecisionKey } from "./decisionKey.js";
 
 function exactFields(record, allowed, path) {
   for (const key of Object.keys(record)) {
@@ -55,7 +55,7 @@ function validateDecisions(value, journal, path) {
   const randoms = new Map();
   for (const passage of journal.passages) {
     for (const node of collectWGNodes(passage.body, (candidate) => candidate.type === "random")) {
-      randoms.set(wgDecisionKey(node), node);
+      randoms.set(journalDecisionKey(passage.id, node), node);
     }
   }
   for (const [key, decision] of Object.entries(decisions)) {
