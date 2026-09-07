@@ -133,7 +133,6 @@ other:
 - adjust sleep balance - -sleeping for 6 hours almost fills up energy bar
 
 fix:
-- warning should appear in the home hub AFTER the opening scene
-- kim should appear the day AFTER the move in day (sep. 1st) at 4pm
+- school warning should appear in the home hub AFTER the opening scene
 - when searchig for place name in current play.html game "high school" yields no results, same with school. upgrade search alg slightly
 - random chocies for @time n..m should only consume their randomness when used/rll once and persist until used - ex: repeatedly entering and exiting of the player shome rerolls the unpacking time.

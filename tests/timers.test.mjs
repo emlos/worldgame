@@ -5,6 +5,7 @@ import { Game } from "../src/game/game.js";
 import { performChoice } from "../src/game/scene/choiceEngine.js";
 import { buildScene } from "../src/game/scene/sceneEngine.js";
 import { applyWGEffect } from "../src/story/wg/runtime/effectRuntime.js";
+import { getEligibleWGPoolScenes } from "../src/story/wg/runtime/sceneExposure.js";
 import {
   initialTimerDeadline,
   nextTimerDeadlineForSchedule,
@@ -37,6 +38,12 @@ function placePlayerAtKimOffice(game) {
     game.moveTo(String(location.id));
   }
   game.setCurrentPlace({ placeId: String(place.id) });
+}
+
+function landlordVisitIsEligible(game) {
+  return getEligibleWGPoolScenes(game, "interrupt").some(
+    (scene) => scene.id === "story.rent.landlord-visit",
+  );
 }
 
 test("timer schedule calculations use UTC calendar boundaries", () => {
@@ -229,7 +236,27 @@ test("the authored rent flow starts weekly charges and accepts £200 payments", 
   assert.ok(game.timers["rent.weekly"], "clearing debt must not stop weekly rent");
 });
 
-test("Kim intercepts an unfinished rent introduction after 16:00", () => {
+test("Kim's visit becomes eligible at 16:00 on September 2", () => {
+  const game = new Game({
+    seed: 713,
+    startDate: new Date("2026-09-01T07:00:00.000Z"),
+    playerOptions: { startPlaceId: null },
+  });
+  game.setFlag("opening_seen");
+
+  game.jumpToDate("2026-09-01T15:59:00.000Z");
+  assert.equal(landlordVisitIsEligible(game), false);
+  game.jumpToDate("2026-09-01T16:00:00.000Z");
+  assert.equal(landlordVisitIsEligible(game), false);
+  game.jumpToDate("2026-09-01T23:59:00.000Z");
+  assert.equal(landlordVisitIsEligible(game), false);
+  game.jumpToDate("2026-09-02T15:59:00.000Z");
+  assert.equal(landlordVisitIsEligible(game), false);
+  game.jumpToDate("2026-09-02T16:00:00.000Z");
+  assert.equal(landlordVisitIsEligible(game), true);
+});
+
+test("Kim intercepts an unfinished rent introduction after 16:00 on September 2", () => {
   const game = new Game({
     seed: 709,
     startDate: new Date("2026-09-01T15:50:00.000Z"),
@@ -240,6 +267,7 @@ test("Kim intercepts an unfinished rent introduction after 16:00", () => {
   game.setFlag("home_notice_resolved");
   game.addContact("kim");
   game.startChat("kim.rent");
+  game.jumpToDate("2026-09-02T15:50:00.000Z");
 
   const kim = game.npcs.get("kim");
   const thread = game.chats.threads.kim;
@@ -305,6 +333,7 @@ test("Kim comes in person when the player ignores the rent notice", () => {
     playerOptions: { startPlaceId: null },
   });
   game.setFlag("opening_seen");
+  game.jumpToDate("2026-09-02T15:50:00.000Z");
 
   choose(game, "loiter:15");
 
@@ -324,11 +353,13 @@ test("sleeping at home cannot skip Kim's post-16:00 knock", () => {
     startDate: new Date("2026-09-01T07:00:00.000Z"),
   });
   game.setFlag("opening_seen");
+  game.jumpToDate("2026-09-02T07:00:00.000Z");
+  game.player.setStatBase("energy", 100);
 
   choose(game, "Go to Bed");
   choose(game, "8 hours");
   choose(game, "__wg_next");
-  assert.equal(game.now.toISOString(), "2026-09-01T15:00:00.000Z");
+  assert.equal(game.now.toISOString(), "2026-09-02T15:00:00.000Z");
   assert.equal(game.currentStory, null);
 
   choose(game, "Go to Bed");
@@ -349,6 +380,7 @@ test("entering Kim's office after 16:00 cannot bypass the rent discussion", () =
   });
   game.setFlag("opening_seen");
   game.setFlag("rent_intro_2");
+  game.jumpToDate("2026-09-02T16:05:00.000Z");
   game.unlockPlacesByKey("home_kim");
   const { location, place } = findPlaceByKey(game, "home_kim");
   game.moveTo(String(location.id));

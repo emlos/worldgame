@@ -24,7 +24,7 @@
 :: story.rent.landlord-visit -> story.rent.intro.2
   @pool interrupt
   @when flags.opening_seen
-  @when time.minutesSinceMidnight >= 960
+  @when time.day > 2 or (time.day == 2 and time.minutesSinceMidnight >= 960)
   @when not story.rent.active
   @when not flags.rent_landlord_visit_seen
   @priority 200

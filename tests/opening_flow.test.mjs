@@ -45,6 +45,7 @@ test("a new browser game can enter the one-time home opening", () => {
   assert.equal(game.hasFlag("opening_seen"), true);
   const openingScene = buildScene(game);
   assert.equal(openingScene.heading, "A new beginning");
+  assert.doesNotMatch(JSON.stringify(openingScene.content), /notice pinned/);
 
   choose(game, "Maybe this is a fresh start");
   assert.equal(game.currentStory?.locals?.outlook, "hopeful");
@@ -56,6 +57,7 @@ test("a new browser game can enter the one-time home opening", () => {
 
   assert.equal(game.currentStory, null);
   assert.equal(game.currentPlace?.key, "player_home");
+  assert.match(JSON.stringify(buildScene(game).content), /notice pinned/);
   assert.equal(
     getEligibleWGAutomaticScenes(game, WG_AUTO_TRIGGER.enterPlace).some(
       (scene) => scene.id === "story.opening.new-home",

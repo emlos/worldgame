@@ -31311,17 +31311,55 @@ export const WG_BUNDLE = {
         },
         {
           "type": "binary",
-          "operator": ">=",
+          "operator": "or",
           "left": {
-            "type": "path",
-            "value": [
-              "time",
-              "minutesSinceMidnight"
-            ]
+            "type": "binary",
+            "operator": ">",
+            "left": {
+              "type": "path",
+              "value": [
+                "time",
+                "day"
+              ]
+            },
+            "right": {
+              "type": "literal",
+              "value": 2
+            }
           },
           "right": {
-            "type": "literal",
-            "value": 960
+            "type": "binary",
+            "operator": "and",
+            "left": {
+              "type": "binary",
+              "operator": "==",
+              "left": {
+                "type": "path",
+                "value": [
+                  "time",
+                  "day"
+                ]
+              },
+              "right": {
+                "type": "literal",
+                "value": 2
+              }
+            },
+            "right": {
+              "type": "binary",
+              "operator": ">=",
+              "left": {
+                "type": "path",
+                "value": [
+                  "time",
+                  "minutesSinceMidnight"
+                ]
+              },
+              "right": {
+                "type": "literal",
+                "value": 960
+              }
+            }
           }
         },
         {
