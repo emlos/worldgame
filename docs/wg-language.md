@@ -137,10 +137,12 @@ Taylor seems really...
   `@choicegroup`, local-target `@choice`, and terminal `@finish`. Journal
   choices support only `@when`, `@require`, and `@effect`; they take no time
   and cannot navigate into world scenes or use skill checks.
-- Journal effects are deliberately narrow: `set`/`add` on `local.*`, or
-  `set flags.journal.*`. Journal flags are monotonic and cannot be unset,
-  including through the `Game` flag facade. Use them only for facts the rest
-  of the game should later react to. Local mutation values must be context-free
+- `flags.journal.*` is the durable signal namespace used by the journal. Gameplay
+  systems set these flags for facts that unlock or shape topics; journal choices
+  may set them for facts established by the player's written response. They are
+  monotonic and cannot be unset, including through the `Game` flag facade.
+- Effects authored inside a journal are deliberately narrow: `set`/`add` on
+  `local.*`, or `set flags.journal.*`. Local mutation values must be context-free
   expressions: literals, lists, and calculations that do not read runtime paths.
   Use a structural `@if` branch when a journal entry must freeze a runtime fact.
 - Saves store the chosen path, journal locals, and the selected branches for
