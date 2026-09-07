@@ -264,6 +264,86 @@ test("partial journal drafts survive saves and can be dismissed permanently", ()
   );
 });
 
+test("journal save validation rejects state not produced by the selected path", () => {
+  const game = writableGame();
+  const taylor = game.npcs.get("taylor");
+  game.player.adjustRelationshipMeter(
+    "taylor",
+    "friendship",
+    1,
+    taylor.relationshipProfile,
+  );
+  game.refreshJournalAvailability();
+  game.startJournalDraft("journal-1");
+  chooseByLabel(game, "Taylor");
+
+  const injectedFlag = JSON.parse(JSON.stringify(game.toJSON()));
+  injectedFlag.journal.draft.deferredFlags.push(
+    "journal.wants_to_get_closer_to_taylor",
+  );
+  assert.throws(
+    () => Game.fromJSON(injectedFlag),
+    /not produced by the selected path/,
+  );
+
+  const injectedLocal = JSON.parse(JSON.stringify(game.toJSON()));
+  injectedLocal.journal.draft.locals.unselected_answer = "forged";
+  assert.throws(
+    () => Game.fromJSON(injectedLocal),
+    /was not produced by a local effect on the selected journal path/,
+  );
+});
+
+test("journal save validation rejects choices hidden by frozen decisions", () => {
+  const source = `
+@journal "Which route?"
+@passage start
+@if flags.take_first_route
+  @choice "First" -> .first
+  @endchoice
+@else
+  @choice "Second" -> .second
+  @endchoice
+@endif
+@passage first
+@choice "Continue" -> .done
+@endchoice
+@passage second
+@choice "Continue" -> .done
+@endchoice
+@passage done
+@finish
+@endjournal
+`;
+  const compiled = compileStorySources([{ file: "story/frozen-choice-journal.wg", source }]);
+  const definition = compiled.journals["journal-1"];
+  const definitionId = "journal-999";
+  definition.id = definitionId;
+  WG_BUNDLE.journals[definitionId] = definition;
+
+  try {
+    const game = writableGame();
+    game.setFlag("take_first_route");
+    game.journal.pending.push({
+      definitionId,
+      availableAt: game.now.toISOString(),
+    });
+    game.startJournalDraft(definitionId);
+
+    const conditional = definition.passages[0].body.find((node) => node.type === "if");
+    const hiddenChoice = conditional.elseNodes.find((node) => node.type === "choice");
+    const save = JSON.parse(JSON.stringify(game.toJSON()));
+    save.journal.draft.choices.push(hiddenChoice.id);
+
+    assert.throws(
+      () => Game.fromJSON(save),
+      /is not selected by the saved decisions in passage 'start'/,
+    );
+  } finally {
+    delete WG_BUNDLE.journals[definitionId];
+  }
+});
+
 test("journal flags commit only when the entry is finished", () => {
   const game = writableGame();
   const taylor = game.npcs.get("taylor");
