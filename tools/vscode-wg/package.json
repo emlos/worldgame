@@ -2,7 +2,7 @@
   "name": "worldgame-wg-language",
   "displayName": "Worldgame WG Language",
   "description": "Private VS Code language support for Worldgame .wg story files.",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "publisher": "worldgame-local",
   "private": true,
   "license": "UNLICENSED",

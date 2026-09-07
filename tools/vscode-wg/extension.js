@@ -5,6 +5,154 @@ const WG_EXCLUDE_GLOB = "**/{.git,node_modules}/**";
 const SCENE_DECLARATION_RE = /^\s*::\s+([a-z][a-z0-9_.-]*)(?=\s|$)/;
 const GLOBAL_SCENE_ID_RE = /^[a-z][a-z0-9_.-]*$/;
 
+const TOP_LEVEL_OPENERS = new Map([
+  ["@journal", "journal"],
+  ["@chat", "chat"],
+  ["@location", "location"],
+  ["@reminder", "reminder"],
+]);
+
+const TOP_LEVEL_CLOSERS = new Map([
+  ["@endjournal", "journal"],
+  ["@endchat", "chat"],
+  ["@endlocation", "location"],
+  ["@endreminder", "reminder"],
+]);
+
+const BLOCK_OPENERS = new Map([
+  ["@choice", "choice"],
+  ["@choicegroup", "choicegroup"],
+  ["@if", "if"],
+  ["@random", "random"],
+  ["@response", "response"],
+  ["@message", "message"],
+  ["@onenter", "onenter"],
+]);
+
+const BLOCK_CLOSERS = new Map([
+  ["@endchoice", "choice"],
+  ["@endchoicegroup", "choicegroup"],
+  ["@endif", "if"],
+  ["@endrandom", "random"],
+  ["@endresponse", "response"],
+  ["@endmessage", "message"],
+  ["@endonenter", "onenter"],
+]);
+
+function directiveName(trimmedLine) {
+  const match = trimmedLine.match(/^(@[a-z][a-z-]*)\b/);
+  return match ? match[1] : null;
+}
+
+function stackIndent(stack) {
+  return stack.reduce((depth, entry) => depth + (entry.indents ? 1 : 0), 0);
+}
+
+function popThrough(stack, type) {
+  for (let i = stack.length - 1; i >= 0; i -= 1) {
+    if (stack[i].type === type) {
+      stack.splice(i);
+      return true;
+    }
+  }
+  return false;
+}
+
+function hasOpen(stack, type) {
+  return stack.some((entry) => entry.type === type);
+}
+
+function formatWgText(text, eol = "\n", indentUnit = "  ") {
+  const sourceLines = text.split(/\r?\n/);
+  const output = [];
+  const stack = [];
+  let baseDepth = 0;
+  let previousWasBlank = false;
+
+  for (const sourceLine of sourceLines) {
+    const trimmed = sourceLine.trim();
+
+    if (trimmed === "") {
+      if (!previousWasBlank && output.length > 0) output.push("");
+      previousWasBlank = true;
+      continue;
+    }
+
+    previousWasBlank = false;
+
+    // Scene declarations are implicit top-level boundaries: a new `::` closes
+    // the previous scene for formatting purposes.
+    if (/^::(?:\s|$)/.test(trimmed)) {
+      stack.length = 0;
+      output.push(trimmed);
+      baseDepth = 1;
+      continue;
+    }
+
+    const directive = directiveName(trimmed);
+
+    if (directive && TOP_LEVEL_CLOSERS.has(directive)) {
+      stack.length = 0;
+      baseDepth = 0;
+      output.push(trimmed);
+      continue;
+    }
+
+    if (directive && TOP_LEVEL_OPENERS.has(directive)) {
+      stack.length = 0;
+      baseDepth = 1;
+      output.push(trimmed);
+      continue;
+    }
+
+    let lineDepth = baseDepth + stackIndent(stack);
+
+    if (directive === "@elseif" || directive === "@else") {
+      if (hasOpen(stack, "if")) lineDepth = Math.max(baseDepth, lineDepth - 1);
+    } else if (directive === "@or") {
+      if (hasOpen(stack, "random")) lineDepth = Math.max(baseDepth, lineDepth - 1);
+    } else if (directive === "@success" || directive === "@failure") {
+      // Passive checks use @success/@failure as sibling branches without
+      // @endsuccess/@endfailure. Close the prior branch if it is still open.
+      const top = stack[stack.length - 1];
+      if (top && (top.type === "success" || top.type === "failure")) {
+        stack.pop();
+      }
+      lineDepth = baseDepth + stackIndent(stack);
+    } else if (directive === "@endsuccess" || directive === "@endfailure") {
+      popThrough(stack, directive.slice(4));
+      lineDepth = baseDepth + stackIndent(stack);
+    } else if (directive === "@endcheck") {
+      const top = stack[stack.length - 1];
+      if (top && (top.type === "success" || top.type === "failure")) stack.pop();
+      popThrough(stack, "check");
+      lineDepth = baseDepth + stackIndent(stack);
+    } else if (directive && BLOCK_CLOSERS.has(directive)) {
+      popThrough(stack, BLOCK_CLOSERS.get(directive));
+      lineDepth = baseDepth + stackIndent(stack);
+    }
+
+    output.push(indentUnit.repeat(Math.max(0, lineDepth)) + trimmed);
+
+    if (directive === "@check") {
+      // @check itself does not increase indentation. Its @success/@failure
+      // branches do. This works for both passive checks and checked choices.
+      stack.push({ type: "check", indents: false });
+    } else if (directive === "@success" || directive === "@failure") {
+      stack.push({ type: directive.slice(1), indents: true });
+    } else if (directive && BLOCK_OPENERS.has(directive)) {
+      stack.push({ type: BLOCK_OPENERS.get(directive), indents: true });
+    }
+  }
+
+  // Do not manufacture trailing blank lines. Preserve the conventional single
+  // final newline when the source had one.
+  while (output.length > 0 && output[output.length - 1] === "") output.pop();
+  const hadFinalNewline = /(?:\r?\n)$/.test(text);
+  return output.join(eol) + (hadFinalNewline ? eol : "");
+}
+
+
 function isSceneTargetDirective(prefix) {
   const trimmed = prefix.trimStart();
   if (trimmed.startsWith("@#") || trimmed.startsWith("\\")) return false;
@@ -155,6 +303,22 @@ function activate(context) {
   const selector = { language: "wg" };
 
   context.subscriptions.push(
+    vscode.languages.registerDocumentFormattingEditProvider(selector, {
+      provideDocumentFormattingEdits(document) {
+        const eol = document.eol === vscode.EndOfLine.CRLF ? "\r\n" : "\n";
+        const formatted = formatWgText(document.getText(), eol);
+        if (formatted === document.getText()) return [];
+
+        const fullRange = new vscode.Range(
+          document.positionAt(0),
+          document.positionAt(document.getText().length),
+        );
+        return [vscode.TextEdit.replace(fullRange, formatted)];
+      },
+    }),
+  );
+
+  context.subscriptions.push(
     vscode.languages.registerDefinitionProvider(selector, {
       async provideDefinition(document, position) {
         await ready;
@@ -245,5 +409,6 @@ module.exports = {
     getGlobalSceneTargetAt,
     getCompletionTargetRange,
     isSceneTargetDirective,
+    formatWgText,
   },
 };
