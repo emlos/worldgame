@@ -397,7 +397,6 @@ function renderEmbeddedJournal(scene) {
   const actions = scene.sections.find((section) => section.id === "journal-actions");
   if (!writing || !actions) throw new Error("Journal scene is missing its choices");
   const exitChoice = actions.choices.find((choice) => choice.id === "journal-exit");
-  if (!exitChoice) throw new Error("Journal scene is missing its exit choice");
 
   const book = document.createElement("div");
   book.className = "journal-book journal-scene-book";
@@ -423,7 +422,7 @@ function renderEmbeddedJournal(scene) {
   const actionChoices = document.createElement("div");
   actionChoices.className = "journal-scene-actions";
   actionChoices.append(...actions.choices
-    .filter((choice) => choice.id !== exitChoice.id)
+    .filter((choice) => choice.id !== "journal-exit")
     .map((choice) =>
     makeEmbeddedJournalChoice(
       scene,
@@ -441,7 +440,7 @@ function renderEmbeddedJournal(scene) {
   date.textContent = diaryDateFormatter.format(new Date(view.date));
   prosePage.append(date);
   const entries = [...view.entries];
-  if (view.draft) entries.push(view.draft);
+  if (view.activeEntry) entries.push(view.activeEntry);
   if (entries.length) {
     prosePage.append(...entries.map((entry) => makeJournalEntryElement(document, entry)));
   } else {
@@ -452,13 +451,15 @@ function renderEmbeddedJournal(scene) {
   }
 
   book.append(choicePage, prosePage);
-  const exitButton = makeEmbeddedJournalChoice(
-    scene,
-    exitChoice,
-    choiceNumber,
-    "journal-write-choice journal-scene-exit",
-  );
-  sceneElement.append(book, exitButton);
+  sceneElement.append(book);
+  if (exitChoice) {
+    sceneElement.append(makeEmbeddedJournalChoice(
+      scene,
+      exitChoice,
+      choiceNumber,
+      "journal-write-choice journal-scene-exit",
+    ));
+  }
 }
 
 function renderJournalReadPage() {

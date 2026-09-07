@@ -24,9 +24,9 @@ import {
 } from "./chat/runtime.js";
 import {
   chooseJournalOption as chooseGameJournalOption,
-  dismissJournalDraft as dismissGameJournalDraft,
+  discardJournalEntry as discardGameJournalEntry,
   refreshJournalAvailability as refreshGameJournalAvailability,
-  startJournalDraft as startGameJournalDraft,
+  startJournalEntry as startGameJournalEntry,
 } from "./journal/runtime.js";
 import { emitGameEvent, subscribeGameEvent } from "./events.js";
 import {
@@ -100,16 +100,16 @@ export class Game {
     return refreshGameJournalAvailability(this);
   }
 
-  startJournalDraft(definitionId) {
-    return startGameJournalDraft(this, definitionId);
+  startJournalEntry(definitionId) {
+    return startGameJournalEntry(this, definitionId);
   }
 
   chooseJournalOption(request) {
     return chooseGameJournalOption(this, request);
   }
 
-  dismissJournalDraft() {
-    return dismissGameJournalDraft(this);
+  discardJournalEntry() {
+    return discardGameJournalEntry(this);
   }
 
   advanceMinutes(minutes, options = {}) {

@@ -31,9 +31,9 @@ export function validateGameSave(data, { features = DEFAULT_FEATURE_CATALOG } = 
   const save = saveRecord(data, "save");
   requireSameSaveValue(
     saveInteger(requiredSaveField(save, "saveVersion", "save"), "save.saveVersion"),
-    37,
+    38,
     "save.saveVersion",
-    "version 37",
+    "version 38",
   );
 
   const seed = saveUint32(requiredSaveField(save, "seed", "save"), "save.seed");

@@ -3,7 +3,7 @@ import { createWGRuntimeContext } from "../../story/wg/runtime/runtimeContext.js
 import { renderWGInterpolation, renderWGText } from "../../story/wg/runtime/textRuntime.js";
 import {
   availableJournalChoices,
-  currentDraftPassage,
+  currentActiveEntryPassage,
   journalDefinition,
   journalPassage,
   journalSessionForRender,
@@ -106,7 +106,7 @@ function journalEntriesWrittenOn(game, date) {
 
 export function buildJournalWritingView(game, { limit = 5 } = {}) {
   const pageEntries = journalEntriesWrittenOn(game, game.now);
-  if (!game.journal.draft) {
+  if (!game.journal.activeEntry) {
     const context = createWGRuntimeContext(game);
     return {
       mode: "topics",
@@ -119,23 +119,23 @@ export function buildJournalWritingView(game, { limit = 5 } = {}) {
           label: renderWGText(definition.prompt, context, definition.source),
         };
       }),
-      draft: null,
+      activeEntry: null,
       choices: [],
       token: null,
     };
   }
 
-  const draft = game.journal.draft;
+  const activeEntry = game.journal.activeEntry;
   return {
-    mode: "draft",
+    mode: "active",
     pageEntries,
     topics: [],
-    draft: renderJournalRecord(game, draft),
-    currentPassageId: currentDraftPassage(draft).id,
+    activeEntry: renderJournalRecord(game, activeEntry),
+    currentPassageId: currentActiveEntryPassage(activeEntry).id,
     choices: availableJournalChoices(game),
     token: {
-      definitionId: draft.definitionId,
-      revision: draft.choices.length,
+      definitionId: activeEntry.definitionId,
+      revision: activeEntry.choices.length,
     },
   };
 }

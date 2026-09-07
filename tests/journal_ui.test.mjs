@@ -41,7 +41,7 @@ test("the read-only diary UI renders a completed entry and page controls", () =>
   const topic = Object.values(WG_BUNDLE.journals).find((definition) =>
     definition.prompt.some((part) => part.type === "text" && part.value === "I actually got a job.")
   );
-  game.startJournalDraft(topic.id);
+  game.startJournalEntry(topic.id);
   const view = buildJournalWritingView(game);
   const choice = view.choices.find((candidate) => candidate.label === "dealing with customers");
   game.chooseJournalOption({ ...view.token, choiceId: choice.id });

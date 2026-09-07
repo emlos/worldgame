@@ -33,7 +33,7 @@ function writableGame() {
 
 function chooseByLabel(game, label) {
   const view = buildJournalWritingView(game);
-  assert.equal(view.mode, "draft");
+  assert.equal(view.mode, "active");
   const choice = view.choices.find((candidate) => candidate.label === label);
   assert.ok(choice, `expected journal choice ${JSON.stringify(label)}`);
   return game.chooseJournalOption({ ...view.token, choiceId: choice.id });
@@ -104,18 +104,18 @@ test("the full-school-day topic records whether it happened on the first day", (
   firstDay.setFlag("journal.completed_school_day");
   firstDay.setFlag("journal.completed_school_first_day");
   firstDay.refreshJournalAvailability();
-  firstDay.startJournalDraft(topic.id);
+  firstDay.startJournalEntry(topic.id);
   assert.match(
-    buildJournalWritingView(firstDay).draft.paragraphs.join(" "),
+    buildJournalWritingView(firstDay).activeEntry.paragraphs.join(" "),
     /very first day of school/,
   );
 
   const laterDay = writableGame();
   laterDay.setFlag("journal.completed_school_day");
   laterDay.refreshJournalAvailability();
-  laterDay.startJournalDraft(topic.id);
+  laterDay.startJournalEntry(topic.id);
   assert.match(
-    buildJournalWritingView(laterDay).draft.paragraphs.join(" "),
+    buildJournalWritingView(laterDay).activeEntry.paragraphs.join(" "),
     /It was not my first day/,
   );
 });
@@ -240,7 +240,7 @@ test("journal WG permits a cycle when every passage can still reach @finish", ()
   assert.ok(bundle.journals["journal-1"]);
 });
 
-test("journal writing is a normal system scene that can preserve a draft on exit", () => {
+test("an active journal entry must be finished or discarded before exiting", () => {
   const game = writableGame();
   game.runAction({
     label: "get cafe job",
@@ -261,22 +261,22 @@ test("journal writing is a normal system scene that can preserve a draft on exit
 
   chooseSceneByLabel(game, "...I actually got a job.");
   scene = buildScene(game);
-  assert.equal(scene.presentation.mode, "draft");
-  assert.equal(game.journal.draft.definitionId, "journal-2");
+  assert.equal(scene.presentation.mode, "active");
+  assert.equal(game.journal.activeEntry.definitionId, "journal-2");
 
+  assert.equal(
+    scene.sections.flatMap((section) => section.choices)
+      .some((choice) => choice.label === "Put the diary away"),
+    false,
+  );
+  chooseSceneByLabel(
+    game,
+    "actually, this doesn't seem worth writing about (discard permanently)",
+  );
+  assert.equal(game.journal.activeEntry, null);
   chooseSceneByLabel(game, "Put the diary away");
   assert.equal(game.currentStory, null);
-  assert.equal(game.journal.draft.definitionId, "journal-2");
   assert.equal(game.hasFlag("diary.tutorial"), true);
-
-  enterWGScene(game, "home.diary");
-  resolveActiveWGStory(game);
-  scene = buildScene(game);
-  assert.equal(scene.presentation.mode, "draft");
-  assert.doesNotMatch(
-    scene.content.map((block) => block.text).join(" "),
-    /You can write in your diary/,
-  );
 });
 
 test("journal availability latches and completed entries save decisions instead of prose", () => {
@@ -294,10 +294,10 @@ test("journal availability latches and completed entries save decisions instead 
   game.refreshJournalAvailability();
   assert.deepEqual(game.journal.pending.map((record) => record.definitionId), ["journal-2"]);
 
-  game.startJournalDraft("journal-2");
+  game.startJournalEntry("journal-2");
   const result = chooseByLabel(game, "dealing with customers");
   assert.equal(result.finished, true);
-  assert.equal(game.journal.draft, null);
+  assert.equal(game.journal.activeEntry, null);
   assert.equal(game.journal.entries.length, 1);
   assert.equal(canReadJournal(game), true);
   game.story.home.unpack = 4;
@@ -318,7 +318,7 @@ test("journal availability latches and completed entries save decisions instead 
   assert.equal(afterReload, beforeReload);
 });
 
-test("partial journal drafts survive saves and can be dismissed permanently", () => {
+test("active journal entries survive saves and can be discarded permanently", () => {
   const game = writableGame();
   game.runAction({
     label: "meet Taylor",
@@ -327,16 +327,16 @@ test("partial journal drafts survive saves and can be dismissed permanently", ()
     },
   });
 
-  game.startJournalDraft("journal-1");
+  game.startJournalEntry("journal-1");
   chooseByLabel(game, "Taylor");
   chooseByLabel(game, "attractive");
   assert.equal(game.hasFlag("journal.taylor_attractive"), false);
 
   const saved = JSON.parse(JSON.stringify(game.toJSON()));
   const restored = Game.fromJSON(saved);
-  assert.deepEqual(restored.journal.draft.choices, game.journal.draft.choices);
+  assert.deepEqual(restored.journal.activeEntry.choices, game.journal.activeEntry.choices);
   assert.deepEqual(
-    restored.journal.draft.deferredFlags,
+    restored.journal.activeEntry.deferredFlags,
     ["journal.taylor_attractive"],
   );
   assert.deepEqual(
@@ -348,9 +348,9 @@ test("partial journal drafts survive saves and can be dismissed permanently", ()
     ],
   );
 
-  assert.equal(restored.dismissJournalDraft(), "journal-1");
-  assert.equal(restored.journal.draft, null);
-  assert.deepEqual(restored.journal.dismissed, ["journal-1"]);
+  assert.equal(restored.discardJournalEntry(), "journal-1");
+  assert.equal(restored.journal.activeEntry, null);
+  assert.deepEqual(restored.journal.discarded, ["journal-1"]);
   assert.equal(restored.hasFlag("journal.taylor_attractive"), false);
   restored.refreshJournalAvailability();
   assert.equal(
@@ -358,7 +358,7 @@ test("partial journal drafts survive saves and can be dismissed permanently", ()
     false,
   );
   assert.throws(
-    () => restored.startJournalDraft("journal-1"),
+    () => restored.startJournalEntry("journal-1"),
     /topic is no longer available/,
   );
 });
@@ -367,11 +367,11 @@ test("journal save validation rejects state not produced by the selected path", 
   const game = writableGame();
   game.story.taylor_school_interactions_counter = 5;
   game.refreshJournalAvailability();
-  game.startJournalDraft("journal-1");
+  game.startJournalEntry("journal-1");
   chooseByLabel(game, "Taylor");
 
   const injectedFlag = JSON.parse(JSON.stringify(game.toJSON()));
-  injectedFlag.journal.draft.deferredFlags.push(
+  injectedFlag.journal.activeEntry.deferredFlags.push(
     "journal.wants_to_get_closer_to_taylor",
   );
   assert.throws(
@@ -380,14 +380,14 @@ test("journal save validation rejects state not produced by the selected path", 
   );
 
   const injectedLocal = JSON.parse(JSON.stringify(game.toJSON()));
-  injectedLocal.journal.draft.locals.unselected_answer = "forged";
+  injectedLocal.journal.activeEntry.locals.unselected_answer = "forged";
   assert.throws(
     () => Game.fromJSON(injectedLocal),
     /does not exactly match the local effects on the selected journal path/,
   );
 
   const replacedSelectedLocal = JSON.parse(JSON.stringify(game.toJSON()));
-  replacedSelectedLocal.journal.draft.locals.school_person = {
+  replacedSelectedLocal.journal.activeEntry.locals.school_person = {
     forged: ["arbitrary", 999],
   };
   assert.throws(
@@ -415,7 +415,7 @@ test("journal save validation replays ordered set and add effects", () => {
 
   try {
     const game = writableGame();
-    game.startJournalDraft(definitionId);
+    game.startJournalEntry(definitionId);
     assert.deepEqual(game.journal.entries.at(-1).locals, { nested: { count: 5 } });
     assert.doesNotThrow(() => Game.fromJSON(JSON.parse(JSON.stringify(game.toJSON()))));
 
@@ -464,12 +464,12 @@ test("journal save validation rejects choices hidden by frozen decisions", () =>
       definitionId,
       availableAt: game.now.toISOString(),
     });
-    game.startJournalDraft(definitionId);
+    game.startJournalEntry(definitionId);
 
     const conditional = definition.passages[0].body.find((node) => node.type === "if");
     const hiddenChoice = conditional.elseNodes.find((node) => node.type === "choice");
     const save = JSON.parse(JSON.stringify(game.toJSON()));
-    save.journal.draft.choices.push(hiddenChoice.id);
+    save.journal.activeEntry.choices.push(hiddenChoice.id);
 
     assert.throws(
       () => Game.fromJSON(save),
@@ -485,13 +485,13 @@ test("journal flags commit only when the entry is finished", () => {
   game.story.taylor_school_interactions_counter = 5;
   game.refreshJournalAvailability();
 
-  game.startJournalDraft("journal-1");
+  game.startJournalEntry("journal-1");
   chooseByLabel(game, "Taylor");
   chooseByLabel(game, "attractive");
   assert.equal(game.hasFlag("journal.taylor_attractive"), false);
   chooseByLabel(game, "flirt and see where it goes");
 
-  assert.equal(game.journal.draft, null);
+  assert.equal(game.journal.activeEntry, null);
   assert.equal(game.hasFlag("journal.taylor_attractive"), true);
   assert.equal(game.hasFlag("journal.wants_to_get_closer_to_taylor"), true);
 });
@@ -500,7 +500,7 @@ test("journal save validation requires flags committed by completed entries", ()
   const game = writableGame();
   game.story.taylor_school_interactions_counter = 5;
   game.refreshJournalAvailability();
-  game.startJournalDraft("journal-1");
+  game.startJournalEntry("journal-1");
   chooseByLabel(game, "Taylor");
   chooseByLabel(game, "attractive");
   chooseByLabel(game, "flirt and see where it goes");
@@ -522,7 +522,7 @@ test("journal save validation requires flags committed by completed entries", ()
   );
 });
 
-test("dismissing an old topic lets a newer topic enter the visible backlog", () => {
+test("discarding an old topic lets a newer topic enter the visible backlog", () => {
   const game = writableGame();
   game.runAction({
     label: "unlock three journal topics",
@@ -538,8 +538,8 @@ test("dismissing an old topic lets a newer topic enter the visible backlog", () 
       .map((topic) => topic.definitionId),
     ["journal-1", "journal-2"],
   );
-  game.startJournalDraft("journal-1");
-  game.dismissJournalDraft();
+  game.startJournalEntry("journal-1");
+  game.discardJournalEntry();
   assert.deepEqual(
     buildJournalWritingView(game, { limit: 2 }).topics
       .map((topic) => topic.definitionId),
@@ -555,7 +555,7 @@ test("journal writing shows only entries completed on the current game day", () 
       currentGame.setFlag("cafe_employee");
     },
   });
-  game.startJournalDraft("journal-2");
+  game.startJournalEntry("journal-2");
   chooseByLabel(game, "dealing with customers");
 
   const previousDayEntry = structuredClone(game.journal.entries[0]);
@@ -588,7 +588,7 @@ test("journal prose resolves live character pronouns when an old entry is reread
   game.story.taylor_school_interactions_counter = 5;
   game.refreshJournalAvailability();
 
-  game.startJournalDraft("journal-1");
+  game.startJournalEntry("journal-1");
   const personView = buildJournalWritingView(game);
   assert.deepEqual(personView.choices.map((choice) => choice.label), ["Taylor"]);
   chooseByLabel(game, "Taylor");
@@ -635,8 +635,8 @@ That is how I remember it.
       availableAt: game.now.toISOString(),
     });
 
-    game.startJournalDraft(definitionId);
-    assert.deepEqual(game.journal.draft.decisions, {
+    game.startJournalEntry(definitionId);
+    assert.deepEqual(game.journal.activeEntry.decisions, {
       "start:if:0": 0,
       "start:inline-if:1": 0,
     });
@@ -645,10 +645,10 @@ That is how I remember it.
     game.clearFlag("felt_confident");
     game.npcs.get("taylor").pronouns = PronounSets.HE_HIM;
 
-    const draftText = buildJournalWritingView(game).draft.paragraphs.join(" ");
-    assert.match(draftText, /arrived early and it felt easy/);
-    assert.match(draftText, /He noticed/);
-    assert.doesNotMatch(draftText, /arrived late|felt awkward/);
+    const activeEntryText = buildJournalWritingView(game).activeEntry.paragraphs.join(" ");
+    assert.match(activeEntryText, /arrived early and it felt easy/);
+    assert.match(activeEntryText, /He noticed/);
+    assert.doesNotMatch(activeEntryText, /arrived late|felt awkward/);
 
     chooseByLabel(game, "Finish");
     const entry = game.journal.entries[0];
@@ -744,9 +744,9 @@ test("journal choices complete continuation prose without headings or ellipses",
     },
   });
 
-  game.startJournalDraft("journal-3");
+  game.startJournalEntry("journal-3");
   chooseByLabel(game, "resigned");
-  game.startJournalDraft("journal-1");
+  game.startJournalEntry("journal-1");
   chooseByLabel(game, "Taylor");
   chooseByLabel(game, "strange");
   chooseByLabel(game, "flirt a little and see what happens");

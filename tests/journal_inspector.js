@@ -108,9 +108,9 @@ function definitionAvailable(definition) {
 }
 
 function recordState(id) {
-  if (game.journal.draft?.definitionId === id) return "draft";
+  if (game.journal.activeEntry?.definitionId === id) return "active";
   if (game.journal.entries.some((record) => record.definitionId === id)) return "completed";
-  if (game.journal.dismissed.includes(id)) return "dismissed";
+  if (game.journal.discarded.includes(id)) return "discarded";
   if (game.journal.pending.some((record) => record.definitionId === id)) return "pending";
   return "locked";
 }
@@ -323,11 +323,11 @@ function selectedCompletedRecord() {
 function startSelected() {
   const definition = selectedDefinition();
   if (!definition) return;
-  if (game.journal.draft && game.journal.draft.definitionId !== definition.id) {
-    setNotice("Finish the active draft before starting another topic.", "error");
+  if (game.journal.activeEntry && game.journal.activeEntry.definitionId !== definition.id) {
+    setNotice("Finish the active entry before starting another topic.", "error");
     return;
   }
-  if (["completed", "dismissed"].includes(recordState(definition.id))) {
+  if (["completed", "discarded"].includes(recordState(definition.id))) {
     setNotice("Reset this topic before replaying it.", "error");
     return;
   }
@@ -338,7 +338,7 @@ function startSelected() {
     });
   }
   try {
-    game.startJournalDraft(definition.id);
+    game.startJournalEntry(definition.id);
     setNotice(`Started ${definition.id}.`);
     render();
   } catch (error) {
@@ -349,14 +349,14 @@ function startSelected() {
 function resetSelected() {
   const definition = selectedDefinition();
   if (!definition) return;
-  if (game.journal.draft?.definitionId === definition.id) game.journal.draft = null;
+  if (game.journal.activeEntry?.definitionId === definition.id) game.journal.activeEntry = null;
   game.journal.pending = game.journal.pending.filter(
     (record) => record.definitionId !== definition.id,
   );
   game.journal.entries = game.journal.entries.filter(
     (record) => record.definitionId !== definition.id,
   );
-  game.journal.dismissed = game.journal.dismissed.filter(
+  game.journal.discarded = game.journal.discarded.filter(
     (definitionId) => definitionId !== definition.id,
   );
   for (const path of inspectDefinition(definition).journalFlags) {
@@ -369,18 +369,18 @@ function resetSelected() {
 
 function renderWritingSurface() {
   const definition = selectedDefinition();
-  const draftView = game.journal.draft ? buildJournalWritingView(game) : null;
+  const activeView = game.journal.activeEntry ? buildJournalWritingView(game) : null;
   elements.choices.replaceChildren();
 
-  if (draftView?.mode === "draft") {
-    const activeDefinition = WG_BUNDLE.journals[draftView.token.definitionId];
-    elements.activeState.textContent = "Draft active";
+  if (activeView?.mode === "active") {
+    const activeDefinition = WG_BUNDLE.journals[activeView.token.definitionId];
+    elements.activeState.textContent = "Entry active";
     elements.activeTitle.textContent = topicLabel(activeDefinition);
     elements.choiceIntro.textContent = "Choose the next line";
-    for (const choice of draftView.choices) {
+    for (const choice of activeView.choices) {
       elements.choices.append(makeChoiceButton(choice.label, () => {
         try {
-          game.chooseJournalOption({ ...draftView.token, choiceId: choice.id });
+          game.chooseJournalOption({ ...activeView.token, choiceId: choice.id });
           setNotice(`Selected: ${choice.label}`);
           render();
         } catch (error) {
@@ -388,13 +388,13 @@ function renderWritingSurface() {
         }
       }, choice.disabledReason));
     }
-    if (!draftView.choices.length) {
+    if (!activeView.choices.length) {
       const empty = document.createElement("p");
       empty.className = "inspector-help";
       empty.textContent = "No choices are currently available in this passage.";
       elements.choices.append(empty);
     }
-    renderProse(draftView.draft, "The entry has not produced prose yet.");
+    renderProse(activeView.activeEntry, "The entry has not produced prose yet.");
     return;
   }
 
@@ -447,8 +447,8 @@ function renderSummary() {
     ["State", definition ? recordState(definition.id) : "n/a"],
     ["Pending", game.journal.pending.length],
     ["Completed", game.journal.entries.length],
-    ["Dismissed", game.journal.dismissed.length],
-    ["Active choices", game.journal.draft?.choices.length || 0],
+    ["Discarded", game.journal.discarded.length],
+    ["Active choices", game.journal.activeEntry?.choices.length || 0],
   ];
   elements.summary.replaceChildren(...rows.flatMap(([term, description]) => {
     const dt = document.createElement("dt");
@@ -469,7 +469,7 @@ function renderSelectedStatus() {
     `${definition.id} · ${recordState(definition.id)} · authored conditions ` +
     `${definitionAvailable(definition) ? "pass" : "fail"}`;
   elements.start.disabled = Boolean(
-    game.journal.draft && game.journal.draft.definitionId !== definition.id,
+    game.journal.activeEntry && game.journal.activeEntry.definitionId !== definition.id,
   );
 }
 

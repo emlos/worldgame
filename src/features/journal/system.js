@@ -2,8 +2,8 @@ import { createChoice } from "../../game/scene/choiceContract.js";
 import { SCENE_ACTION_TYPE } from "../../game/scene/actions.js";
 import {
   chooseJournalOptionWithinAction,
-  dismissJournalDraftWithinAction,
-  startJournalDraftWithinAction,
+  discardJournalEntryWithinAction,
+  startJournalEntryWithinAction,
 } from "../../game/journal/runtime.js";
 import { buildJournalWritingView } from "../../game/journal/view.js";
 
@@ -63,12 +63,13 @@ function writingChoices(definition, systemId, view) {
 
 function actionChoices(definition, systemId, view) {
   const choices = [];
-  if (view.mode === "draft") {
+  if (view.mode === "active") {
     choices.push(systemChoice(definition, systemId, {
-      id: "journal-dismiss",
-      label: "actually, this doesn't seem worth writing about (dismiss permanently)",
-      command: { type: "dismiss" },
+      id: "journal-discard",
+      label: "actually, this doesn't seem worth writing about (discard permanently)",
+      command: { type: "discard" },
     }));
+    return choices;
   }
   choices.push(systemChoice(definition, systemId, {
     id: "journal-exit",
@@ -119,11 +120,11 @@ export const JOURNAL_STORY_SYSTEM = Object.freeze({
         type: "journal-writing",
         date: game.now.toISOString(),
         mode: view.mode,
-        intro: view.mode === "draft"
+        intro: view.mode === "active"
           ? "how do you want to put it?"
           : "you think about all the things that happened recently...",
         entries: view.pageEntries,
-        draft: view.draft,
+        activeEntry: view.activeEntry,
       },
     };
   },
@@ -133,15 +134,15 @@ export const JOURNAL_STORY_SYSTEM = Object.freeze({
       fail("command must be an object");
     }
     if (command.type === "start") {
-      startJournalDraftWithinAction(game, command.definitionId);
+      startJournalEntryWithinAction(game, command.definitionId);
       return { state };
     }
     if (command.type === "choose") {
       chooseJournalOptionWithinAction(game, command);
       return { state };
     }
-    if (command.type === "dismiss") {
-      dismissJournalDraftWithinAction(game);
+    if (command.type === "discard") {
+      discardJournalEntryWithinAction(game);
       return { state };
     }
     if (command.type === "exit") {

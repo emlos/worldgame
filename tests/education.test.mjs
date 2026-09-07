@@ -180,14 +180,14 @@ test("school attendance from different dates does not combine into a complete da
   assert.equal(game.hasFlag("journal.completed_school_first_day"), false);
 });
 
-test("save version 37 round-trips canonical subject achievement", () => {
+test("save version 38 round-trips canonical subject achievement", () => {
   const game = new Game({ seed: 117 });
   game.player.setSubjectGrade("art", "B");
   game.player.setSubjectProgress("art", 42);
   game.player.recordSubjectAttendance("art", 3);
 
   const save = game.toJSON();
-  assert.equal(save.saveVersion, 37);
+  assert.equal(save.saveVersion, 38);
   assert.deepEqual(save.player.education.subjects.art, {
     achievement: 242,
     attendedSegments: 3,

@@ -279,7 +279,7 @@ function validatePending(recordData, path, gameTime) {
   return id;
 }
 
-function validateDraft(recordData, path, gameTime) {
+function validateActiveEntry(recordData, path, gameTime) {
   const record = saveRecord(recordData, path);
   exactFields(
     record,
@@ -363,21 +363,23 @@ export function validateJournalState(
   { path = "save.journal", gameTime, activeFlags = [] } = {},
 ) {
   const state = saveRecord(value, path);
-  exactFields(state, ["pending", "draft", "entries", "dismissed"], path);
+  exactFields(state, ["pending", "activeEntry", "entries", "discarded"], path);
   const ids = [];
   const requiredCommittedFlags = new Set();
   saveArray(state.pending, `${path}.pending`).forEach((record, index) => {
     ids.push(validatePending(record, `${path}.pending[${index}]`, gameTime));
   });
-  if (state.draft !== null) ids.push(validateDraft(state.draft, `${path}.draft`, gameTime));
+  if (state.activeEntry !== null) {
+    ids.push(validateActiveEntry(state.activeEntry, `${path}.activeEntry`, gameTime));
+  }
   saveArray(state.entries, `${path}.entries`).forEach((record, index) => {
     const validated = validateEntry(record, `${path}.entries[${index}]`, gameTime);
     ids.push(validated.id);
     for (const flag of validated.committedFlags) requiredCommittedFlags.add(flag);
   });
-  saveUniqueStrings(state.dismissed, `${path}.dismissed`, { nonEmpty: true });
-  state.dismissed.forEach((id, index) => {
-    definition(id, `${path}.dismissed[${index}]`);
+  saveUniqueStrings(state.discarded, `${path}.discarded`, { nonEmpty: true });
+  state.discarded.forEach((id, index) => {
+    definition(id, `${path}.discarded[${index}]`);
     ids.push(id);
   });
   saveUniqueStrings(ids, `${path} definition ids`, { nonEmpty: true });
