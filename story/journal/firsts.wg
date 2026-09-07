@@ -1,5 +1,5 @@
 @journal "I've met someone at school that I keep thinking about."
-  @when flags.journal.taylor_met
+  @when story.taylor_school_interactions_counter >= 5
 
   @passage start
 

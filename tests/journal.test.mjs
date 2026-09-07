@@ -63,6 +63,35 @@ test("same-time journal topics retain numeric source order past nine entries", (
   );
 });
 
+test("Taylor's journal topic unlocks after five school interactions", () => {
+  const game = writableGame();
+  const topic = Object.values(WG_BUNDLE.journals).find((definition) =>
+    definition.prompt.some((part) =>
+      part.type === "text" &&
+      part.value === "I've met someone at school that I keep thinking about."
+    )
+  );
+  assert.ok(topic, "expected Taylor's journal topic");
+
+  game.story.taylor_school_interactions_counter = 4;
+  game.refreshJournalAvailability();
+  assert.equal(
+    game.journal.pending.some((record) => record.definitionId === topic.id),
+    false,
+  );
+
+  game.runAction({
+    label: "talk with Taylor at school",
+    apply(currentGame) {
+      currentGame.story.taylor_school_interactions_counter += 1;
+    },
+  });
+  assert.equal(
+    game.journal.pending.some((record) => record.definitionId === topic.id),
+    true,
+  );
+});
+
 test("the full-school-day topic records whether it happened on the first day", () => {
   const topic = Object.values(WG_BUNDLE.journals).find((definition) =>
     definition.prompt.some((part) =>
@@ -294,7 +323,7 @@ test("partial journal drafts survive saves and can be dismissed permanently", ()
   game.runAction({
     label: "meet Taylor",
     apply(currentGame) {
-      currentGame.setFlag("journal.taylor_met");
+      currentGame.story.taylor_school_interactions_counter = 5;
     },
   });
 
@@ -336,7 +365,7 @@ test("partial journal drafts survive saves and can be dismissed permanently", ()
 
 test("journal save validation rejects state not produced by the selected path", () => {
   const game = writableGame();
-  game.setFlag("journal.taylor_met");
+  game.story.taylor_school_interactions_counter = 5;
   game.refreshJournalAvailability();
   game.startJournalDraft("journal-1");
   chooseByLabel(game, "Taylor");
@@ -453,7 +482,7 @@ test("journal save validation rejects choices hidden by frozen decisions", () =>
 
 test("journal flags commit only when the entry is finished", () => {
   const game = writableGame();
-  game.setFlag("journal.taylor_met");
+  game.story.taylor_school_interactions_counter = 5;
   game.refreshJournalAvailability();
 
   game.startJournalDraft("journal-1");
@@ -469,7 +498,7 @@ test("journal flags commit only when the entry is finished", () => {
 
 test("journal save validation requires flags committed by completed entries", () => {
   const game = writableGame();
-  game.setFlag("journal.taylor_met");
+  game.story.taylor_school_interactions_counter = 5;
   game.refreshJournalAvailability();
   game.startJournalDraft("journal-1");
   chooseByLabel(game, "Taylor");
@@ -498,7 +527,7 @@ test("dismissing an old topic lets a newer topic enter the visible backlog", () 
   game.runAction({
     label: "unlock three journal topics",
     apply(currentGame) {
-      currentGame.setFlag("journal.taylor_met");
+      currentGame.story.taylor_school_interactions_counter = 5;
       currentGame.setFlag("cafe_employee");
       currentGame.setFlag("rent_intro_2");
     },
@@ -556,7 +585,7 @@ test("journal writing shows only entries completed on the current game day", () 
 test("journal prose resolves live character pronouns when an old entry is reread", () => {
   const game = writableGame();
   const taylor = game.npcs.get("taylor");
-  game.setFlag("journal.taylor_met");
+  game.story.taylor_school_interactions_counter = 5;
   game.refreshJournalAvailability();
 
   game.startJournalDraft("journal-1");
@@ -710,7 +739,7 @@ test("journal choices complete continuation prose without headings or ellipses",
   game.runAction({
     label: "unlock journal examples",
     apply(currentGame) {
-      currentGame.setFlag("journal.taylor_met");
+      currentGame.story.taylor_school_interactions_counter = 5;
       currentGame.setFlag("rent_intro_2");
     },
   });

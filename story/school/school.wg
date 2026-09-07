@@ -220,6 +220,7 @@
 
     @when npc.taylor.present
     @effect attendance english 1
+    @effect add story.taylor_school_interactions_counter 1
     @change relationship taylor.friendship 1
   @endchoice
 
@@ -241,6 +242,7 @@
     @event-pool school.class.english
     @when npc.taylor.present
     @effect attendance english 1
+    @effect add story.taylor_school_interactions_counter 1
     @change relationship taylor.friendship 1
   @endchoice
 
@@ -262,6 +264,7 @@
     @event-pool school.class.english
     @when npc.taylor.present
     @effect attendance english 1
+    @effect add story.taylor_school_interactions_counter 1
     @change relationship taylor.friendship 1
   @endchoice
 
@@ -288,6 +291,7 @@
     @time-until school.nextBoundaryAt
     @when npc.taylor.present
     @effect attendance math 1
+    @effect add story.taylor_school_interactions_counter 1
     @change relationship taylor.friendship 1
   @endchoice
 
@@ -309,6 +313,7 @@
     @time-until school.nextBoundaryAt
     @when npc.taylor.present
     @effect attendance math 1
+    @effect add story.taylor_school_interactions_counter 1
     @change relationship taylor.friendship 1
   @endchoice
 
@@ -330,6 +335,7 @@
     @time-until school.nextBoundaryAt
     @when npc.taylor.present
     @effect attendance math 1
+    @effect add story.taylor_school_interactions_counter 1
     @change relationship taylor.friendship 1
   @endchoice
 
@@ -354,6 +360,7 @@
     @event-pool school.class.history
     @when npc.taylor.present
     @effect attendance history 1
+    @effect add story.taylor_school_interactions_counter 1
     @change relationship taylor.friendship 1
   @endchoice
 
@@ -375,6 +382,7 @@
     @event-pool school.class.history
     @when npc.taylor.present
     @effect attendance history 1
+    @effect add story.taylor_school_interactions_counter 1
     @change relationship taylor.friendship 1
   @endchoice
 
@@ -396,6 +404,7 @@
     @event-pool school.class.history
     @when npc.taylor.present
     @effect attendance history 1
+    @effect add story.taylor_school_interactions_counter 1
     @change relationship taylor.friendship 1
   @endchoice
 
@@ -421,6 +430,7 @@
     @event-pool school.class.science
     @when npc.taylor.present
     @effect attendance science 1
+    @effect add story.taylor_school_interactions_counter 1
     @change relationship taylor.friendship 1
   @endchoice
 
@@ -442,6 +452,7 @@
     @event-pool school.class.science
     @when npc.taylor.present
     @effect attendance science 1
+    @effect add story.taylor_school_interactions_counter 1
     @change relationship taylor.friendship 1
   @endchoice
 
@@ -463,6 +474,7 @@
     @event-pool school.class.science
     @when npc.taylor.present
     @effect attendance science 1
+    @effect add story.taylor_school_interactions_counter 1
     @change relationship taylor.friendship 1
   @endchoice
 
@@ -488,6 +500,7 @@
     @event-pool school.class.art
     @when npc.taylor.present
     @effect attendance art 1
+    @effect add story.taylor_school_interactions_counter 1
     @change relationship taylor.friendship 1
   @endchoice
 
@@ -509,6 +522,7 @@
     @event-pool school.class.art
     @when npc.taylor.present
     @effect attendance art 1
+    @effect add story.taylor_school_interactions_counter 1
     @change relationship taylor.friendship 1
   @endchoice
 
@@ -530,6 +544,7 @@
     @event-pool school.class.art
     @when npc.taylor.present
     @effect attendance art 1
+    @effect add story.taylor_school_interactions_counter 1
     @change relationship taylor.friendship 1
   @endchoice
 
@@ -555,6 +570,7 @@
     @event-pool school.class.physical-education
     @when npc.taylor.present
     @effect attendance physical_education 1
+    @effect add story.taylor_school_interactions_counter 1
     @change relationship taylor.friendship 1
   @endchoice
 
@@ -577,6 +593,7 @@
     @event-pool school.class.physical-education
     @when npc.taylor.present
     @effect attendance physical_education 1
+    @effect add story.taylor_school_interactions_counter 1
     @change relationship taylor.friendship 1
   @endchoice
 
@@ -599,6 +616,7 @@
     @event-pool school.class.physical-education
     @when npc.taylor.present
     @effect attendance physical_education 1
+    @effect add story.taylor_school_interactions_counter 1
     @change relationship taylor.friendship 1
   @endchoice
 
@@ -633,6 +651,7 @@
       You and Taylor get a snack from the vending machine. It's a nice little break before class starts.
     @endresponse
     @change relationship taylor.friendship 3
+    @effect add story.taylor_school_interactions_counter 1
     @effect daily-flag school_before_taylor true
   @endchoice
 
