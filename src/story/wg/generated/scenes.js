@@ -8961,7 +8961,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 923,
+                "line": 937,
                 "column": 1
               }
             },
@@ -8980,7 +8980,7 @@ export const WG_BUNDLE = {
                 "difficultyId": "tricky",
                 "source": {
                   "file": "story/school/events.wg",
-                  "line": 926,
+                  "line": 940,
                   "column": 1
                 }
               },
@@ -8994,7 +8994,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 927,
+                    "line": 941,
                     "column": 1
                   }
                 },
@@ -9007,7 +9007,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 929,
+                    "line": 943,
                     "column": 1
                   }
                 }
@@ -9018,7 +9018,7 @@ export const WG_BUNDLE = {
               "warning": null,
               "source": {
                 "file": "story/school/events.wg",
-                "line": 925,
+                "line": 939,
                 "column": 1
               }
             },
@@ -9045,7 +9045,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 933,
+                "line": 947,
                 "column": 1
               }
             },
@@ -9076,10 +9076,27 @@ export const WG_BUNDLE = {
               "requirements": [],
               "warning": null,
               "hints": [],
-              "effects": [],
+              "effects": [
+                {
+                  "op": "add",
+                  "path": [
+                    "story",
+                    "taylor_school_interactions_counter"
+                  ],
+                  "value": {
+                    "type": "literal",
+                    "value": 1
+                  },
+                  "source": {
+                    "file": "story/school/events.wg",
+                    "line": 951,
+                    "column": 1
+                  }
+                }
+              ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 936,
+                "line": 950,
                 "column": 1
               }
             }
@@ -9087,7 +9104,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/events.wg",
-            "line": 923,
+            "line": 937,
             "column": 1
           }
         },
@@ -9109,7 +9126,7 @@ export const WG_BUNDLE = {
                     "amount": 2,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 942,
+                      "line": 957,
                       "column": 1
                     },
                     "feedback": {
@@ -9128,7 +9145,7 @@ export const WG_BUNDLE = {
                     "amount": 0.1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 942,
+                      "line": 957,
                       "column": 1
                     },
                     "feedback": {
@@ -9142,7 +9159,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 942,
+                "line": 957,
                 "column": 1
               }
             }
@@ -9157,13 +9174,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 944,
+              "line": 959,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 940,
+            "line": 955,
             "column": 1
           }
         },
@@ -9185,7 +9202,7 @@ export const WG_BUNDLE = {
                     "amount": -1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 948,
+                      "line": 963,
                       "column": 1
                     },
                     "feedback": {
@@ -9204,7 +9221,7 @@ export const WG_BUNDLE = {
                     "amount": 3,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 948,
+                      "line": 963,
                       "column": 1
                     },
                     "feedback": {
@@ -9218,7 +9235,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 948,
+                "line": 963,
                 "column": 1
               }
             },
@@ -9245,7 +9262,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 950,
+                "line": 965,
                 "column": 1
               }
             },
@@ -9272,7 +9289,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 953,
+                "line": 968,
                 "column": 1
               }
             }
@@ -9280,7 +9297,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/events.wg",
-            "line": 946,
+            "line": 961,
             "column": 1
           }
         },
@@ -9302,7 +9319,7 @@ export const WG_BUNDLE = {
                     "amount": 1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 958,
+                      "line": 973,
                       "column": 1
                     },
                     "feedback": {
@@ -9321,7 +9338,7 @@ export const WG_BUNDLE = {
                     "amount": 0.1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 958,
+                      "line": 973,
                       "column": 1
                     },
                     "feedback": {
@@ -9335,7 +9352,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 958,
+                "line": 973,
                 "column": 1
               }
             }
@@ -9350,13 +9367,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 960,
+              "line": 975,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 956,
+            "line": 971,
             "column": 1
           }
         },
@@ -9373,7 +9390,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 964,
+                "line": 979,
                 "column": 1
               }
             },
@@ -9397,10 +9414,27 @@ export const WG_BUNDLE = {
               "requirements": [],
               "warning": null,
               "hints": [],
-              "effects": [],
+              "effects": [
+                {
+                  "op": "add",
+                  "path": [
+                    "story",
+                    "taylor_school_interactions_counter"
+                  ],
+                  "value": {
+                    "type": "literal",
+                    "value": 1
+                  },
+                  "source": {
+                    "file": "story/school/events.wg",
+                    "line": 982,
+                    "column": 1
+                  }
+                }
+              ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 966,
+                "line": 981,
                 "column": 1
               }
             },
@@ -9424,10 +9458,27 @@ export const WG_BUNDLE = {
               "requirements": [],
               "warning": null,
               "hints": [],
-              "effects": [],
+              "effects": [
+                {
+                  "op": "add",
+                  "path": [
+                    "story",
+                    "taylor_school_interactions_counter"
+                  ],
+                  "value": {
+                    "type": "literal",
+                    "value": 1
+                  },
+                  "source": {
+                    "file": "story/school/events.wg",
+                    "line": 986,
+                    "column": 1
+                  }
+                }
+              ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 969,
+                "line": 985,
                 "column": 1
               }
             }
@@ -9435,7 +9486,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/events.wg",
-            "line": 962,
+            "line": 977,
             "column": 1
           }
         },
@@ -9457,7 +9508,7 @@ export const WG_BUNDLE = {
                     "amount": 1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 974,
+                      "line": 991,
                       "column": 1
                     },
                     "feedback": {
@@ -9476,7 +9527,7 @@ export const WG_BUNDLE = {
                     "amount": 0.1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 974,
+                      "line": 991,
                       "column": 1
                     },
                     "feedback": {
@@ -9490,7 +9541,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 974,
+                "line": 991,
                 "column": 1
               }
             }
@@ -9505,13 +9556,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 976,
+              "line": 993,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 972,
+            "line": 989,
             "column": 1
           }
         },
@@ -9533,7 +9584,7 @@ export const WG_BUNDLE = {
                     "amount": -1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 980,
+                      "line": 997,
                       "column": 1
                     },
                     "feedback": {
@@ -9547,7 +9598,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 980,
+                "line": 997,
                 "column": 1
               }
             }
@@ -9562,13 +9613,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 982,
+              "line": 999,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 978,
+            "line": 995,
             "column": 1
           }
         },
@@ -9606,7 +9657,7 @@ export const WG_BUNDLE = {
                     "amount": 2,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 986,
+                      "line": 1003,
                       "column": 1
                     },
                     "feedback": {
@@ -9628,7 +9679,7 @@ export const WG_BUNDLE = {
                     "amount": 1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 986,
+                      "line": 1003,
                       "column": 1
                     },
                     "feedback": {
@@ -9642,7 +9693,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 986,
+                "line": 1003,
                 "column": 1
               }
             }
@@ -9657,13 +9708,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 988,
+              "line": 1005,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 984,
+            "line": 1001,
             "column": 1
           }
         },
@@ -9686,7 +9737,7 @@ export const WG_BUNDLE = {
                     "amount": -2,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 992,
+                      "line": 1009,
                       "column": 1
                     },
                     "feedback": {
@@ -9708,7 +9759,7 @@ export const WG_BUNDLE = {
                     "amount": -1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 992,
+                      "line": 1009,
                       "column": 1
                     },
                     "feedback": {
@@ -9722,7 +9773,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 992,
+                "line": 1009,
                 "column": 1
               }
             }
@@ -9737,13 +9788,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 994,
+              "line": 1011,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 990,
+            "line": 1007,
             "column": 1
           }
         }
@@ -9785,7 +9836,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/school/events.wg",
-        "line": 917,
+        "line": 931,
         "column": 1
       }
     },
@@ -9812,7 +9863,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 834,
+                "line": 847,
                 "column": 1
               }
             },
@@ -9852,14 +9903,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/school/events.wg",
-                        "line": 837,
+                        "line": 850,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 836,
+                    "line": 849,
                     "column": 1
                   }
                 }
@@ -9875,14 +9926,14 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 839,
+                    "line": 852,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 836,
+                "line": 849,
                 "column": 1
               },
               "runtimeId": 0
@@ -9902,7 +9953,7 @@ export const WG_BUNDLE = {
                 "difficultyId": "tricky",
                 "source": {
                   "file": "story/school/events.wg",
-                  "line": 843,
+                  "line": 856,
                   "column": 1
                 }
               },
@@ -9916,7 +9967,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 844,
+                    "line": 857,
                     "column": 1
                   }
                 },
@@ -9929,7 +9980,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 846,
+                    "line": 859,
                     "column": 1
                   }
                 }
@@ -9940,7 +9991,7 @@ export const WG_BUNDLE = {
               "warning": null,
               "source": {
                 "file": "story/school/events.wg",
-                "line": 842,
+                "line": 855,
                 "column": 1
               }
             },
@@ -9967,7 +10018,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 850,
+                "line": 863,
                 "column": 1
               }
             },
@@ -10001,7 +10052,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 853,
+                "line": 866,
                 "column": 1
               }
             }
@@ -10009,7 +10060,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/events.wg",
-            "line": 834,
+            "line": 847,
             "column": 1
           }
         },
@@ -10031,7 +10082,7 @@ export const WG_BUNDLE = {
                     "amount": 2,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 859,
+                      "line": 872,
                       "column": 1
                     },
                     "feedback": {
@@ -10050,7 +10101,7 @@ export const WG_BUNDLE = {
                     "amount": 0.1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 859,
+                      "line": 872,
                       "column": 1
                     },
                     "feedback": {
@@ -10064,7 +10115,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 859,
+                "line": 872,
                 "column": 1
               }
             },
@@ -10095,10 +10146,27 @@ export const WG_BUNDLE = {
               "requirements": [],
               "warning": null,
               "hints": [],
-              "effects": [],
+              "effects": [
+                {
+                  "op": "add",
+                  "path": [
+                    "story",
+                    "taylor_school_interactions_counter"
+                  ],
+                  "value": {
+                    "type": "literal",
+                    "value": 1
+                  },
+                  "source": {
+                    "file": "story/school/events.wg",
+                    "line": 875,
+                    "column": 1
+                  }
+                }
+              ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 861,
+                "line": 874,
                 "column": 1
               }
             },
@@ -10125,7 +10193,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 865,
+                "line": 879,
                 "column": 1
               }
             }
@@ -10133,7 +10201,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/events.wg",
-            "line": 857,
+            "line": 870,
             "column": 1
           }
         },
@@ -10155,7 +10223,7 @@ export const WG_BUNDLE = {
                     "amount": -1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 870,
+                      "line": 884,
                       "column": 1
                     },
                     "feedback": {
@@ -10169,7 +10237,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 870,
+                "line": 884,
                 "column": 1
               }
             }
@@ -10184,13 +10252,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 872,
+              "line": 886,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 868,
+            "line": 882,
             "column": 1
           }
         },
@@ -10212,7 +10280,7 @@ export const WG_BUNDLE = {
                     "amount": 1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 876,
+                      "line": 890,
                       "column": 1
                     },
                     "feedback": {
@@ -10226,7 +10294,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 876,
+                "line": 890,
                 "column": 1
               }
             },
@@ -10259,7 +10327,7 @@ export const WG_BUNDLE = {
                             "amount": 1,
                             "source": {
                               "file": "story/school/events.wg",
-                              "line": 879,
+                              "line": 893,
                               "column": 1
                             },
                             "feedback": {
@@ -10276,14 +10344,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/school/events.wg",
-                        "line": 879,
+                        "line": 893,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 878,
+                    "line": 892,
                     "column": 1
                   }
                 }
@@ -10291,7 +10359,7 @@ export const WG_BUNDLE = {
               "elseNodes": null,
               "source": {
                 "file": "story/school/events.wg",
-                "line": 878,
+                "line": 892,
                 "column": 1
               },
               "runtimeId": 0
@@ -10307,13 +10375,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 882,
+              "line": 896,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 874,
+            "line": 888,
             "column": 1
           }
         },
@@ -10330,7 +10398,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 886,
+                "line": 900,
                 "column": 1
               }
             },
@@ -10357,7 +10425,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 888,
+                "line": 902,
                 "column": 1
               }
             },
@@ -10384,7 +10452,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 891,
+                "line": 905,
                 "column": 1
               }
             }
@@ -10392,7 +10460,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/events.wg",
-            "line": 884,
+            "line": 898,
             "column": 1
           }
         },
@@ -10428,7 +10496,7 @@ export const WG_BUNDLE = {
                     "amount": 2,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 896,
+                      "line": 910,
                       "column": 1
                     },
                     "feedback": {
@@ -10445,7 +10513,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 896,
+                "line": 910,
                 "column": 1
               }
             }
@@ -10460,13 +10528,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 898,
+              "line": 912,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 894,
+            "line": 908,
             "column": 1
           }
         },
@@ -10488,7 +10556,7 @@ export const WG_BUNDLE = {
                     "amount": 1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 902,
+                      "line": 916,
                       "column": 1
                     },
                     "feedback": {
@@ -10507,7 +10575,7 @@ export const WG_BUNDLE = {
                     "amount": 1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 902,
+                      "line": 916,
                       "column": 1
                     },
                     "feedback": {
@@ -10521,7 +10589,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 902,
+                "line": 916,
                 "column": 1
               }
             }
@@ -10536,13 +10604,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 904,
+              "line": 918,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 900,
+            "line": 914,
             "column": 1
           }
         },
@@ -10565,7 +10633,7 @@ export const WG_BUNDLE = {
                     "amount": 2,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 908,
+                      "line": 922,
                       "column": 1
                     },
                     "feedback": {
@@ -10587,7 +10655,7 @@ export const WG_BUNDLE = {
                     "amount": 1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 908,
+                      "line": 922,
                       "column": 1
                     },
                     "feedback": {
@@ -10601,7 +10669,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 908,
+                "line": 922,
                 "column": 1
               }
             }
@@ -10616,13 +10684,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 910,
+              "line": 924,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 906,
+            "line": 920,
             "column": 1
           }
         },
@@ -10660,7 +10728,7 @@ export const WG_BUNDLE = {
                     "amount": -1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 914,
+                      "line": 928,
                       "column": 1
                     },
                     "feedback": {
@@ -10682,7 +10750,7 @@ export const WG_BUNDLE = {
                     "amount": 2,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 914,
+                      "line": 928,
                       "column": 1
                     },
                     "feedback": {
@@ -10696,7 +10764,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 914,
+                "line": 928,
                 "column": 1
               }
             }
@@ -10711,13 +10779,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 916,
+              "line": 930,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 912,
+            "line": 926,
             "column": 1
           }
         }
@@ -10759,7 +10827,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/school/events.wg",
-        "line": 828,
+        "line": 841,
         "column": 1
       }
     },
@@ -10786,7 +10854,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1063,
+                "line": 1081,
                 "column": 1
               }
             },
@@ -10826,14 +10894,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/school/events.wg",
-                        "line": 1066,
+                        "line": 1084,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 1065,
+                    "line": 1083,
                     "column": 1
                   }
                 }
@@ -10849,14 +10917,14 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 1068,
+                    "line": 1086,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1065,
+                "line": 1083,
                 "column": 1
               },
               "runtimeId": 0
@@ -10876,7 +10944,7 @@ export const WG_BUNDLE = {
                 "difficultyId": "difficult",
                 "source": {
                   "file": "story/school/events.wg",
-                  "line": 1072,
+                  "line": 1090,
                   "column": 1
                 }
               },
@@ -10890,7 +10958,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 1073,
+                    "line": 1091,
                     "column": 1
                   }
                 },
@@ -10903,7 +10971,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 1075,
+                    "line": 1093,
                     "column": 1
                   }
                 }
@@ -10914,7 +10982,7 @@ export const WG_BUNDLE = {
               "warning": null,
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1071,
+                "line": 1089,
                 "column": 1
               }
             },
@@ -10941,7 +11009,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1079,
+                "line": 1097,
                 "column": 1
               }
             },
@@ -10972,10 +11040,27 @@ export const WG_BUNDLE = {
               "requirements": [],
               "warning": null,
               "hints": [],
-              "effects": [],
+              "effects": [
+                {
+                  "op": "add",
+                  "path": [
+                    "story",
+                    "taylor_school_interactions_counter"
+                  ],
+                  "value": {
+                    "type": "literal",
+                    "value": 1
+                  },
+                  "source": {
+                    "file": "story/school/events.wg",
+                    "line": 1101,
+                    "column": 1
+                  }
+                }
+              ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1082,
+                "line": 1100,
                 "column": 1
               }
             }
@@ -10983,7 +11068,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/events.wg",
-            "line": 1063,
+            "line": 1081,
             "column": 1
           }
         },
@@ -11005,7 +11090,7 @@ export const WG_BUNDLE = {
                     "amount": 2,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1088,
+                      "line": 1107,
                       "column": 1
                     },
                     "feedback": {
@@ -11019,7 +11104,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1088,
+                "line": 1107,
                 "column": 1
               }
             },
@@ -11052,7 +11137,7 @@ export const WG_BUNDLE = {
                             "amount": 2,
                             "source": {
                               "file": "story/school/events.wg",
-                              "line": 1091,
+                              "line": 1110,
                               "column": 1
                             },
                             "feedback": {
@@ -11069,14 +11154,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/school/events.wg",
-                        "line": 1091,
+                        "line": 1110,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 1090,
+                    "line": 1109,
                     "column": 1
                   }
                 }
@@ -11084,7 +11169,7 @@ export const WG_BUNDLE = {
               "elseNodes": null,
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1090,
+                "line": 1109,
                 "column": 1
               },
               "runtimeId": 0
@@ -11100,13 +11185,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 1094,
+              "line": 1113,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 1086,
+            "line": 1105,
             "column": 1
           }
         },
@@ -11128,7 +11213,7 @@ export const WG_BUNDLE = {
                     "amount": -1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1098,
+                      "line": 1117,
                       "column": 1
                     },
                     "feedback": {
@@ -11147,7 +11232,7 @@ export const WG_BUNDLE = {
                     "amount": 3,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1098,
+                      "line": 1117,
                       "column": 1
                     },
                     "feedback": {
@@ -11161,7 +11246,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1098,
+                "line": 1117,
                 "column": 1
               }
             },
@@ -11194,7 +11279,7 @@ export const WG_BUNDLE = {
                             "amount": -1,
                             "source": {
                               "file": "story/school/events.wg",
-                              "line": 1101,
+                              "line": 1120,
                               "column": 1
                             },
                             "feedback": {
@@ -11211,14 +11296,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/school/events.wg",
-                        "line": 1101,
+                        "line": 1120,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 1100,
+                    "line": 1119,
                     "column": 1
                   }
                 }
@@ -11226,7 +11311,7 @@ export const WG_BUNDLE = {
               "elseNodes": null,
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1100,
+                "line": 1119,
                 "column": 1
               },
               "runtimeId": 0
@@ -11242,13 +11327,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 1104,
+              "line": 1123,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 1096,
+            "line": 1115,
             "column": 1
           }
         },
@@ -11270,7 +11355,7 @@ export const WG_BUNDLE = {
                     "amount": 0.1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1108,
+                      "line": 1127,
                       "column": 1
                     },
                     "feedback": {
@@ -11289,7 +11374,7 @@ export const WG_BUNDLE = {
                     "amount": 1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1108,
+                      "line": 1127,
                       "column": 1
                     },
                     "feedback": {
@@ -11303,7 +11388,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1108,
+                "line": 1127,
                 "column": 1
               }
             }
@@ -11318,13 +11403,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 1110,
+              "line": 1129,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 1106,
+            "line": 1125,
             "column": 1
           }
         },
@@ -11362,7 +11447,7 @@ export const WG_BUNDLE = {
                     "amount": 2,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1114,
+                      "line": 1133,
                       "column": 1
                     },
                     "feedback": {
@@ -11384,7 +11469,7 @@ export const WG_BUNDLE = {
                     "amount": 1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1114,
+                      "line": 1133,
                       "column": 1
                     },
                     "feedback": {
@@ -11398,7 +11483,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1114,
+                "line": 1133,
                 "column": 1
               }
             }
@@ -11413,13 +11498,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 1116,
+              "line": 1135,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 1112,
+            "line": 1131,
             "column": 1
           }
         }
@@ -11461,7 +11546,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/school/events.wg",
-        "line": 1057,
+        "line": 1075,
         "column": 1
       }
     },
@@ -11488,7 +11573,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1001,
+                "line": 1018,
                 "column": 1
               }
             },
@@ -11507,7 +11592,7 @@ export const WG_BUNDLE = {
                 "difficultyId": "difficult",
                 "source": {
                   "file": "story/school/events.wg",
-                  "line": 1004,
+                  "line": 1021,
                   "column": 1
                 }
               },
@@ -11521,7 +11606,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 1005,
+                    "line": 1022,
                     "column": 1
                   }
                 },
@@ -11534,7 +11619,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 1007,
+                    "line": 1024,
                     "column": 1
                   }
                 }
@@ -11545,7 +11630,7 @@ export const WG_BUNDLE = {
               "warning": null,
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1003,
+                "line": 1020,
                 "column": 1
               }
             },
@@ -11572,7 +11657,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1011,
+                "line": 1028,
                 "column": 1
               }
             },
@@ -11603,10 +11688,27 @@ export const WG_BUNDLE = {
               "requirements": [],
               "warning": null,
               "hints": [],
-              "effects": [],
+              "effects": [
+                {
+                  "op": "add",
+                  "path": [
+                    "story",
+                    "taylor_school_interactions_counter"
+                  ],
+                  "value": {
+                    "type": "literal",
+                    "value": 1
+                  },
+                  "source": {
+                    "file": "story/school/events.wg",
+                    "line": 1032,
+                    "column": 1
+                  }
+                }
+              ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1014,
+                "line": 1031,
                 "column": 1
               }
             }
@@ -11614,7 +11716,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/events.wg",
-            "line": 1001,
+            "line": 1018,
             "column": 1
           }
         },
@@ -11636,7 +11738,7 @@ export const WG_BUNDLE = {
                     "amount": 2,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1020,
+                      "line": 1038,
                       "column": 1
                     },
                     "feedback": {
@@ -11655,7 +11757,7 @@ export const WG_BUNDLE = {
                     "amount": 0.1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1020,
+                      "line": 1038,
                       "column": 1
                     },
                     "feedback": {
@@ -11669,7 +11771,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1020,
+                "line": 1038,
                 "column": 1
               }
             }
@@ -11684,13 +11786,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 1022,
+              "line": 1040,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 1018,
+            "line": 1036,
             "column": 1
           }
         },
@@ -11712,7 +11814,7 @@ export const WG_BUNDLE = {
                     "amount": 3,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1026,
+                      "line": 1044,
                       "column": 1
                     },
                     "feedback": {
@@ -11731,7 +11833,7 @@ export const WG_BUNDLE = {
                     "amount": -1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1026,
+                      "line": 1044,
                       "column": 1
                     },
                     "feedback": {
@@ -11745,7 +11847,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1026,
+                "line": 1044,
                 "column": 1
               }
             },
@@ -11772,7 +11874,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1028,
+                "line": 1046,
                 "column": 1
               }
             },
@@ -11799,7 +11901,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1031,
+                "line": 1049,
                 "column": 1
               }
             }
@@ -11807,7 +11909,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/events.wg",
-            "line": 1024,
+            "line": 1042,
             "column": 1
           }
         },
@@ -11829,245 +11931,13 @@ export const WG_BUNDLE = {
                     "amount": 1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1036,
-                      "column": 1
-                    },
-                    "feedback": {
-                      "type": "grade",
-                      "amount": 1,
-                      "label": "+Art",
-                      "direction": "increase"
-                    }
-                  }
-                }
-              ],
-              "source": {
-                "file": "story/school/events.wg",
-                "line": 1036,
-                "column": 1
-              }
-            }
-          ],
-          "next": {
-            "label": [
-              {
-                "type": "text",
-                "value": "Next"
-              }
-            ],
-            "target": "@return",
-            "source": {
-              "file": "story/school/events.wg",
-              "line": 1038,
-              "column": 1
-            }
-          },
-          "source": {
-            "file": "story/school/events.wg",
-            "line": 1034,
-            "column": 1
-          }
-        },
-        {
-          "id": "mural-taylor",
-          "body": [
-            {
-              "type": "paragraph",
-              "parts": [
-                {
-                  "type": "text",
-                  "value": "Taylor proposes turning the mismatched borders into a river winding through the city. You extend the idea across both sections."
-                },
-                {
-                  "type": "change",
-                  "effect": {
-                    "op": "relationship",
-                    "npcId": "taylor",
-                    "meterId": "friendship",
-                    "amount": 2,
-                    "source": {
-                      "file": "story/school/events.wg",
-                      "line": 1042,
-                      "column": 1
-                    },
-                    "feedback": {
-                      "type": "relationship",
-                      "amount": 2,
-                      "label": "+Friendship",
-                      "npcId": "taylor",
-                      "meterId": "friendship",
-                      "higherIsBetter": true,
-                      "direction": "increase"
-                    }
-                  }
-                },
-                {
-                  "type": "change",
-                  "effect": {
-                    "op": "grade",
-                    "id": "art",
-                    "amount": 1,
-                    "source": {
-                      "file": "story/school/events.wg",
-                      "line": 1042,
-                      "column": 1
-                    },
-                    "feedback": {
-                      "type": "grade",
-                      "amount": 1,
-                      "label": "+Art",
-                      "direction": "increase"
-                    }
-                  }
-                }
-              ],
-              "source": {
-                "file": "story/school/events.wg",
-                "line": 1042,
-                "column": 1
-              }
-            }
-          ],
-          "next": {
-            "label": [
-              {
-                "type": "text",
-                "value": "Next"
-              }
-            ],
-            "target": "@return",
-            "source": {
-              "file": "story/school/events.wg",
-              "line": 1044,
-              "column": 1
-            }
-          },
-          "source": {
-            "file": "story/school/events.wg",
-            "line": 1040,
-            "column": 1
-          }
-        },
-        {
-          "id": "mural-compromise",
-          "body": [
-            {
-              "type": "paragraph",
-              "parts": [
-                {
-                  "type": "text",
-                  "value": "You reduce the plan to a shared horizon and let every table interpret the details. It is enough to hold the mural together."
-                },
-                {
-                  "type": "change",
-                  "effect": {
-                    "op": "grade",
-                    "id": "art",
-                    "amount": 1,
-                    "source": {
-                      "file": "story/school/events.wg",
-                      "line": 1048,
-                      "column": 1
-                    },
-                    "feedback": {
-                      "type": "grade",
-                      "amount": 1,
-                      "label": "+Art",
-                      "direction": "increase"
-                    }
-                  }
-                },
-                {
-                  "type": "change",
-                  "effect": {
-                    "op": "skill",
-                    "id": "resolve",
-                    "amount": 0.1,
-                    "source": {
-                      "file": "story/school/events.wg",
-                      "line": 1048,
-                      "column": 1
-                    },
-                    "feedback": {
-                      "type": "skill",
-                      "amount": 0.1,
-                      "label": "+Resolve",
-                      "direction": "increase"
-                    }
-                  }
-                }
-              ],
-              "source": {
-                "file": "story/school/events.wg",
-                "line": 1048,
-                "column": 1
-              }
-            }
-          ],
-          "next": {
-            "label": [
-              {
-                "type": "text",
-                "value": "Next"
-              }
-            ],
-            "target": "@return",
-            "source": {
-              "file": "story/school/events.wg",
-              "line": 1050,
-              "column": 1
-            }
-          },
-          "source": {
-            "file": "story/school/events.wg",
-            "line": 1046,
-            "column": 1
-          }
-        },
-        {
-          "id": "mural-takeover",
-          "body": [
-            {
-              "type": "paragraph",
-              "parts": [
-                {
-                  "type": "text",
-                  "value": "The boundary looks cleaner after you repaint it, but the neighboring group is furious that part of its work disappeared."
-                },
-                {
-                  "type": "change",
-                  "effect": {
-                    "op": "grade",
-                    "id": "art",
-                    "amount": -1,
-                    "source": {
-                      "file": "story/school/events.wg",
                       "line": 1054,
                       "column": 1
                     },
                     "feedback": {
                       "type": "grade",
-                      "amount": -1,
-                      "label": "-Art",
-                      "direction": "decrease"
-                    }
-                  }
-                },
-                {
-                  "type": "change",
-                  "effect": {
-                    "op": "stat",
-                    "id": "stress",
-                    "amount": 2,
-                    "source": {
-                      "file": "story/school/events.wg",
-                      "line": 1054,
-                      "column": 1
-                    },
-                    "feedback": {
-                      "type": "stat",
-                      "amount": 2,
-                      "label": "+Stress",
+                      "amount": 1,
+                      "label": "+Art",
                       "direction": "increase"
                     }
                   }
@@ -12099,6 +11969,238 @@ export const WG_BUNDLE = {
             "line": 1052,
             "column": 1
           }
+        },
+        {
+          "id": "mural-taylor",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Taylor proposes turning the mismatched borders into a river winding through the city. You extend the idea across both sections."
+                },
+                {
+                  "type": "change",
+                  "effect": {
+                    "op": "relationship",
+                    "npcId": "taylor",
+                    "meterId": "friendship",
+                    "amount": 2,
+                    "source": {
+                      "file": "story/school/events.wg",
+                      "line": 1060,
+                      "column": 1
+                    },
+                    "feedback": {
+                      "type": "relationship",
+                      "amount": 2,
+                      "label": "+Friendship",
+                      "npcId": "taylor",
+                      "meterId": "friendship",
+                      "higherIsBetter": true,
+                      "direction": "increase"
+                    }
+                  }
+                },
+                {
+                  "type": "change",
+                  "effect": {
+                    "op": "grade",
+                    "id": "art",
+                    "amount": 1,
+                    "source": {
+                      "file": "story/school/events.wg",
+                      "line": 1060,
+                      "column": 1
+                    },
+                    "feedback": {
+                      "type": "grade",
+                      "amount": 1,
+                      "label": "+Art",
+                      "direction": "increase"
+                    }
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/school/events.wg",
+                "line": 1060,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/school/events.wg",
+              "line": 1062,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/school/events.wg",
+            "line": 1058,
+            "column": 1
+          }
+        },
+        {
+          "id": "mural-compromise",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You reduce the plan to a shared horizon and let every table interpret the details. It is enough to hold the mural together."
+                },
+                {
+                  "type": "change",
+                  "effect": {
+                    "op": "grade",
+                    "id": "art",
+                    "amount": 1,
+                    "source": {
+                      "file": "story/school/events.wg",
+                      "line": 1066,
+                      "column": 1
+                    },
+                    "feedback": {
+                      "type": "grade",
+                      "amount": 1,
+                      "label": "+Art",
+                      "direction": "increase"
+                    }
+                  }
+                },
+                {
+                  "type": "change",
+                  "effect": {
+                    "op": "skill",
+                    "id": "resolve",
+                    "amount": 0.1,
+                    "source": {
+                      "file": "story/school/events.wg",
+                      "line": 1066,
+                      "column": 1
+                    },
+                    "feedback": {
+                      "type": "skill",
+                      "amount": 0.1,
+                      "label": "+Resolve",
+                      "direction": "increase"
+                    }
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/school/events.wg",
+                "line": 1066,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/school/events.wg",
+              "line": 1068,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/school/events.wg",
+            "line": 1064,
+            "column": 1
+          }
+        },
+        {
+          "id": "mural-takeover",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The boundary looks cleaner after you repaint it, but the neighboring group is furious that part of its work disappeared."
+                },
+                {
+                  "type": "change",
+                  "effect": {
+                    "op": "grade",
+                    "id": "art",
+                    "amount": -1,
+                    "source": {
+                      "file": "story/school/events.wg",
+                      "line": 1072,
+                      "column": 1
+                    },
+                    "feedback": {
+                      "type": "grade",
+                      "amount": -1,
+                      "label": "-Art",
+                      "direction": "decrease"
+                    }
+                  }
+                },
+                {
+                  "type": "change",
+                  "effect": {
+                    "op": "stat",
+                    "id": "stress",
+                    "amount": 2,
+                    "source": {
+                      "file": "story/school/events.wg",
+                      "line": 1072,
+                      "column": 1
+                    },
+                    "feedback": {
+                      "type": "stat",
+                      "amount": 2,
+                      "label": "+Stress",
+                      "direction": "increase"
+                    }
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/school/events.wg",
+                "line": 1072,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/school/events.wg",
+              "line": 1074,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/school/events.wg",
+            "line": 1070,
+            "column": 1
+          }
         }
       ],
       "placeKeys": [
@@ -12138,7 +12240,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/school/events.wg",
-        "line": 995,
+        "line": 1012,
         "column": 1
       }
     },
@@ -15694,13 +15796,29 @@ export const WG_BUNDLE = {
               "hints": [],
               "effects": [
                 {
+                  "op": "add",
+                  "path": [
+                    "story",
+                    "taylor_school_interactions_counter"
+                  ],
+                  "value": {
+                    "type": "literal",
+                    "value": 1
+                  },
+                  "source": {
+                    "file": "story/school/events.wg",
+                    "line": 31,
+                    "column": 1
+                  }
+                },
+                {
                   "op": "relationship",
                   "npcId": "taylor",
                   "meterId": "friendship",
                   "amount": 1,
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 32,
+                    "line": 33,
                     "column": 1
                   },
                   "feedback": {
@@ -15746,7 +15864,7 @@ export const WG_BUNDLE = {
                     "amount": 1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 37,
+                      "line": 38,
                       "column": 1
                     },
                     "feedback": {
@@ -15760,7 +15878,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 37,
+                "line": 38,
                 "column": 1
               }
             }
@@ -15775,13 +15893,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 39,
+              "line": 40,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 35,
+            "line": 36,
             "column": 1
           }
         },
@@ -15803,7 +15921,7 @@ export const WG_BUNDLE = {
                     "amount": -1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 43,
+                      "line": 44,
                       "column": 1
                     },
                     "feedback": {
@@ -15817,7 +15935,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 43,
+                "line": 44,
                 "column": 1
               }
             }
@@ -15832,13 +15950,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 45,
+              "line": 46,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 41,
+            "line": 42,
             "column": 1
           }
         },
@@ -15855,7 +15973,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 49,
+                "line": 50,
                 "column": 1
               }
             }
@@ -15870,13 +15988,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 51,
+              "line": 52,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 47,
+            "line": 48,
             "column": 1
           }
         },
@@ -15897,7 +16015,7 @@ export const WG_BUNDLE = {
                     ],
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 56,
+                      "line": 57,
                       "column": 1
                     }
                   }
@@ -15913,7 +16031,7 @@ export const WG_BUNDLE = {
                     ],
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 58,
+                      "line": 59,
                       "column": 1
                     }
                   }
@@ -15929,7 +16047,7 @@ export const WG_BUNDLE = {
                     ],
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 60,
+                      "line": 61,
                       "column": 1
                     }
                   }
@@ -15937,7 +16055,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 55,
+                "line": 56,
                 "column": 1
               },
               "runtimeId": 0
@@ -15953,13 +16071,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 63,
+              "line": 64,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 53,
+            "line": 54,
             "column": 1
           }
         }
@@ -16028,7 +16146,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 70,
+                "line": 71,
                 "column": 1
               }
             },
@@ -16046,7 +16164,7 @@ export const WG_BUNDLE = {
                     ],
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 72,
+                      "line": 73,
                       "column": 1
                     }
                   }
@@ -16062,7 +16180,7 @@ export const WG_BUNDLE = {
                     ],
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 74,
+                      "line": 75,
                       "column": 1
                     }
                   }
@@ -16078,7 +16196,7 @@ export const WG_BUNDLE = {
                     ],
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 76,
+                      "line": 77,
                       "column": 1
                     }
                   }
@@ -16086,7 +16204,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 71,
+                "line": 72,
                 "column": 1
               },
               "runtimeId": 0
@@ -16144,14 +16262,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/school/events.wg",
-                        "line": 80,
+                        "line": 81,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 79,
+                    "line": 80,
                     "column": 1
                   }
                 }
@@ -16167,14 +16285,14 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 82,
+                    "line": 83,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 79,
+                "line": 80,
                 "column": 1
               },
               "runtimeId": 1
@@ -16194,7 +16312,7 @@ export const WG_BUNDLE = {
                 "difficultyId": "tricky",
                 "source": {
                   "file": "story/school/events.wg",
-                  "line": 86,
+                  "line": 87,
                   "column": 1
                 }
               },
@@ -16208,7 +16326,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 88,
+                    "line": 89,
                     "column": 1
                   }
                 },
@@ -16221,7 +16339,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 91,
+                    "line": 92,
                     "column": 1
                   }
                 }
@@ -16232,7 +16350,7 @@ export const WG_BUNDLE = {
               "warning": null,
               "source": {
                 "file": "story/school/events.wg",
-                "line": 85,
+                "line": 86,
                 "column": 1
               }
             },
@@ -16259,7 +16377,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 95,
+                "line": 96,
                 "column": 1
               }
             },
@@ -16298,7 +16416,7 @@ export const WG_BUNDLE = {
                   "amount": -1,
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 100,
+                    "line": 101,
                     "column": 1
                   },
                   "feedback": {
@@ -16314,7 +16432,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 98,
+                "line": 99,
                 "column": 1
               }
             }
@@ -16322,7 +16440,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/events.wg",
-            "line": 70,
+            "line": 71,
             "column": 1
           }
         },
@@ -16344,7 +16462,7 @@ export const WG_BUNDLE = {
                     "amount": 1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 105,
+                      "line": 106,
                       "column": 1
                     },
                     "feedback": {
@@ -16358,7 +16476,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 105,
+                "line": 106,
                 "column": 1
               }
             }
@@ -16373,13 +16491,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 107,
+              "line": 108,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 103,
+            "line": 104,
             "column": 1
           }
         },
@@ -16401,7 +16519,7 @@ export const WG_BUNDLE = {
                     "amount": -1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 111,
+                      "line": 112,
                       "column": 1
                     },
                     "feedback": {
@@ -16415,7 +16533,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 111,
+                "line": 112,
                 "column": 1
               }
             },
@@ -16472,14 +16590,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/school/events.wg",
-                        "line": 114,
+                        "line": 115,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 113,
+                    "line": 114,
                     "column": 1
                   }
                 }
@@ -16487,7 +16605,7 @@ export const WG_BUNDLE = {
               "elseNodes": null,
               "source": {
                 "file": "story/school/events.wg",
-                "line": 113,
+                "line": 114,
                 "column": 1
               },
               "runtimeId": 0
@@ -16503,13 +16621,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 117,
+              "line": 118,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 109,
+            "line": 110,
             "column": 1
           }
         },
@@ -16526,7 +16644,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 121,
+                "line": 122,
                 "column": 1
               }
             }
@@ -16541,13 +16659,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 123,
+              "line": 124,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 119,
+            "line": 120,
             "column": 1
           }
         },
@@ -16577,7 +16695,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 126,
+                "line": 127,
                 "column": 1
               }
             },
@@ -16604,7 +16722,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 128,
+                "line": 129,
                 "column": 1
               }
             },
@@ -16631,7 +16749,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 130,
+                "line": 131,
                 "column": 1
               }
             }
@@ -16646,13 +16764,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 131,
+              "line": 132,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 125,
+            "line": 126,
             "column": 1
           }
         }
@@ -16694,7 +16812,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/school/events.wg",
-        "line": 64,
+        "line": 65,
         "column": 1
       }
     },
@@ -16721,7 +16839,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 149,
+                "line": 150,
                 "column": 1
               }
             },
@@ -16748,7 +16866,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 151,
+                "line": 152,
                 "column": 1
               }
             },
@@ -16767,7 +16885,7 @@ export const WG_BUNDLE = {
                 "difficultyId": "tricky",
                 "source": {
                   "file": "story/school/events.wg",
-                  "line": 155,
+                  "line": 156,
                   "column": 1
                 }
               },
@@ -16781,7 +16899,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 157,
+                    "line": 158,
                     "column": 1
                   }
                 },
@@ -16794,7 +16912,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 160,
+                    "line": 161,
                     "column": 1
                   }
                 }
@@ -16805,7 +16923,7 @@ export const WG_BUNDLE = {
               "warning": null,
               "source": {
                 "file": "story/school/events.wg",
-                "line": 154,
+                "line": 155,
                 "column": 1
               }
             }
@@ -16813,7 +16931,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/events.wg",
-            "line": 149,
+            "line": 150,
             "column": 1
           }
         },
@@ -16843,7 +16961,7 @@ export const WG_BUNDLE = {
                     "amount": -1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 167,
+                      "line": 168,
                       "column": 1
                     },
                     "feedback": {
@@ -16857,7 +16975,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 166,
+                "line": 167,
                 "column": 1
               }
             }
@@ -16872,13 +16990,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 169,
+              "line": 170,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 164,
+            "line": 165,
             "column": 1
           }
         },
@@ -16895,7 +17013,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 173,
+                "line": 174,
                 "column": 1
               }
             },
@@ -16907,7 +17025,7 @@ export const WG_BUNDLE = {
                 "amount": 2,
                 "source": {
                   "file": "story/school/events.wg",
-                  "line": 175,
+                  "line": 176,
                   "column": 1
                 },
                 "feedback": {
@@ -16919,7 +17037,7 @@ export const WG_BUNDLE = {
               },
               "source": {
                 "file": "story/school/events.wg",
-                "line": 175,
+                "line": 176,
                 "column": 1
               }
             }
@@ -16934,13 +17052,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 176,
+              "line": 177,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 171,
+            "line": 172,
             "column": 1
           }
         },
@@ -16957,7 +17075,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 180,
+                "line": 181,
                 "column": 1
               }
             },
@@ -16969,7 +17087,7 @@ export const WG_BUNDLE = {
                 "amount": -1,
                 "source": {
                   "file": "story/school/events.wg",
-                  "line": 182,
+                  "line": 183,
                   "column": 1
                 },
                 "feedback": {
@@ -16981,7 +17099,7 @@ export const WG_BUNDLE = {
               },
               "source": {
                 "file": "story/school/events.wg",
-                "line": 182,
+                "line": 183,
                 "column": 1
               }
             }
@@ -16996,13 +17114,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 184,
+              "line": 185,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 178,
+            "line": 179,
             "column": 1
           }
         }
@@ -17044,7 +17162,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/school/events.wg",
-        "line": 143,
+        "line": 144,
         "column": 1
       }
     },
@@ -17063,7 +17181,7 @@ export const WG_BUNDLE = {
         },
         "source": {
           "file": "story/school/events.wg",
-          "line": 142,
+          "line": 143,
           "column": 1
         }
       },
@@ -17074,7 +17192,7 @@ export const WG_BUNDLE = {
           "value": true,
           "source": {
             "file": "story/school/events.wg",
-            "line": 140,
+            "line": 141,
             "column": 1
           }
         }
@@ -17128,7 +17246,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/school/events.wg",
-        "line": 133,
+        "line": 134,
         "column": 1
       }
     },
@@ -17281,7 +17399,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 491,
+                "line": 498,
                 "column": 1
               }
             },
@@ -17300,7 +17418,7 @@ export const WG_BUNDLE = {
                 "difficultyId": "difficult",
                 "source": {
                   "file": "story/school/events.wg",
-                  "line": 494,
+                  "line": 501,
                   "column": 1
                 }
               },
@@ -17314,7 +17432,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 495,
+                    "line": 502,
                     "column": 1
                   }
                 },
@@ -17327,7 +17445,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 497,
+                    "line": 504,
                     "column": 1
                   }
                 }
@@ -17338,7 +17456,7 @@ export const WG_BUNDLE = {
               "warning": null,
               "source": {
                 "file": "story/school/events.wg",
-                "line": 493,
+                "line": 500,
                 "column": 1
               }
             },
@@ -17365,7 +17483,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 501,
+                "line": 508,
                 "column": 1
               }
             },
@@ -17396,10 +17514,27 @@ export const WG_BUNDLE = {
               "requirements": [],
               "warning": null,
               "hints": [],
-              "effects": [],
+              "effects": [
+                {
+                  "op": "add",
+                  "path": [
+                    "story",
+                    "taylor_school_interactions_counter"
+                  ],
+                  "value": {
+                    "type": "literal",
+                    "value": 1
+                  },
+                  "source": {
+                    "file": "story/school/events.wg",
+                    "line": 512,
+                    "column": 1
+                  }
+                }
+              ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 504,
+                "line": 511,
                 "column": 1
               }
             }
@@ -17407,7 +17542,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/events.wg",
-            "line": 491,
+            "line": 498,
             "column": 1
           }
         },
@@ -17429,7 +17564,7 @@ export const WG_BUNDLE = {
                     "amount": 2,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 510,
+                      "line": 518,
                       "column": 1
                     },
                     "feedback": {
@@ -17448,7 +17583,7 @@ export const WG_BUNDLE = {
                     "amount": 0.1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 510,
+                      "line": 518,
                       "column": 1
                     },
                     "feedback": {
@@ -17462,7 +17597,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 510,
+                "line": 518,
                 "column": 1
               }
             }
@@ -17477,13 +17612,13 @@ export const WG_BUNDLE = {
             "target": ".consequences",
             "source": {
               "file": "story/school/events.wg",
-              "line": 512,
+              "line": 520,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 508,
+            "line": 516,
             "column": 1
           }
         },
@@ -17505,7 +17640,7 @@ export const WG_BUNDLE = {
                     "amount": -1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 516,
+                      "line": 524,
                       "column": 1
                     },
                     "feedback": {
@@ -17524,7 +17659,7 @@ export const WG_BUNDLE = {
                     "amount": 2,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 516,
+                      "line": 524,
                       "column": 1
                     },
                     "feedback": {
@@ -17538,7 +17673,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 516,
+                "line": 524,
                 "column": 1
               }
             }
@@ -17553,13 +17688,13 @@ export const WG_BUNDLE = {
             "target": ".consequences",
             "source": {
               "file": "story/school/events.wg",
-              "line": 518,
+              "line": 526,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 514,
+            "line": 522,
             "column": 1
           }
         },
@@ -17581,7 +17716,7 @@ export const WG_BUNDLE = {
                     "amount": 1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 522,
+                      "line": 530,
                       "column": 1
                     },
                     "feedback": {
@@ -17600,7 +17735,7 @@ export const WG_BUNDLE = {
                     "amount": 0.1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 522,
+                      "line": 530,
                       "column": 1
                     },
                     "feedback": {
@@ -17614,7 +17749,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 522,
+                "line": 530,
                 "column": 1
               }
             }
@@ -17629,13 +17764,13 @@ export const WG_BUNDLE = {
             "target": ".consequences",
             "source": {
               "file": "story/school/events.wg",
-              "line": 524,
+              "line": 532,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 520,
+            "line": 528,
             "column": 1
           }
         },
@@ -17671,7 +17806,7 @@ export const WG_BUNDLE = {
                     "amount": 2,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 528,
+                      "line": 536,
                       "column": 1
                     },
                     "feedback": {
@@ -17688,7 +17823,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 528,
+                "line": 536,
                 "column": 1
               }
             }
@@ -17703,13 +17838,13 @@ export const WG_BUNDLE = {
             "target": ".consequences",
             "source": {
               "file": "story/school/events.wg",
-              "line": 530,
+              "line": 538,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 526,
+            "line": 534,
             "column": 1
           }
         },
@@ -17726,7 +17861,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 534,
+                "line": 542,
                 "column": 1
               }
             }
@@ -17741,13 +17876,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 536,
+              "line": 544,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 532,
+            "line": 540,
             "column": 1
           }
         }
@@ -17789,7 +17924,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/school/events.wg",
-        "line": 485,
+        "line": 492,
         "column": 1
       }
     },
@@ -17816,7 +17951,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 543,
+                "line": 551,
                 "column": 1
               }
             },
@@ -17835,7 +17970,7 @@ export const WG_BUNDLE = {
                 "difficultyId": "tricky",
                 "source": {
                   "file": "story/school/events.wg",
-                  "line": 546,
+                  "line": 554,
                   "column": 1
                 }
               },
@@ -17849,7 +17984,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 547,
+                    "line": 555,
                     "column": 1
                   }
                 },
@@ -17862,7 +17997,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 549,
+                    "line": 557,
                     "column": 1
                   }
                 }
@@ -17873,7 +18008,7 @@ export const WG_BUNDLE = {
               "warning": null,
               "source": {
                 "file": "story/school/events.wg",
-                "line": 545,
+                "line": 553,
                 "column": 1
               }
             },
@@ -17900,7 +18035,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 553,
+                "line": 561,
                 "column": 1
               }
             },
@@ -17931,10 +18066,27 @@ export const WG_BUNDLE = {
               "requirements": [],
               "warning": null,
               "hints": [],
-              "effects": [],
+              "effects": [
+                {
+                  "op": "add",
+                  "path": [
+                    "story",
+                    "taylor_school_interactions_counter"
+                  ],
+                  "value": {
+                    "type": "literal",
+                    "value": 1
+                  },
+                  "source": {
+                    "file": "story/school/events.wg",
+                    "line": 565,
+                    "column": 1
+                  }
+                }
+              ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 556,
+                "line": 564,
                 "column": 1
               }
             }
@@ -17942,7 +18094,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/events.wg",
-            "line": 543,
+            "line": 551,
             "column": 1
           }
         },
@@ -17964,7 +18116,7 @@ export const WG_BUNDLE = {
                     "amount": 2,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 562,
+                      "line": 571,
                       "column": 1
                     },
                     "feedback": {
@@ -17983,7 +18135,7 @@ export const WG_BUNDLE = {
                     "amount": 0.1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 562,
+                      "line": 571,
                       "column": 1
                     },
                     "feedback": {
@@ -17997,7 +18149,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 562,
+                "line": 571,
                 "column": 1
               }
             }
@@ -18012,13 +18164,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 564,
+              "line": 573,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 560,
+            "line": 569,
             "column": 1
           }
         },
@@ -18040,7 +18192,7 @@ export const WG_BUNDLE = {
                     "amount": -1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 568,
+                      "line": 577,
                       "column": 1
                     },
                     "feedback": {
@@ -18054,7 +18206,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 568,
+                "line": 577,
                 "column": 1
               }
             }
@@ -18069,13 +18221,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 570,
+              "line": 579,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 566,
+            "line": 575,
             "column": 1
           }
         },
@@ -18097,7 +18249,7 @@ export const WG_BUNDLE = {
                     "amount": 1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 574,
+                      "line": 583,
                       "column": 1
                     },
                     "feedback": {
@@ -18111,7 +18263,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 574,
+                "line": 583,
                 "column": 1
               }
             }
@@ -18126,13 +18278,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 576,
+              "line": 585,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 572,
+            "line": 581,
             "column": 1
           }
         },
@@ -18155,7 +18307,7 @@ export const WG_BUNDLE = {
                     "amount": 1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 580,
+                      "line": 589,
                       "column": 1
                     },
                     "feedback": {
@@ -18177,7 +18329,7 @@ export const WG_BUNDLE = {
                     "amount": 1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 580,
+                      "line": 589,
                       "column": 1
                     },
                     "feedback": {
@@ -18191,7 +18343,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 580,
+                "line": 589,
                 "column": 1
               }
             }
@@ -18206,13 +18358,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 582,
+              "line": 591,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 578,
+            "line": 587,
             "column": 1
           }
         }
@@ -18254,7 +18406,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/school/events.wg",
-        "line": 537,
+        "line": 545,
         "column": 1
       }
     },
@@ -18281,7 +18433,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 323,
+                "line": 324,
                 "column": 1
               }
             },
@@ -18308,14 +18460,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/school/events.wg",
-                        "line": 326,
+                        "line": 327,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 325,
+                    "line": 326,
                     "column": 1
                   }
                 }
@@ -18323,7 +18475,7 @@ export const WG_BUNDLE = {
               "elseNodes": null,
               "source": {
                 "file": "story/school/events.wg",
-                "line": 325,
+                "line": 326,
                 "column": 1
               },
               "runtimeId": 0
@@ -18343,7 +18495,7 @@ export const WG_BUNDLE = {
                 "difficultyId": "tricky",
                 "source": {
                   "file": "story/school/events.wg",
-                  "line": 330,
+                  "line": 331,
                   "column": 1
                 }
               },
@@ -18357,7 +18509,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 331,
+                    "line": 332,
                     "column": 1
                   }
                 },
@@ -18370,7 +18522,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 333,
+                    "line": 334,
                     "column": 1
                   }
                 }
@@ -18381,7 +18533,7 @@ export const WG_BUNDLE = {
               "warning": null,
               "source": {
                 "file": "story/school/events.wg",
-                "line": 329,
+                "line": 330,
                 "column": 1
               }
             },
@@ -18400,7 +18552,7 @@ export const WG_BUNDLE = {
                 "difficultyId": "tricky",
                 "source": {
                   "file": "story/school/events.wg",
-                  "line": 338,
+                  "line": 339,
                   "column": 1
                 }
               },
@@ -18414,7 +18566,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 339,
+                    "line": 340,
                     "column": 1
                   }
                 },
@@ -18427,7 +18579,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 341,
+                    "line": 342,
                     "column": 1
                   }
                 }
@@ -18438,7 +18590,7 @@ export const WG_BUNDLE = {
               "warning": null,
               "source": {
                 "file": "story/school/events.wg",
-                "line": 337,
+                "line": 338,
                 "column": 1
               }
             },
@@ -18469,10 +18621,27 @@ export const WG_BUNDLE = {
               "requirements": [],
               "warning": null,
               "hints": [],
-              "effects": [],
+              "effects": [
+                {
+                  "op": "add",
+                  "path": [
+                    "story",
+                    "taylor_school_interactions_counter"
+                  ],
+                  "value": {
+                    "type": "literal",
+                    "value": 1
+                  },
+                  "source": {
+                    "file": "story/school/events.wg",
+                    "line": 347,
+                    "column": 1
+                  }
+                }
+              ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 345,
+                "line": 346,
                 "column": 1
               }
             }
@@ -18480,7 +18649,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/events.wg",
-            "line": 323,
+            "line": 324,
             "column": 1
           }
         },
@@ -18502,7 +18671,7 @@ export const WG_BUNDLE = {
                     "amount": 2,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 351,
+                      "line": 353,
                       "column": 1
                     },
                     "feedback": {
@@ -18516,7 +18685,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 351,
+                "line": 353,
                 "column": 1
               }
             },
@@ -18547,10 +18716,27 @@ export const WG_BUNDLE = {
               "requirements": [],
               "warning": null,
               "hints": [],
-              "effects": [],
+              "effects": [
+                {
+                  "op": "add",
+                  "path": [
+                    "story",
+                    "taylor_school_interactions_counter"
+                  ],
+                  "value": {
+                    "type": "literal",
+                    "value": 1
+                  },
+                  "source": {
+                    "file": "story/school/events.wg",
+                    "line": 356,
+                    "column": 1
+                  }
+                }
+              ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 353,
+                "line": 355,
                 "column": 1
               }
             },
@@ -18577,7 +18763,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 357,
+                "line": 360,
                 "column": 1
               }
             }
@@ -18585,7 +18771,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/events.wg",
-            "line": 349,
+            "line": 351,
             "column": 1
           }
         },
@@ -18607,7 +18793,7 @@ export const WG_BUNDLE = {
                     "amount": -1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 362,
+                      "line": 365,
                       "column": 1
                     },
                     "feedback": {
@@ -18626,7 +18812,7 @@ export const WG_BUNDLE = {
                     "amount": 2,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 362,
+                      "line": 365,
                       "column": 1
                     },
                     "feedback": {
@@ -18640,7 +18826,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 362,
+                "line": 365,
                 "column": 1
               }
             },
@@ -18667,7 +18853,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 364,
+                "line": 367,
                 "column": 1
               }
             },
@@ -18686,7 +18872,7 @@ export const WG_BUNDLE = {
                 "difficultyId": "difficult",
                 "source": {
                   "file": "story/school/events.wg",
-                  "line": 368,
+                  "line": 371,
                   "column": 1
                 }
               },
@@ -18700,7 +18886,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 369,
+                    "line": 372,
                     "column": 1
                   }
                 },
@@ -18713,7 +18899,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 371,
+                    "line": 374,
                     "column": 1
                   }
                 }
@@ -18724,7 +18910,7 @@ export const WG_BUNDLE = {
               "warning": null,
               "source": {
                 "file": "story/school/events.wg",
-                "line": 367,
+                "line": 370,
                 "column": 1
               }
             }
@@ -18732,7 +18918,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/events.wg",
-            "line": 360,
+            "line": 363,
             "column": 1
           }
         },
@@ -18754,7 +18940,7 @@ export const WG_BUNDLE = {
                     "amount": 2,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 377,
+                      "line": 380,
                       "column": 1
                     },
                     "feedback": {
@@ -18773,7 +18959,7 @@ export const WG_BUNDLE = {
                     "amount": 0.1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 377,
+                      "line": 380,
                       "column": 1
                     },
                     "feedback": {
@@ -18787,7 +18973,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 377,
+                "line": 380,
                 "column": 1
               }
             }
@@ -18802,13 +18988,13 @@ export const WG_BUNDLE = {
             "target": ".solo-verdict",
             "source": {
               "file": "story/school/events.wg",
-              "line": 379,
+              "line": 382,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 375,
+            "line": 378,
             "column": 1
           }
         },
@@ -18830,7 +19016,7 @@ export const WG_BUNDLE = {
                     "amount": -1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 383,
+                      "line": 386,
                       "column": 1
                     },
                     "feedback": {
@@ -18849,7 +19035,7 @@ export const WG_BUNDLE = {
                     "amount": 2,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 383,
+                      "line": 386,
                       "column": 1
                     },
                     "feedback": {
@@ -18863,7 +19049,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 383,
+                "line": 386,
                 "column": 1
               }
             }
@@ -18878,13 +19064,13 @@ export const WG_BUNDLE = {
             "target": ".failed-verdict",
             "source": {
               "file": "story/school/events.wg",
-              "line": 385,
+              "line": 388,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 381,
+            "line": 384,
             "column": 1
           }
         },
@@ -18901,7 +19087,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 389,
+                "line": 392,
                 "column": 1
               }
             },
@@ -18927,13 +19113,29 @@ export const WG_BUNDLE = {
               "hints": [],
               "effects": [
                 {
+                  "op": "add",
+                  "path": [
+                    "story",
+                    "taylor_school_interactions_counter"
+                  ],
+                  "value": {
+                    "type": "literal",
+                    "value": 1
+                  },
+                  "source": {
+                    "file": "story/school/events.wg",
+                    "line": 395,
+                    "column": 1
+                  }
+                },
+                {
                   "op": "relationship",
                   "npcId": "taylor",
                   "meterId": "friendship",
                   "amount": 2,
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 392,
+                    "line": 396,
                     "column": 1
                   },
                   "feedback": {
@@ -18949,7 +19151,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 391,
+                "line": 394,
                 "column": 1
               }
             },
@@ -18975,13 +19177,29 @@ export const WG_BUNDLE = {
               "hints": [],
               "effects": [
                 {
+                  "op": "add",
+                  "path": [
+                    "story",
+                    "taylor_school_interactions_counter"
+                  ],
+                  "value": {
+                    "type": "literal",
+                    "value": 1
+                  },
+                  "source": {
+                    "file": "story/school/events.wg",
+                    "line": 400,
+                    "column": 1
+                  }
+                },
+                {
                   "op": "relationship",
                   "npcId": "taylor",
                   "meterId": "friendship",
                   "amount": -1,
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 396,
+                    "line": 401,
                     "column": 1
                   },
                   "feedback": {
@@ -18997,7 +19215,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 395,
+                "line": 399,
                 "column": 1
               }
             }
@@ -19005,7 +19223,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/events.wg",
-            "line": 387,
+            "line": 390,
             "column": 1
           }
         },
@@ -19027,7 +19245,7 @@ export const WG_BUNDLE = {
                     "amount": 1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 401,
+                      "line": 406,
                       "column": 1
                     },
                     "feedback": {
@@ -19046,7 +19264,7 @@ export const WG_BUNDLE = {
                     "amount": 0.1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 401,
+                      "line": 406,
                       "column": 1
                     },
                     "feedback": {
@@ -19060,7 +19278,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 401,
+                "line": 406,
                 "column": 1
               }
             }
@@ -19075,13 +19293,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 403,
+              "line": 408,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 399,
+            "line": 404,
             "column": 1
           }
         },
@@ -19103,7 +19321,7 @@ export const WG_BUNDLE = {
                     "amount": 1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 407,
+                      "line": 412,
                       "column": 1
                     },
                     "feedback": {
@@ -19123,7 +19341,7 @@ export const WG_BUNDLE = {
                     "amount": 1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 407,
+                      "line": 412,
                       "column": 1
                     },
                     "feedback": {
@@ -19140,7 +19358,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 407,
+                "line": 412,
                 "column": 1
               }
             }
@@ -19155,13 +19373,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 409,
+              "line": 414,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 405,
+            "line": 410,
             "column": 1
           }
         },
@@ -19183,7 +19401,7 @@ export const WG_BUNDLE = {
                     "amount": 0.1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 413,
+                      "line": 418,
                       "column": 1
                     },
                     "feedback": {
@@ -19197,7 +19415,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 413,
+                "line": 418,
                 "column": 1
               }
             }
@@ -19212,13 +19430,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 415,
+              "line": 420,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 411,
+            "line": 416,
             "column": 1
           }
         },
@@ -19240,7 +19458,7 @@ export const WG_BUNDLE = {
                     "amount": -1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 419,
+                      "line": 424,
                       "column": 1
                     },
                     "feedback": {
@@ -19254,7 +19472,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 419,
+                "line": 424,
                 "column": 1
               }
             }
@@ -19269,13 +19487,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 421,
+              "line": 426,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 417,
+            "line": 422,
             "column": 1
           }
         }
@@ -19317,7 +19535,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/school/events.wg",
-        "line": 317,
+        "line": 318,
         "column": 1
       }
     },
@@ -19344,7 +19562,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 428,
+                "line": 433,
                 "column": 1
               }
             },
@@ -19363,7 +19581,7 @@ export const WG_BUNDLE = {
                 "difficultyId": "tricky",
                 "source": {
                   "file": "story/school/events.wg",
-                  "line": 431,
+                  "line": 436,
                   "column": 1
                 }
               },
@@ -19377,7 +19595,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 432,
+                    "line": 437,
                     "column": 1
                   }
                 },
@@ -19390,7 +19608,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 434,
+                    "line": 439,
                     "column": 1
                   }
                 }
@@ -19401,7 +19619,7 @@ export const WG_BUNDLE = {
               "warning": null,
               "source": {
                 "file": "story/school/events.wg",
-                "line": 430,
+                "line": 435,
                 "column": 1
               }
             },
@@ -19428,7 +19646,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 438,
+                "line": 443,
                 "column": 1
               }
             },
@@ -19459,10 +19677,27 @@ export const WG_BUNDLE = {
               "requirements": [],
               "warning": null,
               "hints": [],
-              "effects": [],
+              "effects": [
+                {
+                  "op": "add",
+                  "path": [
+                    "story",
+                    "taylor_school_interactions_counter"
+                  ],
+                  "value": {
+                    "type": "literal",
+                    "value": 1
+                  },
+                  "source": {
+                    "file": "story/school/events.wg",
+                    "line": 447,
+                    "column": 1
+                  }
+                }
+              ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 441,
+                "line": 446,
                 "column": 1
               }
             }
@@ -19470,7 +19705,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/events.wg",
-            "line": 428,
+            "line": 433,
             "column": 1
           }
         },
@@ -19492,7 +19727,7 @@ export const WG_BUNDLE = {
                     "amount": 0.1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 447,
+                      "line": 453,
                       "column": 1
                     },
                     "feedback": {
@@ -19506,7 +19741,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 447,
+                "line": 453,
                 "column": 1
               }
             },
@@ -19533,7 +19768,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 449,
+                "line": 455,
                 "column": 1
               }
             },
@@ -19564,10 +19799,27 @@ export const WG_BUNDLE = {
               "requirements": [],
               "warning": null,
               "hints": [],
-              "effects": [],
+              "effects": [
+                {
+                  "op": "add",
+                  "path": [
+                    "story",
+                    "taylor_school_interactions_counter"
+                  ],
+                  "value": {
+                    "type": "literal",
+                    "value": 1
+                  },
+                  "source": {
+                    "file": "story/school/events.wg",
+                    "line": 459,
+                    "column": 1
+                  }
+                }
+              ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 452,
+                "line": 458,
                 "column": 1
               }
             }
@@ -19575,7 +19827,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/events.wg",
-            "line": 445,
+            "line": 451,
             "column": 1
           }
         },
@@ -19597,7 +19849,7 @@ export const WG_BUNDLE = {
                     "amount": -1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 458,
+                      "line": 465,
                       "column": 1
                     },
                     "feedback": {
@@ -19611,7 +19863,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 458,
+                "line": 465,
                 "column": 1
               }
             }
@@ -19626,13 +19878,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 460,
+              "line": 467,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 456,
+            "line": 463,
             "column": 1
           }
         },
@@ -19649,7 +19901,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 464,
+                "line": 471,
                 "column": 1
               }
             }
@@ -19664,13 +19916,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 466,
+              "line": 473,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 462,
+            "line": 469,
             "column": 1
           }
         },
@@ -19693,7 +19945,7 @@ export const WG_BUNDLE = {
                     "amount": 1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 470,
+                      "line": 477,
                       "column": 1
                     },
                     "feedback": {
@@ -19715,7 +19967,7 @@ export const WG_BUNDLE = {
                     "amount": 1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 470,
+                      "line": 477,
                       "column": 1
                     },
                     "feedback": {
@@ -19729,7 +19981,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 470,
+                "line": 477,
                 "column": 1
               }
             }
@@ -19744,13 +19996,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 472,
+              "line": 479,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 468,
+            "line": 475,
             "column": 1
           }
         },
@@ -19772,7 +20024,7 @@ export const WG_BUNDLE = {
                     "amount": 2,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 476,
+                      "line": 483,
                       "column": 1
                     },
                     "feedback": {
@@ -19786,7 +20038,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 476,
+                "line": 483,
                 "column": 1
               }
             }
@@ -19801,13 +20053,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 478,
+              "line": 485,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 474,
+            "line": 481,
             "column": 1
           }
         },
@@ -19845,7 +20097,7 @@ export const WG_BUNDLE = {
                     "amount": 2,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 482,
+                      "line": 489,
                       "column": 1
                     },
                     "feedback": {
@@ -19867,7 +20119,7 @@ export const WG_BUNDLE = {
                     "amount": 1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 482,
+                      "line": 489,
                       "column": 1
                     },
                     "feedback": {
@@ -19881,7 +20133,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 482,
+                "line": 489,
                 "column": 1
               }
             }
@@ -19896,13 +20148,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 484,
+              "line": 491,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 480,
+            "line": 487,
             "column": 1
           }
         }
@@ -19944,7 +20196,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/school/events.wg",
-        "line": 422,
+        "line": 427,
         "column": 1
       }
     },
@@ -19971,7 +20223,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 275,
+                "line": 276,
                 "column": 1
               }
             },
@@ -19990,7 +20242,7 @@ export const WG_BUNDLE = {
                 "difficultyId": "easy",
                 "source": {
                   "file": "story/school/events.wg",
-                  "line": 279,
+                  "line": 280,
                   "column": 1
                 }
               },
@@ -20004,7 +20256,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 280,
+                    "line": 281,
                     "column": 1
                   }
                 },
@@ -20017,7 +20269,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 283,
+                    "line": 284,
                     "column": 1
                   }
                 }
@@ -20065,7 +20317,7 @@ export const WG_BUNDLE = {
               "warning": null,
               "source": {
                 "file": "story/school/events.wg",
-                "line": 277,
+                "line": 278,
                 "column": 1
               }
             },
@@ -20084,7 +20336,7 @@ export const WG_BUNDLE = {
                 "difficultyId": "difficult",
                 "source": {
                   "file": "story/school/events.wg",
-                  "line": 288,
+                  "line": 289,
                   "column": 1
                 }
               },
@@ -20098,7 +20350,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 289,
+                    "line": 290,
                     "column": 1
                   }
                 },
@@ -20111,7 +20363,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 292,
+                    "line": 293,
                     "column": 1
                   }
                 }
@@ -20122,7 +20374,7 @@ export const WG_BUNDLE = {
               "warning": null,
               "source": {
                 "file": "story/school/events.wg",
-                "line": 287,
+                "line": 288,
                 "column": 1
               }
             },
@@ -20153,7 +20405,7 @@ export const WG_BUNDLE = {
                   "amount": -1,
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 297,
+                    "line": 298,
                     "column": 1
                   },
                   "feedback": {
@@ -20166,7 +20418,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 296,
+                "line": 297,
                 "column": 1
               }
             }
@@ -20174,7 +20426,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/events.wg",
-            "line": 275,
+            "line": 276,
             "column": 1
           }
         },
@@ -20196,7 +20448,7 @@ export const WG_BUNDLE = {
                     "amount": 2,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 301,
+                      "line": 302,
                       "column": 1
                     },
                     "feedback": {
@@ -20210,7 +20462,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 301,
+                "line": 302,
                 "column": 1
               }
             }
@@ -20225,13 +20477,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 303,
+              "line": 304,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 300,
+            "line": 301,
             "column": 1
           }
         },
@@ -20253,7 +20505,7 @@ export const WG_BUNDLE = {
                     "amount": -2,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 306,
+                      "line": 307,
                       "column": 1
                     },
                     "feedback": {
@@ -20267,7 +20519,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 306,
+                "line": 307,
                 "column": 1
               }
             }
@@ -20282,13 +20534,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 308,
+              "line": 309,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 305,
+            "line": 306,
             "column": 1
           }
         },
@@ -20305,7 +20557,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 311,
+                "line": 312,
                 "column": 1
               }
             }
@@ -20320,13 +20572,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 313,
+              "line": 314,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 310,
+            "line": 311,
             "column": 1
           }
         }
@@ -20368,7 +20620,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/school/events.wg",
-        "line": 269,
+        "line": 270,
         "column": 1
       }
     },
@@ -20395,7 +20647,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 229,
+                "line": 230,
                 "column": 1
               }
             },
@@ -20414,7 +20666,7 @@ export const WG_BUNDLE = {
                 "difficultyId": "tricky",
                 "source": {
                   "file": "story/school/events.wg",
-                  "line": 232,
+                  "line": 233,
                   "column": 1
                 }
               },
@@ -20428,7 +20680,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 234,
+                    "line": 235,
                     "column": 1
                   }
                 },
@@ -20441,7 +20693,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 237,
+                    "line": 238,
                     "column": 1
                   }
                 }
@@ -20452,7 +20704,7 @@ export const WG_BUNDLE = {
               "warning": null,
               "source": {
                 "file": "story/school/events.wg",
-                "line": 231,
+                "line": 232,
                 "column": 1
               }
             },
@@ -20479,7 +20731,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 241,
+                "line": 242,
                 "column": 1
               }
             }
@@ -20487,7 +20739,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/events.wg",
-            "line": 229,
+            "line": 230,
             "column": 1
           }
         },
@@ -20509,7 +20761,7 @@ export const WG_BUNDLE = {
                     "amount": 1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 245,
+                      "line": 246,
                       "column": 1
                     },
                     "feedback": {
@@ -20523,7 +20775,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 245,
+                "line": 246,
                 "column": 1
               }
             }
@@ -20538,13 +20790,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 247,
+              "line": 248,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 244,
+            "line": 245,
             "column": 1
           }
         },
@@ -20566,7 +20818,7 @@ export const WG_BUNDLE = {
                     "amount": -1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 250,
+                      "line": 251,
                       "column": 1
                     },
                     "feedback": {
@@ -20585,7 +20837,7 @@ export const WG_BUNDLE = {
                     "amount": 5,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 250,
+                      "line": 251,
                       "column": 1
                     },
                     "feedback": {
@@ -20599,7 +20851,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 250,
+                "line": 251,
                 "column": 1
               }
             }
@@ -20614,13 +20866,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 252,
+              "line": 253,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 249,
+            "line": 250,
             "column": 1
           }
         },
@@ -20642,7 +20894,7 @@ export const WG_BUNDLE = {
                     "amount": 1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 255,
+                      "line": 256,
                       "column": 1
                     },
                     "feedback": {
@@ -20656,7 +20908,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 255,
+                "line": 256,
                 "column": 1
               }
             }
@@ -20671,13 +20923,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 257,
+              "line": 258,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 254,
+            "line": 255,
             "column": 1
           }
         }
@@ -20719,7 +20971,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/school/events.wg",
-        "line": 223,
+        "line": 224,
         "column": 1
       }
     },
@@ -20746,7 +20998,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 194,
+                "line": 195,
                 "column": 1
               }
             },
@@ -20765,7 +21017,7 @@ export const WG_BUNDLE = {
                 "difficultyId": "tricky",
                 "source": {
                   "file": "story/school/events.wg",
-                  "line": 197,
+                  "line": 198,
                   "column": 1
                 }
               },
@@ -20779,7 +21031,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 199,
+                    "line": 200,
                     "column": 1
                   }
                 },
@@ -20792,7 +21044,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 202,
+                    "line": 203,
                     "column": 1
                   }
                 }
@@ -20803,7 +21055,7 @@ export const WG_BUNDLE = {
               "warning": null,
               "source": {
                 "file": "story/school/events.wg",
-                "line": 196,
+                "line": 197,
                 "column": 1
               }
             },
@@ -20830,7 +21082,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 206,
+                "line": 207,
                 "column": 1
               }
             }
@@ -20838,7 +21090,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/events.wg",
-            "line": 194,
+            "line": 195,
             "column": 1
           }
         },
@@ -20860,7 +21112,7 @@ export const WG_BUNDLE = {
                     "amount": 1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 210,
+                      "line": 211,
                       "column": 1
                     },
                     "feedback": {
@@ -20874,7 +21126,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 210,
+                "line": 211,
                 "column": 1
               }
             }
@@ -20889,13 +21141,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 212,
+              "line": 213,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 209,
+            "line": 210,
             "column": 1
           }
         },
@@ -20917,7 +21169,7 @@ export const WG_BUNDLE = {
                     "amount": -1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 215,
+                      "line": 216,
                       "column": 1
                     },
                     "feedback": {
@@ -20931,7 +21183,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 215,
+                "line": 216,
                 "column": 1
               }
             }
@@ -20946,13 +21198,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 217,
+              "line": 218,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 214,
+            "line": 215,
             "column": 1
           }
         },
@@ -20974,7 +21226,7 @@ export const WG_BUNDLE = {
                     "amount": 1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 220,
+                      "line": 221,
                       "column": 1
                     },
                     "feedback": {
@@ -20988,7 +21240,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 220,
+                "line": 221,
                 "column": 1
               }
             }
@@ -21003,13 +21255,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 222,
+              "line": 223,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 219,
+            "line": 220,
             "column": 1
           }
         }
@@ -21051,7 +21303,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/school/events.wg",
-        "line": 188,
+        "line": 189,
         "column": 1
       }
     },
@@ -21070,7 +21322,7 @@ export const WG_BUNDLE = {
         },
         "source": {
           "file": "story/school/events.wg",
-          "line": 268,
+          "line": 269,
           "column": 1
         }
       },
@@ -21081,7 +21333,7 @@ export const WG_BUNDLE = {
           "value": true,
           "source": {
             "file": "story/school/events.wg",
-            "line": 266,
+            "line": 267,
             "column": 1
           }
         }
@@ -21135,7 +21387,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/school/events.wg",
-        "line": 259,
+        "line": 260,
         "column": 1
       }
     },
@@ -21162,7 +21414,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1414,
+                "line": 1438,
                 "column": 1
               }
             },
@@ -21181,7 +21433,7 @@ export const WG_BUNDLE = {
                 "difficultyId": "difficult",
                 "source": {
                   "file": "story/school/events.wg",
-                  "line": 1417,
+                  "line": 1441,
                   "column": 1
                 }
               },
@@ -21195,7 +21447,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 1418,
+                    "line": 1442,
                     "column": 1
                   }
                 },
@@ -21208,7 +21460,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 1420,
+                    "line": 1444,
                     "column": 1
                   }
                 }
@@ -21219,7 +21471,7 @@ export const WG_BUNDLE = {
               "warning": null,
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1416,
+                "line": 1440,
                 "column": 1
               }
             },
@@ -21246,7 +21498,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1424,
+                "line": 1448,
                 "column": 1
               }
             },
@@ -21277,10 +21529,27 @@ export const WG_BUNDLE = {
               "requirements": [],
               "warning": null,
               "hints": [],
-              "effects": [],
+              "effects": [
+                {
+                  "op": "add",
+                  "path": [
+                    "story",
+                    "taylor_school_interactions_counter"
+                  ],
+                  "value": {
+                    "type": "literal",
+                    "value": 1
+                  },
+                  "source": {
+                    "file": "story/school/events.wg",
+                    "line": 1452,
+                    "column": 1
+                  }
+                }
+              ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1427,
+                "line": 1451,
                 "column": 1
               }
             },
@@ -21299,7 +21568,7 @@ export const WG_BUNDLE = {
                 "difficultyId": "difficult",
                 "source": {
                   "file": "story/school/events.wg",
-                  "line": 1432,
+                  "line": 1457,
                   "column": 1
                 }
               },
@@ -21313,7 +21582,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 1433,
+                    "line": 1458,
                     "column": 1
                   }
                 },
@@ -21326,7 +21595,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 1435,
+                    "line": 1460,
                     "column": 1
                   }
                 }
@@ -21337,7 +21606,7 @@ export const WG_BUNDLE = {
               "warning": null,
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1431,
+                "line": 1456,
                 "column": 1
               }
             }
@@ -21345,7 +21614,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/events.wg",
-            "line": 1414,
+            "line": 1438,
             "column": 1
           }
         },
@@ -21367,7 +21636,7 @@ export const WG_BUNDLE = {
                     "amount": 1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1441,
+                      "line": 1466,
                       "column": 1
                     },
                     "feedback": {
@@ -21386,7 +21655,7 @@ export const WG_BUNDLE = {
                     "amount": 0.1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1441,
+                      "line": 1466,
                       "column": 1
                     },
                     "feedback": {
@@ -21400,7 +21669,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1441,
+                "line": 1466,
                 "column": 1
               }
             }
@@ -21415,13 +21684,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 1443,
+              "line": 1468,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 1439,
+            "line": 1464,
             "column": 1
           }
         },
@@ -21443,7 +21712,7 @@ export const WG_BUNDLE = {
                     "amount": 3,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1447,
+                      "line": 1472,
                       "column": 1
                     },
                     "feedback": {
@@ -21462,7 +21731,7 @@ export const WG_BUNDLE = {
                     "amount": -1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1447,
+                      "line": 1472,
                       "column": 1
                     },
                     "feedback": {
@@ -21476,7 +21745,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1447,
+                "line": 1472,
                 "column": 1
               }
             }
@@ -21491,13 +21760,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 1449,
+              "line": 1474,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 1445,
+            "line": 1470,
             "column": 1
           }
         },
@@ -21519,7 +21788,7 @@ export const WG_BUNDLE = {
                     "amount": 1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1453,
+                      "line": 1478,
                       "column": 1
                     },
                     "feedback": {
@@ -21533,7 +21802,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1453,
+                "line": 1478,
                 "column": 1
               }
             }
@@ -21548,13 +21817,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 1455,
+              "line": 1480,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 1451,
+            "line": 1476,
             "column": 1
           }
         },
@@ -21571,7 +21840,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1459,
+                "line": 1484,
                 "column": 1
               }
             },
@@ -21595,10 +21864,27 @@ export const WG_BUNDLE = {
               "requirements": [],
               "warning": null,
               "hints": [],
-              "effects": [],
+              "effects": [
+                {
+                  "op": "add",
+                  "path": [
+                    "story",
+                    "taylor_school_interactions_counter"
+                  ],
+                  "value": {
+                    "type": "literal",
+                    "value": 1
+                  },
+                  "source": {
+                    "file": "story/school/events.wg",
+                    "line": 1487,
+                    "column": 1
+                  }
+                }
+              ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1461,
+                "line": 1486,
                 "column": 1
               }
             },
@@ -21622,10 +21908,27 @@ export const WG_BUNDLE = {
               "requirements": [],
               "warning": null,
               "hints": [],
-              "effects": [],
+              "effects": [
+                {
+                  "op": "add",
+                  "path": [
+                    "story",
+                    "taylor_school_interactions_counter"
+                  ],
+                  "value": {
+                    "type": "literal",
+                    "value": 1
+                  },
+                  "source": {
+                    "file": "story/school/events.wg",
+                    "line": 1491,
+                    "column": 1
+                  }
+                }
+              ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1464,
+                "line": 1490,
                 "column": 1
               }
             }
@@ -21633,7 +21936,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/events.wg",
-            "line": 1457,
+            "line": 1482,
             "column": 1
           }
         },
@@ -21655,7 +21958,7 @@ export const WG_BUNDLE = {
                     "amount": 0.1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1469,
+                      "line": 1496,
                       "column": 1
                     },
                     "feedback": {
@@ -21674,7 +21977,7 @@ export const WG_BUNDLE = {
                     "amount": -1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1469,
+                      "line": 1496,
                       "column": 1
                     },
                     "feedback": {
@@ -21693,7 +21996,7 @@ export const WG_BUNDLE = {
                     "amount": -1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1469,
+                      "line": 1496,
                       "column": 1
                     },
                     "feedback": {
@@ -21707,7 +22010,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1469,
+                "line": 1496,
                 "column": 1
               }
             }
@@ -21722,13 +22025,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 1471,
+              "line": 1498,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 1467,
+            "line": 1494,
             "column": 1
           }
         },
@@ -21750,7 +22053,7 @@ export const WG_BUNDLE = {
                     "amount": -3,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1475,
+                      "line": 1502,
                       "column": 1
                     },
                     "feedback": {
@@ -21769,7 +22072,7 @@ export const WG_BUNDLE = {
                     "amount": 3,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1475,
+                      "line": 1502,
                       "column": 1
                     },
                     "feedback": {
@@ -21788,7 +22091,7 @@ export const WG_BUNDLE = {
                     "amount": -2,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1475,
+                      "line": 1502,
                       "column": 1
                     },
                     "feedback": {
@@ -21802,7 +22105,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1475,
+                "line": 1502,
                 "column": 1
               }
             }
@@ -21817,13 +22120,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 1477,
+              "line": 1504,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 1473,
+            "line": 1500,
             "column": 1
           }
         },
@@ -21859,7 +22162,7 @@ export const WG_BUNDLE = {
                     "amount": 2,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1481,
+                      "line": 1508,
                       "column": 1
                     },
                     "feedback": {
@@ -21881,7 +22184,7 @@ export const WG_BUNDLE = {
                     "amount": 0.1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1481,
+                      "line": 1508,
                       "column": 1
                     },
                     "feedback": {
@@ -21895,7 +22198,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1481,
+                "line": 1508,
                 "column": 1
               }
             }
@@ -21910,13 +22213,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 1483,
+              "line": 1510,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 1479,
+            "line": 1506,
             "column": 1
           }
         },
@@ -21939,7 +22242,7 @@ export const WG_BUNDLE = {
                     "amount": 1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1487,
+                      "line": 1514,
                       "column": 1
                     },
                     "feedback": {
@@ -21961,7 +22264,7 @@ export const WG_BUNDLE = {
                     "amount": -1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1487,
+                      "line": 1514,
                       "column": 1
                     },
                     "feedback": {
@@ -21980,7 +22283,7 @@ export const WG_BUNDLE = {
                     "amount": 1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1487,
+                      "line": 1514,
                       "column": 1
                     },
                     "feedback": {
@@ -21994,7 +22297,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1487,
+                "line": 1514,
                 "column": 1
               }
             }
@@ -22009,13 +22312,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 1489,
+              "line": 1516,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 1485,
+            "line": 1512,
             "column": 1
           }
         }
@@ -22057,7 +22360,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/school/events.wg",
-        "line": 1408,
+        "line": 1432,
         "column": 1
       }
     },
@@ -22084,7 +22387,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1125,
+                "line": 1144,
                 "column": 1
               }
             },
@@ -22103,7 +22406,7 @@ export const WG_BUNDLE = {
                 "difficultyId": "tricky",
                 "source": {
                   "file": "story/school/events.wg",
-                  "line": 1128,
+                  "line": 1147,
                   "column": 1
                 }
               },
@@ -22117,7 +22420,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 1129,
+                    "line": 1148,
                     "column": 1
                   }
                 },
@@ -22130,7 +22433,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 1131,
+                    "line": 1150,
                     "column": 1
                   }
                 }
@@ -22141,7 +22444,7 @@ export const WG_BUNDLE = {
               "warning": null,
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1127,
+                "line": 1146,
                 "column": 1
               }
             },
@@ -22160,7 +22463,7 @@ export const WG_BUNDLE = {
                 "difficultyId": "tricky",
                 "source": {
                   "file": "story/school/events.wg",
-                  "line": 1136,
+                  "line": 1155,
                   "column": 1
                 }
               },
@@ -22174,7 +22477,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 1137,
+                    "line": 1156,
                     "column": 1
                   }
                 },
@@ -22187,7 +22490,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 1139,
+                    "line": 1158,
                     "column": 1
                   }
                 }
@@ -22198,7 +22501,7 @@ export const WG_BUNDLE = {
               "warning": null,
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1135,
+                "line": 1154,
                 "column": 1
               }
             },
@@ -22229,10 +22532,27 @@ export const WG_BUNDLE = {
               "requirements": [],
               "warning": null,
               "hints": [],
-              "effects": [],
+              "effects": [
+                {
+                  "op": "add",
+                  "path": [
+                    "story",
+                    "taylor_school_interactions_counter"
+                  ],
+                  "value": {
+                    "type": "literal",
+                    "value": 1
+                  },
+                  "source": {
+                    "file": "story/school/events.wg",
+                    "line": 1163,
+                    "column": 1
+                  }
+                }
+              ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1143,
+                "line": 1162,
                 "column": 1
               }
             }
@@ -22240,7 +22560,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/events.wg",
-            "line": 1125,
+            "line": 1144,
             "column": 1
           }
         },
@@ -22262,7 +22582,7 @@ export const WG_BUNDLE = {
                     "amount": 2,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1149,
+                      "line": 1169,
                       "column": 1
                     },
                     "feedback": {
@@ -22281,7 +22601,7 @@ export const WG_BUNDLE = {
                     "amount": 0.1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1149,
+                      "line": 1169,
                       "column": 1
                     },
                     "feedback": {
@@ -22300,7 +22620,7 @@ export const WG_BUNDLE = {
                     "amount": -2,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1149,
+                      "line": 1169,
                       "column": 1
                     },
                     "feedback": {
@@ -22314,7 +22634,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1149,
+                "line": 1169,
                 "column": 1
               }
             },
@@ -22333,7 +22653,7 @@ export const WG_BUNDLE = {
                 "difficultyId": "difficult",
                 "source": {
                   "file": "story/school/events.wg",
-                  "line": 1152,
+                  "line": 1172,
                   "column": 1
                 }
               },
@@ -22347,7 +22667,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 1153,
+                    "line": 1173,
                     "column": 1
                   }
                 },
@@ -22360,7 +22680,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 1155,
+                    "line": 1175,
                     "column": 1
                   }
                 }
@@ -22371,7 +22691,7 @@ export const WG_BUNDLE = {
               "warning": null,
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1151,
+                "line": 1171,
                 "column": 1
               }
             },
@@ -22398,7 +22718,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1159,
+                "line": 1179,
                 "column": 1
               }
             }
@@ -22406,7 +22726,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/events.wg",
-            "line": 1147,
+            "line": 1167,
             "column": 1
           }
         },
@@ -22428,7 +22748,7 @@ export const WG_BUNDLE = {
                     "amount": 1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1164,
+                      "line": 1184,
                       "column": 1
                     },
                     "feedback": {
@@ -22447,7 +22767,7 @@ export const WG_BUNDLE = {
                     "amount": 0.1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1164,
+                      "line": 1184,
                       "column": 1
                     },
                     "feedback": {
@@ -22461,7 +22781,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1164,
+                "line": 1184,
                 "column": 1
               }
             }
@@ -22476,13 +22796,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 1166,
+              "line": 1186,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 1162,
+            "line": 1182,
             "column": 1
           }
         },
@@ -22504,7 +22824,7 @@ export const WG_BUNDLE = {
                     "amount": -1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1170,
+                      "line": 1190,
                       "column": 1
                     },
                     "feedback": {
@@ -22523,7 +22843,7 @@ export const WG_BUNDLE = {
                     "amount": 1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1170,
+                      "line": 1190,
                       "column": 1
                     },
                     "feedback": {
@@ -22537,7 +22857,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1170,
+                "line": 1190,
                 "column": 1
               }
             }
@@ -22552,13 +22872,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 1172,
+              "line": 1192,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 1168,
+            "line": 1188,
             "column": 1
           }
         },
@@ -22590,7 +22910,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1176,
+                "line": 1196,
                 "column": 1
               }
             },
@@ -22614,10 +22934,27 @@ export const WG_BUNDLE = {
               "requirements": [],
               "warning": null,
               "hints": [],
-              "effects": [],
+              "effects": [
+                {
+                  "op": "add",
+                  "path": [
+                    "story",
+                    "taylor_school_interactions_counter"
+                  ],
+                  "value": {
+                    "type": "literal",
+                    "value": 1
+                  },
+                  "source": {
+                    "file": "story/school/events.wg",
+                    "line": 1199,
+                    "column": 1
+                  }
+                }
+              ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1178,
+                "line": 1198,
                 "column": 1
               }
             },
@@ -22641,10 +22978,27 @@ export const WG_BUNDLE = {
               "requirements": [],
               "warning": null,
               "hints": [],
-              "effects": [],
+              "effects": [
+                {
+                  "op": "add",
+                  "path": [
+                    "story",
+                    "taylor_school_interactions_counter"
+                  ],
+                  "value": {
+                    "type": "literal",
+                    "value": 1
+                  },
+                  "source": {
+                    "file": "story/school/events.wg",
+                    "line": 1203,
+                    "column": 1
+                  }
+                }
+              ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1181,
+                "line": 1202,
                 "column": 1
               }
             }
@@ -22652,7 +23006,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/events.wg",
-            "line": 1174,
+            "line": 1194,
             "column": 1
           }
         },
@@ -22674,7 +23028,7 @@ export const WG_BUNDLE = {
                     "amount": 1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1186,
+                      "line": 1208,
                       "column": 1
                     },
                     "feedback": {
@@ -22688,7 +23042,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1186,
+                "line": 1208,
                 "column": 1
               }
             }
@@ -22703,13 +23057,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 1188,
+              "line": 1210,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 1184,
+            "line": 1206,
             "column": 1
           }
         },
@@ -22731,7 +23085,7 @@ export const WG_BUNDLE = {
                     "amount": 2,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1192,
+                      "line": 1214,
                       "column": 1
                     },
                     "feedback": {
@@ -22745,7 +23099,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1192,
+                "line": 1214,
                 "column": 1
               }
             }
@@ -22760,13 +23114,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 1194,
+              "line": 1216,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 1190,
+            "line": 1212,
             "column": 1
           }
         },
@@ -22788,7 +23142,7 @@ export const WG_BUNDLE = {
                     "amount": 1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1198,
+                      "line": 1220,
                       "column": 1
                     },
                     "feedback": {
@@ -22807,7 +23161,7 @@ export const WG_BUNDLE = {
                     "amount": 0.1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1198,
+                      "line": 1220,
                       "column": 1
                     },
                     "feedback": {
@@ -22821,7 +23175,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1198,
+                "line": 1220,
                 "column": 1
               }
             }
@@ -22836,13 +23190,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 1200,
+              "line": 1222,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 1196,
+            "line": 1218,
             "column": 1
           }
         },
@@ -22893,7 +23247,7 @@ export const WG_BUNDLE = {
                     "amount": 2,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1204,
+                      "line": 1226,
                       "column": 1
                     },
                     "feedback": {
@@ -22915,7 +23269,7 @@ export const WG_BUNDLE = {
                     "amount": -1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1204,
+                      "line": 1226,
                       "column": 1
                     },
                     "feedback": {
@@ -22929,7 +23283,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1204,
+                "line": 1226,
                 "column": 1
               }
             }
@@ -22944,13 +23298,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 1206,
+              "line": 1228,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 1202,
+            "line": 1224,
             "column": 1
           }
         },
@@ -22988,7 +23342,7 @@ export const WG_BUNDLE = {
                     "amount": 2,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1210,
+                      "line": 1232,
                       "column": 1
                     },
                     "feedback": {
@@ -23010,7 +23364,7 @@ export const WG_BUNDLE = {
                     "amount": 1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1210,
+                      "line": 1232,
                       "column": 1
                     },
                     "feedback": {
@@ -23024,7 +23378,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1210,
+                "line": 1232,
                 "column": 1
               }
             }
@@ -23039,13 +23393,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 1212,
+              "line": 1234,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 1208,
+            "line": 1230,
             "column": 1
           }
         }
@@ -23087,7 +23441,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/school/events.wg",
-        "line": 1119,
+        "line": 1138,
         "column": 1
       }
     },
@@ -23114,7 +23468,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1219,
+                "line": 1241,
                 "column": 1
               }
             },
@@ -23141,14 +23495,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/school/events.wg",
-                        "line": 1222,
+                        "line": 1244,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 1221,
+                    "line": 1243,
                     "column": 1
                   }
                 }
@@ -23164,14 +23518,14 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 1224,
+                    "line": 1246,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1221,
+                "line": 1243,
                 "column": 1
               },
               "runtimeId": 0
@@ -23191,7 +23545,7 @@ export const WG_BUNDLE = {
                 "difficultyId": "difficult",
                 "source": {
                   "file": "story/school/events.wg",
-                  "line": 1228,
+                  "line": 1250,
                   "column": 1
                 }
               },
@@ -23205,7 +23559,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 1229,
+                    "line": 1251,
                     "column": 1
                   }
                 },
@@ -23218,7 +23572,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 1231,
+                    "line": 1253,
                     "column": 1
                   }
                 }
@@ -23229,7 +23583,7 @@ export const WG_BUNDLE = {
               "warning": null,
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1227,
+                "line": 1249,
                 "column": 1
               }
             },
@@ -23256,7 +23610,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1235,
+                "line": 1257,
                 "column": 1
               }
             },
@@ -23287,10 +23641,27 @@ export const WG_BUNDLE = {
               "requirements": [],
               "warning": null,
               "hints": [],
-              "effects": [],
+              "effects": [
+                {
+                  "op": "add",
+                  "path": [
+                    "story",
+                    "taylor_school_interactions_counter"
+                  ],
+                  "value": {
+                    "type": "literal",
+                    "value": 1
+                  },
+                  "source": {
+                    "file": "story/school/events.wg",
+                    "line": 1261,
+                    "column": 1
+                  }
+                }
+              ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1238,
+                "line": 1260,
                 "column": 1
               }
             }
@@ -23298,7 +23669,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/events.wg",
-            "line": 1219,
+            "line": 1241,
             "column": 1
           }
         },
@@ -23320,7 +23691,7 @@ export const WG_BUNDLE = {
                     "amount": 2,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1244,
+                      "line": 1267,
                       "column": 1
                     },
                     "feedback": {
@@ -23339,7 +23710,7 @@ export const WG_BUNDLE = {
                     "amount": 0.1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1244,
+                      "line": 1267,
                       "column": 1
                     },
                     "feedback": {
@@ -23358,7 +23729,7 @@ export const WG_BUNDLE = {
                     "amount": -3,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1244,
+                      "line": 1267,
                       "column": 1
                     },
                     "feedback": {
@@ -23372,7 +23743,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1244,
+                "line": 1267,
                 "column": 1
               }
             }
@@ -23387,13 +23758,13 @@ export const WG_BUNDLE = {
             "target": ".obstacle-final",
             "source": {
               "file": "story/school/events.wg",
-              "line": 1246,
+              "line": 1269,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 1242,
+            "line": 1265,
             "column": 1
           }
         },
@@ -23415,7 +23786,7 @@ export const WG_BUNDLE = {
                     "amount": -5,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1250,
+                      "line": 1273,
                       "column": 1
                     },
                     "feedback": {
@@ -23434,7 +23805,7 @@ export const WG_BUNDLE = {
                     "amount": -1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1250,
+                      "line": 1273,
                       "column": 1
                     },
                     "feedback": {
@@ -23448,7 +23819,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1250,
+                "line": 1273,
                 "column": 1
               }
             },
@@ -23467,7 +23838,7 @@ export const WG_BUNDLE = {
                 "difficultyId": "tricky",
                 "source": {
                   "file": "story/school/events.wg",
-                  "line": 1253,
+                  "line": 1276,
                   "column": 1
                 }
               },
@@ -23481,7 +23852,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 1254,
+                    "line": 1277,
                     "column": 1
                   }
                 },
@@ -23494,7 +23865,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 1256,
+                    "line": 1279,
                     "column": 1
                   }
                 }
@@ -23505,7 +23876,7 @@ export const WG_BUNDLE = {
               "warning": null,
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1252,
+                "line": 1275,
                 "column": 1
               }
             },
@@ -23532,7 +23903,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1260,
+                "line": 1283,
                 "column": 1
               }
             }
@@ -23540,7 +23911,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/events.wg",
-            "line": 1248,
+            "line": 1271,
             "column": 1
           }
         },
@@ -23562,7 +23933,7 @@ export const WG_BUNDLE = {
                     "amount": 1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1265,
+                      "line": 1288,
                       "column": 1
                     },
                     "feedback": {
@@ -23581,7 +23952,7 @@ export const WG_BUNDLE = {
                     "amount": 0.1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1265,
+                      "line": 1288,
                       "column": 1
                     },
                     "feedback": {
@@ -23595,7 +23966,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1265,
+                "line": 1288,
                 "column": 1
               }
             }
@@ -23610,13 +23981,13 @@ export const WG_BUNDLE = {
             "target": ".obstacle-final",
             "source": {
               "file": "story/school/events.wg",
-              "line": 1267,
+              "line": 1290,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 1263,
+            "line": 1286,
             "column": 1
           }
         },
@@ -23652,7 +24023,7 @@ export const WG_BUNDLE = {
                     "amount": 2,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1271,
+                      "line": 1294,
                       "column": 1
                     },
                     "feedback": {
@@ -23669,7 +24040,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1271,
+                "line": 1294,
                 "column": 1
               }
             }
@@ -23684,13 +24055,13 @@ export const WG_BUNDLE = {
             "target": ".obstacle-final",
             "source": {
               "file": "story/school/events.wg",
-              "line": 1273,
+              "line": 1296,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 1269,
+            "line": 1292,
             "column": 1
           }
         },
@@ -23707,7 +24078,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1277,
+                "line": 1300,
                 "column": 1
               }
             },
@@ -23734,7 +24105,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1279,
+                "line": 1302,
                 "column": 1
               }
             },
@@ -23761,7 +24132,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1282,
+                "line": 1305,
                 "column": 1
               }
             }
@@ -23769,7 +24140,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/events.wg",
-            "line": 1275,
+            "line": 1298,
             "column": 1
           }
         },
@@ -23791,7 +24162,7 @@ export const WG_BUNDLE = {
                     "amount": 0.1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1287,
+                      "line": 1310,
                       "column": 1
                     },
                     "feedback": {
@@ -23810,7 +24181,7 @@ export const WG_BUNDLE = {
                     "amount": 1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1287,
+                      "line": 1310,
                       "column": 1
                     },
                     "feedback": {
@@ -23824,7 +24195,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1287,
+                "line": 1310,
                 "column": 1
               }
             }
@@ -23839,13 +24210,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 1289,
+              "line": 1312,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 1285,
+            "line": 1308,
             "column": 1
           }
         },
@@ -23867,7 +24238,7 @@ export const WG_BUNDLE = {
                     "amount": 1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1293,
+                      "line": 1316,
                       "column": 1
                     },
                     "feedback": {
@@ -23881,7 +24252,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1293,
+                "line": 1316,
                 "column": 1
               }
             }
@@ -23896,13 +24267,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 1295,
+              "line": 1318,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 1291,
+            "line": 1314,
             "column": 1
           }
         },
@@ -23924,7 +24295,7 @@ export const WG_BUNDLE = {
                     "amount": 1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1299,
+                      "line": 1322,
                       "column": 1
                     },
                     "feedback": {
@@ -23938,7 +24309,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1299,
+                "line": 1322,
                 "column": 1
               }
             },
@@ -23971,7 +24342,7 @@ export const WG_BUNDLE = {
                             "amount": 2,
                             "source": {
                               "file": "story/school/events.wg",
-                              "line": 1302,
+                              "line": 1325,
                               "column": 1
                             },
                             "feedback": {
@@ -23988,14 +24359,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/school/events.wg",
-                        "line": 1302,
+                        "line": 1325,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 1301,
+                    "line": 1324,
                     "column": 1
                   }
                 }
@@ -24003,7 +24374,7 @@ export const WG_BUNDLE = {
               "elseNodes": null,
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1301,
+                "line": 1324,
                 "column": 1
               },
               "runtimeId": 0
@@ -24019,13 +24390,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 1305,
+              "line": 1328,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 1297,
+            "line": 1320,
             "column": 1
           }
         },
@@ -24047,7 +24418,7 @@ export const WG_BUNDLE = {
                     "amount": -1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1309,
+                      "line": 1332,
                       "column": 1
                     },
                     "feedback": {
@@ -24061,7 +24432,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1309,
+                "line": 1332,
                 "column": 1
               }
             },
@@ -24094,7 +24465,7 @@ export const WG_BUNDLE = {
                             "amount": -1,
                             "source": {
                               "file": "story/school/events.wg",
-                              "line": 1312,
+                              "line": 1335,
                               "column": 1
                             },
                             "feedback": {
@@ -24111,14 +24482,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/school/events.wg",
-                        "line": 1312,
+                        "line": 1335,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 1311,
+                    "line": 1334,
                     "column": 1
                   }
                 }
@@ -24126,7 +24497,7 @@ export const WG_BUNDLE = {
               "elseNodes": null,
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1311,
+                "line": 1334,
                 "column": 1
               },
               "runtimeId": 0
@@ -24142,13 +24513,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 1315,
+              "line": 1338,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 1307,
+            "line": 1330,
             "column": 1
           }
         }
@@ -24190,7 +24561,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/school/events.wg",
-        "line": 1213,
+        "line": 1235,
         "column": 1
       }
     },
@@ -24217,7 +24588,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1322,
+                "line": 1345,
                 "column": 1
               }
             },
@@ -24236,7 +24607,7 @@ export const WG_BUNDLE = {
                 "difficultyId": "tricky",
                 "source": {
                   "file": "story/school/events.wg",
-                  "line": 1325,
+                  "line": 1348,
                   "column": 1
                 }
               },
@@ -24250,7 +24621,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 1326,
+                    "line": 1349,
                     "column": 1
                   }
                 },
@@ -24263,7 +24634,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 1328,
+                    "line": 1351,
                     "column": 1
                   }
                 }
@@ -24274,7 +24645,7 @@ export const WG_BUNDLE = {
               "warning": null,
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1324,
+                "line": 1347,
                 "column": 1
               }
             },
@@ -24293,7 +24664,7 @@ export const WG_BUNDLE = {
                 "difficultyId": "difficult",
                 "source": {
                   "file": "story/school/events.wg",
-                  "line": 1333,
+                  "line": 1356,
                   "column": 1
                 }
               },
@@ -24307,7 +24678,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 1334,
+                    "line": 1357,
                     "column": 1
                   }
                 },
@@ -24320,7 +24691,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 1336,
+                    "line": 1359,
                     "column": 1
                   }
                 }
@@ -24331,7 +24702,7 @@ export const WG_BUNDLE = {
               "warning": null,
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1332,
+                "line": 1355,
                 "column": 1
               }
             },
@@ -24362,10 +24733,27 @@ export const WG_BUNDLE = {
               "requirements": [],
               "warning": null,
               "hints": [],
-              "effects": [],
+              "effects": [
+                {
+                  "op": "add",
+                  "path": [
+                    "story",
+                    "taylor_school_interactions_counter"
+                  ],
+                  "value": {
+                    "type": "literal",
+                    "value": 1
+                  },
+                  "source": {
+                    "file": "story/school/events.wg",
+                    "line": 1364,
+                    "column": 1
+                  }
+                }
+              ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1340,
+                "line": 1363,
                 "column": 1
               }
             }
@@ -24373,7 +24761,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/events.wg",
-            "line": 1322,
+            "line": 1345,
             "column": 1
           }
         },
@@ -24395,7 +24783,7 @@ export const WG_BUNDLE = {
                     "amount": 0.1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1346,
+                      "line": 1370,
                       "column": 1
                     },
                     "feedback": {
@@ -24409,7 +24797,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1346,
+                "line": 1370,
                 "column": 1
               }
             },
@@ -24428,7 +24816,7 @@ export const WG_BUNDLE = {
                 "difficultyId": "tricky",
                 "source": {
                   "file": "story/school/events.wg",
-                  "line": 1349,
+                  "line": 1373,
                   "column": 1
                 }
               },
@@ -24442,7 +24830,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 1350,
+                    "line": 1374,
                     "column": 1
                   }
                 },
@@ -24455,7 +24843,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 1352,
+                    "line": 1376,
                     "column": 1
                   }
                 }
@@ -24466,7 +24854,7 @@ export const WG_BUNDLE = {
               "warning": null,
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1348,
+                "line": 1372,
                 "column": 1
               }
             },
@@ -24493,7 +24881,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1356,
+                "line": 1380,
                 "column": 1
               }
             }
@@ -24501,7 +24889,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/events.wg",
-            "line": 1344,
+            "line": 1368,
             "column": 1
           }
         },
@@ -24523,7 +24911,7 @@ export const WG_BUNDLE = {
                     "amount": 2,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1361,
+                      "line": 1385,
                       "column": 1
                     },
                     "feedback": {
@@ -24542,7 +24930,7 @@ export const WG_BUNDLE = {
                     "amount": 0.1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1361,
+                      "line": 1385,
                       "column": 1
                     },
                     "feedback": {
@@ -24556,7 +24944,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1361,
+                "line": 1385,
                 "column": 1
               }
             }
@@ -24571,13 +24959,13 @@ export const WG_BUNDLE = {
             "target": ".relay-win",
             "source": {
               "file": "story/school/events.wg",
-              "line": 1363,
+              "line": 1387,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 1359,
+            "line": 1383,
             "column": 1
           }
         },
@@ -24599,7 +24987,7 @@ export const WG_BUNDLE = {
                     "amount": -1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1367,
+                      "line": 1391,
                       "column": 1
                     },
                     "feedback": {
@@ -24618,7 +25006,7 @@ export const WG_BUNDLE = {
                     "amount": 3,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1367,
+                      "line": 1391,
                       "column": 1
                     },
                     "feedback": {
@@ -24632,7 +25020,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1367,
+                "line": 1391,
                 "column": 1
               }
             },
@@ -24659,7 +25047,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1369,
+                "line": 1393,
                 "column": 1
               }
             },
@@ -24686,7 +25074,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1372,
+                "line": 1396,
                 "column": 1
               }
             }
@@ -24694,7 +25082,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/events.wg",
-            "line": 1365,
+            "line": 1389,
             "column": 1
           }
         },
@@ -24730,7 +25118,7 @@ export const WG_BUNDLE = {
                     "amount": 2,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1377,
+                      "line": 1401,
                       "column": 1
                     },
                     "feedback": {
@@ -24752,7 +25140,7 @@ export const WG_BUNDLE = {
                     "amount": 1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1377,
+                      "line": 1401,
                       "column": 1
                     },
                     "feedback": {
@@ -24766,7 +25154,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1377,
+                "line": 1401,
                 "column": 1
               }
             }
@@ -24781,13 +25169,13 @@ export const WG_BUNDLE = {
             "target": ".relay-clean",
             "source": {
               "file": "story/school/events.wg",
-              "line": 1379,
+              "line": 1403,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 1375,
+            "line": 1399,
             "column": 1
           }
         },
@@ -24809,7 +25197,7 @@ export const WG_BUNDLE = {
                     "amount": 1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1383,
+                      "line": 1407,
                       "column": 1
                     },
                     "feedback": {
@@ -24828,7 +25216,7 @@ export const WG_BUNDLE = {
                     "amount": 0.1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1383,
+                      "line": 1407,
                       "column": 1
                     },
                     "feedback": {
@@ -24847,7 +25235,7 @@ export const WG_BUNDLE = {
                     "amount": -4,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1383,
+                      "line": 1407,
                       "column": 1
                     },
                     "feedback": {
@@ -24861,7 +25249,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1383,
+                "line": 1407,
                 "column": 1
               }
             }
@@ -24876,13 +25264,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 1385,
+              "line": 1409,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 1381,
+            "line": 1405,
             "column": 1
           }
         },
@@ -24904,7 +25292,7 @@ export const WG_BUNDLE = {
                     "amount": 1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1389,
+                      "line": 1413,
                       "column": 1
                     },
                     "feedback": {
@@ -24923,7 +25311,7 @@ export const WG_BUNDLE = {
                     "amount": -2,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1389,
+                      "line": 1413,
                       "column": 1
                     },
                     "feedback": {
@@ -24937,7 +25325,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1389,
+                "line": 1413,
                 "column": 1
               }
             }
@@ -24952,13 +25340,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 1391,
+              "line": 1415,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 1387,
+            "line": 1411,
             "column": 1
           }
         },
@@ -24980,7 +25368,7 @@ export const WG_BUNDLE = {
                     "amount": 0.1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1395,
+                      "line": 1419,
                       "column": 1
                     },
                     "feedback": {
@@ -24994,7 +25382,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1395,
+                "line": 1419,
                 "column": 1
               }
             }
@@ -25009,13 +25397,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 1397,
+              "line": 1421,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 1393,
+            "line": 1417,
             "column": 1
           }
         },
@@ -25037,7 +25425,7 @@ export const WG_BUNDLE = {
                     "amount": 2,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1401,
+                      "line": 1425,
                       "column": 1
                     },
                     "feedback": {
@@ -25056,7 +25444,7 @@ export const WG_BUNDLE = {
                     "amount": -1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 1401,
+                      "line": 1425,
                       "column": 1
                     },
                     "feedback": {
@@ -25070,7 +25458,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1401,
+                "line": 1425,
                 "column": 1
               }
             },
@@ -25103,7 +25491,7 @@ export const WG_BUNDLE = {
                             "amount": -1,
                             "source": {
                               "file": "story/school/events.wg",
-                              "line": 1404,
+                              "line": 1428,
                               "column": 1
                             },
                             "feedback": {
@@ -25120,14 +25508,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/school/events.wg",
-                        "line": 1404,
+                        "line": 1428,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 1403,
+                    "line": 1427,
                     "column": 1
                   }
                 }
@@ -25135,7 +25523,7 @@ export const WG_BUNDLE = {
               "elseNodes": null,
               "source": {
                 "file": "story/school/events.wg",
-                "line": 1403,
+                "line": 1427,
                 "column": 1
               },
               "runtimeId": 0
@@ -25151,13 +25539,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 1407,
+              "line": 1431,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 1399,
+            "line": 1423,
             "column": 1
           }
         }
@@ -25199,7 +25587,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/school/events.wg",
-        "line": 1316,
+        "line": 1339,
         "column": 1
       }
     },
@@ -25226,7 +25614,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 719,
+                "line": 730,
                 "column": 1
               }
             },
@@ -25245,7 +25633,7 @@ export const WG_BUNDLE = {
                 "difficultyId": "difficult",
                 "source": {
                   "file": "story/school/events.wg",
-                  "line": 722,
+                  "line": 733,
                   "column": 1
                 }
               },
@@ -25259,7 +25647,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 723,
+                    "line": 734,
                     "column": 1
                   }
                 },
@@ -25272,7 +25660,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 725,
+                    "line": 736,
                     "column": 1
                   }
                 }
@@ -25283,7 +25671,7 @@ export const WG_BUNDLE = {
               "warning": null,
               "source": {
                 "file": "story/school/events.wg",
-                "line": 721,
+                "line": 732,
                 "column": 1
               }
             },
@@ -25310,7 +25698,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 729,
+                "line": 740,
                 "column": 1
               }
             },
@@ -25341,10 +25729,27 @@ export const WG_BUNDLE = {
               "requirements": [],
               "warning": null,
               "hints": [],
-              "effects": [],
+              "effects": [
+                {
+                  "op": "add",
+                  "path": [
+                    "story",
+                    "taylor_school_interactions_counter"
+                  ],
+                  "value": {
+                    "type": "literal",
+                    "value": 1
+                  },
+                  "source": {
+                    "file": "story/school/events.wg",
+                    "line": 744,
+                    "column": 1
+                  }
+                }
+              ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 732,
+                "line": 743,
                 "column": 1
               }
             }
@@ -25352,7 +25757,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/events.wg",
-            "line": 719,
+            "line": 730,
             "column": 1
           }
         },
@@ -25374,7 +25779,7 @@ export const WG_BUNDLE = {
                     "amount": 2,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 738,
+                      "line": 750,
                       "column": 1
                     },
                     "feedback": {
@@ -25388,7 +25793,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 738,
+                "line": 750,
                 "column": 1
               }
             }
@@ -25403,13 +25808,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 740,
+              "line": 752,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 736,
+            "line": 748,
             "column": 1
           }
         },
@@ -25431,7 +25836,7 @@ export const WG_BUNDLE = {
                     "amount": -1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 744,
+                      "line": 756,
                       "column": 1
                     },
                     "feedback": {
@@ -25450,7 +25855,7 @@ export const WG_BUNDLE = {
                     "amount": 2,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 744,
+                      "line": 756,
                       "column": 1
                     },
                     "feedback": {
@@ -25464,7 +25869,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 744,
+                "line": 756,
                 "column": 1
               }
             },
@@ -25483,7 +25888,7 @@ export const WG_BUNDLE = {
                 "difficultyId": "tricky",
                 "source": {
                   "file": "story/school/events.wg",
-                  "line": 747,
+                  "line": 759,
                   "column": 1
                 }
               },
@@ -25497,7 +25902,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 748,
+                    "line": 760,
                     "column": 1
                   }
                 },
@@ -25510,7 +25915,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 750,
+                    "line": 762,
                     "column": 1
                   }
                 }
@@ -25521,7 +25926,7 @@ export const WG_BUNDLE = {
               "warning": null,
               "source": {
                 "file": "story/school/events.wg",
-                "line": 746,
+                "line": 758,
                 "column": 1
               }
             },
@@ -25548,7 +25953,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 754,
+                "line": 766,
                 "column": 1
               }
             }
@@ -25556,7 +25961,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/events.wg",
-            "line": 742,
+            "line": 754,
             "column": 1
           }
         },
@@ -25578,7 +25983,7 @@ export const WG_BUNDLE = {
                     "amount": 1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 759,
+                      "line": 771,
                       "column": 1
                     },
                     "feedback": {
@@ -25597,169 +26002,13 @@ export const WG_BUNDLE = {
                     "amount": 0.1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 759,
+                      "line": 771,
                       "column": 1
                     },
                     "feedback": {
                       "type": "skill",
                       "amount": 0.1,
                       "label": "+Perception",
-                      "direction": "increase"
-                    }
-                  }
-                }
-              ],
-              "source": {
-                "file": "story/school/events.wg",
-                "line": 759,
-                "column": 1
-              }
-            }
-          ],
-          "next": {
-            "label": [
-              {
-                "type": "text",
-                "value": "Next"
-              }
-            ],
-            "target": "@return",
-            "source": {
-              "file": "story/school/events.wg",
-              "line": 761,
-              "column": 1
-            }
-          },
-          "source": {
-            "file": "story/school/events.wg",
-            "line": 757,
-            "column": 1
-          }
-        },
-        {
-          "id": "bridge-taylor",
-          "body": [
-            {
-              "type": "paragraph",
-              "parts": [
-                {
-                  "type": "text",
-                  "value": "Taylor sketches a daring arch while you translate it into careful folds. The finished bridge sways under load but holds."
-                },
-                {
-                  "type": "change",
-                  "effect": {
-                    "op": "relationship",
-                    "npcId": "taylor",
-                    "meterId": "friendship",
-                    "amount": 2,
-                    "source": {
-                      "file": "story/school/events.wg",
-                      "line": 765,
-                      "column": 1
-                    },
-                    "feedback": {
-                      "type": "relationship",
-                      "amount": 2,
-                      "label": "+Friendship",
-                      "npcId": "taylor",
-                      "meterId": "friendship",
-                      "higherIsBetter": true,
-                      "direction": "increase"
-                    }
-                  }
-                },
-                {
-                  "type": "change",
-                  "effect": {
-                    "op": "grade",
-                    "id": "science",
-                    "amount": 1,
-                    "source": {
-                      "file": "story/school/events.wg",
-                      "line": 765,
-                      "column": 1
-                    },
-                    "feedback": {
-                      "type": "grade",
-                      "amount": 1,
-                      "label": "+Science",
-                      "direction": "increase"
-                    }
-                  }
-                }
-              ],
-              "source": {
-                "file": "story/school/events.wg",
-                "line": 765,
-                "column": 1
-              }
-            }
-          ],
-          "next": {
-            "label": [
-              {
-                "type": "text",
-                "value": "Next"
-              }
-            ],
-            "target": "@return",
-            "source": {
-              "file": "story/school/events.wg",
-              "line": 767,
-              "column": 1
-            }
-          },
-          "source": {
-            "file": "story/school/events.wg",
-            "line": 763,
-            "column": 1
-          }
-        },
-        {
-          "id": "bridge-salvaged",
-          "body": [
-            {
-              "type": "paragraph",
-              "parts": [
-                {
-                  "type": "text",
-                  "value": "You add a diagonal brace seconds before testing. The repaired bridge holds long enough to earn a passing result."
-                },
-                {
-                  "type": "change",
-                  "effect": {
-                    "op": "grade",
-                    "id": "science",
-                    "amount": 1,
-                    "source": {
-                      "file": "story/school/events.wg",
-                      "line": 771,
-                      "column": 1
-                    },
-                    "feedback": {
-                      "type": "grade",
-                      "amount": 1,
-                      "label": "+Science",
-                      "direction": "increase"
-                    }
-                  }
-                },
-                {
-                  "type": "change",
-                  "effect": {
-                    "op": "skill",
-                    "id": "resolve",
-                    "amount": 0.1,
-                    "source": {
-                      "file": "story/school/events.wg",
-                      "line": 771,
-                      "column": 1
-                    },
-                    "feedback": {
-                      "type": "skill",
-                      "amount": 0.1,
-                      "label": "+Resolve",
                       "direction": "increase"
                     }
                   }
@@ -25793,14 +26042,56 @@ export const WG_BUNDLE = {
           }
         },
         {
-          "id": "bridge-collapsed",
+          "id": "bridge-taylor",
           "body": [
             {
               "type": "paragraph",
               "parts": [
                 {
                   "type": "text",
-                  "value": "The bridge folds flat beneath the books. At least the collapse demonstrates exactly where the forces were concentrated."
+                  "value": "Taylor sketches a daring arch while you translate it into careful folds. The finished bridge sways under load but holds."
+                },
+                {
+                  "type": "change",
+                  "effect": {
+                    "op": "relationship",
+                    "npcId": "taylor",
+                    "meterId": "friendship",
+                    "amount": 2,
+                    "source": {
+                      "file": "story/school/events.wg",
+                      "line": 777,
+                      "column": 1
+                    },
+                    "feedback": {
+                      "type": "relationship",
+                      "amount": 2,
+                      "label": "+Friendship",
+                      "npcId": "taylor",
+                      "meterId": "friendship",
+                      "higherIsBetter": true,
+                      "direction": "increase"
+                    }
+                  }
+                },
+                {
+                  "type": "change",
+                  "effect": {
+                    "op": "grade",
+                    "id": "science",
+                    "amount": 1,
+                    "source": {
+                      "file": "story/school/events.wg",
+                      "line": 777,
+                      "column": 1
+                    },
+                    "feedback": {
+                      "type": "grade",
+                      "amount": 1,
+                      "label": "+Science",
+                      "direction": "increase"
+                    }
+                  }
                 }
               ],
               "source": {
@@ -25827,6 +26118,120 @@ export const WG_BUNDLE = {
           "source": {
             "file": "story/school/events.wg",
             "line": 775,
+            "column": 1
+          }
+        },
+        {
+          "id": "bridge-salvaged",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You add a diagonal brace seconds before testing. The repaired bridge holds long enough to earn a passing result."
+                },
+                {
+                  "type": "change",
+                  "effect": {
+                    "op": "grade",
+                    "id": "science",
+                    "amount": 1,
+                    "source": {
+                      "file": "story/school/events.wg",
+                      "line": 783,
+                      "column": 1
+                    },
+                    "feedback": {
+                      "type": "grade",
+                      "amount": 1,
+                      "label": "+Science",
+                      "direction": "increase"
+                    }
+                  }
+                },
+                {
+                  "type": "change",
+                  "effect": {
+                    "op": "skill",
+                    "id": "resolve",
+                    "amount": 0.1,
+                    "source": {
+                      "file": "story/school/events.wg",
+                      "line": 783,
+                      "column": 1
+                    },
+                    "feedback": {
+                      "type": "skill",
+                      "amount": 0.1,
+                      "label": "+Resolve",
+                      "direction": "increase"
+                    }
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/school/events.wg",
+                "line": 783,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/school/events.wg",
+              "line": 785,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/school/events.wg",
+            "line": 781,
+            "column": 1
+          }
+        },
+        {
+          "id": "bridge-collapsed",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The bridge folds flat beneath the books. At least the collapse demonstrates exactly where the forces were concentrated."
+                }
+              ],
+              "source": {
+                "file": "story/school/events.wg",
+                "line": 789,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/school/events.wg",
+              "line": 791,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/school/events.wg",
+            "line": 787,
             "column": 1
           }
         }
@@ -25868,7 +26273,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/school/events.wg",
-        "line": 713,
+        "line": 724,
         "column": 1
       }
     },
@@ -25895,7 +26300,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 786,
+                "line": 798,
                 "column": 1
               }
             },
@@ -25914,7 +26319,7 @@ export const WG_BUNDLE = {
                 "difficultyId": "tricky",
                 "source": {
                   "file": "story/school/events.wg",
-                  "line": 789,
+                  "line": 801,
                   "column": 1
                 }
               },
@@ -25928,7 +26333,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 790,
+                    "line": 802,
                     "column": 1
                   }
                 },
@@ -25941,7 +26346,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 792,
+                    "line": 804,
                     "column": 1
                   }
                 }
@@ -25952,7 +26357,7 @@ export const WG_BUNDLE = {
               "warning": null,
               "source": {
                 "file": "story/school/events.wg",
-                "line": 788,
+                "line": 800,
                 "column": 1
               }
             },
@@ -25979,7 +26384,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 796,
+                "line": 808,
                 "column": 1
               }
             },
@@ -26010,10 +26415,27 @@ export const WG_BUNDLE = {
               "requirements": [],
               "warning": null,
               "hints": [],
-              "effects": [],
+              "effects": [
+                {
+                  "op": "add",
+                  "path": [
+                    "story",
+                    "taylor_school_interactions_counter"
+                  ],
+                  "value": {
+                    "type": "literal",
+                    "value": 1
+                  },
+                  "source": {
+                    "file": "story/school/events.wg",
+                    "line": 812,
+                    "column": 1
+                  }
+                }
+              ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 799,
+                "line": 811,
                 "column": 1
               }
             }
@@ -26021,7 +26443,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/events.wg",
-            "line": 786,
+            "line": 798,
             "column": 1
           }
         },
@@ -26043,7 +26465,7 @@ export const WG_BUNDLE = {
                     "amount": 2,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 805,
+                      "line": 818,
                       "column": 1
                     },
                     "feedback": {
@@ -26057,7 +26479,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 805,
+                "line": 818,
                 "column": 1
               }
             }
@@ -26072,13 +26494,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 807,
+              "line": 820,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 803,
+            "line": 816,
             "column": 1
           }
         },
@@ -26100,7 +26522,7 @@ export const WG_BUNDLE = {
                     "amount": 1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 811,
+                      "line": 824,
                       "column": 1
                     },
                     "feedback": {
@@ -26119,7 +26541,7 @@ export const WG_BUNDLE = {
                     "amount": 2,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 811,
+                      "line": 824,
                       "column": 1
                     },
                     "feedback": {
@@ -26133,7 +26555,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 811,
+                "line": 824,
                 "column": 1
               }
             }
@@ -26148,13 +26570,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 813,
+              "line": 826,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 809,
+            "line": 822,
             "column": 1
           }
         },
@@ -26176,7 +26598,7 @@ export const WG_BUNDLE = {
                     "amount": -2,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 817,
+                      "line": 830,
                       "column": 1
                     },
                     "feedback": {
@@ -26195,7 +26617,7 @@ export const WG_BUNDLE = {
                     "amount": 3,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 817,
+                      "line": 830,
                       "column": 1
                     },
                     "feedback": {
@@ -26209,7 +26631,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 817,
+                "line": 830,
                 "column": 1
               }
             }
@@ -26224,13 +26646,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 819,
+              "line": 832,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 815,
+            "line": 828,
             "column": 1
           }
         },
@@ -26253,7 +26675,7 @@ export const WG_BUNDLE = {
                     "amount": 2,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 823,
+                      "line": 836,
                       "column": 1
                     },
                     "feedback": {
@@ -26275,7 +26697,7 @@ export const WG_BUNDLE = {
                     "amount": 1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 823,
+                      "line": 836,
                       "column": 1
                     },
                     "feedback": {
@@ -26289,7 +26711,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 823,
+                "line": 836,
                 "column": 1
               }
             }
@@ -26304,13 +26726,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 825,
+              "line": 838,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 821,
+            "line": 834,
             "column": 1
           }
         }
@@ -26352,7 +26774,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/school/events.wg",
-        "line": 780,
+        "line": 792,
         "column": 1
       }
     },
@@ -26379,7 +26801,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 657,
+                "line": 667,
                 "column": 1
               }
             },
@@ -26398,7 +26820,7 @@ export const WG_BUNDLE = {
                 "difficultyId": "tricky",
                 "source": {
                   "file": "story/school/events.wg",
-                  "line": 660,
+                  "line": 670,
                   "column": 1
                 }
               },
@@ -26412,7 +26834,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 661,
+                    "line": 671,
                     "column": 1
                   }
                 },
@@ -26425,7 +26847,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 663,
+                    "line": 673,
                     "column": 1
                   }
                 }
@@ -26436,7 +26858,7 @@ export const WG_BUNDLE = {
               "warning": null,
               "source": {
                 "file": "story/school/events.wg",
-                "line": 659,
+                "line": 669,
                 "column": 1
               }
             },
@@ -26463,7 +26885,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 667,
+                "line": 677,
                 "column": 1
               }
             },
@@ -26494,10 +26916,27 @@ export const WG_BUNDLE = {
               "requirements": [],
               "warning": null,
               "hints": [],
-              "effects": [],
+              "effects": [
+                {
+                  "op": "add",
+                  "path": [
+                    "story",
+                    "taylor_school_interactions_counter"
+                  ],
+                  "value": {
+                    "type": "literal",
+                    "value": 1
+                  },
+                  "source": {
+                    "file": "story/school/events.wg",
+                    "line": 681,
+                    "column": 1
+                  }
+                }
+              ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 670,
+                "line": 680,
                 "column": 1
               }
             }
@@ -26505,7 +26944,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/events.wg",
-            "line": 657,
+            "line": 667,
             "column": 1
           }
         },
@@ -26527,7 +26966,7 @@ export const WG_BUNDLE = {
                     "amount": 0.1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 676,
+                      "line": 687,
                       "column": 1
                     },
                     "feedback": {
@@ -26541,7 +26980,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 676,
+                "line": 687,
                 "column": 1
               }
             },
@@ -26568,7 +27007,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 678,
+                "line": 689,
                 "column": 1
               }
             },
@@ -26595,7 +27034,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 681,
+                "line": 692,
                 "column": 1
               }
             }
@@ -26603,7 +27042,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/events.wg",
-            "line": 674,
+            "line": 685,
             "column": 1
           }
         },
@@ -26625,7 +27064,7 @@ export const WG_BUNDLE = {
                     "amount": -1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 686,
+                      "line": 697,
                       "column": 1
                     },
                     "feedback": {
@@ -26639,7 +27078,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 686,
+                "line": 697,
                 "column": 1
               }
             }
@@ -26654,13 +27093,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 688,
+              "line": 699,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 684,
+            "line": 695,
             "column": 1
           }
         },
@@ -26682,7 +27121,7 @@ export const WG_BUNDLE = {
                     "amount": 2,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 692,
+                      "line": 703,
                       "column": 1
                     },
                     "feedback": {
@@ -26696,7 +27135,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 692,
+                "line": 703,
                 "column": 1
               }
             }
@@ -26711,13 +27150,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 694,
+              "line": 705,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 690,
+            "line": 701,
             "column": 1
           }
         },
@@ -26740,7 +27179,7 @@ export const WG_BUNDLE = {
                     "amount": 1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 698,
+                      "line": 709,
                       "column": 1
                     },
                     "feedback": {
@@ -26762,7 +27201,7 @@ export const WG_BUNDLE = {
                     "amount": 1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 698,
+                      "line": 709,
                       "column": 1
                     },
                     "feedback": {
@@ -26776,7 +27215,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 698,
+                "line": 709,
                 "column": 1
               }
             }
@@ -26791,13 +27230,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 700,
+              "line": 711,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 696,
+            "line": 707,
             "column": 1
           }
         },
@@ -26819,7 +27258,7 @@ export const WG_BUNDLE = {
                     "amount": 2,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 704,
+                      "line": 715,
                       "column": 1
                     },
                     "feedback": {
@@ -26833,7 +27272,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 704,
+                "line": 715,
                 "column": 1
               }
             }
@@ -26848,13 +27287,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 706,
+              "line": 717,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 702,
+            "line": 713,
             "column": 1
           }
         },
@@ -26876,7 +27315,7 @@ export const WG_BUNDLE = {
                     "amount": -1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 710,
+                      "line": 721,
                       "column": 1
                     },
                     "feedback": {
@@ -26890,7 +27329,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 710,
+                "line": 721,
                 "column": 1
               }
             }
@@ -26905,13 +27344,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 712,
+              "line": 723,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 708,
+            "line": 719,
             "column": 1
           }
         }
@@ -26953,7 +27392,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/school/events.wg",
-        "line": 651,
+        "line": 661,
         "column": 1
       }
     },
@@ -26980,7 +27419,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 591,
+                "line": 600,
                 "column": 1
               }
             },
@@ -27020,14 +27459,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/school/events.wg",
-                        "line": 594,
+                        "line": 603,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 593,
+                    "line": 602,
                     "column": 1
                   }
                 }
@@ -27035,7 +27474,7 @@ export const WG_BUNDLE = {
               "elseNodes": null,
               "source": {
                 "file": "story/school/events.wg",
-                "line": 593,
+                "line": 602,
                 "column": 1
               },
               "runtimeId": 0
@@ -27055,7 +27494,7 @@ export const WG_BUNDLE = {
                 "difficultyId": "tricky",
                 "source": {
                   "file": "story/school/events.wg",
-                  "line": 598,
+                  "line": 607,
                   "column": 1
                 }
               },
@@ -27069,7 +27508,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 599,
+                    "line": 608,
                     "column": 1
                   }
                 },
@@ -27082,7 +27521,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/events.wg",
-                    "line": 601,
+                    "line": 610,
                     "column": 1
                   }
                 }
@@ -27093,7 +27532,7 @@ export const WG_BUNDLE = {
               "warning": null,
               "source": {
                 "file": "story/school/events.wg",
-                "line": 597,
+                "line": 606,
                 "column": 1
               }
             },
@@ -27120,7 +27559,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 605,
+                "line": 614,
                 "column": 1
               }
             },
@@ -27151,10 +27590,27 @@ export const WG_BUNDLE = {
               "requirements": [],
               "warning": null,
               "hints": [],
-              "effects": [],
+              "effects": [
+                {
+                  "op": "add",
+                  "path": [
+                    "story",
+                    "taylor_school_interactions_counter"
+                  ],
+                  "value": {
+                    "type": "literal",
+                    "value": 1
+                  },
+                  "source": {
+                    "file": "story/school/events.wg",
+                    "line": 618,
+                    "column": 1
+                  }
+                }
+              ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 608,
+                "line": 617,
                 "column": 1
               }
             }
@@ -27162,7 +27618,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/events.wg",
-            "line": 591,
+            "line": 600,
             "column": 1
           }
         },
@@ -27184,7 +27640,7 @@ export const WG_BUNDLE = {
                     "amount": 2,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 614,
+                      "line": 624,
                       "column": 1
                     },
                     "feedback": {
@@ -27203,7 +27659,7 @@ export const WG_BUNDLE = {
                     "amount": 0.1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 614,
+                      "line": 624,
                       "column": 1
                     },
                     "feedback": {
@@ -27217,7 +27673,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 614,
+                "line": 624,
                 "column": 1
               }
             },
@@ -27244,7 +27700,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 616,
+                "line": 626,
                 "column": 1
               }
             },
@@ -27271,7 +27727,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 619,
+                "line": 629,
                 "column": 1
               }
             }
@@ -27279,7 +27735,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/events.wg",
-            "line": 612,
+            "line": 622,
             "column": 1
           }
         },
@@ -27301,7 +27757,7 @@ export const WG_BUNDLE = {
                     "amount": -1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 624,
+                      "line": 634,
                       "column": 1
                     },
                     "feedback": {
@@ -27320,7 +27776,7 @@ export const WG_BUNDLE = {
                     "amount": -5,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 624,
+                      "line": 634,
                       "column": 1
                     },
                     "feedback": {
@@ -27339,7 +27795,7 @@ export const WG_BUNDLE = {
                     "amount": 3,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 624,
+                      "line": 634,
                       "column": 1
                     },
                     "feedback": {
@@ -27353,7 +27809,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 624,
+                "line": 634,
                 "column": 1
               }
             }
@@ -27368,13 +27824,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 626,
+              "line": 636,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 622,
+            "line": 632,
             "column": 1
           }
         },
@@ -27396,7 +27852,7 @@ export const WG_BUNDLE = {
                     "amount": 1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 630,
+                      "line": 640,
                       "column": 1
                     },
                     "feedback": {
@@ -27415,7 +27871,7 @@ export const WG_BUNDLE = {
                     "amount": 0.1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 630,
+                      "line": 640,
                       "column": 1
                     },
                     "feedback": {
@@ -27429,7 +27885,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 630,
+                "line": 640,
                 "column": 1
               }
             }
@@ -27444,13 +27900,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 632,
+              "line": 642,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 628,
+            "line": 638,
             "column": 1
           }
         },
@@ -27473,7 +27929,7 @@ export const WG_BUNDLE = {
                     "amount": 2,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 636,
+                      "line": 646,
                       "column": 1
                     },
                     "feedback": {
@@ -27495,7 +27951,7 @@ export const WG_BUNDLE = {
                     "amount": 1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 636,
+                      "line": 646,
                       "column": 1
                     },
                     "feedback": {
@@ -27509,7 +27965,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 636,
+                "line": 646,
                 "column": 1
               }
             }
@@ -27524,13 +27980,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 638,
+              "line": 648,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 634,
+            "line": 644,
             "column": 1
           }
         },
@@ -27552,7 +28008,7 @@ export const WG_BUNDLE = {
                     "amount": 1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 642,
+                      "line": 652,
                       "column": 1
                     },
                     "feedback": {
@@ -27566,7 +28022,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 642,
+                "line": 652,
                 "column": 1
               }
             }
@@ -27581,13 +28037,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 644,
+              "line": 654,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 640,
+            "line": 650,
             "column": 1
           }
         },
@@ -27609,7 +28065,7 @@ export const WG_BUNDLE = {
                     "amount": 2,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 648,
+                      "line": 658,
                       "column": 1
                     },
                     "feedback": {
@@ -27628,7 +28084,7 @@ export const WG_BUNDLE = {
                     "amount": -1,
                     "source": {
                       "file": "story/school/events.wg",
-                      "line": 648,
+                      "line": 658,
                       "column": 1
                     },
                     "feedback": {
@@ -27642,7 +28098,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/events.wg",
-                "line": 648,
+                "line": 658,
                 "column": 1
               }
             }
@@ -27657,13 +28113,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/school/events.wg",
-              "line": 650,
+              "line": 660,
               "column": 1
             }
           },
           "source": {
             "file": "story/school/events.wg",
-            "line": 646,
+            "line": 656,
             "column": 1
           }
         }
@@ -27705,7 +28161,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/school/events.wg",
-        "line": 585,
+        "line": 594,
         "column": 1
       }
     },
