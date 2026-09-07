@@ -27552,11 +27552,10 @@ export const WG_BUNDLE = {
       "placeTags": [],
       "locationTags": [],
       "hub": null,
-      "offer": {
-        "type": "npc",
-        "npcId": "taylor"
-      },
-      "automaticTriggers": [],
+      "offer": null,
+      "automaticTriggers": [
+        "enter-place"
+      ],
       "pools": [],
       "conditions": [
         {
@@ -27587,10 +27586,10 @@ export const WG_BUNDLE = {
           }
         }
       ],
-      "label": "Introduce yourself to Taylor",
+      "label": null,
       "icon": null,
       "hubText": null,
-      "priority": 0,
+      "priority": 999,
       "chance": 1,
       "weight": 1,
       "source": {

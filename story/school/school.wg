@@ -17,8 +17,8 @@
 
 :: school.taylor.first-meeting -> @exit
   @place-key high_school
-  @offer npc taylor
-  @label "Introduce yourself to Taylor"
+  @auto enter-place
+  @priority 999
   @when school.phase != "class"
   @when not flags.journal.taylor_met
   @onenter
