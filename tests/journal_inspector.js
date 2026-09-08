@@ -39,7 +39,7 @@ function createGame() {
     seed: SANDBOX_SEED,
     startDate: new Date(SANDBOX_DATE),
   });
-  next.story.home.unpacking = 5;
+    next.story.home = { unpacking: 5 };
   return next;
 }
 

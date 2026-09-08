@@ -2,10 +2,10 @@ import { isPlaceUnlocked } from "../../../world/model/place.js";
 
 const WG_FLAG_VALUE = Symbol.for("worldgame.wg.flag-value");
 
-function flagValues(activeFlags) {
+function hierarchicalBooleanValues(activeNames) {
   const root = Object.create(null);
-  for (const activeFlag of activeFlags) {
-    const segments = String(activeFlag).split(".");
+  for (const activeName of activeNames) {
+    const segments = String(activeName).split(".");
     let current = root;
     for (const segment of segments) {
       if (!Object.hasOwn(current, segment) || typeof current[segment] !== "object") {
@@ -118,10 +118,9 @@ export function createWGRuntimeContext(
   const npcs = {};
   for (const [id, npc] of game.npcs) npcs[id] = npcContext(game, npc);
 
-  const flags = flagValues([...game.flags, ...additionalFlags]);
+  const flags = hierarchicalBooleanValues([...game.flags, ...additionalFlags]);
 
-  const daily = {};
-  for (const flag of game.dailyFlags) daily[flag] = true;
+  const daily = hierarchicalBooleanValues(game.dailyFlags);
 
   const activeContinuation = game.storyContinuations.at(-1) || null;
   const context = {

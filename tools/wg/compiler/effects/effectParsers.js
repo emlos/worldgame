@@ -132,7 +132,12 @@ function parseMutation(argument, file, line, at, op) {
   if (!match) failWG("Unknown or malformed @effect", at);
   const path = match[1].split(".");
 
-  if (op === "set" && path[0] === "flags" && path.length >= 2 && match[2] === undefined) {
+  if (
+    op === "set" &&
+    ["flags", "daily"].includes(path[0]) &&
+    path.length >= 2 &&
+    match[2] === undefined
+  ) {
     return { op, path, source: source(file, line) };
   }
   if (
@@ -152,25 +157,12 @@ function parseMutation(argument, file, line, at, op) {
 
 function parseUnset(argument, file, line, at) {
   const match = argument.match(
-    /^unset\s+(flags(?:\.[A-Za-z_][A-Za-z0-9_]*)+)$/,
+    /^unset\s+((?:flags|daily)(?:\.[A-Za-z_][A-Za-z0-9_]*)+)$/,
   );
-  if (!match) failWG("@effect unset requires a flags.<path>", at);
+  if (!match) failWG("@effect unset requires a flags.<path> or daily.<path>", at);
   return {
     op: "unset",
     path: match[1].split("."),
-    source: source(file, line),
-  };
-}
-
-function parseFlag(argument, file, line, at, op) {
-  const match = argument.match(
-    new RegExp(`^${op}\\s+(${ID_PATTERN})\\s+(true|false)$`),
-  );
-  if (!match) failWG("Unknown or malformed @effect", at);
-  return {
-    op,
-    flag: match[1],
-    value: match[2] === "true",
     source: source(file, line),
   };
 }
@@ -230,8 +222,6 @@ const EFFECT_PARSERS = new Map([
   ["add", effectParser("add", (argument, file, line, at) =>
     parseMutation(argument, file, line, at, "add"))],
   ["unset", effectParser("unset", parseUnset)],
-  ["daily-flag", effectParser("daily-flag", (argument, file, line, at) =>
-    parseFlag(argument, file, line, at, "daily-flag"))],
   ["relationship", effectParser("relationship", parseRelationship)],
   ["money", effectParser("money", (argument, file, line, at) =>
     parseAmountEffect(argument, file, line, at, "money"))],

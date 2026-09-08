@@ -52,7 +52,7 @@ export function resolveWGPath(context, path) {
     }
     value = value[segment];
   }
-  if (path[0] === "flags" && isRecord(value)) {
+  if (["flags", "daily"].includes(path[0]) && isRecord(value)) {
     return value[WG_FLAG_VALUE] === true ? true : undefined;
   }
   return value;

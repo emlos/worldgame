@@ -145,7 +145,7 @@ test("the student council office displays the generated timetable and returns", 
     seed: 553,
     startDate: new Date("2026-09-03T12:00:00.000Z"),
   });
-  game.setFlag("location.high_school_first_visit_seen");
+  game.setFlag("high_school.first_visit_seen");
   game.setFlag("journal.taylor_met");
   placeAtSchool(game);
 

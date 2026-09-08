@@ -26,7 +26,7 @@ export const SCHOOL_SCENE_DECORATORS = Object.freeze([
     applies: ({ game, scene }) =>
       scene.kind === "place" &&
       game.currentPlaceId === game.homePlaceId &&
-      game.hasFlag("location.player_home_opening_seen"),
+      game.hasFlag("home.opening_seen"),
     decorate: decorateHomeHub,
   }),
 ]);

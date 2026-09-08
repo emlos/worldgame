@@ -56,6 +56,10 @@ function applyMutation(game, effect, options) {
     game.setFlag(effect.path.slice(1).join("."));
     return;
   }
+  if (effect.path[0] === "daily") {
+    game.setDailyFlag(effect.path.slice(1).join("."));
+    return;
+  }
   const context = createWGRuntimeContext(game, options);
   const value = evaluateWGExpression(effect.value, context);
   const { parent, key } = mutationParent(game, effect.path, options);
@@ -74,7 +78,9 @@ function applyMutation(game, effect, options) {
 }
 
 function applyUnsetEffect(game, effect) {
-  game.clearFlag(effect.path.slice(1).join("."));
+  const id = effect.path.slice(1).join(".");
+  if (effect.path[0] === "daily") game.clearDailyFlag(id);
+  else game.clearFlag(id);
 }
 
 function applyReminderEffect(game, effect) {
@@ -94,10 +100,6 @@ function applyTimerEffect(game, effect) {
   } catch (error) {
     fail(error.message);
   }
-}
-
-function applyDailyFlagEffect(game, effect) {
-  game.setDailyFlag(effect.flag, effect.value);
 }
 
 function applyUnlockPlaceEffect(game, effect) {
@@ -160,7 +162,6 @@ const EFFECT_HANDLERS = new Map([
   ["unset", applyUnsetEffect],
   ["reminder", applyReminderEffect],
   ["timer", applyTimerEffect],
-  ["daily-flag", applyDailyFlagEffect],
   ["unlock-place", applyUnlockPlaceEffect],
   ["relocate", applyRelocateEffect],
   ["teleport-npc", applyTeleportNPCEffect],

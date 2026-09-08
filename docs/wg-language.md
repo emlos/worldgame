@@ -847,9 +847,10 @@ labels remain literal strings.
 
 The currently exposed paths are:
 
-- `story.location.*`, `story.npc.*`, `story.quest.*`, and `story.event.*`:
-  persistent authored story state created by WG effects. These four categories
-  are initialized for every new game.
+- `story.<location-key>.*`, `story.quest.<quest-id>.*`,
+  `story.npc.<npc-id>.*`, and `story.event.*`: persistent authored story state
+  created by WG effects. For example, home state uses `story.home.unpacking`,
+  while rent state uses `story.quest.rent.debt`.
 - `local.*`: state belonging to the active scene or chat. Scene locals survive
   local passage changes, temporary event suspension, and saving/loading, then
   are discarded when the scene exits or another scene replaces it. Chat locals
@@ -884,11 +885,12 @@ The currently exposed paths are:
 - `npc.<id>.flags.<flag>` for that NPC's stored boolean flags.
 - `npc.<id>.schedule.phase`, `.obligationId`, `.startsAt`,
   `.requiredArrivalAt`, `.earlyArrivalMinutes`, and `.minutesUntilStart`.
-- `flags.<path>` for active game flags. Gameplay flags use the same
-  `location`, `npc`, `quest`, or `event` category as persistent story state;
-  journal signals use the reserved `flags.journal.*` namespace. For example,
+- `flags.<path>` for active game flags. Location-owned flags begin with their
+  location key, quest flags use `flags.quest.<quest-id>.*`, and NPC flags use
+  `flags.npc.<npc-id>.*`. Journal signals use the reserved `flags.journal.*`
+  namespace. For example, `flags.home.opening_seen` and
   `flags.quest.receptacles.started`. Inactive flags are absent, so a negated
-  categorized path is the normal negative check.
+  path is the normal negative check.
 - `daily.<id>` for active daily flags. Inactive flags are absent. Daily flags
   are saved normally and are cleared automatically when forward game time
   crosses UTC midnight.
@@ -956,17 +958,19 @@ Expression path segments use letters, numbers, and `_`, and cannot start with
 a number. Global flag names used by WG therefore follow the same rule so they
 can be read and changed through `flags.<path>` paths.
 
-Project-authored mutable names use lowercase snake case. Persistent values have
-the shape `story.<category>.<name_in_snake_case>` and durable flags use
-`flags.<category>.<name_in_snake_case>`, where the category is `location`,
-`npc`, `quest`, or `event`. Keep a related flow in one category: for example,
-`story.quest.rent.debt` and `flags.quest.rent.intro_bypassed`. Journal flags are
-the one reserved exception and use `flags.journal.<name_in_snake_case>`.
-Scene- and chat-local paths use `local.<name_in_snake_case>`. Daily flag IDs are
-flat lowercase snake case, such as `daily.home.weightlifting`, because the
-entire namespace is cleared together at UTC midnight. Scene IDs and passage
-IDs are navigation identifiers rather than variables and may continue to use
-their existing dotted and hyphenated hierarchy.
+Project-authored mutable names use lowercase snake case. Location-owned values
+and flags use their location key directly, such as `story.home.unpacking` and
+`flags.home.opening_seen`. Quest state uses `story.quest.<quest-id>.*` and
+`flags.quest.<quest-id>.*`; NPC state uses `story.npc.<npc-id>.*` and
+`flags.npc.<npc-id>.*`. For example, a related rent flow uses
+`story.quest.rent.debt` and `flags.quest.rent.intro_bypassed`. Journal flags use
+the reserved `flags.journal.<name_in_snake_case>` namespace. Scene- and
+chat-local paths use `local.<name_in_snake_case>`. Daily flag IDs may use dotted
+lowercase segments, such as `home.weightlifting`, and are read as
+`daily.home.weightlifting`; the entire namespace is cleared together at UTC
+midnight. Scene IDs and passage IDs are navigation identifiers rather than
+variables and may continue to use their existing dotted and hyphenated
+hierarchy.
 
 A missing expression path evaluates to `undefined`, which is false when used
 directly as a condition. The compiler checks expression syntax but does not
@@ -1222,7 +1226,7 @@ Choice directives are:
   this action. It is valid in direct choices and skill-check outcomes. Explicit
   effects such as `@effect stat energy -10` still apply.
   NPC simulation, the calendar and weather, age synchronization, midnight
-  daily-flag clearing, listeners, and action logging are unchanged.
+  daily flag clearing, listeners, and action logging are unchanged.
 - `@time <duration> rest`: has the same simulation behavior as `free` and also
   restores energy at 10 points per in-game hour. It accepts either a fixed
   duration or a random range and is the shared time policy used by normal sleep
@@ -1411,8 +1415,8 @@ Implemented effects are:
 @effect add local.example_counter 1
 @effect set flags.npc.met_taylor
 @effect unset flags.npc.met_taylor
-@effect daily-flag home_weightlifting true
-@effect daily-flag home_weightlifting false
+@effect set daily.home.weightlifting
+@effect unset daily.home.weightlifting
 @effect relationship taylor.friendship 2
 @effect relationship taylor.friendship -2
 @effect money 25
@@ -1444,12 +1448,12 @@ Implemented effects are:
   automatically. `add` treats a missing or `null` final value as zero and
   requires both values to be finite numbers. Neither operation can write
   through an existing scalar or list used as an intermediate path segment.
-- `set flags.<path>` enables a global game flag; `unset flags.<path>` removes
-  it. Flag paths contain one or more expression path segments, so each segment
-  may contain letters, numbers, and `_`, but cannot start with a number.
-- `daily-flag <id> true|false` enables or removes a daily flag. All daily flags
-  are cleared together when forward game time crosses UTC midnight. Use
-  `not daily.<id>` to gate a once-per-day choice.
+- `set flags.<path>` enables a durable game flag; `unset flags.<path>` removes
+  it. `set daily.<path>` and `unset daily.<path>` perform the same operations in
+  the daily flag pool, which is cleared automatically when forward game time
+  crosses UTC midnight. Flag paths contain one or more expression path
+  segments, so each segment may contain letters, numbers, and `_`, but cannot
+  start with a number. Use `not daily.<path>` to gate a once-per-day choice.
 - `reminder add <id>` activates an authored reminder; `reminder clear <id>`
   removes it. Both require a declared reminder ID. See **Reminders** below.
 - `timer start <id>` starts a named JavaScript timer definition if it is not
@@ -1707,7 +1711,7 @@ not implemented.
 | Checked choice | `@icon`, `@event-pool`, `@event-chance`, `@when`, `@require`, `@warning`, `@check`, `@success ... @endsuccess`, `@failure ... @endfailure` |
 | Check outcome | `@time`, `@response ... @endresponse`, `@effect` |
 | On-enter block | `@effect` |
-| Effect operations | `contact add`, `chat start`, `chat finish`, `set`, `add`, `unset`, `daily-flag`, `reminder add`, `reminder clear`, `timer start`, `timer restart`, `timer stop`, `unlock place`, `relocate home`, `relocate nearest-place`, `teleport npc`, `relationship`, `money`, `skill`, `stat`, `grade`, `attendance` |
+| Effect operations | `contact add`, `chat start`, `chat finish`, `set`, `add`, `unset`, `reminder add`, `reminder clear`, `timer start`, `timer restart`, `timer stop`, `unlock place`, `relocate home`, `relocate nearest-place`, `teleport npc`, `relationship`, `money`, `skill`, `stat`, `grade`, `attendance` |
 | Story targets | `global scene ID`, `local .passage`, `@exit`, `@return`, `@leave-place` |
 <!-- WG-DIRECTIVE-INDEX:END -->
 

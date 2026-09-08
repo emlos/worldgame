@@ -69,7 +69,7 @@ test("the cafe offers unemployed players a job they can decline", () => {
   assert.ok(choice(game, "Decline the offer"));
   choose(game, "Decline the offer");
 
-  assert.equal(game.flags.has("quest.cafe_employee"), false);
+  assert.equal(game.flags.has("quest.cafe.employee"), false);
   assert.equal(game.reminders.has("cafe_job"), false);
 
   continueScene(game);
@@ -82,7 +82,7 @@ test("accepting the cafe job adds its reminder and enables paid one-hour shifts"
   choose(game, "Ask about a job");
   choose(game, "Accept the job");
 
-  assert.equal(game.flags.has("quest.cafe_employee"), true);
+  assert.equal(game.flags.has("quest.cafe.employee"), true);
   assert.equal(game.reminders.has("cafe_job"), true);
 
   continueScene(game);
@@ -116,7 +116,7 @@ test("accepting the cafe job adds its reminder and enables paid one-hour shifts"
 
   const restored = Game.fromJSON(JSON.parse(JSON.stringify(game.toJSON())));
   assert.equal(restored.player.money, 7);
-  assert.equal(restored.flags.has("quest.cafe_employee"), true);
+  assert.equal(restored.flags.has("quest.cafe.employee"), true);
   assert.equal(restored.reminders.has("cafe_job"), true);
   assert.equal(restored.currentStory.id, game.currentStory.id);
   assert.equal(restored.storyContinuations.length, 1);
@@ -144,7 +144,7 @@ test("cafe shifts can start from 07:00 through exactly 21:00", () => {
 
   for (const [at, expected] of cases) {
     const game = createCafeGame(at);
-    game.setFlag("quest.cafe_employee", true);
+    game.setFlag("quest.cafe.employee", true);
     assert.equal(Boolean(choice(game, "Work for one hour")), expected, at);
   }
 });

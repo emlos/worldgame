@@ -138,7 +138,7 @@
   @when not daily.school_quiz_english
   @choices "Choose an answer"
   @onenter
-    @effect daily-flag school_quiz_english true
+    @effect set daily.school_quiz_english
   @endonenter
   @system school.quiz {"bank":"english.core","questions":3}
 :: school.english.event.student-distraction -> @return
@@ -264,7 +264,7 @@
   @when not daily.school_quiz_math
   @choices "Choose an answer"
   @onenter
-    @effect daily-flag school_quiz_math true
+    @effect set daily.school_quiz_math
   @endonenter
   @system school.quiz {"bank":"math.core","questions":3}
 :: school.math.event.called-to-answer -> @return

@@ -27,7 +27,8 @@ const FIXED_START = new Date("2026-09-04T12:00:00.000Z");
 
 function writableGame() {
   const game = new Game({ seed: 8128, startDate: FIXED_START });
-  game.story.home.unpacking = 5;
+  game.story.home = { unpacking: 5 };
+  game.story.npc.taylor = { school_interactions: 0 };
   return game;
 }
 
@@ -217,7 +218,7 @@ test("an active journal entry must be finished or discarded before exiting", () 
   game.runAction({
     label: "get cafe job",
     apply(currentGame) {
-      currentGame.setFlag("quest.cafe_employee");
+      currentGame.setFlag("journal.has_job");
     },
   });
 
@@ -257,12 +258,12 @@ test("journal availability latches and completed entries save decisions instead 
   game.runAction({
     label: "get cafe job",
     apply(currentGame) {
-      currentGame.setFlag("quest.cafe_employee");
+      currentGame.setFlag("journal.has_job");
     },
   });
 
   assert.deepEqual(game.journal.pending.map((record) => record.definitionId), ["journal-2"]);
-  game.clearFlag("quest.cafe_employee");
+  game.flags.delete("journal.has_job");
   game.refreshJournalAvailability();
   assert.deepEqual(game.journal.pending.map((record) => record.definitionId), ["journal-2"]);
 
@@ -500,8 +501,8 @@ test("discarding an old topic lets a newer topic enter the visible backlog", () 
     label: "unlock three journal topics",
     apply(currentGame) {
       currentGame.story.npc.taylor.school_interactions = 5;
-      currentGame.setFlag("quest.cafe_employee");
-      currentGame.setFlag("quest.rent_intro_2");
+      currentGame.setFlag("journal.has_job");
+      currentGame.setFlag("quest.rent.intro_2");
     },
   });
 
@@ -524,7 +525,7 @@ test("journal writing shows only entries completed on the current game day", () 
   game.runAction({
     label: "get cafe job",
     apply(currentGame) {
-      currentGame.setFlag("quest.cafe_employee");
+      currentGame.setFlag("journal.has_job");
     },
   });
   game.startJournalEntry("journal-2");
@@ -712,7 +713,7 @@ test("journal choices complete continuation prose without headings or ellipses",
     label: "unlock journal examples",
     apply(currentGame) {
       currentGame.story.npc.taylor.school_interactions = 5;
-      currentGame.setFlag("quest.rent_intro_2");
+      currentGame.setFlag("quest.rent.intro_2");
     },
   });
 

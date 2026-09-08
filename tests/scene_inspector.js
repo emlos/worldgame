@@ -838,7 +838,12 @@ function referencedFlagIds(entry) {
       ) {
         found.flag.add(effect.path[1]);
       }
-      if (effect.op === "daily-flag" && effect.flag) found.daily.add(effect.flag);
+      if (
+        (effect.op === "set" || effect.op === "unset") &&
+        effect.path?.[0] === "daily" && effect.path[1]
+      ) {
+        found.daily.add(effect.path.slice(1).join("."));
+      }
     });
   }
   return found;

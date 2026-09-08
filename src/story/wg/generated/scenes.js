@@ -5753,9 +5753,11 @@ export const WG_BUNDLE = {
                   }
                 },
                 {
-                  "op": "daily-flag",
-                  "flag": "school_before_taylor",
-                  "value": true,
+                  "op": "set",
+                  "path": [
+                    "daily",
+                    "school_before_taylor"
+                  ],
                   "source": {
                     "file": "story/school/school.wg",
                     "line": 686,
@@ -8324,9 +8326,12 @@ export const WG_BUNDLE = {
                       }
                     },
                     {
-                      "op": "daily-flag",
-                      "flag": "home_weightlifting",
-                      "value": true,
+                      "op": "set",
+                      "path": [
+                        "daily",
+                        "home",
+                        "weightlifting"
+                      ],
                       "source": {
                         "file": "story/places/player-home.wg",
                         "line": 76,
@@ -17137,9 +17142,11 @@ export const WG_BUNDLE = {
       },
       "onEnter": [
         {
-          "op": "daily-flag",
-          "flag": "school_quiz_english",
-          "value": true,
+          "op": "set",
+          "path": [
+            "daily",
+            "school_quiz_english"
+          ],
           "source": {
             "file": "story/school/events.wg",
             "line": 141,
@@ -21312,9 +21319,11 @@ export const WG_BUNDLE = {
       },
       "onEnter": [
         {
-          "op": "daily-flag",
-          "flag": "school_quiz_math",
-          "value": true,
+          "op": "set",
+          "path": [
+            "daily",
+            "school_quiz_math"
+          ],
           "source": {
             "file": "story/school/events.wg",
             "line": 267,

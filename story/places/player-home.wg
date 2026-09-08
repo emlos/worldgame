@@ -73,7 +73,7 @@
       @time 5m
       @when not daily.home.weightlifting and story.home.unpacking >= 10
       @change skill strength 0.1
-      @effect daily-flag home_weightlifting true
+      @effect set daily.home.weightlifting
     @endchoice
 
     @choice "Sit down with your diary" -> home.diary

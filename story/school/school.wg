@@ -683,7 +683,7 @@
     @endresponse
     @change relationship taylor.friendship 3
     @effect add story.npc.taylor.school_interactions 1
-    @effect daily-flag school_before_taylor true
+    @effect set daily.school_before_taylor
   @endchoice
 
   @choice "Leave" -> @exit

@@ -62,7 +62,6 @@ test("the compiler registry parses every effect without changing the effect IR",
     "  @effect add story.registry.value 2",
     "  @effect set flags.registry_flag",
     "  @effect unset flags.registry_old_flag",
-    "  @effect daily-flag registry_daily true",
     "  @effect reminder add registry.notice",
     "  @effect timer start rent.weekly",
     "  @effect unlock place civil_office",
@@ -75,6 +74,8 @@ test("the compiler registry parses every effect without changing the effect IR",
     "  @effect stat energy -2",
     "  @effect grade english 1",
     "  @effect attendance english 1",
+    "  @effect set daily.registry_daily",
+    "  @effect unset daily.registry_old_daily",
     "@endonenter",
     "",
     "The registry is active. @change stat energy -2",
@@ -96,7 +97,7 @@ test("the compiler registry parses every effect without changing the effect IR",
     {
       op: "unlock-place",
       placeKey: "civil_office",
-      source: { file: "registry.wg", line: 26, column: 1 },
+      source: { file: "registry.wg", line: 25, column: 1 },
     },
   );
   assert.deepEqual(
@@ -110,7 +111,7 @@ test("the compiler registry parses every effect without changing the effect IR",
   );
 });
 
-test("set and unset use namespaces to mutate story values and global flags", () => {
+test("set and unset mutate story values, durable flags, and daily flags", () => {
   const bundle = compileStorySources([{
     file: "namespaced-mutations.wg",
     source: [
@@ -121,6 +122,8 @@ test("set and unset use namespaces to mutate story values and global flags", () 
       "  @effect add local.fixture.count 2",
       "  @effect set flags.fixture.ready",
       "  @effect unset flags.fixture.old",
+      "  @effect set daily.fixture.ready",
+      "  @effect unset daily.fixture.old",
       "@endonenter",
       "",
       "Ready.",
@@ -145,34 +148,49 @@ test("set and unset use namespaces to mutate story values and global flags", () 
     },
     { op: "set", path: ["flags", "fixture", "ready"] },
     { op: "unset", path: ["flags", "fixture", "old"] },
+    { op: "set", path: ["daily", "fixture", "ready"] },
+    { op: "unset", path: ["daily", "fixture", "old"] },
   ]);
 
   const game = new Game({ seed: 903 });
   enterWGScene(game, "story.rent.intro.2");
   resolveActiveWGStory(game);
   game.setFlag("fixture.old");
+  game.setDailyFlag("fixture.old");
   applyWGEffects(game, effects);
   assert.equal(game.story.fixture.label, "ready");
   assert.equal(game.currentStory.locals.fixture.count, 3);
   assert.equal(game.hasFlag("fixture.ready"), true);
   assert.equal(game.hasFlag("fixture.old"), false);
+  assert.equal(game.hasDailyFlag("fixture.ready"), true);
+  assert.equal(game.hasDailyFlag("fixture.old"), false);
 });
 
 test("dotted flags remain exact when one flag is another flag's namespace", () => {
   const game = new Game({ seed: 904 });
-  game.setFlag("quest.receptacles_started");
+  game.setFlag("quest.receptacles.started");
   const context = createWGRuntimeContext(game);
 
   assert.equal(
-    resolveWGPath(context, ["flags", "quest", "receptacles_started"]),
+    resolveWGPath(context, ["flags", "quest", "receptacles", "started"]),
     true,
   );
   assert.equal(resolveWGPath(context, ["flags", "quest"]), undefined);
 });
 
+test("dotted daily flags are exposed as hierarchical expression paths", () => {
+  const game = new Game({ seed: 905 });
+  game.setDailyFlag("home.weightlifting");
+  const context = createWGRuntimeContext(game);
+
+  assert.equal(resolveWGPath(context, ["daily", "home", "weightlifting"]), true);
+  assert.equal(resolveWGPath(context, ["daily", "home"]), undefined);
+});
+
 test("removed and malformed global flag mutations are rejected", () => {
   for (const [directive, expected] of [
     ["@effect flag old_flag true", /Unknown or malformed @effect/],
+    ["@effect daily-flag old_flag true", /Unknown or malformed @effect/],
     ["@effect set flags.named true", /requires a story\.\* or local\.\* path and value/],
     ["@effect set local.named", /requires a story\.\* or local\.\* path and value/],
     ["@effect unset story.named", /requires a flags\.<path>/],

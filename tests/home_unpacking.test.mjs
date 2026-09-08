@@ -46,11 +46,11 @@ test("unpacking advances in timed stages and reveals home activities", () => {
     startDate: new Date("2026-09-03T04:00:00.000Z"),
     playerOptions: { startPlaceId: null },
   });
-  game.setFlag("location.player_home_opening_seen");
+  game.setFlag("home.opening_seen");
   placePlayerAtHome(game);
 
   let home = buildScene(game);
-  assert.equal(game.story.home.unpacking, undefined);
+  assert.equal(game.story.home?.unpacking, undefined);
   assert.ok(choiceWithLabel(home, "Unpack"));
   assert.ok(choiceWithLabel(home, "Go to Bed"));
   assert.equal(choiceWithLabel(home, "Take a shower"), undefined);
@@ -97,8 +97,8 @@ test("unpacking advances in timed stages and reveals home activities", () => {
   assert.ok(choiceWithLabel(buildScene(game), "Unpack the last boxes"));
   choose(game, "Unpack the last boxes");
   assert.equal(game.story.home.unpacking, 20);
-  assert.equal(game.hasFlag("quest.receptacles_started"), true);
-  assert.equal(game.hasFlag("location.player_home_unpacked"), true);
+  assert.equal(game.hasFlag("quest.receptacles.started"), true);
+  assert.equal(game.hasFlag("home.unpacked"), true);
   assert.match(JSON.stringify(buildScene(game).content), /strange receptacle/);
   while (game.currentStory) choose(game, "Next");
 
@@ -110,15 +110,32 @@ test("unpacking advances in timed stages and reveals home activities", () => {
 
 test("unpacking progress and the receptacle discovery survive saving", () => {
   const game = new Game({ seed: 9022 });
-  game.story.home.unpacking = 20;
-  game.setFlag("quest.receptacles_started");
-  game.setFlag("location.player_home_unpacked");
+  game.story.home = { unpacking: 20 };
+  game.setFlag("quest.receptacles.started");
+  game.setFlag("home.unpacked");
 
   const restored = Game.fromJSON(JSON.parse(JSON.stringify(game.toJSON())));
 
   assert.equal(restored.story.home.unpacking, 20);
-  assert.equal(restored.hasFlag("quest.receptacles_started"), true);
-  assert.equal(restored.hasFlag("location.player_home_unpacked"), true);
+  assert.equal(restored.hasFlag("quest.receptacles.started"), true);
+  assert.equal(restored.hasFlag("home.unpacked"), true);
+});
+
+test("dotted daily activity flags gate their matching location action", () => {
+  const game = new Game({
+    seed: 9023,
+    startDate: new Date("2026-09-03T04:00:00.000Z"),
+    playerOptions: { startPlaceId: null },
+  });
+  game.story.home = { unpacking: 10 };
+  game.setFlag("home.opening_seen");
+  placePlayerAtHome(game);
+
+  assert.ok(choiceWithLabel(buildScene(game), "Lift weights"));
+  choose(game, "Lift weights");
+
+  assert.equal(game.hasDailyFlag("home.weightlifting"), true);
+  assert.equal(choiceWithLabel(buildScene(game), "Lift weights"), undefined);
 });
 
 test("ranged choice time rolls only when selected and persists through saves", () => {
@@ -127,7 +144,7 @@ test("ranged choice time rolls only when selected and persists through saves", (
     startDate: new Date("2026-09-03T04:00:00.000Z"),
     playerOptions: { startPlaceId: null },
   });
-  game.setFlag("location.player_home_opening_seen");
+  game.setFlag("home.opening_seen");
   placePlayerAtHome(game);
 
   const randomBeforeRendering = game.random.toJSON();
