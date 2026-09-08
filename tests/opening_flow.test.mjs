@@ -107,7 +107,12 @@ test("entering school triggers its guidance only on the first visit", () => {
   const firstVisitScene = buildScene(game);
   assert.match(JSON.stringify(firstVisitScene.content), /Open the Planner button to review/);
 
+  game.teleportNPC("taylor", "player");
   choose(game, "Look around");
+  assert.equal(game.currentStory?.id, "school.taylor.first-meeting.traversal");
+  assert.equal(game.hasFlag("journal.taylor_met"), true);
+
+  choose(game, "See you around");
   assert.equal(game.currentStory, null);
   assert.equal(game.currentPlace?.key, "high_school");
   assert.equal(
@@ -125,7 +130,93 @@ function placePlayerAndTaylorAtSchool(game) {
   game.teleportNPC("taylor", "player");
 }
 
-test("Taylor's introduction is not offered while class is in session", () => {
+test("entering school introduces Taylor once when Taylor is present", () => {
+  const game = new Game({
+    seed: 117,
+    startDate: new Date("2026-09-01T08:00:00.000Z"),
+    playerOptions: { startPlaceId: null },
+  });
+  game.setFlag("school_first_visit_seen");
+  const { location, place } = findPlace(game, "high_school");
+  game.moveTo(String(location.id));
+  game.npcs.get("taylor").setLocationAndPlace(
+    String(location.id),
+    String(place.id),
+  );
+
+  const outside = buildScene(game);
+  const enterSchool = outside.sections
+    .flatMap((section) => section.choices)
+    .find((choice) => choice.id === `enter:${place.id}`);
+  assert.ok(enterSchool);
+  performChoice(game, {
+    sceneId: outside.id,
+    choiceId: enterSchool.id,
+  });
+
+  assert.equal(game.currentStory?.id, "school.taylor.first-meeting");
+  assert.equal(game.hasFlag("journal.taylor_met"), true);
+  choose(game, "See you around");
+
+  game.setCurrentPlace();
+  const outsideAgain = buildScene(game);
+  const reenterSchool = outsideAgain.sections
+    .flatMap((section) => section.choices)
+    .find((choice) => choice.id === `enter:${place.id}`);
+  assert.ok(reenterSchool);
+  performChoice(game, {
+    sceneId: outsideAgain.id,
+    choiceId: reenterSchool.id,
+  });
+  assert.equal(game.currentStory, null);
+});
+
+test("Taylor's introduction interrupts internal travel and resumes its destination", () => {
+  const game = new Game({
+    seed: 117,
+    startDate: new Date("2026-09-01T08:00:00.000Z"),
+  });
+  game.setFlag("school_first_visit_seen");
+  placePlayerAndTaylorAtSchool(game);
+
+  choose(game, "Go to the school nurse's office");
+
+  assert.equal(game.currentStory?.id, "school.taylor.first-meeting.traversal");
+  assert.equal(game.storyContinuations.length, 1);
+  assert.equal(
+    game.storyContinuations[0].target,
+    "place.high-school.nurse-office",
+  );
+  assert.equal(game.hasFlag("journal.taylor_met"), true);
+
+  choose(game, "See you around");
+
+  assert.equal(game.currentStory?.id, "place.high-school.nurse-office");
+  assert.equal(game.storyContinuations.length, 0);
+  assert.match(JSON.stringify(buildScene(game).content), /Nurse Caro|nurse's chair/);
+});
+
+test("Taylor's introduction requires Taylor to be present", () => {
+  const game = new Game({
+    seed: 117,
+    startDate: new Date("2026-09-01T08:00:00.000Z"),
+  });
+  game.setFlag("school_first_visit_seen");
+  const { location, place } = findPlace(game, "high_school");
+  game.moveTo(String(location.id));
+  game.setCurrentPlace({ placeId: String(place.id) });
+
+  assert.equal(
+    resolveWGAutomaticScene(game, WG_AUTO_TRIGGER.enterPlace),
+    null,
+  );
+
+  choose(game, "Go to the school nurse's office");
+  assert.equal(game.currentStory?.id, "place.high-school.nurse-office");
+  assert.equal(game.hasFlag("journal.taylor_met"), false);
+});
+
+test("Taylor's introduction does not interrupt school travel during class", () => {
   const game = new Game({
     seed: 117,
     startDate: new Date("2026-09-01T09:30:00.000Z"),
@@ -133,8 +224,7 @@ test("Taylor's introduction is not offered while class is in session", () => {
   game.setFlag("school_first_visit_seen");
   placePlayerAndTaylorAtSchool(game);
 
-  assert.equal(
-    findChoiceByLabel(buildScene(game), "Introduce yourself to Taylor"),
-    undefined,
-  );
+  choose(game, "Go to the school nurse's office");
+  assert.equal(game.currentStory?.id, "place.high-school.nurse-office");
+  assert.equal(game.hasFlag("journal.taylor_met"), false);
 });

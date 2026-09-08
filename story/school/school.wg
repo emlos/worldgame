@@ -13,13 +13,16 @@
 
   You are not locked into the school day. You can attend the current lesson, explore the building, wait for the schedule to advance, or leave.
 
-  @next "Look around" -> @exit
+  @choice "Look around" -> @exit
+    @event-pool school.traversal
+  @endchoice
 
-:: school.taylor.first-meeting -> @exit
+
+:: school.taylor.first-meeting -> @return
   @place-key high_school
-  @auto enter-place
-  @priority 999
-  @when school.phase != "class"
+  @pool school.traversal
+  @priority 500
+  @when school.phase != "class" and npc.taylor.present
   @when not flags.journal.taylor_met
   @onenter
     @effect set flags.journal.taylor_met
@@ -32,7 +35,7 @@
 
   You introduce yourself. The conversation is brief, but Taylor seems relieved to recognise one more person in the crowded school.
 
-  @next "See you around" -> @exit
+  @next "See you around" -> @return
 
 :: place.high-school
   @hub high_school
@@ -161,46 +164,55 @@
     @choice "Go to the cafeteria" -> place.high-school.cafeteria
       @icon 🍽️
       @time 1m
+      @event-pool school.traversal
     @endchoice
 
     @choice "Go to the math classroom" -> place.high-school.math-classroom
       @icon 🧮
       @time 1m
+      @event-pool school.traversal
     @endchoice
 
     @choice "Go to the english classroom" -> place.high-school.english-classroom
       @icon 📖
       @time 1m
+      @event-pool school.traversal
     @endchoice
 
     @choice "Go to the history classroom" -> place.high-school.history-classroom
       @icon 📜
       @time 1m
+      @event-pool school.traversal
     @endchoice
 
     @choice "Go to the science classroom" -> place.high-school.science-classroom
       @icon 🔬
       @time 2m
+      @event-pool school.traversal
     @endchoice
 
     @choice "Go to the art classroom" -> place.high-school.art-classroom
       @icon 🎨
       @time 2m
+      @event-pool school.traversal
     @endchoice
 
     @choice "Go to the school gym" -> place.high-school.gym
       @icon 🏃
       @time 5m
+      @event-pool school.traversal
     @endchoice
 
     @choice "Go to the school nurse's office" -> place.high-school.nurse-office
       @icon 🏥
       @time 2m
+      @event-pool school.traversal
     @endchoice
 
     @choice "Visit the student council office" -> place.high-school.student-council-room
       @icon 🏫
       @time 5m
+      @event-pool school.traversal
     @endchoice
 
   @endchoicegroup
@@ -640,7 +652,7 @@
   @choice "Talk with Taylor before class" -> place.high-school.cafeteria
 
     @time 15m
-    @when npc.taylor.present and not daily.school_before_taylor and school.phase != "class"
+    @when npc.taylor.present and flags.journal.taylor_met and not daily.school_before_taylor and school.phase != "class"
     @response
       Taylor giggles. "Have you heard that Prof. Sokolev has uploaded a mixtape on TwoYube? We should totally watch it together after class!"
     @endresponse
@@ -657,6 +669,7 @@
 
   @choice "Leave" -> @exit
     @time 1m
+    @event-pool school.traversal
   @endchoice
 
 :: place.high-school.english-classroom
@@ -675,6 +688,7 @@
 
   @choice "Leave" -> @exit
     @time 1m
+    @event-pool school.traversal
   @endchoice
 
 :: place.high-school.math-classroom
@@ -695,6 +709,7 @@
 
   @choice "Leave" -> @exit
     @time 1m
+    @event-pool school.traversal
   @endchoice
 
 :: place.high-school.science-classroom
@@ -715,6 +730,7 @@
 
   @choice "Leave" -> @exit
     @time 1m
+    @event-pool school.traversal
   @endchoice
 
 :: place.high-school.history-classroom
@@ -735,6 +751,7 @@
 
   @choice "Leave" -> @exit
     @time 2m
+    @event-pool school.traversal
   @endchoice
 
 :: place.high-school.art-classroom
@@ -755,6 +772,7 @@
 
   @choice "Leave" -> @exit
     @time 2m
+    @event-pool school.traversal
   @endchoice
 
 :: place.high-school.gym
@@ -775,6 +793,7 @@
 
   @choice "Leave" -> @exit
     @time 5m
+    @event-pool school.traversal
   @endchoice
 
 :: place.high-school.student-council-room
@@ -789,6 +808,7 @@
 
   @choice "Leave" -> @exit
     @time 5m
+    @event-pool school.traversal
   @endchoice
 
 :: place.high-school.nurse-office
@@ -813,4 +833,5 @@
 
   @choice "Leave" -> @exit
     @time 2m
+    @event-pool school.traversal
   @endchoice
