@@ -160,6 +160,6 @@ test("the student council office displays the generated timetable and returns", 
   assert.equal(table.rows[0][6], "");
   assert.match(table.rows[1].join(" "), /Tuesday.*Physical Education.*14:15/);
 
-  choose(game, "Return to the student council office");
+  choose(game, "Return");
   assert.equal(game.currentStory?.id, "place.high-school.student-council-room");
 });
