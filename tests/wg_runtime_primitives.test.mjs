@@ -212,11 +212,11 @@ test("active WG passages persist one shared instance key", () => {
     seed: 9902,
     startDate: new Date("2026-09-04T12:00:00.000Z"),
   });
-  enterWGScene(game, "taylor.study.peek");
+  enterWGScene(game, "story.rent.intro.2");
   resolveActiveWGStory(game);
 
   const key = game.currentStory.instanceKey;
-  assert.match(key, /^scene:taylor\.study\.peek:/);
+  assert.match(key, /^scene:story\.rent\.intro\.2:/);
   const saved = JSON.parse(JSON.stringify(game.toJSON()));
   const missingLocals = structuredClone(saved);
   delete missingLocals.currentStory.locals;
@@ -231,7 +231,7 @@ test("scene locals survive passages, saves, and suspension, then clear on exit",
     seed: 9904,
     startDate: new Date("2026-09-04T12:00:00.000Z"),
   });
-  enterWGScene(game, "example.passage-scene");
+  enterWGScene(game, "story.rent.intro.2");
   resolveActiveWGStory(game);
   applyWGEffects(game, [
     {
@@ -256,20 +256,20 @@ test("scene locals survive passages, saves, and suspension, then clear on exit",
   });
 
   const restored = Game.fromJSON(JSON.parse(JSON.stringify(game.toJSON())));
-  enterWGTarget(restored, ".decision", { sceneId: "example.passage-scene" });
+  enterWGTarget(restored, ".explain", { sceneId: "story.rent.intro.2" });
   resolveActiveWGStory(restored);
   assert.deepEqual(restored.currentStory.locals, game.currentStory.locals);
 
   suspendWGContinuation(
     restored,
-    { target: ".ending", sceneId: "example.passage-scene" },
+    { target: ".pay", sceneId: "story.rent.intro.2" },
     {
       poolId: "test.pool",
-      eventSceneId: "taylor.study.peek",
+      eventSceneId: "cafe.job.shift.cleanup",
       choiceId: "test-choice",
     },
   );
-  enterWGScene(restored, "taylor.study.peek");
+  enterWGScene(restored, "cafe.job.shift.cleanup");
   resolveActiveWGStory(restored);
   assert.deepEqual(restored.currentStory.locals, {});
 

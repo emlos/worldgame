@@ -148,7 +148,7 @@ test("set and unset use namespaces to mutate story values and global flags", () 
   ]);
 
   const game = new Game({ seed: 903 });
-  enterWGScene(game, "example.passage-scene");
+  enterWGScene(game, "story.rent.intro.2");
   resolveActiveWGStory(game);
   game.setFlag("fixture.old");
   applyWGEffects(game, effects);
