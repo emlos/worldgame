@@ -13,6 +13,7 @@ import { collectDailyAnnouncements } from "./announcements.js";
 import { createChatState } from "./chat/runtime.js";
 import { createJournalState, refreshJournalAvailability } from "./journal/runtime.js";
 import { createGameEventListeners } from "./events.js";
+import { initializeFeatureState } from "./featureState.js";
 
 export function initializeNewGame(
   game,
@@ -54,6 +55,7 @@ export function initializeNewGame(
     pending: null,
     latchedSceneIds: [],
   };
+  initializeFeatureState(game);
 
   game.npcs = new Map();
   createNPCs(game, npcTemplates);

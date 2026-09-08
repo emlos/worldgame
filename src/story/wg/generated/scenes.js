@@ -16297,7 +16297,7 @@ export const WG_BUNDLE = {
                       "left": {
                         "type": "path",
                         "value": [
-                          "player",
+                          "school",
                           "education",
                           "english",
                           "grade"
@@ -16314,7 +16314,7 @@ export const WG_BUNDLE = {
                       "left": {
                         "type": "path",
                         "value": [
-                          "player",
+                          "school",
                           "education",
                           "english",
                           "grade"
@@ -16625,7 +16625,7 @@ export const WG_BUNDLE = {
                       "left": {
                         "type": "path",
                         "value": [
-                          "player",
+                          "school",
                           "education",
                           "english",
                           "grade"
@@ -16642,7 +16642,7 @@ export const WG_BUNDLE = {
                       "left": {
                         "type": "path",
                         "value": [
-                          "player",
+                          "school",
                           "education",
                           "english",
                           "grade"
@@ -20375,7 +20375,7 @@ export const WG_BUNDLE = {
                   "left": {
                     "type": "path",
                     "value": [
-                      "player",
+                      "school",
                       "education",
                       "math",
                       "grade"
@@ -20392,7 +20392,7 @@ export const WG_BUNDLE = {
                   "left": {
                     "type": "path",
                     "value": [
-                      "player",
+                      "school",
                       "education",
                       "math",
                       "grade"

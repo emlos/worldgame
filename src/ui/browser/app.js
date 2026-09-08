@@ -16,7 +16,6 @@ import {
   makeJournalEntryElement,
   renderJournalReadPage as renderJournalReadPageUI,
 } from "./journalUI.js";
-import { teleportPlayerToSchool } from "../../features/school/debug.js";
 import { buildFullMapView } from "../../game/scene/mapView.js";
 import { searchNavigationDestinations } from "../../game/navigation.js";
 import {
@@ -1276,7 +1275,9 @@ debugTeleportTaylorButton.addEventListener("click", () => {
 
 debugTeleportSchoolButton.addEventListener("click", () => {
   try {
-    teleportPlayerToSchool(game);
+    const action = game.features.getDebugAction("school.teleport-player");
+    if (!action) throw new Error("The school debug action is unavailable");
+    action(game);
     noticeElement.textContent = "";
     noticeElement.className = "notice";
   } catch (error) {

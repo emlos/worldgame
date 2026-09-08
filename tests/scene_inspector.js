@@ -8,7 +8,12 @@ import {
 import { WG_BUNDLE } from "../src/story/wg/generated/scenes.js";
 import { SKILLS, STATS } from "../src/characters/player/stats.js";
 import {
+  getSubjectGrade,
+  getSubjectProgress,
+  getSubjectRecord,
   SCHOOL_SUBJECTS,
+  setSubjectGrade,
+  setSubjectProgress,
   SUBJECT_GRADES,
   SUBJECT_PROGRESS_MAX,
   SUBJECT_PROGRESS_MIN,
@@ -134,8 +139,8 @@ function applyEditorOverrides() {
     game.player.setSkillValue(id, value);
   }
   for (const [id, value] of editorOverrides.grades) {
-    game.player.setSubjectGrade(id, value.grade);
-    game.player.setSubjectProgress(id, value.progress);
+    setSubjectGrade(game, id, value.grade);
+    setSubjectProgress(game, id, value.progress);
   }
   for (const [id, value] of editorOverrides.flags) game.setFlag(id, value);
   for (const [id, value] of editorOverrides.dailyFlags) game.setDailyFlag(id, value);
@@ -182,7 +187,7 @@ function snapshotState() {
     ),
     grades: Object.fromEntries(
       Object.keys(SCHOOL_SUBJECTS).map((id) => {
-        const subject = game.player.getSubjectRecord(id);
+        const subject = getSubjectRecord(game, id);
         return [id, `${subject.grade}:${subject.progress}`];
       }),
     ),
@@ -765,7 +770,7 @@ function renderPlayerFields() {
   const grades = valueGroup("School grades");
   for (const [id, definition] of Object.entries(SCHOOL_SUBJECTS)) {
     const rememberGradeOverride = () => {
-      const subject = game.player.getSubjectRecord(id);
+      const subject = getSubjectRecord(game, id);
       editorOverrides.grades.set(id, {
         grade: subject.grade,
         progress: subject.progress,
@@ -775,22 +780,22 @@ function renderPlayerFields() {
       makeSelectField({
         id: `state-grade-${id}`,
         label: `${definition.label} grade`,
-        value: game.player.getSubjectGrade(id),
+        value: getSubjectGrade(game, id),
         options: SUBJECT_GRADES,
         onChange: (value) => {
-          game.player.setSubjectGrade(id, value);
+          setSubjectGrade(game, id, value);
           rememberGradeOverride();
         },
       }),
       makeNumberField({
         id: `state-progress-${id}`,
         label: `${definition.label} progress`,
-        value: game.player.getSubjectProgress(id),
+        value: getSubjectProgress(game, id),
         min: SUBJECT_PROGRESS_MIN,
         max: SUBJECT_PROGRESS_MAX,
         step: 1,
         onChange: (value) => {
-          game.player.setSubjectProgress(id, value);
+          setSubjectProgress(game, id, value);
           rememberGradeOverride();
         },
       }),

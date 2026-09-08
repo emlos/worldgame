@@ -1,4 +1,8 @@
-import { SUBJECT_ACHIEVEMENT_MAX, SCHOOL_SUBJECTS } from "./education.js";
+import {
+  getSubjectAchievement,
+  SUBJECT_ACHIEVEMENT_MAX,
+  SCHOOL_SUBJECTS,
+} from "./education.js";
 
 const gradeDefinitions = Object.freeze(
   Object.fromEntries(
@@ -16,8 +20,8 @@ const gradeDefinitions = Object.freeze(
 export const SCHOOL_SKILL_CHECK_TARGETS = Object.freeze({
   grade: Object.freeze({
     definitions: gradeDefinitions,
-    value(player, id) {
-      return (player.getSubjectAchievement(id) / SUBJECT_ACHIEVEMENT_MAX) * 10;
+    value(game, id) {
+      return (getSubjectAchievement(game, id) / SUBJECT_ACHIEVEMENT_MAX) * 10;
     },
   }),
 });

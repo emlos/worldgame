@@ -6,15 +6,22 @@ import { SCHOOL_AUTOMATIC_REMINDERS } from "./reminders.js";
 import { SCHOOL_SCENE_DECORATORS } from "./sceneDecorators.js";
 import { HIGH_SCHOOL_PLACE_KEY } from "./config.js";
 import { SCHOOL_PLACE_DEFINITIONS } from "./places.js";
-import { SCHOOL_SUBJECTS } from "./education.js";
+import { createSchoolState, SCHOOL_SUBJECTS } from "./education.js";
 import { SCHOOL_SKILL_CHECK_TARGETS } from "./skillChecks.js";
 import { SCHOOL_WG_EFFECT_HANDLERS } from "./effects.js";
 import { buildSchoolPhoneStats } from "./phoneStats.js";
 import { getSchoolDayPlan } from "./timetable.js";
 import { SCHOOL_TIMETABLE_STORY_SYSTEM } from "./timetableSystem.js";
+import { validateSchoolStateSave } from "./saveValidation.js";
+import { addSchoolNPCDefinitions } from "./npcDefinitions.js";
+import { teleportPlayerToSchool } from "./debug.js";
 
 export const SCHOOL_FEATURE = defineFeature({
   id: "school",
+  state: {
+    create: createSchoolState,
+    validateSave: validateSchoolStateSave,
+  },
   wgSystems: {
     "school.quiz": SCHOOL_QUIZ_STORY_SYSTEM,
     "school.timetable": SCHOOL_TIMETABLE_STORY_SYSTEM,
@@ -39,6 +46,10 @@ export const SCHOOL_FEATURE = defineFeature({
       }
       return getSchoolDayPlan(game, { date }).hasSchool === value;
     },
+  },
+  npcDefinitionDecorators: [addSchoolNPCDefinitions],
+  debugActions: {
+    "school.teleport-player": teleportPlayerToSchool,
   },
   navigationDecorators: [(_game, destination) => ({
     ...destination,

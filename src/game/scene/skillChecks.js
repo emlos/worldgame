@@ -24,16 +24,16 @@ export function getSkillCheckTargetDefinition(targetType, targetId, features = n
   return features?.getSkillCheckTargetDefinition(type, id) ?? null;
 }
 
-export function getPlayerSkillCheckValue(player, targetType, targetId, features = null) {
+export function getPlayerSkillCheckValue(game, targetType, targetId, features = game?.features) {
   const type = String(targetType);
   const id = String(targetId);
   if (!getSkillCheckTargetDefinition(type, id, features)) {
     throw new RangeError(`Unknown skill-check target '${type}.${id}'`);
   }
   if (type === SKILL_CHECK_TARGET_TYPE.skill) {
-    return player.getSkillValue(id);
+    return game.player.getSkillValue(id);
   }
-  return features.getSkillCheckTargetValue(player, type, id);
+  return features.getSkillCheckTargetValue(game, type, id);
 }
 
 export function skillLevelForCheck(value, { min = 0, max = 10 } = {}) {

@@ -1,11 +1,15 @@
-import { SCHOOL_SUBJECTS, SUBJECT_ACHIEVEMENT_MAX } from "./education.js";
+import {
+  getSubjectRecord,
+  SCHOOL_SUBJECTS,
+  SUBJECT_ACHIEVEMENT_MAX,
+} from "./education.js";
 
 export function buildSchoolPhoneStats(game) {
   return {
     id: "school-grades",
     label: "School grades",
     entries: Object.entries(SCHOOL_SUBJECTS).map(([id, definition]) => {
-      const subject = game.player.getSubjectRecord(id);
+      const subject = getSubjectRecord(game, id);
       return {
         id,
         kind: "grade",

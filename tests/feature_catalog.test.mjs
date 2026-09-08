@@ -23,6 +23,9 @@ test("the default catalog composes each special system through feature registrat
   assert.ok(features.getWGSystem("school.quiz"));
   assert.ok(features.getWGSystem("school.timetable"));
   assert.ok(features.getStoryBehavior("school.class"));
+  assert.deepEqual(features.stateDefinitions.map((definition) => definition.id), [
+    "school",
+  ]);
   assert.ok(features.timerDefinitions["rent.weekly"]);
   assert.ok(features.getSkillCheckTargetDefinition("grade", "english"));
   assert.equal(typeof features.getWGEffectHandler("grade"), "function");
@@ -39,6 +42,7 @@ test("the default catalog composes each special system through feature registrat
     playerOptions: { startPlaceId: null },
   });
   assert.ok(features.createWGContext(game).school);
+  assert.ok(game.featureState.school);
   assert.equal(
     features.matchesNPCScheduleConditions(
       game,

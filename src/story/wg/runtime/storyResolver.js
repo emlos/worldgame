@@ -39,7 +39,7 @@ function passiveChance(game, node) {
   try {
     chance = calculateSkillCheckChance(
       getPlayerSkillCheckValue(
-        game.player,
+        game,
         node.check.targetType,
         node.check.targetId,
         game.features,

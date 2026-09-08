@@ -1,4 +1,4 @@
-import { finiteNumber } from "../../shared/util/util.js";
+import { clamp, finiteNumber } from "../../shared/util/util.js";
 
 export const SUBJECT_GRADES = Object.freeze(["D", "C", "B", "A"]);
 export const SUBJECT_ACHIEVEMENT_MIN = 0;
@@ -18,7 +18,7 @@ export const SCHOOL_SUBJECTS = Object.freeze({
   physical_education: Object.freeze({ label: "Physical Education" }),
 });
 
-export function initialPlayerEducation() {
+export function createSchoolState() {
   return {
     subjects: Object.fromEntries(
       Object.keys(SCHOOL_SUBJECTS).map((id) => [
@@ -30,6 +30,12 @@ export function initialPlayerEducation() {
       ]),
     ),
   };
+}
+
+function schoolState(game) {
+  const state = game?.featureState?.school;
+  if (!state) throw new Error("The school feature is not enabled for this game");
+  return state;
 }
 
 export function normalizeSubjectGrade(value, label = "Subject grade") {
@@ -86,4 +92,94 @@ export function requireSchoolSubject(id) {
   const definition = SCHOOL_SUBJECTS[key];
   if (!definition) throw new Error(`Unknown school subject '${key}'`);
   return { id: key, definition };
+}
+
+export function getSubjectRecord(game, subjectId) {
+  const { id } = requireSchoolSubject(subjectId);
+  const record = schoolState(game).subjects[id];
+  return {
+    achievement: record.achievement,
+    ...subjectGradeAndProgress(record.achievement),
+    attendedSegments: record.attendedSegments,
+  };
+}
+
+export function getSubjectAchievement(game, subjectId) {
+  return getSubjectRecord(game, subjectId).achievement;
+}
+
+export function getSubjectGrade(game, subjectId) {
+  return getSubjectRecord(game, subjectId).grade;
+}
+
+export function getSubjectProgress(game, subjectId) {
+  return getSubjectRecord(game, subjectId).progress;
+}
+
+export function setSubjectGrade(game, subjectId, grade) {
+  const { id } = requireSchoolSubject(subjectId);
+  const record = schoolState(game).subjects[id];
+  const normalizedGrade = normalizeSubjectGrade(
+    grade,
+    `Player subject '${id}' grade`,
+  );
+  const { progress } = subjectGradeAndProgress(record.achievement);
+  record.achievement =
+    subjectGradeIndex(normalizedGrade) * SUBJECT_GRADE_RANGE + progress;
+  return normalizedGrade;
+}
+
+export function setSubjectProgress(game, subjectId, progress) {
+  const { id } = requireSchoolSubject(subjectId);
+  const record = schoolState(game).subjects[id];
+  const normalizedProgress = normalizeSubjectProgress(
+    progress,
+    `Player subject '${id}' progress`,
+  );
+  const { grade } = subjectGradeAndProgress(record.achievement);
+  record.achievement =
+    subjectGradeIndex(grade) * SUBJECT_GRADE_RANGE + normalizedProgress;
+  return normalizedProgress;
+}
+
+export function adjustSubjectAchievement(game, subjectId, delta) {
+  const { id } = requireSchoolSubject(subjectId);
+  const amount = finiteNumber(delta, `Player subject '${id}' achievement adjustment`);
+  if (!Number.isInteger(amount)) {
+    throw new RangeError("Subject achievement adjustments must be whole numbers");
+  }
+
+  const record = schoolState(game).subjects[id];
+  const before = getSubjectRecord(game, id);
+  record.achievement = clamp(
+    record.achievement + amount,
+    SUBJECT_ACHIEVEMENT_MIN,
+    SUBJECT_ACHIEVEMENT_MAX,
+  );
+  const after = getSubjectRecord(game, id);
+  return {
+    before: {
+      achievement: before.achievement,
+      grade: before.grade,
+      progress: before.progress,
+    },
+    after: {
+      achievement: after.achievement,
+      grade: after.grade,
+      progress: after.progress,
+    },
+    appliedDelta: after.achievement - before.achievement,
+    gradeDelta: subjectGradeIndex(after.grade) - subjectGradeIndex(before.grade),
+  };
+}
+
+export function recordSubjectAttendance(game, subjectId, segments = 1) {
+  const { id } = requireSchoolSubject(subjectId);
+  const amount = finiteNumber(segments, `Player subject '${id}' attendance`);
+  if (!Number.isInteger(amount) || amount <= 0) {
+    throw new RangeError("Attendance segments must be a positive integer");
+  }
+  const record = schoolState(game).subjects[id];
+  record.attendedSegments += amount;
+  return record.attendedSegments;
 }

@@ -23,6 +23,7 @@ import { validateGpsTargetSave } from "../navigation.js";
 import { validateRemindersSave } from "../reminders.js";
 import { validateTimerStateSave } from "../timers.js";
 import { DEFAULT_FEATURE_CATALOG } from "../../features/index.js";
+import { validateFeatureStateSave } from "../featureState.js";
 
 export { SaveValidationError };
 
@@ -31,9 +32,9 @@ export function validateGameSave(data, { features = DEFAULT_FEATURE_CATALOG } = 
   const save = saveRecord(data, "save");
   requireSameSaveValue(
     saveInteger(requiredSaveField(save, "saveVersion", "save"), "save.saveVersion"),
-    39,
+    40,
     "save.saveVersion",
-    "version 39",
+    "version 40",
   );
 
   const seed = saveUint32(requiredSaveField(save, "seed", "save"), "save.seed");
@@ -75,6 +76,10 @@ export function validateGameSave(data, { features = DEFAULT_FEATURE_CATALOG } = 
     npcProfiles,
     gameTime,
   });
+  validateFeatureStateSave(
+    requiredSaveField(save, "featureState", "save"),
+    { features, gameTime },
+  );
 
   const { current } = validateSavedPlayerPosition(save, { mapIndex });
   validateGpsTargetSave(requiredSaveField(save, "gpsTarget", "save"), {

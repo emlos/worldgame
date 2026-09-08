@@ -20,8 +20,15 @@ export function defineFeature(definition) {
   record(definition, "feature");
   const id = String(definition.id ?? "");
   if (!FEATURE_ID_PATTERN.test(id)) fail(`invalid feature id '${id}'`);
+  const state = definition.state == null
+    ? null
+    : record(definition.state, `feature '${id}' state`);
+  if (state && (typeof state.create !== "function" || typeof state.validateSave !== "function")) {
+    fail(`feature '${id}' state requires create() and validateSave()`);
+  }
   return Object.freeze({
     id,
+    state: state ? Object.freeze({ ...state }) : null,
     sceneDecorators: Object.freeze([...(definition.sceneDecorators ?? [])]),
     actionHandlers: Object.freeze({ ...(definition.actionHandlers ?? {}) }),
     wgSystems: Object.freeze({ ...(definition.wgSystems ?? {}) }),
@@ -36,6 +43,8 @@ export function defineFeature(definition) {
     wgReferenceCatalogs: Object.freeze({ ...(definition.wgReferenceCatalogs ?? {}) }),
     playerStatsSections: Object.freeze([...(definition.playerStatsSections ?? [])]),
     npcScheduleConditions: Object.freeze({ ...(definition.npcScheduleConditions ?? {}) }),
+    npcDefinitionDecorators: Object.freeze([...(definition.npcDefinitionDecorators ?? [])]),
+    debugActions: Object.freeze({ ...(definition.debugActions ?? {}) }),
   });
 }
 
@@ -66,11 +75,17 @@ export function createFeatureCatalog(featureDefinitions) {
   const wgReferenceCatalogs = new Map();
   const playerStatsSections = [];
   const npcScheduleConditions = new Map();
+  const stateDefinitions = [];
+  const npcDefinitionDecorators = [];
+  const debugActions = new Map();
 
   for (const rawFeature of featureDefinitions) {
     const feature = defineFeature(rawFeature);
     if (features.has(feature.id)) fail(`duplicate feature '${feature.id}'`);
     features.set(feature.id, feature);
+    if (feature.state) {
+      stateDefinitions.push(Object.freeze({ id: feature.id, ...feature.state }));
+    }
 
     for (const [id, handler] of contributionEntries(
       feature.actionHandlers,
@@ -202,10 +217,24 @@ export function createFeatureCatalog(featureDefinitions) {
       }
       npcScheduleConditions.set(field, predicate);
     }
+    for (const decorator of feature.npcDefinitionDecorators) {
+      if (typeof decorator !== "function") {
+        fail(`feature '${feature.id}' NPC definition decorators must be functions`);
+      }
+      npcDefinitionDecorators.push(decorator);
+    }
+    for (const [id, action] of contributionEntries(
+      feature.debugActions,
+      `feature '${feature.id}' debug actions`,
+    )) {
+      if (typeof action !== "function") fail(`debug action '${id}' must be a function`);
+      addUnique(debugActions, id, action, "debug action", feature.id);
+    }
   }
 
   const catalog = {
     features: Object.freeze([...features.values()]),
+    stateDefinitions: Object.freeze(stateDefinitions),
     automaticReminders: Object.freeze(automaticReminders),
     timerDefinitions: Object.freeze(Object.fromEntries(timerDefinitions)),
     placeDefinitions: Object.freeze(placeDefinitions),
@@ -217,11 +246,12 @@ export function createFeatureCatalog(featureDefinitions) {
     getSkillCheckTargetDefinition(type, id) {
       return skillCheckTargets.get(String(type))?.definitions?.[String(id)] ?? null;
     },
-    getSkillCheckTargetValue(player, type, id) {
+    getSkillCheckTargetValue(game, type, id) {
       const provider = skillCheckTargets.get(String(type));
       if (!provider || !provider.definitions[String(id)]) return null;
-      return provider.value(player, String(id));
+      return provider.value(game, String(id));
     },
+    getDebugAction: (id) => debugActions.get(String(id)) ?? null,
     getWGSystem: (id) => wgSystems.get(String(id)) ?? null,
     getStoryBehavior: (id) => storyBehaviors.get(String(id)) ?? null,
     createWGContext(game) {
@@ -241,6 +271,12 @@ export function createFeatureCatalog(featureDefinitions) {
         }
       }
       return true;
+    },
+    decorateNPCDefinition(game, definition) {
+      return npcDefinitionDecorators.reduce(
+        (current, decorator) => decorator({ game, definition: current }),
+        definition,
+      );
     },
     decorateScene(game, scene, context = {}) {
       return sceneDecorators.reduce(

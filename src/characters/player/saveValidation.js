@@ -16,11 +16,6 @@ import {
   RELATIONSHIP_MIN,
 } from "../core/relationship.js";
 import { validateCharacterCoreSave } from "../core/saveValidation.js";
-import {
-  SCHOOL_SUBJECTS,
-  SUBJECT_ACHIEVEMENT_MAX,
-  SUBJECT_ACHIEVEMENT_MIN,
-} from "../../features/school/education.js";
 import { PLAYER_TEMPERATURE_VALUES, SKILLS, STATS } from "./stats.js";
 
 const PLAYER_TEMPERATURES = new Set(PLAYER_TEMPERATURE_VALUES);
@@ -166,35 +161,5 @@ export function validatePlayerSave(data, { path = "save.player", npcProfiles, ga
     }
   }
 
-  const education = saveRecord(
-    requiredSaveField(player, "education", path),
-    `${path}.education`,
-  );
-  const subjects = saveRecord(
-    requiredSaveField(education, "subjects", `${path}.education`),
-    `${path}.education.subjects`,
-  );
-  for (const id of Object.keys(subjects)) {
-    if (!SCHOOL_SUBJECTS[id]) {
-      failSave(`${path}.education.subjects.${id}`, `references unknown school subject '${id}'`);
-    }
-  }
-  for (const id of Object.keys(SCHOOL_SUBJECTS)) {
-    const subjectPath = `${path}.education.subjects.${id}`;
-    const subject = saveRecord(
-      requiredSaveField(subjects, id, `${path}.education.subjects`),
-      subjectPath,
-    );
-    saveInteger(
-      requiredSaveField(subject, "achievement", subjectPath),
-      `${subjectPath}.achievement`,
-      { min: SUBJECT_ACHIEVEMENT_MIN, max: SUBJECT_ACHIEVEMENT_MAX },
-    );
-    saveInteger(
-      requiredSaveField(subject, "attendedSegments", subjectPath),
-      `${subjectPath}.attendedSegments`,
-      { min: 0 },
-    );
-  }
   return player;
 }

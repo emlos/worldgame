@@ -385,7 +385,7 @@ function performSkillCheck(game, choice, _minutes, scene) {
   try {
     chance = calculateSkillCheckChance(
       getPlayerSkillCheckValue(
-        game.player,
+        game,
         check.targetType,
         check.targetId,
         game.features,

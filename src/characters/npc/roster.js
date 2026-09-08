@@ -16,7 +16,8 @@ export function createNPCs(game, templates) {
       npc = definition;
       id = definition.id || definition.name;
     } else {
-      npc = new NPC(definition);
+      const decorated = game.features.decorateNPCDefinition(game, definition);
+      npc = new NPC(decorated);
       id = definition.id || npc.id || npc.name;
     }
 

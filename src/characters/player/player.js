@@ -23,18 +23,6 @@ import {
     initialPlayerSkills,
     STATS,
 } from "./stats.js";
-import {
-    initialPlayerEducation,
-    normalizeSubjectAchievement,
-    normalizeSubjectGrade,
-    normalizeSubjectProgress,
-    requireSchoolSubject,
-    subjectGradeAndProgress,
-    subjectGradeIndex,
-    SUBJECT_ACHIEVEMENT_MAX,
-    SUBJECT_ACHIEVEMENT_MIN,
-    SUBJECT_GRADE_RANGE,
-} from "../../features/school/education.js";
 
 const SKILL_PRECISION = 1_000_000;
 
@@ -82,7 +70,6 @@ export class Player {
     constructor({
         stats = null,
         skills = null,
-        education = null,
         money = INITIAL_PLAYER_MONEY,
         temperature = INITIAL_PLAYER_TEMPERATURE,
         age = INITIAL_PLAYER_AGE,
@@ -153,28 +140,6 @@ export class Player {
                 name,
                 normalizedSkillValue(value, definition, `Player skill '${name}'`),
             );
-        }
-
-        // Education ------------------------------------------------
-        this.education = initialPlayerEducation();
-        if (education?.subjects && typeof education.subjects === "object") {
-            for (const id of Object.keys(this.education.subjects)) {
-                const saved = education.subjects[id];
-                if (!saved) continue;
-                const attendedSegments = Number(saved.attendedSegments);
-                if (!Number.isInteger(attendedSegments) || attendedSegments < 0) {
-                    throw new RangeError(
-                        `Player subject '${id}' attendance must be a non-negative integer`,
-                    );
-                }
-                this.education.subjects[id] = {
-                    achievement: normalizeSubjectAchievement(
-                        saved.achievement,
-                        `Player subject '${id}' achievement`,
-                    ),
-                    attendedSegments,
-                };
-            }
         }
 
         // Clothing --------------------------------------------------
@@ -336,91 +301,6 @@ export class Player {
         return this.setSkillValue(id, this.getSkillValue(id) + amount);
     }
 
-    // --- Education ---
-    getSubjectRecord(subjectId) {
-        const { id } = requireSchoolSubject(subjectId);
-        const record = this.education.subjects[id];
-        return {
-            achievement: record.achievement,
-            ...subjectGradeAndProgress(record.achievement),
-            attendedSegments: record.attendedSegments,
-        };
-    }
-    getSubjectAchievement(subjectId) {
-        const { id } = requireSchoolSubject(subjectId);
-        return this.education.subjects[id].achievement;
-    }
-    getSubjectGrade(subjectId) {
-        return this.getSubjectRecord(subjectId).grade;
-    }
-    getSubjectProgress(subjectId) {
-        return this.getSubjectRecord(subjectId).progress;
-    }
-    setSubjectGrade(subjectId, grade) {
-        const { id } = requireSchoolSubject(subjectId);
-        const record = this.education.subjects[id];
-        const normalizedGrade = normalizeSubjectGrade(
-            grade,
-            `Player subject '${id}' grade`,
-        );
-        const { progress } = subjectGradeAndProgress(record.achievement);
-        record.achievement =
-            subjectGradeIndex(normalizedGrade) * SUBJECT_GRADE_RANGE + progress;
-        return normalizedGrade;
-    }
-    setSubjectProgress(subjectId, progress) {
-        const { id } = requireSchoolSubject(subjectId);
-        const record = this.education.subjects[id];
-        const normalizedProgress = normalizeSubjectProgress(
-            progress,
-            `Player subject '${id}' progress`,
-        );
-        const { grade } = subjectGradeAndProgress(record.achievement);
-        record.achievement =
-            subjectGradeIndex(grade) * SUBJECT_GRADE_RANGE + normalizedProgress;
-        return normalizedProgress;
-    }
-    adjustSubjectAchievement(subjectId, delta) {
-        const { id } = requireSchoolSubject(subjectId);
-        const amount = finiteNumber(delta, `Player subject '${id}' achievement adjustment`);
-        if (!Number.isInteger(amount)) {
-            throw new RangeError("Subject achievement adjustments must be whole numbers");
-        }
-
-        const record = this.education.subjects[id];
-        const before = this.getSubjectRecord(id);
-        record.achievement = clamp(
-            record.achievement + amount,
-            SUBJECT_ACHIEVEMENT_MIN,
-            SUBJECT_ACHIEVEMENT_MAX,
-        );
-        const after = this.getSubjectRecord(id);
-        return {
-            before: {
-                achievement: before.achievement,
-                grade: before.grade,
-                progress: before.progress,
-            },
-            after: {
-                achievement: after.achievement,
-                grade: after.grade,
-                progress: after.progress,
-            },
-            appliedDelta: after.achievement - before.achievement,
-            gradeDelta: subjectGradeIndex(after.grade) - subjectGradeIndex(before.grade),
-        };
-    }
-    recordSubjectAttendance(subjectId, segments = 1) {
-        const { id } = requireSchoolSubject(subjectId);
-        const amount = finiteNumber(segments, `Player subject '${id}' attendance`);
-        if (!Number.isInteger(amount) || amount <= 0) {
-            throw new RangeError("Attendance segments must be a positive integer");
-        }
-        const record = this.education.subjects[id];
-        record.attendedSegments += amount;
-        return record.attendedSegments;
-    }
-
     // --- Clothing ---
     equip(item) {
         if (!(item instanceof Clothing)) throw new Error("equip expects Clothing");
@@ -478,14 +358,6 @@ export class Player {
                 rel.toJSON(),
             ]),
             skills: [...this.skills.entries()],
-            education: {
-                subjects: Object.fromEntries(
-                    Object.entries(this.education.subjects).map(([id, record]) => [
-                        id,
-                        { ...record },
-                    ]),
-                ),
-            },
             money: this.money,
             temperature: this.temperature,
             clothing: [...this.clothing.entries()].map(([slot, item]) => [slot, item.toJSON()]),
@@ -515,7 +387,6 @@ export class Player {
             money: data?.money ?? INITIAL_PLAYER_MONEY,
             temperature: data?.temperature ?? INITIAL_PLAYER_TEMPERATURE,
             skills: initialPlayerSkills(),
-            education: data?.education ?? null,
             bodyTemplate: [],
         });
 
