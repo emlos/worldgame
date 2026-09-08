@@ -1,10 +1,16 @@
 import { SCHOOL_SUBJECTS } from "./education.js";
 import { DayKind } from "../../world/data/calendar.js";
-import { parseTimeToMinutes } from "../../shared/util/date.js";
+import { formatHHMM, parseTimeToMinutes } from "../../shared/util/date.js";
 import {
   HIGH_SCHOOL_PLACE_KEY,
+  SCHOOL_BREAK_MINUTES,
+  SCHOOL_CLASS_MINUTES,
+  SCHOOL_CLASS_SEGMENTS,
+  SCHOOL_DAY_START,
+  SCHOOL_LUNCH_AFTER_LESSON,
+  SCHOOL_LUNCH_MINUTES,
   SCHOOL_SEMESTERS,
-  SCHOOL_TIMETABLE,
+  SCHOOL_WEEKLY_CLASSES,
 } from "./config.js";
 
 export const SCHEDULE = {
@@ -29,16 +35,6 @@ function asValidDate(value) {
     throw new TypeError(`Invalid school schedule date: ${String(value)}`);
   }
   return date;
-}
-
-function labelFromKey(value) {
-  return String(value)
-    .replace(/[-_]+/g, " ")
-    .replace(/\b\w/g, (letter) => letter.toUpperCase());
-}
-
-function validTime(value) {
-  return typeof value === "string" && /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(value);
 }
 
 function monthDayNumber(value) {
@@ -66,39 +62,72 @@ function schoolFromWorld(game) {
   return { school: defaultHighSchool(), location: null };
 }
 
-function schoolPeriods() {
-  return SCHOOL_TIMETABLE
-    .filter(
-      (period) =>
-        period &&
-        typeof period.id === "string" &&
-        validTime(period.start) &&
-        validTime(period.end),
-    )
-    .map((period) => {
-      const kind = period.kind === "lunch" ? "lunch" : "class";
-      const subject = period.subjectId == null
-        ? null
-        : SCHOOL_SUBJECTS[String(period.subjectId)] || null;
-      return {
-        id: String(period.id),
-        kind,
-        subjectId: subject ? String(period.subjectId) : null,
-        label: subject?.label || labelFromKey(period.id),
-        start: period.start,
-        end: period.end,
-        segments:
-          kind === "class" && Number.isInteger(period.segments) && period.segments > 0
-            ? period.segments
-            : null,
-      };
-    })
-    .sort(
-      (left, right) =>
-        left.start.localeCompare(right.start) ||
-        left.end.localeCompare(right.end) ||
-        left.id.localeCompare(right.id),
-    );
+function clockFromMinutes(minutes) {
+  return formatHHMM(Math.floor(minutes / 60), minutes % 60);
+}
+
+function weekdayDefinition(date) {
+  return SCHOOL_WEEKLY_CLASSES.find(
+    (day) => day.dayOfWeek === date.getUTCDay(),
+  ) ?? null;
+}
+
+function buildPeriods(day) {
+  if (!day) return [];
+
+  let cursor = parseTimeToMinutes(SCHOOL_DAY_START);
+  const periods = [];
+  day.subjects.forEach((subjectId, lessonIndex) => {
+    if (lessonIndex > 0) {
+      if (lessonIndex === SCHOOL_LUNCH_AFTER_LESSON) {
+        const start = cursor;
+        cursor += SCHOOL_LUNCH_MINUTES;
+        periods.push({
+          id: "lunch",
+          kind: "lunch",
+          subjectId: null,
+          label: "Lunch",
+          start: clockFromMinutes(start),
+          end: clockFromMinutes(cursor),
+          segments: null,
+        });
+      } else {
+        cursor += SCHOOL_BREAK_MINUTES;
+      }
+    }
+
+    const subject = SCHOOL_SUBJECTS[subjectId];
+    if (!subject) {
+      throw new Error(`School timetable references unknown subject '${subjectId}'`);
+    }
+    const start = cursor;
+    cursor += SCHOOL_CLASS_MINUTES;
+    periods.push({
+      id: `lesson-${lessonIndex + 1}-${subjectId}`,
+      kind: "class",
+      subjectId,
+      label: subject.label,
+      start: clockFromMinutes(start),
+      end: clockFromMinutes(cursor),
+      segments: SCHOOL_CLASS_SEGMENTS,
+    });
+  });
+  return periods;
+}
+
+export function getSchoolWeekSchedule() {
+  return SCHOOL_WEEKLY_CLASSES.map((day) => {
+    const periods = buildPeriods(day);
+    const classes = periods.filter((period) => period.kind === "class");
+    return {
+      dayKey: day.dayKey,
+      label: day.label,
+      dayOfWeek: day.dayOfWeek,
+      start: classes[0]?.start ?? null,
+      end: classes.at(-1)?.end ?? null,
+      periods,
+    };
+  });
 }
 
 function dateAtUtcMinute(date, minute) {
@@ -160,7 +189,7 @@ export function getSchoolDayPlan(
   const dayInfo = game.world.getDayInfo(schoolDate);
   const resolvedSchool = schoolFromWorld(game);
   const school = resolvedSchool.school;
-  const periods = schoolPeriods();
+  const periods = buildPeriods(weekdayDefinition(schoolDate));
   const semester = currentSemester(schoolDate);
 
   let noSchoolReason = null;
@@ -325,10 +354,3 @@ export function getSchoolDayState(
     school: plan.school,
   };
 }
-
-const defaultPeriods = schoolPeriods().filter(
-  (period) => period.kind === "class",
-);
-
-export const SCHOOL_DAY_START = defaultPeriods[0]?.start ?? null;
-export const SCHOOL_DAY_END = defaultPeriods.at(-1)?.end ?? null;

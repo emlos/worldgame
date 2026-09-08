@@ -764,8 +764,8 @@ The final segment is underway.
 This behavior's class passages must be named consecutively in source order, starting
 with `segment-1`. Entry is allowed only while the player is at school during a
 class for the declared subject. The runtime opens the passage matching
-`school.segment`; for a 45-minute, three-segment class, arrival at 0–14 minutes
-late opens `segment-1`, 15–29 opens `segment-2`, and 30–44 opens `segment-3`.
+`school.segment`; for a 45-minute, three-segment class, arrival at 0-14 minutes
+late opens `segment-1`, 15-29 opens `segment-2`, and 30-44 opens `segment-3`.
 Ordinary local passage transitions continue from there, and
 `@time-until school.nextBoundaryAt` advances exactly to the next segment or
 the end of class.
@@ -858,7 +858,7 @@ The currently exposed paths are:
   `.attendedSegments` for each registered school subject: `english`, `math`,
   `history`, `science`, `art`, and `physical_education`. `achievement` is the
   canonical whole-number score from `0` through `399`. `grade` is derived as
-  `D`, `C`, `B`, or `A`, and `progress` is the `0`–`99` position within that
+  `D`, `C`, `B`, or `A`, and `progress` is the `0`-`99` position within that
   grade. Progress within `A` represents mastery rather than another promotion.
 - `npc.<id>.id`, `.name`, `.shortName`, `.age`, `.gender`, `.relationship.<meter-id>`,
   `.present`, and `.available`.
@@ -934,9 +934,12 @@ five-minute interaction check. Schedule phases are `free`, `departing`,
 `null`.
 
 School phases are `closed`, `no_school`, `before_school`, `class`,
-`break`, `lunch`, or `after_school`. The timetable stored on the high
-school place definition determines periods and segment boundaries; WG scenes
-use these semantic values rather than comparing clock strings themselves.
+`break`, `lunch`, or `after_school`. The school feature generates each day's
+periods from its weekday subject list: classes last 45 minutes in three
+15-minute segments, ordinary breaks last 15 minutes, and a 45-minute lunch
+follows the third lesson. The last bell therefore depends on the weekday. WG
+scenes use the resulting semantic values rather than comparing clock strings
+themselves.
 
 Expression path segments use letters, numbers, and `_`, and cannot start with
 a number. Global flag names used by WG therefore follow the same rule so they
@@ -1316,7 +1319,7 @@ a local passage, `@exit`, or
 
 To check a school grade instead, use syntax such as
 `@check grade english difficult`. The UI displays `English Grade: Difficult`.
-The subject's achievement is normalized to the same `0`–`10` check level used
+The subject's achievement is normalized to the same `0`-`10` check level used
 by skills. `D` begins near level `0`, `C` near `2.5`, `B` near `5`, and `A`
 near `7.5`; progress fills the space within each letter grade.
 

@@ -47,7 +47,7 @@ function formatOpeningHours(hours) {
             .map((slot) => {
                 const from = slot.from || (Array.isArray(slot) ? slot[0] : "");
                 const to = slot.to || (Array.isArray(slot) ? slot[1] : "");
-                return `${from}–${to}`;
+                return `${from}-${to}`;
             })
             .join(", ");
         return `${label}: ${ranges}`;

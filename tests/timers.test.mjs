@@ -191,11 +191,11 @@ test("WG timer effects compile and preserve their lifecycle semantics", () => {
   assert.deepEqual(game.timers, {});
 });
 
-test("save version 38 requires valid named timer state", () => {
+test("save version 39 requires valid named timer state", () => {
   const game = new Game({ seed: 706 });
   game.startTimer("rent.weekly");
   const save = game.toJSON();
-  assert.equal(save.saveVersion, 38);
+  assert.equal(save.saveVersion, 39);
 
   const missing = JSON.parse(JSON.stringify(save));
   delete missing.timers;

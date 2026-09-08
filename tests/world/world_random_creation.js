@@ -175,7 +175,7 @@ function init() {
             ]);
         }
 
-        c.append(el("h2", { html: `Calendar – ${monthName(month)} ${year}` }));
+        c.append(el("h2", { html: `Calendar - ${monthName(month)} ${year}` }));
         c.append(table(rows, ["Date", "DOW", "Holidays", "Specials", "Day off?"]));
     }
 

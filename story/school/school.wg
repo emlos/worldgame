@@ -7,9 +7,9 @@
     @effect set flags.school_first_visit_seen
   @endonenter
 
-  You pause inside the entrance as students move around you with the confidence of people who already know where they are going. Classroom signs point deeper into the building, and the day's schedule is waiting in your diary.
+  You pause inside the entrance as students move around you with the confidence of people who already know where they are going. Classroom signs point deeper into the building, and notices point towards the student council office.
 
-  [info]The school's Current Activities section shows what is happening now. Attending class records your attendance and can improve that subject. Open the Planner button to review the full timetable, grades, and attendance.[/info]
+  [info]The school's Current Activities section shows what is happening now. Attending class records your attendance and can improve that subject. The weekly timetable is posted in the student council office, while your grades and total attendance are available through Player stats on your phone.[/info]
 
   You are not locked into the school day. You can attend the current lesson, explore the building, wait for the schedule to advance, or leave.
 
@@ -18,7 +18,26 @@
   @endchoice
 
 
-:: school.taylor.first-meeting -> @return
+:: school.taylor.first-meeting -> @exit
+  @place-key high_school
+  @auto enter-place
+  @priority 500
+  @when school.phase != "class" and npc.taylor.present
+  @when not flags.journal.taylor_met
+  @onenter
+    @effect set flags.journal.taylor_met
+    @effect relationship taylor.friendship 1
+  @endonenter
+
+  Taylor is standing near the lockers, watching the crowd between lessons. When {{npc.taylor.subject}} notices you looking, {{npc.taylor.subject}} gives you a small, uncertain smile.
+
+  "You're new, right?" {{npc.taylor.subject}} asks. "I'm Taylor."
+
+  You introduce yourself. The conversation is brief, but Taylor seems relieved to recognise one more person in the crowded school.
+
+  @next "See you around" -> @exit
+
+:: school.taylor.first-meeting.traversal -> @return
   @place-key high_school
   @pool school.traversal
   @priority 500
@@ -806,10 +825,18 @@
     There's nobody here.
   @endif
 
+  @choice "View the weekly timetable" -> school.weekly-timetable
+  @endchoice
+
   @choice "Leave" -> @exit
     @time 5m
     @event-pool school.traversal
   @endchoice
+
+:: school.weekly-timetable -> place.high-school.student-council-room
+  @heading "Weekly timetable"
+  @choices "Timetable"
+  @system school.timetable
 
 :: place.high-school.nurse-office
 

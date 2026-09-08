@@ -72,28 +72,6 @@
               <span class="player-menu-button-label">Diary</span>
             </button>
             <button
-              id="player-planner-btn"
-              class="player-menu-button button"
-              type="button"
-              aria-haspopup="dialog"
-              aria-controls="player-planner-dialog"
-            >
-              <svg
-                class="player-menu-icon"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"
-              >
-                <rect x="3" y="5" width="18" height="16" rx="2" />
-                <path d="M7 3v4M17 3v4M3 10h18M7 14h3M14 14h3M7 18h3" />
-              </svg>
-              <span class="player-menu-button-label">Planner</span>
-            </button>
-            <button
               id="player-phone-btn"
               class="player-menu-button button"
               type="button"
@@ -239,23 +217,6 @@
         <div class="journal-book" aria-live="polite">
           <section id="player-diary-content" class="journal-page journal-page--prose diary-content" aria-label="Diary page"></section>
         </div>
-      </div>
-    </dialog>
-
-    <dialog
-      id="player-planner-dialog"
-      class="dialog diary-dialog"
-      aria-labelledby="player-planner-dialog-heading"
-    >
-      <div class="dialog-content">
-        <header class="dialog-header">
-          <div>
-            <h2 id="player-planner-dialog-heading">Planner</h2>
-            <p id="player-planner-date"></p>
-          </div>
-          <button id="close-planner" class="utility-button" type="button">Close</button>
-        </header>
-        <div id="player-planner-content" class="diary-content" aria-live="polite"></div>
       </div>
     </dialog>
 

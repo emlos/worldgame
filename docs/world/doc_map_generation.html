@@ -426,7 +426,7 @@
                             <td><code>minutes</code></td>
                             <td>
                                 Travel time for that edge. Set once at generation time and clamped
-                                to 1–5 minutes. (This is what pathfinding uses.)
+                                to 1-5 minutes. (This is what pathfinding uses.)
                             </td>
                         </tr>
                         <tr>
@@ -773,8 +773,8 @@
                 <h3>Crossing midnight</h3>
                 <p>
                     A slot where <code>to</code> is earlier than <code>from</code> is treated as
-                    “overnight”: e.g. <code>18:00 → 03:00</code> means open 18:00–24:00 on that day,
-                    and 00:00–03:00 on the next day. The <code>Place.isOpen()</code> implementation
+                    “overnight”: e.g. <code>18:00 → 03:00</code> means open 18:00-24:00 on that day,
+                    and 00:00-03:00 on the next day. The <code>Place.isOpen()</code> implementation
                     checks both the same day and the “after midnight” remainder of the previous day.
                 </p>
 

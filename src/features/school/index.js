@@ -11,11 +11,13 @@ import { SCHOOL_SKILL_CHECK_TARGETS } from "./skillChecks.js";
 import { SCHOOL_WG_EFFECT_HANDLERS } from "./effects.js";
 import { buildSchoolPhoneStats } from "./phoneStats.js";
 import { getSchoolDayPlan } from "./timetable.js";
+import { SCHOOL_TIMETABLE_STORY_SYSTEM } from "./timetableSystem.js";
 
 export const SCHOOL_FEATURE = defineFeature({
   id: "school",
   wgSystems: {
     "school.quiz": SCHOOL_QUIZ_STORY_SYSTEM,
+    "school.timetable": SCHOOL_TIMETABLE_STORY_SYSTEM,
   },
   wgContexts: {
     school: createSchoolWGContext,

@@ -131,7 +131,31 @@ function validateContent(content) {
       });
       return;
     }
-    fail(`${path}.type must be 'paragraph' or 'changes'`);
+    if (block.type === "table") {
+      validateOptionalText(block.caption, `${path}.caption`);
+      if (!Array.isArray(block.columns) || !block.columns.length) {
+        fail(`${path}.columns must be a non-empty array`);
+      }
+      block.columns.forEach((column, columnIndex) =>
+        requireText(column, `${path}.columns[${columnIndex}]`),
+      );
+      if (!Array.isArray(block.rows) || !block.rows.length) {
+        fail(`${path}.rows must be a non-empty array`);
+      }
+      block.rows.forEach((row, rowIndex) => {
+        const rowPath = `${path}.rows[${rowIndex}]`;
+        if (!Array.isArray(row) || row.length !== block.columns.length) {
+          fail(`${rowPath} must contain exactly ${block.columns.length} cells`);
+        }
+        row.forEach((cell, cellIndex) => {
+          if (typeof cell !== "string") {
+            fail(`${rowPath}[${cellIndex}] must be a string`);
+          }
+        });
+      });
+      return;
+    }
+    fail(`${path}.type must be 'paragraph', 'changes', or 'table'`);
   });
 }
 

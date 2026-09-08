@@ -159,7 +159,7 @@ function init() {
                 lines.push(`${dayKey}: closed`);
             } else {
                 // show first slot if multiple? show all, space-separated:
-                const slotText = slots.map((s) => `${s.from}–${s.to}`).join(" ");
+                const slotText = slots.map((s) => `${s.from}-${s.to}`).join(" ");
                 lines.push(`${dayKey}: ${slotText}`);
             }
         }
@@ -179,7 +179,7 @@ function init() {
             const slots = (schedule && schedule[dayKey]) || [];
             const slotText = slots.length
                 ? slots
-                      .map((s) => `<code>${escapeHtml(s.from)}–${escapeHtml(s.to)}</code>`)
+                      .map((s) => `<code>${escapeHtml(s.from)}-${escapeHtml(s.to)}</code>`)
                       .join(" ")
                 : "<span class='small'>closed</span>";
             tbody.append(el("tr", {}, el("th", { text: dayKey }), el("td", { html: slotText })));
@@ -191,7 +191,7 @@ function init() {
     function openHoursModal(placeDef) {
         const schedule = inferOpeningHoursForRegistryPlace(placeDef);
         const title = placeDef.label || placeDef.key || placeDef.id || "Opening hours";
-        modalTitle.textContent = `Opening hours – ${title}`;
+        modalTitle.textContent = `Opening hours - ${title}`;
         modalBody.innerHTML = "";
         modalBody.append(
             el("div", {

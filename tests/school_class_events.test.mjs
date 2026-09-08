@@ -10,15 +10,15 @@ import {
 } from "../src/story/wg/runtime/storyRuntime.js";
 
 const FINAL_SEGMENTS = [
-  { subject: "english", at: "09:30", choiceLabel: "Study hard" },
-  { subject: "math", at: "10:30", choiceLabel: "Study hard" },
-  { subject: "history", at: "11:30", choiceLabel: "Study hard" },
-  { subject: "science", at: "13:30", choiceLabel: "Study hard" },
-  { subject: "art", at: "14:30", choiceLabel: "Study hard" },
+  { subject: "english", at: "2026-09-02T09:30:00.000Z", choiceLabel: "Study hard" },
+  { subject: "math", at: "2026-09-01T09:30:00.000Z", choiceLabel: "Study hard" },
+  { subject: "history", at: "2026-09-01T10:30:00.000Z", choiceLabel: "Study hard" },
+  { subject: "science", at: "2026-09-01T11:30:00.000Z", choiceLabel: "Study hard" },
+  { subject: "art", at: "2026-09-01T13:00:00.000Z", choiceLabel: "Study hard" },
   {
     subject: "physical_education",
     storySubject: "physical-education",
-    at: "15:30",
+    at: "2026-09-01T14:00:00.000Z",
     choiceLabel: "Train hard",
   },
 ];
@@ -41,7 +41,7 @@ for (const fixture of FINAL_SEGMENTS) {
     const storySubject = fixture.storySubject || fixture.subject;
     const game = new Game({
       seed: 917,
-      startDate: new Date(`2026-09-03T${fixture.at}:00.000Z`),
+      startDate: new Date(fixture.at),
       playerOptions: { startPlaceId: null },
     });
     placePlayerAtHighSchool(game);

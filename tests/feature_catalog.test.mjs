@@ -21,6 +21,7 @@ test("the default catalog composes each special system through feature registrat
   assert.equal(typeof features.getActionHandler("bus.travel"), "function");
   assert.ok(features.getWGSystem("journal.diary"));
   assert.ok(features.getWGSystem("school.quiz"));
+  assert.ok(features.getWGSystem("school.timetable"));
   assert.ok(features.getStoryBehavior("school.class"));
   assert.ok(features.timerDefinitions["rent.weekly"]);
   assert.ok(features.getSkillCheckTargetDefinition("grade", "english"));

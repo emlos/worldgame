@@ -82,11 +82,11 @@ function isOpenForSchedule(schedule, dayIndex, minutes) {
         if (start == null || end == null) continue;
 
         if (end > start) {
-            // Normal: e.g. 09:00–17:00
+            // Normal: e.g. 09:00-17:00
             if (minutes >= start && minutes < end) return true;
         } else if (end < start) {
             // Crosses midnight, this is the “late evening” part for today
-            // e.g. Mon 22:00–02:00 -> Monday 22:00–24:00
+            // e.g. Mon 22:00-02:00 -> Monday 22:00-24:00
             if (minutes >= start) return true;
         }
     }
@@ -98,7 +98,7 @@ function isOpenForSchedule(schedule, dayIndex, minutes) {
         if (start == null || end == null) continue;
 
         if (end < start) {
-            // e.g. Mon 22:00–02:00 -> Tuesday 00:00–02:00
+            // e.g. Mon 22:00-02:00 -> Tuesday 00:00-02:00
             if (minutes < end) return true;
         }
     }

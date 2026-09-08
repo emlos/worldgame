@@ -1,11 +1,72 @@
 import { Gender, PronounSets } from "../core/pronouns.js";
 import { HUMAN_BODY_TEMPLATE } from "../core/body.js";
-import { SCHOOL_DAY_END, SCHOOL_DAY_START } from "../../features/school/timetable.js";
+import { getSchoolWeekSchedule } from "../../features/school/timetable.js";
 import { DayKind } from "../../world/data/calendar.js";
 import { DAY_KEYS } from "../../world/data/time.js";
 import { PLACE_TAGS } from "../../world/data/place.js";
 import { LOCATION_TAGS } from "../../world/data/location.js";
 import { GOAL_TYPE, TARGET_TYPE } from "./behavior.js";
+
+const TAYLOR_SCHOOL_GOALS = getSchoolWeekSchedule().flatMap((day) => [
+    {
+        id: `school_${day.dayKey}`,
+        type: GOAL_TYPE.obligation,
+        priority: 100,
+        when: {
+            schoolDay: true,
+            daysOfWeek: [day.dayKey],
+            from: day.start,
+            to: day.end,
+        },
+        target: {
+            type: TARGET_TYPE.placeKeys,
+            candidates: ["high_school"],
+            nearest: true,
+        },
+    },
+    {
+        id: `after_school_activity_${day.dayKey}`,
+        type: GOAL_TYPE.visit,
+        priority: 30,
+        weight: 70,
+        when: {
+            schoolDay: true,
+            daysOfWeek: [day.dayKey],
+            from: day.end,
+            to: "22:00",
+        },
+        stayMinutes: { min: 20, max: 120 },
+        targets: [
+            {
+                type: TARGET_TYPE.placeKeys,
+                candidates: ["library", "mall"],
+            },
+            {
+                type: TARGET_TYPE.placeCategory,
+                candidates: [PLACE_TAGS.leisure],
+            },
+        ],
+        disallowedTargets: [
+            {
+                type: TARGET_TYPE.placeCategory,
+                candidates: [PLACE_TAGS.nightlife, PLACE_TAGS.luxury],
+            },
+        ],
+        requireOpen: true,
+    },
+    {
+        id: `go_home_after_school_${day.dayKey}`,
+        type: GOAL_TYPE.home,
+        priority: 30,
+        weight: 30,
+        when: {
+            schoolDay: true,
+            daysOfWeek: [day.dayKey],
+            from: day.end,
+            to: "22:00",
+        },
+    },
+]);
 
 export const NPC_REGISTRY = [
     // student type
@@ -70,61 +131,7 @@ export const NPC_REGISTRY = [
                     priority: 90,
                     when: { from: "22:00", to: "06:00" },
                 },
-                {
-                    id: "school",
-                    type: GOAL_TYPE.obligation,
-                    priority: 100,
-                    when: {
-                        schoolDay: true,
-                        from: SCHOOL_DAY_START,
-                        to: SCHOOL_DAY_END,
-                    },
-                    target: {
-                        type: TARGET_TYPE.placeKeys,
-                        candidates: ["high_school"],
-                        nearest: true,
-                    },
-                },
-                {
-                    id: "after_school_activity",
-                    type: GOAL_TYPE.visit,
-                    priority: 30,
-                    weight: 70,
-                    when: {
-                        schoolDay: true,
-                        from: SCHOOL_DAY_END,
-                        to: "22:00",
-                    },
-                    stayMinutes: { min: 20, max: 120 },
-                    targets: [
-                        {
-                            type: TARGET_TYPE.placeKeys,
-                            candidates: ["library", "mall"],
-                        },
-                        {
-                            type: TARGET_TYPE.placeCategory,
-                            candidates: [PLACE_TAGS.leisure],
-                        },
-                    ],
-                    disallowedTargets: [
-                        {
-                            type: TARGET_TYPE.placeCategory,
-                            candidates: [PLACE_TAGS.nightlife, PLACE_TAGS.luxury],
-                        },
-                    ],
-                    requireOpen: true,
-                },
-                {
-                    id: "go_home_after_school",
-                    type: GOAL_TYPE.home,
-                    priority: 30,
-                    weight: 30,
-                    when: {
-                        schoolDay: true,
-                        from: SCHOOL_DAY_END,
-                        to: "22:00",
-                    },
-                },
+                ...TAYLOR_SCHOOL_GOALS,
                 {
                     id: "no_school_activity",
                     type: GOAL_TYPE.visit,

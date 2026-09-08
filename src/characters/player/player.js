@@ -52,7 +52,7 @@ function normalizedSkillValue(value, definition, label) {
 }
 
 /*
-  Text Adventure Core – Player model (vanilla JS, no build step)
+  Text Adventure Core - Player model (vanilla JS, no build step)
   ----------------------------------------------------------------
   This file defines the data model for a Twine-like, text‑based HTML game.
   It focuses on Player state, including:

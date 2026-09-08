@@ -5,12 +5,48 @@ export const SCHOOL_SEMESTERS = Object.freeze([
   Object.freeze({ name: "Spring", start: "01-10", end: "05-20" }),
 ]);
 
-export const SCHOOL_TIMETABLE = Object.freeze([
-  Object.freeze({ id: "english", kind: "class", subjectId: "english", start: "09:00", end: "09:45", segments: 3 }),
-  Object.freeze({ id: "math", kind: "class", subjectId: "math", start: "10:00", end: "10:45", segments: 3 }),
-  Object.freeze({ id: "history", kind: "class", subjectId: "history", start: "11:00", end: "11:45", segments: 3 }),
-  Object.freeze({ id: "lunch", kind: "lunch", start: "11:45", end: "13:00" }),
-  Object.freeze({ id: "science", kind: "class", subjectId: "science", start: "13:00", end: "13:45", segments: 3 }),
-  Object.freeze({ id: "art", kind: "class", subjectId: "art", start: "14:00", end: "14:45", segments: 3 }),
-  Object.freeze({ id: "physical_education", kind: "class", subjectId: "physical_education", start: "15:00", end: "15:45", segments: 3 }),
+export const SCHOOL_DAY_START = "09:00";
+export const SCHOOL_CLASS_MINUTES = 45;
+export const SCHOOL_CLASS_SEGMENTS = 3;
+export const SCHOOL_BREAK_MINUTES = 15;
+export const SCHOOL_LUNCH_AFTER_LESSON = 3;
+export const SCHOOL_LUNCH_MINUTES = 45;
+
+export const SCHOOL_WEEKLY_CLASSES = Object.freeze([
+  Object.freeze({
+    dayKey: "mon",
+    label: "Monday",
+    dayOfWeek: 1,
+    subjects: Object.freeze(["english", "math", "science", "physical_education"]),
+  }),
+  Object.freeze({
+    dayKey: "tue",
+    label: "Tuesday",
+    dayOfWeek: 2,
+    subjects: Object.freeze([
+      "math",
+      "history",
+      "science",
+      "art",
+      "physical_education",
+    ]),
+  }),
+  Object.freeze({
+    dayKey: "wed",
+    label: "Wednesday",
+    dayOfWeek: 3,
+    subjects: Object.freeze(["english", "math", "history", "science"]),
+  }),
+  Object.freeze({
+    dayKey: "thu",
+    label: "Thursday",
+    dayOfWeek: 4,
+    subjects: Object.freeze(["english", "history", "art", "physical_education"]),
+  }),
+  Object.freeze({
+    dayKey: "fri",
+    label: "Friday",
+    dayOfWeek: 5,
+    subjects: Object.freeze(["english", "math", "science", "physical_education"]),
+  }),
 ]);

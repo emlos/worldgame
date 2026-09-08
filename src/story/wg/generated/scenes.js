@@ -4142,7 +4142,7 @@ export const WG_BUNDLE = {
                           ],
                           "source": {
                             "file": "story/school/school.wg",
-                            "line": 48,
+                            "line": 67,
                             "column": 1
                           }
                         },
@@ -4172,14 +4172,14 @@ export const WG_BUNDLE = {
                           "effects": [],
                           "source": {
                             "file": "story/school/school.wg",
-                            "line": 50,
+                            "line": 69,
                             "column": 1
                           }
                         }
                       ],
                       "source": {
                         "file": "story/school/school.wg",
-                        "line": 46,
+                        "line": 65,
                         "column": 1
                       }
                     },
@@ -4229,7 +4229,7 @@ export const WG_BUNDLE = {
                           ],
                           "source": {
                             "file": "story/school/school.wg",
-                            "line": 57,
+                            "line": 76,
                             "column": 1
                           }
                         },
@@ -4256,14 +4256,14 @@ export const WG_BUNDLE = {
                           "effects": [],
                           "source": {
                             "file": "story/school/school.wg",
-                            "line": 59,
+                            "line": 78,
                             "column": 1
                           }
                         }
                       ],
                       "source": {
                         "file": "story/school/school.wg",
-                        "line": 55,
+                        "line": 74,
                         "column": 1
                       }
                     },
@@ -4313,7 +4313,7 @@ export const WG_BUNDLE = {
                           ],
                           "source": {
                             "file": "story/school/school.wg",
-                            "line": 65,
+                            "line": 84,
                             "column": 1
                           }
                         },
@@ -4340,14 +4340,14 @@ export const WG_BUNDLE = {
                           "effects": [],
                           "source": {
                             "file": "story/school/school.wg",
-                            "line": 67,
+                            "line": 86,
                             "column": 1
                           }
                         }
                       ],
                       "source": {
                         "file": "story/school/school.wg",
-                        "line": 63,
+                        "line": 82,
                         "column": 1
                       }
                     },
@@ -4397,7 +4397,7 @@ export const WG_BUNDLE = {
                           ],
                           "source": {
                             "file": "story/school/school.wg",
-                            "line": 73,
+                            "line": 92,
                             "column": 1
                           }
                         },
@@ -4424,14 +4424,14 @@ export const WG_BUNDLE = {
                           "effects": [],
                           "source": {
                             "file": "story/school/school.wg",
-                            "line": 75,
+                            "line": 94,
                             "column": 1
                           }
                         }
                       ],
                       "source": {
                         "file": "story/school/school.wg",
-                        "line": 71,
+                        "line": 90,
                         "column": 1
                       }
                     },
@@ -4462,7 +4462,7 @@ export const WG_BUNDLE = {
                           ],
                           "source": {
                             "file": "story/school/school.wg",
-                            "line": 81,
+                            "line": 100,
                             "column": 1
                           }
                         },
@@ -4492,7 +4492,7 @@ export const WG_BUNDLE = {
                           "effects": [],
                           "source": {
                             "file": "story/school/school.wg",
-                            "line": 83,
+                            "line": 102,
                             "column": 1
                           }
                         },
@@ -4522,14 +4522,14 @@ export const WG_BUNDLE = {
                           "effects": [],
                           "source": {
                             "file": "story/school/school.wg",
-                            "line": 88,
+                            "line": 107,
                             "column": 1
                           }
                         }
                       ],
                       "source": {
                         "file": "story/school/school.wg",
-                        "line": 79,
+                        "line": 98,
                         "column": 1
                       }
                     },
@@ -4579,7 +4579,7 @@ export const WG_BUNDLE = {
                           ],
                           "source": {
                             "file": "story/school/school.wg",
-                            "line": 95,
+                            "line": 114,
                             "column": 1
                           }
                         },
@@ -4606,14 +4606,14 @@ export const WG_BUNDLE = {
                           "effects": [],
                           "source": {
                             "file": "story/school/school.wg",
-                            "line": 97,
+                            "line": 116,
                             "column": 1
                           }
                         }
                       ],
                       "source": {
                         "file": "story/school/school.wg",
-                        "line": 93,
+                        "line": 112,
                         "column": 1
                       }
                     },
@@ -4663,7 +4663,7 @@ export const WG_BUNDLE = {
                           ],
                           "source": {
                             "file": "story/school/school.wg",
-                            "line": 103,
+                            "line": 122,
                             "column": 1
                           }
                         },
@@ -4690,14 +4690,14 @@ export const WG_BUNDLE = {
                           "effects": [],
                           "source": {
                             "file": "story/school/school.wg",
-                            "line": 105,
+                            "line": 124,
                             "column": 1
                           }
                         }
                       ],
                       "source": {
                         "file": "story/school/school.wg",
-                        "line": 101,
+                        "line": 120,
                         "column": 1
                       }
                     },
@@ -4747,7 +4747,7 @@ export const WG_BUNDLE = {
                           ],
                           "source": {
                             "file": "story/school/school.wg",
-                            "line": 111,
+                            "line": 130,
                             "column": 1
                           }
                         },
@@ -4774,14 +4774,14 @@ export const WG_BUNDLE = {
                           "effects": [],
                           "source": {
                             "file": "story/school/school.wg",
-                            "line": 113,
+                            "line": 132,
                             "column": 1
                           }
                         }
                       ],
                       "source": {
                         "file": "story/school/school.wg",
-                        "line": 109,
+                        "line": 128,
                         "column": 1
                       }
                     },
@@ -4812,7 +4812,7 @@ export const WG_BUNDLE = {
                           ],
                           "source": {
                             "file": "story/school/school.wg",
-                            "line": 119,
+                            "line": 138,
                             "column": 1
                           }
                         },
@@ -4842,7 +4842,7 @@ export const WG_BUNDLE = {
                           "effects": [],
                           "source": {
                             "file": "story/school/school.wg",
-                            "line": 121,
+                            "line": 140,
                             "column": 1
                           }
                         },
@@ -4872,14 +4872,14 @@ export const WG_BUNDLE = {
                           "effects": [],
                           "source": {
                             "file": "story/school/school.wg",
-                            "line": 126,
+                            "line": 145,
                             "column": 1
                           }
                         }
                       ],
                       "source": {
                         "file": "story/school/school.wg",
-                        "line": 117,
+                        "line": 136,
                         "column": 1
                       }
                     },
@@ -4922,7 +4922,7 @@ export const WG_BUNDLE = {
                           ],
                           "source": {
                             "file": "story/school/school.wg",
-                            "line": 133,
+                            "line": 152,
                             "column": 1
                           }
                         },
@@ -4952,14 +4952,14 @@ export const WG_BUNDLE = {
                           "effects": [],
                           "source": {
                             "file": "story/school/school.wg",
-                            "line": 135,
+                            "line": 154,
                             "column": 1
                           }
                         }
                       ],
                       "source": {
                         "file": "story/school/school.wg",
-                        "line": 131,
+                        "line": 150,
                         "column": 1
                       }
                     },
@@ -4990,7 +4990,7 @@ export const WG_BUNDLE = {
                           ],
                           "source": {
                             "file": "story/school/school.wg",
-                            "line": 142,
+                            "line": 161,
                             "column": 1
                           }
                         },
@@ -5017,7 +5017,7 @@ export const WG_BUNDLE = {
                           "effects": [],
                           "source": {
                             "file": "story/school/school.wg",
-                            "line": 144,
+                            "line": 163,
                             "column": 1
                           }
                         },
@@ -5044,14 +5044,14 @@ export const WG_BUNDLE = {
                           "effects": [],
                           "source": {
                             "file": "story/school/school.wg",
-                            "line": 149,
+                            "line": 168,
                             "column": 1
                           }
                         }
                       ],
                       "source": {
                         "file": "story/school/school.wg",
-                        "line": 140,
+                        "line": 159,
                         "column": 1
                       }
                     }
@@ -5067,14 +5067,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/school/school.wg",
-                        "line": 156,
+                        "line": 175,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 46,
+                    "line": 65,
                     "column": 1
                   },
                   "runtimeId": 0
@@ -5082,7 +5082,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 44,
+                "line": 63,
                 "column": 1
               }
             },
@@ -5116,7 +5116,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 164,
+                    "line": 183,
                     "column": 1
                   }
                 },
@@ -5145,7 +5145,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 170,
+                    "line": 189,
                     "column": 1
                   }
                 },
@@ -5174,7 +5174,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 176,
+                    "line": 195,
                     "column": 1
                   }
                 },
@@ -5203,7 +5203,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 182,
+                    "line": 201,
                     "column": 1
                   }
                 },
@@ -5232,7 +5232,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 188,
+                    "line": 207,
                     "column": 1
                   }
                 },
@@ -5261,7 +5261,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 194,
+                    "line": 213,
                     "column": 1
                   }
                 },
@@ -5290,7 +5290,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 200,
+                    "line": 219,
                     "column": 1
                   }
                 },
@@ -5319,7 +5319,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 206,
+                    "line": 225,
                     "column": 1
                   }
                 },
@@ -5348,14 +5348,14 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 212,
+                    "line": 231,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 162,
+                "line": 181,
                 "column": 1
               }
             }
@@ -5363,7 +5363,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/school.wg",
-            "line": 44,
+            "line": 63,
             "column": 1
           }
         }
@@ -5388,7 +5388,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/school/school.wg",
-        "line": 40,
+        "line": 59,
         "column": 1
       }
     },
@@ -5454,14 +5454,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/school/school.wg",
-                        "line": 760,
+                        "line": 779,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 759,
+                    "line": 778,
                     "column": 1
                   }
                 },
@@ -5492,14 +5492,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/school/school.wg",
-                        "line": 762,
+                        "line": 781,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 761,
+                    "line": 780,
                     "column": 1
                   }
                 }
@@ -5515,14 +5515,14 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 764,
+                    "line": 783,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 759,
+                "line": 778,
                 "column": 1
               },
               "runtimeId": 0
@@ -5586,7 +5586,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 767,
+                "line": 786,
                 "column": 1
               }
             },
@@ -5615,7 +5615,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 773,
+                "line": 792,
                 "column": 1
               }
             }
@@ -5623,7 +5623,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/school.wg",
-            "line": 759,
+            "line": 778,
             "column": 1
           }
         }
@@ -5644,7 +5644,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/school/school.wg",
-        "line": 757,
+        "line": 776,
         "column": 1
       }
     },
@@ -5710,14 +5710,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/school/school.wg",
-                        "line": 647,
+                        "line": 666,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 646,
+                    "line": 665,
                     "column": 1
                   }
                 }
@@ -5733,14 +5733,14 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 649,
+                    "line": 668,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 646,
+                "line": 665,
                 "column": 1
               },
               "runtimeId": 0
@@ -5830,14 +5830,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/school/school.wg",
-                        "line": 657,
+                        "line": 676,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 656,
+                    "line": 675,
                     "column": 1
                   }
                 },
@@ -5866,14 +5866,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/school/school.wg",
-                        "line": 660,
+                        "line": 679,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 659,
+                    "line": 678,
                     "column": 1
                   }
                 },
@@ -5889,14 +5889,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/school/school.wg",
-                        "line": 663,
+                        "line": 682,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 662,
+                    "line": 681,
                     "column": 1
                   }
                 }
@@ -5910,7 +5910,7 @@ export const WG_BUNDLE = {
                   "amount": 3,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 665,
+                    "line": 684,
                     "column": 1
                   },
                   "feedback": {
@@ -5935,7 +5935,7 @@ export const WG_BUNDLE = {
                   },
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 666,
+                    "line": 685,
                     "column": 1
                   }
                 },
@@ -5945,255 +5945,14 @@ export const WG_BUNDLE = {
                   "value": true,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 667,
+                    "line": 686,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 652,
-                "column": 1
-              }
-            },
-            {
-              "type": "choice",
-              "id": "choice-2",
-              "label": [
-                {
-                  "type": "text",
-                  "value": "Leave"
-                }
-              ],
-              "target": "@exit",
-              "icon": null,
-              "durationMinutes": 1,
-              "durationRangeMinutes": null,
-              "timeUntilPath": null,
-              "energyFree": false,
-              "resting": false,
-              "when": null,
-              "requirements": [],
-              "warning": null,
-              "eventPool": "school.traversal",
-              "eventChance": 1,
-              "hints": [],
-              "effects": [],
-              "source": {
-                "file": "story/school/school.wg",
-                "line": 670,
-                "column": 1
-              }
-            }
-          ],
-          "next": null,
-          "source": {
-            "file": "story/school/school.wg",
-            "line": 646,
-            "column": 1
-          }
-        }
-      ],
-      "placeKeys": [],
-      "placeTags": [],
-      "locationTags": [],
-      "hub": null,
-      "offer": null,
-      "automaticTriggers": [],
-      "pools": [],
-      "conditions": [],
-      "label": null,
-      "icon": null,
-      "hubText": null,
-      "priority": 0,
-      "chance": 1,
-      "weight": 1,
-      "source": {
-        "file": "story/school/school.wg",
-        "line": 644,
-        "column": 1
-      }
-    },
-    "place.high-school.english-classroom": {
-      "id": "place.high-school.english-classroom",
-      "finalTarget": null,
-      "kind": "event",
-      "heading": null,
-      "choiceHeading": "Choices",
-      "behavior": null,
-      "system": null,
-      "onEnter": [],
-      "passages": [
-        {
-          "id": "p1",
-          "body": [
-            {
-              "type": "if",
-              "branches": [
-                {
-                  "test": {
-                    "type": "binary",
-                    "operator": "or",
-                    "left": {
-                      "type": "binary",
-                      "operator": "==",
-                      "left": {
-                        "type": "path",
-                        "value": [
-                          "school",
-                          "phase"
-                        ]
-                      },
-                      "right": {
-                        "type": "literal",
-                        "value": "lunch"
-                      }
-                    },
-                    "right": {
-                      "type": "binary",
-                      "operator": "==",
-                      "left": {
-                        "type": "path",
-                        "value": [
-                          "school",
-                          "phase"
-                        ]
-                      },
-                      "right": {
-                        "type": "literal",
-                        "value": "break"
-                      }
-                    }
-                  },
-                  "nodes": [
-                    {
-                      "type": "paragraph",
-                      "parts": [
-                        {
-                          "type": "text",
-                          "value": "The classroom is open, and students are studying and socialising."
-                        }
-                      ],
-                      "source": {
-                        "file": "story/school/school.wg",
-                        "line": 678,
-                        "column": 1
-                      }
-                    }
-                  ],
-                  "source": {
-                    "file": "story/school/school.wg",
-                    "line": 677,
-                    "column": 1
-                  }
-                },
-                {
-                  "test": {
-                    "type": "binary",
-                    "operator": "==",
-                    "left": {
-                      "type": "path",
-                      "value": [
-                        "school",
-                        "phase"
-                      ]
-                    },
-                    "right": {
-                      "type": "literal",
-                      "value": "class"
-                    }
-                  },
-                  "nodes": [
-                    {
-                      "type": "paragraph",
-                      "parts": [
-                        {
-                          "type": "text",
-                          "value": "Everyone looks at you as you enter the classroom. The teacher is at the front of the room, and students are seated at their desks."
-                        }
-                      ],
-                      "source": {
-                        "file": "story/school/school.wg",
-                        "line": 680,
-                        "column": 1
-                      }
-                    }
-                  ],
-                  "source": {
-                    "file": "story/school/school.wg",
-                    "line": 679,
-                    "column": 1
-                  }
-                }
-              ],
-              "elseNodes": null,
-              "source": {
-                "file": "story/school/school.wg",
-                "line": 677,
-                "column": 1
-              },
-              "runtimeId": 0
-            },
-            {
-              "type": "choice",
-              "id": "choice-1",
-              "label": [
-                {
-                  "type": "text",
-                  "value": "Wait for class"
-                }
-              ],
-              "target": "school.class.english",
-              "icon": null,
-              "durationMinutes": 0,
-              "durationRangeMinutes": null,
-              "timeUntilPath": [
-                "school",
-                "nextClassStartsAt"
-              ],
-              "energyFree": false,
-              "resting": false,
-              "when": {
-                "type": "binary",
-                "operator": "and",
-                "left": {
-                  "type": "binary",
-                  "operator": "!=",
-                  "left": {
-                    "type": "path",
-                    "value": [
-                      "school",
-                      "phase"
-                    ]
-                  },
-                  "right": {
-                    "type": "literal",
-                    "value": "class"
-                  }
-                },
-                "right": {
-                  "type": "binary",
-                  "operator": "==",
-                  "left": {
-                    "type": "path",
-                    "value": [
-                      "school",
-                      "nextClass"
-                    ]
-                  },
-                  "right": {
-                    "type": "literal",
-                    "value": "english"
-                  }
-                }
-              },
-              "requirements": [],
-              "warning": null,
-              "hints": [],
-              "effects": [],
-              "source": {
-                "file": "story/school/school.wg",
-                "line": 683,
+                "line": 671,
                 "column": 1
               }
             },
@@ -6230,7 +5989,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/school.wg",
-            "line": 677,
+            "line": 665,
             "column": 1
           }
         }
@@ -6251,524 +6010,12 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/school/school.wg",
-        "line": 675,
+        "line": 663,
         "column": 1
       }
     },
-    "place.high-school.gym": {
-      "id": "place.high-school.gym",
-      "finalTarget": null,
-      "kind": "event",
-      "heading": null,
-      "choiceHeading": "Choices",
-      "behavior": null,
-      "system": null,
-      "onEnter": [],
-      "passages": [
-        {
-          "id": "p1",
-          "body": [
-            {
-              "type": "if",
-              "branches": [
-                {
-                  "test": {
-                    "type": "binary",
-                    "operator": "or",
-                    "left": {
-                      "type": "binary",
-                      "operator": "==",
-                      "left": {
-                        "type": "path",
-                        "value": [
-                          "school",
-                          "phase"
-                        ]
-                      },
-                      "right": {
-                        "type": "literal",
-                        "value": "lunch"
-                      }
-                    },
-                    "right": {
-                      "type": "binary",
-                      "operator": "==",
-                      "left": {
-                        "type": "path",
-                        "value": [
-                          "school",
-                          "phase"
-                        ]
-                      },
-                      "right": {
-                        "type": "literal",
-                        "value": "break"
-                      }
-                    }
-                  },
-                  "nodes": [
-                    {
-                      "type": "paragraph",
-                      "parts": [
-                        {
-                          "type": "text",
-                          "value": "The gym is open, and students are exercising and socialising."
-                        }
-                      ],
-                      "source": {
-                        "file": "story/school/school.wg",
-                        "line": 781,
-                        "column": 1
-                      }
-                    }
-                  ],
-                  "source": {
-                    "file": "story/school/school.wg",
-                    "line": 780,
-                    "column": 1
-                  }
-                },
-                {
-                  "test": {
-                    "type": "binary",
-                    "operator": "==",
-                    "left": {
-                      "type": "path",
-                      "value": [
-                        "school",
-                        "phase"
-                      ]
-                    },
-                    "right": {
-                      "type": "literal",
-                      "value": "class"
-                    }
-                  },
-                  "nodes": [
-                    {
-                      "type": "paragraph",
-                      "parts": [
-                        {
-                          "type": "text",
-                          "value": "Everyone looks at you as you enter the gym. The teacher is at the front of the room, and students are exercising."
-                        }
-                      ],
-                      "source": {
-                        "file": "story/school/school.wg",
-                        "line": 783,
-                        "column": 1
-                      }
-                    }
-                  ],
-                  "source": {
-                    "file": "story/school/school.wg",
-                    "line": 782,
-                    "column": 1
-                  }
-                }
-              ],
-              "elseNodes": [
-                {
-                  "type": "paragraph",
-                  "parts": [
-                    {
-                      "type": "text",
-                      "value": "There's a lone student here practicing basketball."
-                    }
-                  ],
-                  "source": {
-                    "file": "story/school/school.wg",
-                    "line": 785,
-                    "column": 1
-                  }
-                }
-              ],
-              "source": {
-                "file": "story/school/school.wg",
-                "line": 780,
-                "column": 1
-              },
-              "runtimeId": 0
-            },
-            {
-              "type": "choice",
-              "id": "choice-1",
-              "label": [
-                {
-                  "type": "text",
-                  "value": "Wait for class"
-                }
-              ],
-              "target": "school.class.physical-education",
-              "icon": null,
-              "durationMinutes": 0,
-              "durationRangeMinutes": null,
-              "timeUntilPath": [
-                "school",
-                "nextClassStartsAt"
-              ],
-              "energyFree": false,
-              "resting": false,
-              "when": {
-                "type": "binary",
-                "operator": "and",
-                "left": {
-                  "type": "binary",
-                  "operator": "!=",
-                  "left": {
-                    "type": "path",
-                    "value": [
-                      "school",
-                      "phase"
-                    ]
-                  },
-                  "right": {
-                    "type": "literal",
-                    "value": "class"
-                  }
-                },
-                "right": {
-                  "type": "binary",
-                  "operator": "==",
-                  "left": {
-                    "type": "path",
-                    "value": [
-                      "school",
-                      "nextClass"
-                    ]
-                  },
-                  "right": {
-                    "type": "literal",
-                    "value": "physical_education"
-                  }
-                }
-              },
-              "requirements": [],
-              "warning": null,
-              "hints": [],
-              "effects": [],
-              "source": {
-                "file": "story/school/school.wg",
-                "line": 788,
-                "column": 1
-              }
-            },
-            {
-              "type": "choice",
-              "id": "choice-2",
-              "label": [
-                {
-                  "type": "text",
-                  "value": "Leave"
-                }
-              ],
-              "target": "@exit",
-              "icon": null,
-              "durationMinutes": 5,
-              "durationRangeMinutes": null,
-              "timeUntilPath": null,
-              "energyFree": false,
-              "resting": false,
-              "when": null,
-              "requirements": [],
-              "warning": null,
-              "eventPool": "school.traversal",
-              "eventChance": 1,
-              "hints": [],
-              "effects": [],
-              "source": {
-                "file": "story/school/school.wg",
-                "line": 794,
-                "column": 1
-              }
-            }
-          ],
-          "next": null,
-          "source": {
-            "file": "story/school/school.wg",
-            "line": 780,
-            "column": 1
-          }
-        }
-      ],
-      "placeKeys": [],
-      "placeTags": [],
-      "locationTags": [],
-      "hub": null,
-      "offer": null,
-      "automaticTriggers": [],
-      "pools": [],
-      "conditions": [],
-      "label": null,
-      "icon": null,
-      "hubText": null,
-      "priority": 0,
-      "chance": 1,
-      "weight": 1,
-      "source": {
-        "file": "story/school/school.wg",
-        "line": 778,
-        "column": 1
-      }
-    },
-    "place.high-school.history-classroom": {
-      "id": "place.high-school.history-classroom",
-      "finalTarget": null,
-      "kind": "event",
-      "heading": null,
-      "choiceHeading": "Choices",
-      "behavior": null,
-      "system": null,
-      "onEnter": [],
-      "passages": [
-        {
-          "id": "p1",
-          "body": [
-            {
-              "type": "if",
-              "branches": [
-                {
-                  "test": {
-                    "type": "binary",
-                    "operator": "or",
-                    "left": {
-                      "type": "binary",
-                      "operator": "==",
-                      "left": {
-                        "type": "path",
-                        "value": [
-                          "school",
-                          "phase"
-                        ]
-                      },
-                      "right": {
-                        "type": "literal",
-                        "value": "lunch"
-                      }
-                    },
-                    "right": {
-                      "type": "binary",
-                      "operator": "==",
-                      "left": {
-                        "type": "path",
-                        "value": [
-                          "school",
-                          "phase"
-                        ]
-                      },
-                      "right": {
-                        "type": "literal",
-                        "value": "break"
-                      }
-                    }
-                  },
-                  "nodes": [
-                    {
-                      "type": "paragraph",
-                      "parts": [
-                        {
-                          "type": "text",
-                          "value": "The classroom is open, and students are studying and socialising."
-                        }
-                      ],
-                      "source": {
-                        "file": "story/school/school.wg",
-                        "line": 739,
-                        "column": 1
-                      }
-                    }
-                  ],
-                  "source": {
-                    "file": "story/school/school.wg",
-                    "line": 738,
-                    "column": 1
-                  }
-                },
-                {
-                  "test": {
-                    "type": "binary",
-                    "operator": "==",
-                    "left": {
-                      "type": "path",
-                      "value": [
-                        "school",
-                        "phase"
-                      ]
-                    },
-                    "right": {
-                      "type": "literal",
-                      "value": "class"
-                    }
-                  },
-                  "nodes": [
-                    {
-                      "type": "paragraph",
-                      "parts": [
-                        {
-                          "type": "text",
-                          "value": "Everyone looks at you as you enter the classroom. The teacher is at the front of the room, and students are seated at their desks."
-                        }
-                      ],
-                      "source": {
-                        "file": "story/school/school.wg",
-                        "line": 741,
-                        "column": 1
-                      }
-                    }
-                  ],
-                  "source": {
-                    "file": "story/school/school.wg",
-                    "line": 740,
-                    "column": 1
-                  }
-                }
-              ],
-              "elseNodes": [
-                {
-                  "type": "paragraph",
-                  "parts": [
-                    {
-                      "type": "text",
-                      "value": "There's nobody here."
-                    }
-                  ],
-                  "source": {
-                    "file": "story/school/school.wg",
-                    "line": 743,
-                    "column": 1
-                  }
-                }
-              ],
-              "source": {
-                "file": "story/school/school.wg",
-                "line": 738,
-                "column": 1
-              },
-              "runtimeId": 0
-            },
-            {
-              "type": "choice",
-              "id": "choice-1",
-              "label": [
-                {
-                  "type": "text",
-                  "value": "Wait for class"
-                }
-              ],
-              "target": "school.class.history",
-              "icon": null,
-              "durationMinutes": 0,
-              "durationRangeMinutes": null,
-              "timeUntilPath": [
-                "school",
-                "nextClassStartsAt"
-              ],
-              "energyFree": false,
-              "resting": false,
-              "when": {
-                "type": "binary",
-                "operator": "and",
-                "left": {
-                  "type": "binary",
-                  "operator": "!=",
-                  "left": {
-                    "type": "path",
-                    "value": [
-                      "school",
-                      "phase"
-                    ]
-                  },
-                  "right": {
-                    "type": "literal",
-                    "value": "class"
-                  }
-                },
-                "right": {
-                  "type": "binary",
-                  "operator": "==",
-                  "left": {
-                    "type": "path",
-                    "value": [
-                      "school",
-                      "nextClass"
-                    ]
-                  },
-                  "right": {
-                    "type": "literal",
-                    "value": "history"
-                  }
-                }
-              },
-              "requirements": [],
-              "warning": null,
-              "hints": [],
-              "effects": [],
-              "source": {
-                "file": "story/school/school.wg",
-                "line": 746,
-                "column": 1
-              }
-            },
-            {
-              "type": "choice",
-              "id": "choice-2",
-              "label": [
-                {
-                  "type": "text",
-                  "value": "Leave"
-                }
-              ],
-              "target": "@exit",
-              "icon": null,
-              "durationMinutes": 2,
-              "durationRangeMinutes": null,
-              "timeUntilPath": null,
-              "energyFree": false,
-              "resting": false,
-              "when": null,
-              "requirements": [],
-              "warning": null,
-              "eventPool": "school.traversal",
-              "eventChance": 1,
-              "hints": [],
-              "effects": [],
-              "source": {
-                "file": "story/school/school.wg",
-                "line": 752,
-                "column": 1
-              }
-            }
-          ],
-          "next": null,
-          "source": {
-            "file": "story/school/school.wg",
-            "line": 738,
-            "column": 1
-          }
-        }
-      ],
-      "placeKeys": [],
-      "placeTags": [],
-      "locationTags": [],
-      "hub": null,
-      "offer": null,
-      "automaticTriggers": [],
-      "pools": [],
-      "conditions": [],
-      "label": null,
-      "icon": null,
-      "hubText": null,
-      "priority": 0,
-      "chance": 1,
-      "weight": 1,
-      "source": {
-        "file": "story/school/school.wg",
-        "line": 736,
-        "column": 1
-      }
-    },
-    "place.high-school.math-classroom": {
-      "id": "place.high-school.math-classroom",
+    "place.high-school.english-classroom": {
+      "id": "place.high-school.english-classroom",
       "finalTarget": null,
       "kind": "event",
       "heading": null,
@@ -6879,6 +6126,503 @@ export const WG_BUNDLE = {
                   }
                 }
               ],
+              "elseNodes": null,
+              "source": {
+                "file": "story/school/school.wg",
+                "line": 696,
+                "column": 1
+              },
+              "runtimeId": 0
+            },
+            {
+              "type": "choice",
+              "id": "choice-1",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Wait for class"
+                }
+              ],
+              "target": "school.class.english",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": [
+                "school",
+                "nextClassStartsAt"
+              ],
+              "energyFree": false,
+              "resting": false,
+              "when": {
+                "type": "binary",
+                "operator": "and",
+                "left": {
+                  "type": "binary",
+                  "operator": "!=",
+                  "left": {
+                    "type": "path",
+                    "value": [
+                      "school",
+                      "phase"
+                    ]
+                  },
+                  "right": {
+                    "type": "literal",
+                    "value": "class"
+                  }
+                },
+                "right": {
+                  "type": "binary",
+                  "operator": "==",
+                  "left": {
+                    "type": "path",
+                    "value": [
+                      "school",
+                      "nextClass"
+                    ]
+                  },
+                  "right": {
+                    "type": "literal",
+                    "value": "english"
+                  }
+                }
+              },
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/school/school.wg",
+                "line": 702,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-2",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Leave"
+                }
+              ],
+              "target": "@exit",
+              "icon": null,
+              "durationMinutes": 1,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "eventPool": "school.traversal",
+              "eventChance": 1,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/school/school.wg",
+                "line": 708,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/school/school.wg",
+            "line": 696,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [],
+      "conditions": [],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/school/school.wg",
+        "line": 694,
+        "column": 1
+      }
+    },
+    "place.high-school.gym": {
+      "id": "place.high-school.gym",
+      "finalTarget": null,
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Choices",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "if",
+              "branches": [
+                {
+                  "test": {
+                    "type": "binary",
+                    "operator": "or",
+                    "left": {
+                      "type": "binary",
+                      "operator": "==",
+                      "left": {
+                        "type": "path",
+                        "value": [
+                          "school",
+                          "phase"
+                        ]
+                      },
+                      "right": {
+                        "type": "literal",
+                        "value": "lunch"
+                      }
+                    },
+                    "right": {
+                      "type": "binary",
+                      "operator": "==",
+                      "left": {
+                        "type": "path",
+                        "value": [
+                          "school",
+                          "phase"
+                        ]
+                      },
+                      "right": {
+                        "type": "literal",
+                        "value": "break"
+                      }
+                    }
+                  },
+                  "nodes": [
+                    {
+                      "type": "paragraph",
+                      "parts": [
+                        {
+                          "type": "text",
+                          "value": "The gym is open, and students are exercising and socialising."
+                        }
+                      ],
+                      "source": {
+                        "file": "story/school/school.wg",
+                        "line": 800,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "source": {
+                    "file": "story/school/school.wg",
+                    "line": 799,
+                    "column": 1
+                  }
+                },
+                {
+                  "test": {
+                    "type": "binary",
+                    "operator": "==",
+                    "left": {
+                      "type": "path",
+                      "value": [
+                        "school",
+                        "phase"
+                      ]
+                    },
+                    "right": {
+                      "type": "literal",
+                      "value": "class"
+                    }
+                  },
+                  "nodes": [
+                    {
+                      "type": "paragraph",
+                      "parts": [
+                        {
+                          "type": "text",
+                          "value": "Everyone looks at you as you enter the gym. The teacher is at the front of the room, and students are exercising."
+                        }
+                      ],
+                      "source": {
+                        "file": "story/school/school.wg",
+                        "line": 802,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "source": {
+                    "file": "story/school/school.wg",
+                    "line": 801,
+                    "column": 1
+                  }
+                }
+              ],
+              "elseNodes": [
+                {
+                  "type": "paragraph",
+                  "parts": [
+                    {
+                      "type": "text",
+                      "value": "There's a lone student here practicing basketball."
+                    }
+                  ],
+                  "source": {
+                    "file": "story/school/school.wg",
+                    "line": 804,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/school/school.wg",
+                "line": 799,
+                "column": 1
+              },
+              "runtimeId": 0
+            },
+            {
+              "type": "choice",
+              "id": "choice-1",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Wait for class"
+                }
+              ],
+              "target": "school.class.physical-education",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": [
+                "school",
+                "nextClassStartsAt"
+              ],
+              "energyFree": false,
+              "resting": false,
+              "when": {
+                "type": "binary",
+                "operator": "and",
+                "left": {
+                  "type": "binary",
+                  "operator": "!=",
+                  "left": {
+                    "type": "path",
+                    "value": [
+                      "school",
+                      "phase"
+                    ]
+                  },
+                  "right": {
+                    "type": "literal",
+                    "value": "class"
+                  }
+                },
+                "right": {
+                  "type": "binary",
+                  "operator": "==",
+                  "left": {
+                    "type": "path",
+                    "value": [
+                      "school",
+                      "nextClass"
+                    ]
+                  },
+                  "right": {
+                    "type": "literal",
+                    "value": "physical_education"
+                  }
+                }
+              },
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/school/school.wg",
+                "line": 807,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-2",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Leave"
+                }
+              ],
+              "target": "@exit",
+              "icon": null,
+              "durationMinutes": 5,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "eventPool": "school.traversal",
+              "eventChance": 1,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/school/school.wg",
+                "line": 813,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/school/school.wg",
+            "line": 799,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [],
+      "conditions": [],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/school/school.wg",
+        "line": 797,
+        "column": 1
+      }
+    },
+    "place.high-school.history-classroom": {
+      "id": "place.high-school.history-classroom",
+      "finalTarget": null,
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Choices",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "if",
+              "branches": [
+                {
+                  "test": {
+                    "type": "binary",
+                    "operator": "or",
+                    "left": {
+                      "type": "binary",
+                      "operator": "==",
+                      "left": {
+                        "type": "path",
+                        "value": [
+                          "school",
+                          "phase"
+                        ]
+                      },
+                      "right": {
+                        "type": "literal",
+                        "value": "lunch"
+                      }
+                    },
+                    "right": {
+                      "type": "binary",
+                      "operator": "==",
+                      "left": {
+                        "type": "path",
+                        "value": [
+                          "school",
+                          "phase"
+                        ]
+                      },
+                      "right": {
+                        "type": "literal",
+                        "value": "break"
+                      }
+                    }
+                  },
+                  "nodes": [
+                    {
+                      "type": "paragraph",
+                      "parts": [
+                        {
+                          "type": "text",
+                          "value": "The classroom is open, and students are studying and socialising."
+                        }
+                      ],
+                      "source": {
+                        "file": "story/school/school.wg",
+                        "line": 758,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "source": {
+                    "file": "story/school/school.wg",
+                    "line": 757,
+                    "column": 1
+                  }
+                },
+                {
+                  "test": {
+                    "type": "binary",
+                    "operator": "==",
+                    "left": {
+                      "type": "path",
+                      "value": [
+                        "school",
+                        "phase"
+                      ]
+                    },
+                    "right": {
+                      "type": "literal",
+                      "value": "class"
+                    }
+                  },
+                  "nodes": [
+                    {
+                      "type": "paragraph",
+                      "parts": [
+                        {
+                          "type": "text",
+                          "value": "Everyone looks at you as you enter the classroom. The teacher is at the front of the room, and students are seated at their desks."
+                        }
+                      ],
+                      "source": {
+                        "file": "story/school/school.wg",
+                        "line": 760,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "source": {
+                    "file": "story/school/school.wg",
+                    "line": 759,
+                    "column": 1
+                  }
+                }
+              ],
               "elseNodes": [
                 {
                   "type": "paragraph",
@@ -6890,14 +6634,270 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 701,
+                    "line": 762,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 696,
+                "line": 757,
+                "column": 1
+              },
+              "runtimeId": 0
+            },
+            {
+              "type": "choice",
+              "id": "choice-1",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Wait for class"
+                }
+              ],
+              "target": "school.class.history",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": [
+                "school",
+                "nextClassStartsAt"
+              ],
+              "energyFree": false,
+              "resting": false,
+              "when": {
+                "type": "binary",
+                "operator": "and",
+                "left": {
+                  "type": "binary",
+                  "operator": "!=",
+                  "left": {
+                    "type": "path",
+                    "value": [
+                      "school",
+                      "phase"
+                    ]
+                  },
+                  "right": {
+                    "type": "literal",
+                    "value": "class"
+                  }
+                },
+                "right": {
+                  "type": "binary",
+                  "operator": "==",
+                  "left": {
+                    "type": "path",
+                    "value": [
+                      "school",
+                      "nextClass"
+                    ]
+                  },
+                  "right": {
+                    "type": "literal",
+                    "value": "history"
+                  }
+                }
+              },
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/school/school.wg",
+                "line": 765,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-2",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Leave"
+                }
+              ],
+              "target": "@exit",
+              "icon": null,
+              "durationMinutes": 2,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "eventPool": "school.traversal",
+              "eventChance": 1,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/school/school.wg",
+                "line": 771,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/school/school.wg",
+            "line": 757,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [],
+      "conditions": [],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/school/school.wg",
+        "line": 755,
+        "column": 1
+      }
+    },
+    "place.high-school.math-classroom": {
+      "id": "place.high-school.math-classroom",
+      "finalTarget": null,
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Choices",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "if",
+              "branches": [
+                {
+                  "test": {
+                    "type": "binary",
+                    "operator": "or",
+                    "left": {
+                      "type": "binary",
+                      "operator": "==",
+                      "left": {
+                        "type": "path",
+                        "value": [
+                          "school",
+                          "phase"
+                        ]
+                      },
+                      "right": {
+                        "type": "literal",
+                        "value": "lunch"
+                      }
+                    },
+                    "right": {
+                      "type": "binary",
+                      "operator": "==",
+                      "left": {
+                        "type": "path",
+                        "value": [
+                          "school",
+                          "phase"
+                        ]
+                      },
+                      "right": {
+                        "type": "literal",
+                        "value": "break"
+                      }
+                    }
+                  },
+                  "nodes": [
+                    {
+                      "type": "paragraph",
+                      "parts": [
+                        {
+                          "type": "text",
+                          "value": "The classroom is open, and students are studying and socialising."
+                        }
+                      ],
+                      "source": {
+                        "file": "story/school/school.wg",
+                        "line": 716,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "source": {
+                    "file": "story/school/school.wg",
+                    "line": 715,
+                    "column": 1
+                  }
+                },
+                {
+                  "test": {
+                    "type": "binary",
+                    "operator": "==",
+                    "left": {
+                      "type": "path",
+                      "value": [
+                        "school",
+                        "phase"
+                      ]
+                    },
+                    "right": {
+                      "type": "literal",
+                      "value": "class"
+                    }
+                  },
+                  "nodes": [
+                    {
+                      "type": "paragraph",
+                      "parts": [
+                        {
+                          "type": "text",
+                          "value": "Everyone looks at you as you enter the classroom. The teacher is at the front of the room, and students are seated at their desks."
+                        }
+                      ],
+                      "source": {
+                        "file": "story/school/school.wg",
+                        "line": 718,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "source": {
+                    "file": "story/school/school.wg",
+                    "line": 717,
+                    "column": 1
+                  }
+                }
+              ],
+              "elseNodes": [
+                {
+                  "type": "paragraph",
+                  "parts": [
+                    {
+                      "type": "text",
+                      "value": "There's nobody here."
+                    }
+                  ],
+                  "source": {
+                    "file": "story/school/school.wg",
+                    "line": 720,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/school/school.wg",
+                "line": 715,
                 "column": 1
               },
               "runtimeId": 0
@@ -6961,7 +6961,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 704,
+                "line": 723,
                 "column": 1
               }
             },
@@ -6990,7 +6990,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 710,
+                "line": 729,
                 "column": 1
               }
             }
@@ -6998,7 +6998,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/school.wg",
-            "line": 696,
+            "line": 715,
             "column": 1
           }
         }
@@ -7019,7 +7019,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/school/school.wg",
-        "line": 694,
+        "line": 713,
         "column": 1
       }
     },
@@ -7079,14 +7079,14 @@ export const WG_BUNDLE = {
                               ],
                               "source": {
                                 "file": "story/school/school.wg",
-                                "line": 818,
+                                "line": 845,
                                 "column": 1
                               }
                             }
                           ],
                           "source": {
                             "file": "story/school/school.wg",
-                            "line": 817,
+                            "line": 844,
                             "column": 1
                           }
                         }
@@ -7115,14 +7115,14 @@ export const WG_BUNDLE = {
                           ],
                           "source": {
                             "file": "story/school/school.wg",
-                            "line": 820,
+                            "line": 847,
                             "column": 1
                           }
                         }
                       ],
                       "source": {
                         "file": "story/school/school.wg",
-                        "line": 817,
+                        "line": 844,
                         "column": 1
                       },
                       "runtimeId": 1
@@ -7130,7 +7130,7 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 816,
+                    "line": 843,
                     "column": 1
                   }
                 }
@@ -7146,14 +7146,14 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 823,
+                    "line": 850,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 816,
+                "line": 843,
                 "column": 1
               },
               "runtimeId": 0
@@ -7229,14 +7229,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/school/school.wg",
-                        "line": 830,
+                        "line": 857,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 829,
+                    "line": 856,
                     "column": 1
                   }
                 }
@@ -7245,7 +7245,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 826,
+                "line": 853,
                 "column": 1
               }
             },
@@ -7274,7 +7274,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 834,
+                "line": 861,
                 "column": 1
               }
             }
@@ -7282,7 +7282,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/school.wg",
-            "line": 816,
+            "line": 843,
             "column": 1
           }
         }
@@ -7303,7 +7303,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/school/school.wg",
-        "line": 814,
+        "line": 841,
         "column": 1
       }
     },
@@ -7369,14 +7369,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/school/school.wg",
-                        "line": 718,
+                        "line": 737,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 717,
+                    "line": 736,
                     "column": 1
                   }
                 },
@@ -7407,14 +7407,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/school/school.wg",
-                        "line": 720,
+                        "line": 739,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 719,
+                    "line": 738,
                     "column": 1
                   }
                 }
@@ -7430,14 +7430,14 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 722,
+                    "line": 741,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 717,
+                "line": 736,
                 "column": 1
               },
               "runtimeId": 0
@@ -7501,7 +7501,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 725,
+                "line": 744,
                 "column": 1
               }
             },
@@ -7530,7 +7530,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 731,
+                "line": 750,
                 "column": 1
               }
             }
@@ -7538,7 +7538,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/school.wg",
-            "line": 717,
+            "line": 736,
             "column": 1
           }
         }
@@ -7559,7 +7559,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/school/school.wg",
-        "line": 715,
+        "line": 734,
         "column": 1
       }
     },
@@ -7606,14 +7606,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/school/school.wg",
-                        "line": 802,
+                        "line": 821,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 801,
+                    "line": 820,
                     "column": 1
                   }
                 },
@@ -7644,14 +7644,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/school/school.wg",
-                        "line": 804,
+                        "line": 823,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 803,
+                    "line": 822,
                     "column": 1
                   }
                 }
@@ -7667,14 +7667,14 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 806,
+                    "line": 825,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 801,
+                "line": 820,
                 "column": 1
               },
               "runtimeId": 0
@@ -7682,6 +7682,33 @@ export const WG_BUNDLE = {
             {
               "type": "choice",
               "id": "choice-1",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "View the weekly timetable"
+                }
+              ],
+              "target": "school.weekly-timetable",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/school/school.wg",
+                "line": 828,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-2",
               "label": [
                 {
                   "type": "text",
@@ -7704,7 +7731,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 809,
+                "line": 831,
                 "column": 1
               }
             }
@@ -7712,7 +7739,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/school.wg",
-            "line": 801,
+            "line": 820,
             "column": 1
           }
         }
@@ -7733,7 +7760,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/school/school.wg",
-        "line": 799,
+        "line": 818,
         "column": 1
       }
     },
@@ -12305,7 +12332,7 @@ export const WG_BUNDLE = {
         },
         "source": {
           "file": "story/school/school.wg",
-          "line": 502,
+          "line": 521,
           "column": 1
         }
       },
@@ -12325,7 +12352,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 507,
+                "line": 526,
                 "column": 1
               }
             },
@@ -12368,7 +12395,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 514,
+                    "line": 533,
                     "column": 1
                   }
                 },
@@ -12384,7 +12411,7 @@ export const WG_BUNDLE = {
                   },
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 515,
+                    "line": 534,
                     "column": 1
                   }
                 },
@@ -12395,7 +12422,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 516,
+                    "line": 535,
                     "column": 1
                   },
                   "feedback": {
@@ -12411,7 +12438,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 509,
+                "line": 528,
                 "column": 1
               }
             },
@@ -12447,7 +12474,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 523,
+                    "line": 542,
                     "column": 1
                   }
                 },
@@ -12457,7 +12484,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 524,
+                    "line": 543,
                     "column": 1
                   },
                   "feedback": {
@@ -12470,7 +12497,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 519,
+                "line": 538,
                 "column": 1
               }
             }
@@ -12478,7 +12505,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/school.wg",
-            "line": 505,
+            "line": 524,
             "column": 1
           }
         },
@@ -12495,7 +12522,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 529,
+                "line": 548,
                 "column": 1
               }
             },
@@ -12538,7 +12565,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 536,
+                    "line": 555,
                     "column": 1
                   }
                 },
@@ -12554,7 +12581,7 @@ export const WG_BUNDLE = {
                   },
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 537,
+                    "line": 556,
                     "column": 1
                   }
                 },
@@ -12565,7 +12592,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 538,
+                    "line": 557,
                     "column": 1
                   },
                   "feedback": {
@@ -12581,7 +12608,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 531,
+                "line": 550,
                 "column": 1
               }
             },
@@ -12617,7 +12644,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 545,
+                    "line": 564,
                     "column": 1
                   }
                 },
@@ -12627,7 +12654,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 546,
+                    "line": 565,
                     "column": 1
                   },
                   "feedback": {
@@ -12640,7 +12667,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 541,
+                "line": 560,
                 "column": 1
               }
             }
@@ -12648,7 +12675,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/school.wg",
-            "line": 527,
+            "line": 546,
             "column": 1
           }
         },
@@ -12665,7 +12692,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 551,
+                "line": 570,
                 "column": 1
               }
             },
@@ -12708,7 +12735,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 558,
+                    "line": 577,
                     "column": 1
                   }
                 },
@@ -12724,7 +12751,7 @@ export const WG_BUNDLE = {
                   },
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 559,
+                    "line": 578,
                     "column": 1
                   }
                 },
@@ -12735,7 +12762,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 560,
+                    "line": 579,
                     "column": 1
                   },
                   "feedback": {
@@ -12751,7 +12778,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 553,
+                "line": 572,
                 "column": 1
               }
             },
@@ -12787,7 +12814,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 567,
+                    "line": 586,
                     "column": 1
                   }
                 },
@@ -12797,7 +12824,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 568,
+                    "line": 587,
                     "column": 1
                   },
                   "feedback": {
@@ -12810,7 +12837,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 563,
+                "line": 582,
                 "column": 1
               }
             }
@@ -12818,7 +12845,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/school.wg",
-            "line": 549,
+            "line": 568,
             "column": 1
           }
         }
@@ -12839,7 +12866,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/school/school.wg",
-        "line": 501,
+        "line": 520,
         "column": 1
       }
     },
@@ -12856,7 +12883,7 @@ export const WG_BUNDLE = {
         },
         "source": {
           "file": "story/school/school.wg",
-          "line": 221,
+          "line": 240,
           "column": 1
         }
       },
@@ -12876,7 +12903,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 226,
+                "line": 245,
                 "column": 1
               }
             },
@@ -12919,7 +12946,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 234,
+                    "line": 253,
                     "column": 1
                   }
                 },
@@ -12935,7 +12962,7 @@ export const WG_BUNDLE = {
                   },
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 235,
+                    "line": 254,
                     "column": 1
                   }
                 },
@@ -12946,7 +12973,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 236,
+                    "line": 255,
                     "column": 1
                   },
                   "feedback": {
@@ -12962,7 +12989,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 228,
+                "line": 247,
                 "column": 1
               }
             },
@@ -12998,7 +13025,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 244,
+                    "line": 263,
                     "column": 1
                   }
                 },
@@ -13008,7 +13035,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 245,
+                    "line": 264,
                     "column": 1
                   },
                   "feedback": {
@@ -13021,7 +13048,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 239,
+                "line": 258,
                 "column": 1
               }
             }
@@ -13029,7 +13056,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/school.wg",
-            "line": 224,
+            "line": 243,
             "column": 1
           }
         },
@@ -13046,7 +13073,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 250,
+                "line": 269,
                 "column": 1
               }
             },
@@ -13089,7 +13116,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 256,
+                    "line": 275,
                     "column": 1
                   }
                 },
@@ -13105,7 +13132,7 @@ export const WG_BUNDLE = {
                   },
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 257,
+                    "line": 276,
                     "column": 1
                   }
                 },
@@ -13116,7 +13143,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 258,
+                    "line": 277,
                     "column": 1
                   },
                   "feedback": {
@@ -13132,7 +13159,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 252,
+                "line": 271,
                 "column": 1
               }
             },
@@ -13168,7 +13195,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 265,
+                    "line": 284,
                     "column": 1
                   }
                 },
@@ -13178,7 +13205,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 266,
+                    "line": 285,
                     "column": 1
                   },
                   "feedback": {
@@ -13191,7 +13218,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 261,
+                "line": 280,
                 "column": 1
               }
             }
@@ -13199,7 +13226,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/school.wg",
-            "line": 248,
+            "line": 267,
             "column": 1
           }
         },
@@ -13216,7 +13243,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 271,
+                "line": 290,
                 "column": 1
               }
             },
@@ -13259,7 +13286,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 278,
+                    "line": 297,
                     "column": 1
                   }
                 },
@@ -13275,7 +13302,7 @@ export const WG_BUNDLE = {
                   },
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 279,
+                    "line": 298,
                     "column": 1
                   }
                 },
@@ -13286,7 +13313,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 280,
+                    "line": 299,
                     "column": 1
                   },
                   "feedback": {
@@ -13302,7 +13329,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 273,
+                "line": 292,
                 "column": 1
               }
             },
@@ -13338,7 +13365,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 288,
+                    "line": 307,
                     "column": 1
                   }
                 },
@@ -13348,7 +13375,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 289,
+                    "line": 308,
                     "column": 1
                   },
                   "feedback": {
@@ -13361,7 +13388,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 283,
+                "line": 302,
                 "column": 1
               }
             }
@@ -13369,7 +13396,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/school.wg",
-            "line": 269,
+            "line": 288,
             "column": 1
           }
         }
@@ -13390,7 +13417,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/school/school.wg",
-        "line": 220,
+        "line": 239,
         "column": 1
       }
     },
@@ -13407,7 +13434,7 @@ export const WG_BUNDLE = {
         },
         "source": {
           "file": "story/school/school.wg",
-          "line": 362,
+          "line": 381,
           "column": 1
         }
       },
@@ -13427,7 +13454,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 367,
+                "line": 386,
                 "column": 1
               }
             },
@@ -13470,7 +13497,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 374,
+                    "line": 393,
                     "column": 1
                   }
                 },
@@ -13486,7 +13513,7 @@ export const WG_BUNDLE = {
                   },
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 375,
+                    "line": 394,
                     "column": 1
                   }
                 },
@@ -13497,7 +13524,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 376,
+                    "line": 395,
                     "column": 1
                   },
                   "feedback": {
@@ -13513,7 +13540,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 369,
+                "line": 388,
                 "column": 1
               }
             },
@@ -13549,7 +13576,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 383,
+                    "line": 402,
                     "column": 1
                   }
                 },
@@ -13559,7 +13586,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 384,
+                    "line": 403,
                     "column": 1
                   },
                   "feedback": {
@@ -13572,7 +13599,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 379,
+                "line": 398,
                 "column": 1
               }
             }
@@ -13580,7 +13607,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/school.wg",
-            "line": 365,
+            "line": 384,
             "column": 1
           }
         },
@@ -13597,7 +13624,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 389,
+                "line": 408,
                 "column": 1
               }
             },
@@ -13640,7 +13667,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 396,
+                    "line": 415,
                     "column": 1
                   }
                 },
@@ -13656,7 +13683,7 @@ export const WG_BUNDLE = {
                   },
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 397,
+                    "line": 416,
                     "column": 1
                   }
                 },
@@ -13667,7 +13694,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 398,
+                    "line": 417,
                     "column": 1
                   },
                   "feedback": {
@@ -13683,7 +13710,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 391,
+                "line": 410,
                 "column": 1
               }
             },
@@ -13719,7 +13746,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 405,
+                    "line": 424,
                     "column": 1
                   }
                 },
@@ -13729,7 +13756,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 406,
+                    "line": 425,
                     "column": 1
                   },
                   "feedback": {
@@ -13742,7 +13769,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 401,
+                "line": 420,
                 "column": 1
               }
             }
@@ -13750,7 +13777,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/school.wg",
-            "line": 387,
+            "line": 406,
             "column": 1
           }
         },
@@ -13767,7 +13794,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 411,
+                "line": 430,
                 "column": 1
               }
             },
@@ -13810,7 +13837,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 418,
+                    "line": 437,
                     "column": 1
                   }
                 },
@@ -13826,7 +13853,7 @@ export const WG_BUNDLE = {
                   },
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 419,
+                    "line": 438,
                     "column": 1
                   }
                 },
@@ -13837,7 +13864,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 420,
+                    "line": 439,
                     "column": 1
                   },
                   "feedback": {
@@ -13853,7 +13880,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 413,
+                "line": 432,
                 "column": 1
               }
             },
@@ -13889,7 +13916,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 427,
+                    "line": 446,
                     "column": 1
                   }
                 },
@@ -13899,7 +13926,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 428,
+                    "line": 447,
                     "column": 1
                   },
                   "feedback": {
@@ -13912,7 +13939,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 423,
+                "line": 442,
                 "column": 1
               }
             }
@@ -13920,7 +13947,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/school.wg",
-            "line": 409,
+            "line": 428,
             "column": 1
           }
         }
@@ -13941,7 +13968,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/school/school.wg",
-        "line": 361,
+        "line": 380,
         "column": 1
       }
     },
@@ -13958,7 +13985,7 @@ export const WG_BUNDLE = {
         },
         "source": {
           "file": "story/school/school.wg",
-          "line": 293,
+          "line": 312,
           "column": 1
         }
       },
@@ -13978,7 +14005,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 298,
+                "line": 317,
                 "column": 1
               }
             },
@@ -14021,7 +14048,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 305,
+                    "line": 324,
                     "column": 1
                   }
                 },
@@ -14037,7 +14064,7 @@ export const WG_BUNDLE = {
                   },
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 306,
+                    "line": 325,
                     "column": 1
                   }
                 },
@@ -14048,7 +14075,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 307,
+                    "line": 326,
                     "column": 1
                   },
                   "feedback": {
@@ -14064,7 +14091,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 300,
+                "line": 319,
                 "column": 1
               }
             },
@@ -14100,7 +14127,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 314,
+                    "line": 333,
                     "column": 1
                   }
                 },
@@ -14110,7 +14137,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 315,
+                    "line": 334,
                     "column": 1
                   },
                   "feedback": {
@@ -14123,7 +14150,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 310,
+                "line": 329,
                 "column": 1
               }
             }
@@ -14131,7 +14158,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/school.wg",
-            "line": 296,
+            "line": 315,
             "column": 1
           }
         },
@@ -14148,7 +14175,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 320,
+                "line": 339,
                 "column": 1
               }
             },
@@ -14191,7 +14218,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 327,
+                    "line": 346,
                     "column": 1
                   }
                 },
@@ -14207,7 +14234,7 @@ export const WG_BUNDLE = {
                   },
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 328,
+                    "line": 347,
                     "column": 1
                   }
                 },
@@ -14218,7 +14245,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 329,
+                    "line": 348,
                     "column": 1
                   },
                   "feedback": {
@@ -14234,7 +14261,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 322,
+                "line": 341,
                 "column": 1
               }
             },
@@ -14270,7 +14297,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 336,
+                    "line": 355,
                     "column": 1
                   }
                 },
@@ -14280,7 +14307,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 337,
+                    "line": 356,
                     "column": 1
                   },
                   "feedback": {
@@ -14293,7 +14320,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 332,
+                "line": 351,
                 "column": 1
               }
             }
@@ -14301,7 +14328,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/school.wg",
-            "line": 318,
+            "line": 337,
             "column": 1
           }
         },
@@ -14318,7 +14345,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 342,
+                "line": 361,
                 "column": 1
               }
             },
@@ -14361,7 +14388,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 349,
+                    "line": 368,
                     "column": 1
                   }
                 },
@@ -14377,7 +14404,7 @@ export const WG_BUNDLE = {
                   },
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 350,
+                    "line": 369,
                     "column": 1
                   }
                 },
@@ -14388,7 +14415,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 351,
+                    "line": 370,
                     "column": 1
                   },
                   "feedback": {
@@ -14404,7 +14431,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 344,
+                "line": 363,
                 "column": 1
               }
             },
@@ -14440,7 +14467,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 357,
+                    "line": 376,
                     "column": 1
                   }
                 },
@@ -14450,7 +14477,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 358,
+                    "line": 377,
                     "column": 1
                   },
                   "feedback": {
@@ -14463,7 +14490,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 354,
+                "line": 373,
                 "column": 1
               }
             }
@@ -14471,7 +14498,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/school.wg",
-            "line": 340,
+            "line": 359,
             "column": 1
           }
         }
@@ -14492,7 +14519,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/school/school.wg",
-        "line": 292,
+        "line": 311,
         "column": 1
       }
     },
@@ -14509,7 +14536,7 @@ export const WG_BUNDLE = {
         },
         "source": {
           "file": "story/school/school.wg",
-          "line": 572,
+          "line": 591,
           "column": 1
         }
       },
@@ -14529,7 +14556,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 577,
+                "line": 596,
                 "column": 1
               }
             },
@@ -14572,7 +14599,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 584,
+                    "line": 603,
                     "column": 1
                   }
                 },
@@ -14588,7 +14615,7 @@ export const WG_BUNDLE = {
                   },
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 585,
+                    "line": 604,
                     "column": 1
                   }
                 },
@@ -14599,7 +14626,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 586,
+                    "line": 605,
                     "column": 1
                   },
                   "feedback": {
@@ -14615,7 +14642,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 579,
+                "line": 598,
                 "column": 1
               }
             },
@@ -14651,7 +14678,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 593,
+                    "line": 612,
                     "column": 1
                   }
                 },
@@ -14661,7 +14688,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 594,
+                    "line": 613,
                     "column": 1
                   },
                   "feedback": {
@@ -14677,7 +14704,7 @@ export const WG_BUNDLE = {
                   "amount": 1.5,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 595,
+                    "line": 614,
                     "column": 1
                   },
                   "feedback": {
@@ -14690,7 +14717,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 589,
+                "line": 608,
                 "column": 1
               }
             }
@@ -14698,7 +14725,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/school.wg",
-            "line": 575,
+            "line": 594,
             "column": 1
           }
         },
@@ -14715,7 +14742,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 600,
+                "line": 619,
                 "column": 1
               }
             },
@@ -14758,7 +14785,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 607,
+                    "line": 626,
                     "column": 1
                   }
                 },
@@ -14774,7 +14801,7 @@ export const WG_BUNDLE = {
                   },
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 608,
+                    "line": 627,
                     "column": 1
                   }
                 },
@@ -14785,7 +14812,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 609,
+                    "line": 628,
                     "column": 1
                   },
                   "feedback": {
@@ -14801,7 +14828,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 602,
+                "line": 621,
                 "column": 1
               }
             },
@@ -14837,7 +14864,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 616,
+                    "line": 635,
                     "column": 1
                   }
                 },
@@ -14847,7 +14874,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 617,
+                    "line": 636,
                     "column": 1
                   },
                   "feedback": {
@@ -14863,7 +14890,7 @@ export const WG_BUNDLE = {
                   "amount": 1.5,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 618,
+                    "line": 637,
                     "column": 1
                   },
                   "feedback": {
@@ -14876,7 +14903,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 612,
+                "line": 631,
                 "column": 1
               }
             }
@@ -14884,7 +14911,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/school.wg",
-            "line": 598,
+            "line": 617,
             "column": 1
           }
         },
@@ -14901,7 +14928,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 623,
+                "line": 642,
                 "column": 1
               }
             },
@@ -14944,7 +14971,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 630,
+                    "line": 649,
                     "column": 1
                   }
                 },
@@ -14960,7 +14987,7 @@ export const WG_BUNDLE = {
                   },
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 631,
+                    "line": 650,
                     "column": 1
                   }
                 },
@@ -14971,7 +14998,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 632,
+                    "line": 651,
                     "column": 1
                   },
                   "feedback": {
@@ -14987,7 +15014,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 625,
+                "line": 644,
                 "column": 1
               }
             },
@@ -15023,7 +15050,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 639,
+                    "line": 658,
                     "column": 1
                   }
                 },
@@ -15033,7 +15060,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 640,
+                    "line": 659,
                     "column": 1
                   },
                   "feedback": {
@@ -15049,7 +15076,7 @@ export const WG_BUNDLE = {
                   "amount": 1.5,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 641,
+                    "line": 660,
                     "column": 1
                   },
                   "feedback": {
@@ -15062,7 +15089,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 635,
+                "line": 654,
                 "column": 1
               }
             }
@@ -15070,7 +15097,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/school.wg",
-            "line": 621,
+            "line": 640,
             "column": 1
           }
         }
@@ -15091,7 +15118,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/school/school.wg",
-        "line": 571,
+        "line": 590,
         "column": 1
       }
     },
@@ -15108,7 +15135,7 @@ export const WG_BUNDLE = {
         },
         "source": {
           "file": "story/school/school.wg",
-          "line": 432,
+          "line": 451,
           "column": 1
         }
       },
@@ -15128,7 +15155,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 437,
+                "line": 456,
                 "column": 1
               }
             },
@@ -15171,7 +15198,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 444,
+                    "line": 463,
                     "column": 1
                   }
                 },
@@ -15187,7 +15214,7 @@ export const WG_BUNDLE = {
                   },
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 445,
+                    "line": 464,
                     "column": 1
                   }
                 },
@@ -15198,7 +15225,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 446,
+                    "line": 465,
                     "column": 1
                   },
                   "feedback": {
@@ -15214,7 +15241,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 439,
+                "line": 458,
                 "column": 1
               }
             },
@@ -15250,7 +15277,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 453,
+                    "line": 472,
                     "column": 1
                   }
                 },
@@ -15260,7 +15287,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 454,
+                    "line": 473,
                     "column": 1
                   },
                   "feedback": {
@@ -15273,7 +15300,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 449,
+                "line": 468,
                 "column": 1
               }
             }
@@ -15281,7 +15308,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/school.wg",
-            "line": 435,
+            "line": 454,
             "column": 1
           }
         },
@@ -15298,7 +15325,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 459,
+                "line": 478,
                 "column": 1
               }
             },
@@ -15341,7 +15368,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 466,
+                    "line": 485,
                     "column": 1
                   }
                 },
@@ -15357,7 +15384,7 @@ export const WG_BUNDLE = {
                   },
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 467,
+                    "line": 486,
                     "column": 1
                   }
                 },
@@ -15368,7 +15395,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 468,
+                    "line": 487,
                     "column": 1
                   },
                   "feedback": {
@@ -15384,7 +15411,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 461,
+                "line": 480,
                 "column": 1
               }
             },
@@ -15420,7 +15447,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 475,
+                    "line": 494,
                     "column": 1
                   }
                 },
@@ -15430,7 +15457,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 476,
+                    "line": 495,
                     "column": 1
                   },
                   "feedback": {
@@ -15443,7 +15470,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 471,
+                "line": 490,
                 "column": 1
               }
             }
@@ -15451,7 +15478,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/school.wg",
-            "line": 457,
+            "line": 476,
             "column": 1
           }
         },
@@ -15468,7 +15495,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 481,
+                "line": 500,
                 "column": 1
               }
             },
@@ -15511,7 +15538,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 488,
+                    "line": 507,
                     "column": 1
                   }
                 },
@@ -15527,7 +15554,7 @@ export const WG_BUNDLE = {
                   },
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 489,
+                    "line": 508,
                     "column": 1
                   }
                 },
@@ -15538,7 +15565,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 490,
+                    "line": 509,
                     "column": 1
                   },
                   "feedback": {
@@ -15554,7 +15581,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 483,
+                "line": 502,
                 "column": 1
               }
             },
@@ -15590,7 +15617,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 497,
+                    "line": 516,
                     "column": 1
                   }
                 },
@@ -15600,7 +15627,7 @@ export const WG_BUNDLE = {
                   "amount": 1,
                   "source": {
                     "file": "story/school/school.wg",
-                    "line": 498,
+                    "line": 517,
                     "column": 1
                   },
                   "feedback": {
@@ -15613,7 +15640,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/school/school.wg",
-                "line": 493,
+                "line": 512,
                 "column": 1
               }
             }
@@ -15621,7 +15648,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/school/school.wg",
-            "line": 479,
+            "line": 498,
             "column": 1
           }
         }
@@ -15642,7 +15669,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/school/school.wg",
-        "line": 431,
+        "line": 450,
         "column": 1
       }
     },
@@ -17329,7 +17356,7 @@ export const WG_BUNDLE = {
               "parts": [
                 {
                   "type": "text",
-                  "value": "You pause inside the entrance as students move around you with the confidence of people who already know where they are going. Classroom signs point deeper into the building, and the day's schedule is waiting in your diary."
+                  "value": "You pause inside the entrance as students move around you with the confidence of people who already know where they are going. Classroom signs point deeper into the building, and notices point towards the student council office."
                 }
               ],
               "source": {
@@ -17343,7 +17370,7 @@ export const WG_BUNDLE = {
               "parts": [
                 {
                   "type": "text",
-                  "value": "[info]The school's Current Activities section shows what is happening now. Attending class records your attendance and can improve that subject. Open the Planner button to review the full timetable, grades, and attendance.[/info]"
+                  "value": "[info]The school's Current Activities section shows what is happening now. Attending class records your attendance and can improve that subject. The weekly timetable is posted in the student council office, while your grades and total attendance are available through Player stats on your phone.[/info]"
                 }
               ],
               "source": {
@@ -28231,7 +28258,7 @@ export const WG_BUNDLE = {
     },
     "school.taylor.first-meeting": {
       "id": "school.taylor.first-meeting",
-      "finalTarget": "@return",
+      "finalTarget": "@exit",
       "kind": "event",
       "heading": null,
       "choiceHeading": "Choices",
@@ -28356,7 +28383,7 @@ export const WG_BUNDLE = {
                 "value": "See you around"
               }
             ],
-            "target": "@return",
+            "target": "@exit",
             "source": {
               "file": "story/school/school.wg",
               "line": 38,
@@ -28366,6 +28393,211 @@ export const WG_BUNDLE = {
           "source": {
             "file": "story/school/school.wg",
             "line": 32,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "high_school"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [
+        "enter-place"
+      ],
+      "pools": [],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "and",
+          "left": {
+            "type": "binary",
+            "operator": "!=",
+            "left": {
+              "type": "path",
+              "value": [
+                "school",
+                "phase"
+              ]
+            },
+            "right": {
+              "type": "literal",
+              "value": "class"
+            }
+          },
+          "right": {
+            "type": "path",
+            "value": [
+              "npc",
+              "taylor",
+              "present"
+            ]
+          }
+        },
+        {
+          "type": "unary",
+          "operator": "not",
+          "value": {
+            "type": "path",
+            "value": [
+              "flags",
+              "journal",
+              "taylor_met"
+            ]
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 500,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/school/school.wg",
+        "line": 21,
+        "column": 1
+      }
+    },
+    "school.taylor.first-meeting.traversal": {
+      "id": "school.taylor.first-meeting.traversal",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Choices",
+      "behavior": null,
+      "system": null,
+      "onEnter": [
+        {
+          "op": "set",
+          "path": [
+            "flags",
+            "journal",
+            "taylor_met"
+          ],
+          "source": {
+            "file": "story/school/school.wg",
+            "line": 47,
+            "column": 1
+          }
+        },
+        {
+          "op": "relationship",
+          "npcId": "taylor",
+          "meterId": "friendship",
+          "amount": 1,
+          "source": {
+            "file": "story/school/school.wg",
+            "line": 48,
+            "column": 1
+          }
+        }
+      ],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Taylor is standing near the lockers, watching the crowd between lessons. When "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "npc",
+                    "taylor",
+                    "subject"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": " notices you looking, "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "npc",
+                    "taylor",
+                    "subject"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": " gives you a small, uncertain smile."
+                }
+              ],
+              "source": {
+                "file": "story/school/school.wg",
+                "line": 51,
+                "column": 1
+              }
+            },
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "\"You're new, right?\" "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "npc",
+                    "taylor",
+                    "subject"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": " asks. \"I'm Taylor.\""
+                }
+              ],
+              "source": {
+                "file": "story/school/school.wg",
+                "line": 53,
+                "column": 1
+              }
+            },
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You introduce yourself. The conversation is brief, but Taylor seems relieved to recognise one more person in the crowded school."
+                }
+              ],
+              "source": {
+                "file": "story/school/school.wg",
+                "line": 55,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "See you around"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/school/school.wg",
+              "line": 57,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/school/school.wg",
+            "line": 51,
             "column": 1
           }
         }
@@ -28430,7 +28662,45 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/school/school.wg",
-        "line": 21,
+        "line": 40,
+        "column": 1
+      }
+    },
+    "school.weekly-timetable": {
+      "id": "school.weekly-timetable",
+      "finalTarget": "place.high-school.student-council-room",
+      "kind": "event",
+      "heading": "Weekly timetable",
+      "choiceHeading": "Timetable",
+      "behavior": null,
+      "system": {
+        "id": "school.timetable",
+        "config": {},
+        "source": {
+          "file": "story/school/school.wg",
+          "line": 839,
+          "column": 1
+        }
+      },
+      "onEnter": [],
+      "passages": [],
+      "placeKeys": [],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [],
+      "conditions": [],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/school/school.wg",
+        "line": 836,
         "column": 1
       }
     },
@@ -34863,7 +35133,7 @@ export const WG_BUNDLE = {
                     ],
                     "source": {
                       "file": "story/journal/firsts.wg",
-                      "line": 132,
+                      "line": 131,
                       "column": 1
                     }
                   }
@@ -34879,7 +35149,7 @@ export const WG_BUNDLE = {
                     ],
                     "source": {
                       "file": "story/journal/firsts.wg",
-                      "line": 134,
+                      "line": 133,
                       "column": 1
                     }
                   }
@@ -34887,7 +35157,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 131,
+                "line": 130,
                 "column": 1
               },
               "runtimeId": 0
@@ -34902,7 +35172,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 137,
+                "line": 136,
                 "column": 1
               }
             },
@@ -34939,14 +35209,14 @@ export const WG_BUNDLE = {
                   },
                   "source": {
                     "file": "story/journal/firsts.wg",
-                    "line": 140,
+                    "line": 139,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 139,
+                "line": 138,
                 "column": 1
               }
             },
@@ -34983,14 +35253,14 @@ export const WG_BUNDLE = {
                   },
                   "source": {
                     "file": "story/journal/firsts.wg",
-                    "line": 144,
+                    "line": 143,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 143,
+                "line": 142,
                 "column": 1
               }
             },
@@ -35027,14 +35297,14 @@ export const WG_BUNDLE = {
                   },
                   "source": {
                     "file": "story/journal/firsts.wg",
-                    "line": 148,
+                    "line": 147,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 147,
+                "line": 146,
                 "column": 1
               }
             },
@@ -35071,21 +35341,21 @@ export const WG_BUNDLE = {
                   },
                   "source": {
                     "file": "story/journal/firsts.wg",
-                    "line": 152,
+                    "line": 151,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 151,
+                "line": 150,
                 "column": 1
               }
             }
           ],
           "source": {
             "file": "story/journal/firsts.wg",
-            "line": 129,
+            "line": 128,
             "column": 1
           }
         },
@@ -35102,7 +35372,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 157,
+                "line": 156,
                 "column": 1
               }
             },
@@ -35110,14 +35380,14 @@ export const WG_BUNDLE = {
               "type": "finish",
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 159,
+                "line": 158,
                 "column": 1
               }
             }
           ],
           "source": {
             "file": "story/journal/firsts.wg",
-            "line": 155,
+            "line": 154,
             "column": 1
           }
         },
@@ -35134,7 +35404,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 163,
+                "line": 162,
                 "column": 1
               }
             },
@@ -35142,14 +35412,14 @@ export const WG_BUNDLE = {
               "type": "finish",
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 165,
+                "line": 164,
                 "column": 1
               }
             }
           ],
           "source": {
             "file": "story/journal/firsts.wg",
-            "line": 161,
+            "line": 160,
             "column": 1
           }
         },
@@ -35166,7 +35436,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 169,
+                "line": 168,
                 "column": 1
               }
             },
@@ -35174,14 +35444,14 @@ export const WG_BUNDLE = {
               "type": "finish",
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 171,
+                "line": 170,
                 "column": 1
               }
             }
           ],
           "source": {
             "file": "story/journal/firsts.wg",
-            "line": 167,
+            "line": 166,
             "column": 1
           }
         },
@@ -35198,7 +35468,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 175,
+                "line": 174,
                 "column": 1
               }
             },
@@ -35206,21 +35476,21 @@ export const WG_BUNDLE = {
               "type": "finish",
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 177,
+                "line": 176,
                 "column": 1
               }
             }
           ],
           "source": {
             "file": "story/journal/firsts.wg",
-            "line": 173,
+            "line": 172,
             "column": 1
           }
         }
       ],
       "source": {
         "file": "story/journal/firsts.wg",
-        "line": 126,
+        "line": 125,
         "column": 1
       }
     },
@@ -35277,7 +35547,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 185,
+                "line": 183,
                 "column": 1
               }
             },
@@ -35291,7 +35561,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 187,
+                "line": 185,
                 "column": 1
               }
             },
@@ -35328,14 +35598,14 @@ export const WG_BUNDLE = {
                   },
                   "source": {
                     "file": "story/journal/firsts.wg",
-                    "line": 190,
+                    "line": 188,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 189,
+                "line": 187,
                 "column": 1
               }
             },
@@ -35372,14 +35642,14 @@ export const WG_BUNDLE = {
                   },
                   "source": {
                     "file": "story/journal/firsts.wg",
-                    "line": 194,
+                    "line": 192,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 193,
+                "line": 191,
                 "column": 1
               }
             },
@@ -35416,14 +35686,14 @@ export const WG_BUNDLE = {
                   },
                   "source": {
                     "file": "story/journal/firsts.wg",
-                    "line": 198,
+                    "line": 196,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 197,
+                "line": 195,
                 "column": 1
               }
             },
@@ -35460,21 +35730,21 @@ export const WG_BUNDLE = {
                   },
                   "source": {
                     "file": "story/journal/firsts.wg",
-                    "line": 202,
+                    "line": 200,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 201,
+                "line": 199,
                 "column": 1
               }
             }
           ],
           "source": {
             "file": "story/journal/firsts.wg",
-            "line": 183,
+            "line": 181,
             "column": 1
           }
         },
@@ -35491,7 +35761,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 207,
+                "line": 205,
                 "column": 1
               }
             },
@@ -35499,14 +35769,14 @@ export const WG_BUNDLE = {
               "type": "finish",
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 209,
+                "line": 207,
                 "column": 1
               }
             }
           ],
           "source": {
             "file": "story/journal/firsts.wg",
-            "line": 205,
+            "line": 203,
             "column": 1
           }
         },
@@ -35523,7 +35793,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 213,
+                "line": 211,
                 "column": 1
               }
             },
@@ -35531,14 +35801,14 @@ export const WG_BUNDLE = {
               "type": "finish",
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 215,
+                "line": 213,
                 "column": 1
               }
             }
           ],
           "source": {
             "file": "story/journal/firsts.wg",
-            "line": 211,
+            "line": 209,
             "column": 1
           }
         },
@@ -35555,7 +35825,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 219,
+                "line": 217,
                 "column": 1
               }
             },
@@ -35563,14 +35833,14 @@ export const WG_BUNDLE = {
               "type": "finish",
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 221,
+                "line": 219,
                 "column": 1
               }
             }
           ],
           "source": {
             "file": "story/journal/firsts.wg",
-            "line": 217,
+            "line": 215,
             "column": 1
           }
         },
@@ -35587,7 +35857,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 225,
+                "line": 223,
                 "column": 1
               }
             },
@@ -35595,21 +35865,21 @@ export const WG_BUNDLE = {
               "type": "finish",
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 227,
+                "line": 225,
                 "column": 1
               }
             }
           ],
           "source": {
             "file": "story/journal/firsts.wg",
-            "line": 223,
+            "line": 221,
             "column": 1
           }
         }
       ],
       "source": {
         "file": "story/journal/firsts.wg",
-        "line": 180,
+        "line": 178,
         "column": 1
       }
     },
@@ -35646,7 +35916,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 235,
+                "line": 233,
                 "column": 1
               }
             },
@@ -35660,7 +35930,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 237,
+                "line": 235,
                 "column": 1
               }
             },
@@ -35697,14 +35967,14 @@ export const WG_BUNDLE = {
                   },
                   "source": {
                     "file": "story/journal/firsts.wg",
-                    "line": 240,
+                    "line": 238,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 239,
+                "line": 237,
                 "column": 1
               }
             },
@@ -35741,14 +36011,14 @@ export const WG_BUNDLE = {
                   },
                   "source": {
                     "file": "story/journal/firsts.wg",
-                    "line": 244,
+                    "line": 242,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 243,
+                "line": 241,
                 "column": 1
               }
             },
@@ -35785,14 +36055,14 @@ export const WG_BUNDLE = {
                   },
                   "source": {
                     "file": "story/journal/firsts.wg",
-                    "line": 248,
+                    "line": 246,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 247,
+                "line": 245,
                 "column": 1
               }
             },
@@ -35829,21 +36099,21 @@ export const WG_BUNDLE = {
                   },
                   "source": {
                     "file": "story/journal/firsts.wg",
-                    "line": 252,
+                    "line": 250,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 251,
+                "line": 249,
                 "column": 1
               }
             }
           ],
           "source": {
             "file": "story/journal/firsts.wg",
-            "line": 233,
+            "line": 231,
             "column": 1
           }
         },
@@ -35860,7 +36130,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 257,
+                "line": 255,
                 "column": 1
               }
             },
@@ -35868,14 +36138,14 @@ export const WG_BUNDLE = {
               "type": "finish",
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 259,
+                "line": 257,
                 "column": 1
               }
             }
           ],
           "source": {
             "file": "story/journal/firsts.wg",
-            "line": 255,
+            "line": 253,
             "column": 1
           }
         },
@@ -35892,7 +36162,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 263,
+                "line": 261,
                 "column": 1
               }
             },
@@ -35900,14 +36170,14 @@ export const WG_BUNDLE = {
               "type": "finish",
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 265,
+                "line": 263,
                 "column": 1
               }
             }
           ],
           "source": {
             "file": "story/journal/firsts.wg",
-            "line": 261,
+            "line": 259,
             "column": 1
           }
         },
@@ -35924,7 +36194,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 269,
+                "line": 267,
                 "column": 1
               }
             },
@@ -35932,14 +36202,14 @@ export const WG_BUNDLE = {
               "type": "finish",
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 271,
+                "line": 269,
                 "column": 1
               }
             }
           ],
           "source": {
             "file": "story/journal/firsts.wg",
-            "line": 267,
+            "line": 265,
             "column": 1
           }
         },
@@ -35956,377 +36226,29 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
+                "line": 273,
+                "column": 1
+              }
+            },
+            {
+              "type": "finish",
+              "source": {
+                "file": "story/journal/firsts.wg",
                 "line": 275,
                 "column": 1
               }
-            },
-            {
-              "type": "finish",
-              "source": {
-                "file": "story/journal/firsts.wg",
-                "line": 277,
-                "column": 1
-              }
             }
           ],
           "source": {
             "file": "story/journal/firsts.wg",
-            "line": 273,
+            "line": 271,
             "column": 1
           }
         }
       ],
       "source": {
         "file": "story/journal/firsts.wg",
-        "line": 230,
-        "column": 1
-      }
-    },
-    "journal-5": {
-      "id": "journal-5",
-      "prompt": [
-        {
-          "type": "text",
-          "value": "I made it through every class today."
-        }
-      ],
-      "conditions": [
-        {
-          "type": "binary",
-          "operator": "or",
-          "left": {
-            "type": "path",
-            "value": [
-              "flags",
-              "journal",
-              "completed_school_first_day"
-            ]
-          },
-          "right": {
-            "type": "path",
-            "value": [
-              "flags",
-              "journal",
-              "completed_school_day"
-            ]
-          }
-        }
-      ],
-      "passages": [
-        {
-          "id": "start",
-          "body": [
-            {
-              "type": "if",
-              "branches": [
-                {
-                  "test": {
-                    "type": "path",
-                    "value": [
-                      "flags",
-                      "journal",
-                      "completed_school_first_day"
-                    ]
-                  },
-                  "nodes": [
-                    {
-                      "type": "paragraph",
-                      "parts": [
-                        {
-                          "type": "text",
-                          "value": "I made it through every class on my very first day of school. I actually followed the whole timetable from beginning to end."
-                        }
-                      ],
-                      "source": {
-                        "file": "story/journal/firsts.wg",
-                        "line": 286,
-                        "column": 1
-                      }
-                    }
-                  ],
-                  "source": {
-                    "file": "story/journal/firsts.wg",
-                    "line": 285,
-                    "column": 1
-                  }
-                }
-              ],
-              "elseNodes": [
-                {
-                  "type": "paragraph",
-                  "parts": [
-                    {
-                      "type": "text",
-                      "value": "I finally made it through a complete day of school. It was not my first day, but this time I attended every class from beginning to end."
-                    }
-                  ],
-                  "source": {
-                    "file": "story/journal/firsts.wg",
-                    "line": 288,
-                    "column": 1
-                  }
-                }
-              ],
-              "source": {
-                "file": "story/journal/firsts.wg",
-                "line": 285,
-                "column": 1
-              },
-              "runtimeId": 0
-            },
-            {
-              "type": "paragraph",
-              "parts": [
-                {
-                  "type": "text",
-                  "value": "By the time the last class ended, I felt..."
-                }
-              ],
-              "source": {
-                "file": "story/journal/firsts.wg",
-                "line": 291,
-                "column": 1
-              }
-            },
-            {
-              "type": "choice",
-              "id": "choice-1",
-              "label": [
-                {
-                  "type": "text",
-                  "value": "proud of myself"
-                }
-              ],
-              "target": ".proud",
-              "icon": null,
-              "durationMinutes": 0,
-              "durationRangeMinutes": null,
-              "timeUntilPath": null,
-              "energyFree": false,
-              "resting": false,
-              "when": null,
-              "requirements": [],
-              "warning": null,
-              "hints": [],
-              "effects": [
-                {
-                  "op": "set",
-                  "path": [
-                    "local",
-                    "full_school_day_feeling"
-                  ],
-                  "value": {
-                    "type": "literal",
-                    "value": "proud"
-                  },
-                  "source": {
-                    "file": "story/journal/firsts.wg",
-                    "line": 294,
-                    "column": 1
-                  }
-                }
-              ],
-              "source": {
-                "file": "story/journal/firsts.wg",
-                "line": 293,
-                "column": 1
-              }
-            },
-            {
-              "type": "choice",
-              "id": "choice-2",
-              "label": [
-                {
-                  "type": "text",
-                  "value": "completely exhausted"
-                }
-              ],
-              "target": ".exhausted",
-              "icon": null,
-              "durationMinutes": 0,
-              "durationRangeMinutes": null,
-              "timeUntilPath": null,
-              "energyFree": false,
-              "resting": false,
-              "when": null,
-              "requirements": [],
-              "warning": null,
-              "hints": [],
-              "effects": [
-                {
-                  "op": "set",
-                  "path": [
-                    "local",
-                    "full_school_day_feeling"
-                  ],
-                  "value": {
-                    "type": "literal",
-                    "value": "exhausted"
-                  },
-                  "source": {
-                    "file": "story/journal/firsts.wg",
-                    "line": 298,
-                    "column": 1
-                  }
-                }
-              ],
-              "source": {
-                "file": "story/journal/firsts.wg",
-                "line": 297,
-                "column": 1
-              }
-            },
-            {
-              "type": "choice",
-              "id": "choice-3",
-              "label": [
-                {
-                  "type": "text",
-                  "value": "surprised it was not worse"
-                }
-              ],
-              "target": ".surprised",
-              "icon": null,
-              "durationMinutes": 0,
-              "durationRangeMinutes": null,
-              "timeUntilPath": null,
-              "energyFree": false,
-              "resting": false,
-              "when": null,
-              "requirements": [],
-              "warning": null,
-              "hints": [],
-              "effects": [
-                {
-                  "op": "set",
-                  "path": [
-                    "local",
-                    "full_school_day_feeling"
-                  ],
-                  "value": {
-                    "type": "literal",
-                    "value": "surprised"
-                  },
-                  "source": {
-                    "file": "story/journal/firsts.wg",
-                    "line": 302,
-                    "column": 1
-                  }
-                }
-              ],
-              "source": {
-                "file": "story/journal/firsts.wg",
-                "line": 301,
-                "column": 1
-              }
-            }
-          ],
-          "source": {
-            "file": "story/journal/firsts.wg",
-            "line": 283,
-            "column": 1
-          }
-        },
-        {
-          "id": "proud",
-          "body": [
-            {
-              "type": "paragraph",
-              "parts": [
-                {
-                  "type": "text",
-                  "value": "...proud of myself. Showing up for all of it might be ordinary for everyone else, but it still feels like something worth writing down."
-                }
-              ],
-              "source": {
-                "file": "story/journal/firsts.wg",
-                "line": 307,
-                "column": 1
-              }
-            },
-            {
-              "type": "finish",
-              "source": {
-                "file": "story/journal/firsts.wg",
-                "line": 309,
-                "column": 1
-              }
-            }
-          ],
-          "source": {
-            "file": "story/journal/firsts.wg",
-            "line": 305,
-            "column": 1
-          }
-        },
-        {
-          "id": "exhausted",
-          "body": [
-            {
-              "type": "paragraph",
-              "parts": [
-                {
-                  "type": "text",
-                  "value": "...completely exhausted. A full timetable is a lot longer when I actually sit through every part of it."
-                }
-              ],
-              "source": {
-                "file": "story/journal/firsts.wg",
-                "line": 313,
-                "column": 1
-              }
-            },
-            {
-              "type": "finish",
-              "source": {
-                "file": "story/journal/firsts.wg",
-                "line": 315,
-                "column": 1
-              }
-            }
-          ],
-          "source": {
-            "file": "story/journal/firsts.wg",
-            "line": 311,
-            "column": 1
-          }
-        },
-        {
-          "id": "surprised",
-          "body": [
-            {
-              "type": "paragraph",
-              "parts": [
-                {
-                  "type": "text",
-                  "value": "...surprised it was not worse. The day was long, but I made it through without wanting to run for the gates."
-                }
-              ],
-              "source": {
-                "file": "story/journal/firsts.wg",
-                "line": 319,
-                "column": 1
-              }
-            },
-            {
-              "type": "finish",
-              "source": {
-                "file": "story/journal/firsts.wg",
-                "line": 321,
-                "column": 1
-              }
-            }
-          ],
-          "source": {
-            "file": "story/journal/firsts.wg",
-            "line": 317,
-            "column": 1
-          }
-        }
-      ],
-      "source": {
-        "file": "story/journal/firsts.wg",
-        "line": 280,
+        "line": 228,
         "column": 1
       }
     }

@@ -17,7 +17,7 @@ function init() {
   const randomStats = (rnd) => {
     const stats = {};
     for (const k of STAT_KEYS) {
-      // Base around 3–6 with slight bell-shape
+      // Base around 3-6 with slight bell-shape
       const v = 3 + Math.round(approxNormal01(rnd) * 3);
       stats[k] = clamp(v, 1, 10);
     }

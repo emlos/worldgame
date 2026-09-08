@@ -12,7 +12,6 @@ import {
   resolveWGAutomaticScene,
   WG_AUTO_TRIGGER,
 } from "../../story/wg/runtime/sceneExposure.js";
-import { renderSchoolDiary } from "../../features/school/browserDiary.js";
 import {
   makeJournalEntryElement,
   renderJournalReadPage as renderJournalReadPageUI,
@@ -59,11 +58,6 @@ const playerDiaryDate = document.querySelector("#player-diary-date");
 const playerDiaryContent = document.querySelector("#player-diary-content");
 const journalPrevPageButton = document.querySelector("#journal-prev-page");
 const journalNextPageButton = document.querySelector("#journal-next-page");
-const playerPlannerButton = document.querySelector("#player-planner-btn");
-const playerPlannerDialog = document.querySelector("#player-planner-dialog");
-const closePlannerButton = document.querySelector("#close-planner");
-const playerPlannerDate = document.querySelector("#player-planner-date");
-const playerPlannerContent = document.querySelector("#player-planner-content");
 const openMapButton = document.querySelector("#open-map");
 const closeMapButton = document.querySelector("#close-map");
 const fullMapDialog = document.querySelector("#full-map-dialog");
@@ -273,7 +267,7 @@ function makeChoiceButton(sceneId, choice, number) {
     duration = document.createElement("span");
     duration.className = "choice-duration";
     duration.textContent =
-      `(${formatDuration(choice.durationRangeMinutes.min)}–` +
+      `(${formatDuration(choice.durationRangeMinutes.min)}-` +
       `${formatDuration(choice.durationRangeMinutes.max)})`;
   } else if (choice.durationMinutes > 0) {
     duration = document.createElement("span");
@@ -486,14 +480,6 @@ function renderJournalReadPage() {
 function openPlayerDiary() {
   renderJournalReadPage();
   if (!playerDiaryDialog.open) playerDiaryDialog.showModal();
-}
-
-function renderPlayerPlanner() {
-  renderSchoolDiary(game, {
-    dateElement: playerPlannerDate,
-    contentElement: playerPlannerContent,
-    formatDate: (date) => diaryDateFormatter.format(date),
-  });
 }
 
 function formatRelationshipScore(score) {
@@ -1237,15 +1223,6 @@ journalNextPageButton.addEventListener("click", () => {
 closeDiaryButton.addEventListener("click", () => playerDiaryDialog.close());
 playerDiaryDialog.addEventListener("click", (event) => {
   if (event.target === playerDiaryDialog) playerDiaryDialog.close();
-});
-
-playerPlannerButton.addEventListener("click", () => {
-  renderPlayerPlanner();
-  playerPlannerDialog.showModal();
-});
-closePlannerButton.addEventListener("click", () => playerPlannerDialog.close());
-playerPlannerDialog.addEventListener("click", (event) => {
-  if (event.target === playerPlannerDialog) playerPlannerDialog.close();
 });
 
 openMapButton.addEventListener("click", () => {

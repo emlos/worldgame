@@ -105,7 +105,7 @@ test("entering school triggers its guidance only on the first visit", () => {
   assert.equal(game.currentStory?.id, "school.first-visit");
   assert.equal(game.hasFlag("school_first_visit_seen"), true);
   const firstVisitScene = buildScene(game);
-  assert.match(JSON.stringify(firstVisitScene.content), /Open the Planner button to review/);
+  assert.match(JSON.stringify(firstVisitScene.content), /student council office/);
 
   game.teleportNPC("taylor", "player");
   choose(game, "Look around");

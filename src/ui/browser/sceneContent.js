@@ -8,6 +8,43 @@ function changeElement(document, change) {
   return item;
 }
 
+function tableElement(document, block) {
+  const wrapper = document.createElement("div");
+  wrapper.className = "scene-table-scroll";
+  const table = document.createElement("table");
+  table.className = "scene-table";
+  if (block.caption) {
+    const caption = document.createElement("caption");
+    caption.textContent = block.caption;
+    table.append(caption);
+  }
+
+  const head = document.createElement("thead");
+  const headingRow = document.createElement("tr");
+  for (const label of block.columns) {
+    const heading = document.createElement("th");
+    heading.scope = "col";
+    heading.textContent = label;
+    headingRow.append(heading);
+  }
+  head.append(headingRow);
+
+  const body = document.createElement("tbody");
+  for (const cells of block.rows) {
+    const row = document.createElement("tr");
+    cells.forEach((text, index) => {
+      const cell = document.createElement(index === 0 ? "th" : "td");
+      if (index === 0) cell.scope = "row";
+      cell.textContent = text;
+      row.append(cell);
+    });
+    body.append(row);
+  }
+  table.append(head, body);
+  wrapper.append(table);
+  return wrapper;
+}
+
 /** Append scene prose and feedback using only text nodes and known elements. */
 export function renderSceneContent(element, content) {
   const document = element.ownerDocument;
@@ -48,6 +85,8 @@ export function renderSceneContent(element, content) {
       changes.className = "scene-changes";
       changes.append(...block.items.map((change) => changeElement(document, change)));
       element.append(changes);
+    } else if (block.type === "table") {
+      element.append(tableElement(document, block));
     }
   }
 }

@@ -67,7 +67,7 @@ export const BodyPartId = Object.freeze({
 });
 
 /**
- * Simple condition tags – non-gory but descriptive.
+ * Simple condition tags - non-gory but descriptive.
  * You can stack these on a part (e.g. bruised + wounded).
  */
 

@@ -511,7 +511,7 @@ function choiceMeta(choice) {
   const details = [];
   if (choice.durationRangeMinutes) {
     details.push(
-      `${formatDuration(choice.durationRangeMinutes.min)}–` +
+      `${formatDuration(choice.durationRangeMinutes.min)}-` +
       formatDuration(choice.durationRangeMinutes.max),
     );
   } else if (choice.durationMinutes) {

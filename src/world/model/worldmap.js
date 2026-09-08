@@ -1497,8 +1497,8 @@ export class WorldMap {
         return { locationId: last.locationId, placeId: last.placeId };
 
         function computeStayBias(minutesAtOrigin) {
-            // 0–30 min: no penalty (1.0)
-            // 30–120 min: linearly from 1.0 down to 0.3
+            // 0-30 min: no penalty (1.0)
+            // 30-120 min: linearly from 1.0 down to 0.3
             // 120+ min: strong penalty (~0.1)
             if (minutesAtOrigin <= 30) return 1.0;
             if (minutesAtOrigin >= 120) return 0.1;

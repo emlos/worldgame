@@ -73,7 +73,7 @@ function decorateBusTimetable({ game, scene }) {
   if (!place) throw new Error("Bus timetable requires the player to be at a bus stop");
   const periods = getBusSchedulePeriods(place).map(
     (period) => paragraph(
-      `${capitalize(period.label)} service runs ${period.from}–${period.to}, ` +
+      `${capitalize(period.label)} service runs ${period.from}-${period.to}, ` +
       `with a bus every ${period.everyMinutes} minutes.`,
     ),
   );
