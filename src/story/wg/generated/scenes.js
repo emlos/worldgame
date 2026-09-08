@@ -7592,7 +7592,7 @@ export const WG_BUNDLE = {
                     },
                     "right": {
                       "type": "literal",
-                      "value": "after-school"
+                      "value": "after_school"
                     }
                   },
                   "nodes": [

@@ -817,7 +817,7 @@
 
 :: place.high-school.student-council-room
 
-  @if school.phase == "after-school"
+  @if school.phase == "after_school"
     "Yes?" the student council president asks as they look up from their paperwork.
   @elseif school.phase == "class"
     Nobody answers your knock. The office is closed during class time.
