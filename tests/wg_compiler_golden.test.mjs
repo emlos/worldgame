@@ -2,7 +2,11 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
-import { compileProject } from "../tools/wg/compile.mjs";
+import {
+  compileProject,
+  parseCompilerOptions,
+  watchProject,
+} from "../tools/wg/compile.mjs";
 import { emitStoryModule } from "../tools/wg/compiler/emitter.js";
 import { compileStorySources } from "../tools/wg/compiler/storyCompiler.js";
 
@@ -57,4 +61,64 @@ test("generated WG modules are readable and retain source locations", () => {
 
 test("checked-in project WG output is current", async () => {
   await assert.doesNotReject(() => compileProject({ check: true }));
+});
+
+test("compiler CLI accepts watch mode but not watch and check together", () => {
+  assert.deepEqual(parseCompilerOptions(["--watch"]), {
+    check: false,
+    watch: true,
+  });
+  assert.throws(
+    () => parseCompilerOptions(["--watch", "--check"]),
+    /cannot be used together/,
+  );
+  assert.throws(
+    () => parseCompilerOptions(["--wat"]),
+    /Unknown compiler option: --wat/,
+  );
+});
+
+test("watch mode builds initially, debounces WG changes, and survives errors", async () => {
+  let notifyChange;
+  let closed = false;
+  let compileCount = 0;
+  const messages = [];
+  const errors = [];
+  const fakeWatcher = {
+    on() {},
+    close() {
+      closed = true;
+    },
+  };
+
+  const controller = await watchProject({
+    watch(_root, options, listener) {
+      assert.deepEqual(options, { recursive: true });
+      notifyChange = listener;
+      return fakeWatcher;
+    },
+    async compile() {
+      compileCount += 1;
+      if (compileCount === 1) throw new Error("temporary source error");
+      return { changed: false, checked: false };
+    },
+    debounceMs: 5,
+    log: (message) => messages.push(message),
+    logError: (message) => errors.push(message),
+  });
+
+  assert.equal(compileCount, 1);
+  assert.match(errors[0], /temporary source error/);
+  assert.match(messages.at(-1), /Watching story\/\*\*\/\*\.wg/);
+
+  notifyChange("change", "school/events.wg");
+  notifyChange("change", "school/events.wg");
+  notifyChange("rename", "school/events.wg");
+  await new Promise((resolve) => setTimeout(resolve, 30));
+
+  assert.equal(compileCount, 2);
+  assert.equal(messages.at(-1), "WG generated artifacts are unchanged.");
+
+  controller.close();
+  assert.equal(closed, true);
 });

@@ -12,9 +12,6 @@ SCHOOL CLASS MINIGAME IDEAS
 ui:
 - add animations for lowering/increasing the sidebars diaplying player stats
 
-wg script:
-- add --watch option for the compiler, so i dont have to regenerate the code after making a minor adjustment
-
 game systems:
     player stats:
     - postpone the full stats rework until there is enough content to exercise and balance it

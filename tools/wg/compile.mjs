@@ -1,4 +1,4 @@
-import { promises as fs } from "node:fs";
+import { promises as fs, watch as watchFileSystem } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { WGCompileError } from "./compiler/diagnostic.js";
@@ -23,6 +23,7 @@ const LANGUAGE_CONFIGURATION_FILE = path.join(
   "tools/vscode-wg/language-configuration.json",
 );
 const LANGUAGE_DOCUMENTATION_FILE = path.join(PROJECT_ROOT, "docs/wg-language.md");
+const WATCH_DEBOUNCE_MS = 75;
 
 function compareNames(left, right) {
   return left.name < right.name ? -1 : left.name > right.name ? 1 : 0;
@@ -115,22 +116,121 @@ export async function compileProject({ check = false } = {}) {
   };
 }
 
-async function main() {
-  const argumentsList = process.argv.slice(2);
-  const unknown = argumentsList.filter((argument) => argument !== "--check");
+function formatCompileResult(result) {
+  if (result.checked) return "WG generated artifacts are current.";
+  if (!result.changed) return "WG generated artifacts are unchanged.";
+
+  const files = result.changedFiles
+    .map((file) => path.relative(PROJECT_ROOT, file).split(path.sep).join("/"))
+    .join(", ");
+  return `Generated WG artifacts: ${files}`;
+}
+
+function formatCompileError(error) {
+  return error instanceof WGCompileError
+    ? error.message
+    : error?.stack || String(error);
+}
+
+function isRelevantWatchPath(filename) {
+  if (filename == null) return true;
+  const watchedPath = String(filename);
+  const extension = path.extname(watchedPath).toLowerCase();
+  return extension === ".wg" || extension === "";
+}
+
+export async function watchProject({
+  watch = watchFileSystem,
+  compile = compileProject,
+  storyRoot = STORY_ROOT,
+  debounceMs = WATCH_DEBOUNCE_MS,
+  log = console.log,
+  logError = console.error,
+} = {}) {
+  let debounceTimer = null;
+  let compiling = false;
+  let rerunRequested = false;
+  let closed = false;
+
+  const queueCompile = () => {
+    if (closed) return;
+    if (debounceTimer !== null) clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+      debounceTimer = null;
+      void runCompile();
+    }, debounceMs);
+  };
+
+  const runCompile = async () => {
+    if (closed) return;
+    if (compiling) {
+      rerunRequested = true;
+      return;
+    }
+
+    compiling = true;
+    try {
+      log(formatCompileResult(await compile()));
+    } catch (error) {
+      logError(formatCompileError(error));
+    } finally {
+      compiling = false;
+      if (rerunRequested) {
+        rerunRequested = false;
+        queueCompile();
+      }
+    }
+  };
+
+  const watcher = watch(
+    storyRoot,
+    { recursive: true },
+    (_eventType, filename) => {
+      if (isRelevantWatchPath(filename)) queueCompile();
+    },
+  );
+  watcher.on("error", (error) => {
+    logError(`WG watcher error: ${formatCompileError(error)}`);
+  });
+
+  await runCompile();
+  log("Watching story/**/*.wg for changes. Press Ctrl+C to stop.");
+
+  return {
+    close() {
+      closed = true;
+      if (debounceTimer !== null) clearTimeout(debounceTimer);
+      debounceTimer = null;
+      watcher.close();
+    },
+  };
+}
+
+export function parseCompilerOptions(argumentsList) {
+  const unknown = argumentsList.filter(
+    (argument) => argument !== "--check" && argument !== "--watch",
+  );
   if (unknown.length) {
     throw new Error(`Unknown compiler option: ${unknown.join(", ")}`);
   }
 
-  const result = await compileProject({ check: argumentsList.includes("--check") });
-  if (result.checked) console.log("WG generated artifacts are current.");
-  else if (result.changed) {
-    const files = result.changedFiles
-      .map((file) => path.relative(PROJECT_ROOT, file).split(path.sep).join("/"))
-      .join(", ");
-    console.log(`Generated WG artifacts: ${files}`);
+  const check = argumentsList.includes("--check");
+  const watch = argumentsList.includes("--watch");
+  if (check && watch) {
+    throw new Error("Compiler options --check and --watch cannot be used together");
   }
-  else console.log("WG generated artifacts are unchanged.");
+
+  return { check, watch };
+}
+
+async function main() {
+  const options = parseCompilerOptions(process.argv.slice(2));
+  if (options.watch) {
+    await watchProject();
+    return;
+  }
+
+  console.log(formatCompileResult(await compileProject({ check: options.check })));
 }
 
 if (path.resolve(process.argv[1] || "") === fileURLToPath(import.meta.url)) {
