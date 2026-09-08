@@ -160,11 +160,11 @@ test("set and unset use namespaces to mutate story values and global flags", () 
 
 test("dotted flags remain exact when one flag is another flag's namespace", () => {
   const game = new Game({ seed: 904 });
-  game.setFlag("quest.receptacles.start");
+  game.setFlag("quest.receptacles_started");
   const context = createWGRuntimeContext(game);
 
   assert.equal(
-    resolveWGPath(context, ["flags", "quest", "receptacles", "start"]),
+    resolveWGPath(context, ["flags", "quest", "receptacles_started"]),
     true,
   );
   assert.equal(resolveWGPath(context, ["flags", "quest"]), undefined);

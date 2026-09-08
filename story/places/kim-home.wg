@@ -2,41 +2,41 @@
   @hub home_kim
   Kim is sitting at {{npc.kim.dependent}} desk. {{npc.kim.subject | cap}} looks up as you enter.
 
-  @if story.rent.active and story.rent.debt > 0
-    Kim's ledger shows £{{story.rent.debt}} in outstanding rent.
+  @if story.quest.rent.active and story.quest.rent.debt > 0
+    Kim's ledger shows £{{story.quest.rent.debt}} in outstanding rent.
 
-  @elseif story.rent.debt > 0
+  @elseif story.quest.rent.debt > 0
     It looks like you've paid off your rent... for now.
   @endif
 
   @choicegroup ""
     @choice "Ask about the rent" -> story.rent.intro.2
-      @when flags.rent_intro_2 and not flags.rent_intro_bypassed
+      @when flags.quest.rent.intro_2 and not flags.quest.rent.intro_bypassed
     @endchoice
 
     @choice "Pay £200 toward rent" -> story.rent.payment
-      @when story.rent.active and story.rent.debt >= 200 and player.money >= 200
+      @when story.quest.rent.active and story.quest.rent.debt >= 200 and player.money >= 200
       @change money -200 "£200 rent payment"
-      @effect add story.rent.debt -200
+      @effect add story.quest.rent.debt -200
     @endchoice
   @endchoicegroup
 
 :: story.rent.landlord-visit -> story.rent.intro.2
   @pool interrupt
-  @when flags.opening_seen
+  @when flags.home.opening_seen
   @when time.day > 2 or (time.day == 2 and time.minutesSinceMidnight >= 960)
-  @when not story.rent.active
-  @when not flags.rent_landlord_visit_seen
+  @when not story.quest.rent.active
+  @when not flags.quest.rent.landlord_visit_seen
   @priority 200
   @choices "There is no more putting this off"
   @onenter
-    @effect set local.atOffice place.key == "home_kim"
-    @effect set local.hadOfficeAddress flags.rent_intro_2 == true
-    @effect set local.contactedKim flags.home_notice_resolved == true
-    @effect set local.readNotice flags.home_notice_read == true
-    @effect set flags.rent_landlord_visit_seen
-    @effect set flags.rent_intro_bypassed
-    @effect unset flags.rent_intro_2
+    @effect set local.at_office place.key == "home_kim"
+    @effect set local.had_office_address flags.quest.rent.intro_2 == true
+    @effect set local.contacted_kim flags.quest.rent.home_notice_resolved == true
+    @effect set local.read_notice flags.quest.rent.home_notice_read == true
+    @effect set flags.quest.rent.landlord_visit_seen
+    @effect set flags.quest.rent.intro_bypassed
+    @effect unset flags.quest.rent.intro_2
     @effect reminder clear home_rent_notice_1
     @effect chat finish kim.rent
     @effect unlock place home_kim
@@ -45,7 +45,7 @@
 
   @passage found
 
-  @if local.atOffice
+  @if local.at_office
     Before you can turn around or pretend you came for some other reason, Kim rises from behind {{npc.kim.dependent}} desk and closes the office door.
   @elseif place.key == "player_home"
     A firm knock rattles your front door. When you open it, a neatly dressed woman is waiting in the hall with a folder tucked beneath one arm.
@@ -57,40 +57,40 @@
 
   "I'm Kim Johnson, your landlord. We need to discuss the account for {{home.location.name}}."
 
-  @if local.atOffice
+  @if local.at_office
     "You are here about the rent," Kim says. "Sit down. We are settling the account now."
-  @elseif local.hadOfficeAddress
+  @elseif local.had_office_address
     "I gave you my office address. Since you haven't come to see me, I've come to collect you instead."
-  @elseif local.contactedKim
+  @elseif local.contacted_kim
     "This has gone far enough by message. You're coming to my office so that we can settle it properly."
-  @elseif local.readNotice
+  @elseif local.read_notice
     "You saw the notice, but you never followed it up. I'm not leaving the account unresolved."
   @else
     "A notice was left on your door this afternoon. You haven't even looked at it, so I'm handling this in person."
   @endif
 
-  @if local.atOffice
+  @if local.at_office
     Kim points to the chair across from {{npc.kim.dependent}} desk. The invitation does not sound optional.
   @else
     Kim does not make the request sound optional. A few minutes later, you are on your way to {{npc.kim.home.location.name}} with {{npc.kim.object}}.
   @endif
 
   @choice "Sit down with Kim" -> story.rent.intro.2
-    @when local.atOffice
+    @when local.at_office
     @effect teleport npc kim home
   @endchoice
 
   @choice "Go with Kim" -> story.rent.intro.2
-    @when not local.atOffice
+    @when not local.at_office
     @effect teleport npc kim home
     @effect relocate nearest-place home_kim
   @endchoice
 
 :: story.rent.intro.2 -> @exit
   @onenter
-    @effect set story.rent.active true
-    @effect set story.rent.debt 800
-    @effect set story.rent.chargesIssued 0
+    @effect set story.quest.rent.active true
+    @effect set story.quest.rent.debt 800
+    @effect set story.quest.rent_charges_issued 0
     @effect reminder clear home_rent_notice_1
     @effect reminder add rent_due
     @effect teleport npc kim home
@@ -98,7 +98,7 @@
 
   @passage account
 
-  @if flags.rent_intro_bypassed
+  @if flags.quest.rent.intro_bypassed
     Kim leads you into a cramped office and closes the door. Stacks of paper crowd {{npc.kim.dependent}} desk, and the light from a computer monitor flickers across rows of carefully labelled files.
 
     "Now that I finally have your attention, we can deal with this properly." Kim sits down and turns a lease toward you. "The account for {{home.location.name}} starts with two missed monthly payments: £800. I collect payments in £200 weekly instalments."
@@ -117,12 +117,12 @@
   @choice "Pay (800£)" -> .pay
     @when player.money >= 800
     @change money -800
-    @effect add story.rent.debt -800
+    @effect add story.quest.rent.debt -800
   @endchoice
 
   @passage explain
 
-  @if flags.rent_intro_bypassed
+  @if flags.quest.rent.intro_bypassed
     "There has to be some mistake," you say. You try not to be intimidated by the way Kim is sitting completely straight. "I've only just moved here. I haven't even had a chance to pay rent yet."
   @else
     "As I said in my message, this must be some mistake," you begin. You try not to be intimidated by the way Kim is sitting completely straight. "I've only moved here very recently, and I haven't even had a chance to pay rent yet. I don't know how this could have happened."
@@ -136,7 +136,7 @@
   @choice "Pay (800£)" -> .pay
     @when player.money >= 800
     @change money -800
-    @effect add story.rent.debt -800
+    @effect add story.quest.rent.debt -800
   @endchoice
 
   @passage no-money
@@ -182,11 +182,11 @@
 
   @passage leave
 
-  @effect unset flags.rent_intro_2
+  @effect unset flags.quest.rent.intro_2
   @effect teleport npc kim home
   @effect timer start rent.weekly
 
-  You leave the office with a copy of the account. {{@if story.rent.debt >= 800}}The £800 balance is overdue, and {{@else}}You have paid the outstanding amount, but {{@endif}}another £200 charge will be added every seven days.
+  You leave the office with a copy of the account. {{@if story.quest.rent.debt >= 800}}The £800 balance is overdue, and {{@else}}You have paid the outstanding amount, but {{@endif}}another £200 charge will be added every seven days.
 
   @next -> @exit
 :: story.rent.payment -> @exit
@@ -194,11 +194,11 @@
 
   You hand Kim £200. {{npc.kim.subject | cap}} records the payment in the ledger.
 
-  @if story.rent.debt == 0
+  @if story.quest.rent.debt == 0
     @effect reminder clear rent_due
     "That clears the balance," Kim says. "The next weekly charge will still arrive on schedule."
   @else
-    "Your outstanding balance is now £{{story.rent.debt}}," Kim says.
+    "Your outstanding balance is now £{{story.quest.rent.debt}}," Kim says.
   @endif
 
   @next -> @exit
@@ -206,16 +206,16 @@
 :: story.rent.debt-escalation -> @exit
   @pool interrupt
   @priority 200
-  @when story.rent.active
-  @when story.rent.debt >= 1200
-  @when not flags.rent_debt_escalation_seen
+  @when story.quest.rent.active
+  @when story.quest.rent.debt >= 1200
+  @when not flags.quest.rent.debt_escalation_seen
   @onenter
-    @effect set flags.rent_debt_escalation_seen
+    @effect set flags.quest.rent.debt_escalation_seen
   @endonenter
 
   @passage warning
 
-  A new message from Kim appears on your phone. The account has reached £{{story.rent.debt}}, and {{npc.kim.subject}} is no longer willing to let it slide.
+  A new message from Kim appears on your phone. The account has reached £{{story.quest.rent.debt}}, and {{npc.kim.subject}} is no longer willing to let it slide.
 
   [warning]This is a placeholder for the first overdue-rent consequence.[/warning]
 

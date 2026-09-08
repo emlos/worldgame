@@ -1,5 +1,5 @@
 @journal "I've met someone at school that I keep thinking about."
-  @when story.taylor_school_interactions_counter >= 5
+  @when story.npc.taylor.school_interactions >= 5
 
   @passage start
 
@@ -123,7 +123,9 @@
   @finish
 @endjournal
 @journal "I actually got a job."
-  @when flags.cafe_employee
+  @when flags.journal.has_job
+
+  @#TODO: add choices based on where the player got their job at, currently only "cafe" is supported, 
 
   @passage start
 
@@ -176,7 +178,7 @@
   @finish
 @endjournal
 @journal "The rent situation is completely ridiculous."
-  @when flags.rent_intro_2 or flags.rent_landlord_visit_seen or flags.rent_intro_bypassed
+  @when flags.quest.rent.intro_2 or flags.quest.rent.landlord_visit_seen or flags.quest.rent.intro_bypassed
 
   @passage start
 
@@ -226,7 +228,7 @@
 @endjournal
 
 @journal "I found something strange in my room."
-  @when flags.quest.receptacles.start
+  @when flags.quest.receptacles.started
 
   @passage start
 

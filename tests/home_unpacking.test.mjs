@@ -46,11 +46,11 @@ test("unpacking advances in timed stages and reveals home activities", () => {
     startDate: new Date("2026-09-03T04:00:00.000Z"),
     playerOptions: { startPlaceId: null },
   });
-  game.setFlag("opening_seen");
+  game.setFlag("location.player_home_opening_seen");
   placePlayerAtHome(game);
 
   let home = buildScene(game);
-  assert.equal(game.story.home, undefined);
+  assert.equal(game.story.home.unpacking, undefined);
   assert.ok(choiceWithLabel(home, "Unpack"));
   assert.ok(choiceWithLabel(home, "Go to Bed"));
   assert.equal(choiceWithLabel(home, "Take a shower"), undefined);
@@ -58,21 +58,21 @@ test("unpacking advances in timed stages and reveals home activities", () => {
 
   const startedAt = game.now.getTime();
   choose(game, "Unpack");
-  assert.equal(game.story.home.unpack, 1);
+  assert.equal(game.story.home.unpacking, 1);
   assert.ok(game.now.getTime() - startedAt >= 15 * 60_000);
   assert.ok(game.now.getTime() - startedAt <= 30 * 60_000);
   assert.match(JSON.stringify(buildScene(game).content), /little more space/);
   finishUnpackingStep(game);
 
   choose(game, "Unpack");
-  assert.equal(game.story.home.unpack, 2);
+  assert.equal(game.story.home.unpacking, 2);
   assert.match(JSON.stringify(buildScene(game).content), /bathroom boxes/);
   finishUnpackingStep(game);
   home = buildScene(game);
   assert.ok(choiceWithLabel(home, "Take a shower"));
   assert.ok(choiceWithLabel(home, "Brush your teeth"));
 
-  while (game.story.home.unpack < 5) {
+  while (game.story.home.unpacking < 5) {
     choose(game, "Unpack");
     finishUnpackingStep(game);
   }
@@ -80,7 +80,7 @@ test("unpacking advances in timed stages and reveals home activities", () => {
   assert.ok(choiceWithLabel(home, "Closet"));
   assert.ok(choiceWithLabel(home, "Sit down with your diary"));
 
-  while (game.story.home.unpack < 10) {
+  while (game.story.home.unpacking < 10) {
     choose(game, "Unpack");
     finishUnpackingStep(game);
   }
@@ -90,15 +90,15 @@ test("unpacking advances in timed stages and reveals home activities", () => {
   assert.match(JSON.stringify(buildScene(game).content), /bed assembled/);
   choose(game, "Leave");
 
-  while (game.story.home.unpack < 19) {
+  while (game.story.home.unpacking < 19) {
     choose(game, "Unpack");
     finishUnpackingStep(game);
   }
   assert.ok(choiceWithLabel(buildScene(game), "Unpack the last boxes"));
   choose(game, "Unpack the last boxes");
-  assert.equal(game.story.home.unpack, 20);
-  assert.equal(game.hasFlag("quest.receptacles.start"), true);
-  assert.equal(game.hasFlag("home.unpacked"), true);
+  assert.equal(game.story.home.unpacking, 20);
+  assert.equal(game.hasFlag("quest.receptacles_started"), true);
+  assert.equal(game.hasFlag("location.player_home_unpacked"), true);
   assert.match(JSON.stringify(buildScene(game).content), /strange receptacle/);
   while (game.currentStory) choose(game, "Next");
 
@@ -110,15 +110,15 @@ test("unpacking advances in timed stages and reveals home activities", () => {
 
 test("unpacking progress and the receptacle discovery survive saving", () => {
   const game = new Game({ seed: 9022 });
-  game.story.home = { unpack: 20 };
-  game.setFlag("quest.receptacles.start");
-  game.setFlag("home.unpacked");
+  game.story.home.unpacking = 20;
+  game.setFlag("quest.receptacles_started");
+  game.setFlag("location.player_home_unpacked");
 
   const restored = Game.fromJSON(JSON.parse(JSON.stringify(game.toJSON())));
 
-  assert.deepEqual(restored.story.home, { unpack: 20 });
-  assert.equal(restored.hasFlag("quest.receptacles.start"), true);
-  assert.equal(restored.hasFlag("home.unpacked"), true);
+  assert.equal(restored.story.home.unpacking, 20);
+  assert.equal(restored.hasFlag("quest.receptacles_started"), true);
+  assert.equal(restored.hasFlag("location.player_home_unpacked"), true);
 });
 
 test("ranged choice time rolls only when selected and persists through saves", () => {
@@ -127,7 +127,7 @@ test("ranged choice time rolls only when selected and persists through saves", (
     startDate: new Date("2026-09-03T04:00:00.000Z"),
     playerOptions: { startPlaceId: null },
   });
-  game.setFlag("opening_seen");
+  game.setFlag("location.player_home_opening_seen");
   placePlayerAtHome(game);
 
   const randomBeforeRendering = game.random.toJSON();

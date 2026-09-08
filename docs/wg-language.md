@@ -19,12 +19,20 @@ changed, or removed. Compiler errors are printed without stopping the watcher,
 so saving a corrected source triggers another attempt. Never edit the generated
 module by hand.
 
+The currently supported authoring surface includes world scenes and passages,
+place hubs and offers, automatic scenes, pooled events and interrupts, outdoor
+location contributions, phone chats, journal entries, reminders, registered
+runtime systems and behaviors, conditional and random prose, checks, timed
+choices, and registered effects. The complete directive table at the end of
+this document is generated from the shared language schema and is the
+authoritative syntax index.
+
 ## Phone chats
 
 Chats are authored in `story/chats/*.wg` and compiled with the rest of the story.
 They keep their own conversation state; opening the phone never replaces the
-  active world scene. Sending a reply costs zero game time. Exclusive event scenes
-  must finish before the player can send; history remains readable.
+active world scene. Sending a reply costs zero game time. Exclusive event scenes
+must finish before the player can send; history remains readable.
 
 ```wg
 @effect contact add "kim"
@@ -60,7 +68,7 @@ Chats app.
   @message
     It's sorted. You can ignore that notice.
   @endmessage
-  @effect set flags.kim_rent_corrected
+  @effect set flags.npc.kim_rent_corrected
   @finish
 @endchat
 ```
@@ -95,7 +103,7 @@ Chats app.
   reruns effects. Editing authored wording changes the reconstructed wording;
   inserting, removing, or reordering chat messages may change their generated
   references and invalidate development saves. Game save format is
-  currently 35; the separately versioned compiled WG bundle format is 33.
+  currently 40; the separately versioned compiled WG bundle format is 33.
 - Unread counts include incoming messages after each contact's saved read
   position. Opening the contact list does not mark messages read. Reading to the
   end of a visible thread does. The app badge totals all contacts.
@@ -106,8 +114,7 @@ Chats app.
 
 Kim's working example is `story/chats/kim.wg`, activated by the final contact
 passage of the civil-office quest. The project compiler checks its authoring and
-cross-references. Dedicated chat timing, save, branch, and unread-state runtime
-tests have not been added yet.
+cross-references, while runtime tests cover chat passage state and save/load.
 
 ## Personal journal
 
@@ -309,9 +316,9 @@ particular place:
 :: library.closing-encounter
 @auto leave-place
 @place-key library
-@when not flags.library_closing_seen
+@when not flags.library.closing_seen
 @onenter
-  @effect set flags.library_closing_seen
+  @effect set flags.library.closing_seen
 @endonenter
 
 Someone calls after you as the library door closes.
@@ -460,9 +467,9 @@ You live at this juncture.
 
 @choicegroup ""
   @choice "Check the notice on the door" -> @exit
-    @when not flags.home_notice_read
+    @when not flags.quest.rent.home_notice_read
     @time 1m
-    @effect set flags.home_notice_read
+    @effect set flags.quest.rent.home_notice_read
     @response
       A notice has been pinned to your front door.
       Someone is asking you to contact the civil office.
@@ -840,7 +847,9 @@ labels remain literal strings.
 
 The currently exposed paths are:
 
-- `story.*`: persistent authored story state created by WG effects.
+- `story.location.*`, `story.npc.*`, `story.quest.*`, and `story.event.*`:
+  persistent authored story state created by WG effects. These four categories
+  are initialized for every new game.
 - `local.*`: state belonging to the active scene or chat. Scene locals survive
   local passage changes, temporary event suspension, and saving/loading, then
   are discarded when the scene exits or another scene replaces it. Chat locals
@@ -854,7 +863,7 @@ The currently exposed paths are:
 - `player.skills.strength`, `.perception`, `.endurance`, `.speech`,
   `.resolve`, and `.fitness`. Skill values retain their fractional progress
   from `0` through `10`.
-- `player.education.<subject-id>.achievement`, `.grade`, `.progress`, and
+- `school.education.<subject-id>.achievement`, `.grade`, `.progress`, and
   `.attendedSegments` for each registered school subject: `english`, `math`,
   `history`, `science`, `art`, and `physical_education`. `achievement` is the
   canonical whole-number score from `0` through `399`. `grade` is derived as
@@ -875,9 +884,11 @@ The currently exposed paths are:
 - `npc.<id>.flags.<flag>` for that NPC's stored boolean flags.
 - `npc.<id>.schedule.phase`, `.obligationId`, `.startsAt`,
   `.requiredArrivalAt`, `.earlyArrivalMinutes`, and `.minutesUntilStart`.
-- `flags.<path>` for active game flags. Flag names may use dot-separated
-  namespaces, such as `flags.quest.receptacles.start`. Inactive flags are
-  absent, so `not flags.some_flag` is the normal negative check.
+- `flags.<path>` for active game flags. Gameplay flags use the same
+  `location`, `npc`, `quest`, or `event` category as persistent story state;
+  journal signals use the reserved `flags.journal.*` namespace. For example,
+  `flags.quest.receptacles.started`. Inactive flags are absent, so a negated
+  categorized path is the normal negative check.
 - `daily.<id>` for active daily flags. Inactive flags are absent. Daily flags
   are saved normally and are cleared automatically when forward game time
   crosses UTC midnight.
@@ -945,6 +956,18 @@ Expression path segments use letters, numbers, and `_`, and cannot start with
 a number. Global flag names used by WG therefore follow the same rule so they
 can be read and changed through `flags.<path>` paths.
 
+Project-authored mutable names use lowercase snake case. Persistent values have
+the shape `story.<category>.<name_in_snake_case>` and durable flags use
+`flags.<category>.<name_in_snake_case>`, where the category is `location`,
+`npc`, `quest`, or `event`. Keep a related flow in one category: for example,
+`story.quest.rent.debt` and `flags.quest.rent.intro_bypassed`. Journal flags are
+the one reserved exception and use `flags.journal.<name_in_snake_case>`.
+Scene- and chat-local paths use `local.<name_in_snake_case>`. Daily flag IDs are
+flat lowercase snake case, such as `daily.home.weightlifting`, because the
+entire namespace is cleared together at UTC midnight. Scene IDs and passage
+IDs are navigation identifiers rather than variables and may continue to use
+their existing dotted and hyphenated hierarchy.
+
 A missing expression path evaluates to `undefined`, which is false when used
 directly as a condition. The compiler checks expression syntax but does not
 verify that an authored runtime path exists.
@@ -956,7 +979,7 @@ non-empty strings, lists, and objects are true.
 ## Expressions and conditionals
 
 ```wg
-@if story.taylor.hurt >= 1
+@if story.npc.taylor.hurt >= 1
 Taylor frowns.
 @elseif npc.taylor.relationship.friendship >= 50
 Taylor smiles.
@@ -1297,7 +1320,7 @@ difficulty, and two outcome blocks:
     @response
       The lid pops open.
     @endresponse
-    @effect set flags.jar_opened
+    @effect set flags.event.jar_opened
   @endsuccess
 
   @failure -> home.jar-stuck
@@ -1362,8 +1385,8 @@ Effects may appear inside direct choices, skill-check outcomes, a scene
 
 ```wg
 @onenter
-  @effect set story.daily.taylorStudyCompany true
-  @effect add story.daily.studyCount 1
+  @effect set story.event.taylor_study_company true
+  @effect add story.event.taylor_study_count 1
 @endonenter
 ```
 
@@ -1381,13 +1404,13 @@ the mutation should create visible result feedback.
 Implemented effects are:
 
 ```wg
-@effect set story.some.path true
-@effect set story.some.snapshot player.energy
-@effect add story.some.counter 1
-@effect set local.some.path "temporary"
-@effect add local.some.counter 1
-@effect set flags.met_taylor
-@effect unset flags.met_taylor
+@effect set story.quest.example_complete true
+@effect set story.quest.energy_snapshot player.energy
+@effect add story.quest.example_counter 1
+@effect set local.temporary_value "temporary"
+@effect add local.example_counter 1
+@effect set flags.npc.met_taylor
+@effect unset flags.npc.met_taylor
 @effect daily-flag home_weightlifting true
 @effect daily-flag home_weightlifting false
 @effect relationship taylor.friendship 2
@@ -1592,9 +1615,9 @@ destination day's batch, and a backward date change clears the batch.
 
 Only active authored IDs are saved; automatic school reminders are derived
 from the schedule. The built-in and authored namespaces cannot collide.
-Game save format 34 includes scene-local state, reminder state, and the
-game-start date; older saves are intentionally unsupported. The compiled WG
-bundle has its own format version, currently 33.
+Game save format 40 includes feature-owned state, scene-local state, reminder
+state, and the game-start date; older saves are intentionally unsupported. The
+compiled WG bundle has its own format version, currently 33.
 
 Reminder lifecycle integration is covered by
 `node --test tests/timers.test.mjs tests/cafe_job.test.mjs`; all authored reminder
@@ -1604,12 +1627,12 @@ For a notice that first appears at 13:00 on day one and persists until read,
 use the same condition for prose and its read choice:
 
 ```wg
-@when not flags.home_notice_read and (time.day > 1 or (time.day == 1 and time.hour >= 13))
+@when not flags.quest.rent.home_notice_read and (time.day > 1 or (time.day == 1 and time.hour >= 13))
 ```
 
 After the read choice adds `civil_notice`, the office's completion choice can
-clear it and set `home_notice_resolved`. Gate that choice on
-`flags.home_notice_read and not flags.home_notice_resolved`. Reminder absence
+clear it and set `flags.quest.rent.home_notice_resolved`. Gate that choice on
+`flags.quest.rent.home_notice_read and not flags.quest.rent.home_notice_resolved`. Reminder absence
 alone does not prove completion, since the reminder is also absent before the
 notice has been read. Rent amounts, deadlines, and penalties remain separate
 story/gameplay rules.

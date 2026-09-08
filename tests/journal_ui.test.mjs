@@ -35,8 +35,8 @@ test("the read-only diary UI renders a completed entry and page controls", () =>
     seed: 441,
     startDate: new Date("2026-09-04T12:00:00.000Z"),
   });
-  game.story.home = { unpack: 5 };
-  game.setFlag("cafe_employee");
+  game.story.home.unpacking = 5;
+  game.setFlag("quest.cafe_employee");
   game.refreshJournalAvailability();
   const topic = Object.values(WG_BUNDLE.journals).find((definition) =>
     definition.prompt.some((part) => part.type === "text" && part.value === "I actually got a job.")

@@ -27,7 +27,7 @@ const FIXED_START = new Date("2026-09-04T12:00:00.000Z");
 
 function writableGame() {
   const game = new Game({ seed: 8128, startDate: FIXED_START });
-  game.story.home = { unpack: 5 };
+  game.story.home.unpacking = 5;
   return game;
 }
 
@@ -73,7 +73,7 @@ test("Taylor's journal topic unlocks after five school interactions", () => {
   );
   assert.ok(topic, "expected Taylor's journal topic");
 
-  game.story.taylor_school_interactions_counter = 4;
+  game.story.npc.taylor.school_interactions = 4;
   game.refreshJournalAvailability();
   assert.equal(
     game.journal.pending.some((record) => record.definitionId === topic.id),
@@ -83,7 +83,7 @@ test("Taylor's journal topic unlocks after five school interactions", () => {
   game.runAction({
     label: "talk with Taylor at school",
     apply(currentGame) {
-      currentGame.story.taylor_school_interactions_counter += 1;
+      currentGame.story.npc.taylor.school_interactions += 1;
     },
   });
   assert.equal(
@@ -217,7 +217,7 @@ test("an active journal entry must be finished or discarded before exiting", () 
   game.runAction({
     label: "get cafe job",
     apply(currentGame) {
-      currentGame.setFlag("cafe_employee");
+      currentGame.setFlag("quest.cafe_employee");
     },
   });
 
@@ -257,12 +257,12 @@ test("journal availability latches and completed entries save decisions instead 
   game.runAction({
     label: "get cafe job",
     apply(currentGame) {
-      currentGame.setFlag("cafe_employee");
+      currentGame.setFlag("quest.cafe_employee");
     },
   });
 
   assert.deepEqual(game.journal.pending.map((record) => record.definitionId), ["journal-2"]);
-  game.clearFlag("cafe_employee");
+  game.clearFlag("quest.cafe_employee");
   game.refreshJournalAvailability();
   assert.deepEqual(game.journal.pending.map((record) => record.definitionId), ["journal-2"]);
 
@@ -272,9 +272,9 @@ test("journal availability latches and completed entries save decisions instead 
   assert.equal(game.journal.activeEntry, null);
   assert.equal(game.journal.entries.length, 1);
   assert.equal(canReadJournal(game), true);
-  game.story.home.unpack = 4;
+  game.story.home.unpacking = 4;
   assert.equal(canReadJournal(game), false);
-  game.story.home.unpack = 5;
+  game.story.home.unpacking = 5;
   assert.ok(Object.keys(game.journal.entries[0].decisions).length > 0);
 
   const beforeReload = buildJournalReadView(game).pages[0].entries[0].paragraphs.join(" ");
@@ -295,7 +295,7 @@ test("active journal entries survive saves and can be discarded permanently", ()
   game.runAction({
     label: "meet Taylor",
     apply(currentGame) {
-      currentGame.story.taylor_school_interactions_counter = 5;
+      currentGame.story.npc.taylor.school_interactions = 5;
     },
   });
 
@@ -337,7 +337,7 @@ test("active journal entries survive saves and can be discarded permanently", ()
 
 test("journal save validation rejects state not produced by the selected path", () => {
   const game = writableGame();
-  game.story.taylor_school_interactions_counter = 5;
+  game.story.npc.taylor.school_interactions = 5;
   game.refreshJournalAvailability();
   game.startJournalEntry("journal-1");
   chooseByLabel(game, "Taylor");
@@ -454,7 +454,7 @@ test("journal save validation rejects choices hidden by frozen decisions", () =>
 
 test("journal flags commit only when the entry is finished", () => {
   const game = writableGame();
-  game.story.taylor_school_interactions_counter = 5;
+  game.story.npc.taylor.school_interactions = 5;
   game.refreshJournalAvailability();
 
   game.startJournalEntry("journal-1");
@@ -470,7 +470,7 @@ test("journal flags commit only when the entry is finished", () => {
 
 test("journal save validation requires flags committed by completed entries", () => {
   const game = writableGame();
-  game.story.taylor_school_interactions_counter = 5;
+  game.story.npc.taylor.school_interactions = 5;
   game.refreshJournalAvailability();
   game.startJournalEntry("journal-1");
   chooseByLabel(game, "Taylor");
@@ -499,9 +499,9 @@ test("discarding an old topic lets a newer topic enter the visible backlog", () 
   game.runAction({
     label: "unlock three journal topics",
     apply(currentGame) {
-      currentGame.story.taylor_school_interactions_counter = 5;
-      currentGame.setFlag("cafe_employee");
-      currentGame.setFlag("rent_intro_2");
+      currentGame.story.npc.taylor.school_interactions = 5;
+      currentGame.setFlag("quest.cafe_employee");
+      currentGame.setFlag("quest.rent_intro_2");
     },
   });
 
@@ -524,7 +524,7 @@ test("journal writing shows only entries completed on the current game day", () 
   game.runAction({
     label: "get cafe job",
     apply(currentGame) {
-      currentGame.setFlag("cafe_employee");
+      currentGame.setFlag("quest.cafe_employee");
     },
   });
   game.startJournalEntry("journal-2");
@@ -557,7 +557,7 @@ test("journal writing shows only entries completed on the current game day", () 
 test("journal prose resolves live character pronouns when an old entry is reread", () => {
   const game = writableGame();
   const taylor = game.npcs.get("taylor");
-  game.story.taylor_school_interactions_counter = 5;
+  game.story.npc.taylor.school_interactions = 5;
   game.refreshJournalAvailability();
 
   game.startJournalEntry("journal-1");
@@ -711,8 +711,8 @@ test("journal choices complete continuation prose without headings or ellipses",
   game.runAction({
     label: "unlock journal examples",
     apply(currentGame) {
-      currentGame.story.taylor_school_interactions_counter = 5;
-      currentGame.setFlag("rent_intro_2");
+      currentGame.story.npc.taylor.school_interactions = 5;
+      currentGame.setFlag("quest.rent_intro_2");
     },
   });
 

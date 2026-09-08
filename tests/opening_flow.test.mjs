@@ -42,7 +42,7 @@ test("a new browser game can enter the one-time home opening", () => {
 
   assert.equal(opening?.id, "story.opening.new-home");
   assert.equal(game.currentStory?.id, "story.opening.new-home");
-  assert.equal(game.hasFlag("opening_seen"), false);
+  assert.equal(game.hasFlag("location.player_home_opening_seen"), false);
   const openingScene = buildScene(game);
   assert.equal(openingScene.heading, "A new beginning");
   assert.doesNotMatch(
@@ -60,7 +60,7 @@ test("a new browser game can enter the one-time home opening", () => {
 
   assert.equal(game.currentStory, null);
   assert.equal(game.currentPlace?.key, "player_home");
-  assert.equal(game.hasFlag("opening_seen"), true);
+  assert.equal(game.hasFlag("location.player_home_opening_seen"), true);
   const homeScene = buildScene(game);
   assert.match(JSON.stringify(homeScene.content), /Today is a school day/);
   assert.doesNotMatch(JSON.stringify(homeScene.content), /notice has been pinned/);
@@ -103,7 +103,7 @@ test("entering school triggers its guidance only on the first visit", () => {
   performChoice(game, { sceneId: outside.id, choiceId: enter.id });
 
   assert.equal(game.currentStory?.id, "school.first-visit");
-  assert.equal(game.hasFlag("school_first_visit_seen"), true);
+  assert.equal(game.hasFlag("location.high_school_first_visit_seen"), true);
   const firstVisitScene = buildScene(game);
   assert.match(JSON.stringify(firstVisitScene.content), /student council office/);
 
@@ -136,7 +136,7 @@ test("entering school introduces Taylor once when Taylor is present", () => {
     startDate: new Date("2026-09-01T08:00:00.000Z"),
     playerOptions: { startPlaceId: null },
   });
-  game.setFlag("school_first_visit_seen");
+  game.setFlag("location.high_school_first_visit_seen");
   const { location, place } = findPlace(game, "high_school");
   game.moveTo(String(location.id));
   game.npcs.get("taylor").setLocationAndPlace(
@@ -176,7 +176,7 @@ test("Taylor's introduction interrupts internal travel and resumes its destinati
     seed: 117,
     startDate: new Date("2026-09-01T08:00:00.000Z"),
   });
-  game.setFlag("school_first_visit_seen");
+  game.setFlag("location.high_school_first_visit_seen");
   placePlayerAndTaylorAtSchool(game);
 
   choose(game, "Go to the school nurse's office");
@@ -201,7 +201,7 @@ test("Taylor's introduction requires Taylor to be present", () => {
     seed: 117,
     startDate: new Date("2026-09-01T08:00:00.000Z"),
   });
-  game.setFlag("school_first_visit_seen");
+  game.setFlag("location.high_school_first_visit_seen");
   const { location, place } = findPlace(game, "high_school");
   game.moveTo(String(location.id));
   game.setCurrentPlace({ placeId: String(place.id) });
@@ -221,7 +221,7 @@ test("Taylor's introduction does not interrupt school travel during class", () =
     seed: 117,
     startDate: new Date("2026-09-01T09:30:00.000Z"),
   });
-  game.setFlag("school_first_visit_seen");
+  game.setFlag("location.high_school_first_visit_seen");
   placePlayerAndTaylorAtSchool(game);
 
   choose(game, "Go to the school nurse's office");

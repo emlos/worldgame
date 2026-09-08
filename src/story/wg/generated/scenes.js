@@ -68,11 +68,26 @@ export const WG_BUNDLE = {
                   "op": "set",
                   "path": [
                     "flags",
-                    "cafe_employee"
+                    "quest",
+                    "cafe",
+                    "employee"
                   ],
                   "source": {
                     "file": "story/events/cafe-work.wg",
                     "line": 11,
+                    "column": 1
+                  }
+                },
+                {
+                  "op": "set",
+                  "path": [
+                    "flags",
+                    "journal",
+                    "has_job"
+                  ],
+                  "source": {
+                    "file": "story/events/cafe-work.wg",
+                    "line": 12,
                     "column": 1
                   }
                 },
@@ -82,7 +97,7 @@ export const WG_BUNDLE = {
                   "id": "cafe_job",
                   "source": {
                     "file": "story/events/cafe-work.wg",
-                    "line": 12,
+                    "line": 13,
                     "column": 1
                   }
                 }
@@ -116,7 +131,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/events/cafe-work.wg",
-                "line": 15,
+                "line": 16,
                 "column": 1
               }
             }
@@ -141,7 +156,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/events/cafe-work.wg",
-                "line": 20,
+                "line": 21,
                 "column": 1
               }
             }
@@ -156,13 +171,13 @@ export const WG_BUNDLE = {
             "target": "@exit",
             "source": {
               "file": "story/events/cafe-work.wg",
-              "line": 22,
+              "line": 23,
               "column": 1
             }
           },
           "source": {
             "file": "story/events/cafe-work.wg",
-            "line": 18,
+            "line": 19,
             "column": 1
           }
         },
@@ -179,7 +194,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/events/cafe-work.wg",
-                "line": 26,
+                "line": 27,
                 "column": 1
               }
             }
@@ -194,13 +209,13 @@ export const WG_BUNDLE = {
             "target": "@exit",
             "source": {
               "file": "story/events/cafe-work.wg",
-              "line": 28,
+              "line": 29,
               "column": 1
             }
           },
           "source": {
             "file": "story/events/cafe-work.wg",
-            "line": 24,
+            "line": 25,
             "column": 1
           }
         }
@@ -248,7 +263,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/events/cafe-work.wg",
-                "line": 35,
+                "line": 36,
                 "column": 1
               }
             },
@@ -275,7 +290,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/events/cafe-work.wg",
-                "line": 37,
+                "line": 38,
                 "column": 1
               }
             },
@@ -302,7 +317,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/events/cafe-work.wg",
-                "line": 40,
+                "line": 41,
                 "column": 1
               }
             }
@@ -310,7 +325,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/events/cafe-work.wg",
-            "line": 35,
+            "line": 36,
             "column": 1
           }
         },
@@ -332,7 +347,7 @@ export const WG_BUNDLE = {
                     "amount": -4,
                     "source": {
                       "file": "story/events/cafe-work.wg",
-                      "line": 45,
+                      "line": 46,
                       "column": 1
                     },
                     "feedback": {
@@ -351,7 +366,7 @@ export const WG_BUNDLE = {
                     "amount": -2,
                     "source": {
                       "file": "story/events/cafe-work.wg",
-                      "line": 45,
+                      "line": 46,
                       "column": 1
                     },
                     "feedback": {
@@ -365,7 +380,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/events/cafe-work.wg",
-                "line": 45,
+                "line": 46,
                 "column": 1
               }
             }
@@ -380,13 +395,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/events/cafe-work.wg",
-              "line": 47,
+              "line": 48,
               "column": 1
             }
           },
           "source": {
             "file": "story/events/cafe-work.wg",
-            "line": 43,
+            "line": 44,
             "column": 1
           }
         },
@@ -408,7 +423,7 @@ export const WG_BUNDLE = {
                     "amount": 2,
                     "source": {
                       "file": "story/events/cafe-work.wg",
-                      "line": 51,
+                      "line": 52,
                       "column": 1
                     },
                     "feedback": {
@@ -427,7 +442,7 @@ export const WG_BUNDLE = {
                     "amount": -1,
                     "source": {
                       "file": "story/events/cafe-work.wg",
-                      "line": 51,
+                      "line": 52,
                       "column": 1
                     },
                     "feedback": {
@@ -441,7 +456,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/events/cafe-work.wg",
-                "line": 51,
+                "line": 52,
                 "column": 1
               }
             }
@@ -456,13 +471,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/events/cafe-work.wg",
-              "line": 53,
+              "line": 54,
               "column": 1
             }
           },
           "source": {
             "file": "story/events/cafe-work.wg",
-            "line": 49,
+            "line": 50,
             "column": 1
           }
         }
@@ -487,7 +502,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/events/cafe-work.wg",
-        "line": 30,
+        "line": 31,
         "column": 1
       }
     },
@@ -514,7 +529,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/events/cafe-work.wg",
-                "line": 60,
+                "line": 61,
                 "column": 1
               }
             },
@@ -533,7 +548,7 @@ export const WG_BUNDLE = {
                 "difficultyId": "tricky",
                 "source": {
                   "file": "story/events/cafe-work.wg",
-                  "line": 63,
+                  "line": 64,
                   "column": 1
                 }
               },
@@ -547,7 +562,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/events/cafe-work.wg",
-                    "line": 65,
+                    "line": 66,
                     "column": 1
                   }
                 },
@@ -560,7 +575,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/events/cafe-work.wg",
-                    "line": 68,
+                    "line": 69,
                     "column": 1
                   }
                 }
@@ -571,7 +586,7 @@ export const WG_BUNDLE = {
               "warning": null,
               "source": {
                 "file": "story/events/cafe-work.wg",
-                "line": 62,
+                "line": 63,
                 "column": 1
               }
             },
@@ -598,7 +613,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/events/cafe-work.wg",
-                "line": 72,
+                "line": 73,
                 "column": 1
               }
             }
@@ -606,7 +621,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/events/cafe-work.wg",
-            "line": 60,
+            "line": 61,
             "column": 1
           }
         },
@@ -628,7 +643,7 @@ export const WG_BUNDLE = {
                     "amount": 0.1,
                     "source": {
                       "file": "story/events/cafe-work.wg",
-                      "line": 77,
+                      "line": 78,
                       "column": 1
                     },
                     "feedback": {
@@ -642,7 +657,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/events/cafe-work.wg",
-                "line": 77,
+                "line": 78,
                 "column": 1
               }
             }
@@ -657,13 +672,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/events/cafe-work.wg",
-              "line": 79,
+              "line": 80,
               "column": 1
             }
           },
           "source": {
             "file": "story/events/cafe-work.wg",
-            "line": 75,
+            "line": 76,
             "column": 1
           }
         },
@@ -685,7 +700,7 @@ export const WG_BUNDLE = {
                     "amount": 4,
                     "source": {
                       "file": "story/events/cafe-work.wg",
-                      "line": 83,
+                      "line": 84,
                       "column": 1
                     },
                     "feedback": {
@@ -699,7 +714,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/events/cafe-work.wg",
-                "line": 83,
+                "line": 84,
                 "column": 1
               }
             }
@@ -714,13 +729,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/events/cafe-work.wg",
-              "line": 85,
+              "line": 86,
               "column": 1
             }
           },
           "source": {
             "file": "story/events/cafe-work.wg",
-            "line": 81,
+            "line": 82,
             "column": 1
           }
         },
@@ -742,7 +757,7 @@ export const WG_BUNDLE = {
                     "amount": 2,
                     "source": {
                       "file": "story/events/cafe-work.wg",
-                      "line": 89,
+                      "line": 90,
                       "column": 1
                     },
                     "feedback": {
@@ -756,7 +771,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/events/cafe-work.wg",
-                "line": 89,
+                "line": 90,
                 "column": 1
               }
             }
@@ -771,13 +786,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/events/cafe-work.wg",
-              "line": 91,
+              "line": 92,
               "column": 1
             }
           },
           "source": {
             "file": "story/events/cafe-work.wg",
-            "line": 87,
+            "line": 88,
             "column": 1
           }
         }
@@ -802,7 +817,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/events/cafe-work.wg",
-        "line": 55,
+        "line": 56,
         "column": 1
       }
     },
@@ -829,7 +844,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/events/cafe-work.wg",
-                "line": 97,
+                "line": 98,
                 "column": 1
               }
             }
@@ -844,13 +859,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/events/cafe-work.wg",
-              "line": 99,
+              "line": 100,
               "column": 1
             }
           },
           "source": {
             "file": "story/events/cafe-work.wg",
-            "line": 97,
+            "line": 98,
             "column": 1
           }
         }
@@ -875,7 +890,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/events/cafe-work.wg",
-        "line": 93,
+        "line": 94,
         "column": 1
       }
     },
@@ -902,7 +917,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/events/cafe-work.wg",
-                "line": 106,
+                "line": 107,
                 "column": 1
               }
             },
@@ -921,7 +936,7 @@ export const WG_BUNDLE = {
                 "difficultyId": "tricky",
                 "source": {
                   "file": "story/events/cafe-work.wg",
-                  "line": 109,
+                  "line": 110,
                   "column": 1
                 }
               },
@@ -935,7 +950,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/events/cafe-work.wg",
-                    "line": 111,
+                    "line": 112,
                     "column": 1
                   }
                 },
@@ -948,7 +963,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/events/cafe-work.wg",
-                    "line": 114,
+                    "line": 115,
                     "column": 1
                   }
                 }
@@ -959,7 +974,7 @@ export const WG_BUNDLE = {
               "warning": null,
               "source": {
                 "file": "story/events/cafe-work.wg",
-                "line": 108,
+                "line": 109,
                 "column": 1
               }
             },
@@ -986,7 +1001,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/events/cafe-work.wg",
-                "line": 118,
+                "line": 119,
                 "column": 1
               }
             }
@@ -994,7 +1009,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/events/cafe-work.wg",
-            "line": 106,
+            "line": 107,
             "column": 1
           }
         },
@@ -1016,7 +1031,7 @@ export const WG_BUNDLE = {
                     "amount": 0.1,
                     "source": {
                       "file": "story/events/cafe-work.wg",
-                      "line": 123,
+                      "line": 124,
                       "column": 1
                     },
                     "feedback": {
@@ -1030,7 +1045,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/events/cafe-work.wg",
-                "line": 123,
+                "line": 124,
                 "column": 1
               }
             }
@@ -1045,13 +1060,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/events/cafe-work.wg",
-              "line": 125,
+              "line": 126,
               "column": 1
             }
           },
           "source": {
             "file": "story/events/cafe-work.wg",
-            "line": 121,
+            "line": 122,
             "column": 1
           }
         },
@@ -1073,7 +1088,7 @@ export const WG_BUNDLE = {
                     "amount": 4,
                     "source": {
                       "file": "story/events/cafe-work.wg",
-                      "line": 129,
+                      "line": 130,
                       "column": 1
                     },
                     "feedback": {
@@ -1087,7 +1102,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/events/cafe-work.wg",
-                "line": 129,
+                "line": 130,
                 "column": 1
               }
             }
@@ -1102,13 +1117,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/events/cafe-work.wg",
-              "line": 131,
+              "line": 132,
               "column": 1
             }
           },
           "source": {
             "file": "story/events/cafe-work.wg",
-            "line": 127,
+            "line": 128,
             "column": 1
           }
         },
@@ -1130,7 +1145,7 @@ export const WG_BUNDLE = {
                     "amount": 1,
                     "source": {
                       "file": "story/events/cafe-work.wg",
-                      "line": 135,
+                      "line": 136,
                       "column": 1
                     },
                     "feedback": {
@@ -1144,7 +1159,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/events/cafe-work.wg",
-                "line": 135,
+                "line": 136,
                 "column": 1
               }
             }
@@ -1159,13 +1174,13 @@ export const WG_BUNDLE = {
             "target": "@return",
             "source": {
               "file": "story/events/cafe-work.wg",
-              "line": 137,
+              "line": 138,
               "column": 1
             }
           },
           "source": {
             "file": "story/events/cafe-work.wg",
-            "line": 133,
+            "line": 134,
             "column": 1
           }
         }
@@ -1190,7 +1205,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/events/cafe-work.wg",
-        "line": 101,
+        "line": 102,
         "column": 1
       }
     },
@@ -1314,8 +1329,9 @@ export const WG_BUNDLE = {
           "op": "set",
           "path": [
             "story",
-            "homeEvents",
-            "forgottenMugPlayed"
+            "event",
+            "home",
+            "forgotten_mug_played"
           ],
           "value": {
             "type": "literal",
@@ -1401,8 +1417,9 @@ export const WG_BUNDLE = {
             "type": "path",
             "value": [
               "story",
-              "homeEvents",
-              "forgottenMugPlayed"
+              "event",
+              "home",
+              "forgotten_mug_played"
             ]
           }
         }
@@ -1432,8 +1449,9 @@ export const WG_BUNDLE = {
           "op": "set",
           "path": [
             "story",
-            "homeEvents",
-            "lateBreakfastPlayed"
+            "event",
+            "home",
+            "late_breakfast_played"
           ],
           "value": {
             "type": "literal",
@@ -1519,8 +1537,9 @@ export const WG_BUNDLE = {
             "type": "path",
             "value": [
               "story",
-              "homeEvents",
-              "lateBreakfastPlayed"
+              "event",
+              "home",
+              "late_breakfast_played"
             ]
           }
         },
@@ -1580,8 +1599,9 @@ export const WG_BUNDLE = {
           "op": "set",
           "path": [
             "story",
-            "homeEvents",
-            "openWindowPlayed"
+            "event",
+            "home",
+            "open_window_played"
           ],
           "value": {
             "type": "literal",
@@ -1667,8 +1687,9 @@ export const WG_BUNDLE = {
             "type": "path",
             "value": [
               "story",
-              "homeEvents",
-              "openWindowPlayed"
+              "event",
+              "home",
+              "open_window_played"
             ]
           }
         }
@@ -1779,7 +1800,7 @@ export const WG_BUNDLE = {
                       "value": [
                         "story",
                         "home",
-                        "unpack"
+                        "unpacking"
                       ]
                     },
                     "right": {
@@ -1818,7 +1839,7 @@ export const WG_BUNDLE = {
                       "value": [
                         "story",
                         "home",
-                        "unpack"
+                        "unpacking"
                       ]
                     },
                     "right": {
@@ -1884,7 +1905,7 @@ export const WG_BUNDLE = {
                       "value": [
                         "story",
                         "home",
-                        "unpack"
+                        "unpacking"
                       ]
                     },
                     "right": {
@@ -1923,7 +1944,7 @@ export const WG_BUNDLE = {
                       "value": [
                         "story",
                         "home",
-                        "unpack"
+                        "unpacking"
                       ]
                     },
                     "right": {
@@ -1962,7 +1983,7 @@ export const WG_BUNDLE = {
                       "value": [
                         "story",
                         "home",
-                        "unpack"
+                        "unpacking"
                       ]
                     },
                     "right": {
@@ -2009,7 +2030,7 @@ export const WG_BUNDLE = {
                       "value": [
                         "story",
                         "home",
-                        "unpack"
+                        "unpacking"
                       ]
                     },
                     "right": {
@@ -2779,7 +2800,7 @@ export const WG_BUNDLE = {
                             "value": [
                               "story",
                               "home",
-                              "unpack"
+                              "unpacking"
                             ]
                           }
                         },
@@ -2791,7 +2812,7 @@ export const WG_BUNDLE = {
                             "value": [
                               "story",
                               "home",
-                              "unpack"
+                              "unpacking"
                             ]
                           },
                           "right": {
@@ -3547,7 +3568,9 @@ export const WG_BUNDLE = {
                       "type": "path",
                       "value": [
                         "flags",
-                        "cafe_employee"
+                        "quest",
+                        "cafe",
+                        "employee"
                       ]
                     }
                   },
@@ -3587,7 +3610,9 @@ export const WG_BUNDLE = {
                         "type": "path",
                         "value": [
                           "flags",
-                          "cafe_employee"
+                          "quest",
+                          "cafe",
+                          "employee"
                         ]
                       },
                       "right": {
@@ -3760,6 +3785,8 @@ export const WG_BUNDLE = {
                         "type": "path",
                         "value": [
                           "flags",
+                          "quest",
+                          "rent",
                           "home_notice_read"
                         ]
                       },
@@ -3770,6 +3797,8 @@ export const WG_BUNDLE = {
                           "type": "path",
                           "value": [
                             "flags",
+                            "quest",
+                            "rent",
                             "home_notice_resolved"
                           ]
                         }
@@ -3782,7 +3811,9 @@ export const WG_BUNDLE = {
                         "type": "path",
                         "value": [
                           "flags",
-                          "rent_intro_bypassed"
+                          "quest",
+                          "rent",
+                          "intro_bypassed"
                         ]
                       }
                     }
@@ -3795,6 +3826,8 @@ export const WG_BUNDLE = {
                       "op": "set",
                       "path": [
                         "flags",
+                        "quest",
+                        "rent",
                         "home_notice_resolved"
                       ],
                       "source": {
@@ -5705,7 +5738,9 @@ export const WG_BUNDLE = {
                   "op": "add",
                   "path": [
                     "story",
-                    "taylor_school_interactions_counter"
+                    "npc",
+                    "taylor",
+                    "school_interactions"
                   ],
                   "value": {
                     "type": "literal",
@@ -7608,6 +7643,7 @@ export const WG_BUNDLE = {
                       "type": "path",
                       "value": [
                         "story",
+                        "quest",
                         "rent",
                         "active"
                       ]
@@ -7619,6 +7655,7 @@ export const WG_BUNDLE = {
                         "type": "path",
                         "value": [
                           "story",
+                          "quest",
                           "rent",
                           "debt"
                         ]
@@ -7641,6 +7678,7 @@ export const WG_BUNDLE = {
                           "type": "interpolation",
                           "path": [
                             "story",
+                            "quest",
                             "rent",
                             "debt"
                           ],
@@ -7672,6 +7710,7 @@ export const WG_BUNDLE = {
                       "type": "path",
                       "value": [
                         "story",
+                        "quest",
                         "rent",
                         "debt"
                       ]
@@ -7740,7 +7779,9 @@ export const WG_BUNDLE = {
                       "type": "path",
                       "value": [
                         "flags",
-                        "rent_intro_2"
+                        "quest",
+                        "rent",
+                        "intro_2"
                       ]
                     },
                     "right": {
@@ -7750,7 +7791,9 @@ export const WG_BUNDLE = {
                         "type": "path",
                         "value": [
                           "flags",
-                          "rent_intro_bypassed"
+                          "quest",
+                          "rent",
+                          "intro_bypassed"
                         ]
                       }
                     }
@@ -7791,6 +7834,7 @@ export const WG_BUNDLE = {
                         "type": "path",
                         "value": [
                           "story",
+                          "quest",
                           "rent",
                           "active"
                         ]
@@ -7802,6 +7846,7 @@ export const WG_BUNDLE = {
                           "type": "path",
                           "value": [
                             "story",
+                            "quest",
                             "rent",
                             "debt"
                           ]
@@ -7851,6 +7896,7 @@ export const WG_BUNDLE = {
                       "op": "add",
                       "path": [
                         "story",
+                        "quest",
                         "rent",
                         "debt"
                       ],
@@ -7943,7 +7989,7 @@ export const WG_BUNDLE = {
                         "value": [
                           "story",
                           "home",
-                          "unpack"
+                          "unpacking"
                         ]
                       }
                     },
@@ -7955,7 +8001,7 @@ export const WG_BUNDLE = {
                         "value": [
                           "story",
                           "home",
-                          "unpack"
+                          "unpacking"
                         ]
                       },
                       "right": {
@@ -7995,7 +8041,7 @@ export const WG_BUNDLE = {
                       "value": [
                         "story",
                         "home",
-                        "unpack"
+                        "unpacking"
                       ]
                     },
                     "right": {
@@ -8034,7 +8080,7 @@ export const WG_BUNDLE = {
                       "value": [
                         "story",
                         "home",
-                        "unpack"
+                        "unpacking"
                       ]
                     },
                     "right": {
@@ -8073,7 +8119,7 @@ export const WG_BUNDLE = {
                       "value": [
                         "story",
                         "home",
-                        "unpack"
+                        "unpacking"
                       ]
                     },
                     "right": {
@@ -8112,7 +8158,7 @@ export const WG_BUNDLE = {
                       "value": [
                         "story",
                         "home",
-                        "unpack"
+                        "unpacking"
                       ]
                     },
                     "right": {
@@ -8235,7 +8281,8 @@ export const WG_BUNDLE = {
                         "type": "path",
                         "value": [
                           "daily",
-                          "home_weightlifting"
+                          "home",
+                          "weightlifting"
                         ]
                       }
                     },
@@ -8247,7 +8294,7 @@ export const WG_BUNDLE = {
                         "value": [
                           "story",
                           "home",
-                          "unpack"
+                          "unpacking"
                         ]
                       },
                       "right": {
@@ -8317,7 +8364,7 @@ export const WG_BUNDLE = {
                       "value": [
                         "story",
                         "home",
-                        "unpack"
+                        "unpacking"
                       ]
                     },
                     "right": {
@@ -8359,7 +8406,7 @@ export const WG_BUNDLE = {
                       "value": [
                         "story",
                         "home",
-                        "unpack"
+                        "unpacking"
                       ]
                     },
                     "right": {
@@ -8419,7 +8466,7 @@ export const WG_BUNDLE = {
                         "value": [
                           "story",
                           "home",
-                          "unpack"
+                          "unpacking"
                         ]
                       }
                     },
@@ -8431,7 +8478,7 @@ export const WG_BUNDLE = {
                         "value": [
                           "story",
                           "home",
-                          "unpack"
+                          "unpacking"
                         ]
                       },
                       "right": {
@@ -8449,7 +8496,7 @@ export const WG_BUNDLE = {
                       "path": [
                         "story",
                         "home",
-                        "unpack"
+                        "unpacking"
                       ],
                       "value": {
                         "type": "literal",
@@ -8495,7 +8542,7 @@ export const WG_BUNDLE = {
                       "value": [
                         "story",
                         "home",
-                        "unpack"
+                        "unpacking"
                       ]
                     },
                     "right": {
@@ -8512,7 +8559,7 @@ export const WG_BUNDLE = {
                       "path": [
                         "story",
                         "home",
-                        "unpack"
+                        "unpacking"
                       ],
                       "value": {
                         "type": "literal",
@@ -8530,7 +8577,7 @@ export const WG_BUNDLE = {
                         "flags",
                         "quest",
                         "receptacles",
-                        "start"
+                        "started"
                       ],
                       "source": {
                         "file": "story/places/player-home.wg",
@@ -8594,7 +8641,7 @@ export const WG_BUNDLE = {
                       "value": [
                         "story",
                         "home",
-                        "unpack"
+                        "unpacking"
                       ]
                     },
                     "right": {
@@ -8669,7 +8716,7 @@ export const WG_BUNDLE = {
                       "value": [
                         "story",
                         "home",
-                        "unpack"
+                        "unpacking"
                       ]
                     },
                     "right": {
@@ -8738,7 +8785,7 @@ export const WG_BUNDLE = {
                       "flags",
                       "quest",
                       "receptacles",
-                      "start"
+                      "started"
                     ]
                   },
                   "requirements": [],
@@ -8934,7 +8981,9 @@ export const WG_BUNDLE = {
                   "op": "add",
                   "path": [
                     "story",
-                    "taylor_school_interactions_counter"
+                    "npc",
+                    "taylor",
+                    "school_interactions"
                   ],
                   "value": {
                     "type": "literal",
@@ -9272,7 +9321,9 @@ export const WG_BUNDLE = {
                   "op": "add",
                   "path": [
                     "story",
-                    "taylor_school_interactions_counter"
+                    "npc",
+                    "taylor",
+                    "school_interactions"
                   ],
                   "value": {
                     "type": "literal",
@@ -9316,7 +9367,9 @@ export const WG_BUNDLE = {
                   "op": "add",
                   "path": [
                     "story",
-                    "taylor_school_interactions_counter"
+                    "npc",
+                    "taylor",
+                    "school_interactions"
                   ],
                   "value": {
                     "type": "literal",
@@ -10004,7 +10057,9 @@ export const WG_BUNDLE = {
                   "op": "add",
                   "path": [
                     "story",
-                    "taylor_school_interactions_counter"
+                    "npc",
+                    "taylor",
+                    "school_interactions"
                   ],
                   "value": {
                     "type": "literal",
@@ -10898,7 +10953,9 @@ export const WG_BUNDLE = {
                   "op": "add",
                   "path": [
                     "story",
-                    "taylor_school_interactions_counter"
+                    "npc",
+                    "taylor",
+                    "school_interactions"
                   ],
                   "value": {
                     "type": "literal",
@@ -11546,7 +11603,9 @@ export const WG_BUNDLE = {
                   "op": "add",
                   "path": [
                     "story",
-                    "taylor_school_interactions_counter"
+                    "npc",
+                    "taylor",
+                    "school_interactions"
                   ],
                   "value": {
                     "type": "literal",
@@ -12181,7 +12240,9 @@ export const WG_BUNDLE = {
                   "op": "add",
                   "path": [
                     "story",
-                    "taylor_school_interactions_counter"
+                    "npc",
+                    "taylor",
+                    "school_interactions"
                   ],
                   "value": {
                     "type": "literal",
@@ -12351,7 +12412,9 @@ export const WG_BUNDLE = {
                   "op": "add",
                   "path": [
                     "story",
-                    "taylor_school_interactions_counter"
+                    "npc",
+                    "taylor",
+                    "school_interactions"
                   ],
                   "value": {
                     "type": "literal",
@@ -12521,7 +12584,9 @@ export const WG_BUNDLE = {
                   "op": "add",
                   "path": [
                     "story",
-                    "taylor_school_interactions_counter"
+                    "npc",
+                    "taylor",
+                    "school_interactions"
                   ],
                   "value": {
                     "type": "literal",
@@ -12732,7 +12797,9 @@ export const WG_BUNDLE = {
                   "op": "add",
                   "path": [
                     "story",
-                    "taylor_school_interactions_counter"
+                    "npc",
+                    "taylor",
+                    "school_interactions"
                   ],
                   "value": {
                     "type": "literal",
@@ -12902,7 +12969,9 @@ export const WG_BUNDLE = {
                   "op": "add",
                   "path": [
                     "story",
-                    "taylor_school_interactions_counter"
+                    "npc",
+                    "taylor",
+                    "school_interactions"
                   ],
                   "value": {
                     "type": "literal",
@@ -13072,7 +13141,9 @@ export const WG_BUNDLE = {
                   "op": "add",
                   "path": [
                     "story",
-                    "taylor_school_interactions_counter"
+                    "npc",
+                    "taylor",
+                    "school_interactions"
                   ],
                   "value": {
                     "type": "literal",
@@ -13283,7 +13354,9 @@ export const WG_BUNDLE = {
                   "op": "add",
                   "path": [
                     "story",
-                    "taylor_school_interactions_counter"
+                    "npc",
+                    "taylor",
+                    "school_interactions"
                   ],
                   "value": {
                     "type": "literal",
@@ -13453,7 +13526,9 @@ export const WG_BUNDLE = {
                   "op": "add",
                   "path": [
                     "story",
-                    "taylor_school_interactions_counter"
+                    "npc",
+                    "taylor",
+                    "school_interactions"
                   ],
                   "value": {
                     "type": "literal",
@@ -13623,7 +13698,9 @@ export const WG_BUNDLE = {
                   "op": "add",
                   "path": [
                     "story",
-                    "taylor_school_interactions_counter"
+                    "npc",
+                    "taylor",
+                    "school_interactions"
                   ],
                   "value": {
                     "type": "literal",
@@ -13834,7 +13911,9 @@ export const WG_BUNDLE = {
                   "op": "add",
                   "path": [
                     "story",
-                    "taylor_school_interactions_counter"
+                    "npc",
+                    "taylor",
+                    "school_interactions"
                   ],
                   "value": {
                     "type": "literal",
@@ -14004,7 +14083,9 @@ export const WG_BUNDLE = {
                   "op": "add",
                   "path": [
                     "story",
-                    "taylor_school_interactions_counter"
+                    "npc",
+                    "taylor",
+                    "school_interactions"
                   ],
                   "value": {
                     "type": "literal",
@@ -14174,7 +14255,9 @@ export const WG_BUNDLE = {
                   "op": "add",
                   "path": [
                     "story",
-                    "taylor_school_interactions_counter"
+                    "npc",
+                    "taylor",
+                    "school_interactions"
                   ],
                   "value": {
                     "type": "literal",
@@ -14385,7 +14468,9 @@ export const WG_BUNDLE = {
                   "op": "add",
                   "path": [
                     "story",
-                    "taylor_school_interactions_counter"
+                    "npc",
+                    "taylor",
+                    "school_interactions"
                   ],
                   "value": {
                     "type": "literal",
@@ -14571,7 +14656,9 @@ export const WG_BUNDLE = {
                   "op": "add",
                   "path": [
                     "story",
-                    "taylor_school_interactions_counter"
+                    "npc",
+                    "taylor",
+                    "school_interactions"
                   ],
                   "value": {
                     "type": "literal",
@@ -14757,7 +14844,9 @@ export const WG_BUNDLE = {
                   "op": "add",
                   "path": [
                     "story",
-                    "taylor_school_interactions_counter"
+                    "npc",
+                    "taylor",
+                    "school_interactions"
                   ],
                   "value": {
                     "type": "literal",
@@ -14984,7 +15073,9 @@ export const WG_BUNDLE = {
                   "op": "add",
                   "path": [
                     "story",
-                    "taylor_school_interactions_counter"
+                    "npc",
+                    "taylor",
+                    "school_interactions"
                   ],
                   "value": {
                     "type": "literal",
@@ -15154,7 +15245,9 @@ export const WG_BUNDLE = {
                   "op": "add",
                   "path": [
                     "story",
-                    "taylor_school_interactions_counter"
+                    "npc",
+                    "taylor",
+                    "school_interactions"
                   ],
                   "value": {
                     "type": "literal",
@@ -15324,7 +15417,9 @@ export const WG_BUNDLE = {
                   "op": "add",
                   "path": [
                     "story",
-                    "taylor_school_interactions_counter"
+                    "npc",
+                    "taylor",
+                    "school_interactions"
                   ],
                   "value": {
                     "type": "literal",
@@ -15652,7 +15747,9 @@ export const WG_BUNDLE = {
                   "op": "add",
                   "path": [
                     "story",
-                    "taylor_school_interactions_counter"
+                    "npc",
+                    "taylor",
+                    "school_interactions"
                   ],
                   "value": {
                     "type": "literal",
@@ -17116,7 +17213,8 @@ export const WG_BUNDLE = {
           "op": "set",
           "path": [
             "flags",
-            "school_first_visit_seen"
+            "high_school",
+            "first_visit_seen"
           ],
           "source": {
             "file": "story/school/school.wg",
@@ -17228,7 +17326,8 @@ export const WG_BUNDLE = {
             "type": "path",
             "value": [
               "flags",
-              "school_first_visit_seen"
+              "high_school",
+              "first_visit_seen"
             ]
           }
         }
@@ -17388,7 +17487,9 @@ export const WG_BUNDLE = {
                   "op": "add",
                   "path": [
                     "story",
-                    "taylor_school_interactions_counter"
+                    "npc",
+                    "taylor",
+                    "school_interactions"
                   ],
                   "value": {
                     "type": "literal",
@@ -17940,7 +18041,9 @@ export const WG_BUNDLE = {
                   "op": "add",
                   "path": [
                     "story",
-                    "taylor_school_interactions_counter"
+                    "npc",
+                    "taylor",
+                    "school_interactions"
                   ],
                   "value": {
                     "type": "literal",
@@ -18495,7 +18598,9 @@ export const WG_BUNDLE = {
                   "op": "add",
                   "path": [
                     "story",
-                    "taylor_school_interactions_counter"
+                    "npc",
+                    "taylor",
+                    "school_interactions"
                   ],
                   "value": {
                     "type": "literal",
@@ -18590,7 +18695,9 @@ export const WG_BUNDLE = {
                   "op": "add",
                   "path": [
                     "story",
-                    "taylor_school_interactions_counter"
+                    "npc",
+                    "taylor",
+                    "school_interactions"
                   ],
                   "value": {
                     "type": "literal",
@@ -18985,7 +19092,9 @@ export const WG_BUNDLE = {
                   "op": "add",
                   "path": [
                     "story",
-                    "taylor_school_interactions_counter"
+                    "npc",
+                    "taylor",
+                    "school_interactions"
                   ],
                   "value": {
                     "type": "literal",
@@ -19049,7 +19158,9 @@ export const WG_BUNDLE = {
                   "op": "add",
                   "path": [
                     "story",
-                    "taylor_school_interactions_counter"
+                    "npc",
+                    "taylor",
+                    "school_interactions"
                   ],
                   "value": {
                     "type": "literal",
@@ -19551,7 +19662,9 @@ export const WG_BUNDLE = {
                   "op": "add",
                   "path": [
                     "story",
-                    "taylor_school_interactions_counter"
+                    "npc",
+                    "taylor",
+                    "school_interactions"
                   ],
                   "value": {
                     "type": "literal",
@@ -19673,7 +19786,9 @@ export const WG_BUNDLE = {
                   "op": "add",
                   "path": [
                     "story",
-                    "taylor_school_interactions_counter"
+                    "npc",
+                    "taylor",
+                    "school_interactions"
                   ],
                   "value": {
                     "type": "literal",
@@ -21403,7 +21518,9 @@ export const WG_BUNDLE = {
                   "op": "add",
                   "path": [
                     "story",
-                    "taylor_school_interactions_counter"
+                    "npc",
+                    "taylor",
+                    "school_interactions"
                   ],
                   "value": {
                     "type": "literal",
@@ -21738,7 +21855,9 @@ export const WG_BUNDLE = {
                   "op": "add",
                   "path": [
                     "story",
-                    "taylor_school_interactions_counter"
+                    "npc",
+                    "taylor",
+                    "school_interactions"
                   ],
                   "value": {
                     "type": "literal",
@@ -21782,7 +21901,9 @@ export const WG_BUNDLE = {
                   "op": "add",
                   "path": [
                     "story",
-                    "taylor_school_interactions_counter"
+                    "npc",
+                    "taylor",
+                    "school_interactions"
                   ],
                   "value": {
                     "type": "literal",
@@ -22349,7 +22470,9 @@ export const WG_BUNDLE = {
                   "op": "add",
                   "path": [
                     "story",
-                    "taylor_school_interactions_counter"
+                    "npc",
+                    "taylor",
+                    "school_interactions"
                   ],
                   "value": {
                     "type": "literal",
@@ -22751,7 +22874,9 @@ export const WG_BUNDLE = {
                   "op": "add",
                   "path": [
                     "story",
-                    "taylor_school_interactions_counter"
+                    "npc",
+                    "taylor",
+                    "school_interactions"
                   ],
                   "value": {
                     "type": "literal",
@@ -22795,7 +22920,9 @@ export const WG_BUNDLE = {
                   "op": "add",
                   "path": [
                     "story",
-                    "taylor_school_interactions_counter"
+                    "npc",
+                    "taylor",
+                    "school_interactions"
                   ],
                   "value": {
                     "type": "literal",
@@ -23439,7 +23566,9 @@ export const WG_BUNDLE = {
                   "op": "add",
                   "path": [
                     "story",
-                    "taylor_school_interactions_counter"
+                    "npc",
+                    "taylor",
+                    "school_interactions"
                   ],
                   "value": {
                     "type": "literal",
@@ -24531,7 +24660,9 @@ export const WG_BUNDLE = {
                   "op": "add",
                   "path": [
                     "story",
-                    "taylor_school_interactions_counter"
+                    "npc",
+                    "taylor",
+                    "school_interactions"
                   ],
                   "value": {
                     "type": "literal",
@@ -25527,7 +25658,9 @@ export const WG_BUNDLE = {
                   "op": "add",
                   "path": [
                     "story",
-                    "taylor_school_interactions_counter"
+                    "npc",
+                    "taylor",
+                    "school_interactions"
                   ],
                   "value": {
                     "type": "literal",
@@ -26213,7 +26346,9 @@ export const WG_BUNDLE = {
                   "op": "add",
                   "path": [
                     "story",
-                    "taylor_school_interactions_counter"
+                    "npc",
+                    "taylor",
+                    "school_interactions"
                   ],
                   "value": {
                     "type": "literal",
@@ -26714,7 +26849,9 @@ export const WG_BUNDLE = {
                   "op": "add",
                   "path": [
                     "story",
-                    "taylor_school_interactions_counter"
+                    "npc",
+                    "taylor",
+                    "school_interactions"
                   ],
                   "value": {
                     "type": "literal",
@@ -27388,7 +27525,9 @@ export const WG_BUNDLE = {
                   "op": "add",
                   "path": [
                     "story",
-                    "taylor_school_interactions_counter"
+                    "npc",
+                    "taylor",
+                    "school_interactions"
                   ],
                   "value": {
                     "type": "literal",
@@ -28760,6 +28899,7 @@ export const WG_BUNDLE = {
                   "op": "set",
                   "path": [
                     "flags",
+                    "home",
                     "opening_seen"
                   ],
                   "source": {
@@ -28803,6 +28943,7 @@ export const WG_BUNDLE = {
             "type": "path",
             "value": [
               "flags",
+              "home",
               "opening_seen"
             ]
           }
@@ -28833,7 +28974,9 @@ export const WG_BUNDLE = {
           "op": "set",
           "path": [
             "flags",
-            "rent_debt_escalation_seen"
+            "quest",
+            "rent",
+            "debt_escalation_seen"
           ],
           "source": {
             "file": "story/places/kim-home.wg",
@@ -28857,6 +29000,7 @@ export const WG_BUNDLE = {
                   "type": "interpolation",
                   "path": [
                     "story",
+                    "quest",
                     "rent",
                     "debt"
                   ],
@@ -28936,6 +29080,7 @@ export const WG_BUNDLE = {
           "type": "path",
           "value": [
             "story",
+            "quest",
             "rent",
             "active"
           ]
@@ -28947,6 +29092,7 @@ export const WG_BUNDLE = {
             "type": "path",
             "value": [
               "story",
+              "quest",
               "rent",
               "debt"
             ]
@@ -28963,7 +29109,9 @@ export const WG_BUNDLE = {
             "type": "path",
             "value": [
               "flags",
-              "rent_debt_escalation_seen"
+              "quest",
+              "rent",
+              "debt_escalation_seen"
             ]
           }
         }
@@ -29264,6 +29412,7 @@ export const WG_BUNDLE = {
           "op": "set",
           "path": [
             "story",
+            "quest",
             "rent",
             "active"
           ],
@@ -29281,6 +29430,7 @@ export const WG_BUNDLE = {
           "op": "set",
           "path": [
             "story",
+            "quest",
             "rent",
             "debt"
           ],
@@ -29298,8 +29448,8 @@ export const WG_BUNDLE = {
           "op": "set",
           "path": [
             "story",
-            "rent",
-            "chargesIssued"
+            "quest",
+            "rent_charges_issued"
           ],
           "value": {
             "type": "literal",
@@ -29354,7 +29504,9 @@ export const WG_BUNDLE = {
                     "type": "path",
                     "value": [
                       "flags",
-                      "rent_intro_bypassed"
+                      "quest",
+                      "rent",
+                      "intro_bypassed"
                     ]
                   },
                   "nodes": [
@@ -29643,6 +29795,7 @@ export const WG_BUNDLE = {
                   "op": "add",
                   "path": [
                     "story",
+                    "quest",
                     "rent",
                     "debt"
                   ],
@@ -29686,7 +29839,9 @@ export const WG_BUNDLE = {
                     "type": "path",
                     "value": [
                       "flags",
-                      "rent_intro_bypassed"
+                      "quest",
+                      "rent",
+                      "intro_bypassed"
                     ]
                   },
                   "nodes": [
@@ -29875,6 +30030,7 @@ export const WG_BUNDLE = {
                   "op": "add",
                   "path": [
                     "story",
+                    "quest",
                     "rent",
                     "debt"
                   ],
@@ -30478,7 +30634,9 @@ export const WG_BUNDLE = {
                 "op": "unset",
                 "path": [
                   "flags",
-                  "rent_intro_2"
+                  "quest",
+                  "rent",
+                  "intro_2"
                 ],
                 "source": {
                   "file": "story/places/kim-home.wg",
@@ -30546,6 +30704,7 @@ export const WG_BUNDLE = {
                           "type": "path",
                           "value": [
                             "story",
+                            "quest",
                             "rent",
                             "debt"
                           ]
@@ -30647,7 +30806,7 @@ export const WG_BUNDLE = {
           "op": "set",
           "path": [
             "local",
-            "atOffice"
+            "at_office"
           ],
           "value": {
             "type": "binary",
@@ -30674,7 +30833,7 @@ export const WG_BUNDLE = {
           "op": "set",
           "path": [
             "local",
-            "hadOfficeAddress"
+            "had_office_address"
           ],
           "value": {
             "type": "binary",
@@ -30683,7 +30842,9 @@ export const WG_BUNDLE = {
               "type": "path",
               "value": [
                 "flags",
-                "rent_intro_2"
+                "quest",
+                "rent",
+                "intro_2"
               ]
             },
             "right": {
@@ -30701,7 +30862,7 @@ export const WG_BUNDLE = {
           "op": "set",
           "path": [
             "local",
-            "contactedKim"
+            "contacted_kim"
           ],
           "value": {
             "type": "binary",
@@ -30710,6 +30871,8 @@ export const WG_BUNDLE = {
               "type": "path",
               "value": [
                 "flags",
+                "quest",
+                "rent",
                 "home_notice_resolved"
               ]
             },
@@ -30728,7 +30891,7 @@ export const WG_BUNDLE = {
           "op": "set",
           "path": [
             "local",
-            "readNotice"
+            "read_notice"
           ],
           "value": {
             "type": "binary",
@@ -30737,6 +30900,8 @@ export const WG_BUNDLE = {
               "type": "path",
               "value": [
                 "flags",
+                "quest",
+                "rent",
                 "home_notice_read"
               ]
             },
@@ -30755,7 +30920,9 @@ export const WG_BUNDLE = {
           "op": "set",
           "path": [
             "flags",
-            "rent_landlord_visit_seen"
+            "quest",
+            "rent",
+            "landlord_visit_seen"
           ],
           "source": {
             "file": "story/places/kim-home.wg",
@@ -30767,7 +30934,9 @@ export const WG_BUNDLE = {
           "op": "set",
           "path": [
             "flags",
-            "rent_intro_bypassed"
+            "quest",
+            "rent",
+            "intro_bypassed"
           ],
           "source": {
             "file": "story/places/kim-home.wg",
@@ -30779,7 +30948,9 @@ export const WG_BUNDLE = {
           "op": "unset",
           "path": [
             "flags",
-            "rent_intro_2"
+            "quest",
+            "rent",
+            "intro_2"
           ],
           "source": {
             "file": "story/places/kim-home.wg",
@@ -30839,7 +31010,7 @@ export const WG_BUNDLE = {
                     "type": "path",
                     "value": [
                       "local",
-                      "atOffice"
+                      "at_office"
                     ]
                   },
                   "nodes": [
@@ -31004,7 +31175,7 @@ export const WG_BUNDLE = {
                     "type": "path",
                     "value": [
                       "local",
-                      "atOffice"
+                      "at_office"
                     ]
                   },
                   "nodes": [
@@ -31034,7 +31205,7 @@ export const WG_BUNDLE = {
                     "type": "path",
                     "value": [
                       "local",
-                      "hadOfficeAddress"
+                      "had_office_address"
                     ]
                   },
                   "nodes": [
@@ -31064,7 +31235,7 @@ export const WG_BUNDLE = {
                     "type": "path",
                     "value": [
                       "local",
-                      "contactedKim"
+                      "contacted_kim"
                     ]
                   },
                   "nodes": [
@@ -31094,7 +31265,7 @@ export const WG_BUNDLE = {
                     "type": "path",
                     "value": [
                       "local",
-                      "readNotice"
+                      "read_notice"
                     ]
                   },
                   "nodes": [
@@ -31151,7 +31322,7 @@ export const WG_BUNDLE = {
                     "type": "path",
                     "value": [
                       "local",
-                      "atOffice"
+                      "at_office"
                     ]
                   },
                   "nodes": [
@@ -31261,7 +31432,7 @@ export const WG_BUNDLE = {
                 "type": "path",
                 "value": [
                   "local",
-                  "atOffice"
+                  "at_office"
                 ]
               },
               "requirements": [],
@@ -31308,7 +31479,7 @@ export const WG_BUNDLE = {
                   "type": "path",
                   "value": [
                     "local",
-                    "atOffice"
+                    "at_office"
                   ]
                 }
               },
@@ -31368,6 +31539,7 @@ export const WG_BUNDLE = {
           "type": "path",
           "value": [
             "flags",
+            "home",
             "opening_seen"
           ]
         },
@@ -31431,6 +31603,7 @@ export const WG_BUNDLE = {
             "type": "path",
             "value": [
               "story",
+              "quest",
               "rent",
               "active"
             ]
@@ -31443,7 +31616,9 @@ export const WG_BUNDLE = {
             "type": "path",
             "value": [
               "flags",
-              "rent_landlord_visit_seen"
+              "quest",
+              "rent",
+              "landlord_visit_seen"
             ]
           }
         }
@@ -31513,6 +31688,7 @@ export const WG_BUNDLE = {
                       "type": "path",
                       "value": [
                         "story",
+                        "quest",
                         "rent",
                         "debt"
                       ]
@@ -31575,6 +31751,7 @@ export const WG_BUNDLE = {
                       "type": "interpolation",
                       "path": [
                         "story",
+                        "quest",
                         "rent",
                         "debt"
                       ],
@@ -31846,7 +32023,9 @@ export const WG_BUNDLE = {
                       "type": "path",
                       "value": [
                         "flags",
-                        "rent_intro_bypassed"
+                        "quest",
+                        "rent",
+                        "intro_bypassed"
                       ]
                     }
                   },
@@ -31857,6 +32036,8 @@ export const WG_BUNDLE = {
                       "type": "path",
                       "value": [
                         "flags",
+                        "quest",
+                        "rent",
                         "home_notice_read"
                       ]
                     }
@@ -31981,7 +32162,9 @@ export const WG_BUNDLE = {
                       "type": "path",
                       "value": [
                         "flags",
-                        "rent_intro_bypassed"
+                        "quest",
+                        "rent",
+                        "intro_bypassed"
                       ]
                     }
                   },
@@ -31992,6 +32175,8 @@ export const WG_BUNDLE = {
                       "type": "path",
                       "value": [
                         "flags",
+                        "quest",
+                        "rent",
                         "home_notice_read"
                       ]
                     }
@@ -32099,6 +32284,8 @@ export const WG_BUNDLE = {
                   "op": "set",
                   "path": [
                     "flags",
+                    "quest",
+                    "rent",
                     "home_notice_read"
                   ],
                   "source": {
@@ -32238,7 +32425,7 @@ export const WG_BUNDLE = {
                   "op": "set",
                   "path": [
                     "local",
-                    "rentReply"
+                    "rent_reply"
                   ],
                   "value": {
                     "type": "literal",
@@ -32301,7 +32488,7 @@ export const WG_BUNDLE = {
                   "op": "set",
                   "path": [
                     "local",
-                    "rentReply"
+                    "rent_reply"
                   ],
                   "value": {
                     "type": "literal",
@@ -32364,7 +32551,7 @@ export const WG_BUNDLE = {
                   "op": "set",
                   "path": [
                     "local",
-                    "rentReply"
+                    "rent_reply"
                   ],
                   "value": {
                     "type": "literal",
@@ -32421,7 +32608,7 @@ export const WG_BUNDLE = {
                       "type": "path",
                       "value": [
                         "local",
-                        "rentReply"
+                        "rent_reply"
                       ]
                     },
                     "right": {
@@ -32470,7 +32657,7 @@ export const WG_BUNDLE = {
                       "type": "path",
                       "value": [
                         "local",
-                        "rentReply"
+                        "rent_reply"
                       ]
                     },
                     "right": {
@@ -33040,7 +33227,9 @@ export const WG_BUNDLE = {
                 "op": "set",
                 "path": [
                   "flags",
-                  "rent_intro_2"
+                  "quest",
+                  "rent",
+                  "intro_2"
                 ],
                 "source": {
                   "file": "story/chats/kim.wg",
@@ -33094,7 +33283,9 @@ export const WG_BUNDLE = {
             "type": "path",
             "value": [
               "story",
-              "taylor_school_interactions_counter"
+              "npc",
+              "taylor",
+              "school_interactions"
             ]
           },
           "right": {
@@ -34286,7 +34477,8 @@ export const WG_BUNDLE = {
           "type": "path",
           "value": [
             "flags",
-            "cafe_employee"
+            "journal",
+            "has_job"
           ]
         }
       ],
@@ -34308,7 +34500,7 @@ export const WG_BUNDLE = {
                     ],
                     "source": {
                       "file": "story/journal/firsts.wg",
-                      "line": 131,
+                      "line": 133,
                       "column": 1
                     }
                   }
@@ -34324,7 +34516,7 @@ export const WG_BUNDLE = {
                     ],
                     "source": {
                       "file": "story/journal/firsts.wg",
-                      "line": 133,
+                      "line": 135,
                       "column": 1
                     }
                   }
@@ -34332,7 +34524,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 130,
+                "line": 132,
                 "column": 1
               },
               "runtimeId": 0
@@ -34347,7 +34539,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 136,
+                "line": 138,
                 "column": 1
               }
             },
@@ -34384,14 +34576,14 @@ export const WG_BUNDLE = {
                   },
                   "source": {
                     "file": "story/journal/firsts.wg",
-                    "line": 139,
+                    "line": 141,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 138,
+                "line": 140,
                 "column": 1
               }
             },
@@ -34428,14 +34620,14 @@ export const WG_BUNDLE = {
                   },
                   "source": {
                     "file": "story/journal/firsts.wg",
-                    "line": 143,
+                    "line": 145,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 142,
+                "line": 144,
                 "column": 1
               }
             },
@@ -34472,14 +34664,14 @@ export const WG_BUNDLE = {
                   },
                   "source": {
                     "file": "story/journal/firsts.wg",
-                    "line": 147,
+                    "line": 149,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 146,
+                "line": 148,
                 "column": 1
               }
             },
@@ -34516,21 +34708,21 @@ export const WG_BUNDLE = {
                   },
                   "source": {
                     "file": "story/journal/firsts.wg",
-                    "line": 151,
+                    "line": 153,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 150,
+                "line": 152,
                 "column": 1
               }
             }
           ],
           "source": {
             "file": "story/journal/firsts.wg",
-            "line": 128,
+            "line": 130,
             "column": 1
           }
         },
@@ -34547,7 +34739,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 156,
+                "line": 158,
                 "column": 1
               }
             },
@@ -34555,14 +34747,14 @@ export const WG_BUNDLE = {
               "type": "finish",
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 158,
+                "line": 160,
                 "column": 1
               }
             }
           ],
           "source": {
             "file": "story/journal/firsts.wg",
-            "line": 154,
+            "line": 156,
             "column": 1
           }
         },
@@ -34579,7 +34771,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 162,
+                "line": 164,
                 "column": 1
               }
             },
@@ -34587,14 +34779,14 @@ export const WG_BUNDLE = {
               "type": "finish",
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 164,
+                "line": 166,
                 "column": 1
               }
             }
           ],
           "source": {
             "file": "story/journal/firsts.wg",
-            "line": 160,
+            "line": 162,
             "column": 1
           }
         },
@@ -34611,7 +34803,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 168,
+                "line": 170,
                 "column": 1
               }
             },
@@ -34619,14 +34811,14 @@ export const WG_BUNDLE = {
               "type": "finish",
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 170,
+                "line": 172,
                 "column": 1
               }
             }
           ],
           "source": {
             "file": "story/journal/firsts.wg",
-            "line": 166,
+            "line": 168,
             "column": 1
           }
         },
@@ -34643,7 +34835,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 174,
+                "line": 176,
                 "column": 1
               }
             },
@@ -34651,14 +34843,14 @@ export const WG_BUNDLE = {
               "type": "finish",
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 176,
+                "line": 178,
                 "column": 1
               }
             }
           ],
           "source": {
             "file": "story/journal/firsts.wg",
-            "line": 172,
+            "line": 174,
             "column": 1
           }
         }
@@ -34688,14 +34880,18 @@ export const WG_BUNDLE = {
               "type": "path",
               "value": [
                 "flags",
-                "rent_intro_2"
+                "quest",
+                "rent",
+                "intro_2"
               ]
             },
             "right": {
               "type": "path",
               "value": [
                 "flags",
-                "rent_landlord_visit_seen"
+                "quest",
+                "rent",
+                "landlord_visit_seen"
               ]
             }
           },
@@ -34703,7 +34899,9 @@ export const WG_BUNDLE = {
             "type": "path",
             "value": [
               "flags",
-              "rent_intro_bypassed"
+              "quest",
+              "rent",
+              "intro_bypassed"
             ]
           }
         }
@@ -34722,7 +34920,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 183,
+                "line": 185,
                 "column": 1
               }
             },
@@ -34736,7 +34934,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 185,
+                "line": 187,
                 "column": 1
               }
             },
@@ -34773,14 +34971,14 @@ export const WG_BUNDLE = {
                   },
                   "source": {
                     "file": "story/journal/firsts.wg",
-                    "line": 188,
+                    "line": 190,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 187,
+                "line": 189,
                 "column": 1
               }
             },
@@ -34817,14 +35015,14 @@ export const WG_BUNDLE = {
                   },
                   "source": {
                     "file": "story/journal/firsts.wg",
-                    "line": 192,
+                    "line": 194,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 191,
+                "line": 193,
                 "column": 1
               }
             },
@@ -34861,14 +35059,14 @@ export const WG_BUNDLE = {
                   },
                   "source": {
                     "file": "story/journal/firsts.wg",
-                    "line": 196,
+                    "line": 198,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 195,
+                "line": 197,
                 "column": 1
               }
             },
@@ -34905,21 +35103,21 @@ export const WG_BUNDLE = {
                   },
                   "source": {
                     "file": "story/journal/firsts.wg",
-                    "line": 200,
+                    "line": 202,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 199,
+                "line": 201,
                 "column": 1
               }
             }
           ],
           "source": {
             "file": "story/journal/firsts.wg",
-            "line": 181,
+            "line": 183,
             "column": 1
           }
         },
@@ -34936,7 +35134,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 205,
+                "line": 207,
                 "column": 1
               }
             },
@@ -34944,14 +35142,14 @@ export const WG_BUNDLE = {
               "type": "finish",
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 207,
+                "line": 209,
                 "column": 1
               }
             }
           ],
           "source": {
             "file": "story/journal/firsts.wg",
-            "line": 203,
+            "line": 205,
             "column": 1
           }
         },
@@ -34968,7 +35166,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 211,
+                "line": 213,
                 "column": 1
               }
             },
@@ -34976,14 +35174,14 @@ export const WG_BUNDLE = {
               "type": "finish",
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 213,
+                "line": 215,
                 "column": 1
               }
             }
           ],
           "source": {
             "file": "story/journal/firsts.wg",
-            "line": 209,
+            "line": 211,
             "column": 1
           }
         },
@@ -35000,7 +35198,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 217,
+                "line": 219,
                 "column": 1
               }
             },
@@ -35008,14 +35206,14 @@ export const WG_BUNDLE = {
               "type": "finish",
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 219,
+                "line": 221,
                 "column": 1
               }
             }
           ],
           "source": {
             "file": "story/journal/firsts.wg",
-            "line": 215,
+            "line": 217,
             "column": 1
           }
         },
@@ -35032,7 +35230,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 223,
+                "line": 225,
                 "column": 1
               }
             },
@@ -35040,21 +35238,21 @@ export const WG_BUNDLE = {
               "type": "finish",
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 225,
+                "line": 227,
                 "column": 1
               }
             }
           ],
           "source": {
             "file": "story/journal/firsts.wg",
-            "line": 221,
+            "line": 223,
             "column": 1
           }
         }
       ],
       "source": {
         "file": "story/journal/firsts.wg",
-        "line": 178,
+        "line": 180,
         "column": 1
       }
     },
@@ -35073,7 +35271,7 @@ export const WG_BUNDLE = {
             "flags",
             "quest",
             "receptacles",
-            "start"
+            "started"
           ]
         }
       ],
@@ -35091,7 +35289,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 233,
+                "line": 235,
                 "column": 1
               }
             },
@@ -35105,7 +35303,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 235,
+                "line": 237,
                 "column": 1
               }
             },
@@ -35142,14 +35340,14 @@ export const WG_BUNDLE = {
                   },
                   "source": {
                     "file": "story/journal/firsts.wg",
-                    "line": 238,
+                    "line": 240,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 237,
+                "line": 239,
                 "column": 1
               }
             },
@@ -35186,14 +35384,14 @@ export const WG_BUNDLE = {
                   },
                   "source": {
                     "file": "story/journal/firsts.wg",
-                    "line": 242,
+                    "line": 244,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 241,
+                "line": 243,
                 "column": 1
               }
             },
@@ -35230,14 +35428,14 @@ export const WG_BUNDLE = {
                   },
                   "source": {
                     "file": "story/journal/firsts.wg",
-                    "line": 246,
+                    "line": 248,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 245,
+                "line": 247,
                 "column": 1
               }
             },
@@ -35274,21 +35472,21 @@ export const WG_BUNDLE = {
                   },
                   "source": {
                     "file": "story/journal/firsts.wg",
-                    "line": 250,
+                    "line": 252,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 249,
+                "line": 251,
                 "column": 1
               }
             }
           ],
           "source": {
             "file": "story/journal/firsts.wg",
-            "line": 231,
+            "line": 233,
             "column": 1
           }
         },
@@ -35305,7 +35503,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 255,
+                "line": 257,
                 "column": 1
               }
             },
@@ -35313,14 +35511,14 @@ export const WG_BUNDLE = {
               "type": "finish",
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 257,
+                "line": 259,
                 "column": 1
               }
             }
           ],
           "source": {
             "file": "story/journal/firsts.wg",
-            "line": 253,
+            "line": 255,
             "column": 1
           }
         },
@@ -35337,7 +35535,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 261,
+                "line": 263,
                 "column": 1
               }
             },
@@ -35345,14 +35543,14 @@ export const WG_BUNDLE = {
               "type": "finish",
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 263,
+                "line": 265,
                 "column": 1
               }
             }
           ],
           "source": {
             "file": "story/journal/firsts.wg",
-            "line": 259,
+            "line": 261,
             "column": 1
           }
         },
@@ -35369,7 +35567,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 267,
+                "line": 269,
                 "column": 1
               }
             },
@@ -35377,14 +35575,14 @@ export const WG_BUNDLE = {
               "type": "finish",
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 269,
+                "line": 271,
                 "column": 1
               }
             }
           ],
           "source": {
             "file": "story/journal/firsts.wg",
-            "line": 265,
+            "line": 267,
             "column": 1
           }
         },
@@ -35401,7 +35599,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 273,
+                "line": 275,
                 "column": 1
               }
             },
@@ -35409,21 +35607,21 @@ export const WG_BUNDLE = {
               "type": "finish",
               "source": {
                 "file": "story/journal/firsts.wg",
-                "line": 275,
+                "line": 277,
                 "column": 1
               }
             }
           ],
           "source": {
             "file": "story/journal/firsts.wg",
-            "line": 271,
+            "line": 273,
             "column": 1
           }
         }
       ],
       "source": {
         "file": "story/journal/firsts.wg",
-        "line": 228,
+        "line": 230,
         "column": 1
       }
     }

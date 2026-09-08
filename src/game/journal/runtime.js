@@ -57,7 +57,7 @@ export function refreshJournalAvailability(game) {
 }
 
 export function isJournalUnlocked(game) {
-  return Number(game.story?.home?.unpack || 0) >= 5;
+  return Number(game.story?.location?.player_home_unpacking || 0) >= 5;
 }
 
 export function canReadJournal(game) {

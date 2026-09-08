@@ -15,8 +15,8 @@ export const TIMER_DEFINITIONS = Object.freeze({
     schedule: Object.freeze({ kind: "interval", days: 7 }),
     repeat: true,
     effects: Object.freeze([
-      addStory(["rent", "debt"], 200),
-      addStory(["rent", "chargesIssued"], 1),
+      addStory(["quest", "rent.debt"], 200),
+      addStory(["quest", "rent_charges_issued"], 1),
       Object.freeze({ op: "reminder", action: "add", id: "rent_due" }),
     ]),
   }),

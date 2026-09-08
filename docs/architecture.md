@@ -41,6 +41,7 @@ src/
     navigation.js              GPS destinations and routes
     timeline.js                Simulation and resynchronization of game time
     timers.js                  Generic timer runtime
+    featureState.js            Feature-owned state creation and save validation
   story/
     storyState.js              Active-story lifecycle primitives
     saveValidation.js          Story, continuation, and interrupt save rules
@@ -59,8 +60,8 @@ tests/                         Runtime, compiler, boundary, and diagnostic tests
 Use `src/features/<name>/` when behavior is specific to one gameplay system and
 crosses ordinary technical layers. A feature may own places, dynamic scene
 content, choice actions, WG systems or behaviors, context, effects, checks,
-  timers, reminders, NPC schedule conditions, navigation metadata, and
-  feature-specific views. Its `.wg`
+timers, reminders, serializable state, NPC definition and schedule additions,
+navigation metadata, debug actions, and feature-specific views. Its `.wg`
 source belongs in `story/<name>/`.
 
 `src/features/catalog.js` is the integration boundary. The application enables
@@ -75,9 +76,15 @@ Choose the smallest fitting extension:
 - A registered action handles a serializable, feature-owned choice command.
 - `@behavior` augments an authored WG scene while leaving prose and passages in WG.
 - `@system` delegates an entire scene or minigame to programmatic rendering.
-- Context, effect, skill-check, timer, reminder, NPC schedule-condition, place,
-  navigation, and view providers contribute their corresponding pieces without
-  teaching the core runtime about the feature.
+- Context, effect, skill-check, timer, reminder, NPC definition,
+  NPC schedule-condition, place, navigation, debug-action, and view providers
+  contribute their corresponding pieces without teaching the core runtime
+  about the feature.
+- A feature state definition supplies both `create()` and `validateSave()`.
+  Its JSON-compatible result lives at `game.featureState.<feature-id>` and is
+  serialized under the same key. The school feature therefore owns education
+  records at `game.featureState.school.subjects` and exposes their WG read model
+  as `school.education`, rather than adding school fields to the generic player.
 
 This is intended for unique systems such as bus travel, school, labyrinths,
 minigames, jobs, combat, or shops with custom logic. Do not turn every ordinary
@@ -102,6 +109,9 @@ by many systems stays with its shared domain owner.
 - Save validation follows state ownership. Subsystems define their rules;
   `game/persistence/saveValidation.js` only coordinates the root envelope and
   cross-subsystem checks before hydration.
+- Game save format 40 requires state for every enabled stateful feature and
+  rejects state belonging to an unknown feature. Development saves from older
+  formats are intentionally unsupported.
 - `story/wg/shared` is independent of compiler and runtime. Both consume the same
   grammar schema; neither keeps a private copy of WG syntax.
 - `story/wg/generated` contains data only. Runtime callbacks remain in feature

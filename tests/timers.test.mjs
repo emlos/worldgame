@@ -103,15 +103,19 @@ test("start is idempotent, restart is fresh, stop removes, and IDs are strict", 
 
 test("simulated time fires every crossed rent deadline without drift", () => {
   const game = new Game({ seed: 702, startDate: new Date("2026-09-04T12:00:00.000Z") });
-  game.story.rent = { active: true, debt: 800, chargesIssued: 0 };
+  Object.assign(game.story.quest, {
+    rent.active: true,
+    rent.debt: 800,
+    rent_charges_issued: 0,
+  });
   game.startTimer("rent.weekly");
 
   game.advanceMinutes(21 * DAY_MINUTES);
 
-  assert.deepEqual(game.story.rent, {
-    active: true,
-    debt: 1400,
-    chargesIssued: 3,
+  assert.deepEqual(game.story.quest, {
+    rent.active: true,
+    rent.debt: 1400,
+    rent_charges_issued: 3,
   });
   assert.equal(game.reminders.has("rent_due"), true);
   assert.deepEqual(game.timers["rent.weekly"], {
@@ -121,31 +125,35 @@ test("simulated time fires every crossed rent deadline without drift", () => {
 
   const restored = Game.fromJSON(JSON.parse(JSON.stringify(game.toJSON())));
   assert.deepEqual(restored.timers, game.timers);
-  assert.deepEqual(restored.story.rent, game.story.rent);
+  assert.deepEqual(restored.story.quest, game.story.quest);
 });
 
 test("resync skips timer effects and advances the recurring deadline", () => {
   const game = new Game({ seed: 703, startDate: new Date("2026-09-01T12:00:00.000Z") });
-  game.story.rent = { active: true, debt: 800, chargesIssued: 0 };
+  Object.assign(game.story.quest, {
+    rent.active: true,
+    rent.debt: 800,
+    rent_charges_issued: 0,
+  });
   game.startTimer("rent.weekly");
 
   game.jumpToDate("2026-10-01T12:00:00.000Z");
 
-  assert.equal(game.story.rent.debt, 800);
-  assert.equal(game.story.rent.chargesIssued, 0);
+  assert.equal(game.story.quest.rent.debt, 800);
+  assert.equal(game.story.quest.rent_charges_issued, 0);
   assert.deepEqual(game.timers["rent.weekly"], {
     dueAt: "2026-10-06T12:00:00.000Z",
     occurrences: 0,
   });
 
   game.advanceMinutes(5 * DAY_MINUTES);
-  assert.equal(game.story.rent.debt, 1000);
+  assert.equal(game.story.quest.rent.debt, 1000);
   assert.equal(game.timers["rent.weekly"].occurrences, 1);
 });
 
 test("timer effect failures propagate without restoring prior state", () => {
   const game = new Game({ seed: 704, startDate: new Date("2026-09-04T12:00:00.000Z") });
-  game.story.rent = 5;
+  game.story.quest = 5;
   game.startTimer("rent.weekly");
 
   assert.throws(() => game.advanceMinutes(7 * DAY_MINUTES), /non-object story path/);
@@ -154,7 +162,7 @@ test("timer effect failures propagate without restoring prior state", () => {
     dueAt: "2026-09-18T12:00:00.000Z",
     occurrences: 1,
   });
-  assert.equal(game.story.rent, 5);
+  assert.equal(game.story.quest, 5);
 });
 
 test("WG timer effects compile and preserve their lifecycle semantics", () => {
@@ -209,14 +217,14 @@ test("save version 40 requires valid named timer state", () => {
 test("the authored rent flow starts weekly charges and accepts £200 payments", () => {
   const game = new Game({ seed: 707, startDate: new Date("2026-09-04T12:00:00.000Z") });
   placePlayerAtKimOffice(game);
-  game.setFlag("rent_intro_2", true);
+  game.setFlag("quest.rent_intro_2", true);
   game.player.adjustMoney(800);
 
   choose(game, "Ask about the rent");
-  assert.deepEqual(game.story.rent, {
-    active: true,
-    debt: 800,
-    chargesIssued: 0,
+  assert.deepEqual(game.story.quest, {
+    rent.active: true,
+    rent.debt: 800,
+    rent_charges_issued: 0,
   });
   assert.equal(game.reminders.has("rent_due"), true);
 
@@ -231,7 +239,7 @@ test("the authored rent flow starts weekly charges and accepts £200 payments", 
   }
 
   assert.equal(game.player.money, 0);
-  assert.equal(game.story.rent.debt, 0);
+  assert.equal(game.story.quest.rent.debt, 0);
   assert.equal(game.reminders.has("rent_due"), false);
   assert.ok(game.timers["rent.weekly"], "clearing debt must not stop weekly rent");
 });
@@ -242,7 +250,7 @@ test("Kim's visit becomes eligible at 16:00 on September 2", () => {
     startDate: new Date("2026-09-01T07:00:00.000Z"),
     playerOptions: { startPlaceId: null },
   });
-  game.setFlag("opening_seen");
+  game.setFlag("location.player_home_opening_seen");
 
   game.jumpToDate("2026-09-01T15:59:00.000Z");
   assert.equal(landlordVisitIsEligible(game), false);
@@ -262,9 +270,9 @@ test("Kim intercepts an unfinished rent introduction after 16:00 on September 2"
     startDate: new Date("2026-09-01T15:50:00.000Z"),
     playerOptions: { startPlaceId: null },
   });
-  game.setFlag("opening_seen");
-  game.setFlag("home_notice_read");
-  game.setFlag("home_notice_resolved");
+  game.setFlag("location.player_home_opening_seen");
+  game.setFlag("quest.rent_home_notice_read");
+  game.setFlag("quest.rent_home_notice_resolved");
   game.addContact("kim");
   game.startChat("kim.rent");
   game.jumpToDate("2026-09-02T15:50:00.000Z");
@@ -276,8 +284,8 @@ test("Kim intercepts an unfinished rent introduction after 16:00 on September 2"
   choose(game, "loiter:15");
 
   assert.equal(game.currentStory?.id, "story.rent.landlord-visit");
-  assert.equal(game.hasFlag("rent_intro_bypassed"), true);
-  assert.equal(game.hasFlag("rent_landlord_visit_seen"), true);
+  assert.equal(game.hasFlag("quest.rent_intro_bypassed"), true);
+  assert.equal(game.hasFlag("quest.rent_landlord_visit_seen"), true);
   assert.equal(kim.locationId, game.currentLocationId);
   assert.equal(kim.currentPlaceId, game.currentPlaceId);
   assert.equal(thread.active, null);
@@ -295,10 +303,10 @@ test("Kim intercepts an unfinished rent introduction after 16:00 on September 2"
   assert.equal(game.currentPlaceId, kim.homePlaceId);
   assert.equal(kim.locationId, kim.homeLocationId);
   assert.equal(kim.currentPlaceId, kim.homePlaceId);
-  assert.deepEqual(game.story.rent, {
-    active: true,
-    debt: 800,
-    chargesIssued: 0,
+  assert.deepEqual(game.story.quest, {
+    rent.active: true,
+    rent.debt: 800,
+    rent_charges_issued: 0,
   });
   assert.match(
     JSON.stringify(buildScene(game).content),
@@ -332,14 +340,14 @@ test("Kim comes in person when the player ignores the rent notice", () => {
     startDate: new Date("2026-09-01T15:50:00.000Z"),
     playerOptions: { startPlaceId: null },
   });
-  game.setFlag("opening_seen");
+  game.setFlag("location.player_home_opening_seen");
   game.jumpToDate("2026-09-02T15:50:00.000Z");
 
   choose(game, "loiter:15");
 
   assert.equal(game.currentStory?.id, "story.rent.landlord-visit");
-  assert.equal(game.hasFlag("home_notice_read"), false);
-  assert.equal(game.hasFlag("rent_intro_bypassed"), true);
+  assert.equal(game.hasFlag("quest.rent_home_notice_read"), false);
+  assert.equal(game.hasFlag("quest.rent_intro_bypassed"), true);
   assert.equal(game.chats.threads.kim, undefined);
   assert.match(
     JSON.stringify(buildScene(game).content),
@@ -352,7 +360,7 @@ test("sleeping at home cannot skip Kim's post-16:00 knock", () => {
     seed: 711,
     startDate: new Date("2026-09-01T07:00:00.000Z"),
   });
-  game.setFlag("opening_seen");
+  game.setFlag("location.player_home_opening_seen");
   game.jumpToDate("2026-09-02T07:00:00.000Z");
   game.player.setStatBase("energy", 100);
 
@@ -378,8 +386,8 @@ test("entering Kim's office after 16:00 cannot bypass the rent discussion", () =
     startDate: new Date("2026-09-01T16:05:00.000Z"),
     playerOptions: { startPlaceId: null },
   });
-  game.setFlag("opening_seen");
-  game.setFlag("rent_intro_2");
+  game.setFlag("location.player_home_opening_seen");
+  game.setFlag("quest.rent_intro_2");
   game.jumpToDate("2026-09-02T16:05:00.000Z");
   game.unlockPlacesByKey("home_kim");
   const { location, place } = findPlaceByKey(game, "home_kim");
@@ -392,7 +400,7 @@ test("entering Kim's office after 16:00 cannot bypass the rent discussion", () =
   assert.match(JSON.stringify(buildScene(game).content), /settling the account now/);
   choose(game, "Sit down with Kim");
   assert.equal(game.currentStory?.id, "story.rent.intro.2");
-  assert.equal(game.story.rent.active, true);
+  assert.equal(game.story.quest.rent.active, true);
 });
 
 test("rent debt unlocks the authored one-shot escalation interrupt", () => {
@@ -401,13 +409,17 @@ test("rent debt unlocks the authored one-shot escalation interrupt", () => {
     startDate: new Date("2026-09-04T12:00:00.000Z"),
     playerOptions: { startPlaceId: null },
   });
-  game.story.rent = { active: true, debt: 1000, chargesIssued: 1 };
+  Object.assign(game.story.quest, {
+    rent.active: true,
+    rent.debt: 1000,
+    rent_charges_issued: 1,
+  });
   game.startTimer("rent.weekly");
   game.timers["rent.weekly"].dueAt = "2026-09-04T12:01:00.000Z";
 
   choose(game, "loiter:15");
 
-  assert.equal(game.story.rent.debt, 1200);
+  assert.equal(game.story.quest.rent.debt, 1200);
   assert.equal(game.currentStory?.id, "story.rent.debt-escalation");
-  assert.equal(game.flags.has("rent_debt_escalation_seen"), true);
+  assert.equal(game.flags.has("quest.rent.debt_escalation_seen"), true);
 });

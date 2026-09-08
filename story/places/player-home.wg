@@ -1,7 +1,7 @@
 :: story.opening.new-home -> @exit
   @auto enter-place
   @place-key player_home
-  @when not flags.opening_seen
+  @when not flags.home.opening_seen
   @priority 1000
   @heading "A new beginning"
   @choices "How do you feel about the day ahead?"
@@ -41,7 +41,7 @@
   School is waiting, but what you do next is your decision. You can get ready, leave immediately, or ignore it and spend the day another way.
 
   @choice "Get up" -> @exit
-    @effect set flags.opening_seen
+    @effect set flags.home.opening_seen
   @endchoice
 
   @#==============================================================================================
@@ -49,15 +49,15 @@
 :: place.player-home
   @hub player_home
 
-  @if not story.home.unpack or story.home.unpack < 2
+  @if not story.home.unpacking or story.home.unpacking < 2
     You are back in the privacy of your four walls. Cardboard boxes crowd the little open floor space, and most of the flat still feels borrowed rather than lived in.
-  @elseif story.home.unpack < 5
+  @elseif story.home.unpacking < 5
     You are back in the privacy of your four walls. The bathroom is usable now, though unopened boxes still line the walls.
-  @elseif story.home.unpack < 10
+  @elseif story.home.unpacking < 10
     You are back in the privacy of your four walls. Your clothes are put away and the table is clear, giving the flat the beginnings of a routine.
-  @elseif story.home.unpack < 15
+  @elseif story.home.unpacking < 15
     You are back in the privacy of your four walls. With the bed properly assembled, the bedroom finally looks like somewhere you can recover at the end of the day.
-  @elseif story.home.unpack < 20
+  @elseif story.home.unpacking < 20
     You are back in the privacy of your four walls. Most of the flat is ready for company; only a stubborn cluster of boxes remains.
   @else
     You are back in the privacy of your four walls. Everything has found a place, apart from the strange receptacle uncovered beside the wall.
@@ -71,17 +71,17 @@
 
     @choice "Lift weights" -> @exit
       @time 5m
-      @when not daily.home_weightlifting and story.home.unpack >= 10
+      @when not daily.home.weightlifting and story.home.unpacking >= 10
       @change skill strength 0.1
       @effect daily-flag home_weightlifting true
     @endchoice
 
     @choice "Sit down with your diary" -> home.diary
-      @when story.home.unpack >= 5
+      @when story.home.unpacking >= 5
     @endchoice
 
     @choice "Closet" -> home.clothes
-      @when story.home.unpack >= 5
+      @when story.home.unpacking >= 5
     @endchoice
 
   @endchoicegroup
@@ -89,16 +89,16 @@
   @choicegroup "Activities"
 
     @choice "Unpack" -> home.unpack
-      @when not story.home.unpack or story.home.unpack < 19
+      @when not story.home.unpacking or story.home.unpacking < 19
       @time 15m..30m
-      @effect add story.home.unpack 1
+      @effect add story.home.unpacking 1
     @endchoice
 
     @choice "Unpack the last boxes" -> home.unpack.receptacle
-      @when story.home.unpack == 19
+      @when story.home.unpacking == 19
       @time 15m..30m
-      @effect add story.home.unpack 1
-      @effect set flags.quest.receptacles.start
+      @effect add story.home.unpacking 1
+      @effect set flags.quest.receptacles.started
       @effect set flags.home.unpacked
     @endchoice
 
@@ -107,14 +107,14 @@
   @choicegroup "Bathroom"
 
     @choice "Take a shower" -> @exit
-      @when story.home.unpack >= 2
+      @when story.home.unpacking >= 2
       @time 15m
       @change stat hygiene +50
       @change stat energy -5
     @endchoice
 
     @choice "Brush your teeth" -> @exit
-      @when story.home.unpack >= 2
+      @when story.home.unpacking >= 2
       @time 5m
       @change stat hygiene +5
     @endchoice
@@ -123,28 +123,28 @@
 
   @choicegroup ""
     @choice "Examine the strange receptacle" -> home.receptacle
-      @when flags.quest.receptacles.start
+      @when flags.quest.receptacles.started
     @endchoice
   @endchoicegroup
 
 :: home.unpack -> @exit
 
-  @if story.home.unpack < 5
+  @if story.home.unpacking < 5
     You open another box and sort its contents into rough piles. The room is still crowded, but there is a little more space to move.
-  @elseif story.home.unpack < 15
+  @elseif story.home.unpacking < 15
     Another armful of belongings finds a proper place. Bit by bit, the anonymous rooms are beginning to look like yours.
   @else
     You flatten more cardboard and deal with the awkward things you kept putting off. Only a few boxes remain now.
   @endif
 
-  @if story.home.unpack == 2
+  @if story.home.unpacking == 2
     You empty the bathroom boxes, stack your toiletries by the sink, and clear enough clutter to use the shower without climbing over anything. Now you can get clean - about time, too.
-  @elseif story.home.unpack == 5
+  @elseif story.home.unpacking == 5
     You finish sorting your clothes and clear the table beneath the window. There is finally somewhere to sit, think, and write.
-  @elseif story.home.unpack == 10
+  @elseif story.home.unpacking == 10
     The pieces of the bed frame emerge from behind a wall of cardboard. Once it is assembled and the mattress is lifted into place, the bedroom immediately feels more comfortable.
     Hey, that box has some of your knicknacks too! You put the weights in the bedroom and the small decorations on the shelves. The flat is starting to feel like home.
-  @elseif story.home.unpack == 15
+  @elseif story.home.unpacking == 15
     You arrange the remaining furniture and make room for another person to sit. The flat is no longer too embarrassing to invite someone into.
   @endif
 
@@ -185,7 +185,7 @@
   @choicegroup "Set your alarm to:"
 
     You set your alarm and climb into bed. The soft sheets and warm blankets are a welcome comfort.
-    @if not story.home.unpack or story.home.unpack < 10
+    @if not story.home.unpacking or story.home.unpacking < 10
       For now, the mattress is still on the floor and the unopened bedroom boxes make the space feel cramped.
     @else
       With the bed assembled and the bedroom cleared, settling down is noticeably easier.

@@ -45,7 +45,12 @@ export function initializeNewGame(
 
   game.flags = new Set();
   game.dailyFlags = new Set();
-  game.story = {};
+  game.story = {
+    location: {},
+    npc: {},
+    quest: {},
+    event: {},
+  };
   game.currentStory = null;
   game.storyContinuations = [];
   game.storyRevision = 0;

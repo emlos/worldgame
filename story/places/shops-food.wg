@@ -8,13 +8,13 @@
   @choicegroup ""
 
     @choice "Ask about a job" -> cafe.job.application
-      @when not flags.cafe_employee
+      @when not flags.quest.cafe.employee
     @endchoice
 
     @choice "Work for one hour" -> @exit
       @time 1h
       @event-pool cafe.job.shift
-      @when flags.cafe_employee and time.minutesSinceMidnight >= 420 and time.minutesSinceMidnight <= 1260
+      @when flags.quest.cafe.employee and time.minutesSinceMidnight >= 420 and time.minutesSinceMidnight <= 1260
       @change money 7 "£7 wages"
     @endchoice
   @endchoicegroup

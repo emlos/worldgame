@@ -5,27 +5,27 @@
 
   @choice "Ask about the notice" -> .checking
     @send "hi kim! im the tenant from {{home.location.name}}! theres a notice on my door saying i owe two months rent, but ive only just moved in. could you check it?"
-    @effect set local.rentReply "polite"
+    @effect set local.rent_reply "polite"
   @endchoice
 
   @choice "Explain you're worried" -> .checking
     @send "hi, i live at {{home.location.name}}. the civil office said i could be evicted over unpaid rent. i just moved in. is there a mistake??"
-    @effect set local.rentReply "worried"
+    @effect set local.rent_reply "worried"
   @endchoice
 
   @choice "Challenge the charge" -> .checking
     @send "why am I being charged for two months when i wasnt even living here?"
-    @effect set local.rentReply "blunt"
+    @effect set local.rent_reply "blunt"
     @effect relationship kim.intimidation -2
   @endchoice
 
   @passage checking
 
-  @if local.rentReply == "blunt"
+  @if local.rent_reply == "blunt"
     @message
       Hello. I understand you're frustrated. Give me a chance to check the records first...
     @endmessage
-  @elseif local.rentReply == "worried"
+  @elseif local.rent_reply == "worried"
     @message
       Don't panic... Let me look into it before you do anything else.
     @endmessage
@@ -104,7 +104,7 @@
   @endmessage
 
   @effect unlock place home_kim
-  @effect set flags.rent_intro_2
+  @effect set flags.quest.rent.intro_2
 
   @finish
 @endchat

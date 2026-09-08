@@ -194,7 +194,7 @@ test("contact and chat WG effects use the Game facade and chat snapshots survive
   assert.match(view.messages[0].text, /tenant from/);
   assert.equal(view.messages[1].text, "Hi. That doesn't sound right. Thanks for letting me know...");
   assert.equal(view.waiting, true);
-  assert.deepEqual(game.chats.threads.kim.active.locals, { rentReply: "polite" });
+  assert.deepEqual(game.chats.threads.kim.active.locals, { rent_reply: "polite" });
   assert.deepEqual(game.currentStory.locals, { scene_marker: "unchanged" });
   assert.equal(game.story.kim, undefined);
 
@@ -203,7 +203,7 @@ test("contact and chat WG effects use the Game facade and chat snapshots survive
     buildChatThreadView(restored, "kim").messages,
     view.messages,
   );
-  assert.deepEqual(restored.chats.threads.kim.active.locals, { rentReply: "polite" });
+  assert.deepEqual(restored.chats.threads.kim.active.locals, { rent_reply: "polite" });
   assert.deepEqual(restored.currentStory.locals, { scene_marker: "unchanged" });
 });
 

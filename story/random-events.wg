@@ -3,10 +3,10 @@
 :: home.random.forgotten-mug
   @place-key player_home
   @auto enter-place
-  @when not story.homeEvents.forgottenMugPlayed
+  @when not story.event.home.forgotten_mug_played
 
   @onenter
-    @effect set story.homeEvents.forgottenMugPlayed true
+    @effect set story.event.home.forgotten_mug_played true
   @endonenter
 
   A half-finished mug of tea waits on the kitchen counter. It has gone completely cold, and you cannot remember leaving it there.
@@ -17,10 +17,10 @@
 :: home.random.open-window
   @place-key player_home
   @auto enter-place
-  @when not story.homeEvents.openWindowPlayed
+  @when not story.event.home.open_window_played
 
   @onenter
-    @effect set story.homeEvents.openWindowPlayed true
+    @effect set story.event.home.open_window_played true
   @endonenter
 
   One of the windows is cracked open. A faint breeze stirs the curtains and carries the distant noise of the street through the room.
@@ -31,12 +31,12 @@
 :: home.random.late-breakfast
   @place-key player_home
   @auto enter-place
-  @when not story.homeEvents.lateBreakfastPlayed
+  @when not story.event.home.late_breakfast_played
   @when time.minutesSinceMidnight >= 600
   @when time.minutesSinceMidnight <= 780
 
   @onenter
-    @effect set story.homeEvents.lateBreakfastPlayed true
+    @effect set story.event.home.late_breakfast_played true
   @endonenter
 
   The kitchen still smells faintly of toast. A few crumbs remain on the table, catching the late-morning light.
