@@ -268,7 +268,13 @@ function makeChoiceButton(sceneId, choice, number) {
   if (hotkey) button.setAttribute("aria-keyshortcuts", hotkey);
 
   let duration;
-  if (choice.durationMinutes > 0) {
+  if (choice.durationRangeMinutes) {
+    duration = document.createElement("span");
+    duration.className = "choice-duration";
+    duration.textContent =
+      `(${formatDuration(choice.durationRangeMinutes.min)}–` +
+      `${formatDuration(choice.durationRangeMinutes.max)})`;
+  } else if (choice.durationMinutes > 0) {
     duration = document.createElement("span");
     duration.className = "choice-duration";
     duration.textContent = `(${formatDuration(choice.durationMinutes)})`;

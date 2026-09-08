@@ -509,7 +509,14 @@ function formatDuration(minutes) {
 
 function choiceMeta(choice) {
   const details = [];
-  if (choice.durationMinutes) details.push(formatDuration(choice.durationMinutes));
+  if (choice.durationRangeMinutes) {
+    details.push(
+      `${formatDuration(choice.durationRangeMinutes.min)}–` +
+      formatDuration(choice.durationRangeMinutes.max),
+    );
+  } else if (choice.durationMinutes) {
+    details.push(formatDuration(choice.durationMinutes));
+  }
   for (const cost of choice.costs || []) details.push(cost.label || `${cost.amount} ${cost.type}`);
   for (const effect of choice.effectsPreview || []) {
     details.push(effect.label || `${effect.amount > 0 ? "+" : ""}${effect.amount} ${effect.type}`);

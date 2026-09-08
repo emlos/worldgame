@@ -120,3 +120,47 @@ test("unpacking progress and the receptacle discovery survive saving", () => {
   assert.equal(restored.hasFlag("quest.receptacles.start"), true);
   assert.equal(restored.hasFlag("home.unpacked"), true);
 });
+
+test("ranged choice time rolls only when selected and persists through saves", () => {
+  const game = new Game({
+    seed: 9023,
+    startDate: new Date("2026-09-03T04:00:00.000Z"),
+    playerOptions: { startPlaceId: null },
+  });
+  game.setFlag("opening_seen");
+  placePlayerAtHome(game);
+
+  const randomBeforeRendering = game.random.toJSON();
+  for (let render = 0; render < 3; render += 1) {
+    const unpack = choiceWithLabel(buildScene(game), "Unpack");
+    assert.equal(unpack.durationMinutes, 0);
+    assert.deepEqual(unpack.durationRangeMinutes, { min: 15, max: 30 });
+  }
+  assert.deepEqual(game.random.toJSON(), randomBeforeRendering);
+
+  const restoredBeforeSelection = Game.fromJSON(
+    JSON.parse(JSON.stringify(game.toJSON())),
+  );
+  const startedAt = game.now.getTime();
+  const restoredStartedAt = restoredBeforeSelection.now.getTime();
+
+  choose(game, "Unpack");
+  choose(restoredBeforeSelection, "Unpack");
+
+  const elapsedMinutes = (game.now.getTime() - startedAt) / 60_000;
+  const restoredElapsedMinutes =
+    (restoredBeforeSelection.now.getTime() - restoredStartedAt) / 60_000;
+  assert.ok(elapsedMinutes >= 15 && elapsedMinutes <= 30);
+  assert.equal(restoredElapsedMinutes, elapsedMinutes);
+  assert.notDeepEqual(game.random.toJSON(), randomBeforeRendering);
+  assert.deepEqual(
+    restoredBeforeSelection.random.toJSON(),
+    game.random.toJSON(),
+  );
+
+  const restoredAfterSelection = Game.fromJSON(
+    JSON.parse(JSON.stringify(game.toJSON())),
+  );
+  assert.equal(restoredAfterSelection.now.toISOString(), game.now.toISOString());
+  assert.deepEqual(restoredAfterSelection.random.toJSON(), game.random.toJSON());
+});

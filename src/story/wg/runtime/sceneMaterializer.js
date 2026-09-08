@@ -9,7 +9,6 @@ import {
   getSkillCheckDifficulty,
   getSkillCheckTargetDefinition,
 } from "../../../game/scene/skillChecks.js";
-import { keyedRandom01 } from "../../../shared/util/random.js";
 import { materializeWGEffectFeedback } from "../shared/effects/registry.js";
 import {
   createWGDecisionSession,
@@ -98,20 +97,8 @@ function materializeVisibleEffects(effects) {
     .map(materializeChangeFeedback);
 }
 
-function materializeDuration(node, context, options, durationKey) {
-  if (node.durationRangeMinutes) {
-    const min = Number(node.durationRangeMinutes.min);
-    const max = Number(node.durationRangeMinutes.max);
-    if (!Number.isInteger(min) || !Number.isInteger(max) || min >= max) {
-      fail("Random duration range is invalid", node.source);
-    }
-    const key = [
-      "wg-duration-v1",
-      options.storyInstanceKey,
-      durationKey,
-    ].join(":");
-    return min + Math.floor(keyedRandom01(options.gameSeed, key) * (max - min + 1));
-  }
+function materializeDuration(node, context) {
+  if (node.durationRangeMinutes) return 0;
   if (!node.timeUntilPath) return node.durationMinutes ?? 0;
   const targetValue = resolveWGPath(context, node.timeUntilPath);
   const target = new Date(targetValue);
@@ -132,7 +119,11 @@ function materializeDuration(node, context, options, durationKey) {
   return minutes;
 }
 
-function materializeOutcome(outcome, sceneId, context, options, durationKey) {
+function materializeDurationRange(node) {
+  return node.durationRangeMinutes ? { ...node.durationRangeMinutes } : null;
+}
+
+function materializeOutcome(outcome, sceneId, context) {
   const {
     durationRangeMinutes: _durationRangeMinutes,
     timeUntilPath: _timeUntilPath,
@@ -140,7 +131,8 @@ function materializeOutcome(outcome, sceneId, context, options, durationKey) {
   } = outcome;
   return {
     ...materialized,
-    durationMinutes: materializeDuration(outcome, context, options, durationKey),
+    durationMinutes: materializeDuration(outcome, context),
+    durationRangeMinutes: materializeDurationRange(outcome),
     energyFree: outcome.energyFree ?? false,
     resting: outcome.resting ?? false,
     effects: outcome.effects || [],
@@ -194,15 +186,11 @@ function materializeChoice(node, context, options = {}) {
           node.outcomes.success,
           sceneId,
           context,
-          options,
-          `${idPrefix}${node.id}:success`,
         ),
         failure: materializeOutcome(
           node.outcomes.failure,
           sceneId,
           context,
-          options,
-          `${idPrefix}${node.id}:failure`,
         ),
       },
       ...(eventPool ? { eventPool } : {}),
@@ -231,7 +219,10 @@ function materializeChoice(node, context, options = {}) {
     label: renderWGText(node.label, context, node.source),
     durationMinutes: node.check
       ? 0
-      : materializeDuration(node, context, options, `${idPrefix}${node.id}`),
+      : materializeDuration(node, context),
+    durationRangeMinutes: node.check
+      ? null
+      : materializeDurationRange(node),
     energyFree: node.check ? false : node.energyFree,
     resting: node.check ? false : node.resting,
     enabled: disabledReason === null,

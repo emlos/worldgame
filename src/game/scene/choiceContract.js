@@ -62,6 +62,30 @@ function validateSkillCheck(value, path) {
   }
 }
 
+function validateDuration(durationMinutes, durationRangeMinutes, path) {
+  if (!Number.isFinite(durationMinutes) || durationMinutes < 0) {
+    fail(`${path}.durationMinutes must be a non-negative finite number`);
+  }
+  if (durationRangeMinutes === null) return;
+
+  requireRecord(durationRangeMinutes, `${path}.durationRangeMinutes`);
+  const { min, max } = durationRangeMinutes;
+  if (
+    !Number.isInteger(min) ||
+    !Number.isInteger(max) ||
+    min < 0 ||
+    min >= max
+  ) {
+    fail(
+      `${path}.durationRangeMinutes must contain whole-minute endpoints ` +
+      "with 0 <= min < max",
+    );
+  }
+  if (durationMinutes !== 0) {
+    fail(`${path}.durationMinutes must be zero when a duration range is present`);
+  }
+}
+
 function validateSkillCheckAction(action, path) {
   requireRecord(action.check, `${path}.check`);
   requireText(action.check.targetType, `${path}.check.targetType`);
@@ -73,9 +97,11 @@ function validateSkillCheckAction(action, path) {
     const outcome = action.outcomes[result];
     requireRecord(outcome, outcomePath);
     requireText(outcome.target, `${outcomePath}.target`);
-    if (!Number.isFinite(outcome.durationMinutes) || outcome.durationMinutes < 0) {
-      fail(`${outcomePath}.durationMinutes must be a non-negative finite number`);
-    }
+    validateDuration(
+      outcome.durationMinutes,
+      outcome.durationRangeMinutes,
+      outcomePath,
+    );
     if (typeof outcome.energyFree !== "boolean") {
       fail(`${outcomePath}.energyFree must be a boolean`);
     }
@@ -112,9 +138,7 @@ export function validateChoice(choice, path = "choice") {
     fail(`${path}.icon must be a string or null`);
   }
 
-  if (!Number.isFinite(choice.durationMinutes) || choice.durationMinutes < 0) {
-    fail(`${path}.durationMinutes must be a non-negative finite number`);
-  }
+  validateDuration(choice.durationMinutes, choice.durationRangeMinutes, path);
   if (typeof choice.energyFree !== "boolean") {
     fail(`${path}.energyFree must be a boolean`);
   }
@@ -140,8 +164,8 @@ export function validateChoice(choice, path = "choice") {
   requireText(choice.action.type, `${path}.action.type`);
   if (choice.action.type === "skill-check") {
     if (choice.skillCheck === null) fail(`${path}.skillCheck is required for skill-check actions`);
-    if (choice.durationMinutes !== 0) {
-      fail(`${path}.durationMinutes must be zero when outcome durations are hidden`);
+    if (choice.durationMinutes !== 0 || choice.durationRangeMinutes !== null) {
+      fail(`${path} timing must be empty when outcome durations are hidden`);
     }
     validateSkillCheckAction(choice.action, `${path}.action`);
   } else if (choice.skillCheck !== null) {
@@ -162,6 +186,7 @@ export function createChoice(input) {
     icon,
     label,
     durationMinutes,
+    durationRangeMinutes,
     energyFree,
     resting,
     costs,
@@ -180,6 +205,10 @@ export function createChoice(input) {
     icon: icon === undefined ? null : icon,
     label,
     durationMinutes: durationMinutes === undefined ? 0 : durationMinutes,
+    durationRangeMinutes:
+      durationRangeMinutes === undefined || durationRangeMinutes === null
+        ? null
+        : { ...durationRangeMinutes },
     energyFree: energyFree === undefined ? false : energyFree,
     resting: resting === undefined ? false : resting,
     costs: copyMetadataList(costs === undefined ? [] : costs),

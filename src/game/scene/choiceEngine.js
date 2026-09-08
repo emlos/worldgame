@@ -21,7 +21,7 @@ import {
   getPlayerSkillCheckValue,
   getSkillCheckTargetDefinition,
 } from "./skillChecks.js";
-import { keyedRandom01 } from "../../shared/util/random.js";
+import { keyedRandom01, randInt } from "../../shared/util/random.js";
 import { actWGSystem } from "../../story/wg/runtime/storySystemRegistry.js";
 import {
   CHOICE_ERROR_CODE,
@@ -75,15 +75,38 @@ function findChoice(scene, choiceId) {
     .find((candidate) => candidate.id === choiceId);
 }
 
-function choiceMinutes(choice) {
-  const minutes = Number(choice.durationMinutes ?? 0);
+function rolledDurationMinutes(game, durationMinutes, durationRangeMinutes, label) {
+  if (durationRangeMinutes !== null) {
+    const min = Number(durationRangeMinutes?.min);
+    const max = Number(durationRangeMinutes?.max);
+    if (
+      !Number.isInteger(min) ||
+      !Number.isInteger(max) ||
+      min < 0 ||
+      min >= max
+    ) {
+      fail(
+        CHOICE_ERROR_CODE.invalidAction,
+        `${label} has an invalid duration range`,
+      );
+    }
+    return randInt(min, max, game.rnd);
+  }
+
+  const minutes = Number(durationMinutes ?? 0);
   if (!Number.isFinite(minutes) || minutes < 0) {
-    fail(
-      CHOICE_ERROR_CODE.invalidAction,
-      `Choice '${choice.id}' has an invalid duration`,
-    );
+    fail(CHOICE_ERROR_CODE.invalidAction, `${label} has an invalid duration`);
   }
   return minutes;
+}
+
+function choiceMinutes(game, choice) {
+  return rolledDurationMinutes(
+    game,
+    choice.durationMinutes,
+    choice.durationRangeMinutes,
+    `Choice '${choice.id}'`,
+  );
 }
 
 function requireOutdoors(game, actionLabel) {
@@ -331,15 +354,13 @@ function performWGSystem(game, choice, minutes) {
   return actionResult({ notice, paragraphs });
 }
 
-function outcomeMinutes(choice, outcome, result) {
-  const minutes = Number(outcome?.durationMinutes ?? 0);
-  if (!Number.isFinite(minutes) || minutes < 0) {
-    fail(
-      CHOICE_ERROR_CODE.invalidAction,
-      "Choice '" + choice.id + "' has an invalid " + result + " duration",
-    );
-  }
-  return minutes;
+function outcomeMinutes(game, choice, outcome, result) {
+  return rolledDurationMinutes(
+    game,
+    outcome?.durationMinutes,
+    outcome?.durationRangeMinutes ?? null,
+    `Choice '${choice.id}' ${result} outcome`,
+  );
 }
 
 function performSkillCheck(game, choice, _minutes, scene) {
@@ -394,7 +415,7 @@ function performSkillCheck(game, choice, _minutes, scene) {
       "Choice '" + choice.id + "' has no " + result + " outcome",
     );
   }
-  const minutes = outcomeMinutes(choice, outcome, result);
+  const minutes = outcomeMinutes(game, choice, outcome, result);
 
   if (outcome.target === "@leave-place") {
     return performLeave(
@@ -491,5 +512,5 @@ export function performChoice(game, request) {
     );
   }
 
-  return handler(game, choice, choiceMinutes(choice), scene);
+  return handler(game, choice, choiceMinutes(game, choice), scene);
 }

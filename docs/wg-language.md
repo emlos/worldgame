@@ -395,9 +395,11 @@ soon as the player leaves that scene. Interrupt selection and pending state
 survive save/load.
 
 Keep consequences in the interrupt scene using ordinary effects. A recovery
-choice can use `@time 1h..3h rest` to choose a stable random whole-minute
-duration, advance the full world simulation, and recover energy at the normal
-sleep rate while the player is unconscious.
+choice can use `@time 1h..3h rest` to display the possible range, roll one
+random whole-minute duration only when selected, advance the full world
+simulation, and recover energy at the normal sleep rate while the player is
+unconscious. Rendering or revisiting the choice does not consume randomness;
+the gameplay random stream and resulting game time survive save/load.
 
 ### Position selectors and conditions
 
