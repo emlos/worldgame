@@ -98,6 +98,33 @@ export function listNavigationDestinations(game) {
   );
 }
 
+function normalizeNavigationSearchText(value) {
+  return String(value ?? "")
+    .normalize("NFKD")
+    .replace(/\p{Diacritic}/gu, "")
+    .toLocaleLowerCase()
+    .replace(/[_-]+/g, " ")
+    .replace(/[^\p{Letter}\p{Number}]+/gu, " ")
+    .trim();
+}
+
+/** Filter destinations using their display text, canonical keys, and optional aliases. */
+export function searchNavigationDestinations(destinations, query) {
+  const terms = normalizeNavigationSearchText(query).split(/\s+/).filter(Boolean);
+  if (!terms.length) return [...destinations];
+
+  return destinations.filter((destination) => {
+    const searchable = normalizeNavigationSearchText([
+      destination.name,
+      destination.districtName,
+      destination.placeKey,
+      destination.districtKey,
+      ...(Array.isArray(destination.searchTerms) ? destination.searchTerms : []),
+    ].filter(Boolean).join(" "));
+    return terms.every((term) => searchable.includes(term));
+  });
+}
+
 /** Build a fresh shortest route for the active GPS target. */
 export function buildGpsRoute(game) {
   requireGameWorld(game);

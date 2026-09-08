@@ -2,9 +2,49 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import { Game } from "../src/game/game.js";
-import { listNavigationDestinations } from "../src/game/navigation.js";
+import {
+  listNavigationDestinations,
+  searchNavigationDestinations,
+} from "../src/game/navigation.js";
 
 const FIXED_START = new Date("2026-09-04T12:00:00.000Z");
+
+const SEARCH_DESTINATIONS = Object.freeze([
+  Object.freeze({
+    placeId: "school-id",
+    locationId: "school-district-id",
+    name: "Riverside High",
+    districtName: "Northbank",
+    placeKey: "high_school",
+    districtKey: "northbank",
+  }),
+  Object.freeze({
+    placeId: "square-id",
+    locationId: "centre-id",
+    name: "Old Town Square",
+    districtName: "Central",
+    placeKey: "town_square",
+    districtKey: "central",
+  }),
+]);
+
+test("GPS search finds the generated high school using 'school'", () => {
+  assert.deepEqual(
+    searchNavigationDestinations(SEARCH_DESTINATIONS, "school").map(
+      (destination) => destination.placeId,
+    ),
+    ["school-id"],
+  );
+});
+
+test("GPS search finds the generated high school using 'high school'", () => {
+  assert.deepEqual(
+    searchNavigationDestinations(SEARCH_DESTINATIONS, "high school").map(
+      (destination) => destination.placeId,
+    ),
+    ["school-id"],
+  );
+});
 
 function gameWithoutNPCs(options = {}) {
   return new Game({

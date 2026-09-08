@@ -19,6 +19,7 @@ import {
 } from "./journalUI.js";
 import { teleportPlayerToSchool } from "../../features/school/debug.js";
 import { buildFullMapView } from "../../game/scene/mapView.js";
+import { searchNavigationDestinations } from "../../game/navigation.js";
 import {
   buildPhoneGpsView,
   buildPhonePlayerStatsView,
@@ -877,12 +878,10 @@ function makePhoneGpsDestination(entry) {
 
 function renderPhoneGps() {
   const view = buildPhoneGpsView(game);
-  const query = phoneGpsSearch.value.trim().toLocaleLowerCase();
-  const destinations = query
-    ? view.destinations.filter((entry) =>
-        `${entry.name} ${entry.districtName}`.toLocaleLowerCase().includes(query),
-      )
-    : view.destinations;
+  const destinations = searchNavigationDestinations(
+    view.destinations,
+    phoneGpsSearch.value,
+  );
 
   if (view.activeRoute) {
     phoneGpsStatus.textContent =
