@@ -14,7 +14,7 @@ export const NPC_REGISTRY = [
         meta: {
            // example: true, test flag, remove before release
             shortName: "Taylor",
-            iconPath: "assets/npc/icons/talor/icon.png",
+            iconPath: "assets/npc/icons/taylor/icon.png",
             nicknames: ["Tay"],
             description:
                 "Taylor is a high school student who enjoys exploring the city after school hours.",
@@ -800,13 +800,13 @@ export const NPC_REGISTRY = [
     //businessman type
     {
         id: "vinny",
-        name: "Vic Hale",
+        name: "Vinny Hale",
         meta: {
-            shortName: "Vic",
+            shortName: "Vinny",
             iconPath: "assets/npc/icons/vinny/icon.png",
             nicknames: ["Hale", "Vinny"],
             description:
-                "Vic has a grip on the city's corporate world, and a taste for the finer things in life. {{npc.vinny.subject}} is often seen at exclusive clubs and high-end restaurants.",
+                "Vinny has a grip on the city's corporate world, and a taste for the finer things in life. {{npc.vinny.subject}} is often seen at exclusive clubs and high-end restaurants.",
             tags: ["human", "romance", "corporate"],
         },
 

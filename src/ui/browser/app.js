@@ -493,16 +493,19 @@ function makePhoneRelationshipEntry(entry) {
 
   const avatar = document.createElement("div");
   avatar.className = "phone-relationship-avatar";
+  const fallback = document.createElement("span");
+  fallback.textContent = entry.name.charAt(0).toUpperCase();
   if (entry.iconPath) {
     const icon = document.createElement("img");
     icon.src = entry.iconPath;
     icon.alt = "";
     icon.width = 32;
     icon.height = 32;
+    icon.addEventListener("error", () => avatar.replaceChildren(fallback), {
+      once: true,
+    });
     avatar.append(icon);
   } else {
-    const fallback = document.createElement("span");
-    fallback.textContent = entry.name.charAt(0).toUpperCase();
     avatar.append(fallback);
   }
 
