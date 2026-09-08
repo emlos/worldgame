@@ -22078,25 +22078,6 @@ export const WG_BUNDLE = {
                       "direction": "decrease"
                     }
                   }
-                },
-                {
-                  "type": "change",
-                  "effect": {
-                    "op": "stat",
-                    "id": "health",
-                    "amount": -1,
-                    "source": {
-                      "file": "story/school/events.wg",
-                      "line": 1496,
-                      "column": 1
-                    },
-                    "feedback": {
-                      "type": "stat",
-                      "amount": -1,
-                      "label": "-Health",
-                      "direction": "decrease"
-                    }
-                  }
                 }
               ],
               "source": {
@@ -22135,25 +22116,6 @@ export const WG_BUNDLE = {
                 {
                   "type": "text",
                   "value": "You charge in too hard, lose your footing, and hit the floor. The teacher removes both players from the game."
-                },
-                {
-                  "type": "change",
-                  "effect": {
-                    "op": "stat",
-                    "id": "health",
-                    "amount": -3,
-                    "source": {
-                      "file": "story/school/events.wg",
-                      "line": 1502,
-                      "column": 1
-                    },
-                    "feedback": {
-                      "type": "stat",
-                      "amount": -3,
-                      "label": "-Health",
-                      "direction": "decrease"
-                    }
-                  }
                 },
                 {
                   "type": "change",
@@ -22344,25 +22306,6 @@ export const WG_BUNDLE = {
                       "meterId": "friendship",
                       "higherIsBetter": true,
                       "direction": "increase"
-                    }
-                  }
-                },
-                {
-                  "type": "change",
-                  "effect": {
-                    "op": "stat",
-                    "id": "health",
-                    "amount": -1,
-                    "source": {
-                      "file": "story/school/events.wg",
-                      "line": 1514,
-                      "column": 1
-                    },
-                    "feedback": {
-                      "type": "stat",
-                      "amount": -1,
-                      "label": "-Health",
-                      "direction": "decrease"
                     }
                   }
                 },
@@ -23349,25 +23292,6 @@ export const WG_BUNDLE = {
                       "meterId": "friendship",
                       "higherIsBetter": true,
                       "direction": "increase"
-                    }
-                  }
-                },
-                {
-                  "type": "change",
-                  "effect": {
-                    "op": "stat",
-                    "id": "health",
-                    "amount": -1,
-                    "source": {
-                      "file": "story/school/events.wg",
-                      "line": 1226,
-                      "column": 1
-                    },
-                    "feedback": {
-                      "type": "stat",
-                      "amount": -1,
-                      "label": "-Health",
-                      "direction": "decrease"
                     }
                   }
                 }

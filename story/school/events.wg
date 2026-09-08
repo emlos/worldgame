@@ -1223,7 +1223,7 @@
 
   @passage dodgeball-sacrifice
 
-  The ball strikes your shoulder instead of Taylor. {{npc.taylor.subject | cap}} looks guilty until you point out that {{npc.taylor.subject }} is still in the game.  @change relationship taylor.friendship 2  @change stat health -1
+  The ball strikes your shoulder instead of Taylor. {{npc.taylor.subject | cap}} looks guilty until you point out that {{npc.taylor.subject }} is still in the game.  @change relationship taylor.friendship 2
 
   @next -> @return
 
@@ -1493,13 +1493,13 @@
 
   @passage rough-retaliation-success
 
-  You meet the student's next challenge and hold your ground. The point is made, but the teacher penalizes both of you.  @change skill strength 0.1  @change grade physical_education -1  @change stat health -1
+  You meet the student's next challenge and hold your ground. The point is made, but the teacher penalizes both of you.  @change skill strength 0.1  @change grade physical_education -1
 
   @next -> @return
 
   @passage rough-retaliation-failure
 
-  You charge in too hard, lose your footing, and hit the floor. The teacher removes both players from the game.  @change stat health -3  @change stat stress 3  @change grade physical_education -2
+  You charge in too hard, lose your footing, and hit the floor. The teacher removes both players from the game.  @change stat stress 3  @change grade physical_education -2
 
   @next -> @return
 
@@ -1511,6 +1511,6 @@
 
   @passage rough-taylor-risk
 
-  You draw the student's attention and spend the next play fending off an unnecessarily hard challenge.  @change relationship taylor.friendship 1  @change stat health -1  @change grade physical_education 1
+  You draw the student's attention and spend the next play fending off an unnecessarily hard challenge.  @change relationship taylor.friendship 1  @change grade physical_education 1
 
   @next -> @return
