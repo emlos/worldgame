@@ -42,10 +42,13 @@ test("a new browser game can enter the one-time home opening", () => {
 
   assert.equal(opening?.id, "story.opening.new-home");
   assert.equal(game.currentStory?.id, "story.opening.new-home");
-  assert.equal(game.hasFlag("opening_seen"), true);
+  assert.equal(game.hasFlag("opening_seen"), false);
   const openingScene = buildScene(game);
   assert.equal(openingScene.heading, "A new beginning");
-  assert.doesNotMatch(JSON.stringify(openingScene.content), /notice pinned/);
+  assert.doesNotMatch(
+    JSON.stringify([openingScene.content, openingScene.alerts]),
+    /Today is a school day/,
+  );
 
   choose(game, "Maybe this is a fresh start");
   assert.equal(game.currentStory?.locals?.outlook, "hopeful");
@@ -57,12 +60,29 @@ test("a new browser game can enter the one-time home opening", () => {
 
   assert.equal(game.currentStory, null);
   assert.equal(game.currentPlace?.key, "player_home");
-  assert.match(JSON.stringify(buildScene(game).content), /notice pinned/);
+  assert.equal(game.hasFlag("opening_seen"), true);
+  const homeScene = buildScene(game);
+  assert.match(JSON.stringify(homeScene.content), /Today is a school day/);
+  assert.doesNotMatch(JSON.stringify(homeScene.content), /notice has been pinned/);
   assert.equal(
     getEligibleWGAutomaticScenes(game, WG_AUTO_TRIGGER.enterPlace).some(
       (scene) => scene.id === "story.opening.new-home",
     ),
     false,
+  );
+
+  game.setCurrentPlace();
+  assert.doesNotMatch(
+    JSON.stringify(buildScene(game).content),
+    /notice has been pinned/,
+  );
+  game.jumpToDate("2026-09-01T13:00:00.000Z");
+  const outsideHome = buildScene(game);
+  assert.match(JSON.stringify(outsideHome.content), /notice has been pinned/);
+  assert.ok(
+    outsideHome.sections
+      .flatMap((section) => section.choices)
+      .some((choice) => choice.label === "Check the notice on the door"),
   );
 });
 

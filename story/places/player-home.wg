@@ -5,9 +5,6 @@
   @priority 1000
   @heading "A new beginning"
   @choices "How do you feel about the day ahead?"
-  @onenter
-    @effect set flags.opening_seen
-  @endonenter
 
   @passage wake-up
 
@@ -43,7 +40,9 @@
 
   School is waiting, but what you do next is your decision. You can get ready, leave immediately, or ignore it and spend the day another way.
 
-  @next "Get up" -> @exit
+  @choice "Get up" -> @exit
+    @effect set flags.opening_seen
+  @endchoice
 
   @#==============================================================================================
 

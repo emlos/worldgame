@@ -3,6 +3,7 @@ import { SCHOOL_CLASS_BEHAVIOR, SCHOOL_CLASS_BEHAVIOR_ID } from "./classBehavior
 import { createSchoolWGContext } from "./context.js";
 import { SCHOOL_QUIZ_STORY_SYSTEM } from "./quiz/system.js";
 import { SCHOOL_AUTOMATIC_REMINDERS } from "./reminders.js";
+import { SCHOOL_SCENE_DECORATORS } from "./sceneDecorators.js";
 import { HIGH_SCHOOL_PLACE_KEY } from "./config.js";
 import { SCHOOL_PLACE_DEFINITIONS } from "./places.js";
 import { SCHOOL_SUBJECTS } from "./education.js";
@@ -22,6 +23,7 @@ export const SCHOOL_FEATURE = defineFeature({
   storyBehaviors: {
     [SCHOOL_CLASS_BEHAVIOR_ID]: SCHOOL_CLASS_BEHAVIOR,
   },
+  sceneDecorators: SCHOOL_SCENE_DECORATORS,
   automaticReminders: SCHOOL_AUTOMATIC_REMINDERS,
   placeDefinitions: SCHOOL_PLACE_DEFINITIONS,
   skillCheckTargets: SCHOOL_SKILL_CHECK_TARGETS,
