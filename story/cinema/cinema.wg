@@ -1,0 +1,5 @@
+:: place.cinema
+  @hub cinema
+
+  Backlit posters line the foyer of {{place.name}}. The smell of popcorn drifts from the concession stand while the screens rumble faintly beyond the ticket barrier.
+

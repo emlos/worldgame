@@ -169,10 +169,10 @@ function renderNpcTable() {
         const row = document.createElement("tr");
         const values = [
             npc.name,
-            `${location?.name || npc.locationId || "—"}${place ? ` / ${place.name}` : ""}`,
-            goal ? `${goal.ruleId} (${goal.type})` : "—",
-            action?.type || "—",
-            npc.brain?.nextDecisionAt ? formatDate(npc.brain.nextDecisionAt) : "—",
+            `${location?.name || npc.locationId || "-"}${place ? ` / ${place.name}` : ""}`,
+            goal ? `${goal.ruleId} (${goal.type})` : "-",
+            action?.type || "-",
+            npc.brain?.nextDecisionAt ? formatDate(npc.brain.nextDecisionAt) : "-",
         ];
         for (const value of values) {
             const cell = document.createElement("td");
@@ -202,7 +202,7 @@ function render() {
     $("temperatureCard").textContent = `${environment.temperature.toFixed(1)}°C | ${environment.season}`;
     $("calendarCard").textContent = day.kind;
     $("holidayCard").textContent = holidays.join(", ") || "no holiday";
-    $("locationCard").textContent = location?.name || game.currentLocationId || "—";
+    $("locationCard").textContent = location?.name || game.currentLocationId || "-";
     $("placeCard").textContent = game.currentPlace?.name || game.currentPlaceKey || "outside";
     $("flagsCard").textContent = `${game.flags.size} flag${game.flags.size === 1 ? "" : "s"}`;
     $("npcCard").textContent = String(game.npcsArray.length);
@@ -216,9 +216,9 @@ function render() {
         ["Master seed", String(game.seed)],
         ["World seed", String(game.world.random.seed)],
         ["Current UTC time", formatDate(game.now)],
-        ["Player location id", String(game.currentLocationId ?? "—")],
-        ["Player place id", String(game.currentPlaceId ?? "—")],
-        ["Home", `${game.homeLocationId ?? "—"} / ${game.homePlaceId ?? "—"}`],
+        ["Player location id", String(game.currentLocationId ?? "-")],
+        ["Player place id", String(game.currentPlaceId ?? "-")],
+        ["Home", `${game.homeLocationId ?? "-"} / ${game.homePlaceId ?? "-"}`],
         ["Weather", `${environment.weather}, ${environment.temperature.toFixed(1)}°C`],
         ["Moon", game.world.moonPhase],
         ["Log entries", String(game.log.length)],

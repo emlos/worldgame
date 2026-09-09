@@ -181,7 +181,7 @@ Taylor seems really...
 ## Minimal authored event
 
 Exposure metadata lives on the scene it exposes. This example adds a scene to
-the current place's “Things to do” section:
+the current place's "Things to do" section:
 
 ```wg
 :: taylor.study.peek
@@ -285,7 +285,7 @@ ID is reserved, and hub source must not author an `@leave-place` choice.
 
 ### Offered scenes
 
-- `@offer place` adds the scene to the current place's “Things to do” section.
+- `@offer place` adds the scene to the current place's "Things to do" section.
 - `@offer npc <id>` adds an authored interaction for that NPC. The
   NPC must be at the player's exact indoor or outdoor position.
 - Every offered scene requires `@label "..."`. `@icon` is optional and may be
@@ -1090,10 +1090,10 @@ also see a coloured result beside the prose:
 
 ```wg
 @random
-The lesson goes poorly—you leave more confused than before.
+The lesson goes poorly-you leave more confused than before.
 @change grade english -1
 @or
-The lesson goes well—you learn a lot!
+The lesson goes well-you learn a lot!
 @change grade english 1
 @or
 You get through the work normally.

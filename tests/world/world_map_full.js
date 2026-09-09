@@ -26,7 +26,7 @@ const table = (rows, headers = []) => {
 };
 
 function formatOpeningHours(hours) {
-    if (!hours) return "Hours: —";
+    if (!hours) return "Hours: -";
 
     const order = [
         DAY_KEYS[1],
@@ -84,8 +84,8 @@ function init(width, height) {
             return;
         }
 
-        const tags = (loc.tags || []).join(", ") || "—";
-        const district = loc.districtKey || "—";
+        const tags = (loc.tags || []).join(", ") || "-";
+        const district = loc.districtKey || "-";
         const places = loc.places || [];
 
         const placesHtml = places.length
@@ -290,7 +290,7 @@ function init(width, height) {
             node.style.cursor = "pointer";
 
             // hover: name + places
-            const places = (loc.places || []).map((p) => p.name).join(", ") || "—";
+            const places = (loc.places || []).map((p) => p.name).join(", ") || "-";
             node.addEventListener("mousemove", (ev) =>
                 showTip(`<b>${loc.name}</b><br/><small>${places}</small>`, ev.clientX, ev.clientY)
             );

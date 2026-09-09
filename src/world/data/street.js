@@ -338,7 +338,7 @@ export const STREET_REGISTRY = [
         ],
     },
 
-    // --- Industrial / Working-Class / “Abandoned vibe” via tags ---
+    // --- Industrial / Working-Class / "Abandoned vibe" via tags ---
     {
         key: "ironworks_st",
         name: "Ironworks Street",

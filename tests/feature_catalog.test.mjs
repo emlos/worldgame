@@ -14,11 +14,13 @@ test("the default catalog composes each special system through feature registrat
 
   assert.deepEqual(features.features.map((feature) => feature.id), [
     "bus",
+    "cinema",
     "journal",
     "school",
     "rent",
   ]);
   assert.equal(typeof features.getActionHandler("bus.travel"), "function");
+  assert.equal(typeof features.getActionHandler("cinema.watch"), "function");
   assert.ok(features.getWGSystem("journal.diary"));
   assert.ok(features.getWGSystem("school.quiz"));
   assert.ok(features.getWGSystem("school.timetable"));

@@ -37,7 +37,7 @@ function taylorSchoolGoals() {
       targets: [
         {
           type: TARGET_TYPE.placeKeys,
-          candidates: ["library", "mall"],
+          candidates: ["library", "mall", "cinema"],
         },
         {
           type: TARGET_TYPE.placeCategory,

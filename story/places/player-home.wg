@@ -63,6 +63,12 @@
     You are back in the privacy of your four walls. Everything has found a place, apart from the strange receptacle uncovered beside the wall.
   @endif
 
+  @if not flags.home.computer_unpacked and flags.inventory.computer
+    A computer is still packed in a box on the floor. You can unpack it to set it up on the desk.
+  @elseif flags.home.computer_unpacked
+    A shiny brand new computer gives your room a certain je-ne-sais-quoi. You feel like a rich person!
+  @endif
+
   @choicegroup "Bedroom"
 
     @choice "Go to Bed" -> menu.player.home.rest
@@ -100,6 +106,16 @@
       @effect add story.home.unpacking 1
       @effect set flags.quest.receptacles.started
       @effect set flags.home.unpacked
+    @endchoice
+
+    @choice "Unpack your computer" -> @exit
+      @when flags.inventory.computer and not flags.home.computer_unpacked
+      @response
+        You unpack your computer and set it up on the desk. The screen flickers to life, and you can now use it to browse the web, check your email, and play games.
+      @endresponse
+      @time 15m
+      @effect set flags.home.computer_unpacked
+
     @endchoice
 
   @endchoicegroup

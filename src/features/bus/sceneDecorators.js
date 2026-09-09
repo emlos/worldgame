@@ -94,7 +94,7 @@ function decorateBusBoarding({ game, scene }) {
   const destinations = listBusTravelOptions(game, place).map((destination) => createChoice({
     id: `bus-travel:${destination.place.id}`,
     icon: destination.place.props?.icon || "🚌",
-    label: `${destination.location.name} — ${destination.place.name}`,
+    label: `${destination.location.name} - ${destination.place.name}`,
     durationMinutes: destination.travelMinutes,
     costs: [{ type: "money", amount: fare, label: formatBusFare(fare), currency: "GBP" }],
     enabled: canAfford,

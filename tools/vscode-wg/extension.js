@@ -360,7 +360,7 @@ function activate(context) {
               : "";
 
             item.detail = relativePath
-              ? `WG scene — ${relativePath}:${location.range.start.line + 1}`
+              ? `WG scene - ${relativePath}:${location.range.start.line + 1}`
               : "WG scene";
             item.range = new vscode.Range(
               new vscode.Position(position.line, targetRange.start),

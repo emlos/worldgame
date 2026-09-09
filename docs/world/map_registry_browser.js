@@ -38,7 +38,7 @@ function init() {
 
     // -------- recursive expand pretty renderer (details trees) --------
     function prettyNode(v, depth = 0, keyName = "") {
-        if (v == null) return el("span", { class: "small", text: "—" });
+        if (v == null) return el("span", { class: "small", text: "-" });
 
         if (typeof v === "string") return el("span", { text: v });
         if (typeof v === "number" || typeof v === "boolean") return el("code", { text: String(v) });

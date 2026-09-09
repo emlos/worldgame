@@ -1232,7 +1232,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/player-home.wg",
-                "line": 169,
+                "line": 185,
                 "column": 1
               }
             }
@@ -1247,13 +1247,13 @@ export const WG_BUNDLE = {
             "target": "@exit",
             "source": {
               "file": "story/places/player-home.wg",
-              "line": 171,
+              "line": 187,
               "column": 1
             }
           },
           "source": {
             "file": "story/places/player-home.wg",
-            "line": 169,
+            "line": 185,
             "column": 1
           }
         }
@@ -1274,7 +1274,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/places/player-home.wg",
-        "line": 167,
+        "line": 183,
         "column": 1
       }
     },
@@ -1290,7 +1290,7 @@ export const WG_BUNDLE = {
         "config": {},
         "source": {
           "file": "story/places/player-home.wg",
-          "line": 175,
+          "line": 191,
           "column": 1
         }
       },
@@ -1312,7 +1312,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/places/player-home.wg",
-        "line": 173,
+        "line": 189,
         "column": 1
       }
     },
@@ -1729,7 +1729,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/player-home.wg",
-                "line": 179,
+                "line": 195,
                 "column": 1
               }
             }
@@ -1744,13 +1744,13 @@ export const WG_BUNDLE = {
             "target": "@exit",
             "source": {
               "file": "story/places/player-home.wg",
-              "line": 181,
+              "line": 197,
               "column": 1
             }
           },
           "source": {
             "file": "story/places/player-home.wg",
-            "line": 179,
+            "line": 195,
             "column": 1
           }
         }
@@ -1771,7 +1771,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/places/player-home.wg",
-        "line": 177,
+        "line": 193,
         "column": 1
       }
     },
@@ -1819,14 +1819,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 133,
+                        "line": 149,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 132,
+                    "line": 148,
                     "column": 1
                   }
                 },
@@ -1858,14 +1858,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 135,
+                        "line": 151,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 134,
+                    "line": 150,
                     "column": 1
                   }
                 }
@@ -1881,14 +1881,14 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 137,
+                    "line": 153,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/player-home.wg",
-                "line": 132,
+                "line": 148,
                 "column": 1
               },
               "runtimeId": 0
@@ -1924,14 +1924,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 141,
+                        "line": 157,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 140,
+                    "line": 156,
                     "column": 1
                   }
                 },
@@ -1963,14 +1963,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 143,
+                        "line": 159,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 142,
+                    "line": 158,
                     "column": 1
                   }
                 },
@@ -2010,14 +2010,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 145,
+                        "line": 161,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 144,
+                    "line": 160,
                     "column": 1
                   }
                 },
@@ -2049,14 +2049,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 148,
+                        "line": 164,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 147,
+                    "line": 163,
                     "column": 1
                   }
                 }
@@ -2064,7 +2064,7 @@ export const WG_BUNDLE = {
               "elseNodes": null,
               "source": {
                 "file": "story/places/player-home.wg",
-                "line": 140,
+                "line": 156,
                 "column": 1
               },
               "runtimeId": 1
@@ -2080,13 +2080,13 @@ export const WG_BUNDLE = {
             "target": "@exit",
             "source": {
               "file": "story/places/player-home.wg",
-              "line": 151,
+              "line": 167,
               "column": 1
             }
           },
           "source": {
             "file": "story/places/player-home.wg",
-            "line": 132,
+            "line": 148,
             "column": 1
           }
         }
@@ -2107,7 +2107,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/places/player-home.wg",
-        "line": 130,
+        "line": 146,
         "column": 1
       }
     },
@@ -2142,7 +2142,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/player-home.wg",
-                "line": 154,
+                "line": 170,
                 "column": 1
               }
             }
@@ -2157,13 +2157,13 @@ export const WG_BUNDLE = {
             "target": ".p2",
             "source": {
               "file": "story/places/player-home.wg",
-              "line": 157,
+              "line": 173,
               "column": 1
             }
           },
           "source": {
             "file": "story/places/player-home.wg",
-            "line": 154,
+            "line": 170,
             "column": 1
           }
         },
@@ -2180,7 +2180,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/player-home.wg",
-                "line": 159,
+                "line": 175,
                 "column": 1
               }
             }
@@ -2195,13 +2195,13 @@ export const WG_BUNDLE = {
             "target": ".p3",
             "source": {
               "file": "story/places/player-home.wg",
-              "line": 161,
+              "line": 177,
               "column": 1
             }
           },
           "source": {
             "file": "story/places/player-home.wg",
-            "line": 159,
+            "line": 175,
             "column": 1
           }
         },
@@ -2218,7 +2218,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/player-home.wg",
-                "line": 163,
+                "line": 179,
                 "column": 1
               }
             }
@@ -2233,13 +2233,13 @@ export const WG_BUNDLE = {
             "target": "@exit",
             "source": {
               "file": "story/places/player-home.wg",
-              "line": 165,
+              "line": 181,
               "column": 1
             }
           },
           "source": {
             "file": "story/places/player-home.wg",
-            "line": 163,
+            "line": 179,
             "column": 1
           }
         }
@@ -2260,7 +2260,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/places/player-home.wg",
-        "line": 153,
+        "line": 169,
         "column": 1
       }
     },
@@ -2753,6 +2753,644 @@ export const WG_BUNDLE = {
         "column": 1
       }
     },
+    "mall.browse": {
+      "id": "mall.browse",
+      "finalTarget": "@exit",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Choices",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You wander between crowded clothes shops, cosmetics counters, bookshops and kiosks. Nothing demands to be bought today, but the window displays make sure you consider it."
+                }
+              ],
+              "source": {
+                "file": "story/places/mall.wg",
+                "line": 21,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/places/mall.wg",
+            "line": 21,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [],
+      "conditions": [],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/places/mall.wg",
+        "line": 20,
+        "column": 1
+      }
+    },
+    "mall.electronics": {
+      "id": "mall.electronics",
+      "finalTarget": null,
+      "kind": "event",
+      "heading": "Electronics",
+      "choiceHeading": "Choices",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Laptops, monitors and carefully lit desktop computers cover the display tables. A boxed home computer costs £600 and includes everything needed to get online."
+                }
+              ],
+              "source": {
+                "file": "story/places/mall.wg",
+                "line": 51,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-1",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Buy a home computer"
+                }
+              ],
+              "target": "@exit",
+              "icon": null,
+              "durationMinutes": 15,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": {
+                "type": "binary",
+                "operator": "and",
+                "left": {
+                  "type": "binary",
+                  "operator": ">=",
+                  "left": {
+                    "type": "path",
+                    "value": [
+                      "player",
+                      "money"
+                    ]
+                  },
+                  "right": {
+                    "type": "literal",
+                    "value": 600
+                  }
+                },
+                "right": {
+                  "type": "unary",
+                  "operator": "not",
+                  "value": {
+                    "type": "path",
+                    "value": [
+                      "flags",
+                      "inventory",
+                      "computer"
+                    ]
+                  }
+                }
+              },
+              "requirements": [],
+              "warning": null,
+              "responses": [
+                {
+                  "paragraphs": [
+                    {
+                      "type": "paragraph",
+                      "parts": [
+                        {
+                          "type": "text",
+                          "value": "A clerk rings up the computer and arranges delivery to your home. [info]You now own a home computer.[/info]"
+                        }
+                      ],
+                      "source": {
+                        "file": "story/places/mall.wg",
+                        "line": 59,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "source": {
+                    "file": "story/places/mall.wg",
+                    "line": 58,
+                    "column": 1
+                  }
+                }
+              ],
+              "hints": [],
+              "effects": [
+                {
+                  "op": "money",
+                  "amount": -600,
+                  "source": {
+                    "file": "story/places/mall.wg",
+                    "line": 56,
+                    "column": 1
+                  },
+                  "feedback": {
+                    "type": "money",
+                    "amount": -600,
+                    "label": "£600 computer",
+                    "direction": "decrease"
+                  }
+                },
+                {
+                  "op": "set",
+                  "path": [
+                    "flags",
+                    "inventory",
+                    "computer"
+                  ],
+                  "source": {
+                    "file": "story/places/mall.wg",
+                    "line": 57,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/places/mall.wg",
+                "line": 53,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-2",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "The computer is too expensive"
+                }
+              ],
+              "target": "@exit",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": {
+                "type": "binary",
+                "operator": "and",
+                "left": {
+                  "type": "binary",
+                  "operator": "<",
+                  "left": {
+                    "type": "path",
+                    "value": [
+                      "player",
+                      "money"
+                    ]
+                  },
+                  "right": {
+                    "type": "literal",
+                    "value": 600
+                  }
+                },
+                "right": {
+                  "type": "unary",
+                  "operator": "not",
+                  "value": {
+                    "type": "path",
+                    "value": [
+                      "flags",
+                      "inventory",
+                      "computer"
+                    ]
+                  }
+                }
+              },
+              "requirements": [],
+              "warning": null,
+              "responses": [
+                {
+                  "paragraphs": [
+                    {
+                      "type": "paragraph",
+                      "parts": [
+                        {
+                          "type": "text",
+                          "value": "You check the price twice. It is going to take more saving before you can bring one home."
+                        }
+                      ],
+                      "source": {
+                        "file": "story/places/mall.wg",
+                        "line": 66,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "source": {
+                    "file": "story/places/mall.wg",
+                    "line": 65,
+                    "column": 1
+                  }
+                }
+              ],
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/places/mall.wg",
+                "line": 63,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-3",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Look at accessories"
+                }
+              ],
+              "target": "@exit",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": {
+                "type": "path",
+                "value": [
+                  "flags",
+                  "inventory",
+                  "computer"
+                ]
+              },
+              "requirements": [],
+              "warning": null,
+              "responses": [
+                {
+                  "paragraphs": [
+                    {
+                      "type": "paragraph",
+                      "parts": [
+                        {
+                          "type": "text",
+                          "value": "You already have the important part. The walls of accessories can wait until you actually need something."
+                        }
+                      ],
+                      "source": {
+                        "file": "story/places/mall.wg",
+                        "line": 73,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "source": {
+                    "file": "story/places/mall.wg",
+                    "line": 72,
+                    "column": 1
+                  }
+                }
+              ],
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/places/mall.wg",
+                "line": 70,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-4",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Return to the atrium"
+                }
+              ],
+              "target": "@exit",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/places/mall.wg",
+                "line": 77,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/places/mall.wg",
+            "line": 51,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [],
+      "conditions": [],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/places/mall.wg",
+        "line": 48,
+        "column": 1
+      }
+    },
+    "mall.food-court": {
+      "id": "mall.food-court",
+      "finalTarget": null,
+      "kind": "event",
+      "heading": "The food court",
+      "choiceHeading": "Choices",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The tables overlook a ring of glowing menu boards. The air smells of coffee, hot oil and too many different lunches at once."
+                }
+              ],
+              "source": {
+                "file": "story/places/mall.wg",
+                "line": 26,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-1",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Buy a meal"
+                }
+              ],
+              "target": "@exit",
+              "icon": null,
+              "durationMinutes": 30,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": {
+                "type": "binary",
+                "operator": ">=",
+                "left": {
+                  "type": "path",
+                  "value": [
+                    "player",
+                    "money"
+                  ]
+                },
+                "right": {
+                  "type": "literal",
+                  "value": 8
+                }
+              },
+              "requirements": [],
+              "warning": null,
+              "responses": [
+                {
+                  "paragraphs": [
+                    {
+                      "type": "paragraph",
+                      "parts": [
+                        {
+                          "type": "text",
+                          "value": "You find a free table and eat while watching shoppers cross the atrium below."
+                        }
+                      ],
+                      "source": {
+                        "file": "story/places/mall.wg",
+                        "line": 34,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "source": {
+                    "file": "story/places/mall.wg",
+                    "line": 33,
+                    "column": 1
+                  }
+                }
+              ],
+              "hints": [],
+              "effects": [
+                {
+                  "op": "money",
+                  "amount": -8,
+                  "source": {
+                    "file": "story/places/mall.wg",
+                    "line": 31,
+                    "column": 1
+                  },
+                  "feedback": {
+                    "type": "money",
+                    "amount": -8,
+                    "label": "£8 meal",
+                    "direction": "decrease"
+                  }
+                },
+                {
+                  "op": "stat",
+                  "id": "stress",
+                  "amount": -5,
+                  "source": {
+                    "file": "story/places/mall.wg",
+                    "line": 32,
+                    "column": 1
+                  },
+                  "feedback": {
+                    "type": "stat",
+                    "amount": -5,
+                    "label": "-Stress",
+                    "direction": "decrease"
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/places/mall.wg",
+                "line": 28,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-2",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "I can't afford a meal"
+                }
+              ],
+              "target": "@exit",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": {
+                "type": "binary",
+                "operator": "<",
+                "left": {
+                  "type": "path",
+                  "value": [
+                    "player",
+                    "money"
+                  ]
+                },
+                "right": {
+                  "type": "literal",
+                  "value": 8
+                }
+              },
+              "requirements": [],
+              "warning": null,
+              "responses": [
+                {
+                  "paragraphs": [
+                    {
+                      "type": "paragraph",
+                      "parts": [
+                        {
+                          "type": "text",
+                          "value": "You study the menu boards, then decide that looking is free."
+                        }
+                      ],
+                      "source": {
+                        "file": "story/places/mall.wg",
+                        "line": 41,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "source": {
+                    "file": "story/places/mall.wg",
+                    "line": 40,
+                    "column": 1
+                  }
+                }
+              ],
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/places/mall.wg",
+                "line": 38,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-3",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Return to the atrium"
+                }
+              ],
+              "target": "@exit",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/places/mall.wg",
+                "line": 45,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/places/mall.wg",
+            "line": 26,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [],
+      "conditions": [],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/places/mall.wg",
+        "line": 23,
+        "column": 1
+      }
+    },
     "menu.player.home.rest": {
       "id": "menu.player.home.rest",
       "finalTarget": "@exit",
@@ -2781,7 +3419,7 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 187,
+                    "line": 203,
                     "column": 1
                   }
                 },
@@ -2832,14 +3470,14 @@ export const WG_BUNDLE = {
                           ],
                           "source": {
                             "file": "story/places/player-home.wg",
-                            "line": 189,
+                            "line": 205,
                             "column": 1
                           }
                         }
                       ],
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 188,
+                        "line": 204,
                         "column": 1
                       }
                     }
@@ -2855,14 +3493,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 191,
+                        "line": 207,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 188,
+                    "line": 204,
                     "column": 1
                   },
                   "runtimeId": 0
@@ -2877,7 +3515,7 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 193,
+                    "line": 209,
                     "column": 1
                   }
                 },
@@ -2908,14 +3546,14 @@ export const WG_BUNDLE = {
                       "amount": -5,
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 197,
+                        "line": 213,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 195,
+                    "line": 211,
                     "column": 1
                   }
                 },
@@ -2946,14 +3584,14 @@ export const WG_BUNDLE = {
                       "amount": -4.5,
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 202,
+                        "line": 218,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 200,
+                    "line": 216,
                     "column": 1
                   }
                 },
@@ -2984,14 +3622,14 @@ export const WG_BUNDLE = {
                       "amount": -4,
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 207,
+                        "line": 223,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 205,
+                    "line": 221,
                     "column": 1
                   }
                 },
@@ -3022,14 +3660,14 @@ export const WG_BUNDLE = {
                       "amount": -3.5,
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 212,
+                        "line": 228,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 210,
+                    "line": 226,
                     "column": 1
                   }
                 },
@@ -3060,14 +3698,14 @@ export const WG_BUNDLE = {
                       "amount": -3,
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 217,
+                        "line": 233,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 215,
+                    "line": 231,
                     "column": 1
                   }
                 },
@@ -3098,14 +3736,14 @@ export const WG_BUNDLE = {
                       "amount": -2.5,
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 222,
+                        "line": 238,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 220,
+                    "line": 236,
                     "column": 1
                   }
                 },
@@ -3136,14 +3774,14 @@ export const WG_BUNDLE = {
                       "amount": -2,
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 227,
+                        "line": 243,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 225,
+                    "line": 241,
                     "column": 1
                   }
                 },
@@ -3174,21 +3812,21 @@ export const WG_BUNDLE = {
                       "amount": -1.5,
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 232,
+                        "line": 248,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 230,
+                    "line": 246,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/player-home.wg",
-                "line": 185,
+                "line": 201,
                 "column": 1
               }
             }
@@ -3203,13 +3841,13 @@ export const WG_BUNDLE = {
             "target": "@exit",
             "source": {
               "file": "story/places/player-home.wg",
-              "line": 237,
+              "line": 253,
               "column": 1
             }
           },
           "source": {
             "file": "story/places/player-home.wg",
-            "line": 184,
+            "line": 200,
             "column": 1
           }
         },
@@ -3226,7 +3864,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/player-home.wg",
-                "line": 241,
+                "line": 257,
                 "column": 1
               }
             },
@@ -3260,14 +3898,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 243,
+                        "line": 259,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 242,
+                    "line": 258,
                     "column": 1
                   }
                 },
@@ -3298,14 +3936,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 245,
+                        "line": 261,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 244,
+                    "line": 260,
                     "column": 1
                   }
                 }
@@ -3321,14 +3959,14 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 247,
+                    "line": 263,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/player-home.wg",
-                "line": 242,
+                "line": 258,
                 "column": 1
               },
               "runtimeId": 0
@@ -3344,13 +3982,13 @@ export const WG_BUNDLE = {
             "target": "@exit",
             "source": {
               "file": "story/places/player-home.wg",
-              "line": 250,
+              "line": 266,
               "column": 1
             }
           },
           "source": {
             "file": "story/places/player-home.wg",
-            "line": 239,
+            "line": 255,
             "column": 1
           }
         }
@@ -3371,7 +4009,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/places/player-home.wg",
-        "line": 183,
+        "line": 199,
         "column": 1
       }
     },
@@ -3712,6 +4350,78 @@ export const WG_BUNDLE = {
       "source": {
         "file": "story/places/shops-food.wg",
         "line": 3,
+        "column": 1
+      }
+    },
+    "place.cinema": {
+      "id": "place.cinema",
+      "finalTarget": null,
+      "kind": "place",
+      "heading": null,
+      "choiceHeading": "Choices",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Backlit posters line the foyer of "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "place",
+                    "name"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": ". The smell of popcorn drifts from the concession stand while the screens rumble faintly beyond the ticket barrier."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/cinema.wg",
+                "line": 4,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/cinema/cinema.wg",
+            "line": 4,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "cinema"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": {
+        "type": "place"
+      },
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [],
+      "conditions": [],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/cinema/cinema.wg",
+        "line": 1,
         "column": 1
       }
     },
@@ -7963,6 +8673,159 @@ export const WG_BUNDLE = {
         "column": 1
       }
     },
+    "place.mall": {
+      "id": "place.mall",
+      "finalTarget": null,
+      "kind": "place",
+      "heading": null,
+      "choiceHeading": "Things to do",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Music and conversation echo through the bright galleries of "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "place",
+                    "name"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": ". Shop windows compete for attention around the central atrium."
+                }
+              ],
+              "source": {
+                "file": "story/places/mall.wg",
+                "line": 5,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-1",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Browse the shops"
+                }
+              ],
+              "target": "mall.browse",
+              "icon": "🛍️",
+              "durationMinutes": 45,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/places/mall.wg",
+                "line": 7,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-2",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Visit the food court"
+                }
+              ],
+              "target": "mall.food-court",
+              "icon": "🍜",
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/places/mall.wg",
+                "line": 12,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-3",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Visit the electronics shop"
+                }
+              ],
+              "target": "mall.electronics",
+              "icon": "💻",
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/places/mall.wg",
+                "line": 16,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/places/mall.wg",
+            "line": 5,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "mall"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": {
+        "type": "place"
+      },
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [],
+      "conditions": [],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/places/mall.wg",
+        "line": 1,
+        "column": 1
+      }
+    },
     "place.player-home": {
       "id": "place.player-home",
       "finalTarget": null,
@@ -8215,6 +9078,96 @@ export const WG_BUNDLE = {
               "runtimeId": 0
             },
             {
+              "type": "if",
+              "branches": [
+                {
+                  "test": {
+                    "type": "binary",
+                    "operator": "and",
+                    "left": {
+                      "type": "unary",
+                      "operator": "not",
+                      "value": {
+                        "type": "path",
+                        "value": [
+                          "flags",
+                          "home",
+                          "computer_unpacked"
+                        ]
+                      }
+                    },
+                    "right": {
+                      "type": "path",
+                      "value": [
+                        "flags",
+                        "inventory",
+                        "computer"
+                      ]
+                    }
+                  },
+                  "nodes": [
+                    {
+                      "type": "paragraph",
+                      "parts": [
+                        {
+                          "type": "text",
+                          "value": "A computer is still packed in a box on the floor. You can unpack it to set it up on the desk."
+                        }
+                      ],
+                      "source": {
+                        "file": "story/places/player-home.wg",
+                        "line": 67,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "source": {
+                    "file": "story/places/player-home.wg",
+                    "line": 66,
+                    "column": 1
+                  }
+                },
+                {
+                  "test": {
+                    "type": "path",
+                    "value": [
+                      "flags",
+                      "home",
+                      "computer_unpacked"
+                    ]
+                  },
+                  "nodes": [
+                    {
+                      "type": "paragraph",
+                      "parts": [
+                        {
+                          "type": "text",
+                          "value": "A shiny brand new computer gives your room a certain je-ne-sais-quoi. You feel like a rich person!"
+                        }
+                      ],
+                      "source": {
+                        "file": "story/places/player-home.wg",
+                        "line": 69,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "source": {
+                    "file": "story/places/player-home.wg",
+                    "line": 68,
+                    "column": 1
+                  }
+                }
+              ],
+              "elseNodes": null,
+              "source": {
+                "file": "story/places/player-home.wg",
+                "line": 66,
+                "column": 1
+              },
+              "runtimeId": 1
+            },
+            {
               "type": "choice-group",
               "id": "group-1",
               "heading": "Bedroom",
@@ -8245,7 +9198,7 @@ export const WG_BUNDLE = {
                       "label": "++Energy",
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 69,
+                        "line": 75,
                         "column": 1
                       }
                     }
@@ -8253,7 +9206,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 68,
+                    "line": 74,
                     "column": 1
                   }
                 },
@@ -8315,7 +9268,7 @@ export const WG_BUNDLE = {
                       "amount": 0.1,
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 75,
+                        "line": 81,
                         "column": 1
                       },
                       "feedback": {
@@ -8334,14 +9287,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 76,
+                        "line": 82,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 72,
+                    "line": 78,
                     "column": 1
                   }
                 },
@@ -8383,7 +9336,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 79,
+                    "line": 85,
                     "column": 1
                   }
                 },
@@ -8425,14 +9378,14 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 83,
+                    "line": 89,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/player-home.wg",
-                "line": 66,
+                "line": 72,
                 "column": 1
               }
             },
@@ -8509,14 +9462,14 @@ export const WG_BUNDLE = {
                       },
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 94,
+                        "line": 100,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 91,
+                    "line": 97,
                     "column": 1
                   }
                 },
@@ -8572,7 +9525,7 @@ export const WG_BUNDLE = {
                       },
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 100,
+                        "line": 106,
                         "column": 1
                       }
                     },
@@ -8586,7 +9539,7 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 101,
+                        "line": 107,
                         "column": 1
                       }
                     },
@@ -8599,21 +9552,110 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 102,
+                        "line": 108,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 97,
+                    "line": 103,
+                    "column": 1
+                  }
+                },
+                {
+                  "type": "choice",
+                  "id": "choice-7",
+                  "label": [
+                    {
+                      "type": "text",
+                      "value": "Unpack your computer"
+                    }
+                  ],
+                  "target": "@exit",
+                  "icon": null,
+                  "durationMinutes": 15,
+                  "durationRangeMinutes": null,
+                  "timeUntilPath": null,
+                  "energyFree": false,
+                  "resting": false,
+                  "when": {
+                    "type": "binary",
+                    "operator": "and",
+                    "left": {
+                      "type": "path",
+                      "value": [
+                        "flags",
+                        "inventory",
+                        "computer"
+                      ]
+                    },
+                    "right": {
+                      "type": "unary",
+                      "operator": "not",
+                      "value": {
+                        "type": "path",
+                        "value": [
+                          "flags",
+                          "home",
+                          "computer_unpacked"
+                        ]
+                      }
+                    }
+                  },
+                  "requirements": [],
+                  "warning": null,
+                  "responses": [
+                    {
+                      "paragraphs": [
+                        {
+                          "type": "paragraph",
+                          "parts": [
+                            {
+                              "type": "text",
+                              "value": "You unpack your computer and set it up on the desk. The screen flickers to life, and you can now use it to browse the web, check your email, and play games."
+                            }
+                          ],
+                          "source": {
+                            "file": "story/places/player-home.wg",
+                            "line": 114,
+                            "column": 1
+                          }
+                        }
+                      ],
+                      "source": {
+                        "file": "story/places/player-home.wg",
+                        "line": 113,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "hints": [],
+                  "effects": [
+                    {
+                      "op": "set",
+                      "path": [
+                        "flags",
+                        "home",
+                        "computer_unpacked"
+                      ],
+                      "source": {
+                        "file": "story/places/player-home.wg",
+                        "line": 117,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "source": {
+                    "file": "story/places/player-home.wg",
+                    "line": 111,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/player-home.wg",
-                "line": 89,
+                "line": 95,
                 "column": 1
               }
             },
@@ -8624,7 +9666,7 @@ export const WG_BUNDLE = {
               "nodes": [
                 {
                   "type": "choice",
-                  "id": "choice-7",
+                  "id": "choice-8",
                   "label": [
                     {
                       "type": "text",
@@ -8664,7 +9706,7 @@ export const WG_BUNDLE = {
                       "amount": 50,
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 112,
+                        "line": 128,
                         "column": 1
                       },
                       "feedback": {
@@ -8680,7 +9722,7 @@ export const WG_BUNDLE = {
                       "amount": -5,
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 113,
+                        "line": 129,
                         "column": 1
                       },
                       "feedback": {
@@ -8693,13 +9735,13 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 109,
+                    "line": 125,
                     "column": 1
                   }
                 },
                 {
                   "type": "choice",
-                  "id": "choice-8",
+                  "id": "choice-9",
                   "label": [
                     {
                       "type": "text",
@@ -8739,7 +9781,7 @@ export const WG_BUNDLE = {
                       "amount": 5,
                       "source": {
                         "file": "story/places/player-home.wg",
-                        "line": 119,
+                        "line": 135,
                         "column": 1
                       },
                       "feedback": {
@@ -8752,14 +9794,14 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 116,
+                    "line": 132,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/player-home.wg",
-                "line": 107,
+                "line": 123,
                 "column": 1
               }
             },
@@ -8770,7 +9812,7 @@ export const WG_BUNDLE = {
               "nodes": [
                 {
                   "type": "choice",
-                  "id": "choice-9",
+                  "id": "choice-10",
                   "label": [
                     {
                       "type": "text",
@@ -8799,14 +9841,14 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/places/player-home.wg",
-                    "line": 125,
+                    "line": 141,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/player-home.wg",
-                "line": 124,
+                "line": 140,
                 "column": 1
               }
             }

@@ -504,11 +504,11 @@
 
     <div class="card">
       <div class="status-line">
-        <span id="clock" class="clock">—</span>
-        <span id="dayInfo" class="pill">—</span>
-        <span id="weatherInfo" class="pill">—</span>
-        <span id="mapInfo" class="pill">—</span>
-        <span id="npcCount" class="pill">—</span>
+        <span id="clock" class="clock">-</span>
+        <span id="dayInfo" class="pill">-</span>
+        <span id="weatherInfo" class="pill">-</span>
+        <span id="mapInfo" class="pill">-</span>
+        <span id="npcCount" class="pill">-</span>
       </div>
 
       <div class="speed-row">
@@ -656,7 +656,7 @@
 
     function fmtDate(value) {
       const d = asDate(value);
-      if (!d) return "—";
+      if (!d) return "-";
       return new Intl.DateTimeFormat("en-GB", {
         weekday: "short",
         year: "numeric",
@@ -671,7 +671,7 @@
 
     function fmtTime(value) {
       const d = asDate(value);
-      if (!d) return "—";
+      if (!d) return "-";
       return String(d.getUTCHours()).padStart(2, "0") + ":" +
         String(d.getUTCMinutes()).padStart(2, "0");
     }
@@ -698,7 +698,7 @@
     }
 
     function locationName(id) {
-      if (!game || id == null) return "—";
+      if (!game || id == null) return "-";
       return game.world.getLocation(String(id))?.name || `Location ${id}`;
     }
 
@@ -722,7 +722,7 @@
     }
 
     function goalTargetLabel(goal) {
-      if (!goal) return "—";
+      if (!goal) return "-";
       const loc = locationName(goal.targetLocationId);
       const place = placeName(goal.targetLocationId, goal.targetPlaceId);
       return place ? `${place} | ${loc}` : loc;
@@ -730,7 +730,7 @@
 
     function actionEndLabel(npc) {
       const action = npc.brain?.currentAction;
-      if (!action) return "—";
+      if (!action) return "-";
 
       if (action.type === "travel") {
         const dest = placeName(action.targetLocationId, action.targetPlaceId) ||
@@ -742,7 +742,7 @@
         return `until ${fmtTime(action.until)}`;
       }
 
-      return npc.brain?.nextDecisionAt ? `wake ${fmtTime(npc.brain.nextDecisionAt)}` : "—";
+      return npc.brain?.nextDecisionAt ? `wake ${fmtTime(npc.brain.nextDecisionAt)}` : "-";
     }
 
     function createTestGame(seed) {
@@ -1126,7 +1126,7 @@
       const routeIndex = Number(action?.route?.currentLegIndex) || 0;
       const routeText = route.length
         ? `${routeIndex + 1}/${route.length} | ${route.map(locationName).join(" → ")}`
-        : "—";
+        : "-";
 
       $("selectedNpc").className = "";
       $("selectedNpc").innerHTML = `
@@ -1184,8 +1184,8 @@
         npcId: id,
         npcName: shortName(npc),
         color: colorFor(npc),
-        goal: goal ? `${goal.ruleId} (${goal.type})` : "—",
-        action: action?.type || "—",
+        goal: goal ? `${goal.ruleId} (${goal.type})` : "-",
+        action: action?.type || "-",
         where: currentWhere(npc),
         end: actionEndLabel(npc),
       });
@@ -1281,12 +1281,12 @@
         whereTd.textContent = currentWhere(npc);
 
         const goalTd = document.createElement("td");
-        goalTd.textContent = goal ? `${goal.ruleId} (${goal.type})` : "—";
+        goalTd.textContent = goal ? `${goal.ruleId} (${goal.type})` : "-";
 
         const actionTd = document.createElement("td");
         const actionSpan = document.createElement("span");
         actionSpan.className = `action ${action?.type || "idle"}`;
-        actionSpan.textContent = action?.type || "—";
+        actionSpan.textContent = action?.type || "-";
         actionTd.appendChild(actionSpan);
 
         const targetTd = document.createElement("td");

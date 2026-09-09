@@ -50,7 +50,7 @@ export function createPhoneChats({ getGame, openScreen, onChange }) {
     appBadge.hidden = count === 0;
     appBadge.textContent = count > 99 ? "99+" : String(count);
     appBadge.setAttribute("aria-label", `${count} unread messages`);
-    appButton.title = count ? `Chats — ${count} unread messages (C)` : "Chats (C)";
+    appButton.title = count ? `Chats - ${count} unread messages (C)` : "Chats (C)";
   }
 
   function acknowledge() {

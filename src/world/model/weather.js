@@ -394,7 +394,7 @@ export class Weather {
       },
     }[season];
 
-    // “from current → next” biases (no self-edges; persistence added below)
+    // "from current -> next" biases (no self-edges; persistence added below)
     const tx = {
       [WeatherType.CLEAR]: {
         [WeatherType.CLOUDY]: 0.35,
@@ -507,7 +507,7 @@ export class Weather {
 
       const persistence =
         (perSeason && perSeason[current]) != null ? perSeason[current] : 0.25;
-      // Optional ramp: the longer it’s been the same, the stickier (max +30%)
+      // Optional ramp: the longer it's been the same, the stickier (max +30%)
       const ramp = 1 + Math.min(runHours || 0, 6) * 0.05;
       weights[current] = (weights[current] || 0) + persistence * ramp;
     }

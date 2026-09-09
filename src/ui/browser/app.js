@@ -326,7 +326,7 @@ function locationSummary(node) {
         .map((place) => `${place.icon || ""} ${place.name}`)
         .join(" | ")
     : "No marked places";
-  return `${node.name} — ${places}`;
+  return `${node.name} - ${places}`;
 }
 
 function renderLocalMap(mapView) {
@@ -1049,8 +1049,8 @@ function renderDebugPanel() {
   const taylor = game.npcs.get("taylor");
   if (!taylor) {
     debugTaylorPosition.textContent = "Not in this game";
-    debugTaylorGoal.textContent = "—";
-    debugTaylorAction.textContent = "—";
+    debugTaylorGoal.textContent = "-";
+    debugTaylorAction.textContent = "-";
     debugTeleportTaylorButton.disabled = true;
     return;
   }

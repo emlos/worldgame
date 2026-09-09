@@ -1,0 +1,78 @@
+:: place.mall
+  @hub mall
+  @choices "Things to do"
+
+  Music and conversation echo through the bright galleries of {{place.name}}. Shop windows compete for attention around the central atrium.
+
+  @choice "Browse the shops" -> mall.browse
+    @icon 🛍️
+    @time 45m
+  @endchoice
+
+  @choice "Visit the food court" -> mall.food-court
+    @icon 🍜
+  @endchoice
+
+  @choice "Visit the electronics shop" -> mall.electronics
+    @icon 💻
+  @endchoice
+
+:: mall.browse -> @exit
+  You wander between crowded clothes shops, cosmetics counters, bookshops and kiosks. Nothing demands to be bought today, but the window displays make sure you consider it.
+
+:: mall.food-court
+  @heading "The food court"
+
+  The tables overlook a ring of glowing menu boards. The air smells of coffee, hot oil and too many different lunches at once.
+
+  @choice "Buy a meal" -> @exit
+    @time 30m
+    @when player.money >= 8
+    @change money -8 "£8 meal"
+    @change stat stress -5
+    @response
+      You find a free table and eat while watching shoppers cross the atrium below.
+    @endresponse
+  @endchoice
+
+  @choice "I can't afford a meal" -> @exit
+    @when player.money < 8
+    @response
+      You study the menu boards, then decide that looking is free.
+    @endresponse
+  @endchoice
+
+  @choice "Return to the atrium" -> @exit
+  @endchoice
+
+:: mall.electronics
+  @heading "Electronics"
+
+  Laptops, monitors and carefully lit desktop computers cover the display tables. A boxed home computer costs £600 and includes everything needed to get online.
+
+  @choice "Buy a home computer" -> @exit
+    @time 15m
+    @when player.money >= 600 and not flags.inventory.computer
+    @change money -600 "£600 computer"
+    @effect set flags.inventory.computer
+    @response
+      A clerk rings up the computer and arranges delivery to your home. [info]You now own a home computer.[/info]
+    @endresponse
+  @endchoice
+
+  @choice "The computer is too expensive" -> @exit
+    @when player.money < 600 and not flags.inventory.computer
+    @response
+      You check the price twice. It is going to take more saving before you can bring one home.
+    @endresponse
+  @endchoice
+
+  @choice "Look at accessories" -> @exit
+    @when flags.inventory.computer
+    @response
+      You already have the important part. The walls of accessories can wait until you actually need something.
+    @endresponse
+  @endchoice
+
+  @choice "Return to the atrium" -> @exit
+  @endchoice

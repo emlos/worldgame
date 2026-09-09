@@ -31,7 +31,7 @@ export const BodyRegion = Object.freeze({
 
 /**
  * Internal identifiers for granular body parts.
- * These are the “hit locations” you’ll use in combat.
+ * These are the "hit locations" you'll use in combat.
  */
 export const BodyPartId = Object.freeze({
     HEAD: "head",
@@ -335,7 +335,7 @@ export class BodyPartState {
     }
 
     /**
-     * Useful for “is this part basically okay?” checks.
+     * Useful for "is this part basically okay?" checks.
      */
     get integrityRatio() {
         return this.health / this.maxHealth;
@@ -567,7 +567,7 @@ export class Body {
 
     /**
      * Sum of all local pain values, clamped to 0..100.
-     * This can be used as a global “how much does the character hurt?” metric.
+     * This can be used as a global "how much does the character hurt?" metric.
      */
     getTotalPain() {
         let sum = 0;
@@ -670,12 +670,12 @@ export class Body {
     _downgradeConditionsFromHealth(part) {
         const ratio = part.integrityRatio;
 
-        // If we’re back over 70%, no broken / wounded
+        // If we're back over 70%, no broken / wounded
         if (ratio >= 0.7) {
             part.conditions.delete(InjuryCondition.BROKEN);
             part.conditions.delete(InjuryCondition.WOUNDED);
         }
-        // If we’re back over 90%, no bruise either
+        // If we're back over 90%, no bruise either
         if (ratio >= 0.9) {
             part.conditions.delete(InjuryCondition.BRUISED);
         }

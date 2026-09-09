@@ -256,7 +256,7 @@ export const RANDOM_HOLIDAYS = [
     dayOff: false,
   },
 
-  // fictional day-off holidays (treat them as civic “national” days)
+  // fictional day-off holidays (treat them as civic "national" days)
   {
     name: "Founders' Day",
     category: HolidayCategory.CIVIC,

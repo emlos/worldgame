@@ -194,7 +194,7 @@
                 <h2>Quick mental model</h2>
                 <div class="grid2">
                     <div>
-                        <h3>What the “map” is</h3>
+                        <h3>What the "map" is</h3>
                         <ul>
                             <li><strong>Locations</strong> = nodes in a graph (districts).</li>
                             <li>
@@ -223,7 +223,7 @@
                 </div>
                 <div class="note">
                     IDs in the world graph are stored as <strong>strings</strong> internally. Even
-                    if you pass numbers, they’re normalized via <code>String(id)</code>.
+                    if you pass numbers, they're normalized via <code>String(id)</code>.
                 </div>
             </section>
 
@@ -279,7 +279,7 @@
                         corridors.
                     </li>
                     <li>
-                        <strong>Name streets</strong> by grouping edges into “runs” and assigning
+                        <strong>Name streets</strong> by grouping edges into "runs" and assigning
                         names from <code>STREET_REGISTRY</code>.
                     </li>
                     <li>
@@ -289,7 +289,7 @@
                 </ol>
 
                 <div class="note">
-                    “No crossings” means edges are skipped if they would geometrically intersect
+                    "No crossings" means edges are skipped if they would geometrically intersect
                     existing edges (except at shared endpoints). That helps keep the map readable
                     and mostly planar.
                 </div>
@@ -380,7 +380,7 @@
                 <div class="warnbox">
                     Naming: the default district name function appends a letter suffix (A, B, C, …)
                     when multiple districts share the same base. So you typically get names like
-                    “Downtown A”, “Downtown B”, etc.
+                    "Downtown A", "Downtown B", etc.
                 </div>
             </section>
 
@@ -475,14 +475,14 @@
                         <tr>
                             <td><code>name</code></td>
                             <td><span class="pill req">required</span></td>
-                            <td>The actual street name string (“Market Street”, etc.).</td>
+                            <td>The actual street name string ("Market Street", etc.).</td>
                         </tr>
                         <tr>
                             <td><code>tags</code></td>
                             <td><span class="pill opt">optional</span></td>
                             <td>
-                                Location tags this street “fits”. When a run starts near a location,
-                                entries whose tags overlap that location’s tags are weighted higher.
+                                Location tags this street "fits". When a run starts near a location,
+                                entries whose tags overlap that location's tags are weighted higher.
                             </td>
                         </tr>
                     </tbody>
@@ -518,7 +518,7 @@
             </section>
 
             <section>
-                <h2>Places: how they’re generated</h2>
+                <h2>Places: how they're generated</h2>
 
                 <p>
                     Generation is a fail-fast assignment pass. Ordinary
@@ -626,7 +626,7 @@
                         registry invariant.
                     </li>
                     <li>
-                        Save validation recomputes each key’s instance target and verifies
+                        Save validation recomputes each key's instance target and verifies
                         graph-coverage rules for distributed infrastructure.
                     </li>
                 </ul>
@@ -715,7 +715,7 @@
                             <td><code>ages</code></td>
                             <td><code>{min?: number, max?: number}</code></td>
                             <td>
-                                Age metadata available to gameplay systems. If an actor’s age is
+                                Age metadata available to gameplay systems. If an actor's age is
                                 below <code>min</code> or above <code>max</code>, the place may be
                                 excluded by the relevant gameplay rule.
                             </td>
@@ -773,9 +773,9 @@
                 <h3>Crossing midnight</h3>
                 <p>
                     A slot where <code>to</code> is earlier than <code>from</code> is treated as
-                    “overnight”: e.g. <code>18:00 → 03:00</code> means open 18:00-24:00 on that day,
+                    "overnight": e.g. <code>18:00 → 03:00</code> means open 18:00-24:00 on that day,
                     and 00:00-03:00 on the next day. The <code>Place.isOpen()</code> implementation
-                    checks both the same day and the “after midnight” remainder of the previous day.
+                    checks both the same day and the "after midnight" remainder of the previous day.
                 </p>
 
                 <h3>Default opening hours</h3>
@@ -824,11 +824,11 @@
                     <li>Give it a unique <code>key</code> and a <code>name</code>.</li>
                     <li>
                         Optionally add <code>tags</code> that match district tags where that street
-                        name “fits”.
+                        name "fits".
                     </li>
                 </ol>
                 <div class="note">
-                    Street registry entries are a <em>name pool</em>. They don’t create streets —
+                    Street registry entries are a <em>name pool</em>. They don't create streets -
                     they only influence naming of generated edges.
                 </div>
 
@@ -887,7 +887,7 @@
                 <h3>District naming</h3>
                 <p>
                     District naming is currently handled inside <code>worldmap.js</code> by a
-                    default naming function. If you want custom district naming, you’d change the
+                    default naming function. If you want custom district naming, you'd change the
                     call site in <code>createLocations()</code>.
                 </p>
             </section>

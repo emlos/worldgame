@@ -527,7 +527,7 @@ export class Player {
     }
 
     /**
-     * Simple “is this character basically out of it?” check.
+     * Simple "is this character basically out of it?" check.
      * Uses critical breaks + high pain.
      */
     isIncapacitated() {

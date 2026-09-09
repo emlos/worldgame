@@ -706,7 +706,7 @@ export class WorldMap {
         }
         candidates.sort((u, v) => u.d - v.d); // shortest first
 
-        // --- Kruskal’s MST (Euclidean MST is planar -> no crossings)
+        // --- Kruskal's MST (Euclidean MST is planar -> no crossings)
         const parent = new Map(ids.map((id) => [id, id]));
         const find = (x) => (parent.get(x) === x ? x : parent.set(x, find(parent.get(x))).get(x));
         const unite = (x, y) => parent.set(find(x), find(y));

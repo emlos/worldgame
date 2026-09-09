@@ -313,7 +313,7 @@ function renderCatalog(filter = elements.targetFilter.value) {
   for (const entry of visible) {
     const option = document.createElement("option");
     option.value = entry.key;
-    option.textContent = `${entry.id} — ${entry.title}`;
+    option.textContent = `${entry.id} - ${entry.title}`;
     option.title = entry.detail;
     group.append(option);
   }
@@ -1011,9 +1011,9 @@ function renderRuntimeSummary() {
   const frame = game.currentStory;
   const rows = [
     ["Frame", frame?.type || "none"],
-    ["ID", frame?.id || "—"],
-    ["Passage", frame?.passageId || "—"],
-    ["Location", game.currentLocationId || "—"],
+    ["ID", frame?.id || "-"],
+    ["Passage", frame?.passageId || "-"],
+    ["Location", game.currentLocationId || "-"],
     ["Place", game.currentPlaceKey || "outdoors"],
     ["Story revision", game.storyRevision],
     ["Action revision", game.actionRevision],

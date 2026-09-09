@@ -493,7 +493,7 @@ function initializeCatalog() {
   for (const definition of definitions) {
     const option = document.createElement("option");
     option.value = definition.id;
-    option.textContent = `${definition.id} — ${topicLabel(definition)}`;
+    option.textContent = `${definition.id} - ${topicLabel(definition)}`;
     elements.select.append(option);
   }
   if (definitions.length) elements.select.value = definitions[0].id;

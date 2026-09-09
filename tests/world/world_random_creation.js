@@ -115,7 +115,7 @@ function init() {
                     ? dayInfo.holidays
                           .map((s) => s.name + ` <code>${s.category}</code>`)
                           .join("<br>")
-                    : "—",
+                    : "-",
             ],
             [
                 "Specials",
@@ -123,7 +123,7 @@ function init() {
                     ? dayInfo.specials
                           .map((s) => s.name + ` <code>${s.category}</code>`)
                           .join("<br>")
-                    : "—",
+                    : "-",
             ],
         ];
         c.append(el("h2", { html: "Time & Date" }));
@@ -169,8 +169,8 @@ function init() {
             rows.push([
                 `${monthName(month)} ${pad2(day)}, ${year}`,
                 dowName(dt),
-                info.holidays.length ? info.holidays.map((s) => s.name).join("<br>") : "—",
-                info.specials.length ? info.specials.map((s) => s.name).join("<br>") : "—",
+                info.holidays.length ? info.holidays.map((s) => s.name).join("<br>") : "-",
+                info.specials.length ? info.specials.map((s) => s.name).join("<br>") : "-",
                 info.dayOff ? "Yes" : "No",
             ]);
         }
@@ -402,7 +402,7 @@ function init() {
             node.style.cursor = "pointer";
 
             // hover: name + places
-            const places = (loc.places || []).map((p) => p.name).join(", ") || "—";
+            const places = (loc.places || []).map((p) => p.name).join(", ") || "-";
             node.addEventListener("mousemove", (ev) =>
                 showTip(`<b>${loc.name}</b><br/><small>${places}</small>`, ev.clientX, ev.clientY),
             );

@@ -36,7 +36,7 @@ function getDayIndexAndMinutes(atTime) {
     }
     if (!atTime || typeof atTime !== "object") return null;
 
-    // Fallback: lightweight “time-like” object
+    // Fallback: lightweight "time-like" object
     let dayIndex = atTime.dayIndex;
     if (typeof dayIndex !== "number") {
         if (typeof atTime.day === "number") {
@@ -85,13 +85,13 @@ function isOpenForSchedule(schedule, dayIndex, minutes) {
             // Normal: e.g. 09:00-17:00
             if (minutes >= start && minutes < end) return true;
         } else if (end < start) {
-            // Crosses midnight, this is the “late evening” part for today
+            // Crosses midnight, this is the "late evening" part for today
             // e.g. Mon 22:00-02:00 -> Monday 22:00-24:00
             if (minutes >= start) return true;
         }
     }
 
-    // 2) after-midnight part of previous day’s overnight slots
+    // 2) after-midnight part of previous day's overnight slots
     for (const slot of prevSlots) {
         const start = parseTimeOrNull(slot.from);
         const end = parseTimeOrNull(slot.to);

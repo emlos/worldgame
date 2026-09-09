@@ -450,10 +450,10 @@
 
     <div class="card">
       <div class="status-line">
-        <span id="clock" class="clock">—</span>
-        <span id="dayInfo" class="pill">—</span>
-        <span id="weatherInfo" class="pill">—</span>
-        <span id="mapInfo" class="pill">—</span>
+        <span id="clock" class="clock">-</span>
+        <span id="dayInfo" class="pill">-</span>
+        <span id="weatherInfo" class="pill">-</span>
+        <span id="mapInfo" class="pill">-</span>
       </div>
 
       <div class="speed-row">
@@ -511,23 +511,23 @@
           <div class="brain-grid">
             <div class="brain-block">
               <div class="muted">Location</div>
-              <div id="currentLocation" class="big-value">—</div>
-              <div id="currentPlace" class="muted">—</div>
+              <div id="currentLocation" class="big-value">-</div>
+              <div id="currentPlace" class="muted">-</div>
             </div>
             <div class="brain-block">
               <div class="muted">Goal</div>
-              <div id="currentGoal" class="big-value">—</div>
-              <div id="goalTarget" class="muted">—</div>
+              <div id="currentGoal" class="big-value">-</div>
+              <div id="goalTarget" class="muted">-</div>
             </div>
             <div class="brain-block">
               <div class="muted">Action</div>
-              <div id="currentAction" class="big-value">—</div>
-              <div id="actionDetail" class="muted">—</div>
+              <div id="currentAction" class="big-value">-</div>
+              <div id="actionDetail" class="muted">-</div>
             </div>
             <div class="brain-block">
               <div class="muted">Next expected transition</div>
-              <div id="nextAction" class="big-value">—</div>
-              <div id="nextDecision" class="muted">—</div>
+              <div id="nextAction" class="big-value">-</div>
+              <div id="nextDecision" class="muted">-</div>
             </div>
           </div>
         </div>
@@ -543,19 +543,19 @@
             <tbody>
               <tr>
                 <th>nextDecisionAt</th>
-                <td id="rawNext">—</td>
+                <td id="rawNext">-</td>
               </tr>
               <tr>
                 <th>lastUpdatedAt</th>
-                <td id="rawUpdated">—</td>
+                <td id="rawUpdated">-</td>
               </tr>
               <tr>
                 <th>home</th>
-                <td id="rawHome">—</td>
+                <td id="rawHome">-</td>
               </tr>
               <tr>
                 <th>route leg</th>
-                <td id="rawRoute">—</td>
+                <td id="rawRoute">-</td>
               </tr>
             </tbody>
           </table>
@@ -615,7 +615,7 @@
 
     function fmtDate(date) {
       const d = asDate(date);
-      if (!d) return "—";
+      if (!d) return "-";
       return new Intl.DateTimeFormat("en-GB", {
         weekday: "short",
         year: "numeric",
@@ -630,7 +630,7 @@
 
     function fmtTime(date) {
       const d = asDate(date);
-      if (!d) return "—";
+      if (!d) return "-";
       return String(d.getUTCHours()).padStart(2, "0") + ":" +
         String(d.getUTCMinutes()).padStart(2, "0");
     }
@@ -651,7 +651,7 @@
     }
 
     function locationName(id) {
-      if (!game || id == null) return "—";
+      if (!game || id == null) return "-";
       return game.world.getLocation(String(id))?.name || `Location ${id}`;
     }
 
@@ -661,7 +661,7 @@
     }
 
     function targetLabel(goal) {
-      if (!goal) return "—";
+      if (!goal) return "-";
       const loc = locationName(goal.targetLocationId);
       const place = placeName(goal.targetLocationId, goal.targetPlaceId);
       return place ? `${place} | ${loc}` : loc;
@@ -882,21 +882,21 @@
     }
 
     function actionDescription(action) {
-      if (!action) return "—";
+      if (!action) return "-";
       if (action.type === "travel") return "travel";
       if (action.type === "stay") return "stay";
       if (action.type === "idle") return "idle";
-      return String(action.type || "—");
+      return String(action.type || "-");
     }
 
     function actionEndLabel(action) {
-      if (!action) return "—";
+      if (!action) return "-";
       if (action.type === "travel") {
         const dest = placeName(action.targetLocationId, action.targetPlaceId) || locationName(action.targetLocationId);
         return `${dest} @ ${fmtTime(action.arrivalAt)}`;
       }
       if (action.type === "stay") return `until ${fmtTime(action.until)}`;
-      return taylor?.brain?.nextDecisionAt ? `wake ${fmtTime(taylor.brain.nextDecisionAt)}` : "—";
+      return taylor?.brain?.nextDecisionAt ? `wake ${fmtTime(taylor.brain.nextDecisionAt)}` : "-";
     }
 
     function recordHistory(force = false) {
@@ -913,7 +913,7 @@
       const tr = document.createElement("tr");
       const cells = [
         fmtDate(game.now),
-        goal ? `${goal.ruleId} (${goal.type})` : "—",
+        goal ? `${goal.ruleId} (${goal.type})` : "-",
         actionDescription(action),
         place ? `${place} | ${loc}` : loc,
         actionEndLabel(action),
@@ -942,11 +942,11 @@
       $("dayInfo").textContent = day?.kind || "day";
       $("weatherInfo").textContent = `${game.world.currentWeather} | ${Number(game.world.temperature).toFixed(1)}°C`;
 
-      $("currentLocation").textContent = loc?.name || String(taylor.locationId ?? "—");
+      $("currentLocation").textContent = loc?.name || String(taylor.locationId ?? "-");
       $("currentPlace").textContent = place ? place.name : action?.type === "travel" ? "between places / travelling" : "no place";
 
       $("currentGoal").textContent = goal ? goal.ruleId : "none";
-      $("goalTarget").textContent = goal ? `${goal.type} → ${targetLabel(goal)}` : "—";
+      $("goalTarget").textContent = goal ? `${goal.type} → ${targetLabel(goal)}` : "-";
 
       $("currentAction").textContent = action ? action.type : "none";
       $("currentAction").className = `big-value ${action?.type || ""}`;
@@ -955,7 +955,7 @@
       } else if (action?.type === "stay") {
         $("actionDetail").textContent = `until ${fmtTime(action.until)}`;
       } else {
-        $("actionDetail").textContent = action?.startedAt ? `since ${fmtTime(action.startedAt)}` : "—";
+        $("actionDetail").textContent = action?.startedAt ? `since ${fmtTime(action.startedAt)}` : "-";
       }
 
       if (action?.type === "travel") {
@@ -978,7 +978,7 @@
         const idx = Number(route.currentLegIndex) || 0;
         $("rawRoute").textContent = `${idx + 1}/${route.locations.length} | ${route.locations.map(locationName).join(" → ")}`;
       } else {
-        $("rawRoute").textContent = "—";
+        $("rawRoute").textContent = "-";
       }
 
       updateDynamicMap();
