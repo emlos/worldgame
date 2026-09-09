@@ -36,6 +36,7 @@
 
 :: mall.browse -> @exit
   You wander between crowded clothes shops, cosmetics counters, bookshops and kiosks. Nothing demands to be bought today, but the window displays make sure you consider it.
+  @next -> @exit
 
 :: mall.food-court
   @heading "The food court"

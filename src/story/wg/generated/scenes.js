@@ -2781,7 +2781,20 @@ export const WG_BUNDLE = {
               }
             }
           ],
-          "next": null,
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@exit",
+            "source": {
+              "file": "story/places/mall.wg",
+              "line": 39,
+              "column": 1
+            }
+          },
           "source": {
             "file": "story/places/mall.wg",
             "line": 38,
@@ -2832,7 +2845,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/mall.wg",
-                "line": 68,
+                "line": 69,
                 "column": 1
               }
             },
@@ -2898,14 +2911,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/places/mall.wg",
-                        "line": 76,
+                        "line": 77,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/mall.wg",
-                    "line": 75,
+                    "line": 76,
                     "column": 1
                   }
                 }
@@ -2917,7 +2930,7 @@ export const WG_BUNDLE = {
                   "amount": -600,
                   "source": {
                     "file": "story/places/mall.wg",
-                    "line": 73,
+                    "line": 74,
                     "column": 1
                   },
                   "feedback": {
@@ -2936,14 +2949,14 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/places/mall.wg",
-                    "line": 74,
+                    "line": 75,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/places/mall.wg",
-                "line": 70,
+                "line": 71,
                 "column": 1
               }
             },
@@ -3009,14 +3022,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/places/mall.wg",
-                        "line": 83,
+                        "line": 84,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/mall.wg",
-                    "line": 82,
+                    "line": 83,
                     "column": 1
                   }
                 }
@@ -3025,7 +3038,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/places/mall.wg",
-                "line": 80,
+                "line": 81,
                 "column": 1
               }
             },
@@ -3068,14 +3081,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/places/mall.wg",
-                        "line": 90,
+                        "line": 91,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/mall.wg",
-                    "line": 89,
+                    "line": 90,
                     "column": 1
                   }
                 }
@@ -3084,7 +3097,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/places/mall.wg",
-                "line": 87,
+                "line": 88,
                 "column": 1
               }
             },
@@ -3111,7 +3124,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/places/mall.wg",
-                "line": 94,
+                "line": 95,
                 "column": 1
               }
             }
@@ -3119,7 +3132,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/places/mall.wg",
-            "line": 68,
+            "line": 69,
             "column": 1
           }
         }
@@ -3140,7 +3153,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/places/mall.wg",
-        "line": 65,
+        "line": 66,
         "column": 1
       }
     },
@@ -3167,7 +3180,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/mall.wg",
-                "line": 43,
+                "line": 44,
                 "column": 1
               }
             },
@@ -3217,14 +3230,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/places/mall.wg",
-                        "line": 51,
+                        "line": 52,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/mall.wg",
-                    "line": 50,
+                    "line": 51,
                     "column": 1
                   }
                 }
@@ -3236,7 +3249,7 @@ export const WG_BUNDLE = {
                   "amount": -8,
                   "source": {
                     "file": "story/places/mall.wg",
-                    "line": 48,
+                    "line": 49,
                     "column": 1
                   },
                   "feedback": {
@@ -3252,7 +3265,7 @@ export const WG_BUNDLE = {
                   "amount": -5,
                   "source": {
                     "file": "story/places/mall.wg",
-                    "line": 49,
+                    "line": 50,
                     "column": 1
                   },
                   "feedback": {
@@ -3265,7 +3278,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/places/mall.wg",
-                "line": 45,
+                "line": 46,
                 "column": 1
               }
             },
@@ -3315,14 +3328,14 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/places/mall.wg",
-                        "line": 58,
+                        "line": 59,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/places/mall.wg",
-                    "line": 57,
+                    "line": 58,
                     "column": 1
                   }
                 }
@@ -3331,7 +3344,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/places/mall.wg",
-                "line": 55,
+                "line": 56,
                 "column": 1
               }
             },
@@ -3358,7 +3371,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/places/mall.wg",
-                "line": 62,
+                "line": 63,
                 "column": 1
               }
             }
@@ -3366,7 +3379,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/places/mall.wg",
-            "line": 43,
+            "line": 44,
             "column": 1
           }
         }
@@ -3387,7 +3400,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/places/mall.wg",
-        "line": 40,
+        "line": 41,
         "column": 1
       }
     },
@@ -3435,7 +3448,7 @@ export const WG_BUNDLE = {
               "parts": [
                 {
                   "type": "text",
-                  "value": "\"Hey—you're at my school, aren't you?\" "
+                  "value": "\"Hey- you're at my school, aren't you?\" "
                 },
                 {
                   "type": "interpolation",
