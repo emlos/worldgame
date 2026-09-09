@@ -103,6 +103,7 @@ function npcContext(game, npc) {
     age: npc.age,
     gender: npc.gender,
     home: homeContext(game, npc.homeLocationId),
+    met: relationship.met,
     relationship: relationshipValues,
     present: game.getNPCsAtCurrentPosition().includes(npc),
     available: game.getNPCInteractionAccess(npc).allowed,

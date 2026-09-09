@@ -8,7 +8,7 @@
 
   The teacher closes the textbook and asks the class to discuss whether a narrator can be trustworthy while still being mistaken.
 
-  @if npc.taylor.present
+  @if npc.taylor.present and npc.taylor.met
     Taylor turns slightly in your direction, clearly waiting to hear what you think.
   @else
     The room stays awkwardly quiet while everyone avoids being the first to answer.
@@ -29,7 +29,7 @@
 
   @choice "Compare ideas with Taylor" -> .taylor
     @effect add story.npc.taylor.school_interactions 1
-    @when npc.taylor.present
+    @when npc.taylor.present and npc.taylor.met
     @change relationship taylor.friendship 1
   @endchoice
 
@@ -97,7 +97,7 @@
   @endchoice
 
   @choice "Draw attention to taylor" -> .taylor
-    @when npc.taylor.present
+    @when npc.taylor.present and npc.taylor.met
     @change relationship taylor.friendship -1
   @endchoice
 
@@ -323,7 +323,7 @@
 
   The teacher turns the classroom into a mock tribunal. Your group must judge whether a ruler should be remembered as a reformer or a tyrant.
 
-  @if npc.taylor.present
+  @if npc.taylor.present and npc.taylor.met
     Taylor gathers the group's notes and asks which side you want to argue.
   @endif
 
@@ -345,7 +345,7 @@
 
   @choice "Build the case with Taylor" -> .partner
     @effect add story.npc.taylor.school_interactions 1
-    @when npc.taylor.present
+    @when npc.taylor.present and npc.taylor.met
   @endchoice
 
   @passage defense-strong
@@ -354,7 +354,7 @@
 
   @choice "Share the closing argument with Taylor" -> .shared-verdict
     @effect add story.npc.taylor.school_interactions 1
-    @when npc.taylor.present
+    @when npc.taylor.present and npc.taylor.met
   @endchoice
 
   @choice "Deliver the closing argument yourself" -> .solo-verdict
@@ -445,7 +445,7 @@
 
   @choice "Compare notes with Taylor" -> .taylor-notes
     @effect add story.npc.taylor.school_interactions 1
-    @when npc.taylor.present
+    @when npc.taylor.present and npc.taylor.met
   @endchoice
 
   @passage clue-found
@@ -457,7 +457,7 @@
 
   @choice "Quietly show the timestamp to Taylor" -> .shared-clue
     @effect add story.npc.taylor.school_interactions 1
-    @when npc.taylor.present
+    @when npc.taylor.present and npc.taylor.met
   @endchoice
 
   @passage clue-missed
@@ -510,7 +510,7 @@
 
   @choice "Support Taylor's risky proposal" -> .taylor-plan
     @effect add story.npc.taylor.school_interactions 1
-    @when npc.taylor.present
+    @when npc.taylor.present and npc.taylor.met
   @endchoice
 
   @passage negotiation-success
@@ -563,7 +563,7 @@
 
   @choice "Ask Taylor to trace the border changes with you" -> .map-taylor
     @effect add story.npc.taylor.school_interactions 1
-    @when npc.taylor.present
+    @when npc.taylor.present and npc.taylor.met
   @endchoice
 
   @passage map-solved
@@ -599,7 +599,7 @@
 
   Halfway through a reaction, the liquid in your beaker changes colour too quickly. Foam climbs toward the rim while the instructions insist nothing should happen yet.
 
-  @if npc.taylor.present
+  @if npc.taylor.present and npc.taylor.met
     Taylor freezes with the next reagent still in {{npc.taylor.dependent}} hand.
   @endif
 
@@ -616,7 +616,7 @@
 
   @choice "Tell Taylor how to stabilize it" -> .taylor-stabilizes
     @effect add story.npc.taylor.school_interactions 1
-    @when npc.taylor.present
+    @when npc.taylor.present and npc.taylor.met
   @endchoice
 
   @passage contained
@@ -679,7 +679,7 @@
 
   @choice "Divide the tests with Taylor" -> .sample-taylor
     @effect add story.npc.taylor.school_interactions 1
-    @when npc.taylor.present
+    @when npc.taylor.present and npc.taylor.met
   @endchoice
 
   @passage sample-clues
@@ -742,7 +742,7 @@
 
   @choice "Let Taylor design while you assemble" -> .bridge-taylor
     @effect add story.npc.taylor.school_interactions 1
-    @when npc.taylor.present
+    @when npc.taylor.present and npc.taylor.met
   @endchoice
 
   @passage bridge-strong
@@ -810,7 +810,7 @@
 
   @choice "Ask Taylor to audit your notes" -> .result-taylor
     @effect add story.npc.taylor.school_interactions 1
-    @when npc.taylor.present
+    @when npc.taylor.present and npc.taylor.met
   @endchoice
 
   @passage result-explained
@@ -846,7 +846,7 @@
 
   The teacher pairs students for quick portraits. You must capture an expression rather than simply copy a face.
 
-  @if npc.taylor.present
+  @if npc.taylor.present and npc.taylor.met
     Taylor takes the seat opposite you and tries to hold a serious pose, though the corners of {{npc.taylor.dependent}} mouth keep twitching.
   @else
     A student from the next table sits opposite you and stares past your shoulder with determined stillness.
@@ -864,7 +864,7 @@
   @endchoice
 
   @choice "Draw a playful caricature" -> .portrait-caricature
-    @when npc.taylor.present
+    @when npc.taylor.present and npc.taylor.met
   @endchoice
 
   @passage portrait-honest
@@ -873,7 +873,7 @@
 
   @choice "Show Taylor privately first" -> .portrait-private
     @effect add story.npc.taylor.school_interactions 1
-    @when npc.taylor.present
+    @when npc.taylor.present and npc.taylor.met
   @endchoice
 
   @choice "Place it on the class display" -> .portrait-display
@@ -889,7 +889,7 @@
 
   You smooth every awkward line and exaggerate the most appealing features. The result is attractive, although it resembles an advertisement more than a person.  @change grade art 1
 
-  @if npc.taylor.present
+  @if npc.taylor.present and npc.taylor.met
     Taylor seems pleased at first, then studies the drawing as if wondering what you chose not to include.  @change relationship taylor.friendship 1
   @endif
 
@@ -949,7 +949,7 @@
 
   @choice "Ask Taylor for an honest opinion" -> .critique-taylor
     @effect add story.npc.taylor.school_interactions 1
-    @when npc.taylor.present
+    @when npc.taylor.present and npc.taylor.met
   @endchoice
 
   @passage critique-explained
@@ -1030,7 +1030,7 @@
 
   @choice "Develop Taylor's idea together" -> .mural-taylor
     @effect add story.npc.taylor.school_interactions 1
-    @when npc.taylor.present
+    @when npc.taylor.present and npc.taylor.met
   @endchoice
 
   @passage mural-unified
@@ -1080,7 +1080,7 @@
 
   A jar of cloudy paint water tips across a nearly finished drawing. Dark streams spread through the paper before anyone can lift it from the table.
 
-  @if npc.taylor.present
+  @if npc.taylor.present and npc.taylor.met
     It is Taylor's drawing, and {{npc.taylor.subject}} stares at the spreading stain in horror.
   @else
     The student beside you stares at the spreading stain in horror.
@@ -1099,14 +1099,14 @@
 
   @choice "Reassure Taylor and offer your materials" -> .ruined-taylor
     @effect add story.npc.taylor.school_interactions 1
-    @when npc.taylor.present
+    @when npc.taylor.present and npc.taylor.met
   @endchoice
 
   @passage ruined-transformed
 
   You tilt the paper and guide the stain through the background. What looked like damage becomes a storm behind the original subject.  @change grade art 2
 
-  @if npc.taylor.present
+  @if npc.taylor.present and npc.taylor.met
     Taylor looks from the altered drawing to you with astonished relief.  @change relationship taylor.friendship 2
   @endif
 
@@ -1116,7 +1116,7 @@
 
   Your added marks muddy the remaining clean areas. The teacher finally separates the soaked page from the table and suggests starting again.  @change grade art -1  @change stat stress 3
 
-  @if npc.taylor.present
+  @if npc.taylor.present and npc.taylor.met
     Taylor tries not to look annoyed, without much success.  @change relationship taylor.friendship -1
   @endif
 
@@ -1161,7 +1161,7 @@
 
   @choice "Keep Taylor out of the crossfire" -> .dodgeball-taylor
     @effect add story.npc.taylor.school_interactions 1
-    @when npc.taylor.present
+    @when npc.taylor.present and npc.taylor.met
   @endchoice
 
   @passage dodgeball-dominant
@@ -1240,7 +1240,7 @@
 
   Cones, vaulting boxes, ropes, and balance benches form a timed obstacle course across the gym.
 
-  @if npc.taylor.present
+  @if npc.taylor.present and npc.taylor.met
     You and Taylor are assigned as a pair. Your time only counts once both of you cross the line.
   @else
     You are paired with another student, and your time only counts once both of you cross the line.
@@ -1259,7 +1259,7 @@
 
   @choice "Let Taylor set the pace" -> .obstacle-taylor
     @effect add story.npc.taylor.school_interactions 1
-    @when npc.taylor.present
+    @when npc.taylor.present and npc.taylor.met
   @endchoice
 
   @passage obstacle-fast
@@ -1321,7 +1321,7 @@
 
   You step back onto the bench and offer a hand. Both of you cross together a few seconds later.  @change grade physical_education 1
 
-  @if npc.taylor.present
+  @if npc.taylor.present and npc.taylor.met
     Taylor squeezes your hand before letting go.  @change relationship taylor.friendship 2
   @endif
 
@@ -1331,7 +1331,7 @@
 
   You preserve your own time, but your pair's result does not count until your partner finishes.  @change grade physical_education -1
 
-  @if npc.taylor.present
+  @if npc.taylor.present and npc.taylor.met
     Taylor crosses without looking at you.  @change relationship taylor.friendship -1
   @endif
 
@@ -1362,7 +1362,7 @@
 
   @choice "Coordinate the handoff with Taylor" -> .relay-taylor
     @effect add story.npc.taylor.school_interactions 1
-    @when npc.taylor.present
+    @when npc.taylor.present and npc.taylor.met
   @endchoice
 
   @passage relay-clean
@@ -1424,7 +1424,7 @@
 
   The argument continues after the race. The teacher makes both of you repeat handoff drills while everyone else rests.  @change stat stress 2  @change grade physical_education -1
 
-  @if npc.taylor.present
+  @if npc.taylor.present and npc.taylor.met
     Taylor is unimpressed by how quickly you assigned blame.  @change relationship taylor.friendship -1
   @endif
 
@@ -1450,7 +1450,7 @@
 
   @choice "Stay close enough to protect Taylor" -> .rough-taylor
     @effect add story.npc.taylor.school_interactions 1
-    @when npc.taylor.present
+    @when npc.taylor.present and npc.taylor.met
   @endchoice
 
   @choice "Beat the student at the same game"

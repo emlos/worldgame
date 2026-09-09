@@ -1,5 +1,5 @@
 @journal "I've met someone at school that I keep thinking about."
-  @when story.npc.taylor.school_interactions >= 5
+  @when npc.taylor.met and story.npc.taylor.school_interactions >= 5
 
   @passage start
 

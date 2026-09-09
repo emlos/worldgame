@@ -4,6 +4,11 @@ import assert from "node:assert/strict";
 import { Game } from "../src/game/game.js";
 import { buildScene } from "../src/game/scene/sceneEngine.js";
 import { performChoice } from "../src/game/scene/choiceEngine.js";
+import { buildPhoneRelationshipsView } from "../src/game/scene/phoneView.js";
+import {
+  resolveWGAutomaticScene,
+  WG_AUTO_TRIGGER,
+} from "../src/story/wg/runtime/sceneExposure.js";
 
 function placePlayerAtMall(game) {
   for (const location of game.world.locations.values()) {
@@ -57,3 +62,30 @@ test("mall hub exposes activities and sells the planned home computer once", () 
   assert.ok(!electronicsLabels.includes("Buy a home computer"));
 });
 
+test("Taylor can introduce herself at the mall exactly once", () => {
+  const game = new Game({
+    seed: 7302,
+    startDate: new Date("2026-09-03T16:00:00.000Z"),
+    playerOptions: { startPlaceId: null },
+  });
+  placePlayerAtMall(game);
+
+  assert.equal(
+    buildPhoneRelationshipsView(game).some(({ id }) => id === "taylor"),
+    false,
+  );
+
+  game.teleportNPC("taylor", "player");
+  const meeting = resolveWGAutomaticScene(game, WG_AUTO_TRIGGER.enterPlace);
+  assert.equal(meeting?.id, "mall.taylor.first-meeting");
+  assert.equal(
+    buildPhoneRelationshipsView(game).some(({ id }) => id === "taylor"),
+    true,
+  );
+
+  choose(game, "See you at school");
+  assert.equal(
+    resolveWGAutomaticScene(game, WG_AUTO_TRIGGER.enterPlace),
+    null,
+  );
+});

@@ -29,6 +29,13 @@ function writableGame() {
   const game = new Game({ seed: 8128, startDate: FIXED_START });
   game.story.home = { unpacking: 5 };
   game.story.npc.taylor = { school_interactions: 0 };
+  const taylor = game.npcs.get("taylor");
+  game.player.adjustRelationshipMeter(
+    taylor.id,
+    "friendship",
+    0,
+    taylor.relationshipProfile,
+  );
   return game;
 }
 
@@ -66,6 +73,7 @@ test("same-time journal topics retain numeric source order past nine entries", (
 
 test("Taylor's journal topic unlocks after five school interactions", () => {
   const game = writableGame();
+  game.player.relationships.get("taylor").met = false;
   const topic = Object.values(WG_BUNDLE.journals).find((definition) =>
     definition.prompt.some((part) =>
       part.type === "text" &&
@@ -87,6 +95,19 @@ test("Taylor's journal topic unlocks after five school interactions", () => {
       currentGame.story.npc.taylor.school_interactions += 1;
     },
   });
+  assert.equal(
+    game.journal.pending.some((record) => record.definitionId === topic.id),
+    false,
+  );
+
+  const taylor = game.npcs.get("taylor");
+  game.player.adjustRelationshipMeter(
+    taylor.id,
+    "friendship",
+    1,
+    taylor.relationshipProfile,
+  );
+  game.refreshJournalAvailability();
   assert.equal(
     game.journal.pending.some((record) => record.definitionId === topic.id),
     true,

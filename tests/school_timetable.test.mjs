@@ -146,7 +146,13 @@ test("the student council office displays the generated timetable and returns", 
     startDate: new Date("2026-09-03T12:00:00.000Z"),
   });
   game.setFlag("high_school.first_visit_seen");
-  game.setFlag("journal.taylor_met");
+  const taylor = game.npcs.get("taylor");
+  game.player.adjustRelationshipMeter(
+    taylor.id,
+    "friendship",
+    1,
+    taylor.relationshipProfile,
+  );
   placeAtSchool(game);
 
   choose(game, "Visit the student council office");

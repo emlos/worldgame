@@ -31,6 +31,14 @@ function findPlace(game, placeKey) {
   throw new Error(`The generated test world has no '${placeKey}' place`);
 }
 
+function hasMetTaylor(game) {
+  const taylor = game.npcs.get("taylor");
+  return game.player.getRelationshipProfile(
+    taylor.id,
+    taylor.relationshipProfile,
+  ).met;
+}
+
 test("a new browser game can enter the one-time home opening", () => {
   const game = new Game({
     seed: 117,
@@ -110,7 +118,7 @@ test("entering school triggers its guidance only on the first visit", () => {
   game.teleportNPC("taylor", "player");
   choose(game, "Look around");
   assert.equal(game.currentStory?.id, "school.taylor.first-meeting.traversal");
-  assert.equal(game.hasFlag("journal.taylor_met"), true);
+  assert.equal(hasMetTaylor(game), true);
 
   choose(game, "See you around");
   assert.equal(game.currentStory, null);
@@ -155,7 +163,7 @@ test("entering school introduces Taylor once when Taylor is present", () => {
   });
 
   assert.equal(game.currentStory?.id, "school.taylor.first-meeting");
-  assert.equal(game.hasFlag("journal.taylor_met"), true);
+  assert.equal(hasMetTaylor(game), true);
   choose(game, "See you around");
 
   game.setCurrentPlace();
@@ -187,7 +195,7 @@ test("Taylor's introduction interrupts internal travel and resumes its destinati
     game.storyContinuations[0].target,
     "place.high-school.nurse-office",
   );
-  assert.equal(game.hasFlag("journal.taylor_met"), true);
+  assert.equal(hasMetTaylor(game), true);
 
   choose(game, "See you around");
 
@@ -213,7 +221,7 @@ test("Taylor's introduction requires Taylor to be present", () => {
 
   choose(game, "Go to the school nurse's office");
   assert.equal(game.currentStory?.id, "place.high-school.nurse-office");
-  assert.equal(game.hasFlag("journal.taylor_met"), false);
+  assert.equal(hasMetTaylor(game), false);
 });
 
 test("Taylor's introduction does not interrupt school travel during class", () => {
@@ -226,5 +234,38 @@ test("Taylor's introduction does not interrupt school travel during class", () =
 
   choose(game, "Go to the school nurse's office");
   assert.equal(game.currentStory?.id, "place.high-school.nurse-office");
-  assert.equal(game.hasFlag("journal.taylor_met"), false);
+  assert.equal(hasMetTaylor(game), false);
+});
+
+test("Taylor's class interactions stay hidden until the player has met her", () => {
+  const game = new Game({
+    seed: 117,
+    startDate: new Date("2026-09-01T09:30:00.000Z"),
+  });
+  game.setFlag("high_school.first_visit_seen");
+  placePlayerAndTaylorAtSchool(game);
+
+  const school = buildScene(game);
+  const attend = school.sections
+    .flatMap((section) => section.choices)
+    .find((choice) => choice.label.startsWith("Attend "));
+  assert.ok(attend, "expected a class to be in progress");
+  performChoice(game, { sceneId: school.id, choiceId: attend.id });
+
+  const labelsBeforeMeeting = buildScene(game).sections
+    .flatMap((section) => section.choices)
+    .map((choice) => choice.label);
+  assert.equal(labelsBeforeMeeting.includes("Chat with Taylor"), false);
+
+  const taylor = game.npcs.get("taylor");
+  game.player.adjustRelationshipMeter(
+    taylor.id,
+    "friendship",
+    1,
+    taylor.relationshipProfile,
+  );
+  const labelsAfterMeeting = buildScene(game).sections
+    .flatMap((section) => section.choices)
+    .map((choice) => choice.label);
+  assert.equal(labelsAfterMeeting.includes("Chat with Taylor"), true);
 });

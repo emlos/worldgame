@@ -23,9 +23,8 @@
   @auto enter-place
   @priority 500
   @when school.phase != "class" and npc.taylor.present
-  @when not flags.journal.taylor_met
+  @when not npc.taylor.met
   @onenter
-    @effect set flags.journal.taylor_met
     @effect relationship taylor.friendship 1
   @endonenter
 
@@ -42,9 +41,8 @@
   @pool school.traversal
   @priority 500
   @when school.phase != "class" and npc.taylor.present
-  @when not flags.journal.taylor_met
+  @when not npc.taylor.met
   @onenter
-    @effect set flags.journal.taylor_met
     @effect relationship taylor.friendship 1
   @endonenter
 
@@ -249,7 +247,7 @@
     @time-until school.nextBoundaryAt
     @event-pool school.class.english
 
-    @when npc.taylor.present
+    @when npc.taylor.present and npc.taylor.met
     @effect attendance english 1
     @effect add story.npc.taylor.school_interactions 1
     @change relationship taylor.friendship 1
@@ -271,7 +269,7 @@
   @choice "Chat with Taylor" -> .segment-3
     @time-until school.nextBoundaryAt
     @event-pool school.class.english
-    @when npc.taylor.present
+    @when npc.taylor.present and npc.taylor.met
     @effect attendance english 1
     @effect add story.npc.taylor.school_interactions 1
     @change relationship taylor.friendship 1
@@ -293,7 +291,7 @@
 
     @time-until school.nextBoundaryAt
     @event-pool school.class.english
-    @when npc.taylor.present
+    @when npc.taylor.present and npc.taylor.met
     @effect attendance english 1
     @effect add story.npc.taylor.school_interactions 1
     @change relationship taylor.friendship 1
@@ -320,7 +318,7 @@
     @event-pool school.class.math
 
     @time-until school.nextBoundaryAt
-    @when npc.taylor.present
+    @when npc.taylor.present and npc.taylor.met
     @effect attendance math 1
     @effect add story.npc.taylor.school_interactions 1
     @change relationship taylor.friendship 1
@@ -342,7 +340,7 @@
     @event-pool school.class.math
 
     @time-until school.nextBoundaryAt
-    @when npc.taylor.present
+    @when npc.taylor.present and npc.taylor.met
     @effect attendance math 1
     @effect add story.npc.taylor.school_interactions 1
     @change relationship taylor.friendship 1
@@ -364,7 +362,7 @@
     @event-pool school.class.math
 
     @time-until school.nextBoundaryAt
-    @when npc.taylor.present
+    @when npc.taylor.present and npc.taylor.met
     @effect attendance math 1
     @effect add story.npc.taylor.school_interactions 1
     @change relationship taylor.friendship 1
@@ -389,7 +387,7 @@
 
     @time-until school.nextBoundaryAt
     @event-pool school.class.history
-    @when npc.taylor.present
+    @when npc.taylor.present and npc.taylor.met
     @effect attendance history 1
     @effect add story.npc.taylor.school_interactions 1
     @change relationship taylor.friendship 1
@@ -411,7 +409,7 @@
 
     @time-until school.nextBoundaryAt
     @event-pool school.class.history
-    @when npc.taylor.present
+    @when npc.taylor.present and npc.taylor.met
     @effect attendance history 1
     @effect add story.npc.taylor.school_interactions 1
     @change relationship taylor.friendship 1
@@ -433,7 +431,7 @@
 
     @time-until school.nextBoundaryAt
     @event-pool school.class.history
-    @when npc.taylor.present
+    @when npc.taylor.present and npc.taylor.met
     @effect attendance history 1
     @effect add story.npc.taylor.school_interactions 1
     @change relationship taylor.friendship 1
@@ -459,7 +457,7 @@
 
     @time-until school.nextBoundaryAt
     @event-pool school.class.science
-    @when npc.taylor.present
+    @when npc.taylor.present and npc.taylor.met
     @effect attendance science 1
     @effect add story.npc.taylor.school_interactions 1
     @change relationship taylor.friendship 1
@@ -481,7 +479,7 @@
 
     @time-until school.nextBoundaryAt
     @event-pool school.class.science
-    @when npc.taylor.present
+    @when npc.taylor.present and npc.taylor.met
     @effect attendance science 1
     @effect add story.npc.taylor.school_interactions 1
     @change relationship taylor.friendship 1
@@ -503,7 +501,7 @@
 
     @time-until school.nextBoundaryAt
     @event-pool school.class.science
-    @when npc.taylor.present
+    @when npc.taylor.present and npc.taylor.met
     @effect attendance science 1
     @effect add story.npc.taylor.school_interactions 1
     @change relationship taylor.friendship 1
@@ -529,7 +527,7 @@
 
     @time-until school.nextBoundaryAt
     @event-pool school.class.art
-    @when npc.taylor.present
+    @when npc.taylor.present and npc.taylor.met
     @effect attendance art 1
     @effect add story.npc.taylor.school_interactions 1
     @change relationship taylor.friendship 1
@@ -551,7 +549,7 @@
 
     @time-until school.nextBoundaryAt
     @event-pool school.class.art
-    @when npc.taylor.present
+    @when npc.taylor.present and npc.taylor.met
     @effect attendance art 1
     @effect add story.npc.taylor.school_interactions 1
     @change relationship taylor.friendship 1
@@ -573,7 +571,7 @@
 
     @time-until school.nextBoundaryAt
     @event-pool school.class.art
-    @when npc.taylor.present
+    @when npc.taylor.present and npc.taylor.met
     @effect attendance art 1
     @effect add story.npc.taylor.school_interactions 1
     @change relationship taylor.friendship 1
@@ -599,7 +597,7 @@
 
     @time-until school.nextBoundaryAt
     @event-pool school.class.physical-education
-    @when npc.taylor.present
+    @when npc.taylor.present and npc.taylor.met
     @effect attendance physical_education 1
     @effect add story.npc.taylor.school_interactions 1
     @change relationship taylor.friendship 1
@@ -622,7 +620,7 @@
 
     @time-until school.nextBoundaryAt
     @event-pool school.class.physical-education
-    @when npc.taylor.present
+    @when npc.taylor.present and npc.taylor.met
     @effect attendance physical_education 1
     @effect add story.npc.taylor.school_interactions 1
     @change relationship taylor.friendship 1
@@ -645,7 +643,7 @@
 
     @time-until school.nextBoundaryAt
     @event-pool school.class.physical-education
-    @when npc.taylor.present
+    @when npc.taylor.present and npc.taylor.met
     @effect attendance physical_education 1
     @effect add story.npc.taylor.school_interactions 1
     @change relationship taylor.friendship 1
@@ -671,7 +669,7 @@
   @choice "Talk with Taylor before class" -> place.high-school.cafeteria
 
     @time 15m
-    @when npc.taylor.present and flags.journal.taylor_met and not daily.school_before_taylor and school.phase != "class"
+    @when npc.taylor.present and npc.taylor.met and not daily.school_before_taylor and school.phase != "class"
     @response
       Taylor giggles. "Have you heard that Prof. Sokolev has uploaded a mixtape on TwoYube? We should totally watch it together after class!"
     @endresponse

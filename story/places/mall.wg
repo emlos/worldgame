@@ -1,3 +1,20 @@
+:: mall.taylor.first-meeting -> @exit
+  @place-key mall
+  @auto enter-place
+  @priority 500
+  @when npc.taylor.present and not npc.taylor.met
+  @onenter
+    @effect relationship taylor.friendship 1
+  @endonenter
+
+  As you pass the entrance to the food court, someone a few steps away slows down and looks at you twice.
+
+  "Hey- you're at my school, aren't you?" {{npc.taylor.subject}} asks. "I'm Taylor. I've seen you around, but I don't think we've actually met."
+
+  You introduce yourself, and Taylor smiles as if {{npc.taylor.subject}} has solved a small mystery. You talk for a few minutes about school and the shops before the crowd begins to carry you in different directions.
+
+  @next "See you at school" -> @exit
+
 :: place.mall
   @hub mall
   @choices "Things to do"

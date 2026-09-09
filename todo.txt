@@ -1,5 +1,6 @@
 ui:
 - add animations for lowering/increasing the sidebars diaplying player stats
+- generic classes for tables for a unified look+feel [currewntly: cinema + high school timetable]
 
 game systems:
     player stats:
@@ -64,22 +65,19 @@ game systems:
     - pathfinding: allow bus/car travel for select npcs + travel preferences
     - luce - needs player-follow behavior definition  -afterward can be implemented
 
+    unnamed npc's/scene temporary npc's - for group activities [spin the bottle, truth or dare, 7 minutes in heaven]
+
     player mechanics:
     - smoking/drinking mechanic + addiction? stat penalty?
 
     - combat system + better injury system (smth a.la fear and hunger?)
+    - very light sickness system -> mostly stat drains
 
     - computer -> livestreaming system, with procedurally generated chat window [non save persistent/scene local]
-        buy computer from the shopping mall
+        buy computer from the shopping mall [implemented]
 
     world:
     - texting: spam messages/groupchats, letting the player leave, sending messages at random intervals/randomly generated users
-
-    - cinema system:
-    list of 50 movies, different titles and genres and durations - cinema offers 4 movies, changed every week
-    movie timetable - few screenings every day, sometimes two at once
-    ticket price: 10
-    table below hug heading above hub prose
 
     - theres catacombs under the city, multiple locations, with a randomly generated maze [maze changed every two weeks? supernatural reasons]
 
@@ -90,10 +88,14 @@ content:
 - specific npc storylines for romance
 - first time place/class visit events to tutorialise the player + npc first meeting events
 - npc archetypes: gossip, delinquent, doctor, homeless character, mayor, teacher, mafia, urban explorer, divorced parent, religious character, stoner, jaded stripper, and band
-
 - progression: theres strange receptacles the player can activate throughout various locations, some easy to access some hard (like in the catacomb maze, appearing after an all night movie marathon, hidden in a statue at the graveyard etc)
     reward the player with lore/unlocking extra locations/amenities/abilities -> reason to explorer
-
+- cinema: add caro interactions
+- npc idea: corrupt doctor, tags: dark romance, medical, age gap -> ties into drug addiction mechanic
+    trigger for meeting: school mandated vaccination (~1month into the school semester, every semester) OR player gets sick [sickness mechanic tie in]
+    they're arrogant, medical about it, intelligent
+    give player a vaccination... and if the player doesnt pass a passive check, slips them a drug with it -> unlocks option for 'follow up'
+    romance mostly around substance dependence and medical stuff
 
 design [important]:
 
@@ -112,3 +114,4 @@ other:
 - adjust sleep balance - -sleeping for 6 hours almost fills up energy bar
 
 fix:
+- "Today is a school day. Classes start at 09:00." warning is displayed PERSISTENTLY when at the home location. ecpected behavior: show when 1. clock hits/crosses midnight [not inside a scene sequence], 2.not during the opening scene, hide on scene rerender
