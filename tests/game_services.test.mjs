@@ -2,6 +2,12 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import { Game } from "../src/game/game.js";
+import { buildScene } from "../src/game/scene/sceneEngine.js";
+import {
+  enterWGTarget,
+  exitWGStory,
+  resolveActiveWGStory,
+} from "../src/story/wg/runtime/storyRuntime.js";
 import {
   listNavigationDestinations,
   searchNavigationDestinations,
@@ -155,7 +161,7 @@ test("the action runner preserves effect, time, interrupt, and logging order", (
     t: new Date(before).toISOString(),
     label: "ordered-action",
   });
-  assert.deepEqual(game.dailyAnnouncements.items, []);
+  assert.equal(game.dailyAnnouncements.items[0].id, "test");
 });
 
 test("crossing UTC midnight clears daily flags and refreshes announcements", () => {
@@ -168,6 +174,34 @@ test("crossing UTC midnight clears daily flags and refreshes announcements", () 
 
   assert.equal(game.hasDailyFlag("seen-today"), false);
   assert.equal(game.dailyAnnouncements.day, "2026-09-05");
+});
+
+test("school-day announcements wait for a hub and disappear after acknowledgement", () => {
+  const game = gameWithoutNPCs({
+    startDate: new Date("2026-09-02T23:30:00.000Z"),
+  });
+  game.setFlag("home.opening_seen");
+  enterWGTarget(game, "menu.player.home.rest");
+  resolveActiveWGStory(game);
+
+  game.advanceMinutes(60);
+
+  assert.equal(game.now.toISOString(), "2026-09-03T00:30:00.000Z");
+  assert.match(
+    game.dailyAnnouncements.items.map(({ text }) => text).join(" "),
+    /Today is a school day/,
+  );
+  assert.deepEqual(buildScene(game).alerts, []);
+
+  exitWGStory(game);
+  const hub = buildScene(game);
+  assert.match(
+    hub.alerts.map(({ text }) => text).join(" "),
+    /Today is a school day/,
+  );
+
+  game.dismissDailyAnnouncements();
+  assert.deepEqual(buildScene(game).alerts, []);
 });
 
 test("new games are deterministic and hydration round-trips exact state", () => {

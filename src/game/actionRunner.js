@@ -8,7 +8,6 @@ import {
   saveRecord,
   saveString,
 } from "../shared/util/saveValidation.js";
-import { dismissDailyAnnouncements } from "./announcements.js";
 import { advanceGameTime } from "./timeline.js";
 import { refreshJournalAvailability } from "./journal/runtime.js";
 
@@ -69,7 +68,6 @@ export function runGameAction(
 
   const startedAt = game.now.toISOString();
   let timeChange = null;
-  dismissDailyAnnouncements(game);
 
   if (typeof apply === "function") apply(game);
 

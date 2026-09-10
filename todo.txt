@@ -112,6 +112,3 @@ other:
 - expand random/special prose into tag-specific location pools, tag-specific place pools, and condition/flag/item/moon-dependent text
 - postpone: localisation
 - adjust sleep balance - -sleeping for 6 hours almost fills up energy bar
-
-fix:
-- "Today is a school day. Classes start at 09:00." warning is displayed PERSISTENTLY when at the home location. ecpected behavior: show when 1. clock hits/crosses midnight [not inside a scene sequence], 2.not during the opening scene, hide on scene rerender

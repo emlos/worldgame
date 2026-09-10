@@ -1130,6 +1130,7 @@ function renderScene(preludeParagraphs = []) {
   if (currentScene.map) renderLocalMap(currentScene.map);
   renderDebugPanel();
   chatsUI?.refresh();
+  if (currentScene.alerts.length) game.dismissDailyAnnouncements();
 }
 
 async function choose(sceneId, choiceId) {

@@ -16,7 +16,6 @@ export const SCHOOL_AUTOMATIC_REMINDERS = Object.freeze([
     priority: 100,
     tone: "info",
     text(game, date) {
-      if (!game.hasFlag("home.opening_seen")) return null;
       return schoolDayReminderText(game, date);
     },
   }),

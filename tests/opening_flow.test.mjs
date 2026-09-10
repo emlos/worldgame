@@ -70,7 +70,14 @@ test("a new browser game can enter the one-time home opening", () => {
   assert.equal(game.currentPlace?.key, "player_home");
   assert.equal(game.hasFlag("home.opening_seen"), true);
   const homeScene = buildScene(game);
-  assert.match(JSON.stringify(homeScene.content), /Today is a school day/);
+  assert.match(
+    JSON.stringify(homeScene.alerts),
+    /Today is a school day/,
+  );
+  assert.doesNotMatch(
+    JSON.stringify(homeScene.content),
+    /Today is a school day/,
+  );
   assert.doesNotMatch(JSON.stringify(homeScene.content), /notice has been pinned/);
   assert.equal(
     getEligibleWGAutomaticScenes(game, WG_AUTO_TRIGGER.enterPlace).some(
