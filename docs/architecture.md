@@ -61,7 +61,7 @@ Use `src/features/<name>/` when behavior is specific to one gameplay system and
 crosses ordinary technical layers. A feature may own places, dynamic scene
 content, choice actions, WG systems or behaviors, context, effects, checks,
 timers, reminders, serializable state, NPC definition and schedule additions,
-navigation metadata, debug actions, and feature-specific views. Its `.wg`
+navigation metadata, time-change hooks, debug actions, and feature-specific views. Its `.wg`
 source belongs in `story/<name>/`.
 
 `src/features/catalog.js` is the integration boundary. The application enables
@@ -85,6 +85,9 @@ Choose the smallest fitting extension:
   serialized under the same key. The school feature therefore owns education
   records at `game.featureState.school.subjects` and exposes their WG read model
   as `school.education`, rather than adding school fields to the generic player.
+- A time-change handler updates feature-owned state at simulation or resync
+  boundaries. It receives the completed time-change record and should not
+  advance the clock itself.
 
 This is intended for unique systems such as bus travel, school, labyrinths,
 minigames, jobs, combat, or shops with custom logic. Do not turn every ordinary

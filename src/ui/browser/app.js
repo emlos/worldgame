@@ -332,6 +332,21 @@ function makeChoiceButton(sceneId, choice, number) {
   return button;
 }
 
+function makeTableChoiceButton(sceneId, choice) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "utility-button scene-table-action";
+  button.dataset.sceneId = sceneId;
+  button.dataset.choiceId = choice.id;
+  button.textContent = choice.label;
+  button.disabled = !choice.enabled;
+  if (!choice.enabled && choice.disabledReason) {
+    button.title = choice.disabledReason;
+  }
+  button.addEventListener("click", () => choose(sceneId, choice.id));
+  return button;
+}
+
 function locationSummary(node) {
   const places = node.places.length
     ? node.places
@@ -1137,7 +1152,9 @@ function renderScene(preludeParagraphs = []) {
     sceneElement.append(paragraph);
   }
 
-  renderSceneContent(sceneElement, currentScene.content);
+  renderSceneContent(sceneElement, currentScene.content, {
+    makeTableAction: (choice) => makeTableChoiceButton(currentScene.id, choice),
+  });
 
   if (currentScene.presentation?.type === "journal-writing") {
     renderEmbeddedJournal(currentScene);

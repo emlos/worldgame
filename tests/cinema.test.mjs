@@ -5,11 +5,13 @@ import { Game } from "../src/game/game.js";
 import { buildScene } from "../src/game/scene/sceneEngine.js";
 import { performChoice } from "../src/game/scene/choiceEngine.js";
 import { CINEMA_MOVIES } from "../src/features/cinema/movies.js";
+import { buildPhoneRemindersView } from "../src/game/scene/phoneView.js";
 import {
   CINEMA_TICKET_PRICE,
   getCinemaProgramme,
   getCinemaScreenings,
 } from "../src/features/cinema/programme.js";
+import { CINEMA_SCREENING_REMINDER_ID } from "../src/features/cinema/reminders.js";
 
 function placePlayerAtCinema(game) {
   for (const location of game.world.locations.values()) {
@@ -91,4 +93,92 @@ test("a screening remains available at its exact advertised start time", () => {
   const game = cinemaGame("2026-09-03T12:30:00.000Z");
   const choices = buildScene(game).sections.find(({ id }) => id === "screenings").choices;
   assert.ok(choices.some(({ label }) => label.startsWith("12:30")));
+});
+
+test("each cinema timetable row has a validated reminder action", () => {
+  const game = cinemaGame("2026-09-03T12:00:00.000Z");
+  const scene = buildScene(game);
+  const timetable = scene.content[0];
+
+  assert.equal(timetable.columns.at(-1), "Reminder");
+  assert.ok(timetable.rows.every((row) => row.at(-1).type === "action"));
+  assert.ok(timetable.rows.every((row) =>
+    row.at(-1).choice.action.type === "cinema.remind"));
+
+  const reminderChoice = timetable.rows[0].at(-1).choice;
+  const result = performChoice(game, {
+    sceneId: scene.id,
+    choiceId: reminderChoice.id,
+  });
+  assert.match(result.notice, /Reminder set/);
+  assert.equal(game.featureState.cinema.screeningReminders.length, 1);
+
+  const refreshedChoice = buildScene(game).content[0].rows[0].at(-1).choice;
+  assert.equal(refreshedChoice.label, "Reminder set");
+  assert.equal(refreshedChoice.enabled, false);
+
+  const restored = Game.fromJSON(JSON.parse(JSON.stringify(game.toJSON())));
+  assert.deepEqual(restored.featureState.cinema, game.featureState.cinema);
+});
+
+test("a screening reminder appears fifteen minutes before its film in every hub and then clears", () => {
+  const game = cinemaGame("2026-09-03T12:00:00.000Z");
+  game.dismissDailyAnnouncements();
+  const cinema = buildScene(game);
+  const reminderChoice = cinema.content[0].rows[0].at(-1).choice;
+  performChoice(game, { sceneId: cinema.id, choiceId: reminderChoice.id });
+
+  const scheduledPhoneReminder = buildPhoneRemindersView(game).groups
+    .flatMap(({ items }) => items)
+    .find(({ id }) => id === CINEMA_SCREENING_REMINDER_ID);
+  assert.ok(scheduledPhoneReminder);
+  assert.match(scheduledPhoneReminder.text, /Cinema:/);
+  assert.match(scheduledPhoneReminder.text, /at 12:30, screen 1/);
+
+  game.advanceMinutes(14);
+  assert.equal(
+    game.dailyAnnouncements.items.some(({ id }) => id === CINEMA_SCREENING_REMINDER_ID),
+    false,
+  );
+  assert.equal(
+    buildPhoneRemindersView(game).groups
+      .flatMap(({ items }) => items)
+      .some(({ id }) => id === CINEMA_SCREENING_REMINDER_ID),
+    true,
+  );
+
+  game.advanceMinutes(1);
+  const alert = game.dailyAnnouncements.items.find(
+    ({ id }) => id === CINEMA_SCREENING_REMINDER_ID,
+  );
+  assert.ok(alert);
+  assert.match(alert.text, /Cinema reminder/);
+  assert.match(alert.text, /in 15 minutes/);
+  const restoredDue = Game.fromJSON(JSON.parse(JSON.stringify(game.toJSON())));
+  assert.equal(restoredDue.featureState.cinema.screeningReminders[0].notified, true);
+  assert.ok(restoredDue.dailyAnnouncements.items.some(
+    ({ id }) => id === CINEMA_SCREENING_REMINDER_ID));
+
+  game.setCurrentPlace();
+  assert.ok(buildScene(game).alerts.some(({ id }) => id === CINEMA_SCREENING_REMINDER_ID));
+  const home = game.world.findFirstPlaceByKey("player_home");
+  game.moveTo(String(home.locationId));
+  game.setCurrentPlace({ placeId: String(home.id) });
+  assert.ok(buildScene(game).alerts.some(({ id }) => id === CINEMA_SCREENING_REMINDER_ID));
+  assert.ok(buildPhoneRemindersView(game).groups
+    .flatMap(({ items }) => items)
+    .some(({ id }) => id === CINEMA_SCREENING_REMINDER_ID));
+
+  game.advanceMinutes(15);
+  assert.deepEqual(game.featureState.cinema.screeningReminders, []);
+  assert.equal(
+    game.dailyAnnouncements.items.some(({ id }) => id === CINEMA_SCREENING_REMINDER_ID),
+    false,
+  );
+  assert.equal(
+    buildPhoneRemindersView(game).groups
+      .flatMap(({ items }) => items)
+      .some(({ id }) => id === CINEMA_SCREENING_REMINDER_ID),
+    false,
+  );
 });

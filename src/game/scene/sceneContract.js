@@ -90,7 +90,7 @@ function validateChange(change, path) {
   }
 }
 
-function validateContent(content) {
+function validateContent(content, choiceIds) {
   if (!Array.isArray(content)) fail("scene.content must be an array");
   content.forEach((block, index) => {
     const path = `scene.content[${index}]`;
@@ -148,9 +148,17 @@ function validateContent(content) {
           fail(`${rowPath} must contain exactly ${block.columns.length} cells`);
         }
         row.forEach((cell, cellIndex) => {
-          if (typeof cell !== "string") {
-            fail(`${rowPath}[${cellIndex}] must be a string`);
+          const cellPath = `${rowPath}[${cellIndex}]`;
+          if (typeof cell === "string") return;
+          requireRecord(cell, cellPath);
+          if (cell.type !== "action") {
+            fail(`${cellPath}.type must be 'action'`);
           }
+          validateChoice(cell.choice, `${cellPath}.choice`);
+          if (choiceIds.has(cell.choice.id)) {
+            fail(`Duplicate choice id '${cell.choice.id}' in scene`);
+          }
+          choiceIds.add(cell.choice.id);
         });
       });
       return;
@@ -172,11 +180,11 @@ export function validateScene(scene) {
   validateVisual(scene.visual);
   validateAlerts(scene.alerts);
 
-  validateContent(scene.content);
+  const choiceIds = new Set();
+  validateContent(scene.content, choiceIds);
 
   if (!Array.isArray(scene.sections)) fail("scene.sections must be an array");
   const sectionIds = new Set();
-  const choiceIds = new Set();
 
   scene.sections.forEach((section, sectionIndex) => {
     const sectionPath = `scene.sections[${sectionIndex}]`;

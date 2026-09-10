@@ -12,6 +12,7 @@ import {
   findCinemaScreening,
   minutesUntilScreening,
 } from "./programme.js";
+import { addCinemaScreeningReminder } from "./reminders.js";
 
 const CARO_CINEMA_OBLIGATION_ID = "caro_part_time_cinema";
 
@@ -46,6 +47,35 @@ function caroTicketComment(movie) {
     return `Caro tears your ticket. "${title}. Educational," she says. "If anyone asks, this absolutely counts as studying."`;
   }
   return `Caro tears your ticket and reads the title. "${title}. Tell me whether it earns the dramatic poster on your way out."`;
+}
+
+function screeningClock(date) {
+  return `${String(date.getUTCHours()).padStart(2, "0")}:${String(date.getUTCMinutes()).padStart(2, "0")}`;
+}
+
+export function performSetScreeningReminder(game, choice, minutes) {
+  if (minutes !== 0) {
+    failChoice(CHOICE_ERROR_CODE.invalidAction, "Setting a cinema reminder cannot advance time");
+  }
+  if (game.currentPlace?.key !== CINEMA_PLACE_KEY) {
+    failChoice(CHOICE_ERROR_CODE.invalidAction, "A screening reminder can only be set at the cinema");
+  }
+  const screening = findCinemaScreening(game.seed, choice.action.screeningId, game.now);
+  if (!screening || screening.startsAt <= game.now) {
+    failChoice(CHOICE_ERROR_CODE.invalidAction, "That screening has already started");
+  }
+
+  runChoiceAction(game, {
+    label: `Set reminder for ${screening.movie.title}`,
+    apply(currentGame) {
+      if (!addCinemaScreeningReminder(currentGame, screening)) {
+        failChoice(CHOICE_ERROR_CODE.disabledChoice, "That screening already has a reminder");
+      }
+    },
+  });
+  return actionResult({
+    notice: `Reminder set for ${screening.movie.title} at ${screeningClock(screening.startsAt)}.`,
+  });
 }
 
 export function performWatchMovie(game, choice, minutes) {
@@ -88,5 +118,6 @@ export function performWatchMovie(game, choice, minutes) {
 }
 
 export const CINEMA_ACTION_HANDLERS = Object.freeze({
+  [CINEMA_ACTION_TYPE.remind]: performSetScreeningReminder,
   [CINEMA_ACTION_TYPE.watch]: performWatchMovie,
 });

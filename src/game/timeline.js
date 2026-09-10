@@ -149,6 +149,7 @@ function changeTimeStep(game, target, { mode, source, drainPlayerEnergy }) {
     drainPlayerEnergy,
     ejectedFrom,
   };
+  game.features.handleTimeChange(game, change);
   if (mode === "simulate") {
     emitGameEvent(game, "time", [game, minutes, change]);
   } else {

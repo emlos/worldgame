@@ -6,24 +6,52 @@ import {
   getCinemaScreenings,
   minutesUntilScreening,
 } from "./programme.js";
+import { hasCinemaScreeningReminder } from "./reminders.js";
 
-export const CINEMA_ACTION_TYPE = Object.freeze({ watch: "cinema.watch" });
+export const CINEMA_ACTION_TYPE = Object.freeze({
+  remind: "cinema.remind",
+  watch: "cinema.watch",
+});
 
 function clock(date) {
   return `${String(date.getUTCHours()).padStart(2, "0")}:${String(date.getUTCMinutes()).padStart(2, "0")}`;
 }
 
-function screeningTable(screenings) {
+function screeningReminderCell(game, screening) {
+  const reminded = hasCinemaScreeningReminder(game, screening.id);
+  const started = screening.startsAt <= game.now;
+  return {
+    type: "action",
+    choice: createChoice({
+      id: `cinema-remind:${screening.id}`,
+      label: reminded ? "Reminder set" : "Remind me",
+      energyFree: true,
+      enabled: !started && !reminded,
+      disabledReason: started
+        ? "This screening has already started."
+        : reminded
+          ? "A reminder is already set for this screening."
+          : null,
+      action: {
+        type: CINEMA_ACTION_TYPE.remind,
+        screeningId: screening.id,
+      },
+    }),
+  };
+}
+
+function screeningTable(game, screenings) {
   return {
     type: "table",
     caption: "Today's screenings",
-    columns: ["Time", "Film", "Genre", "Runtime", "Screen"],
-    rows: screenings.map(({ startsAt, movie, screen }) => [
-      clock(startsAt),
-      movie.title,
-      movie.genre,
-      `${movie.durationMinutes} min`,
-      String(screen),
+    columns: ["Time", "Film", "Genre", "Runtime", "Screen", "Reminder"],
+    rows: screenings.map((screening) => [
+      clock(screening.startsAt),
+      screening.movie.title,
+      screening.movie.genre,
+      `${screening.movie.durationMinutes} min`,
+      String(screening.screen),
+      screeningReminderCell(game, screening),
     ]),
   };
 }
@@ -54,7 +82,7 @@ function decorateCinemaHub({ game, scene }) {
       screeningId: screening.id,
     },
   }));
-  const content = [screeningTable(screenings), ...scene.content];
+  const content = [screeningTable(game, screenings), ...scene.content];
   if (!upcoming.length) {
     content.push({ type: "paragraph", text: "The box office has stopped selling tickets for today." });
   }

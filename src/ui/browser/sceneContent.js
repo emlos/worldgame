@@ -8,7 +8,7 @@ function changeElement(document, change) {
   return item;
 }
 
-function tableElement(document, block) {
+function tableElement(document, block, makeTableAction) {
   const wrapper = document.createElement("div");
   wrapper.className = "scene-table-scroll";
   const table = document.createElement("table");
@@ -32,10 +32,18 @@ function tableElement(document, block) {
   const body = document.createElement("tbody");
   for (const cells of block.rows) {
     const row = document.createElement("tr");
-    cells.forEach((text, index) => {
+    cells.forEach((value, index) => {
       const cell = document.createElement(index === 0 ? "th" : "td");
       if (index === 0) cell.scope = "row";
-      cell.textContent = text;
+      if (typeof value === "string") {
+        cell.textContent = value;
+      } else {
+        if (typeof makeTableAction !== "function") {
+          throw new TypeError("Table actions require a button renderer");
+        }
+        cell.className = "scene-table-action-cell";
+        cell.append(makeTableAction(value.choice));
+      }
       row.append(cell);
     });
     body.append(row);
@@ -46,7 +54,11 @@ function tableElement(document, block) {
 }
 
 /** Append scene prose and feedback using only text nodes and known elements. */
-export function renderSceneContent(element, content) {
+export function renderSceneContent(
+  element,
+  content,
+  { makeTableAction = null } = {},
+) {
   const document = element.ownerDocument;
   for (const block of content) {
     if (block.type === "paragraph") {
@@ -86,7 +98,7 @@ export function renderSceneContent(element, content) {
       changes.append(...block.items.map((change) => changeElement(document, change)));
       element.append(changes);
     } else if (block.type === "table") {
-      element.append(tableElement(document, block));
+      element.append(tableElement(document, block, makeTableAction));
     }
   }
 }

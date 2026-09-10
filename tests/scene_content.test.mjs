@@ -49,3 +49,30 @@ test("scene content renders accessible table headings and rows", () => {
     "English · 09:00-09:45",
   );
 });
+
+test("scene content renders table actions with the supplied button factory", () => {
+  const root = new FakeElement("div", document);
+  const choice = { id: "table-action", label: "Remind me" };
+  let receivedChoice = null;
+
+  renderSceneContent(root, [{
+    type: "table",
+    columns: ["Film", "Reminder"],
+    rows: [[
+      "Example film",
+      { type: "action", choice },
+    ]],
+  }], {
+    makeTableAction(candidate) {
+      receivedChoice = candidate;
+      const button = document.createElement("button");
+      button.textContent = candidate.label;
+      return button;
+    },
+  });
+
+  const actionCell = root.children[0].children[0].children[1].children[0].children[1];
+  assert.equal(receivedChoice, choice);
+  assert.equal(actionCell.className, "scene-table-action-cell");
+  assert.equal(actionCell.children[0].textContent, "Remind me");
+});

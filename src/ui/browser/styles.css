@@ -449,6 +449,17 @@ p {
   color: #f2c14e;
 }
 
+.scene-table .scene-table-action-cell {
+  padding: 0.35rem 0.7rem;
+  text-align: center;
+}
+
+.scene-table-action:disabled {
+  color: #777;
+  cursor: default;
+  text-decoration: none;
+}
+
 .choice-warning {
   color: var(--outcome-warning);
 }

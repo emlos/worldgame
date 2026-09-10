@@ -70,9 +70,21 @@ function validateRequest(request) {
 }
 
 function findChoice(scene, choiceId) {
-  return scene.sections
+  const sectionChoice = scene.sections
     .flatMap((section) => section.choices)
     .find((candidate) => candidate.id === choiceId);
+  if (sectionChoice) return sectionChoice;
+  for (const block of scene.content) {
+    if (block.type !== "table") continue;
+    for (const row of block.rows) {
+      const cell = row.find(
+        (candidate) =>
+          candidate?.type === "action" && candidate.choice?.id === choiceId,
+      );
+      if (cell) return cell.choice;
+    }
+  }
+  return undefined;
 }
 
 function rolledDurationMinutes(game, durationMinutes, durationRangeMinutes, label) {

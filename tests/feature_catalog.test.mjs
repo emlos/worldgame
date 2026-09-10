@@ -20,12 +20,14 @@ test("the default catalog composes each special system through feature registrat
     "rent",
   ]);
   assert.equal(typeof features.getActionHandler("bus.travel"), "function");
+  assert.equal(typeof features.getActionHandler("cinema.remind"), "function");
   assert.equal(typeof features.getActionHandler("cinema.watch"), "function");
   assert.ok(features.getWGSystem("journal.diary"));
   assert.ok(features.getWGSystem("school.quiz"));
   assert.ok(features.getWGSystem("school.timetable"));
   assert.ok(features.getStoryBehavior("school.class"));
   assert.deepEqual(features.stateDefinitions.map((definition) => definition.id), [
+    "cinema",
     "school",
   ]);
   assert.ok(features.timerDefinitions["rent.weekly"]);
@@ -45,6 +47,7 @@ test("the default catalog composes each special system through feature registrat
   });
   assert.ok(features.createWGContext(game).school);
   assert.ok(game.featureState.school);
+  assert.deepEqual(game.featureState.cinema, { screeningReminders: [] });
   assert.equal(
     features.matchesNPCScheduleConditions(
       game,
@@ -75,6 +78,13 @@ test("feature composition rejects ambiguous ownership", () => {
       defineFeature({ id: "second", placeDefinitions: [{ key: "custom_place" }] }),
     ]),
     /duplicate feature place definition 'custom_place'/,
+  );
+
+  assert.throws(
+    () => createFeatureCatalog([
+      defineFeature({ id: "invalid", timeChangeHandlers: ["not-a-function"] }),
+    ]),
+    /time change handlers must be functions/,
   );
 });
 

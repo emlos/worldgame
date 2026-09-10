@@ -35,6 +35,7 @@ export function defineFeature(definition) {
     wgContexts: Object.freeze({ ...(definition.wgContexts ?? {}) }),
     storyBehaviors: Object.freeze({ ...(definition.storyBehaviors ?? {}) }),
     automaticReminders: Object.freeze([...(definition.automaticReminders ?? [])]),
+    timeChangeHandlers: Object.freeze([...(definition.timeChangeHandlers ?? [])]),
     timerDefinitions: Object.freeze({ ...(definition.timerDefinitions ?? {}) }),
     navigationDecorators: Object.freeze([...(definition.navigationDecorators ?? [])]),
     placeDefinitions: Object.freeze([...(definition.placeDefinitions ?? [])]),
@@ -65,6 +66,7 @@ export function createFeatureCatalog(featureDefinitions) {
   const timerDefinitions = new Map();
   const sceneDecorators = [];
   const automaticReminders = [];
+  const timeChangeHandlers = [];
   const navigationDecorators = [];
   const reminderIds = new Set();
   const decoratorIds = new Set();
@@ -180,6 +182,12 @@ export function createFeatureCatalog(featureDefinitions) {
       reminderIds.add(id);
       automaticReminders.push(Object.freeze({ ...reminder }));
     }
+    for (const handler of feature.timeChangeHandlers) {
+      if (typeof handler !== "function") {
+        fail(`feature '${feature.id}' time change handlers must be functions`);
+      }
+      timeChangeHandlers.push(handler);
+    }
     for (const decorator of feature.navigationDecorators) {
       if (typeof decorator !== "function") {
         fail(`feature '${feature.id}' navigation decorators must be functions`);
@@ -236,6 +244,9 @@ export function createFeatureCatalog(featureDefinitions) {
     features: Object.freeze([...features.values()]),
     stateDefinitions: Object.freeze(stateDefinitions),
     automaticReminders: Object.freeze(automaticReminders),
+    handleTimeChange(game, change) {
+      for (const handler of timeChangeHandlers) handler(game, change);
+    },
     timerDefinitions: Object.freeze(Object.fromEntries(timerDefinitions)),
     placeDefinitions: Object.freeze(placeDefinitions),
     skillCheckTargetTypes: Object.freeze([...skillCheckTargets.keys()]),

@@ -78,7 +78,7 @@ export function validateGameSave(data, { features = DEFAULT_FEATURE_CATALOG } = 
   });
   validateFeatureStateSave(
     requiredSaveField(save, "featureState", "save"),
-    { features, gameTime },
+    { features, gameTime, seed },
   );
 
   const { current } = validateSavedPlayerPosition(save, { mapIndex });
