@@ -548,6 +548,17 @@ export const NPC_REGISTRY = [
         age: 34,
         gender: Gender.F,
         pronouns: PronounSets.SHE_HER,
+        relationshipProfile: {
+            meters: {
+                rapport: {
+                    label: "Rapport",
+                    description: "How comfortable Caro feels talking with the player.",
+                    initial: 0,
+                    higherIsBetter: true,
+                    initiallyVisible: true,
+                },
+            },
+        },
 
         stats: {
             looks: 7,

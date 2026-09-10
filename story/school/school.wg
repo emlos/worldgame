@@ -220,9 +220,17 @@
       @event-pool school.traversal
     @endchoice
 
+    @choice "Go to the school nurse's office" -> school.caro.first-meeting
+      @icon 🏥
+      @time 2m
+      @when npc.caro.present and not npc.caro.met and school.phase != "class"
+      @event-pool school.traversal
+    @endchoice
+
     @choice "Go to the school nurse's office" -> place.high-school.nurse-office
       @icon 🏥
       @time 2m
+      @when not npc.caro.present or npc.caro.met or school.phase == "class"
       @event-pool school.traversal
     @endchoice
 
@@ -835,6 +843,21 @@
   @heading "Weekly timetable"
   @choices "Timetable"
   @system school.timetable
+
+:: school.caro.first-meeting -> place.high-school.nurse-office
+  @heading "The school nurse"
+  @onenter
+    @effect relationship caro.rapport 1
+    @effect set flags.npc.caro.school_encountered
+  @endonenter
+
+  The nurse's office smells faintly of disinfectant and peppermint tea. The woman behind the desk puts down her pen when you enter.
+
+  "You must be the new student," she says. "Caro Novak. School nurse, keeper of ice packs, and the person people visit when they want permission to lie down for ten minutes."
+
+  You introduce yourself. Caro repeats your name once, committing it to memory, then gestures towards the chair opposite her desk.
+
+  @next "Nice to meet you" -> place.high-school.nurse-office
 
 :: place.high-school.nurse-office
 
