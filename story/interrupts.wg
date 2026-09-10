@@ -3,7 +3,9 @@
 :: interrupt.exhaustion.school -> place.high-school.nurse-office
   @pool interrupt
   @place-key high_school
-  @when player.energy <= 0
+  @# The player panel displays energy as whole units by rounding down, so any
+  @# remaining fraction below 1 is already presented as zero to the player.
+  @when player.energy < 1
   @priority 100
 
   @passage collapse
@@ -24,7 +26,7 @@
 :: interrupt.exhaustion.home -> @exit
   @pool interrupt
   @place-key player_home
-  @when player.energy <= 0
+  @when player.energy < 1
   @priority 100
 
   @passage collapse
@@ -44,7 +46,7 @@
   @next -> @exit
 :: interrupt.exhaustion.hospital -> @exit
   @pool interrupt
-  @when player.energy <= 0
+  @when player.energy < 1
 
   @passage collapse
 

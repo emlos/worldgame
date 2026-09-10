@@ -2793,7 +2793,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/interrupts.wg",
-                "line": 32,
+                "line": 34,
                 "column": 1
               }
             },
@@ -2823,7 +2823,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/interrupts.wg",
-                "line": 34,
+                "line": 36,
                 "column": 1
               }
             }
@@ -2831,7 +2831,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/interrupts.wg",
-            "line": 30,
+            "line": 32,
             "column": 1
           }
         },
@@ -2847,13 +2847,13 @@ export const WG_BUNDLE = {
                 },
                 "source": {
                   "file": "story/interrupts.wg",
-                  "line": 40,
+                  "line": 42,
                   "column": 1
                 }
               },
               "source": {
                 "file": "story/interrupts.wg",
-                "line": 40,
+                "line": 42,
                 "column": 1
               }
             },
@@ -2867,7 +2867,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/interrupts.wg",
-                "line": 42,
+                "line": 44,
                 "column": 1
               }
             }
@@ -2882,13 +2882,13 @@ export const WG_BUNDLE = {
             "target": "@exit",
             "source": {
               "file": "story/interrupts.wg",
-              "line": 44,
+              "line": 46,
               "column": 1
             }
           },
           "source": {
             "file": "story/interrupts.wg",
-            "line": 38,
+            "line": 40,
             "column": 1
           }
         }
@@ -2907,7 +2907,7 @@ export const WG_BUNDLE = {
       "conditions": [
         {
           "type": "binary",
-          "operator": "<=",
+          "operator": "<",
           "left": {
             "type": "path",
             "value": [
@@ -2917,7 +2917,7 @@ export const WG_BUNDLE = {
           },
           "right": {
             "type": "literal",
-            "value": 0
+            "value": 1
           }
         }
       ],
@@ -2929,7 +2929,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/interrupts.wg",
-        "line": 24,
+        "line": 26,
         "column": 1
       }
     },
@@ -2956,7 +2956,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/interrupts.wg",
-                "line": 51,
+                "line": 53,
                 "column": 1
               }
             },
@@ -2986,7 +2986,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/interrupts.wg",
-                "line": 53,
+                "line": 55,
                 "column": 1
               }
             }
@@ -2994,7 +2994,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/interrupts.wg",
-            "line": 49,
+            "line": 51,
             "column": 1
           }
         },
@@ -3011,13 +3011,13 @@ export const WG_BUNDLE = {
                 },
                 "source": {
                   "file": "story/interrupts.wg",
-                  "line": 59,
+                  "line": 61,
                   "column": 1
                 }
               },
               "source": {
                 "file": "story/interrupts.wg",
-                "line": 59,
+                "line": 61,
                 "column": 1
               }
             },
@@ -3031,7 +3031,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/interrupts.wg",
-                "line": 61,
+                "line": 63,
                 "column": 1
               }
             }
@@ -3046,13 +3046,13 @@ export const WG_BUNDLE = {
             "target": "@exit",
             "source": {
               "file": "story/interrupts.wg",
-              "line": 63,
+              "line": 65,
               "column": 1
             }
           },
           "source": {
             "file": "story/interrupts.wg",
-            "line": 57,
+            "line": 59,
             "column": 1
           }
         }
@@ -3069,7 +3069,7 @@ export const WG_BUNDLE = {
       "conditions": [
         {
           "type": "binary",
-          "operator": "<=",
+          "operator": "<",
           "left": {
             "type": "path",
             "value": [
@@ -3079,7 +3079,7 @@ export const WG_BUNDLE = {
           },
           "right": {
             "type": "literal",
-            "value": 0
+            "value": 1
           }
         }
       ],
@@ -3091,7 +3091,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/interrupts.wg",
-        "line": 45,
+        "line": 47,
         "column": 1
       }
     },
@@ -3118,7 +3118,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/interrupts.wg",
-                "line": 11,
+                "line": 13,
                 "column": 1
               }
             },
@@ -3148,7 +3148,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/interrupts.wg",
-                "line": 13,
+                "line": 15,
                 "column": 1
               }
             }
@@ -3156,7 +3156,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/interrupts.wg",
-            "line": 9,
+            "line": 11,
             "column": 1
           }
         },
@@ -3173,13 +3173,13 @@ export const WG_BUNDLE = {
                 },
                 "source": {
                   "file": "story/interrupts.wg",
-                  "line": 19,
+                  "line": 21,
                   "column": 1
                 }
               },
               "source": {
                 "file": "story/interrupts.wg",
-                "line": 19,
+                "line": 21,
                 "column": 1
               }
             },
@@ -3193,7 +3193,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/interrupts.wg",
-                "line": 21,
+                "line": 23,
                 "column": 1
               }
             }
@@ -3208,13 +3208,13 @@ export const WG_BUNDLE = {
             "target": "place.high-school.nurse-office",
             "source": {
               "file": "story/interrupts.wg",
-              "line": 23,
+              "line": 25,
               "column": 1
             }
           },
           "source": {
             "file": "story/interrupts.wg",
-            "line": 17,
+            "line": 19,
             "column": 1
           }
         }
@@ -3233,7 +3233,7 @@ export const WG_BUNDLE = {
       "conditions": [
         {
           "type": "binary",
-          "operator": "<=",
+          "operator": "<",
           "left": {
             "type": "path",
             "value": [
@@ -3243,7 +3243,7 @@ export const WG_BUNDLE = {
           },
           "right": {
             "type": "literal",
-            "value": 0
+            "value": 1
           }
         }
       ],
