@@ -62,8 +62,8 @@ test("the configured August 31 game enters a one-time day-before-school opening"
   assert.equal(game.hasFlag("home.opening_seen"), false);
   const openingScene = buildScene(game);
   assert.equal(openingScene.heading, "A new beginning");
-  assert.match(JSON.stringify(openingScene.content), /school starts tomorrow/i);
-  assert.match(JSON.stringify(openingScene.content), /first class at 09:00/i);
+  assert.match(JSON.stringify(openingScene.content), /school begins tomorrow/i);
+  assert.match(JSON.stringify(openingScene.content), /before term begins/i);
   assert.doesNotMatch(
     JSON.stringify([openingScene.content, openingScene.alerts]),
     /Today is a school day/,
@@ -220,14 +220,16 @@ test("Taylor's introduction interrupts internal travel and resumes its destinati
   assert.equal(game.storyContinuations.length, 1);
   assert.equal(
     game.storyContinuations[0].target,
-    "place.high-school.nurse-office",
+    "school.caro.first-meeting",
   );
   assert.equal(hasMetTaylor(game), true);
 
   choose(game, "See you around");
 
-  assert.equal(game.currentStory?.id, "place.high-school.nurse-office");
+  assert.equal(game.currentStory?.id, "school.caro.first-meeting");
   assert.equal(game.storyContinuations.length, 0);
+  choose(game, "Nice to meet you");
+  assert.equal(game.currentStory?.id, "place.high-school.nurse-office");
   assert.match(JSON.stringify(buildScene(game).content), /Nurse Caro|nurse's chair/);
 });
 
@@ -247,7 +249,7 @@ test("Taylor's introduction requires Taylor to be present", () => {
   );
 
   choose(game, "Go to the school nurse's office");
-  assert.equal(game.currentStory?.id, "place.high-school.nurse-office");
+  assert.equal(game.currentStory?.id, "school.caro.first-meeting");
   assert.equal(hasMetTaylor(game), false);
 });
 
