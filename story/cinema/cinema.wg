@@ -40,5 +40,37 @@
 
 :: place.cinema
   @hub cinema
+  @choices "At the counter"
 
   Backlit posters line the foyer of {{place.name}}. The smell of popcorn drifts from the concession stand while the screens rumble faintly beyond the ticket barrier.
+
+  @choice "Ask Caro what she recommends" -> cinema.caro.recommendation
+    @icon 🎬
+    @time 5m
+    @when npc.caro.present and npc.caro.met and flags.npc.caro.cinema_encountered and npc.caro.schedule.obligationId == "caro_part_time_cinema"
+  @endchoice
+
+  @choice "Buy popcorn from Caro" -> @exit
+    @icon 🍿
+    @time 3m
+    @when player.money >= 4 and npc.caro.present and npc.caro.met and flags.npc.caro.cinema_encountered and npc.caro.schedule.obligationId == "caro_part_time_cinema"
+    @change money -4 "£4 popcorn"
+    @response
+      Caro fills a striped carton until popcorn forms a dangerously rounded heap above the rim. "Structural integrity is the customer's problem," she says, sliding it across the counter.
+    @endresponse
+  @endchoice
+
+:: cinema.caro.recommendation -> @exit
+  @heading "Caro's recommendation"
+
+  Caro folds her arms and studies the programme board with exaggerated seriousness.
+
+  @random
+    "Pick the one whose poster tells you the least," she decides. "Either it's confident, or the marketing department gave up. Both are interesting."
+  @or
+    "My professional recommendation is whichever film gets you out before I have to clean screen two," Caro says. "My personal recommendation changes every ten minutes."
+  @or
+    Caro taps one title on the board. "That one has the fewest complaints so far. I realise that isn't the same as praise, but this uniform demands honesty."
+  @endrandom
+
+  @next "Thanks, I think" -> @exit

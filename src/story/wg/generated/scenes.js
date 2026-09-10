@@ -1378,6 +1378,134 @@ export const WG_BUNDLE = {
         "column": 1
       }
     },
+    "cinema.caro.recommendation": {
+      "id": "cinema.caro.recommendation",
+      "finalTarget": "@exit",
+      "kind": "event",
+      "heading": "Caro's recommendation",
+      "choiceHeading": "Choices",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Caro folds her arms and studies the programme board with exaggerated seriousness."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/cinema.wg",
+                "line": 66,
+                "column": 1
+              }
+            },
+            {
+              "type": "random",
+              "variants": [
+                [
+                  {
+                    "type": "paragraph",
+                    "parts": [
+                      {
+                        "type": "text",
+                        "value": "\"Pick the one whose poster tells you the least,\" she decides. \"Either it's confident, or the marketing department gave up. Both are interesting.\""
+                      }
+                    ],
+                    "source": {
+                      "file": "story/cinema/cinema.wg",
+                      "line": 69,
+                      "column": 1
+                    }
+                  }
+                ],
+                [
+                  {
+                    "type": "paragraph",
+                    "parts": [
+                      {
+                        "type": "text",
+                        "value": "\"My professional recommendation is whichever film gets you out before I have to clean screen two,\" Caro says. \"My personal recommendation changes every ten minutes.\""
+                      }
+                    ],
+                    "source": {
+                      "file": "story/cinema/cinema.wg",
+                      "line": 71,
+                      "column": 1
+                    }
+                  }
+                ],
+                [
+                  {
+                    "type": "paragraph",
+                    "parts": [
+                      {
+                        "type": "text",
+                        "value": "Caro taps one title on the board. \"That one has the fewest complaints so far. I realise that isn't the same as praise, but this uniform demands honesty.\""
+                      }
+                    ],
+                    "source": {
+                      "file": "story/cinema/cinema.wg",
+                      "line": 73,
+                      "column": 1
+                    }
+                  }
+                ]
+              ],
+              "source": {
+                "file": "story/cinema/cinema.wg",
+                "line": 68,
+                "column": 1
+              },
+              "runtimeId": 0
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Thanks, I think"
+              }
+            ],
+            "target": "@exit",
+            "source": {
+              "file": "story/cinema/cinema.wg",
+              "line": 76,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/cinema.wg",
+            "line": 66,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [],
+      "conditions": [],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/cinema/cinema.wg",
+        "line": 63,
+        "column": 1
+      }
+    },
     "cinema.caro.school-recognition": {
       "id": "cinema.caro.school-recognition",
       "finalTarget": "@exit",
@@ -4913,7 +5041,7 @@ export const WG_BUNDLE = {
       "finalTarget": null,
       "kind": "place",
       "heading": null,
-      "choiceHeading": "Choices",
+      "choiceHeading": "At the counter",
       "behavior": null,
       "system": null,
       "onEnter": [],
@@ -4943,7 +5071,227 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/cinema/cinema.wg",
-                "line": 44,
+                "line": 45,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-1",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Ask Caro what she recommends"
+                }
+              ],
+              "target": "cinema.caro.recommendation",
+              "icon": "🎬",
+              "durationMinutes": 5,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": {
+                "type": "binary",
+                "operator": "and",
+                "left": {
+                  "type": "binary",
+                  "operator": "and",
+                  "left": {
+                    "type": "binary",
+                    "operator": "and",
+                    "left": {
+                      "type": "path",
+                      "value": [
+                        "npc",
+                        "caro",
+                        "present"
+                      ]
+                    },
+                    "right": {
+                      "type": "path",
+                      "value": [
+                        "npc",
+                        "caro",
+                        "met"
+                      ]
+                    }
+                  },
+                  "right": {
+                    "type": "path",
+                    "value": [
+                      "flags",
+                      "npc",
+                      "caro",
+                      "cinema_encountered"
+                    ]
+                  }
+                },
+                "right": {
+                  "type": "binary",
+                  "operator": "==",
+                  "left": {
+                    "type": "path",
+                    "value": [
+                      "npc",
+                      "caro",
+                      "schedule",
+                      "obligationId"
+                    ]
+                  },
+                  "right": {
+                    "type": "literal",
+                    "value": "caro_part_time_cinema"
+                  }
+                }
+              },
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/cinema/cinema.wg",
+                "line": 47,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-2",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Buy popcorn from Caro"
+                }
+              ],
+              "target": "@exit",
+              "icon": "🍿",
+              "durationMinutes": 3,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": {
+                "type": "binary",
+                "operator": "and",
+                "left": {
+                  "type": "binary",
+                  "operator": "and",
+                  "left": {
+                    "type": "binary",
+                    "operator": "and",
+                    "left": {
+                      "type": "binary",
+                      "operator": "and",
+                      "left": {
+                        "type": "binary",
+                        "operator": ">=",
+                        "left": {
+                          "type": "path",
+                          "value": [
+                            "player",
+                            "money"
+                          ]
+                        },
+                        "right": {
+                          "type": "literal",
+                          "value": 4
+                        }
+                      },
+                      "right": {
+                        "type": "path",
+                        "value": [
+                          "npc",
+                          "caro",
+                          "present"
+                        ]
+                      }
+                    },
+                    "right": {
+                      "type": "path",
+                      "value": [
+                        "npc",
+                        "caro",
+                        "met"
+                      ]
+                    }
+                  },
+                  "right": {
+                    "type": "path",
+                    "value": [
+                      "flags",
+                      "npc",
+                      "caro",
+                      "cinema_encountered"
+                    ]
+                  }
+                },
+                "right": {
+                  "type": "binary",
+                  "operator": "==",
+                  "left": {
+                    "type": "path",
+                    "value": [
+                      "npc",
+                      "caro",
+                      "schedule",
+                      "obligationId"
+                    ]
+                  },
+                  "right": {
+                    "type": "literal",
+                    "value": "caro_part_time_cinema"
+                  }
+                }
+              },
+              "requirements": [],
+              "warning": null,
+              "responses": [
+                {
+                  "paragraphs": [
+                    {
+                      "type": "paragraph",
+                      "parts": [
+                        {
+                          "type": "text",
+                          "value": "Caro fills a striped carton until popcorn forms a dangerously rounded heap above the rim. \"Structural integrity is the customer's problem,\" she says, sliding it across the counter."
+                        }
+                      ],
+                      "source": {
+                        "file": "story/cinema/cinema.wg",
+                        "line": 59,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "source": {
+                    "file": "story/cinema/cinema.wg",
+                    "line": 58,
+                    "column": 1
+                  }
+                }
+              ],
+              "hints": [],
+              "effects": [
+                {
+                  "op": "money",
+                  "amount": -4,
+                  "source": {
+                    "file": "story/cinema/cinema.wg",
+                    "line": 57,
+                    "column": 1
+                  },
+                  "feedback": {
+                    "type": "money",
+                    "amount": -4,
+                    "label": "£4 popcorn",
+                    "direction": "decrease"
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/cinema/cinema.wg",
+                "line": 53,
                 "column": 1
               }
             }
@@ -4951,7 +5299,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/cinema/cinema.wg",
-            "line": 44,
+            "line": 45,
             "column": 1
           }
         }
