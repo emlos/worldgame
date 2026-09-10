@@ -1,5 +1,6 @@
 const DEFAULT_TEMPORARY_STAY_MINUTES = 30;
 const DEBUG_MONEY_GRANT = 100;
+const DEBUG_TIME_ADVANCE_MINUTES = 60;
 
 function requireNPC(game, npcId) {
   const id = String(npcId);
@@ -30,6 +31,13 @@ export function addDebugMoney(game) {
   });
 
   return balance;
+}
+
+export function advanceDebugHour(game) {
+  return game.runAction({
+    label: "[Debug] Advance time by 1 hour",
+    minutes: DEBUG_TIME_ADVANCE_MINUTES,
+  }).timeChange;
 }
 
 export function teleportNPCToPlayer(

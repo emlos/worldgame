@@ -6,6 +6,7 @@ import {
 import { createPhoneChats } from "./phoneChats.js";
 import {
   addDebugMoney,
+  advanceDebugHour,
   teleportNPCToPlayer,
 } from "../../game/debugCommands.js";
 import { buildScene } from "../../game/scene/sceneEngine.js";
@@ -105,8 +106,12 @@ const phoneChatThreadScreen = document.querySelector("#phone-chat-thread-screen"
 const debugEnabled = typeof debug !== "undefined" && Boolean(debug);
 const debugPanel = document.querySelector("#debug-panel");
 const debugAddMoneyButton = document.querySelector("#debug-add-money");
+const debugAdvanceHourButton = document.querySelector("#debug-advance-hour");
 const debugTeleportSchoolButton = document.querySelector(
   "#debug-teleport-school",
+);
+const debugTeleportCinemaButton = document.querySelector(
+  "#debug-teleport-cinema",
 );
 const debugTeleportTaylorButton = document.querySelector(
   "#debug-teleport-taylor",
@@ -114,6 +119,9 @@ const debugTeleportTaylorButton = document.querySelector(
 const debugTaylorPosition = document.querySelector("#debug-taylor-position");
 const debugTaylorGoal = document.querySelector("#debug-taylor-goal");
 const debugTaylorAction = document.querySelector("#debug-taylor-action");
+const debugCaroPosition = document.querySelector("#debug-caro-position");
+const debugCaroGoal = document.querySelector("#debug-caro-goal");
+const debugCaroAction = document.querySelector("#debug-caro-action");
 
 document.body.classList.toggle("debug-enabled", debugEnabled);
 debugPanel.hidden = !debugEnabled;
@@ -1048,26 +1056,40 @@ function openPhone(screen = showPhoneHomeScreen) {
   screen();
 }
 
-function renderDebugPanel() {
-  if (!debugEnabled) return;
-  const taylor = game.npcs.get("taylor");
-  if (!taylor) {
-    debugTaylorPosition.textContent = "Not in this game";
-    debugTaylorGoal.textContent = "-";
-    debugTaylorAction.textContent = "-";
-    debugTeleportTaylorButton.disabled = true;
+function renderDebugNPC(npcId, elements, teleportButton = null) {
+  const npc = game.npcs.get(npcId);
+  if (!npc) {
+    elements.position.textContent = "Not in this game";
+    elements.goal.textContent = "-";
+    elements.action.textContent = "-";
+    if (teleportButton) teleportButton.disabled = true;
     return;
   }
 
-  const location = game.world.getLocation(taylor.locationId);
+  if (teleportButton) teleportButton.disabled = false;
+  const location = game.world.getLocation(npc.locationId);
   const place = (location?.places || []).find(
-    (candidate) => String(candidate.id) === String(taylor.currentPlaceId),
+    (candidate) => String(candidate.id) === String(npc.currentPlaceId),
   );
-  debugTaylorPosition.textContent = place
-    ? `${place.name}, ${location?.name || taylor.locationId}`
-    : location?.name || String(taylor.locationId);
-  debugTaylorGoal.textContent = taylor.brain?.currentGoal?.ruleId || "None";
-  debugTaylorAction.textContent = taylor.brain?.currentAction?.type || "None";
+  elements.position.textContent = place
+    ? `${place.name}, ${location?.name || npc.locationId}`
+    : location?.name || String(npc.locationId);
+  elements.goal.textContent = npc.brain?.currentGoal?.ruleId || "None";
+  elements.action.textContent = npc.brain?.currentAction?.type || "None";
+}
+
+function renderDebugPanel() {
+  if (!debugEnabled) return;
+  renderDebugNPC("taylor", {
+    position: debugTaylorPosition,
+    goal: debugTaylorGoal,
+    action: debugTaylorAction,
+  }, debugTeleportTaylorButton);
+  renderDebugNPC("caro", {
+    position: debugCaroPosition,
+    goal: debugCaroGoal,
+    action: debugCaroAction,
+  });
 }
 
 function render(preludeParagraphs = []) {
@@ -1286,6 +1308,32 @@ debugTeleportSchoolButton.addEventListener("click", () => {
     const action = game.features.getDebugAction("school.teleport-player");
     if (!action) throw new Error("The school debug action is unavailable");
     action(game);
+    noticeElement.textContent = "";
+    noticeElement.className = "notice";
+  } catch (error) {
+    noticeElement.textContent = error.message;
+    noticeElement.className = "notice error";
+  }
+  render();
+});
+
+debugTeleportCinemaButton.addEventListener("click", () => {
+  try {
+    const action = game.features.getDebugAction("cinema.teleport-player");
+    if (!action) throw new Error("The cinema debug action is unavailable");
+    action(game);
+    noticeElement.textContent = "";
+    noticeElement.className = "notice";
+  } catch (error) {
+    noticeElement.textContent = error.message;
+    noticeElement.className = "notice error";
+  }
+  render();
+});
+
+debugAdvanceHourButton.addEventListener("click", () => {
+  try {
+    advanceDebugHour(game);
     noticeElement.textContent = "";
     noticeElement.className = "notice";
   } catch (error) {
