@@ -2,6 +2,10 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import { Game } from "../src/game/game.js";
+import {
+  NEW_GAME_SEED,
+  NEW_GAME_START_ISO,
+} from "../src/game/newGameConfig.js";
 import { performChoice } from "../src/game/scene/choiceEngine.js";
 import { buildScene } from "../src/game/scene/sceneEngine.js";
 import {
@@ -39,13 +43,18 @@ function hasMetTaylor(game) {
   ).met;
 }
 
-test("a new browser game can enter the one-time home opening", () => {
+test("the configured August 31 game enters a one-time day-before-school opening", () => {
   const game = new Game({
-    seed: 117,
-    startDate: new Date("2026-09-01T07:00:00.000Z"),
+    seed: NEW_GAME_SEED,
+    startDate: new Date(NEW_GAME_START_ISO),
   });
 
+  assert.equal(game.now.toISOString(), "2026-08-31T07:00:00.000Z");
   assert.equal(game.currentPlace?.key, "player_home");
+  assert.equal(game.dailyAnnouncements.day, "2026-08-31");
+  assert.equal(game.dailyAnnouncements.items.length, 1);
+  assert.match(game.dailyAnnouncements.items[0].text, /School starts tomorrow/);
+  assert.doesNotMatch(game.dailyAnnouncements.items[0].text, /Today is a school day/);
   const opening = resolveWGAutomaticScene(game, WG_AUTO_TRIGGER.enterPlace);
 
   assert.equal(opening?.id, "story.opening.new-home");
@@ -53,10 +62,13 @@ test("a new browser game can enter the one-time home opening", () => {
   assert.equal(game.hasFlag("home.opening_seen"), false);
   const openingScene = buildScene(game);
   assert.equal(openingScene.heading, "A new beginning");
+  assert.match(JSON.stringify(openingScene.content), /school starts tomorrow/i);
+  assert.match(JSON.stringify(openingScene.content), /first class at 09:00/i);
   assert.doesNotMatch(
     JSON.stringify([openingScene.content, openingScene.alerts]),
     /Today is a school day/,
   );
+  assert.deepEqual(openingScene.alerts, []);
 
   choose(game, "Maybe this is a fresh start");
   assert.equal(game.currentStory?.locals?.outlook, "hopeful");
@@ -70,7 +82,12 @@ test("a new browser game can enter the one-time home opening", () => {
   assert.equal(game.currentPlace?.key, "player_home");
   assert.equal(game.hasFlag("home.opening_seen"), true);
   const homeScene = buildScene(game);
+  assert.equal(homeScene.alerts.length, 1);
   assert.match(
+    JSON.stringify(homeScene.alerts),
+    /School starts tomorrow/,
+  );
+  assert.doesNotMatch(
     JSON.stringify(homeScene.alerts),
     /Today is a school day/,
   );
@@ -85,6 +102,9 @@ test("a new browser game can enter the one-time home opening", () => {
     ),
     false,
   );
+
+  game.dismissDailyAnnouncements();
+  assert.deepEqual(buildScene(game).alerts, []);
 
   game.setCurrentPlace();
   assert.doesNotMatch(

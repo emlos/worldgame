@@ -176,25 +176,38 @@ test("crossing UTC midnight clears daily flags and refreshes announcements", () 
   assert.equal(game.dailyAnnouncements.day, "2026-09-05");
 });
 
-test("school-day announcements wait for a hub and disappear after acknowledgement", () => {
+test("the first school-day reminder replaces August 31 guidance after midnight", () => {
   const game = gameWithoutNPCs({
-    startDate: new Date("2026-09-02T23:30:00.000Z"),
+    seed: 117,
+    startDate: new Date("2026-08-31T23:30:00.000Z"),
   });
+  assert.equal(game.dailyAnnouncements.day, "2026-08-31");
+  assert.equal(game.dailyAnnouncements.items.length, 1);
+  assert.match(game.dailyAnnouncements.items[0].text, /School starts tomorrow/);
+  assert.doesNotMatch(game.dailyAnnouncements.items[0].text, /Today is a school day/);
+
   game.setFlag("home.opening_seen");
   enterWGTarget(game, "menu.player.home.rest");
   resolveActiveWGStory(game);
 
   game.advanceMinutes(60);
 
-  assert.equal(game.now.toISOString(), "2026-09-03T00:30:00.000Z");
+  assert.equal(game.now.toISOString(), "2026-09-01T00:30:00.000Z");
+  assert.equal(game.dailyAnnouncements.day, "2026-09-01");
+  assert.equal(game.dailyAnnouncements.items.length, 1);
   assert.match(
     game.dailyAnnouncements.items.map(({ text }) => text).join(" "),
     /Today is a school day/,
+  );
+  assert.doesNotMatch(
+    game.dailyAnnouncements.items.map(({ text }) => text).join(" "),
+    /School starts tomorrow/,
   );
   assert.deepEqual(buildScene(game).alerts, []);
 
   exitWGStory(game);
   const hub = buildScene(game);
+  assert.equal(hub.alerts.length, 1);
   assert.match(
     hub.alerts.map(({ text }) => text).join(" "),
     /Today is a school day/,

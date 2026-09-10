@@ -10,9 +10,9 @@
 
   Pale morning light falls across a room filled with cardboard boxes. Most of your clothes are still packed, the kitchen contains almost nothing, and the key to your new home is lying beside the mattress.
 
-  You moved in yesterday. Today is supposed to be your first proper day in the city.
+  You moved in yesterday. Today is your first proper day in the city, and your new school begins tomorrow.
 
-  Your phone vibrates against the floor. The school has sent you another reminder: your first class begins at 09:00. If you intend to arrive on time, you should get moving soon.
+  Your phone vibrates against the floor. Today is yours to unpack, learn your way around, or simply catch your breath before term begins.
 
   @choice "Maybe this is a fresh start" -> .get-moving
     @effect set local.outlook "hopeful"
@@ -29,16 +29,16 @@
   @passage get-moving
 
   @if local.outlook == "hopeful"
-    A new home, a new school, and a city where nobody knows you yet. Perhaps that can be a good thing.
+    A new home, a new school tomorrow, and a city where nobody knows you yet. Perhaps that can be a good thing.
   @elseif local.outlook == "resentful"
-    New walls and a different school do not make this feel like home. For now, getting through the day will have to be enough.
+    New walls and a different school waiting tomorrow do not make this feel like home. For now, getting through the day will have to be enough.
   @else
-    You push the unopened boxes from your mind. One thing at a time: get ready, find the school, and make it through the day.
+    You push the unopened boxes from your mind. One thing at a time: settle in today, find the school, and deal with tomorrow when it arrives.
   @endif
 
   [info]Your phone is always available from the Phone button or by pressing P. Reminders tracks obligations such as school, while GPS lists known destinations and can guide you through the city. Opening the phone does not advance time.[/info]
 
-  School is waiting, but what you do next is your decision. You can get ready, leave immediately, or ignore it and spend the day another way.
+  School starts tomorrow, but what you do with this free day is your decision. You can unpack, explore the city, find the school ahead of time, or spend the day another way.
 
   @choice "Get up" -> @exit
     @effect set flags.home.opening_seen

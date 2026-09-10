@@ -1,4 +1,8 @@
 import { Game } from "../../game/game.js";
+import {
+  NEW_GAME_SEED,
+  NEW_GAME_START_ISO,
+} from "../../game/newGameConfig.js";
 import { createPhoneChats } from "./phoneChats.js";
 import {
   addDebugMoney,
@@ -124,8 +128,8 @@ let journalPageIndex = 0;
 
 function createGame() {
   const newGame = new Game({
-    seed: 117,
-    startDate: new Date("2026-09-01T07:00:00.000Z"),
+    seed: NEW_GAME_SEED,
+    startDate: new Date(NEW_GAME_START_ISO),
   });
   resolveWGAutomaticScene(newGame, WG_AUTO_TRIGGER.enterPlace);
   return newGame;

@@ -30391,7 +30391,7 @@ export const WG_BUNDLE = {
               "parts": [
                 {
                   "type": "text",
-                  "value": "You moved in yesterday. Today is supposed to be your first proper day in the city."
+                  "value": "You moved in yesterday. Today is your first proper day in the city, and your new school begins tomorrow."
                 }
               ],
               "source": {
@@ -30405,7 +30405,7 @@ export const WG_BUNDLE = {
               "parts": [
                 {
                   "type": "text",
-                  "value": "Your phone vibrates against the floor. The school has sent you another reminder: your first class begins at 09:00. If you intend to arrive on time, you should get moving soon."
+                  "value": "Your phone vibrates against the floor. Today is yours to unpack, learn your way around, or simply catch your breath before term begins."
                 }
               ],
               "source": {
@@ -30582,7 +30582,7 @@ export const WG_BUNDLE = {
                       "parts": [
                         {
                           "type": "text",
-                          "value": "A new home, a new school, and a city where nobody knows you yet. Perhaps that can be a good thing."
+                          "value": "A new home, a new school tomorrow, and a city where nobody knows you yet. Perhaps that can be a good thing."
                         }
                       ],
                       "source": {
@@ -30620,7 +30620,7 @@ export const WG_BUNDLE = {
                       "parts": [
                         {
                           "type": "text",
-                          "value": "New walls and a different school do not make this feel like home. For now, getting through the day will have to be enough."
+                          "value": "New walls and a different school waiting tomorrow do not make this feel like home. For now, getting through the day will have to be enough."
                         }
                       ],
                       "source": {
@@ -30643,7 +30643,7 @@ export const WG_BUNDLE = {
                   "parts": [
                     {
                       "type": "text",
-                      "value": "You push the unopened boxes from your mind. One thing at a time: get ready, find the school, and make it through the day."
+                      "value": "You push the unopened boxes from your mind. One thing at a time: settle in today, find the school, and deal with tomorrow when it arrives."
                     }
                   ],
                   "source": {
@@ -30679,7 +30679,7 @@ export const WG_BUNDLE = {
               "parts": [
                 {
                   "type": "text",
-                  "value": "School is waiting, but what you do next is your decision. You can get ready, leave immediately, or ignore it and spend the day another way."
+                  "value": "School starts tomorrow, but what you do with this free day is your decision. You can unpack, explore the city, find the school ahead of time, or spend the day another way."
                 }
               ],
               "source": {
