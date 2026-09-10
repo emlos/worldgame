@@ -17,6 +17,27 @@
 
   @next "Nice save" -> @exit
 
+:: cinema.caro.school-recognition -> @exit
+  @place-key cinema
+  @auto enter-place
+  @priority 500
+  @when npc.caro.present and npc.caro.schedule.obligationId == "caro_part_time_cinema"
+  @when npc.caro.met and flags.npc.caro.school_encountered and not flags.npc.caro.cinema_encountered
+  @onenter
+    @effect relationship caro.rapport 1
+    @effect set flags.npc.caro.cinema_encountered
+  @endonenter
+
+  The attendant turns from the ticket printer, and you recognise her before the cinema uniform can make the thought seem unlikely.
+
+  "Nurse Caro?"
+
+  Caro closes her eyes for half a second. "Here I'm just Caro. Preferably Caro-who-is-not-about-to-take-anyone's-temperature." She smooths the front of her uniform. "The school pays like it expects gratitude to cover rent. This place pays for the rest."
+
+  Her embarrassment gives way to a crooked smile. "Keep my glamorous double life quiet and I might steer you away from the truly awful films."
+
+  @next "Your secret is safe" -> @exit
+
 :: place.cinema
   @hub cinema
 

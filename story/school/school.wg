@@ -227,10 +227,17 @@
       @event-pool school.traversal
     @endchoice
 
+    @choice "Go to the school nurse's office" -> school.caro.cinema-recognition
+      @icon 🏥
+      @time 2m
+      @when npc.caro.present and npc.caro.met and not flags.npc.caro.school_encountered and school.phase != "class"
+      @event-pool school.traversal
+    @endchoice
+
     @choice "Go to the school nurse's office" -> place.high-school.nurse-office
       @icon 🏥
       @time 2m
-      @when not npc.caro.present or npc.caro.met or school.phase == "class"
+      @when not npc.caro.present or flags.npc.caro.school_encountered or school.phase == "class"
       @event-pool school.traversal
     @endchoice
 
@@ -858,6 +865,23 @@
   You introduce yourself. Caro repeats your name once, committing it to memory, then gestures towards the chair opposite her desk.
 
   @next "Nice to meet you" -> place.high-school.nurse-office
+
+:: school.caro.cinema-recognition -> place.high-school.nurse-office
+  @heading "A familiar face"
+  @onenter
+    @effect relationship caro.rapport 1
+    @effect set flags.npc.caro.school_encountered
+  @endonenter
+
+  The woman behind the nurse's desk looks familiar even without the cinema uniform. She looks up, recognises you in the same instant, and points a warning finger before you can speak.
+
+  "At school, it's Nurse Caro," she says. "And no, cinema popcorn does not count as a balanced meal just because I sold it to you."
+
+  "You work here too?"
+
+  "This is the respectable job." Caro leans back in her chair. "Try not to sound so surprised."
+
+  @next "I didn't say anything" -> place.high-school.nurse-office
 
 :: place.high-school.nurse-office
 
