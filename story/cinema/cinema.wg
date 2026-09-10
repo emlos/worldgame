@@ -1,5 +1,23 @@
+:: cinema.caro.first-meeting -> @exit
+  @place-key cinema
+  @auto enter-place
+  @priority 500
+  @when npc.caro.present and npc.caro.schedule.obligationId == "caro_part_time_cinema"
+  @when not npc.caro.met
+  @onenter
+    @effect relationship caro.rapport 1
+    @effect set flags.npc.caro.cinema_encountered
+  @endonenter
+
+  The attendant behind the ticket counter is trying to restock a display of sweets without letting the queue see how precariously the boxes are balanced.
+
+  She catches one against her hip, looks up, and gives you a quick, victorious smile. "Caro Novak. Welcome to the glamorous side of the film industry."
+
+  You introduce yourself while she straightens the last box. Caro glances towards the programme board, then back to you as if filing your face alongside the week's films.
+
+  @next "Nice save" -> @exit
+
 :: place.cinema
   @hub cinema
 
   Backlit posters line the foyer of {{place.name}}. The smell of popcorn drifts from the concession stand while the screens rumble faintly beyond the ticket barrier.
-

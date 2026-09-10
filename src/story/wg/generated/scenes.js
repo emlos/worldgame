@@ -1209,6 +1209,175 @@ export const WG_BUNDLE = {
         "column": 1
       }
     },
+    "cinema.caro.first-meeting": {
+      "id": "cinema.caro.first-meeting",
+      "finalTarget": "@exit",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Choices",
+      "behavior": null,
+      "system": null,
+      "onEnter": [
+        {
+          "op": "relationship",
+          "npcId": "caro",
+          "meterId": "rapport",
+          "amount": 1,
+          "source": {
+            "file": "story/cinema/cinema.wg",
+            "line": 8,
+            "column": 1
+          }
+        },
+        {
+          "op": "set",
+          "path": [
+            "flags",
+            "npc",
+            "caro",
+            "cinema_encountered"
+          ],
+          "source": {
+            "file": "story/cinema/cinema.wg",
+            "line": 9,
+            "column": 1
+          }
+        }
+      ],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The attendant behind the ticket counter is trying to restock a display of sweets without letting the queue see how precariously the boxes are balanced."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/cinema.wg",
+                "line": 12,
+                "column": 1
+              }
+            },
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "She catches one against her hip, looks up, and gives you a quick, victorious smile. \"Caro Novak. Welcome to the glamorous side of the film industry.\""
+                }
+              ],
+              "source": {
+                "file": "story/cinema/cinema.wg",
+                "line": 14,
+                "column": 1
+              }
+            },
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You introduce yourself while she straightens the last box. Caro glances towards the programme board, then back to you as if filing your face alongside the week's films."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/cinema.wg",
+                "line": 16,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Nice save"
+              }
+            ],
+            "target": "@exit",
+            "source": {
+              "file": "story/cinema/cinema.wg",
+              "line": 18,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/cinema.wg",
+            "line": 12,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "cinema"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [
+        "enter-place"
+      ],
+      "pools": [],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "and",
+          "left": {
+            "type": "path",
+            "value": [
+              "npc",
+              "caro",
+              "present"
+            ]
+          },
+          "right": {
+            "type": "binary",
+            "operator": "==",
+            "left": {
+              "type": "path",
+              "value": [
+                "npc",
+                "caro",
+                "schedule",
+                "obligationId"
+              ]
+            },
+            "right": {
+              "type": "literal",
+              "value": "caro_part_time_cinema"
+            }
+          }
+        },
+        {
+          "type": "unary",
+          "operator": "not",
+          "value": {
+            "type": "path",
+            "value": [
+              "npc",
+              "caro",
+              "met"
+            ]
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 500,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/cinema/cinema.wg",
+        "line": 1,
+        "column": 1
+      }
+    },
     "home.clothes": {
       "id": "home.clothes",
       "finalTarget": "@exit",
@@ -4565,7 +4734,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/cinema/cinema.wg",
-                "line": 4,
+                "line": 23,
                 "column": 1
               }
             }
@@ -4573,7 +4742,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/cinema/cinema.wg",
-            "line": 4,
+            "line": 23,
             "column": 1
           }
         }
@@ -4598,7 +4767,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/cinema/cinema.wg",
-        "line": 1,
+        "line": 20,
         "column": 1
       }
     },
