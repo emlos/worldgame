@@ -54,8 +54,16 @@ export const ACTOR_PROFILES = Object.freeze({
   civilian: Object.freeze({
     id: "civilian",
     age: Object.freeze({ min: 18, max: 70 }),
-    stat: Object.freeze({ min: 1, max: 9 }),
+    stat: Object.freeze({ min: 2, max: 9 }),
     tags: Object.freeze(["civilian"]),
+  }),
+
+  //TODO: add different words for students, student instead of person, girl instead of woman etc
+  student: Object.freeze({
+    id: "student",
+    age: Object.freeze({ min: 16, max: 20 }),
+    stat: Object.freeze({ min: 1, max: 5 }),
+    tags: Object.freeze(["student"]),
   }),
 });
 

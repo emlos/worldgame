@@ -17,7 +17,6 @@
     @event-pool school.traversal
   @endchoice
 
-
 :: school.taylor.first-meeting -> @exit
   @place-key high_school
   @auto enter-place

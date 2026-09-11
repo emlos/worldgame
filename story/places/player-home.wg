@@ -51,7 +51,6 @@
   @place-key player_home
   @when flags.home.opening_seen
   @when not flags.home.neighbour_introduction_seen
-  @priority 900
   @actor neighbour civilian
   @onenter
     @effect set flags.home.neighbour_introduction_seen

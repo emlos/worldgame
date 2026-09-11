@@ -65,8 +65,6 @@ game systems:
     - pathfinding: allow bus/car travel for select npcs + travel preferences
     - luce - needs player-follow behavior definition  -afterward can be implemented
 
-    unnamed npc's/scene temporary npc's - for group activities [spin the bottle, truth or dare, 7 minutes in heaven]
-
     player mechanics:
     - smoking/drinking mechanic + addiction? stat penalty?
 

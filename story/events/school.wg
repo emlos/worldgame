@@ -1,0 +1,19 @@
+:: spin-the-bottle -> @exit
+  @place-key high_school
+  @pool school.traversal
+  @chance 0.05
+  @when school.phase == "lunch"
+  @when not daily.played_spin_the_bottle
+
+  @onenter
+    @effect set daily.played_spin_the_bottle
+  @endonenter
+
+  @actor s1 student
+  @actor s2 student
+  @actor s3 student
+  @actor s4 student
+
+  "Hey psst, want to play a game?" A group of students beckon you over to a circle of chairs. "It's just spin the bottle, nothing weird."
+
+  @next "placeholder" -> @exit
