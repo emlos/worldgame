@@ -4,6 +4,10 @@ import { CINEMA_MOVIES } from "./movies.js";
 export const CINEMA_PLACE_KEY = "cinema";
 export const CINEMA_TICKET_PRICE = 10;
 export const CINEMA_TRAILER_MINUTES = 15;
+export const CINEMA_TICKET_SALES_LEAD_MINUTES = 15;
+export const CINEMA_TICKET_SALES_LATE_MINUTES = 10;
+
+const MINUTE_MS = 60_000;
 
 const BASE_SCREENINGS = Object.freeze([
   Object.freeze({ hour: 12, minute: 30, movieIndex: 0, screen: 1 }),
@@ -79,7 +83,14 @@ export function findCinemaScreening(seed, screeningId, value) {
   return getCinemaScreenings(seed, value).find(({ id }) => id === screeningId) ?? null;
 }
 
-export function minutesUntilScreening(screening, value) {
-  const now = validDate(value);
-  return Math.max(0, Math.ceil((screening.startsAt.getTime() - now.getTime()) / 60_000));
+export function cinemaTicketsAreOnSale(screening, value) {
+  const now = validDate(value).getTime();
+  const startsAt = screening.startsAt.getTime();
+  return now >= startsAt - CINEMA_TICKET_SALES_LEAD_MINUTES * MINUTE_MS &&
+    now <= startsAt + CINEMA_TICKET_SALES_LATE_MINUTES * MINUTE_MS;
+}
+
+export function cinemaViewingMinutes(screening, value) {
+  const now = validDate(value).getTime();
+  return Math.max(0, Math.ceil((screening.endsAt.getTime() - now) / MINUTE_MS));
 }

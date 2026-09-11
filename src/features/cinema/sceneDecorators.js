@@ -2,9 +2,9 @@ import { createChoice } from "../../game/scene/choiceContract.js";
 import {
   CINEMA_PLACE_KEY,
   CINEMA_TICKET_PRICE,
-  CINEMA_TRAILER_MINUTES,
+  cinemaTicketsAreOnSale,
+  cinemaViewingMinutes,
   getCinemaScreenings,
-  minutesUntilScreening,
 } from "./programme.js";
 import { hasCinemaScreeningReminder } from "./reminders.js";
 
@@ -58,16 +58,14 @@ function screeningTable(game, screenings) {
 
 function decorateCinemaHub({ game, scene }) {
   const screenings = getCinemaScreenings(game.seed, game.now);
-  const upcoming = screenings.filter(({ startsAt }) => startsAt >= game.now);
+  const ticketsOnSale = screenings.filter((screening) =>
+    cinemaTicketsAreOnSale(screening, game.now));
   const canAfford = game.player.money >= CINEMA_TICKET_PRICE;
-  const choices = upcoming.map((screening) => createChoice({
+  const choices = ticketsOnSale.map((screening) => createChoice({
     id: `cinema-watch:${screening.id}`,
     icon: "🎟️",
     label: `${clock(screening.startsAt)} - ${screening.movie.title}`,
-    durationMinutes:
-      minutesUntilScreening(screening, game.now) +
-      CINEMA_TRAILER_MINUTES +
-      screening.movie.durationMinutes,
+    durationMinutes: cinemaViewingMinutes(screening, game.now),
     energyFree: true,
     costs: [{
       type: "money",
@@ -83,8 +81,14 @@ function decorateCinemaHub({ game, scene }) {
     },
   }));
   const content = [screeningTable(game, screenings), ...scene.content];
-  if (!upcoming.length) {
-    content.push({ type: "paragraph", text: "The box office has stopped selling tickets for today." });
+  if (!ticketsOnSale.length) {
+    const hasLaterScreening = screenings.some(({ startsAt }) => startsAt > game.now);
+    content.push({
+      type: "paragraph",
+      text: hasLaterScreening
+        ? "Tickets go on sale fifteen minutes before each screening."
+        : "The box office has stopped selling tickets for today.",
+    });
   }
   const navigationIndex = scene.sections.findIndex(({ id }) => id === "navigation");
   const screeningsSection = {

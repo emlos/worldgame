@@ -7,6 +7,8 @@ import { performChoice } from "../src/game/scene/choiceEngine.js";
 import { CINEMA_MOVIES } from "../src/features/cinema/movies.js";
 import { buildPhoneRemindersView } from "../src/game/scene/phoneView.js";
 import {
+  CINEMA_TICKET_SALES_LATE_MINUTES,
+  CINEMA_TICKET_SALES_LEAD_MINUTES,
   CINEMA_TICKET_PRICE,
   getCinemaProgramme,
   getCinemaScreenings,
@@ -57,8 +59,8 @@ test("cinema supplies daily screenings with simultaneous busy-day showings", () 
   ));
 });
 
-test("cinema hub shows the timetable and sells a £10 ticket", () => {
-  const game = cinemaGame();
+test("cinema hub shows the timetable and sells a £10 ticket during the sales window", () => {
+  const game = cinemaGame("2026-09-03T12:15:00.000Z");
   const scene = buildScene(game);
   const timetable = scene.content[0];
   const screeningChoice = scene.sections
@@ -82,17 +84,47 @@ test("cinema hub shows the timetable and sells a £10 ticket", () => {
 });
 
 test("cinema tickets are disabled when the player cannot afford one", () => {
-  const game = cinemaGame();
+  const game = cinemaGame("2026-09-03T12:15:00.000Z");
   game.player.adjustMoney(-game.player.money);
   const choices = buildScene(game).sections.find(({ id }) => id === "screenings").choices;
   assert.ok(choices.length > 0);
   assert.ok(choices.every(({ enabled }) => !enabled));
 });
 
-test("a screening remains available at its exact advertised start time", () => {
-  const game = cinemaGame("2026-09-03T12:30:00.000Z");
-  const choices = buildScene(game).sections.find(({ id }) => id === "screenings").choices;
-  assert.ok(choices.some(({ label }) => label.startsWith("12:30")));
+test("cinema tickets are shown only from fifteen minutes before through ten minutes after", () => {
+  const cases = [
+    [-(CINEMA_TICKET_SALES_LEAD_MINUTES + 1), false],
+    [-CINEMA_TICKET_SALES_LEAD_MINUTES, true],
+    [0, true],
+    [CINEMA_TICKET_SALES_LATE_MINUTES, true],
+    [CINEMA_TICKET_SALES_LATE_MINUTES + 1, false],
+  ];
+
+  for (const [offsetMinutes, expected] of cases) {
+    const at = new Date("2026-09-03T12:30:00.000Z");
+    at.setUTCMinutes(at.getUTCMinutes() + offsetMinutes);
+    const game = cinemaGame(at.toISOString());
+    const choices = buildScene(game).sections.find(({ id }) => id === "screenings").choices;
+    assert.equal(
+      choices.some(({ label }) => label.startsWith("12:30")),
+      expected,
+      `${offsetMinutes} minutes from the screening`,
+    );
+  }
+});
+
+test("entering a screening late finishes at its scheduled end time", () => {
+  const game = cinemaGame("2026-09-03T12:40:00.000Z");
+  const scene = buildScene(game);
+  const screeningChoice = scene.sections
+    .find(({ id }) => id === "screenings")
+    .choices.find(({ label }) => label.startsWith("12:30"));
+  const screening = getCinemaScreenings(game.seed, game.now)
+    .find(({ id }) => id === screeningChoice.action.screeningId);
+
+  performChoice(game, { sceneId: scene.id, choiceId: screeningChoice.id });
+
+  assert.equal(game.now.getTime(), screening.endsAt.getTime());
 });
 
 test("each cinema timetable row has a validated reminder action", () => {

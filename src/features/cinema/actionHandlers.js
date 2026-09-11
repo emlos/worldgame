@@ -8,9 +8,9 @@ import { CINEMA_ACTION_TYPE } from "./sceneDecorators.js";
 import {
   CINEMA_PLACE_KEY,
   CINEMA_TICKET_PRICE,
-  CINEMA_TRAILER_MINUTES,
+  cinemaTicketsAreOnSale,
+  cinemaViewingMinutes,
   findCinemaScreening,
-  minutesUntilScreening,
 } from "./programme.js";
 import { addCinemaScreeningReminder } from "./reminders.js";
 
@@ -83,13 +83,10 @@ export function performWatchMovie(game, choice, minutes) {
     failChoice(CHOICE_ERROR_CODE.invalidAction, "A cinema ticket can only be used at the cinema");
   }
   const screening = findCinemaScreening(game.seed, choice.action.screeningId, game.now);
-  if (!screening || screening.startsAt < game.now) {
-    failChoice(CHOICE_ERROR_CODE.invalidAction, "That screening is no longer available");
+  if (!screening || !cinemaTicketsAreOnSale(screening, game.now)) {
+    failChoice(CHOICE_ERROR_CODE.invalidAction, "Tickets are not on sale for that screening");
   }
-  const expectedMinutes =
-    minutesUntilScreening(screening, game.now) +
-    CINEMA_TRAILER_MINUTES +
-    screening.movie.durationMinutes;
+  const expectedMinutes = cinemaViewingMinutes(screening, game.now);
   if (minutes !== expectedMinutes) {
     failChoice(CHOICE_ERROR_CODE.invalidAction, "The selected screening has an invalid duration");
   }
