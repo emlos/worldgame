@@ -11,9 +11,9 @@
 
   The attendant behind the ticket counter is trying to restock a display of sweets without letting the queue see how precariously the boxes are balanced.
 
-  She catches one against her hip, looks up, and gives you a quick, victorious smile. "Caro Novak. Welcome to the glamorous side of the film industry."
+  {{npc.caro.subject | cap}} catches one against {{npc.caro.dependent}} hip, looks up, and gives you a quick, victorious smile. "Caro Novak. Welcome to the glamorous side of the film industry."
 
-  You introduce yourself while she straightens the last box. Caro glances towards the programme board, then back to you as if filing your face alongside the week's films.
+  You introduce yourself while {{npc.caro.subject}} straightens the last box. Caro glances towards the programme board, then back to you as if filing your face alongside the week's films.
 
   @next "Nice save" -> @exit
 
@@ -28,13 +28,13 @@
     @effect set flags.npc.caro.cinema_encountered
   @endonenter
 
-  The attendant turns from the ticket printer, and you recognise her before the cinema uniform can make the thought seem unlikely.
+  The attendant turns from the ticket printer, and you recognise {{npc.caro.object}} before the cinema uniform can make the thought seem unlikely.
 
   "Nurse Caro?"
 
-  Caro closes her eyes for half a second. "Here I'm just Caro. Preferably Caro-who-is-not-about-to-take-anyone's-temperature." She smooths the front of her uniform. "The school pays like it expects gratitude to cover rent. This place pays for the rest."
+  Caro closes {{npc.caro.dependent}} eyes for half a second. "Here I'm just Caro. Preferably Caro-who-is-not-about-to-take-anyone's-temperature." {{npc.caro.subject | cap}} smooths the front of {{npc.caro.dependent}} uniform. "The school pays like it expects gratitude to cover rent. This place pays for the rest."
 
-  Her embarrassment gives way to a crooked smile. "Keep my glamorous double life quiet and I might steer you away from the truly awful films."
+  {{npc.caro.dependent | cap}} embarrassment gives way to a crooked smile. "Keep my glamorous double life quiet and I might steer you away from the truly awful films."
 
   @next "Your secret is safe" -> @exit
 
@@ -44,7 +44,7 @@
 
   Backlit posters line the foyer of {{place.name}}. The smell of popcorn drifts from the concession stand while the screens rumble faintly beyond the ticket barrier.
 
-  @choice "Ask Caro what she recommends" -> cinema.caro.recommendation
+  @choice "Ask Caro what {{npc.caro.subject}} recommends" -> cinema.caro.recommendation
     @icon 🎬
     @time 5m
     @when npc.caro.present and npc.caro.met and flags.npc.caro.cinema_encountered and npc.caro.schedule.obligationId == "caro_part_time_cinema"
@@ -56,17 +56,17 @@
     @when player.money >= 4 and npc.caro.present and npc.caro.met and flags.npc.caro.cinema_encountered and npc.caro.schedule.obligationId == "caro_part_time_cinema"
     @change money -4 "£4 popcorn"
     @response
-      Caro fills a striped carton until popcorn forms a dangerously rounded heap above the rim. "Structural integrity is the customer's problem," she says, sliding it across the counter.
+      Caro fills a striped carton until popcorn forms a dangerously rounded heap above the rim. "Structural integrity is the customer's problem," {{npc.caro.subject}} says, sliding it across the counter.
     @endresponse
   @endchoice
 
 :: cinema.caro.recommendation -> @exit
   @heading "Caro's recommendation"
 
-  Caro folds her arms and studies the programme board with exaggerated seriousness.
+  Caro folds {{npc.caro.dependent}} arms and studies the programme board with exaggerated seriousness.
 
   @random
-    "Pick the one whose poster tells you the least," she decides. "Either it's confident, or the marketing department gave up. Both are interesting."
+    "Pick the one whose poster tells you the least," {{npc.caro.subject}} decides. "Either it's confident, or the marketing department gave up. Both are interesting."
   @or
     "My professional recommendation is whichever film gets you out before I have to clean screen two," Caro says. "My personal recommendation changes every ten minutes."
   @or

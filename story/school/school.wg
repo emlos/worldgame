@@ -858,11 +858,11 @@
     @effect set flags.npc.caro.school_encountered
   @endonenter
 
-  The nurse's office smells faintly of disinfectant and peppermint tea. The woman behind the desk puts down her pen when you enter.
+  The nurse's office smells faintly of disinfectant and peppermint tea. The woman behind the desk puts down {{npc.caro.dependent}} pen when you enter.
 
-  "You must be the new student," she says. "Caro Novak. School nurse, keeper of ice packs, and the person people visit when they want permission to lie down for ten minutes."
+  "You must be the new student," {{npc.caro.subject}} says. "Caro Novak. School nurse, keeper of ice packs, and the person people visit when they want permission to lie down for ten minutes."
 
-  You introduce yourself. Caro repeats your name once, committing it to memory, then gestures towards the chair opposite her desk.
+  You introduce yourself. Caro repeats your name once, committing it to memory, then gestures towards the chair opposite {{npc.caro.dependent}} desk.
 
   @next "Nice to meet you" -> place.high-school.nurse-office
 
@@ -873,13 +873,13 @@
     @effect set flags.npc.caro.school_encountered
   @endonenter
 
-  The woman behind the nurse's desk looks familiar even without the cinema uniform. She looks up, recognises you in the same instant, and points a warning finger before you can speak.
+  The woman behind the nurse's desk looks familiar even without the cinema uniform. {{npc.caro.subject | cap}} looks up, recognises you in the same instant, and points a warning finger before you can speak.
 
-  "At school, it's Nurse Caro," she says. "And no, cinema popcorn does not count as a balanced meal just because I sold it to you."
+  "At school, it's Nurse Caro," {{npc.caro.subject}} says. "And no, cinema popcorn does not count as a balanced meal just because I sold it to you."
 
   "You work here too?"
 
-  "This is the respectable job." Caro leans back in her chair. "Try not to sound so surprised."
+  "This is the respectable job." Caro leans back in {{npc.caro.dependent}} chair. "Try not to sound so surprised."
 
   @next "I didn't say anything" -> place.high-school.nurse-office
 

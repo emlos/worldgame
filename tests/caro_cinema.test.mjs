@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
+import { PronounSets } from "../src/characters/core/pronouns.js";
 import { Game } from "../src/game/game.js";
 import { performChoice } from "../src/game/scene/choiceEngine.js";
 import { buildScene } from "../src/game/scene/sceneEngine.js";
@@ -41,6 +42,13 @@ function choicesWithLabel(game, label) {
   return buildScene(game).sections
     .flatMap(({ choices }) => choices)
     .filter((choice) => choice.label === label);
+}
+
+function sceneText(game) {
+  return buildScene(game).content
+    .flatMap(({ parts = [] }) => parts)
+    .map(({ text = "" }) => text)
+    .join("");
 }
 
 function choose(game, label) {
@@ -112,7 +120,9 @@ test("the cinema introduction requires both Caro's presence and her active shift
 
 test("Caro's cinema introduction happens once and survives saving", () => {
   const game = gameAt(CINEMA_SHIFT_AT);
+  game.npcs.get("caro").pronouns = PronounSets.HE_HIM;
   assert.equal(enterCinemaIntroduction(game)?.id, "cinema.caro.first-meeting");
+  assert.match(sceneText(game), /He catches one against his hip/);
   assert.equal(caroRelationship(game).met, true);
   assert.equal(caroRelationship(game).meters.get("rapport").value, 1);
   assert.equal(game.hasFlag("npc.caro.cinema_encountered"), true);
@@ -124,6 +134,7 @@ test("Caro's cinema introduction happens once and survives saving", () => {
   assert.equal(restored.hasFlag("npc.caro.cinema_encountered"), true);
 
   choose(restored, "Nice save");
+  assert.equal(choicesWithLabel(restored, "Ask Caro what he recommends").length, 1);
   restored.setCurrentPlace();
   const { place } = findPlace(restored, "cinema");
   restored.setCurrentPlace({ placeId: String(place.id) });
@@ -132,13 +143,15 @@ test("Caro's cinema introduction happens once and survives saving", () => {
 
 test("meeting Caro at school first unlocks her cinema recognition dialogue", () => {
   const game = gameAt(FIRST_SCHOOL_SHIFT_AT);
+  game.npcs.get("caro").pronouns = PronounSets.HE_HIM;
   game.setFlag("high_school.first_visit_seen");
   placePlayerAt(game, "high_school");
   moveTaylorHome(game);
 
   choose(game, "Go to the school nurse's office");
   assert.equal(game.currentStory?.id, "school.caro.first-meeting");
-  assert.match(JSON.stringify(buildScene(game).content), /Caro Novak/);
+  assert.match(sceneText(game), /Caro Novak/);
+  assert.match(sceneText(game), /puts down his pen/);
   choose(game, "Nice to meet you");
   choose(game, "Leave");
 
@@ -152,7 +165,8 @@ test("meeting Caro at school first unlocks her cinema recognition dialogue", () 
     resolveWGAutomaticScene(game, WG_AUTO_TRIGGER.enterPlace)?.id,
     "cinema.caro.school-recognition",
   );
-  assert.match(JSON.stringify(buildScene(game).content), /Nurse Caro/);
+  assert.match(sceneText(game), /Nurse Caro/);
+  assert.match(sceneText(game), /recognise him/);
   assert.equal(game.hasFlag("npc.caro.cinema_encountered"), true);
   assert.equal(caroRelationship(game).meters.get("rapport").value, 2);
 });
@@ -186,6 +200,7 @@ test("Caro's counter interactions repeat and her ticket comment names the select
   choose(game, "Thanks, I think");
   assert.equal(choicesWithLabel(game, "Ask Caro what she recommends").length, 1);
 
+  game.npcs.get("caro").pronouns = PronounSets.HE_HIM;
   const scene = buildScene(game);
   const screeningChoice = scene.sections
     .find(({ id }) => id === "screenings")
@@ -203,4 +218,5 @@ test("Caro's counter interactions repeat and her ticket comment names the select
 
   assert.match(result.paragraphs[0], /Caro tears your ticket/);
   assert.match(result.paragraphs[0], new RegExp(screening.movie.title));
+  assert.match(result.paragraphs[0], /he says/);
 });

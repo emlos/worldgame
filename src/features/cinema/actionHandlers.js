@@ -32,21 +32,22 @@ function playerHasMetCaro(game) {
   ).met;
 }
 
-function caroTicketComment(movie) {
+function caroTicketComment(caro, movie) {
   const title = movie.title;
+  const subject = caro.pronouns.subject;
   if (movie.genre === "Horror" || movie.genre === "Supernatural") {
-    return `Caro tears your ticket. "${title}," she says. "If somebody screams behind you, check whether it's coming from the film before you panic."`;
+    return `Caro tears your ticket. "${title}," ${subject} says. "If somebody screams behind you, check whether it's coming from the film before you panic."`;
   }
   if (movie.genre === "Romance" || movie.genre === "Romantic comedy") {
-    return `Caro tears your ticket. "${title}. Bold choice," she says. "Try not to judge your real relationships by anything resolved in under two hours."`;
+    return `Caro tears your ticket. "${title}. Bold choice," ${subject} says. "Try not to judge your real relationships by anything resolved in under two hours."`;
   }
   if (movie.genre === "Comedy") {
-    return `Caro tears your ticket. "${title}," she says. "I can usually tell how funny it is by how much popcorn gets dropped. I'll review the floor later."`;
+    return `Caro tears your ticket. "${title}," ${subject} says. "I can usually tell how funny it is by how much popcorn gets dropped. I'll review the floor later."`;
   }
   if (movie.genre === "Documentary" || movie.genre === "Historical") {
-    return `Caro tears your ticket. "${title}. Educational," she says. "If anyone asks, this absolutely counts as studying."`;
+    return `Caro tears your ticket. "${title}. Educational," ${subject} says. "If anyone asks, this absolutely counts as studying."`;
   }
-  return `Caro tears your ticket and reads the title. "${title}. Tell me whether it earns the dramatic poster on your way out."`;
+  return `Caro tears your ticket and reads the title. "${title}," ${subject} says. "Tell me whether it earns the dramatic poster on your way out."`;
 }
 
 function screeningClock(date) {
@@ -94,8 +95,9 @@ export function performWatchMovie(game, choice, minutes) {
     failChoice(CHOICE_ERROR_CODE.disabledChoice, `The player needs £${CINEMA_TICKET_PRICE} for a ticket`);
   }
 
+  const caro = game.npcs.get("caro");
   const attendantComment = caroIsWorkingHere(game) && playerHasMetCaro(game)
-    ? caroTicketComment(screening.movie)
+    ? caroTicketComment(caro, screening.movie)
     : null;
 
   runChoiceAction(game, {

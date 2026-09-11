@@ -1266,8 +1266,32 @@ export const WG_BUNDLE = {
               "type": "paragraph",
               "parts": [
                 {
+                  "type": "interpolation",
+                  "path": [
+                    "npc",
+                    "caro",
+                    "subject"
+                  ],
+                  "filters": [
+                    "cap"
+                  ]
+                },
+                {
                   "type": "text",
-                  "value": "She catches one against her hip, looks up, and gives you a quick, victorious smile. \"Caro Novak. Welcome to the glamorous side of the film industry.\""
+                  "value": " catches one against "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "npc",
+                    "caro",
+                    "dependent"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": " hip, looks up, and gives you a quick, victorious smile. \"Caro Novak. Welcome to the glamorous side of the film industry.\""
                 }
               ],
               "source": {
@@ -1281,7 +1305,20 @@ export const WG_BUNDLE = {
               "parts": [
                 {
                   "type": "text",
-                  "value": "You introduce yourself while she straightens the last box. Caro glances towards the programme board, then back to you as if filing your face alongside the week's films."
+                  "value": "You introduce yourself while "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "npc",
+                    "caro",
+                    "subject"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": " straightens the last box. Caro glances towards the programme board, then back to you as if filing your face alongside the week's films."
                 }
               ],
               "source": {
@@ -1396,7 +1433,20 @@ export const WG_BUNDLE = {
               "parts": [
                 {
                   "type": "text",
-                  "value": "Caro folds her arms and studies the programme board with exaggerated seriousness."
+                  "value": "Caro folds "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "npc",
+                    "caro",
+                    "dependent"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": " arms and studies the programme board with exaggerated seriousness."
                 }
               ],
               "source": {
@@ -1414,7 +1464,20 @@ export const WG_BUNDLE = {
                     "parts": [
                       {
                         "type": "text",
-                        "value": "\"Pick the one whose poster tells you the least,\" she decides. \"Either it's confident, or the marketing department gave up. Both are interesting.\""
+                        "value": "\"Pick the one whose poster tells you the least,\" "
+                      },
+                      {
+                        "type": "interpolation",
+                        "path": [
+                          "npc",
+                          "caro",
+                          "subject"
+                        ],
+                        "filters": []
+                      },
+                      {
+                        "type": "text",
+                        "value": " decides. \"Either it's confident, or the marketing department gave up. Both are interesting.\""
                       }
                     ],
                     "source": {
@@ -1550,7 +1613,20 @@ export const WG_BUNDLE = {
               "parts": [
                 {
                   "type": "text",
-                  "value": "The attendant turns from the ticket printer, and you recognise her before the cinema uniform can make the thought seem unlikely."
+                  "value": "The attendant turns from the ticket printer, and you recognise "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "npc",
+                    "caro",
+                    "object"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": " before the cinema uniform can make the thought seem unlikely."
                 }
               ],
               "source": {
@@ -1578,7 +1654,48 @@ export const WG_BUNDLE = {
               "parts": [
                 {
                   "type": "text",
-                  "value": "Caro closes her eyes for half a second. \"Here I'm just Caro. Preferably Caro-who-is-not-about-to-take-anyone's-temperature.\" She smooths the front of her uniform. \"The school pays like it expects gratitude to cover rent. This place pays for the rest.\""
+                  "value": "Caro closes "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "npc",
+                    "caro",
+                    "dependent"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": " eyes for half a second. \"Here I'm just Caro. Preferably Caro-who-is-not-about-to-take-anyone's-temperature.\" "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "npc",
+                    "caro",
+                    "subject"
+                  ],
+                  "filters": [
+                    "cap"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "value": " smooths the front of "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "npc",
+                    "caro",
+                    "dependent"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": " uniform. \"The school pays like it expects gratitude to cover rent. This place pays for the rest.\""
                 }
               ],
               "source": {
@@ -1591,8 +1708,19 @@ export const WG_BUNDLE = {
               "type": "paragraph",
               "parts": [
                 {
+                  "type": "interpolation",
+                  "path": [
+                    "npc",
+                    "caro",
+                    "dependent"
+                  ],
+                  "filters": [
+                    "cap"
+                  ]
+                },
+                {
                   "type": "text",
-                  "value": "Her embarrassment gives way to a crooked smile. \"Keep my glamorous double life quiet and I might steer you away from the truly awful films.\""
+                  "value": " embarrassment gives way to a crooked smile. \"Keep my glamorous double life quiet and I might steer you away from the truly awful films.\""
                 }
               ],
               "source": {
@@ -5081,7 +5209,20 @@ export const WG_BUNDLE = {
               "label": [
                 {
                   "type": "text",
-                  "value": "Ask Caro what she recommends"
+                  "value": "Ask Caro what "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "npc",
+                    "caro",
+                    "subject"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": " recommends"
                 }
               ],
               "target": "cinema.caro.recommendation",
@@ -5254,7 +5395,20 @@ export const WG_BUNDLE = {
                       "parts": [
                         {
                           "type": "text",
-                          "value": "Caro fills a striped carton until popcorn forms a dangerously rounded heap above the rim. \"Structural integrity is the customer's problem,\" she says, sliding it across the counter."
+                          "value": "Caro fills a striped carton until popcorn forms a dangerously rounded heap above the rim. \"Structural integrity is the customer's problem,\" "
+                        },
+                        {
+                          "type": "interpolation",
+                          "path": [
+                            "npc",
+                            "caro",
+                            "subject"
+                          ],
+                          "filters": []
+                        },
+                        {
+                          "type": "text",
+                          "value": " says, sliding it across the counter."
                         }
                       ],
                       "source": {
@@ -14468,7 +14622,22 @@ export const WG_BUNDLE = {
               "parts": [
                 {
                   "type": "text",
-                  "value": "The woman behind the nurse's desk looks familiar even without the cinema uniform. She looks up, recognises you in the same instant, and points a warning finger before you can speak."
+                  "value": "The woman behind the nurse's desk looks familiar even without the cinema uniform. "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "npc",
+                    "caro",
+                    "subject"
+                  ],
+                  "filters": [
+                    "cap"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "value": " looks up, recognises you in the same instant, and points a warning finger before you can speak."
                 }
               ],
               "source": {
@@ -14482,7 +14651,20 @@ export const WG_BUNDLE = {
               "parts": [
                 {
                   "type": "text",
-                  "value": "\"At school, it's Nurse Caro,\" she says. \"And no, cinema popcorn does not count as a balanced meal just because I sold it to you.\""
+                  "value": "\"At school, it's Nurse Caro,\" "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "npc",
+                    "caro",
+                    "subject"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": " says. \"And no, cinema popcorn does not count as a balanced meal just because I sold it to you.\""
                 }
               ],
               "source": {
@@ -14510,7 +14692,20 @@ export const WG_BUNDLE = {
               "parts": [
                 {
                   "type": "text",
-                  "value": "\"This is the respectable job.\" Caro leans back in her chair. \"Try not to sound so surprised.\""
+                  "value": "\"This is the respectable job.\" Caro leans back in "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "npc",
+                    "caro",
+                    "dependent"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": " chair. \"Try not to sound so surprised.\""
                 }
               ],
               "source": {
@@ -14605,7 +14800,20 @@ export const WG_BUNDLE = {
               "parts": [
                 {
                   "type": "text",
-                  "value": "The nurse's office smells faintly of disinfectant and peppermint tea. The woman behind the desk puts down her pen when you enter."
+                  "value": "The nurse's office smells faintly of disinfectant and peppermint tea. The woman behind the desk puts down "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "npc",
+                    "caro",
+                    "dependent"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": " pen when you enter."
                 }
               ],
               "source": {
@@ -14619,7 +14827,20 @@ export const WG_BUNDLE = {
               "parts": [
                 {
                   "type": "text",
-                  "value": "\"You must be the new student,\" she says. \"Caro Novak. School nurse, keeper of ice packs, and the person people visit when they want permission to lie down for ten minutes.\""
+                  "value": "\"You must be the new student,\" "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "npc",
+                    "caro",
+                    "subject"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": " says. \"Caro Novak. School nurse, keeper of ice packs, and the person people visit when they want permission to lie down for ten minutes.\""
                 }
               ],
               "source": {
@@ -14633,7 +14854,20 @@ export const WG_BUNDLE = {
               "parts": [
                 {
                   "type": "text",
-                  "value": "You introduce yourself. Caro repeats your name once, committing it to memory, then gestures towards the chair opposite her desk."
+                  "value": "You introduce yourself. Caro repeats your name once, committing it to memory, then gestures towards the chair opposite "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "npc",
+                    "caro",
+                    "dependent"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": " desk."
                 }
               ],
               "source": {
