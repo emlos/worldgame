@@ -11,6 +11,7 @@ import {
 } from "../src/story/wg/shared/language.js";
 import { WG_EFFECT_KEYWORDS } from "../src/story/wg/shared/effects/registry.js";
 import { WG_EFFECT_PARSER_KEYWORDS } from "../tools/wg/compiler/effects/effectParsers.js";
+import { generateSceneActors } from "../src/characters/npc/temporaryActors.js";
 import { compileStorySources } from "../tools/wg/compiler/storyCompiler.js";
 import {
   buildWGLanguageConfiguration,
@@ -139,4 +140,76 @@ test("authored ids on choices, groups, and messages are rejected", () => {
     () => compile('@chat fixture.old-message\n@npc kim\n@passage opening\n@message old\nOld.\n@endmessage\n@finish\n@endchat'),
     /@message takes no arguments/,
   );
+});
+
+test("scenes can declare multiple temporary actors by alias and profile", () => {
+  const bundle = compileStorySources([{
+    file: "actors.wg",
+    source: [
+      ":: fixture.actors -> @exit",
+      "@auto enter-place",
+      "@place-key player_home",
+      "@actor neighbour civilian",
+      "@actor visitor civilian",
+      "",
+      "{{actor.neighbour.title}} greets {{actor.visitor.object}}.",
+      "@next -> @exit",
+    ].join("\n"),
+  }]);
+
+  assert.deepEqual(
+    bundle.scenes["fixture.actors"].actors.map(({ alias, profileId }) => ({
+      alias,
+      profileId,
+    })),
+    [
+      { alias: "neighbour", profileId: "civilian" },
+      { alias: "visitor", profileId: "civilian" },
+    ],
+  );
+});
+
+test("temporary actor aliases and profiles are validated", () => {
+  const compile = (actorLines) => compileStorySources([{
+    file: "invalid-actors.wg",
+    source: [
+      ":: fixture.invalid-actors -> @exit",
+      "@auto enter-place",
+      "@place-key player_home",
+      ...actorLines,
+      "",
+      "Test.",
+      "@next -> @exit",
+    ].join("\n"),
+  }]);
+
+  assert.throws(
+    () => compile(["@actor visitor civilian", "@actor visitor civilian"]),
+    /Duplicate @actor alias 'visitor'/,
+  );
+  assert.throws(
+    () => compile(["@actor visitor unknown-profile"]),
+    /Unknown temporary actor profile 'unknown-profile'/,
+  );
+});
+
+test("temporary actor generation is deterministic and numbers each category", () => {
+  const definitions = Array.from({ length: 8 }, (_, index) => ({
+    alias: `actor_${index + 1}`,
+    profileId: "civilian",
+  }));
+  const first = generateSceneActors(193, definitions, "scene-instance");
+  const second = generateSceneActors(193, definitions, "scene-instance");
+  assert.deepEqual(first, second);
+
+  const categoryCounts = new Map();
+  for (const actor of Object.values(first)) {
+    const next = (categoryCounts.get(actor.category) || 0) + 1;
+    categoryCounts.set(actor.category, next);
+    assert.equal(actor.title, `${actor.category[0].toUpperCase()}${actor.category.slice(1)} ${next}`);
+    assert.equal(actor.name, actor.title);
+  }
+
+  const anotherInstance = generateSceneActors(193, definitions, "another-instance");
+  assert.notEqual(anotherInstance.actor_1.id, first.actor_1.id);
 });

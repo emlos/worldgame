@@ -4,6 +4,7 @@ import { resolveWGBody } from "./storyResolver.js";
 import { createWGSystemState } from "./storySystemRegistry.js";
 import { clearActiveStory } from "../../storyState.js";
 import { enterWGStoryBehavior } from "./storyBehaviorRegistry.js";
+import { generateSceneActors } from "../../../characters/npc/temporaryActors.js";
 
 export class WGRuntimeError extends Error {
   constructor(message) {
@@ -14,6 +15,11 @@ export class WGRuntimeError extends Error {
 
 function fail(message) {
   throw new WGRuntimeError(message);
+}
+
+function sceneActors(game, definition, instanceKey) {
+  if (!definition.actors?.length) return null;
+  return generateSceneActors(game.seed, definition.actors, instanceKey);
 }
 
 export { applyWGEffects };
@@ -87,16 +93,19 @@ export function enterWGScene(
       fail(`WG system scene '${definition.id}' does not have passages`);
     }
     const revision = game.storyRevision + 1;
+    const instanceKey = [
+      "wg-system-v1",
+      definition.id,
+      revision,
+      game.actionRevision,
+      game.now.toISOString(),
+    ].join(":");
+    const actors = sceneActors(game, definition, instanceKey);
     game.currentStory = {
       id: definition.id,
       locals: {},
-      instanceKey: [
-        "wg-system-v1",
-        definition.id,
-        revision,
-        game.actionRevision,
-        game.now.toISOString(),
-      ].join(":"),
+      instanceKey,
+      ...(actors ? { actors } : {}),
       system: {
         id: definition.system.id,
         revision: 0,
@@ -127,19 +136,24 @@ export function enterWGScene(
   }
 
   const revision = game.storyRevision + 1;
+  const instanceKey = [
+    "scene",
+    definition.id,
+    resolvedPassageId,
+    revision,
+    game.now.toISOString(),
+  ].join(":");
+  const actors = !runOnEnter && previousFrame?.id === definition.id
+    ? previousFrame.actors || null
+    : sceneActors(game, definition, instanceKey);
   game.currentStory = {
     id: definition.id,
     passageId: resolvedPassageId,
     locals: !runOnEnter && previousFrame?.id === definition.id
       ? previousFrame.locals
       : {},
-    instanceKey: [
-      "scene",
-      definition.id,
-      resolvedPassageId,
-      revision,
-      game.now.toISOString(),
-    ].join(":"),
+    instanceKey,
+    ...(actors ? { actors } : {}),
     ...(behavior ? { behavior } : {}),
   };
   game.storyRevision = revision;
@@ -165,6 +179,7 @@ export function suspendWGContinuation(
     target,
     sceneId: outcome.sceneId || null,
     behavior: frame?.behavior ? structuredClone(frame.behavior) : null,
+    actors: frame?.actors ? structuredClone(frame.actors) : null,
     locals: frame?.locals ? structuredClone(frame.locals) : {},
     poolId: String(poolId),
     eventSceneId: String(eventSceneId),
@@ -187,6 +202,9 @@ export function returnWGStory(game) {
       id: continuation.sceneId,
       passageId: continuation.sourcePassageId,
       locals: structuredClone(continuation.locals),
+      ...(continuation.actors
+        ? { actors: structuredClone(continuation.actors) }
+        : {}),
       ...(continuation.behavior
         ? { behavior: structuredClone(continuation.behavior) }
         : {}),

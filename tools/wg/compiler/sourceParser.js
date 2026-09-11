@@ -8,6 +8,7 @@ import { SKILLS } from "../../../src/characters/player/stats.js";
 import { DEFAULT_FEATURE_CATALOG } from "../../../src/features/index.js";
 import { PLACE_REGISTRY } from "../../../src/world/data/place.js";
 import { NPC_REGISTRY } from "../../../src/characters/npc/npcs.js";
+import { hasActorProfile } from "../../../src/characters/npc/temporaryActors.js";
 import { SKILL_CHECK_DIFFICULTIES } from "../../../src/game/scene/skillChecks.js";
 import {
   WG_AUTO_TRIGGERS,
@@ -1261,6 +1262,21 @@ function parseNext(text, file, line) {
   };
 }
 
+function parseActorMetadata(text, file, line) {
+  const location = lineLocation(file, line);
+  const match = text.match(
+    new RegExp(`^@actor\\s+(${SIMPLE_ID_PATTERN})\\s+(${SIMPLE_ID_PATTERN})\\s*$`),
+  );
+  if (!match) {
+    failWG("@actor requires '<alias> <profile>'", location);
+  }
+  const [, alias, profileId] = match;
+  if (!hasActorProfile(profileId)) {
+    failWG(`Unknown temporary actor profile '${profileId}'`, location);
+  }
+  return { alias, profileId, source: nodeSource(file, line) };
+}
+
 function parseSceneChunk(file, chunk, features) {
   const scene = {
     id: chunk.id,
@@ -1289,6 +1305,7 @@ function parseSceneChunk(file, chunk, features) {
     source: nodeSource(file, chunk.headerLine),
   };
   const singleFields = new Set();
+  const actorAliases = new Set();
   const passageIds = new Set();
   let anonymousIndex = 1;
   let index = 0;
@@ -1312,7 +1329,16 @@ function parseSceneChunk(file, chunk, features) {
       singleFields.add(name);
     }
 
-    if (name === "heading") {
+    if (name === "actor") {
+      const actor = parseActorMetadata(text, file, line.line);
+      if (actorAliases.has(actor.alias)) {
+        failWG(`Duplicate @actor alias '${actor.alias}'`, location);
+      }
+      actorAliases.add(actor.alias);
+      if (!scene.actors) scene.actors = [];
+      scene.actors.push(actor);
+      index += 1;
+    } else if (name === "heading") {
       scene.heading = parseQuotedString(
         directiveArgument(text, "heading", location),
         location,

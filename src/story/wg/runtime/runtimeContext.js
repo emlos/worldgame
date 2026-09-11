@@ -113,12 +113,34 @@ function npcContext(game, npc) {
   };
 }
 
+function actorContext(actor) {
+  return {
+    ...(actor.stats || {}),
+    ...(actor.pronouns || {}),
+    id: actor.id,
+    alias: actor.alias,
+    name: actor.name,
+    title: actor.title,
+    category: actor.category,
+    noun: actor.noun,
+    age: actor.age,
+    gender: actor.gender,
+    stats: { ...(actor.stats || {}) },
+    flags: { ...(actor.flags || {}) },
+  };
+}
+
 export function createWGRuntimeContext(
   game,
   { locals = null, additionalFlags = [], event = undefined } = {},
 ) {
   const npcs = {};
   for (const [id, npc] of game.npcs) npcs[id] = npcContext(game, npc);
+
+  const actors = {};
+  for (const [alias, actor] of Object.entries(game.currentStory?.actors || {})) {
+    actors[alias] = actorContext(actor);
+  }
 
   const flags = hierarchicalBooleanValues([...game.flags, ...additionalFlags]);
 
@@ -130,6 +152,7 @@ export function createWGRuntimeContext(
     player: playerContext(game.player),
     home: homeContext(game, game.homeLocationId),
     npc: npcs,
+    actor: actors,
     flags,
     daily,
     local: locals ?? game.currentStory?.locals ?? {},

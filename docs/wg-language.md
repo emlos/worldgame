@@ -243,10 +243,43 @@ body content.
 
 The following fields may appear once: `@hub`, `@offer`, `@label`, `@icon`,
 `@hub-text`, `@priority`, `@chance`, and `@weight`. `@place-key`, `@place-tag`,
-`@location-tag`, `@when`, and `@pool` may repeat. `@auto` may repeat once per
+`@location-tag`, `@when`, `@pool`, and `@actor` may repeat. `@auto` may repeat once per
 distinct trigger. An offered scene may also be automatic or pooled; only
 `@hub` is exclusive with the other exposure types. Selector, display, or
 selection metadata without an exposure directive is rejected.
+
+### Temporary actors
+
+Use `@actor <alias> <profile>` to give an event one or more generated people
+without adding them to the permanent NPC roster:
+
+```wg
+:: alley.example -> @exit
+@auto enter-place
+@place-key alleyway
+@actor mugger civilian
+
+{{actor.mugger.title}} blocks your path. {{actor.mugger.subject | cap}} watches you carefully.
+
+@next -> @exit
+```
+
+Each alias must be unique within the scene. `civilian` is the initial actor
+profile. It produces an adult with generated pronouns, age, combat-ready stats,
+and body state. Actors are rolled once when the scene starts, persist through
+that scene's passages and save/load, and are discarded when the scene ends.
+They do not receive a home, schedule, relationship, or entry in `game.npcs`.
+
+Actor titles are assigned within the scene in declaration order and by identity
+category: `Man 1`, `Woman 1`, `Person 1`, `Man 2`, and so on. Prose can read
+`name`, `title`, `noun`, `age`, `gender`, the five pronoun fields (`subject`,
+`object`, `dependent`, `independent`, `reflexive`), and either a stat directly
+or through `stats`, such as `actor.mugger.strength` or
+`actor.mugger.stats.strength`.
+
+Temporary actors are for entered event or system scenes. Persistent place hubs
+cannot declare them because hubs are queried rather than entered as scene
+instances.
 
 ### Place hubs
 
@@ -1709,7 +1742,7 @@ not implemented.
 | Journal definition | `@journal "<prompt>" ... @endjournal`, `leading @when conditions`, `@passage`, `prose and interpolation`, `@if / @elseif / @else / @endif`, `@random / @or / @endrandom`, `@choicegroup ... @endchoicegroup`, `@choice ... @endchoice`, `@finish` |
 | Reminder definition | `required @text`, `optional @tone`, `@priority` |
 | Location contribution | `leading @when conditions`, `prose`, `interpolation`, `@br`, `conditionals`, `@random ... @or ... @endrandom`, `@choicegroup ... @endchoicegroup`, `@choice ... @endchoice` |
-| Scene metadata | `@heading`, `@choices`, `@behavior`, `@system`, `@onenter`, `@hub`, `@place-key`, `@place-tag`, `@location-tag`, `@offer`, `@auto`, `@pool`, `@when`, `@label`, `@icon`, `@hub-text`, `@priority`, `@chance`, `@weight` |
+| Scene metadata | `@heading`, `@choices`, `@actor`, `@behavior`, `@system`, `@onenter`, `@hub`, `@place-key`, `@place-tag`, `@location-tag`, `@offer`, `@auto`, `@pool`, `@when`, `@label`, `@icon`, `@hub-text`, `@priority`, `@chance`, `@weight` |
 | Passage/navigation | `@passage`, `@next` |
 | Scene or passage body | `prose`, `@br`, `trailing inline @change`, `inline and block @if / @elseif / @else / @endif`, `@random / @or / @endrandom`, `passive @check / @success / @failure / @endcheck`, `@effect`, `@change`, `@choicegroup ... @endchoicegroup`, `@choice ... @endchoice` |
 | Direct choice | `@icon`, `@time`, `@time-until`, `@event-pool`, `@event-chance`, `@when`, `@require`, `@warning`, `@response ... @endresponse`, `@hint`, `@effect`, `@change` |

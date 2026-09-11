@@ -121,6 +121,49 @@ test("the configured August 31 game enters a one-time day-before-school opening"
   );
 });
 
+test("the one-time home neighbour is a stable temporary actor", () => {
+  const game = new Game({
+    seed: 7719,
+    startDate: new Date(NEW_GAME_START_ISO),
+  });
+  game.setFlag("home.opening_seen");
+
+  const entered = resolveWGAutomaticScene(game, WG_AUTO_TRIGGER.enterPlace);
+  assert.equal(entered?.id, "home.neighbour-introduction");
+  assert.equal(game.hasFlag("home.neighbour_introduction_seen"), true);
+
+  const actor = game.currentStory?.actors?.neighbour;
+  assert.ok(actor);
+  assert.equal(actor.alias, "neighbour");
+  assert.equal(actor.profileId, "civilian");
+  assert.match(actor.title, /^(Man|Woman|Person) 1$/);
+  assert.ok(actor.age >= 18);
+  assert.ok(actor.stats.strength >= 0 && actor.stats.strength <= 10);
+  assert.ok(Array.isArray(actor.body.parts));
+  assert.equal([...game.npcs.values()].some((npc) => npc.id === actor.id), false);
+
+  const actorSnapshot = structuredClone(actor);
+  const firstRender = JSON.stringify(buildScene(game).content);
+  assert.match(firstRender, new RegExp(actor.noun, "i"));
+  assert.match(firstRender, new RegExp(actor.pronouns.subject, "i"));
+  assert.deepEqual(game.currentStory.actors.neighbour, actorSnapshot);
+  buildScene(game);
+  assert.deepEqual(game.currentStory.actors.neighbour, actorSnapshot);
+
+  const restored = Game.fromJSON(JSON.parse(JSON.stringify(game.toJSON())));
+  assert.deepEqual(restored.currentStory.actors.neighbour, actorSnapshot);
+  assert.equal(JSON.stringify(buildScene(restored).content), firstRender);
+
+  choose(restored, "Next");
+  assert.equal(restored.currentStory, null);
+  assert.equal(
+    getEligibleWGAutomaticScenes(restored, WG_AUTO_TRIGGER.enterPlace).some(
+      (scene) => scene.id === "home.neighbour-introduction",
+    ),
+    false,
+  );
+});
+
 test("entering school triggers its guidance only on the first visit", () => {
   const game = new Game({
     seed: 117,

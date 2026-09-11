@@ -228,6 +228,12 @@ export function compileStorySources(sources, { features = DEFAULT_FEATURE_CATALO
   for (const scene of sceneMap.values()) {
     if (scene.finalTarget) validateTarget(scene.finalTarget, scene.source, { scene });
     if (scene.hub?.type === "place") {
+      if (scene.actors?.length) {
+        failWG(
+          "Persistent place hubs cannot declare temporary actors",
+          atSource(scene.actors[0].source),
+        );
+      }
       if (scene.passages.length !== 1) {
         failWG(
           `Place hub scene '${scene.id}' must contain exactly one passage`,
@@ -334,5 +340,5 @@ export function compileStorySources(sources, { features = DEFAULT_FEATURE_CATALO
   const journals = Object.fromEntries(
     [...journalMap.entries()].sort(([left], [right]) => compareText(left, right)),
   );
-  return { formatVersion: 33, scenes, locationContributions, reminders, chats, journals };
+  return { formatVersion: 34, scenes, locationContributions, reminders, chats, journals };
 }

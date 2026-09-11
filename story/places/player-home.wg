@@ -46,6 +46,25 @@
 
   @#==============================================================================================
 
+:: home.neighbour-introduction -> @exit
+  @auto enter-place
+  @place-key player_home
+  @when flags.home.opening_seen
+  @when not flags.home.neighbour_introduction_seen
+  @priority 900
+  @actor neighbour civilian
+  @onenter
+    @effect set flags.home.neighbour_introduction_seen
+  @endonenter
+
+  A {{actor.neighbour.noun}} knocks on your door.
+
+  "I live nearby," {{actor.neighbour.subject}} says. The visitor introduces {{actor.neighbour.reflexive}} as a neighbour and offers to help if you need anything. You chat for a moment, then quickly say goodbye.
+
+  @next -> @exit
+
+  @#==============================================================================================
+
 :: place.player-home
   @hub player_home
 

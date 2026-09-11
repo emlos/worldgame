@@ -15,6 +15,7 @@ import { validateWGSystemState } from "./wg/runtime/storySystemRegistry.js";
 import { validateWGBehaviorState } from "./wg/runtime/storyBehaviorRegistry.js";
 import { DEFAULT_FEATURE_CATALOG } from "../features/index.js";
 import { WG_BUNDLE } from "./wg/generated/scenes.js";
+import { validateSceneActorsSave } from "../characters/npc/temporaryActors.js";
 
 function requireWGScene(sceneId, path) {
   const definition = WG_BUNDLE.scenes[sceneId];
@@ -50,6 +51,15 @@ function validateCurrentStorySave(value, path, gameTime, features) {
   const localsPath = `${path}.locals`;
   const locals = saveRecord(requiredSaveField(frame, "locals", path), localsPath);
   validateJsonValue(locals, localsPath);
+  if (definition.actors?.length) {
+    validateSceneActorsSave(
+      requiredSaveField(frame, "actors", path),
+      definition.actors,
+      `${path}.actors`,
+    );
+  } else if (Object.prototype.hasOwnProperty.call(frame, "actors")) {
+    failSave(`${path}.actors`, `is not valid for WG scene '${sceneId}'`);
+  }
   const hasSystem = Object.prototype.hasOwnProperty.call(frame, "system");
   if (hasSystem) {
     if (!definition.system) {
@@ -168,11 +178,12 @@ function validateStoryContinuationsSave(value, path, gameTime, features) {
       { nonEmpty: true },
     );
     requireWGScene(eventSceneId, `${itemPath}.eventSceneId`);
-    saveString(
+    const sourceSceneId = saveString(
       requiredSaveField(item, "sourceSceneId", itemPath),
       `${itemPath}.sourceSceneId`,
       { nonEmpty: true },
     );
+    const sourceDefinition = WG_BUNDLE.scenes[sourceSceneId] || null;
     saveString(
       requiredSaveField(item, "sourceChoiceId", itemPath),
       `${itemPath}.sourceChoiceId`,
@@ -193,6 +204,28 @@ function validateStoryContinuationsSave(value, path, gameTime, features) {
     const localsPath = `${itemPath}.locals`;
     const locals = saveRecord(requiredSaveField(item, "locals", itemPath), localsPath);
     validateJsonValue(locals, localsPath);
+    if (sourceDefinition?.actors?.length) {
+      const actors = requiredSaveField(item, "actors", itemPath);
+      if (actors === null) {
+        failSave(`${itemPath}.actors`, "is required for the source scene");
+      }
+      validateSceneActorsSave(
+        actors,
+        sourceDefinition.actors,
+        `${itemPath}.actors`,
+      );
+    } else if (
+      Object.prototype.hasOwnProperty.call(item, "actors") &&
+      item.actors !== null
+    ) {
+      if (!sourceDefinition) {
+        failSave(
+          `${itemPath}.sourceSceneId`,
+          `references unknown WG scene '${sourceSceneId}'`,
+        );
+      }
+      failSave(`${itemPath}.actors`, "is not valid for the source scene");
+    }
     return item;
   });
 }

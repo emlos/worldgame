@@ -55,6 +55,7 @@ export const WG_CHECK_TARGET_TYPES = freezeList(["skill", "grade"]);
 export const WG_SCENE_METADATA_DIRECTIVES = freezeList([
   "heading",
   "choices",
+  "actor",
   "behavior",
   "system",
   "onenter",
