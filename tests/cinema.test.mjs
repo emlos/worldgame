@@ -48,12 +48,25 @@ test("cinema has fifty films and rotates a deterministic four-film weekly progra
   assert.notDeepEqual(nextWeek, thisWeek);
 });
 
-test("cinema supplies daily screenings with simultaneous busy-day showings", () => {
-  const screenings = getCinemaScreenings(7301, new Date("2026-09-05T12:00:00.000Z"));
-  assert.ok(screenings.length > 4);
-  assert.equal(new Set(screenings.map(({ movie }) => movie.id)).size, 4);
-  assert.ok(screenings.some((screening, index) =>
-    screenings.some((other, otherIndex) =>
+test("cinema runs three screen-two films daily and all four on busy days", () => {
+  const quietScreenings = getCinemaScreenings(
+    7301,
+    new Date("2026-09-03T12:00:00.000Z"),
+  );
+  const busyScreenings = getCinemaScreenings(
+    7301,
+    new Date("2026-09-05T12:00:00.000Z"),
+  );
+  const quietScreenTwo = quietScreenings.filter(({ screen }) => screen === 2);
+  const busyScreenTwo = busyScreenings.filter(({ screen }) => screen === 2);
+
+  assert.equal(quietScreenTwo.length, 3);
+  assert.equal(new Set(quietScreenTwo.map(({ movie }) => movie.id)).size, 3);
+  assert.equal(busyScreenTwo.length, 4);
+  assert.equal(new Set(busyScreenTwo.map(({ movie }) => movie.id)).size, 4);
+  assert.equal(new Set(busyScreenings.map(({ movie }) => movie.id)).size, 4);
+  assert.ok(busyScreenings.some((screening, index) =>
+    busyScreenings.some((other, otherIndex) =>
       otherIndex !== index && other.startsAt.getTime() === screening.startsAt.getTime(),
     ),
   ));
@@ -69,7 +82,7 @@ test("cinema hub shows the timetable and sells a £10 ticket during the sales wi
 
   assert.equal(timetable.type, "table");
   assert.equal(timetable.caption, "Today's screenings");
-  assert.equal(timetable.rows.length, 5);
+  assert.equal(timetable.rows.length, 7);
   assert.equal(screeningChoice.costs[0].amount, CINEMA_TICKET_PRICE);
 
   const beforeMoney = game.player.money;

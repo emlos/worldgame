@@ -11,9 +11,12 @@ const MINUTE_MS = 60_000;
 
 const BASE_SCREENINGS = Object.freeze([
   Object.freeze({ hour: 12, minute: 30, movieIndex: 0, screen: 1 }),
+  Object.freeze({ hour: 12, minute: 30, movieIndex: 2, screen: 2 }),
   Object.freeze({ hour: 15, minute: 15, movieIndex: 1, screen: 1 }),
+  Object.freeze({ hour: 15, minute: 15, movieIndex: 3, screen: 2 }),
   Object.freeze({ hour: 18, minute: 0, movieIndex: 2, screen: 1 }),
   Object.freeze({ hour: 20, minute: 45, movieIndex: 3, screen: 1 }),
+  Object.freeze({ hour: 20, minute: 45, movieIndex: 1, screen: 2 }),
 ]);
 const BUSY_DAYS = new Set([0, 3, 5, 6]);
 
@@ -59,7 +62,6 @@ export function getCinemaScreenings(seed, value) {
   if (BUSY_DAYS.has(date.getUTCDay())) {
     definitions.push({ hour: 18, minute: 0, movieIndex: 0, screen: 2 });
   }
-  definitions.push({ hour: 20, minute: 45, movieIndex: 1, screen: 2 });
 
   return definitions
     .map((definition) => {
