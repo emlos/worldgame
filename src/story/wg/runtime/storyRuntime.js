@@ -149,7 +149,7 @@ export function enterWGScene(
 export function suspendWGContinuation(
   game,
   outcome,
-  { poolId, eventSceneId, choiceId, sourceSceneId = null } = {},
+  { poolId, eventSceneId, choiceId, sourceSceneId = null, data = null } = {},
 ) {
   const frame = game.currentStory;
   const resolvedSourceSceneId = frame?.id ?? sourceSceneId;
@@ -168,6 +168,7 @@ export function suspendWGContinuation(
     locals: frame?.locals ? structuredClone(frame.locals) : {},
     poolId: String(poolId),
     eventSceneId: String(eventSceneId),
+    data: structuredClone(data),
     sourceSceneId: String(resolvedSourceSceneId),
     sourcePassageId: frame?.passageId ? String(frame.passageId) : null,
     sourceChoiceId: String(choiceId),

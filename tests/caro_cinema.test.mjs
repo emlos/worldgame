@@ -219,4 +219,5 @@ test("Caro's counter interactions repeat and her ticket comment names the select
   assert.match(result.paragraphs[0], /Caro tears your ticket/);
   assert.match(result.paragraphs[0], new RegExp(screening.movie.title));
   assert.match(result.paragraphs[0], /he says/);
+  assert.equal(game.storyContinuations[0].data.soldByCaro, true);
 });

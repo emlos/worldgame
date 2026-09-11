@@ -4,6 +4,12 @@ import {
   failChoice,
   runChoiceAction,
 } from "../../game/scene/choiceRuntime.js";
+import { resolveWGPoolScene } from "../../story/wg/runtime/sceneExposure.js";
+import {
+  enterWGTarget,
+  resolveActiveWGStory,
+  suspendWGContinuation,
+} from "../../story/wg/runtime/storyRuntime.js";
 import { CINEMA_ACTION_TYPE } from "./sceneDecorators.js";
 import {
   CINEMA_PLACE_KEY,
@@ -15,6 +21,7 @@ import {
 import { addCinemaScreeningReminder } from "./reminders.js";
 
 const CARO_CINEMA_OBLIGATION_ID = "caro_part_time_cinema";
+export const CINEMA_SCREENING_EVENT_POOL_ID = "cinema.screening";
 
 function caroIsWorkingHere(game) {
   const caro = game.npcs.get("caro");
@@ -52,6 +59,18 @@ function caroTicketComment(caro, movie) {
 
 function screeningClock(date) {
   return `${String(date.getUTCHours()).padStart(2, "0")}:${String(date.getUTCMinutes()).padStart(2, "0")}`;
+}
+
+function screeningEventData(screening, game, { soldByCaro }) {
+  return {
+    movieId: screening.movie.id,
+    movieTitle: screening.movie.title,
+    genreId: screening.movie.genreId,
+    genreLabel: screening.movie.genre,
+    screen: screening.screen,
+    arrivedLate: game.now > screening.startsAt,
+    soldByCaro,
+  };
 }
 
 export function performSetScreeningReminder(game, choice, minutes) {
@@ -96,9 +115,12 @@ export function performWatchMovie(game, choice, minutes) {
   }
 
   const caro = game.npcs.get("caro");
-  const attendantComment = caroIsWorkingHere(game) && playerHasMetCaro(game)
+  const soldByCaro = caroIsWorkingHere(game) && playerHasMetCaro(game);
+  const attendantComment = soldByCaro
     ? caroTicketComment(caro, screening.movie)
     : null;
+  const eventData = screeningEventData(screening, game, { soldByCaro });
+  let screeningEvent = null;
 
   runChoiceAction(game, {
     label: `Watch ${screening.movie.title}`,
@@ -107,11 +129,35 @@ export function performWatchMovie(game, choice, minutes) {
     apply(currentGame) {
       currentGame.player.adjustMoney(-CINEMA_TICKET_PRICE);
     },
+    after(currentGame) {
+      screeningEvent = resolveWGPoolScene(
+        currentGame,
+        CINEMA_SCREENING_EVENT_POOL_ID,
+        1,
+        { eventData },
+      );
+      if (!screeningEvent) return;
+      suspendWGContinuation(
+        currentGame,
+        { target: "@exit", sceneId: null },
+        {
+          poolId: CINEMA_SCREENING_EVENT_POOL_ID,
+          eventSceneId: screeningEvent.id,
+          choiceId: choice.id,
+          sourceSceneId: "place.cinema",
+          data: eventData,
+        },
+      );
+      enterWGTarget(currentGame, screeningEvent.id);
+      resolveActiveWGStory(currentGame);
+    },
   });
   return actionResult({
     paragraphs: [
       ...(attendantComment ? [attendantComment] : []),
-      `You watch ${screening.movie.title}, staying through the credits before returning to the foyer.`,
+      ...(screeningEvent
+        ? []
+        : [`You watch ${screening.movie.title}, staying through the credits before returning to the foyer.`]),
     ],
   });
 }

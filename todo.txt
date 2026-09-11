@@ -107,6 +107,7 @@ design [important]:
 code:
 - simplify constructors for single instanced clases like player, game etc. 
 - i have a billion DAY_MS consts, validators, that all do the same thing strewn over the codebase - move functions+refactor
+- use enum in movies.js for movie genres + normalise movie name id's to match titles
 
 other:
 - expand random/special prose into tag-specific location pools, tag-specific place pools, and condition/flag/item/moon-dependent text
@@ -114,6 +115,3 @@ other:
 - adjust sleep balance - -sleeping for 6 hours almost fills up energy bar
 
 fix:
-- caro: make sure to add pronoun interpolation
-- cinema: add custom scenes for different movie genres
-- cinema: currently screen 2 only has one movie - add some more for screen 2

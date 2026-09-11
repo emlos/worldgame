@@ -372,6 +372,12 @@ continuations and returns to the world hub. The continuation stack, selected
 event, and inherited school arrival snapshot are saved, so save/load cannot
 reroll or lose an interrupted class.
 
+Feature-owned actions may supply JSON-compatible invocation data when resolving
+a pool. It is available to candidate conditions and active event prose as
+`event.data`, and is saved with the suspended continuation. This lets authored
+events filter and interpolate dynamic action data without placing temporary
+values in permanent feature state.
+
 ### Engine interrupts
 
 The pool ID `interrupt` is reserved for state-driven scenes that replace the

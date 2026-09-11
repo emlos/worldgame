@@ -1,0 +1,807 @@
+@# Screening events are selected after the ticket action advances through the film.
+@# Invocation data is available through event.data and survives save/load.
+
+:: cinema.screening.action.rattling-drinks -> @return
+  @pool cinema.screening
+  @place-key cinema
+  @when event.data.genreId == "action"
+  
+  During the climax of {{event.data.movieTitle}}, each impact lands with enough bass to make the drinks in their holders tremble. By the final explosion, somebody's abandoned cup has slowly rattled its way into the aisle.
+
+  @next "Return to the foyer" -> @return
+
+:: cinema.screening.action.impossible-stunt -> @return
+  @pool cinema.screening
+  @place-key cinema
+  @when event.data.genreId == "action"
+  @choices "The hero makes the jump"
+
+  A vehicle launches across a gap that no vehicle could possibly clear. The audience erupts when it lands without losing so much as a wing mirror.
+
+  @choice "Enjoy the spectacle" -> .enjoy
+  @endchoice
+
+  @choice "Pick the stunt apart" -> .analyse
+  @endchoice
+
+  @passage enjoy
+
+  You let momentum and noise carry you through the rest of the film. Plausibility seems like a small price to pay for a landing like that.
+
+  @next -> @return
+
+  @passage analyse
+
+  You count several different ways the jump should have ended badly. The film answers every objection with another explosion.
+
+  @next -> @return
+
+:: cinema.screening.adventure.distant-horizon -> @return
+  @pool cinema.screening
+  @place-key cinema
+  @when event.data.genreId == "adventure"
+
+  {{event.data.movieTitle}} opens onto a road winding through a landscape too broad for the screen. For a few minutes, every unexplored part of the city feels as though it might begin just beyond the next street.
+
+  @next "Return to the foyer" -> @return
+
+:: cinema.screening.adventure.follow-the-map -> @return
+  @pool cinema.screening
+  @place-key cinema
+  @when event.data.genreId == "adventure"
+  @choices "A map fills the screen"
+
+  The characters trace a route across a map crowded with warnings, dead ends, and places nobody sensible would visit.
+
+  @choice "Try to remember the route" -> .study
+  @endchoice
+
+  @choice "Wait for the next set piece" -> .spectacle
+  @endchoice
+
+  @passage study
+
+  You keep the route straight for almost three scenes before the film introduces a secret tunnel and makes the whole exercise pointless.
+
+  @next -> @return
+
+  @passage spectacle
+
+  The map disappears beneath a sweeping shot of the destination. That was probably the important part anyway.
+
+  @next -> @return
+
+:: cinema.screening.animation.colour-without-words -> @return
+  @pool cinema.screening
+  @place-key cinema
+  @when event.data.genreId == "animation"
+
+  Halfway through {{event.data.movieTitle}}, the dialogue falls away and colour carries the scene by itself. Even the children in the audience go quiet until the spell breaks.
+
+  @next "Return to the foyer" -> @return
+
+:: cinema.screening.animation.childish-joke -> @return
+  @pool cinema.screening
+  @place-key cinema
+  @when event.data.genreId == "animation"
+  @choices "The setup is obvious"
+
+  You see the childish punchline coming several seconds early. Knowing exactly what is about to happen does not make it less effective.
+
+  @choice "Laugh with everyone else" -> .laugh
+  @endchoice
+
+  @choice "Maintain some dignity" -> .dignity
+  @endchoice
+
+  @passage laugh
+
+  Your laugh joins a wave rolling through the room. The joke is terrible. This changes nothing.
+
+  @next -> @return
+
+  @passage dignity
+
+  You hold out until the character repeats the same mistake a second time. A laugh escapes before you can stop it.
+
+  @next -> @return
+
+:: cinema.screening.comedy.contagious-laugh -> @return
+  @pool cinema.screening
+  @place-key cinema
+  @when event.data.genreId == "comedy"
+
+  Someone near the back has a laugh more memorable than anything in {{event.data.movieTitle}}. Soon half the room is laughing at them laughing, and each new joke starts the cycle again.
+
+  @next "Return to the foyer" -> @return
+
+:: cinema.screening.comedy.lone-laugh -> @return
+  @pool cinema.screening
+  @place-key cinema
+  @when event.data.genreId == "comedy"
+  @choices "A joke meets complete silence"
+
+  One laugh breaks out in the otherwise silent cinema. It takes you a moment to realise it was yours.
+
+  @choice "Own it" -> .own-it
+  @endchoice
+
+  @choice "Sink into your seat" -> .hide
+  @endchoice
+
+  @passage own-it
+
+  You laugh again when the joke returns later. This time two other people join you.
+
+  @next -> @return
+
+  @passage hide
+
+  You keep perfectly quiet through the callback, though anticipating it makes your shoulders shake.
+
+  @next -> @return
+
+:: cinema.screening.coming-of-age.familiar-mistake -> @return
+  @pool cinema.screening
+  @place-key cinema
+  @when event.data.genreId == "coming-of-age"
+
+  A mistake in {{event.data.movieTitle}} is specific enough to feel familiar and universal enough to make the whole audience uncomfortable. Nobody laughs until the consequences have passed.
+
+  @next "Return to the foyer" -> @return
+
+:: cinema.screening.coming-of-age.judge-the-protagonist -> @return
+  @pool cinema.screening
+  @place-key cinema
+  @when event.data.genreId == "coming-of-age"
+  @choices "The protagonist makes everything worse"
+
+  The disastrous decision is understandable, avoidable, and already impossible to take back.
+
+  @choice "Sympathise with them" -> .sympathise
+  @endchoice
+
+  @choice "Judge them for it" -> .judge
+  @endchoice
+
+  @passage sympathise
+
+  You spend the aftermath hoping someone gives them the chance to explain.
+
+  @next -> @return
+
+  @passage judge
+
+  You compose a much better decision from the safety of your seat, with the benefit of knowing exactly how badly theirs ends.
+
+  @next -> @return
+
+:: cinema.screening.crime.clue-in-plain-sight -> @return
+  @pool cinema.screening
+  @place-key cinema
+  @when event.data.genreId == "crime"
+
+  An object lingers at the edge of a shot in {{event.data.movieTitle}}. When it returns much later as evidence, a pleased murmur moves through the viewers who noticed it the first time.
+
+  @next "Return to the foyer" -> @return
+
+:: cinema.screening.crime.style-or-substance -> @return
+  @pool cinema.screening
+  @place-key cinema
+  @when event.data.genreId == "crime"
+  @choices "The criminal makes their entrance"
+
+  The film gives its worst person the best clothes, the best music, and the most confident walk in the entire cast.
+
+  @choice "Enjoy the performance" -> .enjoy
+  @endchoice
+
+  @choice "Distrust the glamour" -> .distrust
+  @endchoice
+
+  @passage enjoy
+
+  You know exactly what the film is doing and enjoy it anyway.
+
+  @next -> @return
+
+  @passage distrust
+
+  You wait for the confidence to crack. When it finally does, the scene is almost a relief.
+
+  @next -> @return
+
+:: cinema.screening.documentary.one-stubborn-fact -> @return
+  @pool cinema.screening
+  @place-key cinema
+  @when event.data.genreId == "documentary"
+
+  Most of {{event.data.movieTitle}} begins to blur together by the closing credits, but one unlikely fact remains lodged in your head with nowhere useful to go.
+
+  @next "Return to the foyer" -> @return
+
+:: cinema.screening.documentary.convincing-argument -> @return
+  @pool cinema.screening
+  @place-key cinema
+  @when event.data.genreId == "documentary"
+  @choices "The narrator reaches a confident conclusion"
+
+  The evidence fits together neatly—perhaps a little too neatly.
+
+  @choice "Accept the argument" -> .accept
+  @endchoice
+
+  @choice "Question the presentation" -> .question
+  @endchoice
+
+  @passage accept
+
+  By the end, the conclusion feels obvious enough that you wonder why you had never considered it before.
+
+  @next -> @return
+
+  @passage question
+
+  You notice each convenient omission after the first. The documentary remains interesting, but no longer quite as conclusive.
+
+  @next -> @return
+
+:: cinema.screening.drama.shared-silence -> @return
+  @pool cinema.screening
+  @place-key cinema
+  @when event.data.genreId == "drama"
+
+  {{event.data.movieTitle}} reaches its quietest scene. The room becomes so still that the faint rustle of someone opening a tissue sounds impossibly loud.
+
+  @next "Return to the foyer" -> @return
+
+:: cinema.screening.drama.unexpected-tears -> @return
+  @pool cinema.screening
+  @place-key cinema
+  @when event.data.genreId == "drama"
+  @choices "Your eyes begin to sting"
+
+  The emotional turn is not subtle, but subtlety does not seem to matter.
+
+  @choice "Let yourself feel it" -> .feel
+  @endchoice
+
+  @choice "Blink it away" -> .hide
+  @endchoice
+
+  @passage feel
+
+  You stop guarding your reaction. By the time the scene ends, you are far from the only person wiping at your face.
+
+  @next -> @return
+
+  @passage hide
+
+  You focus on some unimportant detail in the background until the moment passes.
+
+  @next -> @return
+
+:: cinema.screening.family.lost-toy -> @return
+  @pool cinema.screening
+  @place-key cinema
+  @when event.data.genreId == "family"
+
+  A small stuffed animal travels beneath three rows of seats during {{event.data.movieTitle}}. It is passed hand to hand through the dark until it reaches an anxiously waiting child.
+
+  @next "Return to the foyer" -> @return
+
+:: cinema.screening.family.invested-adults -> @return
+  @pool cinema.screening
+  @place-key cinema
+  @when event.data.genreId == "family"
+  @choices "The villain threatens the heroes"
+
+  The adults around you lean forward. Most of the children remain occupied with their snacks.
+
+  @choice "Get invested too" -> .invested
+  @endchoice
+
+  @choice "Watch the audience instead" -> .audience
+  @endchoice
+
+  @passage invested
+
+  You accept the stakes on their own terms. The victory feels far more satisfying than it has any right to.
+
+  @next -> @return
+
+  @passage audience
+
+  The parents' relief at the happy ending is almost as entertaining as the ending itself.
+
+  @next -> @return
+
+:: cinema.screening.fantasy.too-many-names -> @return
+  @pool cinema.screening
+  @place-key cinema
+  @when event.data.genreId == "fantasy"
+
+  By the time {{event.data.movieTitle}} introduces its third ruined kingdom and second forbidden order, whispered requests for clarification are spreading through the cinema.
+
+  @next "Return to the foyer" -> @return
+
+:: cinema.screening.fantasy.hidden-door -> @return
+  @pool cinema.screening
+  @place-key cinema
+  @when event.data.genreId == "fantasy"
+  @choices "A sealed doorway appears"
+
+  The film pauses over a doorway hidden in plain sight, waiting for the hero to recognise what it is.
+
+  @choice "Study every symbol" -> .study
+  @endchoice
+
+  @choice "Wait for the explanation" -> .wait
+  @endchoice
+
+  @passage study
+
+  You find patterns everywhere. One of them even turns out to matter.
+
+  @next -> @return
+
+  @passage wait
+
+  A helpful character explains the entire mechanism a minute later. You feel vindicated for conserving the effort.
+
+  @next -> @return
+
+:: cinema.screening.foreign.missing-subtitles -> @return
+  @pool cinema.screening
+  @place-key cinema
+  @when event.data.genreId == "foreign"
+
+  The subtitles vanish during what appears to be a crucial exchange in {{event.data.movieTitle}}. When they return, several new problems have appeared and nobody in the room knows why.
+
+  @next "Return to the foyer" -> @return
+
+:: cinema.screening.foreign.repeated-phrase -> @return
+  @pool cinema.screening
+  @place-key cinema
+  @when event.data.genreId == "foreign"
+  @choices "A phrase returns throughout the film"
+
+  You have heard it often enough to recognise its shape, though the subtitles translate it differently each time.
+
+  @choice "Try to work out its meaning" -> .infer
+  @endchoice
+
+  @choice "Trust the subtitles" -> .trust
+  @endchoice
+
+  @passage infer
+
+  Tone and context narrow it down, but not enough to risk ever saying it aloud.
+
+  @next -> @return
+
+  @passage trust
+
+  You accept each translation as it appears. The phrase remains pleasingly mysterious.
+
+  @next -> @return
+
+:: cinema.screening.historical.recognised-detail -> @return
+  @pool cinema.screening
+  @place-key cinema
+  @when event.data.genreId == "historical"
+
+  A name from school appears in {{event.data.movieTitle}} with better clothes and far more dramatic lighting. Remembering the lesson makes the scene unexpectedly easy to follow.
+
+  @next "Return to the foyer" -> @return
+
+:: cinema.screening.historical.accuracy -> @return
+  @pool cinema.screening
+  @place-key cinema
+  @when event.data.genreId == "historical"
+  @choices "Something about the scene feels wrong"
+
+  The costumes are immaculate, but the conversation sounds suspiciously modern.
+
+  @choice "Focus on the history" -> .history
+  @endchoice
+
+  @choice "Focus on the characters" -> .characters
+  @endchoice
+
+  @passage history
+
+  Small inaccuracies begin presenting themselves everywhere. You leave with a private list of objections.
+
+  @next -> @return
+
+  @passage characters
+
+  You let the century become scenery. Whatever they get wrong, the argument itself feels real.
+
+  @next -> @return
+
+:: cinema.screening.horror.aisle-figure -> @return
+  @pool cinema.screening
+  @place-key cinema
+  @when event.data.genreId == "horror"
+
+  Halfway through {{event.data.movieTitle}}, a figure rises at the end of your row just as something moves across the screen. It is only someone heading for the toilets, but the timing sends a nervous ripple through the nearby seats.
+
+  @next "Return to the foyer" -> @return
+
+:: cinema.screening.horror.missed-scare -> @return
+  @pool cinema.screening
+  @place-key cinema
+  @when event.data.genreId == "horror"
+  @choices "Something moves beside you"
+
+  A shape shifts at the edge of your vision while the soundtrack tightens.
+
+  @choice "Keep watching the screen" -> .screen
+  @endchoice
+
+  @choice "Watch the shape instead" -> .shape
+  @endchoice
+
+  @passage screen
+
+  The scare arrives exactly where expected. The shape beside you turns out to be a coat sliding from an empty seat.
+
+  @next -> @return
+
+  @passage shape
+
+  You catch the coat before it hits the floor and miss whatever makes the entire cinema scream.
+
+  @next -> @return
+
+:: cinema.screening.musical.singing-along -> @return
+  @pool cinema.screening
+  @place-key cinema
+  @when event.data.genreId == "musical"
+
+  Someone knows every song in {{event.data.movieTitle}} and keeps proving it half a second before each chorus. Their companion repeatedly nudges them back into silence.
+
+  @next "Return to the foyer" -> @return
+
+:: cinema.screening.musical.catching-the-rhythm -> @return
+  @pool cinema.screening
+  @place-key cinema
+  @when event.data.genreId == "musical"
+  @choices "The chorus returns"
+
+  Your foot has already found the rhythm before you notice it moving.
+
+  @choice "Tap along" -> .tap
+  @endchoice
+
+  @choice "Hold perfectly still" -> .still
+  @endchoice
+
+  @passage tap
+
+  You give in. By the finale, the tune feels familiar enough to have known for years.
+
+  @next -> @return
+
+  @passage still
+
+  You stop your foot, but the rhythm relocates somewhere behind your ribs.
+
+  @next -> @return
+
+:: cinema.screening.mystery.early-clue -> @return
+  @pool cinema.screening
+  @place-key cinema
+  @when event.data.genreId == "mystery"
+
+  {{event.data.movieTitle}} lingers on an apparently ordinary object for one beat too long. When its importance is finally revealed, scattered viewers make satisfied noises in the dark.
+
+  @next "Return to the foyer" -> @return
+
+:: cinema.screening.mystery.choose-a-suspect -> @return
+  @pool cinema.screening
+  @place-key cinema
+  @when event.data.genreId == "mystery"
+  @choices "Everyone has a motive"
+
+  The detective lays out the suspects without yet committing to an answer.
+
+  @choice "Suspect the obvious liar" -> .obvious
+  @endchoice
+
+  @choice "Suspect the quiet one" -> .quiet
+  @endchoice
+
+  @passage obvious
+
+  The liar is hiding something, but not the murder. The film seems pleased with itself for misleading you.
+
+  @next -> @return
+
+  @passage quiet
+
+  The quiet suspect is innocent. They do, however, reveal the clue that breaks the case open.
+
+  @next -> @return
+
+:: cinema.screening.political-thriller.whispered-argument -> @return
+  @pool cinema.screening
+  @place-key cinema
+  @when event.data.genreId == "political-thriller"
+
+  Two viewers begin whispering about whether {{event.data.movieTitle}} understands politics at all. Their disagreement becomes more detailed and less quiet with every scene.
+
+  @next "Return to the foyer" -> @return
+
+:: cinema.screening.political-thriller.persuasive-speech -> @return
+  @pool cinema.screening
+  @place-key cinema
+  @when event.data.genreId == "political-thriller"
+  @choices "The antagonist addresses the country"
+
+  The speech is manipulative, carefully staged, and uncomfortably persuasive.
+
+  @choice "Listen to the argument" -> .listen
+  @endchoice
+
+  @choice "Watch how the crowd is managed" -> .watch
+  @endchoice
+
+  @passage listen
+
+  You can see where each claim twists away from the truth, but also why people in the film want to believe it.
+
+  @next -> @return
+
+  @passage watch
+
+  The cameras reveal as much as the speech: selected faces, rehearsed applause, and security closing every path out.
+
+  @next -> @return
+
+:: cinema.screening.romance.mirrored-couple -> @return
+  @pool cinema.screening
+  @place-key cinema
+  @when event.data.genreId == "romance"
+
+  A couple nearby quietly argue during the same scene in which the leads of {{event.data.movieTitle}} reconcile. They fall silent when the dialogue becomes a little too relevant.
+
+  @next "Return to the foyer" -> @return
+
+:: cinema.screening.romance.confession -> @return
+  @pool cinema.screening
+  @place-key cinema
+  @when event.data.genreId == "romance"
+  @choices "The long-delayed confession begins"
+
+  Every word is timed for maximum effect, right down to the rain beginning outside the window.
+
+  @choice "Surrender to it" -> .surrender
+  @endchoice
+
+  @choice "Resist the sentiment" -> .resist
+  @endchoice
+
+  @passage surrender
+
+  You let the scene work exactly as intended. The kiss earns a contented sigh from somewhere behind you.
+
+  @next -> @return
+
+  @passage resist
+
+  You notice the lighting, the music, and every other mechanism designed to make the moment irresistible. It nearly works anyway.
+
+  @next -> @return
+
+:: cinema.screening.romantic-comedy.predicted-meeting -> @return
+  @pool cinema.screening
+  @place-key cinema
+  @when event.data.genreId == "romantic-comedy"
+
+  The two leads of {{event.data.movieTitle}} reach for the same object. Several people in the cinema laugh before they even touch hands.
+
+  @next "Return to the foyer" -> @return
+
+:: cinema.screening.romantic-comedy.cliche-count -> @return
+  @pool cinema.screening
+  @place-key cinema
+  @when event.data.genreId == "romantic-comedy"
+  @choices "Another misunderstanding begins"
+
+  One honest conversation could end the entire plot with forty minutes to spare.
+
+  @choice "Enjoy the formula" -> .enjoy
+  @endchoice
+
+  @choice "Keep count of the clichés" -> .count
+  @endchoice
+
+  @passage enjoy
+
+  You accept that nobody sensible has been cast in this film. Their inevitable reunion is still satisfying.
+
+  @next -> @return
+
+  @passage count
+
+  The film reaches nine clichés before surprising you with something sincere enough to lose count.
+
+  @next -> @return
+
+:: cinema.screening.science-fiction.low-frequency -> @return
+  @pool cinema.screening
+  @place-key cinema
+  @when event.data.genreId == "science-fiction"
+
+  The engines in {{event.data.movieTitle}} produce a low vibration felt more through the seats than heard. When they finally shut down, the sudden silence feels weightless.
+
+  @next "Return to the foyer" -> @return
+
+:: cinema.screening.science-fiction.impossible-idea -> @return
+  @pool cinema.screening
+  @place-key cinema
+  @when event.data.genreId == "science-fiction"
+  @choices "The film explains its central invention"
+
+  The explanation sounds convincing as long as none of its words are examined separately.
+
+  @choice "Think through the implications" -> .think
+  @endchoice
+
+  @choice "Accept the premise" -> .accept
+  @endchoice
+
+  @passage think
+
+  You find several consequences the film never mentions and miss part of the scene while considering them.
+
+  @next -> @return
+
+  @passage accept
+
+  You grant the film its impossible machine. It rewards your generosity by using it for something spectacular.
+
+  @next -> @return
+
+:: cinema.screening.sports.cinema-crowd -> @return
+  @pool cinema.screening
+  @place-key cinema
+  @when event.data.genreId == "sports"
+
+  By the final contest in {{event.data.movieTitle}}, the cinema reacts like a live crowd. A successful play sends arms into the air all across the room.
+
+  @next "Return to the foyer" -> @return
+
+:: cinema.screening.sports.training-montage -> @return
+  @pool cinema.screening
+  @place-key cinema
+  @when event.data.genreId == "sports"
+  @choices "The training montage begins"
+
+  Weeks of effort collapse into a few minutes of music, sweat, and visible progress.
+
+  @choice "Let it motivate you" -> .motivated
+  @endchoice
+
+  @choice "Question the convenient editing" -> .editing
+  @endchoice
+
+  @passage motivated
+
+  For the length of the montage, discipline looks almost simple.
+
+  @next -> @return
+
+  @passage editing
+
+  You wonder how many miserable ordinary sessions happened between the impressive ones.
+
+  @next -> @return
+
+:: cinema.screening.supernatural.flickering-lights -> @return
+  @pool cinema.screening
+  @place-key cinema
+  @when event.data.genreId == "supernatural"
+
+  The lights flicker as the credits of {{event.data.movieTitle}} begin. Everyone waits through the next flicker before deciding it is merely the cinema and standing up.
+
+  @next "Return to the foyer" -> @return
+
+:: cinema.screening.supernatural.cold-draught -> @return
+  @pool cinema.screening
+  @place-key cinema
+  @when event.data.genreId == "supernatural"
+  @choices "Cold air brushes the back of your neck"
+
+  It arrives just as the medium onscreen announces that something has entered the room.
+
+  @choice "Look behind you" -> .look
+  @endchoice
+
+  @choice "Refuse to react" -> .ignore
+  @endchoice
+
+  @passage look
+
+  An air vent hums above an otherwise empty row. The explanation is ordinary enough, though you turn back quickly.
+
+  @next -> @return
+
+  @passage ignore
+
+  You keep your eyes forward. The draught returns twice, each time a little harder to dismiss.
+
+  @next -> @return
+
+:: cinema.screening.thriller.badly-timed-phone -> @return
+  @pool cinema.screening
+  @place-key cinema
+  @when event.data.genreId == "thriller"
+
+  At the most silent point in {{event.data.movieTitle}}, a phone vibrates against something hollow. Its owner struggles to find it while every head in the cinema turns towards the noise.
+
+  @next "Return to the foyer" -> @return
+
+:: cinema.screening.thriller.latecomer -> @return
+  @pool cinema.screening
+  @place-key cinema
+  @when event.data.genreId == "thriller"
+  @choices "A silhouette enters below the screen"
+
+  The latecomer pauses in the aisle at exactly the moment the protagonist realises they are being followed.
+
+  @choice "Watch the silhouette" -> .silhouette
+  @endchoice
+
+  @choice "Keep your eyes on the film" -> .film
+  @endchoice
+
+  @passage silhouette
+
+  They count the rows, find their seat, and apologise in a whisper. You miss the film's actual pursuer appearing.
+
+  @next -> @return
+
+  @passage film
+
+  You ignore the movement below the screen. The scene tightens until even the latecomer stops searching and watches from the aisle.
+
+  @next -> @return
+
+:: cinema.screening.western.open-country -> @return
+  @pool cinema.screening
+  @place-key cinema
+  @when event.data.genreId == "western"
+
+  {{event.data.movieTitle}} holds on an empty horizon until the cinema itself seems cramped. The next close-up feels almost intrusive.
+
+  @next "Return to the foyer" -> @return
+
+:: cinema.screening.western.showdown -> @return
+  @pool cinema.screening
+  @place-key cinema
+  @when event.data.genreId == "western"
+  @choices "Two figures face each other across the street"
+
+  The film has given you reasons to distrust both of them.
+
+  @choice "Choose a side" -> .side
+  @endchoice
+
+  @choice "Trust neither" -> .neither
+  @endchoice
+
+  @passage side
+
+  You commit just before the first hand moves. For once, your chosen survivor makes it through the dust.
+
+  @next -> @return
+
+  @passage neither
+
+  You wait for the trick. Both figures have one prepared, though only one is fast enough to use it.
+
+  @next -> @return

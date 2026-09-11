@@ -145,6 +145,9 @@ function validateStoryContinuationsSave(value, path, gameTime, features) {
       `${itemPath}.sourceChoiceId`,
       { nonEmpty: true },
     );
+    if (Object.prototype.hasOwnProperty.call(item, "data")) {
+      validateJsonValue(item.data, `${itemPath}.data`);
+    }
 
     if (target.startsWith(".") && (!sceneId || !sourcePassageId)) {
       failSave(itemPath, "local continuation targets require scene and source passage ids");

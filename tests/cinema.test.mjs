@@ -4,7 +4,10 @@ import assert from "node:assert/strict";
 import { Game } from "../src/game/game.js";
 import { buildScene } from "../src/game/scene/sceneEngine.js";
 import { performChoice } from "../src/game/scene/choiceEngine.js";
-import { CINEMA_MOVIES } from "../src/features/cinema/movies.js";
+import {
+  CINEMA_GENRES,
+  CINEMA_MOVIES,
+} from "../src/features/cinema/movies.js";
 import { buildPhoneRemindersView } from "../src/game/scene/phoneView.js";
 import {
   CINEMA_TICKET_SALES_LATE_MINUTES,
@@ -14,6 +17,8 @@ import {
   getCinemaScreenings,
 } from "../src/features/cinema/programme.js";
 import { CINEMA_SCREENING_REMINDER_ID } from "../src/features/cinema/reminders.js";
+import { getEligibleWGPoolScenes } from "../src/story/wg/runtime/sceneExposure.js";
+import { createWGRuntimeContext } from "../src/story/wg/runtime/runtimeContext.js";
 
 function placePlayerAtCinema(game) {
   for (const location of game.world.locations.values()) {
@@ -39,6 +44,9 @@ function cinemaGame(at = "2026-09-03T12:00:00.000Z") {
 test("cinema has fifty films and rotates a deterministic four-film weekly programme", () => {
   assert.equal(CINEMA_MOVIES.length, 50);
   assert.equal(new Set(CINEMA_MOVIES.map(({ id }) => id)).size, 50);
+  assert.equal(Object.keys(CINEMA_GENRES).length, 23);
+  assert.ok(CINEMA_MOVIES.every(({ genreId, genre }) =>
+    CINEMA_GENRES[genreId] === genre));
 
   const thisWeek = getCinemaProgramme(7301, new Date("2026-09-03T12:00:00.000Z"));
   const sameWeek = getCinemaProgramme(7301, new Date("2026-09-06T23:00:00.000Z"));
@@ -46,6 +54,27 @@ test("cinema has fifty films and rotates a deterministic four-film weekly progra
   assert.equal(thisWeek.length, 4);
   assert.deepEqual(sameWeek, thisWeek);
   assert.notDeepEqual(nextWeek, thisWeek);
+});
+
+test("every cinema genre has two eligible screening events", () => {
+  const game = cinemaGame();
+
+  for (const [genreId, genreLabel] of Object.entries(CINEMA_GENRES)) {
+    const events = getEligibleWGPoolScenes(game, "cinema.screening", {
+      eventData: {
+        movieId: "test-movie",
+        movieTitle: "Test Movie",
+        genreId,
+        genreLabel,
+        screen: 1,
+        arrivedLate: false,
+        soldByCaro: false,
+      },
+    });
+    assert.equal(events.length, 2, genreId);
+    assert.ok(events.every(({ id }) =>
+      id.startsWith(`cinema.screening.${genreId}.`)));
+  }
 });
 
 test("cinema runs three screen-two films daily and all four on busy days", () => {
@@ -138,6 +167,50 @@ test("entering a screening late finishes at its scheduled end time", () => {
   performChoice(game, { sceneId: scene.id, choiceId: screeningChoice.id });
 
   assert.equal(game.now.getTime(), screening.endsAt.getTime());
+  assert.equal(game.storyContinuations[0].data.arrivedLate, true);
+});
+
+test("a selected screening event exposes its movie data and survives saving", () => {
+  const game = cinemaGame("2026-09-03T12:15:00.000Z");
+  const scene = buildScene(game);
+  const screeningChoice = scene.sections
+    .find(({ id }) => id === "screenings")
+    .choices[0];
+  const screening = getCinemaScreenings(game.seed, game.now)
+    .find(({ id }) => id === screeningChoice.action.screeningId);
+
+  performChoice(game, { sceneId: scene.id, choiceId: screeningChoice.id });
+
+  assert.ok(game.currentStory.id.startsWith(
+    `cinema.screening.${screening.movie.genreId}.`,
+  ));
+  assert.equal(game.storyContinuations.length, 1);
+  assert.deepEqual(game.storyContinuations[0].data, {
+    movieId: screening.movie.id,
+    movieTitle: screening.movie.title,
+    genreId: screening.movie.genreId,
+    genreLabel: screening.movie.genre,
+    screen: screening.screen,
+    arrivedLate: false,
+    soldByCaro: false,
+  });
+  assert.equal(
+    createWGRuntimeContext(game).event.data.movieTitle,
+    screening.movie.title,
+  );
+
+  const restored = Game.fromJSON(JSON.parse(JSON.stringify(game.toJSON())));
+  assert.deepEqual(restored.storyContinuations[0].data, game.storyContinuations[0].data);
+
+  for (let step = 0; restored.currentStory && step < 3; step += 1) {
+    const current = buildScene(restored);
+    const choice = current.sections.flatMap(({ choices }) => choices)[0];
+    assert.ok(choice);
+    performChoice(restored, { sceneId: current.id, choiceId: choice.id });
+  }
+  assert.equal(restored.currentStory, null);
+  assert.deepEqual(restored.storyContinuations, []);
+  assert.equal(restored.currentPlace.key, "cinema");
 });
 
 test("each cinema timetable row has a validated reminder action", () => {

@@ -160,12 +160,19 @@ export function getEligibleWGAutomaticScenes(
 export function getEligibleWGPoolScenes(
   game,
   poolId,
-  { scenes = undefined } = {},
+  { scenes = undefined, eventData = null } = {},
 ) {
   const id = String(poolId || "");
   if (!id) fail("WG event pools require a pool id");
 
-  const context = createWGRuntimeContext(game);
+  const context = createWGRuntimeContext(game, {
+    event: {
+      poolId: id,
+      sceneId: null,
+      data: eventData,
+      source: null,
+    },
+  });
   return exposedSceneList(scenes).filter(
     (scene) =>
       scene.pools?.includes(id) &&
@@ -217,13 +224,16 @@ export function resolveWGPoolScene(
   game,
   poolId,
   chance = 1,
-  { scenes = undefined, random = undefined } = {},
+  { scenes = undefined, random = undefined, eventData = null } = {},
 ) {
   const probability = Number(chance);
   if (!Number.isFinite(probability) || probability < 0 || probability > 1) {
     fail("WG event-pool chance must be between 0 and 1");
   }
-  const candidates = getEligibleWGPoolScenes(game, poolId, { scenes });
+  const candidates = getEligibleWGPoolScenes(game, poolId, {
+    scenes,
+    eventData,
+  });
   if (!candidates.length) return null;
 
   const source = random ?? game.getRNG("wg-events");

@@ -114,7 +114,7 @@ function npcContext(game, npc) {
 
 export function createWGRuntimeContext(
   game,
-  { locals = null, additionalFlags = [] } = {},
+  { locals = null, additionalFlags = [], event = undefined } = {},
 ) {
   const npcs = {};
   for (const [id, npc] of game.npcs) npcs[id] = npcContext(game, npc);
@@ -133,17 +133,20 @@ export function createWGRuntimeContext(
     daily,
     local: locals ?? game.currentStory?.locals ?? {},
     time: timeContext(game.now, game.startedAt),
-    event: activeContinuation
-      ? {
-          poolId: activeContinuation.poolId,
-          sceneId: activeContinuation.eventSceneId,
-          source: {
-            sceneId: activeContinuation.sourceSceneId,
-            passageId: activeContinuation.sourcePassageId,
-            choiceId: activeContinuation.sourceChoiceId,
-          },
-        }
-      : null,
+    event: event === undefined
+      ? activeContinuation
+        ? {
+            poolId: activeContinuation.poolId,
+            sceneId: activeContinuation.eventSceneId,
+            data: activeContinuation.data ?? null,
+            source: {
+              sceneId: activeContinuation.sourceSceneId,
+              passageId: activeContinuation.sourcePassageId,
+              choiceId: activeContinuation.sourceChoiceId,
+            },
+          }
+        : null
+      : event,
     location: game.location
       ? {
           id: game.location.id,

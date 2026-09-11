@@ -1,4 +1,36 @@
-export const CINEMA_MOVIES = Object.freeze([
+export const CINEMA_GENRES = Object.freeze({
+  action: "Action",
+  adventure: "Adventure",
+  animation: "Animation",
+  comedy: "Comedy",
+  "coming-of-age": "Coming-of-age",
+  crime: "Crime",
+  documentary: "Documentary",
+  drama: "Drama",
+  family: "Family",
+  fantasy: "Fantasy",
+  foreign: "Foreign",
+  historical: "Historical",
+  horror: "Horror",
+  musical: "Musical",
+  mystery: "Mystery",
+  "political-thriller": "Political thriller",
+  romance: "Romance",
+  "romantic-comedy": "Romantic comedy",
+  "science-fiction": "Science fiction",
+  sports: "Sports",
+  supernatural: "Supernatural",
+  thriller: "Thriller",
+  western: "Western",
+});
+
+const GENRE_IDS_BY_LABEL = Object.freeze(
+  Object.fromEntries(
+    Object.entries(CINEMA_GENRES).map(([id, label]) => [label, id]),
+  ),
+);
+
+const MOVIES = [
   { id: "after-the-last-train", title: "The Mess", genre: "Drama", durationMinutes: 112 },
   { id: "all-the-small-orbits", title: "Star Walks", genre: "Science fiction", durationMinutes: 126 },
   { id: "amber-house", title: "Inherited", genre: "Horror", durationMinutes: 98 },
@@ -49,5 +81,10 @@ export const CINEMA_MOVIES = Object.freeze([
   { id: "violet-hour", title: "The Blue Kilometer", genre: "Thriller", durationMinutes: 117 },
   { id: "we-were-volcanoes", title: "Enact Vengeance", genre: "Coming-of-age", durationMinutes: 109 },
   { id: "winter-arcade", title: "Good Grandma", genre: "Comedy", durationMinutes: 95 },
-]);
+];
 
+export const CINEMA_MOVIES = Object.freeze(MOVIES.map((movie) => {
+  const genreId = GENRE_IDS_BY_LABEL[movie.genre];
+  if (!genreId) throw new Error(`Cinema movie '${movie.id}' has an unknown genre`);
+  return Object.freeze({ ...movie, genreId });
+}));

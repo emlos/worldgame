@@ -1843,6 +1843,7120 @@ export const WG_BUNDLE = {
         "column": 1
       }
     },
+    "cinema.screening.action.impossible-stunt": {
+      "id": "cinema.screening.action.impossible-stunt",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "The hero makes the jump",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "A vehicle launches across a gap that no vehicle could possibly clear. The audience erupts when it lands without losing so much as a wing mirror."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 19,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-1",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Enjoy the spectacle"
+                }
+              ],
+              "target": ".enjoy",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 21,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-2",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Pick the stunt apart"
+                }
+              ],
+              "target": ".analyse",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 24,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 19,
+            "column": 1
+          }
+        },
+        {
+          "id": "enjoy",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You let momentum and noise carry you through the rest of the film. Plausibility seems like a small price to pay for a landing like that."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 29,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 31,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 27,
+            "column": 1
+          }
+        },
+        {
+          "id": "analyse",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You count several different ways the jump should have ended badly. The film answers every objection with another explosion."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 35,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 37,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 33,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "cinema"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "cinema.screening"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "event",
+              "data",
+              "genreId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "action"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/cinema/events.wg",
+        "line": 13,
+        "column": 1
+      }
+    },
+    "cinema.screening.action.rattling-drinks": {
+      "id": "cinema.screening.action.rattling-drinks",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Choices",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "During the climax of "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "event",
+                    "data",
+                    "movieTitle"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": ", each impact lands with enough bass to make the drinks in their holders tremble. By the final explosion, somebody's abandoned cup has slowly rattled its way into the aisle."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 9,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Return to the foyer"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 11,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 9,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "cinema"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "cinema.screening"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "event",
+              "data",
+              "genreId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "action"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/cinema/events.wg",
+        "line": 4,
+        "column": 1
+      }
+    },
+    "cinema.screening.adventure.distant-horizon": {
+      "id": "cinema.screening.adventure.distant-horizon",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Choices",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "event",
+                    "data",
+                    "movieTitle"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": " opens onto a road winding through a landscape too broad for the screen. For a few minutes, every unexplored part of the city feels as though it might begin just beyond the next street."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 44,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Return to the foyer"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 46,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 44,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "cinema"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "cinema.screening"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "event",
+              "data",
+              "genreId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "adventure"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/cinema/events.wg",
+        "line": 39,
+        "column": 1
+      }
+    },
+    "cinema.screening.adventure.follow-the-map": {
+      "id": "cinema.screening.adventure.follow-the-map",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "A map fills the screen",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The characters trace a route across a map crowded with warnings, dead ends, and places nobody sensible would visit."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 54,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-1",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Try to remember the route"
+                }
+              ],
+              "target": ".study",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 56,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-2",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Wait for the next set piece"
+                }
+              ],
+              "target": ".spectacle",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 59,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 54,
+            "column": 1
+          }
+        },
+        {
+          "id": "study",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You keep the route straight for almost three scenes before the film introduces a secret tunnel and makes the whole exercise pointless."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 64,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 66,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 62,
+            "column": 1
+          }
+        },
+        {
+          "id": "spectacle",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The map disappears beneath a sweeping shot of the destination. That was probably the important part anyway."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 70,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 72,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 68,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "cinema"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "cinema.screening"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "event",
+              "data",
+              "genreId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "adventure"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/cinema/events.wg",
+        "line": 48,
+        "column": 1
+      }
+    },
+    "cinema.screening.animation.childish-joke": {
+      "id": "cinema.screening.animation.childish-joke",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "The setup is obvious",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You see the childish punchline coming several seconds early. Knowing exactly what is about to happen does not make it less effective."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 89,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-1",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Laugh with everyone else"
+                }
+              ],
+              "target": ".laugh",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 91,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-2",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Maintain some dignity"
+                }
+              ],
+              "target": ".dignity",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 94,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 89,
+            "column": 1
+          }
+        },
+        {
+          "id": "laugh",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Your laugh joins a wave rolling through the room. The joke is terrible. This changes nothing."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 99,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 101,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 97,
+            "column": 1
+          }
+        },
+        {
+          "id": "dignity",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You hold out until the character repeats the same mistake a second time. A laugh escapes before you can stop it."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 105,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 107,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 103,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "cinema"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "cinema.screening"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "event",
+              "data",
+              "genreId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "animation"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/cinema/events.wg",
+        "line": 83,
+        "column": 1
+      }
+    },
+    "cinema.screening.animation.colour-without-words": {
+      "id": "cinema.screening.animation.colour-without-words",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Choices",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Halfway through "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "event",
+                    "data",
+                    "movieTitle"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": ", the dialogue falls away and colour carries the scene by itself. Even the children in the audience go quiet until the spell breaks."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 79,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Return to the foyer"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 81,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 79,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "cinema"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "cinema.screening"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "event",
+              "data",
+              "genreId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "animation"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/cinema/events.wg",
+        "line": 74,
+        "column": 1
+      }
+    },
+    "cinema.screening.comedy.contagious-laugh": {
+      "id": "cinema.screening.comedy.contagious-laugh",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Choices",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Someone near the back has a laugh more memorable than anything in "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "event",
+                    "data",
+                    "movieTitle"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": ". Soon half the room is laughing at them laughing, and each new joke starts the cycle again."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 114,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Return to the foyer"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 116,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 114,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "cinema"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "cinema.screening"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "event",
+              "data",
+              "genreId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "comedy"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/cinema/events.wg",
+        "line": 109,
+        "column": 1
+      }
+    },
+    "cinema.screening.comedy.lone-laugh": {
+      "id": "cinema.screening.comedy.lone-laugh",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "A joke meets complete silence",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "One laugh breaks out in the otherwise silent cinema. It takes you a moment to realise it was yours."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 124,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-1",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Own it"
+                }
+              ],
+              "target": ".own-it",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 126,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-2",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Sink into your seat"
+                }
+              ],
+              "target": ".hide",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 129,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 124,
+            "column": 1
+          }
+        },
+        {
+          "id": "own-it",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You laugh again when the joke returns later. This time two other people join you."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 134,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 136,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 132,
+            "column": 1
+          }
+        },
+        {
+          "id": "hide",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You keep perfectly quiet through the callback, though anticipating it makes your shoulders shake."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 140,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 142,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 138,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "cinema"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "cinema.screening"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "event",
+              "data",
+              "genreId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "comedy"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/cinema/events.wg",
+        "line": 118,
+        "column": 1
+      }
+    },
+    "cinema.screening.coming-of-age.familiar-mistake": {
+      "id": "cinema.screening.coming-of-age.familiar-mistake",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Choices",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "A mistake in "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "event",
+                    "data",
+                    "movieTitle"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": " is specific enough to feel familiar and universal enough to make the whole audience uncomfortable. Nobody laughs until the consequences have passed."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 149,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Return to the foyer"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 151,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 149,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "cinema"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "cinema.screening"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "event",
+              "data",
+              "genreId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "coming-of-age"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/cinema/events.wg",
+        "line": 144,
+        "column": 1
+      }
+    },
+    "cinema.screening.coming-of-age.judge-the-protagonist": {
+      "id": "cinema.screening.coming-of-age.judge-the-protagonist",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "The protagonist makes everything worse",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The disastrous decision is understandable, avoidable, and already impossible to take back."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 159,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-1",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Sympathise with them"
+                }
+              ],
+              "target": ".sympathise",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 161,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-2",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Judge them for it"
+                }
+              ],
+              "target": ".judge",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 164,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 159,
+            "column": 1
+          }
+        },
+        {
+          "id": "sympathise",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You spend the aftermath hoping someone gives them the chance to explain."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 169,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 171,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 167,
+            "column": 1
+          }
+        },
+        {
+          "id": "judge",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You compose a much better decision from the safety of your seat, with the benefit of knowing exactly how badly theirs ends."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 175,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 177,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 173,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "cinema"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "cinema.screening"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "event",
+              "data",
+              "genreId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "coming-of-age"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/cinema/events.wg",
+        "line": 153,
+        "column": 1
+      }
+    },
+    "cinema.screening.crime.clue-in-plain-sight": {
+      "id": "cinema.screening.crime.clue-in-plain-sight",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Choices",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "An object lingers at the edge of a shot in "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "event",
+                    "data",
+                    "movieTitle"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": ". When it returns much later as evidence, a pleased murmur moves through the viewers who noticed it the first time."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 184,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Return to the foyer"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 186,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 184,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "cinema"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "cinema.screening"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "event",
+              "data",
+              "genreId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "crime"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/cinema/events.wg",
+        "line": 179,
+        "column": 1
+      }
+    },
+    "cinema.screening.crime.style-or-substance": {
+      "id": "cinema.screening.crime.style-or-substance",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "The criminal makes their entrance",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The film gives its worst person the best clothes, the best music, and the most confident walk in the entire cast."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 194,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-1",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Enjoy the performance"
+                }
+              ],
+              "target": ".enjoy",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 196,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-2",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Distrust the glamour"
+                }
+              ],
+              "target": ".distrust",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 199,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 194,
+            "column": 1
+          }
+        },
+        {
+          "id": "enjoy",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You know exactly what the film is doing and enjoy it anyway."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 204,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 206,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 202,
+            "column": 1
+          }
+        },
+        {
+          "id": "distrust",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You wait for the confidence to crack. When it finally does, the scene is almost a relief."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 210,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 212,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 208,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "cinema"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "cinema.screening"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "event",
+              "data",
+              "genreId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "crime"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/cinema/events.wg",
+        "line": 188,
+        "column": 1
+      }
+    },
+    "cinema.screening.documentary.convincing-argument": {
+      "id": "cinema.screening.documentary.convincing-argument",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "The narrator reaches a confident conclusion",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The evidence fits together neatly—perhaps a little too neatly."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 229,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-1",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Accept the argument"
+                }
+              ],
+              "target": ".accept",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 231,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-2",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Question the presentation"
+                }
+              ],
+              "target": ".question",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 234,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 229,
+            "column": 1
+          }
+        },
+        {
+          "id": "accept",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "By the end, the conclusion feels obvious enough that you wonder why you had never considered it before."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 239,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 241,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 237,
+            "column": 1
+          }
+        },
+        {
+          "id": "question",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You notice each convenient omission after the first. The documentary remains interesting, but no longer quite as conclusive."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 245,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 247,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 243,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "cinema"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "cinema.screening"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "event",
+              "data",
+              "genreId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "documentary"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/cinema/events.wg",
+        "line": 223,
+        "column": 1
+      }
+    },
+    "cinema.screening.documentary.one-stubborn-fact": {
+      "id": "cinema.screening.documentary.one-stubborn-fact",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Choices",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Most of "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "event",
+                    "data",
+                    "movieTitle"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": " begins to blur together by the closing credits, but one unlikely fact remains lodged in your head with nowhere useful to go."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 219,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Return to the foyer"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 221,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 219,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "cinema"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "cinema.screening"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "event",
+              "data",
+              "genreId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "documentary"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/cinema/events.wg",
+        "line": 214,
+        "column": 1
+      }
+    },
+    "cinema.screening.drama.shared-silence": {
+      "id": "cinema.screening.drama.shared-silence",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Choices",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "event",
+                    "data",
+                    "movieTitle"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": " reaches its quietest scene. The room becomes so still that the faint rustle of someone opening a tissue sounds impossibly loud."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 254,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Return to the foyer"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 256,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 254,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "cinema"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "cinema.screening"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "event",
+              "data",
+              "genreId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "drama"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/cinema/events.wg",
+        "line": 249,
+        "column": 1
+      }
+    },
+    "cinema.screening.drama.unexpected-tears": {
+      "id": "cinema.screening.drama.unexpected-tears",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Your eyes begin to sting",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The emotional turn is not subtle, but subtlety does not seem to matter."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 264,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-1",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Let yourself feel it"
+                }
+              ],
+              "target": ".feel",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 266,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-2",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Blink it away"
+                }
+              ],
+              "target": ".hide",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 269,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 264,
+            "column": 1
+          }
+        },
+        {
+          "id": "feel",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You stop guarding your reaction. By the time the scene ends, you are far from the only person wiping at your face."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 274,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 276,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 272,
+            "column": 1
+          }
+        },
+        {
+          "id": "hide",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You focus on some unimportant detail in the background until the moment passes."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 280,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 282,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 278,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "cinema"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "cinema.screening"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "event",
+              "data",
+              "genreId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "drama"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/cinema/events.wg",
+        "line": 258,
+        "column": 1
+      }
+    },
+    "cinema.screening.family.invested-adults": {
+      "id": "cinema.screening.family.invested-adults",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "The villain threatens the heroes",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The adults around you lean forward. Most of the children remain occupied with their snacks."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 299,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-1",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Get invested too"
+                }
+              ],
+              "target": ".invested",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 301,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-2",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Watch the audience instead"
+                }
+              ],
+              "target": ".audience",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 304,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 299,
+            "column": 1
+          }
+        },
+        {
+          "id": "invested",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You accept the stakes on their own terms. The victory feels far more satisfying than it has any right to."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 309,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 311,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 307,
+            "column": 1
+          }
+        },
+        {
+          "id": "audience",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The parents' relief at the happy ending is almost as entertaining as the ending itself."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 315,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 317,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 313,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "cinema"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "cinema.screening"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "event",
+              "data",
+              "genreId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "family"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/cinema/events.wg",
+        "line": 293,
+        "column": 1
+      }
+    },
+    "cinema.screening.family.lost-toy": {
+      "id": "cinema.screening.family.lost-toy",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Choices",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "A small stuffed animal travels beneath three rows of seats during "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "event",
+                    "data",
+                    "movieTitle"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": ". It is passed hand to hand through the dark until it reaches an anxiously waiting child."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 289,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Return to the foyer"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 291,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 289,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "cinema"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "cinema.screening"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "event",
+              "data",
+              "genreId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "family"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/cinema/events.wg",
+        "line": 284,
+        "column": 1
+      }
+    },
+    "cinema.screening.fantasy.hidden-door": {
+      "id": "cinema.screening.fantasy.hidden-door",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "A sealed doorway appears",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The film pauses over a doorway hidden in plain sight, waiting for the hero to recognise what it is."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 334,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-1",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Study every symbol"
+                }
+              ],
+              "target": ".study",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 336,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-2",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Wait for the explanation"
+                }
+              ],
+              "target": ".wait",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 339,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 334,
+            "column": 1
+          }
+        },
+        {
+          "id": "study",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You find patterns everywhere. One of them even turns out to matter."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 344,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 346,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 342,
+            "column": 1
+          }
+        },
+        {
+          "id": "wait",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "A helpful character explains the entire mechanism a minute later. You feel vindicated for conserving the effort."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 350,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 352,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 348,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "cinema"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "cinema.screening"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "event",
+              "data",
+              "genreId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "fantasy"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/cinema/events.wg",
+        "line": 328,
+        "column": 1
+      }
+    },
+    "cinema.screening.fantasy.too-many-names": {
+      "id": "cinema.screening.fantasy.too-many-names",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Choices",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "By the time "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "event",
+                    "data",
+                    "movieTitle"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": " introduces its third ruined kingdom and second forbidden order, whispered requests for clarification are spreading through the cinema."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 324,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Return to the foyer"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 326,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 324,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "cinema"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "cinema.screening"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "event",
+              "data",
+              "genreId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "fantasy"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/cinema/events.wg",
+        "line": 319,
+        "column": 1
+      }
+    },
+    "cinema.screening.foreign.missing-subtitles": {
+      "id": "cinema.screening.foreign.missing-subtitles",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Choices",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The subtitles vanish during what appears to be a crucial exchange in "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "event",
+                    "data",
+                    "movieTitle"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": ". When they return, several new problems have appeared and nobody in the room knows why."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 359,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Return to the foyer"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 361,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 359,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "cinema"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "cinema.screening"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "event",
+              "data",
+              "genreId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "foreign"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/cinema/events.wg",
+        "line": 354,
+        "column": 1
+      }
+    },
+    "cinema.screening.foreign.repeated-phrase": {
+      "id": "cinema.screening.foreign.repeated-phrase",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "A phrase returns throughout the film",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You have heard it often enough to recognise its shape, though the subtitles translate it differently each time."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 369,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-1",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Try to work out its meaning"
+                }
+              ],
+              "target": ".infer",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 371,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-2",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Trust the subtitles"
+                }
+              ],
+              "target": ".trust",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 374,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 369,
+            "column": 1
+          }
+        },
+        {
+          "id": "infer",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Tone and context narrow it down, but not enough to risk ever saying it aloud."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 379,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 381,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 377,
+            "column": 1
+          }
+        },
+        {
+          "id": "trust",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You accept each translation as it appears. The phrase remains pleasingly mysterious."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 385,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 387,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 383,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "cinema"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "cinema.screening"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "event",
+              "data",
+              "genreId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "foreign"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/cinema/events.wg",
+        "line": 363,
+        "column": 1
+      }
+    },
+    "cinema.screening.historical.accuracy": {
+      "id": "cinema.screening.historical.accuracy",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Something about the scene feels wrong",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The costumes are immaculate, but the conversation sounds suspiciously modern."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 404,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-1",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Focus on the history"
+                }
+              ],
+              "target": ".history",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 406,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-2",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Focus on the characters"
+                }
+              ],
+              "target": ".characters",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 409,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 404,
+            "column": 1
+          }
+        },
+        {
+          "id": "history",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Small inaccuracies begin presenting themselves everywhere. You leave with a private list of objections."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 414,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 416,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 412,
+            "column": 1
+          }
+        },
+        {
+          "id": "characters",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You let the century become scenery. Whatever they get wrong, the argument itself feels real."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 420,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 422,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 418,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "cinema"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "cinema.screening"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "event",
+              "data",
+              "genreId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "historical"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/cinema/events.wg",
+        "line": 398,
+        "column": 1
+      }
+    },
+    "cinema.screening.historical.recognised-detail": {
+      "id": "cinema.screening.historical.recognised-detail",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Choices",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "A name from school appears in "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "event",
+                    "data",
+                    "movieTitle"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": " with better clothes and far more dramatic lighting. Remembering the lesson makes the scene unexpectedly easy to follow."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 394,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Return to the foyer"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 396,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 394,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "cinema"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "cinema.screening"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "event",
+              "data",
+              "genreId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "historical"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/cinema/events.wg",
+        "line": 389,
+        "column": 1
+      }
+    },
+    "cinema.screening.horror.aisle-figure": {
+      "id": "cinema.screening.horror.aisle-figure",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Choices",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Halfway through "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "event",
+                    "data",
+                    "movieTitle"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": ", a figure rises at the end of your row just as something moves across the screen. It is only someone heading for the toilets, but the timing sends a nervous ripple through the nearby seats."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 429,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Return to the foyer"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 431,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 429,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "cinema"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "cinema.screening"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "event",
+              "data",
+              "genreId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "horror"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/cinema/events.wg",
+        "line": 424,
+        "column": 1
+      }
+    },
+    "cinema.screening.horror.missed-scare": {
+      "id": "cinema.screening.horror.missed-scare",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Something moves beside you",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "A shape shifts at the edge of your vision while the soundtrack tightens."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 439,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-1",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Keep watching the screen"
+                }
+              ],
+              "target": ".screen",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 441,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-2",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Watch the shape instead"
+                }
+              ],
+              "target": ".shape",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 444,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 439,
+            "column": 1
+          }
+        },
+        {
+          "id": "screen",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The scare arrives exactly where expected. The shape beside you turns out to be a coat sliding from an empty seat."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 449,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 451,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 447,
+            "column": 1
+          }
+        },
+        {
+          "id": "shape",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You catch the coat before it hits the floor and miss whatever makes the entire cinema scream."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 455,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 457,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 453,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "cinema"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "cinema.screening"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "event",
+              "data",
+              "genreId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "horror"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/cinema/events.wg",
+        "line": 433,
+        "column": 1
+      }
+    },
+    "cinema.screening.musical.catching-the-rhythm": {
+      "id": "cinema.screening.musical.catching-the-rhythm",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "The chorus returns",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Your foot has already found the rhythm before you notice it moving."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 474,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-1",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Tap along"
+                }
+              ],
+              "target": ".tap",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 476,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-2",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Hold perfectly still"
+                }
+              ],
+              "target": ".still",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 479,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 474,
+            "column": 1
+          }
+        },
+        {
+          "id": "tap",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You give in. By the finale, the tune feels familiar enough to have known for years."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 484,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 486,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 482,
+            "column": 1
+          }
+        },
+        {
+          "id": "still",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You stop your foot, but the rhythm relocates somewhere behind your ribs."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 490,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 492,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 488,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "cinema"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "cinema.screening"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "event",
+              "data",
+              "genreId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "musical"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/cinema/events.wg",
+        "line": 468,
+        "column": 1
+      }
+    },
+    "cinema.screening.musical.singing-along": {
+      "id": "cinema.screening.musical.singing-along",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Choices",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Someone knows every song in "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "event",
+                    "data",
+                    "movieTitle"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": " and keeps proving it half a second before each chorus. Their companion repeatedly nudges them back into silence."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 464,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Return to the foyer"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 466,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 464,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "cinema"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "cinema.screening"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "event",
+              "data",
+              "genreId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "musical"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/cinema/events.wg",
+        "line": 459,
+        "column": 1
+      }
+    },
+    "cinema.screening.mystery.choose-a-suspect": {
+      "id": "cinema.screening.mystery.choose-a-suspect",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Everyone has a motive",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The detective lays out the suspects without yet committing to an answer."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 509,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-1",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Suspect the obvious liar"
+                }
+              ],
+              "target": ".obvious",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 511,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-2",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Suspect the quiet one"
+                }
+              ],
+              "target": ".quiet",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 514,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 509,
+            "column": 1
+          }
+        },
+        {
+          "id": "obvious",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The liar is hiding something, but not the murder. The film seems pleased with itself for misleading you."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 519,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 521,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 517,
+            "column": 1
+          }
+        },
+        {
+          "id": "quiet",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The quiet suspect is innocent. They do, however, reveal the clue that breaks the case open."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 525,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 527,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 523,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "cinema"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "cinema.screening"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "event",
+              "data",
+              "genreId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "mystery"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/cinema/events.wg",
+        "line": 503,
+        "column": 1
+      }
+    },
+    "cinema.screening.mystery.early-clue": {
+      "id": "cinema.screening.mystery.early-clue",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Choices",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "event",
+                    "data",
+                    "movieTitle"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": " lingers on an apparently ordinary object for one beat too long. When its importance is finally revealed, scattered viewers make satisfied noises in the dark."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 499,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Return to the foyer"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 501,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 499,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "cinema"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "cinema.screening"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "event",
+              "data",
+              "genreId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "mystery"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/cinema/events.wg",
+        "line": 494,
+        "column": 1
+      }
+    },
+    "cinema.screening.political-thriller.persuasive-speech": {
+      "id": "cinema.screening.political-thriller.persuasive-speech",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "The antagonist addresses the country",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The speech is manipulative, carefully staged, and uncomfortably persuasive."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 544,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-1",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Listen to the argument"
+                }
+              ],
+              "target": ".listen",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 546,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-2",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Watch how the crowd is managed"
+                }
+              ],
+              "target": ".watch",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 549,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 544,
+            "column": 1
+          }
+        },
+        {
+          "id": "listen",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You can see where each claim twists away from the truth, but also why people in the film want to believe it."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 554,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 556,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 552,
+            "column": 1
+          }
+        },
+        {
+          "id": "watch",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The cameras reveal as much as the speech: selected faces, rehearsed applause, and security closing every path out."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 560,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 562,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 558,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "cinema"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "cinema.screening"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "event",
+              "data",
+              "genreId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "political-thriller"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/cinema/events.wg",
+        "line": 538,
+        "column": 1
+      }
+    },
+    "cinema.screening.political-thriller.whispered-argument": {
+      "id": "cinema.screening.political-thriller.whispered-argument",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Choices",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Two viewers begin whispering about whether "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "event",
+                    "data",
+                    "movieTitle"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": " understands politics at all. Their disagreement becomes more detailed and less quiet with every scene."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 534,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Return to the foyer"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 536,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 534,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "cinema"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "cinema.screening"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "event",
+              "data",
+              "genreId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "political-thriller"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/cinema/events.wg",
+        "line": 529,
+        "column": 1
+      }
+    },
+    "cinema.screening.romance.confession": {
+      "id": "cinema.screening.romance.confession",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "The long-delayed confession begins",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Every word is timed for maximum effect, right down to the rain beginning outside the window."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 579,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-1",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Surrender to it"
+                }
+              ],
+              "target": ".surrender",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 581,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-2",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Resist the sentiment"
+                }
+              ],
+              "target": ".resist",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 584,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 579,
+            "column": 1
+          }
+        },
+        {
+          "id": "surrender",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You let the scene work exactly as intended. The kiss earns a contented sigh from somewhere behind you."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 589,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 591,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 587,
+            "column": 1
+          }
+        },
+        {
+          "id": "resist",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You notice the lighting, the music, and every other mechanism designed to make the moment irresistible. It nearly works anyway."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 595,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 597,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 593,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "cinema"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "cinema.screening"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "event",
+              "data",
+              "genreId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "romance"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/cinema/events.wg",
+        "line": 573,
+        "column": 1
+      }
+    },
+    "cinema.screening.romance.mirrored-couple": {
+      "id": "cinema.screening.romance.mirrored-couple",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Choices",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "A couple nearby quietly argue during the same scene in which the leads of "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "event",
+                    "data",
+                    "movieTitle"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": " reconcile. They fall silent when the dialogue becomes a little too relevant."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 569,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Return to the foyer"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 571,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 569,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "cinema"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "cinema.screening"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "event",
+              "data",
+              "genreId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "romance"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/cinema/events.wg",
+        "line": 564,
+        "column": 1
+      }
+    },
+    "cinema.screening.romantic-comedy.cliche-count": {
+      "id": "cinema.screening.romantic-comedy.cliche-count",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Another misunderstanding begins",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "One honest conversation could end the entire plot with forty minutes to spare."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 614,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-1",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Enjoy the formula"
+                }
+              ],
+              "target": ".enjoy",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 616,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-2",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Keep count of the clichés"
+                }
+              ],
+              "target": ".count",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 619,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 614,
+            "column": 1
+          }
+        },
+        {
+          "id": "enjoy",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You accept that nobody sensible has been cast in this film. Their inevitable reunion is still satisfying."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 624,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 626,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 622,
+            "column": 1
+          }
+        },
+        {
+          "id": "count",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The film reaches nine clichés before surprising you with something sincere enough to lose count."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 630,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 632,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 628,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "cinema"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "cinema.screening"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "event",
+              "data",
+              "genreId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "romantic-comedy"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/cinema/events.wg",
+        "line": 608,
+        "column": 1
+      }
+    },
+    "cinema.screening.romantic-comedy.predicted-meeting": {
+      "id": "cinema.screening.romantic-comedy.predicted-meeting",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Choices",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The two leads of "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "event",
+                    "data",
+                    "movieTitle"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": " reach for the same object. Several people in the cinema laugh before they even touch hands."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 604,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Return to the foyer"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 606,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 604,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "cinema"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "cinema.screening"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "event",
+              "data",
+              "genreId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "romantic-comedy"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/cinema/events.wg",
+        "line": 599,
+        "column": 1
+      }
+    },
+    "cinema.screening.science-fiction.impossible-idea": {
+      "id": "cinema.screening.science-fiction.impossible-idea",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "The film explains its central invention",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The explanation sounds convincing as long as none of its words are examined separately."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 649,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-1",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Think through the implications"
+                }
+              ],
+              "target": ".think",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 651,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-2",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Accept the premise"
+                }
+              ],
+              "target": ".accept",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 654,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 649,
+            "column": 1
+          }
+        },
+        {
+          "id": "think",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You find several consequences the film never mentions and miss part of the scene while considering them."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 659,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 661,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 657,
+            "column": 1
+          }
+        },
+        {
+          "id": "accept",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You grant the film its impossible machine. It rewards your generosity by using it for something spectacular."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 665,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 667,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 663,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "cinema"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "cinema.screening"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "event",
+              "data",
+              "genreId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "science-fiction"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/cinema/events.wg",
+        "line": 643,
+        "column": 1
+      }
+    },
+    "cinema.screening.science-fiction.low-frequency": {
+      "id": "cinema.screening.science-fiction.low-frequency",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Choices",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The engines in "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "event",
+                    "data",
+                    "movieTitle"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": " produce a low vibration felt more through the seats than heard. When they finally shut down, the sudden silence feels weightless."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 639,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Return to the foyer"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 641,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 639,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "cinema"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "cinema.screening"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "event",
+              "data",
+              "genreId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "science-fiction"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/cinema/events.wg",
+        "line": 634,
+        "column": 1
+      }
+    },
+    "cinema.screening.sports.cinema-crowd": {
+      "id": "cinema.screening.sports.cinema-crowd",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Choices",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "By the final contest in "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "event",
+                    "data",
+                    "movieTitle"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": ", the cinema reacts like a live crowd. A successful play sends arms into the air all across the room."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 674,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Return to the foyer"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 676,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 674,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "cinema"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "cinema.screening"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "event",
+              "data",
+              "genreId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "sports"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/cinema/events.wg",
+        "line": 669,
+        "column": 1
+      }
+    },
+    "cinema.screening.sports.training-montage": {
+      "id": "cinema.screening.sports.training-montage",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "The training montage begins",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Weeks of effort collapse into a few minutes of music, sweat, and visible progress."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 684,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-1",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Let it motivate you"
+                }
+              ],
+              "target": ".motivated",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 686,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-2",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Question the convenient editing"
+                }
+              ],
+              "target": ".editing",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 689,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 684,
+            "column": 1
+          }
+        },
+        {
+          "id": "motivated",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "For the length of the montage, discipline looks almost simple."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 694,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 696,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 692,
+            "column": 1
+          }
+        },
+        {
+          "id": "editing",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You wonder how many miserable ordinary sessions happened between the impressive ones."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 700,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 702,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 698,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "cinema"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "cinema.screening"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "event",
+              "data",
+              "genreId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "sports"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/cinema/events.wg",
+        "line": 678,
+        "column": 1
+      }
+    },
+    "cinema.screening.supernatural.cold-draught": {
+      "id": "cinema.screening.supernatural.cold-draught",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Cold air brushes the back of your neck",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "It arrives just as the medium onscreen announces that something has entered the room."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 719,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-1",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Look behind you"
+                }
+              ],
+              "target": ".look",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 721,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-2",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Refuse to react"
+                }
+              ],
+              "target": ".ignore",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 724,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 719,
+            "column": 1
+          }
+        },
+        {
+          "id": "look",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "An air vent hums above an otherwise empty row. The explanation is ordinary enough, though you turn back quickly."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 729,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 731,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 727,
+            "column": 1
+          }
+        },
+        {
+          "id": "ignore",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You keep your eyes forward. The draught returns twice, each time a little harder to dismiss."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 735,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 737,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 733,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "cinema"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "cinema.screening"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "event",
+              "data",
+              "genreId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "supernatural"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/cinema/events.wg",
+        "line": 713,
+        "column": 1
+      }
+    },
+    "cinema.screening.supernatural.flickering-lights": {
+      "id": "cinema.screening.supernatural.flickering-lights",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Choices",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The lights flicker as the credits of "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "event",
+                    "data",
+                    "movieTitle"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": " begin. Everyone waits through the next flicker before deciding it is merely the cinema and standing up."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 709,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Return to the foyer"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 711,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 709,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "cinema"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "cinema.screening"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "event",
+              "data",
+              "genreId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "supernatural"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/cinema/events.wg",
+        "line": 704,
+        "column": 1
+      }
+    },
+    "cinema.screening.thriller.badly-timed-phone": {
+      "id": "cinema.screening.thriller.badly-timed-phone",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Choices",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "At the most silent point in "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "event",
+                    "data",
+                    "movieTitle"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": ", a phone vibrates against something hollow. Its owner struggles to find it while every head in the cinema turns towards the noise."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 744,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Return to the foyer"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 746,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 744,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "cinema"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "cinema.screening"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "event",
+              "data",
+              "genreId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "thriller"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/cinema/events.wg",
+        "line": 739,
+        "column": 1
+      }
+    },
+    "cinema.screening.thriller.latecomer": {
+      "id": "cinema.screening.thriller.latecomer",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "A silhouette enters below the screen",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The latecomer pauses in the aisle at exactly the moment the protagonist realises they are being followed."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 754,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-1",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Watch the silhouette"
+                }
+              ],
+              "target": ".silhouette",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 756,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-2",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Keep your eyes on the film"
+                }
+              ],
+              "target": ".film",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 759,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 754,
+            "column": 1
+          }
+        },
+        {
+          "id": "silhouette",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "They count the rows, find their seat, and apologise in a whisper. You miss the film's actual pursuer appearing."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 764,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 766,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 762,
+            "column": 1
+          }
+        },
+        {
+          "id": "film",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You ignore the movement below the screen. The scene tightens until even the latecomer stops searching and watches from the aisle."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 770,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 772,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 768,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "cinema"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "cinema.screening"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "event",
+              "data",
+              "genreId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "thriller"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/cinema/events.wg",
+        "line": 748,
+        "column": 1
+      }
+    },
+    "cinema.screening.western.open-country": {
+      "id": "cinema.screening.western.open-country",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Choices",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "event",
+                    "data",
+                    "movieTitle"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": " holds on an empty horizon until the cinema itself seems cramped. The next close-up feels almost intrusive."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 779,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Return to the foyer"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 781,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 779,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "cinema"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "cinema.screening"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "event",
+              "data",
+              "genreId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "western"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/cinema/events.wg",
+        "line": 774,
+        "column": 1
+      }
+    },
+    "cinema.screening.western.showdown": {
+      "id": "cinema.screening.western.showdown",
+      "finalTarget": "@return",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Two figures face each other across the street",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The film has given you reasons to distrust both of them."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 789,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-1",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Choose a side"
+                }
+              ],
+              "target": ".side",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 791,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-2",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Trust neither"
+                }
+              ],
+              "target": ".neither",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 794,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 789,
+            "column": 1
+          }
+        },
+        {
+          "id": "side",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You commit just before the first hand moves. For once, your chosen survivor makes it through the dust."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 799,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 801,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 797,
+            "column": 1
+          }
+        },
+        {
+          "id": "neither",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "You wait for the trick. Both figures have one prepared, though only one is fast enough to use it."
+                }
+              ],
+              "source": {
+                "file": "story/cinema/events.wg",
+                "line": 805,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Next"
+              }
+            ],
+            "target": "@return",
+            "source": {
+              "file": "story/cinema/events.wg",
+              "line": 807,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/cinema/events.wg",
+            "line": 803,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "cinema"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [
+        "cinema.screening"
+      ],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "==",
+          "left": {
+            "type": "path",
+            "value": [
+              "event",
+              "data",
+              "genreId"
+            ]
+          },
+          "right": {
+            "type": "literal",
+            "value": "western"
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/cinema/events.wg",
+        "line": 783,
+        "column": 1
+      }
+    },
     "home.clothes": {
       "id": "home.clothes",
       "finalTarget": "@exit",
