@@ -8957,6 +8957,62 @@ export const WG_BUNDLE = {
         "column": 1
       }
     },
+    "encounter.alley-mugging": {
+      "id": "encounter.alley-mugging",
+      "finalTarget": "@exit",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "What do you do?",
+      "behavior": null,
+      "system": {
+        "id": "encounter.physical",
+        "config": {
+          "scenario": "alley-mugging",
+          "aggressor": "mugger"
+        },
+        "source": {
+          "file": "story/encounters/alley.wg",
+          "line": 6,
+          "column": 1
+        }
+      },
+      "onEnter": [],
+      "passages": [],
+      "placeKeys": [
+        "alleyway"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [
+        "enter-place"
+      ],
+      "pools": [],
+      "conditions": [],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/encounters/alley.wg",
+        "line": 1,
+        "column": 1
+      },
+      "actors": [
+        {
+          "alias": "mugger",
+          "profileId": "civilian",
+          "source": {
+            "file": "story/encounters/alley.wg",
+            "line": 4,
+            "column": 1
+          }
+        }
+      ]
+    },
     "home.clothes": {
       "id": "home.clothes",
       "finalTarget": "@exit",

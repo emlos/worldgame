@@ -1,0 +1,6 @@
+:: encounter.alley-mugging -> @exit
+@auto enter-place
+@place-key alleyway
+@actor mugger civilian
+@choices "What do you do?"
+@system encounter.physical {"scenario":"alley-mugging","aggressor":"mugger"}
