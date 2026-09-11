@@ -1,4 +1,5 @@
 import { isPlaceUnlocked } from "../../../world/model/place.js";
+import { STATS } from "../../../characters/player/stats.js";
 
 const WG_FLAG_VALUE = Symbol.for("worldgame.wg.flag-value");
 
@@ -24,9 +25,9 @@ function placeKeys(places) {
   return [...new Set(keys)].sort();
 }
 
-function evaluatedStats(character) {
+function evaluatedStats(character, names = Object.keys(character.stats || {})) {
   const values = {};
-  for (const name of Object.keys(character.stats || {})) {
+  for (const name of names) {
     values[name] = character.getStatValue(name);
   }
   return values;
@@ -42,7 +43,7 @@ function skillValues(player) {
 
 function playerContext(player) {
   return {
-    ...evaluatedStats(player),
+    ...evaluatedStats(player, Object.keys(STATS)),
     ...pronounValues(player),
     gender: player.gender,
     age: player.age,

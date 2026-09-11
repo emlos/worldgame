@@ -103,7 +103,7 @@ Chats app.
   reruns effects. Editing authored wording changes the reconstructed wording;
   inserting, removing, or reordering chat messages may change their generated
   references and invalidate development saves. Game save format is
-  currently 40; the separately versioned compiled WG bundle format is 33.
+  currently 41; the separately versioned compiled WG bundle format is 33.
 - Unread counts include incoming messages after each contact's saved read
   position. Opening the contact list does not mark messages read. Reading to the
   end of a visible thread does. The app badge totals all contacts.
@@ -1477,10 +1477,9 @@ Implemented effects are:
   non-negative balance; use `@require` when an action needs sufficient funds.
 - `skill <skill-id> <signed-number>` adjusts and clamps a registered player
   skill while preserving fractional progress.
-- `stat <stat-id> <signed-number>` adjusts and clamps a registered player stat:
-  `health`, `energy`, `stress`, or `hygiene`.
-  `health` routes through the player's body health rather than an ordinary
-  stored base-stat meter.
+- `stat <stat-id> <signed-number>` adjusts and clamps a mutable player meter:
+  `energy`, `stress`, or `hygiene`. Health is read-only and derived from body
+  parts; injuries and healing must use explicit body operations.
 - `grade <subject-id> <signed-whole-number>` adjusts a registered school
   subject's achievement. Crossing a hundred-point boundary changes the letter
   grade in either direction and carries the remainder: `D | 99 + 1` becomes
@@ -1625,7 +1624,7 @@ destination day's batch, and a backward date change clears the batch.
 
 Only active authored IDs are saved; automatic school reminders are derived
 from the schedule. The built-in and authored namespaces cannot collide.
-Game save format 40 includes feature-owned state, scene-local state, reminder
+Game save format 41 includes feature-owned state, scene-local state, reminder
 state, and the game-start date; older saves are intentionally unsupported. The
 compiled WG bundle has its own format version, currently 33.
 

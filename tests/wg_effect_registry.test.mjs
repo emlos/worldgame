@@ -362,6 +362,7 @@ test("effect references are validated uniformly after all source files are parse
     ["@effect relationship kim.missing 1", /Unknown relationship meter 'kim\.missing'/],
     ["@effect skill missing 1", /unknown skill 'missing'/i],
     ["@effect stat missing 1", /unknown stat 'missing'/i],
+    ["@effect stat health -1", /unknown stat 'health'/i],
     ["@effect grade missing 1", /unknown school subject 'missing'/i],
     ["@effect attendance missing 1", /unknown school subject 'missing'/i],
   ];

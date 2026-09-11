@@ -151,7 +151,7 @@ function applySkillEffect(game, effect) {
 }
 
 function applyStatEffect(game, effect) {
-  game.player.adjustStatBase(effect.id, effect.amount);
+  game.player.adjustStat(effect.id, effect.amount);
 }
 
 const EFFECT_HANDLERS = new Map([

@@ -92,7 +92,7 @@ content:
     reward the player with lore/unlocking extra locations/amenities/abilities -> reason to explorer
 - cinema: add caro interactions
 - npc idea: corrupt doctor, tags: dark romance, medical, age gap -> ties into drug addiction mechanic
-    trigger for meeting: school mandated vaccination (~1month into the school semester, every semester) OR player gets sick [sickness mechanic tie in]
+    trigger for meeting: school mandated vaccination (~1month into the school semester, every semester) OR player gets sick [sickness mechanic tie in], OR player passes out outside and is taken to the hospital [interrupt]
     they're arrogant, medical about it, intelligent
     give player a vaccination... and if the player doesnt pass a passive check, slips them a drug with it -> unlocks option for 'follow up'
     romance mostly around substance dependence and medical stuff
@@ -100,7 +100,6 @@ content:
 design [important]:
 
 - npc characterisation + purpose needs to be decided
-- animal content - do animals need body templates? od i want animals? no probably not
 - how should the clothing system work?
 - combat vs sex design
 

@@ -135,13 +135,12 @@ function init() {
 
   // Stats
   const statRows = Object.keys(npc.stats).map((name) => {
-    const base = npc.getStatBase(name);
     const val = npc.getStatValue(name);
-    return [name, String(base), String(Number(val.toFixed ? val.toFixed(2) : val))];
+    return [name, String(Number(val.toFixed ? val.toFixed(2) : val))];
   });
   byId("stats").innerHTML = "";
   byId("stats").append(el("h2", { html: "Stats" }));
-  byId("stats").append(table(statRows, ["Stat", "Base", "Computed Value"]));
+  byId("stats").append(table(statRows, ["Stat", "Value"]));
 
   // Player-facing relationship profile definitions
   const relRows = Object.entries(npc.relationshipProfile.meters).map(([id, definition]) => [

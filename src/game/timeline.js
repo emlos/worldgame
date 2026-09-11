@@ -162,11 +162,11 @@ function applyElapsedPlayerChanges(game, minutes, { drainEnergy = true } = {}) {
   game.player.syncAgeAt(game.now);
   if (minutes <= 0 || !drainEnergy) return;
 
-  const energy = game.player.adjustStatBase(
+  const energy = game.player.adjustStat(
     "energy",
     -minutes * PLAYER_ENERGY_DRAIN_PER_MINUTE,
   );
-  game.player.setStatBase(
+  game.player.setStatValue(
     "energy",
     Math.round(energy * ENERGY_PRECISION) / ENERGY_PRECISION,
   );

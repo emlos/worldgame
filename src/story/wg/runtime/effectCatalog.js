@@ -1,4 +1,4 @@
-import { SKILLS, STATS } from "../../../characters/player/stats.js";
+import { MUTABLE_STATS, SKILLS } from "../../../characters/player/stats.js";
 import { PLACE_REGISTRY } from "../../../world/data/place.js";
 import { NPC_REGISTRY } from "../../../characters/npc/npcs.js";
 import { WG_BUNDLE } from "../generated/scenes.js";
@@ -13,7 +13,7 @@ export function getWGRuntimeEffectCatalog(features) {
   if (!catalog) {
     catalog = createWGEffectCatalog({
       skills: SKILLS,
-      stats: STATS,
+      stats: MUTABLE_STATS,
       subjects: source.wgReferenceCatalogs?.subjects ?? {},
       placeRegistry: PLACE_REGISTRY,
       npcRegistry: NPC_REGISTRY,

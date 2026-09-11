@@ -97,6 +97,12 @@ export function validatePlayerSave(data, { path = "save.player", npcProfiles, ga
     if (!definition.derived && !present) {
       failSave(`${path}.stats.${name}`, "is required");
     }
+    if (present) {
+      saveFiniteNumber(storedStats[name], `${path}.stats.${name}`, {
+        min: definition.min,
+        max: definition.max,
+      });
+    }
   }
   saveRecord(requiredSaveField(player, "appearance", path), `${path}.appearance`);
   saveString(requiredSaveField(player, "skinTone", path), `${path}.skinTone`, {

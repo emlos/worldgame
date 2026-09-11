@@ -72,11 +72,11 @@ export function runGameAction(
   if (typeof apply === "function") apply(game);
 
   if (resting && amount > 0) {
-    const energy = game.player.adjustStatBase(
+    const energy = game.player.adjustStat(
       "energy",
       amount * PLAYER_ENERGY_RECOVERY_PER_MINUTE,
     );
-    game.player.setStatBase(
+    game.player.setStatValue(
       "energy",
       Math.round(energy * ENERGY_PRECISION) / ENERGY_PRECISION,
     );

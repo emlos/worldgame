@@ -89,7 +89,6 @@ export function buildPhonePlayerStatsView(game) {
     stats: Object.entries(STATS).map(([id, definition]) => ({
       id,
       label: definition.label,
-      base: player.getStatBase(id),
       value: player.getStatValue(id),
       min: definition.min,
       max: definition.max,

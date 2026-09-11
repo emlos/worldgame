@@ -159,7 +159,7 @@ test("meeting Caro at school first unlocks her cinema recognition dialogue", () 
   assert.equal(caroRelationship(game).meters.get("rapport").value, 1);
 
   game.jumpToDate(CINEMA_SHIFT_AT);
-  game.player.setStatBase("energy", 100);
+  game.player.setStatValue("energy", 100);
   placePlayerAt(game, "cinema");
   assert.equal(
     resolveWGAutomaticScene(game, WG_AUTO_TRIGGER.enterPlace)?.id,
@@ -177,7 +177,7 @@ test("meeting Caro at the cinema first unlocks her school recognition dialogue",
   choose(game, "Nice save");
 
   game.jumpToDate(NEXT_SCHOOL_SHIFT_AT);
-  game.player.setStatBase("energy", 100);
+  game.player.setStatValue("energy", 100);
   game.setFlag("high_school.first_visit_seen");
   placePlayerAt(game, "high_school");
   moveTaylorHome(game);

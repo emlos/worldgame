@@ -6,7 +6,6 @@ import {
     RelationshipProfile,
     requireRelationshipMeterDefinition,
 } from "../core/relationship.js";
-import { Stat } from "../core/stat.js";
 import { Gender, PronounSets } from "../core/pronouns.js";
 import { adjustHexLightness } from "../../shared/util/color.js";
 import { Clothing } from "../core/clothing.js";
@@ -44,7 +43,7 @@ function normalizedSkillValue(value, definition, label) {
   ----------------------------------------------------------------
   This file defines the data model for a Twine-like, text‑based HTML game.
   It focuses on Player state, including:
-    - Stats with base values and modifiers
+    - Bounded player meters and derived health
     - Physical appearance & colors (incl. tan/losenTan helpers)
     - Relationships with NPCs
     - Skills (flag or meter 0..1)
@@ -88,9 +87,16 @@ export class Player {
         bodyTemplate = HUMAN_BODY_TEMPLATE,
     } = {}) {
         // Stats ----------------------------------------------------
-        this.stats = {};
-        for (const [k, v] of Object.entries(stats ?? initialPlayerStats())) {
-            this.stats[k] = new Stat(v);
+        this.stats = initialPlayerStats();
+        for (const [name, value] of Object.entries(stats ?? {})) {
+            const definition = STATS[name];
+            if (!definition) throw new Error(`Unknown player stat '${name}'`);
+            if (definition.derived) throw new Error(`Player stat '${name}' is read-only`);
+            this.stats[name] = clamp(
+                finiteNumber(value, `Player stat '${name}'`),
+                definition.min,
+                definition.max,
+            );
         }
 
         // Player meters --------------------------------------------
@@ -178,29 +184,32 @@ export class Player {
     }
 
     // --- Stats ---
-    getStatBase(name) {
-        if (name === "health") return this.body?.getHealthPercentage() ?? 0;
-        return this.stats[name]?.base ?? 0;
-    }
-    setStatBase(name, v) {
-        if (name === "health") return this.body?.setHealthPercentage(v) ?? 0;
-        if (!this.stats[name]) this.stats[name] = new Stat(0);
-        this.stats[name].base = v;
-        return this.stats[name].base;
-    }
-    adjustStatBase(name, delta) {
+    getStatValue(name) {
         const id = String(name);
         const definition = STATS[id];
         if (!definition) throw new Error(`Unknown player stat '${id}'`);
-        const amount = finiteNumber(delta, `Player stat '${id}' adjustment`);
-        const next = clamp(this.getStatBase(id) + amount, definition.min, definition.max);
-        this.setStatBase(id, next);
-        return this.getStatBase(id);
+        if (definition.derived) return this.body?.getHealthPercentage() ?? 0;
+        return this.stats[id];
     }
-    getStatValue(name) {
-        if (name === "health") return this.getStatBase(name);
-        const evaluated = (this.stats[name] || new Stat(0)).clone();
-        return evaluated.value;
+    setStatValue(name, value) {
+        const id = String(name);
+        const definition = STATS[id];
+        if (!definition) throw new Error(`Unknown player stat '${id}'`);
+        if (definition.derived) throw new Error(`Player stat '${id}' is read-only`);
+        this.stats[id] = clamp(
+            finiteNumber(value, `Player stat '${id}'`),
+            definition.min,
+            definition.max,
+        );
+        return this.stats[id];
+    }
+    adjustStat(name, delta) {
+        const id = String(name);
+        const definition = STATS[id];
+        if (!definition) throw new Error(`Unknown player stat '${id}'`);
+        if (definition.derived) throw new Error(`Player stat '${id}' is read-only`);
+        const amount = finiteNumber(delta, `Player stat '${id}' adjustment`);
+        return this.setStatValue(id, this.getStatValue(id) + amount);
     }
 
     adjustMoney(amount) {
@@ -337,9 +346,7 @@ export class Player {
     // --- Save / load -------------------------------------------------------
     toJSON() {
         return {
-            stats: Object.fromEntries(
-                Object.entries(this.stats).map(([name, stat]) => [name, stat.toJSON()]),
-            ),
+            stats: { ...this.stats },
             appearance: {
                 head: this.appearance.head,
                 body: this.visualbody,
@@ -393,7 +400,7 @@ export class Player {
         player.stats = {};
         for (const [name, definition] of Object.entries(STATS)) {
             if (definition.derived) continue;
-            player.stats[name] = Stat.fromJSON(data.stats[name]);
+            player.stats[name] = finiteNumber(data.stats[name], `Player stat '${name}'`);
         }
 
         player.relationships = new Map();

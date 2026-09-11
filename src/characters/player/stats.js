@@ -31,6 +31,12 @@ export const STATS = {
   },
 };
 
+export const MUTABLE_STATS = Object.freeze(
+  Object.fromEntries(
+    Object.entries(STATS).filter(([, definition]) => !definition.derived),
+  ),
+);
+
 // Passive energy lost for each elapsed in-game minute.
 export const PLAYER_ENERGY_DRAIN_PER_MINUTE = 0.1;
 // Energy restored for each minute spent in an authored resting action.

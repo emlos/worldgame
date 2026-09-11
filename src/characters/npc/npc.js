@@ -1,8 +1,7 @@
 import { normalizeRelationshipProfileDefinition } from "../core/relationship.js";
-import { Stat } from "../core/stat.js";
 import { Gender, PronounSets } from "../core/pronouns.js";
 import { Clothing } from "../core/clothing.js";
-import { clamp } from "../../shared/util/util.js";
+import { clamp, finiteNumber } from "../../shared/util/util.js";
 import { Body, HUMAN_BODY_TEMPLATE } from "../core/body.js";
 import { NPCBrain } from "./npcBrain.js";
 
@@ -112,7 +111,7 @@ export class NPC {
         // Stats ----------------------------------------------------
         this.stats = {};
         for (const [k, v] of Object.entries(stats)) {
-            this.stats[k] = new Stat(Number(v) || 0);
+            this.stats[k] = finiteNumber(v, `NPC stat '${k}'`);
         }
 
         this.flags = {}; // arbitrary boolean flags for game logic
@@ -157,11 +156,8 @@ export class NPC {
         this.currentPlaceId = placeId;
     }
 
-    getStatBase(name) {
-        return this.stats[name]?.base ?? 0;
-    }
     getStatValue(name) {
-        return (this.stats[name] || new Stat(0)).value;
+        return this.stats[name] ?? 0;
     }
 
     //sets a flag to a value (default true)
@@ -212,9 +208,7 @@ export class NPC {
             id: this.id,
             name: this.name,
             age: this.age,
-            stats: Object.fromEntries(
-                Object.entries(this.stats).map(([name, stat]) => [name, stat.toJSON()]),
-            ),
+            stats: { ...this.stats },
             flags: { ...this.flags },
             gender: this.gender,
             pronouns: { ...this.pronouns },
@@ -262,8 +256,8 @@ export class NPC {
         });
 
         npc.stats = {};
-        for (const [name, statData] of Object.entries(data?.stats || {})) {
-            npc.stats[name] = Stat.fromJSON(statData);
+        for (const [name, value] of Object.entries(data?.stats || {})) {
+            npc.stats[name] = finiteNumber(value, `NPC stat '${name}'`);
         }
 
         npc.flags = data?.flags && typeof data.flags === "object" ? { ...data.flags } : {};

@@ -1,4 +1,4 @@
-import { SKILLS, STATS } from "../../../../src/characters/player/stats.js";
+import { MUTABLE_STATS, SKILLS } from "../../../../src/characters/player/stats.js";
 import { PLACE_REGISTRY } from "../../../../src/world/data/place.js";
 import { NPC_REGISTRY } from "../../../../src/characters/npc/npcs.js";
 import { DEFAULT_FEATURE_CATALOG } from "../../../../src/features/index.js";
@@ -11,7 +11,7 @@ export function createCompilerEffectCatalog({
 }) {
   return createWGEffectCatalog({
     skills: SKILLS,
-    stats: STATS,
+    stats: MUTABLE_STATS,
     subjects: features.wgReferenceCatalogs.subjects ?? {},
     placeRegistry: PLACE_REGISTRY,
     npcRegistry: NPC_REGISTRY,

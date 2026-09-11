@@ -23,9 +23,9 @@ function findEnterHomeChoice(game, scene) {
 }
 
 function drainToDisplayedZero(game) {
-  game.player.setStatBase("energy", 6.5);
+  game.player.setStatValue("energy", 6.5);
   advanceDebugHour(game);
-  assert.equal(game.player.getStatBase("energy"), 0.5);
+  assert.equal(game.player.getStatValue("energy"), 0.5);
 }
 
 test("leaving a hub triggers exhaustion when fractional energy displays as zero", () => {
@@ -72,7 +72,7 @@ test("fractional exhaustion survives saving and triggers on later traversal", ()
   drainToDisplayedZero(original);
 
   const game = Game.fromJSON(JSON.parse(JSON.stringify(original.toJSON())));
-  assert.equal(game.player.getStatBase("energy"), 0.5);
+  assert.equal(game.player.getStatValue("energy"), 0.5);
 
   const outside = buildScene(game);
   const enterHome = findEnterHomeChoice(game, outside);

@@ -16,17 +16,9 @@ import {
 
 export function validateStatsSave(data, path) {
   const stats = saveRecord(data, path);
-  for (const [name, statData] of Object.entries(stats)) {
+  for (const [name, value] of Object.entries(stats)) {
     saveString(name, `${path} key`, { nonEmpty: true });
-    const statPath = `${path}.${name}`;
-    const stat = saveRecord(statData, statPath);
-    saveFiniteNumber(requiredSaveField(stat, "base", statPath), `${statPath}.base`);
-    saveArray(requiredSaveField(stat, "add", statPath), `${statPath}.add`).forEach(
-      (value, index) => saveFiniteNumber(value, `${statPath}.add[${index}]`),
-    );
-    saveArray(requiredSaveField(stat, "mult", statPath), `${statPath}.mult`).forEach(
-      (value, index) => saveFiniteNumber(value, `${statPath}.mult[${index}]`),
-    );
+    saveFiniteNumber(value, `${path}.${name}`);
   }
   return stats;
 }

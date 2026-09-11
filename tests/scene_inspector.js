@@ -133,7 +133,7 @@ function applyEditorOverrides() {
     game.player.adjustMoney(editorOverrides.money - game.player.money);
   }
   for (const [id, value] of editorOverrides.stats) {
-    game.player.adjustStatBase(id, value - game.player.getStatBase(id));
+    game.player.setStatValue(id, value);
   }
   for (const [id, value] of editorOverrides.skills) {
     game.player.setSkillValue(id, value);
@@ -180,7 +180,7 @@ function snapshotState() {
     place: game.currentPlaceKey,
     money: game.player.money,
     stats: Object.fromEntries(
-      Object.keys(STATS).map((id) => [id, game.player.getStatBase(id)]),
+      Object.keys(STATS).map((id) => [id, game.player.getStatValue(id)]),
     ),
     skills: Object.fromEntries(
       Object.keys(SKILLS).map((id) => [id, game.player.getSkillValue(id)]),
@@ -394,9 +394,9 @@ function prepareSchoolContext(subjectId) {
   const [hour, minute] = period.start.split(":").map(Number);
   const classStart = new Date(game.now);
   classStart.setUTCHours(hour, minute, 0, 0);
-  const energy = game.player.getStatBase("energy");
+  const energy = game.player.getStatValue("energy");
   game.jumpToDate(classStart, { mode: "resync" });
-  game.player.setStatBase("energy", energy);
+  game.player.setStatValue("energy", energy);
 }
 
 function schoolSubjectFor(entry) {
@@ -737,12 +737,12 @@ function renderPlayerFields() {
       makeNumberField({
         id: `state-stat-${id}`,
         label: definition.label,
-        value: game.player.getStatBase(id),
+        value: game.player.getStatValue(id),
         min: definition.min,
         max: definition.max,
         step: 1,
         onChange: (value) => {
-          game.player.adjustStatBase(id, value - game.player.getStatBase(id));
+          game.player.setStatValue(id, value);
           editorOverrides.stats.set(id, value);
         },
       }),

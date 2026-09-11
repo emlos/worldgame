@@ -7,7 +7,6 @@
 import * as clothing from "./characters/core/clothing.js";
 import * as pronouns from "./characters/core/pronouns.js";
 import * as relationship from "./characters/core/relationship.js";
-import * as stat from "./characters/core/stat.js";
 import * as body from "./characters/core/body.js";
 import * as color from "./shared/util/color.js";
 import * as util from "./shared/util/util.js";
@@ -46,7 +45,6 @@ if (typeof debug !== "undefined" && debug) {
         ...clothing,
         ...pronouns,
         ...relationship,
-        ...stat,
         ...body,
         ...color,
         ...util,

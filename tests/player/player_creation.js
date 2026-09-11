@@ -92,13 +92,12 @@ function init() {
     // Stats
     {
       const statRows = Object.keys(p.stats).map((name) => {
-        const base = p.getStatBase(name);
         const val = p.getStatValue(name);
-        return [name, String(base), String(Number(val.toFixed ? val.toFixed(2) : val))];
+        return [name, String(Number(val.toFixed ? val.toFixed(2) : val))];
       });
       byId("stats").innerHTML = "";
       byId("stats").append(el("h2", { html: "Stats" }));
-      byId("stats").append(table(statRows, ["Stat", "Base", "Computed Value"]));
+      byId("stats").append(table(statRows, ["Stat", "Value"]));
     }
 
     // Skills
