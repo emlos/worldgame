@@ -6,12 +6,40 @@ import { validatePlayerSave } from "../src/characters/player/saveValidation.js";
 import { Game, SaveValidationError, validateGameSave } from "../src/game/game.js";
 import { deriveSeed } from "../src/shared/util/random.js";
 import { validateStorySave } from "../src/story/saveValidation.js";
+import {
+  enterWGScene,
+  resolveActiveWGStory,
+  suspendWGContinuation,
+} from "../src/story/wg/runtime/storyRuntime.js";
 import { validateWorldSave } from "../src/world/saveValidation.js";
 
 const FIXED_START = new Date("2026-09-04T12:00:00.000Z");
 
 function validSave() {
   return JSON.parse(JSON.stringify(new Game({ seed: 0x5a17, startDate: FIXED_START }).toJSON()));
+}
+
+function activeStorySave() {
+  const game = new Game({ seed: 0x5a17, startDate: FIXED_START });
+  enterWGScene(game, "story.rent.intro.2");
+  resolveActiveWGStory(game);
+  return JSON.parse(JSON.stringify(game.toJSON()));
+}
+
+function eventContinuationSave() {
+  const game = Game.fromJSON(activeStorySave());
+  suspendWGContinuation(
+    game,
+    { target: ".pay", sceneId: "story.rent.intro.2" },
+    {
+      poolId: "test.pool",
+      eventSceneId: "cafe.job.shift.cleanup",
+      choiceId: "test-choice",
+    },
+  );
+  enterWGScene(game, "cafe.job.shift.cleanup");
+  resolveActiveWGStory(game);
+  return JSON.parse(JSON.stringify(game.toJSON()));
 }
 
 function assertInvalid(mutate, expectedPath) {
@@ -167,7 +195,7 @@ test("story corruption is rejected by the story subsystem", async (t) => {
     sceneId: null,
     sourcePassageId: null,
     poolId: "test.pool",
-    eventSceneId: "test.event",
+    eventSceneId: "cafe.job.shift.cleanup",
     sourceSceneId: "test.source",
     sourceChoiceId: "test.choice",
     behavior: null,
@@ -193,5 +221,23 @@ test("story corruption is rejected by the story subsystem", async (t) => {
   assert.throws(
     () => validateStorySave(save, { gameTime: Date.parse(save.time) }),
     (error) => error instanceof SaveValidationError && error.path === "save.storyRevision",
+  );
+});
+
+test("story saves reject unknown active and continuation WG scene references", () => {
+  const active = activeStorySave();
+  active.currentStory.id = "does.not.exist";
+  assert.throws(
+    () => validateGameSave(active),
+    (error) => error instanceof SaveValidationError &&
+      error.path === "save.currentStory.id",
+  );
+
+  const continuation = eventContinuationSave();
+  continuation.storyContinuations[0].eventSceneId = "does.not.exist";
+  assert.throws(
+    () => validateGameSave(continuation),
+    (error) => error instanceof SaveValidationError &&
+      error.path === "save.storyContinuations[0].eventSceneId",
   );
 });

@@ -172,13 +172,10 @@ export function updateCinemaScreeningReminders(game, { to }) {
   state.screeningReminders = state.screeningReminders.filter((reminder) => {
     const startsMs = Date.parse(reminder.startsAt);
     if (startsMs <= nowMs) return false;
-    if (
-      !reminder.notified &&
-      nowMs >= startsMs - CINEMA_REMINDER_LEAD_MINUTES * MINUTE_MS
-    ) {
-      reminder.notified = true;
-      newlyDue = true;
-    }
+    const notified =
+      nowMs >= startsMs - CINEMA_REMINDER_LEAD_MINUTES * MINUTE_MS;
+    if (!reminder.notified && notified) newlyDue = true;
+    reminder.notified = notified;
     return true;
   });
 

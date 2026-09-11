@@ -300,3 +300,25 @@ test("a screening reminder appears fifteen minutes before its film in every hub 
     false,
   );
 });
+
+test("rewinding before a screening reminder deadline resets notification state", () => {
+  const game = cinemaGame("2026-09-03T12:00:00.000Z");
+  const cinema = buildScene(game);
+  const reminderChoice = cinema.content[0].rows[0].at(-1).choice;
+  performChoice(game, { sceneId: cinema.id, choiceId: reminderChoice.id });
+
+  game.advanceMinutes(15);
+  assert.equal(game.featureState.cinema.screeningReminders[0].notified, true);
+  assert.ok(game.dailyAnnouncements.items.some(
+    ({ id }) => id === CINEMA_SCREENING_REMINDER_ID));
+
+  game.jumpToDate(new Date("2026-09-03T12:00:00.000Z"));
+  assert.equal(game.featureState.cinema.screeningReminders[0].notified, false);
+  assert.equal(
+    game.dailyAnnouncements.items.some(({ id }) => id === CINEMA_SCREENING_REMINDER_ID),
+    false,
+  );
+
+  const restored = Game.fromJSON(JSON.parse(JSON.stringify(game.toJSON())));
+  assert.deepEqual(restored.featureState.cinema, game.featureState.cinema);
+});

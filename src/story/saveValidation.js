@@ -14,6 +14,13 @@ import {
 import { validateWGSystemState } from "./wg/runtime/storySystemRegistry.js";
 import { validateWGBehaviorState } from "./wg/runtime/storyBehaviorRegistry.js";
 import { DEFAULT_FEATURE_CATALOG } from "../features/index.js";
+import { WG_BUNDLE } from "./wg/generated/scenes.js";
+
+function requireWGScene(sceneId, path) {
+  const definition = WG_BUNDLE.scenes[sceneId];
+  if (!definition) failSave(path, `references unknown WG scene '${sceneId}'`);
+  return definition;
+}
 
 function validateBehaviorSave(value, path, gameTime, features) {
   const frame = saveRecord(value, path);
@@ -33,7 +40,10 @@ function validateBehaviorSave(value, path, gameTime, features) {
 function validateCurrentStorySave(value, path, gameTime, features) {
   if (value === null) return null;
   const frame = saveRecord(value, path);
-  saveString(requiredSaveField(frame, "id", path), `${path}.id`, { nonEmpty: true });
+  const sceneId = saveString(requiredSaveField(frame, "id", path), `${path}.id`, {
+    nonEmpty: true,
+  });
+  const definition = requireWGScene(sceneId, `${path}.id`);
   saveString(requiredSaveField(frame, "instanceKey", path), `${path}.instanceKey`, {
     nonEmpty: true,
   });
@@ -42,6 +52,9 @@ function validateCurrentStorySave(value, path, gameTime, features) {
   validateJsonValue(locals, localsPath);
   const hasSystem = Object.prototype.hasOwnProperty.call(frame, "system");
   if (hasSystem) {
+    if (!definition.system) {
+      failSave(`${path}.system`, `is not valid for WG scene '${sceneId}'`);
+    }
     if (Object.prototype.hasOwnProperty.call(frame, "passageId")) {
       failSave(`${path}.passageId`, "is not valid for system-backed scene state");
     }
@@ -55,6 +68,12 @@ function validateCurrentStorySave(value, path, gameTime, features) {
       `${systemPath}.id`,
       { nonEmpty: true },
     );
+    if (systemId !== definition.system.id) {
+      failSave(
+        `${systemPath}.id`,
+        `does not match WG scene '${sceneId}' system '${definition.system.id}'`,
+      );
+    }
     saveInteger(
       requiredSaveField(system, "revision", systemPath),
       `${systemPath}.revision`,
@@ -68,9 +87,22 @@ function validateCurrentStorySave(value, path, gameTime, features) {
       failSave(`${systemPath}.state`, error.message);
     }
   } else {
-    saveString(requiredSaveField(frame, "passageId", path), `${path}.passageId`, {
-      nonEmpty: true,
-    });
+    if (definition.system) {
+      failSave(`${path}.id`, `WG system scene '${sceneId}' requires system state`);
+    }
+    const passageId = saveString(
+      requiredSaveField(frame, "passageId", path),
+      `${path}.passageId`,
+      {
+        nonEmpty: true,
+      },
+    );
+    if (!definition.passages?.some((passage) => passage.id === passageId)) {
+      failSave(
+        `${path}.passageId`,
+        `references unknown passage '${passageId}' in WG scene '${sceneId}'`,
+      );
+    }
   }
 
   if (!hasSystem) {
@@ -130,11 +162,12 @@ function validateStoryContinuationsSave(value, path, gameTime, features) {
     saveString(requiredSaveField(item, "poolId", itemPath), `${itemPath}.poolId`, {
       nonEmpty: true,
     });
-    saveString(
+    const eventSceneId = saveString(
       requiredSaveField(item, "eventSceneId", itemPath),
       `${itemPath}.eventSceneId`,
       { nonEmpty: true },
     );
+    requireWGScene(eventSceneId, `${itemPath}.eventSceneId`);
     saveString(
       requiredSaveField(item, "sourceSceneId", itemPath),
       `${itemPath}.sourceSceneId`,
