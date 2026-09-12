@@ -38,6 +38,30 @@ test("a simultaneous move can evade the telegraphed grab", () => {
   ));
 });
 
+test("creating distance clears stale wall support", () => {
+  const game = gameAtStart({ seed: 1 });
+  const state = startEncounter(game);
+  state.participants.player.support = "wall";
+  state.npcIntent = {
+    actorId: "mugger",
+    actionId: "cover-and-brace",
+    parameters: { targetId: "mugger" },
+  };
+
+  chooseAction(game, "create-distance");
+
+  const next = game.currentStory.system.state;
+  assert.equal(next.participants.player.support, "free");
+  assert.ok(next.lastEvents.some(
+    ({ type, actorId, from, to }) =>
+      type === "support.changed"
+      && actorId === "player"
+      && from === "wall"
+      && to === "free",
+  ));
+  assert.match(JSON.stringify(buildScene(game).content), /move clear of the wall/i);
+});
+
 test("slower movement does not evade an attack that resolves first", () => {
   function resolveAgainstHeadbutt(playerActionId) {
     const game = gameAtStart({ seed: 1 });

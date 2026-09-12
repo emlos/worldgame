@@ -11,6 +11,7 @@ import {
 } from "../combatants.js";
 import {
   ENCOUNTER_RANGE,
+  ENCOUNTER_SUPPORT,
   getEncounterFacing,
   getEncounterRange,
   setEncounterFacing,
@@ -175,6 +176,14 @@ export function changePose(context, actorId, pose, runtime) {
   participant.pose = pose;
   if (pose !== "standing") participant.support = "free";
   runtime.events.push({ type: "pose.changed", actorId, from, to: pose });
+}
+
+export function changeSupport(context, actorId, support, runtime) {
+  const participant = getParticipant(context, actorId);
+  const from = participant.support;
+  if (from === support) return;
+  participant.support = support;
+  runtime.events.push({ type: "support.changed", actorId, from, to: support });
 }
 
 export function changeFacing(context, actorId, value, runtime) {

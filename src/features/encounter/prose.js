@@ -225,7 +225,9 @@ function eventText(context, event) {
           ? "The struggle opens to arm's reach."
           : "The gap collapses into a clinch.";
     case "support.changed":
-      return `${actorName(context, event.actorId, { sentence: true })} ${encounterVerb(context, event.actorId, "is", "are")} forced back against the wall.`;
+      return event.to === "wall"
+        ? `${actorName(context, event.actorId, { sentence: true })} ${encounterVerb(context, event.actorId, "is", "are")} forced back against the wall.`
+        : `${actorName(context, event.actorId, { sentence: true })} ${encounterVerb(context, event.actorId, "moves", "move")} clear of the wall.`;
     case "pose.changed": {
       if (event.to === ENCOUNTER_POSE.standing) {
         return event.actorId === "player"

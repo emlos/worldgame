@@ -21,6 +21,7 @@ import {
   changeFacing,
   changePose,
   changeRange,
+  changeSupport,
   clamp,
   contest,
   failAction,
@@ -294,14 +295,8 @@ export const FORCE_TO_WALL = Object.freeze({
       if (instance.actorId === "mugger") context.state.objective.failedControlAttempts += 1;
       return;
     }
-    getParticipant(context, instance.targetId).support = ENCOUNTER_SUPPORT.wall;
+    changeSupport(context, instance.targetId, ENCOUNTER_SUPPORT.wall, runtime);
     hold.leverage = clamp(hold.leverage + 8, 1, 100);
-    runtime.events.push({
-      type: "support.changed",
-      actorId: instance.targetId,
-      from: ENCOUNTER_SUPPORT.free,
-      to: ENCOUNTER_SUPPORT.wall,
-    });
   },
 });
 

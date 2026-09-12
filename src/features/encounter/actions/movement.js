@@ -18,6 +18,7 @@ import {
   changeFacing,
   changePose,
   changeRange,
+  changeSupport,
   clamp,
   contest,
   failAction,
@@ -126,6 +127,7 @@ export const CREATE_DISTANCE = Object.freeze({
     for (const hold of disengagedHolds) {
       removeHold(context, hold, runtime, "slipped-loose");
     }
+    changeSupport(context, instance.actorId, ENCOUNTER_SUPPORT.free, runtime);
     increaseDistance(context, runtime);
   },
 });
