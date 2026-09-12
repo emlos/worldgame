@@ -134,9 +134,13 @@ export function resolveEncounterExchange({
     outcome: null,
   };
 
-  // Reactions chosen for this exchange influence it from the outset, even when their
-  // movement completes after the opponent's action.
-  for (const instance of [availablePlayerAction, npcAction]) {
+  // A reaction can influence an equal-speed action from the outset. Faster actions
+  // resolve before a slower reaction has taken effect.
+  for (const [instance, seconds, opposingSeconds] of [
+    [availablePlayerAction, playerSeconds, npcSeconds],
+    [npcAction, npcSeconds, playerSeconds],
+  ]) {
+    if (seconds > opposingSeconds) continue;
     if (instance.actionId === "cover-and-brace") runtime.guarded.add(instance.actorId);
     if (instance.actionId === "create-distance") runtime.evading.add(instance.actorId);
   }

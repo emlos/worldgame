@@ -38,6 +38,35 @@ test("a simultaneous move can evade the telegraphed grab", () => {
   ));
 });
 
+test("slower movement does not evade an attack that resolves first", () => {
+  function resolveAgainstHeadbutt(playerActionId) {
+    const game = gameAtStart({ seed: 1 });
+    const state = startEncounter(game);
+    state.relationships.range[0].value = "clinch";
+    state.npcIntent = {
+      actorId: "mugger",
+      actionId: "headbutt",
+      parameters: { targetId: "player", sourcePartId: "head" },
+    };
+    chooseAction(game, playerActionId);
+    return game.currentStory.system.state.lastEvents.find(
+      ({ type, actorId, actionId, purpose }) =>
+        type === "chance.rolled"
+        && actorId === "mugger"
+        && actionId === "headbutt"
+        && purpose === "contest",
+    );
+  }
+
+  const whileMoving = resolveAgainstHeadbutt("create-distance");
+  const whileStriking = resolveAgainstHeadbutt("strike-face");
+
+  assert.ok(whileMoving);
+  assert.ok(whileStriking);
+  assert.equal(whileMoving.roll, whileStriking.roll);
+  assert.equal(whileMoving.chance, whileStriking.chance);
+});
+
 test("landed strikes persist damage on the temporary actor body", () => {
   const game = gameAtStart({ seed: 1 });
   game.player.setSkillValue("strength", 10);
