@@ -93,9 +93,7 @@ function playerChoice(context, definition, systemId, instance, id) {
 function renderActive(context, definition, systemId) {
   const state = context.state;
   const sortedActions = sortPlayerActions(getAvailableActionInstances(context, "player"));
-  const actions = sortedActions.slice(0, 7);
-  const guard = sortedActions.find(({ actionId }) => actionId === "cover-and-brace");
-  if (guard && !actions.includes(guard)) actions.splice(actions.length - 1, 1, guard);
+  const actions = sortedActions;
   const actionCounts = actions.reduce((counts, { actionId }) => {
     counts.set(actionId, (counts.get(actionId) || 0) + 1);
     return counts;

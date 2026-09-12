@@ -46,6 +46,36 @@ test("the opening state exposes the minimum contextual choices", () => {
     sameActionInstance(candidate, intentToActionInstance(state.npcIntent))));
 });
 
+test("the combat screen exposes every mechanically available player action", () => {
+  const game = gameAtStart();
+  const state = startEncounter(game);
+  state.relationships.range[0].value = "clinch";
+  state.npcIntent = {
+    actorId: "mugger",
+    actionId: "cover-and-brace",
+    parameters: { targetId: "mugger" },
+  };
+
+  const context = createCombatContext({
+    game,
+    state,
+    instanceKey: game.currentStory.instanceKey,
+  });
+  const available = getAvailableActionInstances(context, "player");
+  const rendered = buildScene(game).sections[0].choices.map(({ action }) => ({
+    actionId: action.command.actionId,
+    actorId: action.command.actorId,
+    targetId: action.command.targetId,
+    parameters: action.command.parameters,
+  }));
+
+  assert.ok(available.length > 7, "test state must exercise the former display cap");
+  assert.equal(rendered.length, available.length);
+  assert.ok(available.every((instance) =>
+    rendered.some((candidate) => sameActionInstance(candidate, instance))));
+  assert.ok(rendered.some(({ actionId }) => actionId === "create-distance"));
+});
+
 test("a relational wrist hold generates hold-specific responses", () => {
   const game = gameAtStart();
   const state = startEncounter(game);
