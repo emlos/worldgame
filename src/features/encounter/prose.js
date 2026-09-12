@@ -1,4 +1,4 @@
-import { BodyPartId } from "../../characters/core/body.js";
+import { BodyPartId, InjuryCondition } from "../../characters/core/body.js";
 import { actionDurationSeconds, intentLabel } from "./availability.js";
 import { getCommitmentBand } from "./ai.js";
 import {
@@ -94,9 +94,39 @@ function exertionText(exertion) {
   return "close to exhaustion";
 }
 
+const INJURY_DESCRIPTIONS = Object.freeze([
+  [InjuryCondition.BROKEN, "broken", 3],
+  [InjuryCondition.WOUNDED, "wounded", 2],
+  [InjuryCondition.BRUISED, "bruised", 1],
+]);
+
+function visibleInjuryText(context, actorId) {
+  const injuries = [...getCombatant(context, actorId).body.allParts()]
+    .map((part) => {
+      const description = INJURY_DESCRIPTIONS.find(([condition]) =>
+        part.conditions.has(condition));
+      if (!description) return null;
+      return {
+        text: `${description[1]} ${part.displayName.toLowerCase()}`,
+        severity: description[2],
+        integrity: part.integrityRatio,
+        pain: part.pain,
+        id: part.id,
+      };
+    })
+    .filter(Boolean)
+    .sort((left, right) =>
+      right.severity - left.severity
+      || left.integrity - right.integrity
+      || right.pain - left.pain
+      || left.id.localeCompare(right.id));
+  return injuries.slice(0, 2).map(({ text }) => text);
+}
+
 function conditionText(context, actorId) {
   const participant = getParticipant(context, actorId);
   const details = [painText(getBodyPain(context, actorId)), exertionText(participant.exertion)];
+  details.push(...visibleInjuryText(context, actorId));
   if (isDazed(context, actorId)) details.push("dazed");
   if (isWinded(context, actorId)) details.push("winded");
   if (isOffBalance(context, actorId)) details.push("off balance");

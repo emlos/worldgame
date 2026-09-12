@@ -79,7 +79,9 @@ test("landed strikes persist damage on the temporary actor body", () => {
   const faceAfter = game.currentStory.actors.mugger.body.parts
     .find(({ id }) => id === "face").health;
   assert.ok(faceAfter < faceBefore);
-  assert.match(JSON.stringify(buildScene(game).content), /blow lands/i);
+  const content = JSON.stringify(buildScene(game).content);
+  assert.match(content, /blow lands/i);
+  assert.match(content, /bruised face/i);
 });
 
 test("the mugging can build two holds, ground the player, and convert a grip into a pin", () => {
