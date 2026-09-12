@@ -1,4 +1,4 @@
-export const ENCOUNTER_STATE_VERSION = 1;
+export const ENCOUNTER_STATE_VERSION = 2;
 export const ALLEY_MUGGING_SCENARIO_ID = "alley-mugging";
 
 export const ENCOUNTER_PHASE = Object.freeze({
@@ -54,6 +54,9 @@ const OBJECTIVE_STAGES = new Set([
 ]);
 const WRIST_PARTS = new Set(["lower_arm_l", "lower_arm_r"]);
 const HAND_PARTS = new Set(["hand_l", "hand_r"]);
+const PIN_SOURCE_PARTS = new Set(["hand_l", "hand_r", "knee_l", "knee_r"]);
+const HOLD_KINDS = new Set(["wrist-grip", "limb-pin"]);
+const ACUTE_IDS = new Set(["dazed", "off-balance", "winded"]);
 
 function fail(message) {
   throw new Error(`Physical encounter state: ${message}`);
@@ -114,7 +117,7 @@ function validateRef(ref, participantId, path) {
 function validateAcute(acute, path) {
   record(acute, path);
   exactKeys(acute, ["id", "severity", "exchanges"], path);
-  if (acute.id !== "dazed") fail(`${path}.id must be 'dazed' in Milestone 1`);
+  string(acute.id, `${path}.id`, ACUTE_IDS);
   integer(acute.severity, `${path}.severity`, { min: 1, max: 3 });
   integer(acute.exchanges, `${path}.exchanges`, { min: 1, max: 10 });
 }
@@ -136,8 +139,8 @@ function validateParticipant(participant, participantId, path) {
     validateAcute(acute, `${path}.acute[${index}]`));
   const acuteIds = participant.acute.map(({ id }) => id);
   if (new Set(acuteIds).size !== acuteIds.length) fail(`${path}.acute contains duplicate effects`);
-  if (participant.pose === ENCOUNTER_POSE.supine && participant.support === ENCOUNTER_SUPPORT.wall) {
-    fail(`${path} cannot be supine and wall-supported`);
+  if (participant.pose !== ENCOUNTER_POSE.standing && participant.support === ENCOUNTER_SUPPORT.wall) {
+    fail(`${path} cannot be grounded and wall-supported`);
   }
 }
 
@@ -170,10 +173,23 @@ function validateHold(hold, path) {
   string(hold.controllerId, `${path}.controllerId`, PARTICIPANT_ID_SET);
   string(hold.targetId, `${path}.targetId`, PARTICIPANT_ID_SET);
   if (hold.controllerId === hold.targetId) fail(`${path} cannot target its controller`);
-  string(hold.sourcePartId, `${path}.sourcePartId`, HAND_PARTS);
+  string(hold.kind, `${path}.kind`, HOLD_KINDS);
+  const allowedSources = hold.kind === "wrist-grip" ? HAND_PARTS : PIN_SOURCE_PARTS;
+  string(hold.sourcePartId, `${path}.sourcePartId`, allowedSources);
   string(hold.targetPartId, `${path}.targetPartId`, WRIST_PARTS);
-  if (hold.kind !== "wrist-grip") fail(`${path}.kind must be 'wrist-grip' in Milestone 1`);
   integer(hold.leverage, `${path}.leverage`, { min: 1, max: 100 });
+}
+
+function limbKey(partId) {
+  const side = partId.endsWith("_l") ? "left" : partId.endsWith("_r") ? "right" : "centre";
+  const family = partId.startsWith("hand")
+    || partId.includes("arm")
+    || partId.startsWith("shoulder")
+    ? "arm"
+    : partId.startsWith("knee")
+      ? "leg"
+      : partId;
+  return `${family}:${side}`;
 }
 
 function validateIntent(intent, path) {
@@ -249,6 +265,18 @@ export function setEncounterRange(state, value) {
   state.relationships.range[0].value = value;
 }
 
+export function getEncounterFacing(state, actorId) {
+  return state.relationships.facing.find(({ actor }) => actor === actorId)?.value || null;
+}
+
+export function setEncounterFacing(state, actorId, value) {
+  if (!PARTICIPANT_ID_SET.has(actorId)) fail(`unknown facing actor '${String(actorId)}'`);
+  if (!FACINGS.has(value)) fail(`cannot set invalid facing '${String(value)}'`);
+  const relation = state.relationships.facing.find(({ actor }) => actor === actorId);
+  if (!relation) fail(`missing facing relation for '${actorId}'`);
+  relation.value = value;
+}
+
 export function validateEncounterState(state) {
   record(state, "state");
   exactKeys(
@@ -296,8 +324,25 @@ export function validateEncounterState(state) {
     fail("state.relationships.facing must contain one entry for each participant");
   }
   const holds = array(state.relationships.holds, "state.relationships.holds");
-  if (holds.length > 1) fail("state.relationships.holds supports one active hold in Milestone 1");
+  if (holds.length > 8) fail("state.relationships.holds cannot contain more than eight holds");
   holds.forEach((hold, index) => validateHold(hold, `state.relationships.holds[${index}]`));
+  const holdIds = new Set();
+  const committedSources = new Set();
+  const controlledTargets = new Set();
+  for (const hold of holds) {
+    if (holdIds.has(hold.id)) fail(`state.relationships.holds duplicates id '${hold.id}'`);
+    holdIds.add(hold.id);
+    const sourceKey = `${hold.controllerId}:${limbKey(hold.sourcePartId)}`;
+    if (committedSources.has(sourceKey)) {
+      fail(`state.relationships.holds reuses source limb '${sourceKey}'`);
+    }
+    committedSources.add(sourceKey);
+    const targetKey = `${hold.targetId}:${limbKey(hold.targetPartId)}`;
+    if (controlledTargets.has(targetKey)) {
+      fail(`state.relationships.holds controls target limb '${targetKey}' more than once`);
+    }
+    controlledTargets.add(targetKey);
+  }
   if (holds.length && getEncounterRange(state) !== ENCOUNTER_RANGE.clinch) {
     fail("an active hold requires clinch range");
   }
@@ -332,4 +377,3 @@ export function validateEncounterState(state) {
 
   return state;
 }
-

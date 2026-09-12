@@ -9,8 +9,17 @@ import {
   holdsControlledBy,
   hostileHoldsOn,
   isDazed,
+  isOffBalance,
+  isWinded,
 } from "./combatants.js";
-import { ENCOUNTER_OUTCOME, ENCOUNTER_RANGE, getEncounterRange } from "./state.js";
+import {
+  ENCOUNTER_FACING,
+  ENCOUNTER_OUTCOME,
+  ENCOUNTER_POSE,
+  ENCOUNTER_RANGE,
+  getEncounterFacing,
+  getEncounterRange,
+} from "./state.js";
 
 function capitalize(value) {
   const text = String(value || "");
@@ -25,6 +34,16 @@ function actorName(context, actorId, { sentence = false, possessive = false } = 
 
 function wristName(partId) {
   return partId === BodyPartId.LOWER_ARM_L ? "left wrist" : "right wrist";
+}
+
+function sideName(partId) {
+  return partId?.endsWith("_l") ? "left" : "right";
+}
+
+function poseText(actorId, pose) {
+  if (pose === ENCOUNTER_POSE.supine) return actorId === "player" ? "on your back" : "on their back";
+  if (pose === ENCOUNTER_POSE.prone) return "face-down";
+  return pose;
 }
 
 function rangeText(state) {
@@ -42,12 +61,24 @@ function rangeText(state) {
 
 function positionText(context, actorId) {
   const participant = getParticipant(context, actorId);
-  const details = [participant.pose];
-  if (participant.support === "wall") details.push("back against the wall");
-  const held = hostileHoldsOn(context, actorId)[0];
-  if (held) details.push(`${wristName(held.targetPartId)} held`);
-  const controlling = holdsControlledBy(context, actorId)[0];
-  if (controlling) details.push(`holding ${actorName(context, controlling.targetId, { possessive: true })} ${wristName(controlling.targetPartId)}`);
+  const facing = getEncounterFacing(context.state, actorId);
+  const details = [poseText(actorId, participant.pose)];
+  if (participant.support === "wall") {
+    details.push(facing === ENCOUNTER_FACING.away ? "facing the wall" : "back against the wall");
+  } else if (facing === ENCOUNTER_FACING.away) details.push("turned away");
+  else if (facing === ENCOUNTER_FACING.side) details.push("side-on");
+  const held = hostileHoldsOn(context, actorId);
+  for (const hold of held) {
+    details.push(hold.kind === "limb-pin"
+      ? `${sideName(hold.targetPartId)} arm pinned`
+      : `${wristName(hold.targetPartId)} held`);
+  }
+  const controlling = holdsControlledBy(context, actorId);
+  for (const hold of controlling) {
+    details.push(hold.kind === "limb-pin"
+      ? `pinning ${actorName(context, hold.targetId, { possessive: true })} ${sideName(hold.targetPartId)} arm`
+      : `holding ${actorName(context, hold.targetId, { possessive: true })} ${wristName(hold.targetPartId)}`);
+  }
   details.push(rangeText(context.state));
   return capitalize(details.join("; "));
 }
@@ -71,9 +102,11 @@ function conditionText(context, actorId) {
   const participant = getParticipant(context, actorId);
   const details = [painText(getBodyPain(context, actorId)), exertionText(participant.exertion)];
   if (isDazed(context, actorId)) details.push("dazed");
-  const hold = holdsControlledBy(context, actorId)[0];
-  if (hold) {
-    const grip = getEffectiveHoldLeverage(context, hold);
+  if (isWinded(context, actorId)) details.push("winded");
+  if (isOffBalance(context, actorId)) details.push("off balance");
+  const holds = holdsControlledBy(context, actorId);
+  if (holds.length) {
+    const grip = Math.min(...holds.map((hold) => getEffectiveHoldLeverage(context, hold)));
     details.push(grip < 28 ? "grip slipping" : grip < 48 ? "grip unsteady" : "grip secure");
   }
   return capitalize(details.join("; "));
@@ -95,6 +128,13 @@ function actionAttemptText(context, event) {
     flee: ["break toward the street", "breaks toward the street"],
     "tighten-hold": ["reinforce the wrist hold", "reinforces the wrist hold"],
     "force-to-wall": ["try to drive the other against the wall", "tries to drive the other against the wall"],
+    "force-to-ground": ["try to force the other to the ground", "tries to force the other to the ground"],
+    "turn-target-away": ["try to turn the other away", "tries to turn the other away"],
+    "pin-limb": ["try to pin a restrained arm", "tries to pin a restrained arm"],
+    "stand-up": ["try to stand", "tries to stand"],
+    "roll-toward": ["twist to face the other", "twists to face the other"],
+    headbutt: ["try a headbutt", "tries a headbutt"],
+    "knee-strike": ["drive a knee toward the body", "drives a knee toward the body"],
     "search-money": ["reach for the money", "reaches for the money"],
   };
   const forms = phrases[event.actionId] || ["act", "acts"];
@@ -114,15 +154,32 @@ function eventText(context, event) {
     case "defense.braced":
       return `${actorName(context, event.actorId, { sentence: true })} ${event.actorId === "player" ? "are" : "is"} ready for the impact.`;
     case "impact.landed": {
-      const part = event.partId === BodyPartId.FACE
-        ? "face"
-        : event.partId === BodyPartId.ABDOMEN
-          ? "body"
-          : "gripping arm";
+      const part = {
+        [BodyPartId.FACE]: "face",
+        [BodyPartId.HEAD]: "head",
+        [BodyPartId.ABDOMEN]: "body",
+        [BodyPartId.HAND_L]: "left hand",
+        [BodyPartId.HAND_R]: "right hand",
+        [BodyPartId.KNEE_L]: "left knee",
+        [BodyPartId.KNEE_R]: "right knee",
+      }[event.partId] || "limb";
       return `The blow lands on ${actorName(context, event.targetId, { possessive: true })} ${part}.`;
     }
-    case "acute.applied":
-      return `${actorName(context, event.actorId, { sentence: true })} ${event.actorId === "player" ? "reel" : "reels"}, dazed.`;
+    case "acute.applied": {
+      const description = event.id === "winded"
+        ? "loses their breath"
+        : event.id === "off-balance"
+          ? "staggers off balance"
+          : "reels, dazed";
+      if (event.actorId === "player") {
+        return event.id === "winded"
+          ? "You lose your breath."
+          : event.id === "off-balance"
+            ? "You stagger off balance."
+            : "You reel, dazed.";
+      }
+      return `${actorName(context, event.actorId, { sentence: true })} ${description}.`;
+    }
     case "hold.created":
       return `${actorName(context, event.controllerId, { sentence: true })} ${event.controllerId === "player" ? "catch" : "catches"} ${actorName(context, event.targetId, { possessive: true })} ${wristName(event.targetPartId)}.`;
     case "hold.weakened":
@@ -130,7 +187,9 @@ function eventText(context, event) {
     case "hold.strengthened":
       return "The wrist hold tightens.";
     case "hold.broken":
-      return "The wrist comes free.";
+      return event.kind === "limb-pin" ? "The pinned arm comes free." : "The wrist comes free.";
+    case "hold.pinned":
+      return `${actorName(context, event.controllerId, { sentence: true })} ${event.controllerId === "player" ? "pin" : "pins"} ${actorName(context, event.targetId, { possessive: true })} ${sideName(event.targetPartId)} arm.`;
     case "range.changed":
       return event.to === ENCOUNTER_RANGE.far
         ? "A clear gap opens between you."
@@ -139,6 +198,24 @@ function eventText(context, event) {
           : "The gap collapses into a clinch.";
     case "support.changed":
       return `${actorName(context, event.actorId, { sentence: true })} ${event.actorId === "player" ? "are" : "is"} forced back against the wall.`;
+    case "pose.changed": {
+      if (event.to === ENCOUNTER_POSE.standing) {
+        return event.actorId === "player"
+          ? "You get back to your feet."
+          : `${actorName(context, event.actorId, { sentence: true })} gets back to their feet.`;
+      }
+      if (event.to === ENCOUNTER_POSE.kneeling) {
+        return `${actorName(context, event.actorId, { sentence: true })} ${event.actorId === "player" ? "drop" : "drops"} to a knee.`;
+      }
+      if (event.actorId === "player") {
+        return `You go ${event.to === ENCOUNTER_POSE.prone ? "face-down" : "onto your back"}.`;
+      }
+      return `${actorName(context, event.actorId, { sentence: true })} goes ${event.to === ENCOUNTER_POSE.prone ? "face-down" : "onto their back"}.`;
+    }
+    case "facing.changed":
+      return event.to === ENCOUNTER_FACING.away
+        ? `${actorName(context, event.actorId, { sentence: true })} ${event.actorId === "player" ? "are" : "is"} turned away.`
+        : `${actorName(context, event.actorId, { sentence: true })} ${event.actorId === "player" ? "turn" : "turns"} to face the other again.`;
     case "theft.completed":
       return `The mugger tears away with £${event.amount}.`;
     case "theft.empty":

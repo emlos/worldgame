@@ -75,14 +75,14 @@ function systemChoice(definition, systemId, {
   });
 }
 
-function playerChoice(context, definition, systemId, instance) {
+function playerChoice(context, definition, systemId, instance, id) {
   const actionSeconds = actionDurationSeconds(instance);
   const exchangeSeconds = encounterExchangeDurationSeconds(context.state, instance);
   const label = exchangeSeconds === actionSeconds
     ? actionLabel(context, instance)
     : `${actionLabel(context, instance)} — acts in ${actionSeconds} sec`;
   return systemChoice(definition, systemId, {
-    id: `encounter-action:${instance.actionId}`,
+    id,
     label,
     seconds: exchangeSeconds,
     command: { type: "choose-action", ...instance },
@@ -91,7 +91,15 @@ function playerChoice(context, definition, systemId, instance) {
 
 function renderActive(context, definition, systemId) {
   const state = context.state;
-  const actions = sortPlayerActions(getAvailableActionInstances(context, "player")).slice(0, 7);
+  const sortedActions = sortPlayerActions(getAvailableActionInstances(context, "player"));
+  const actions = sortedActions.slice(0, 7);
+  const guard = sortedActions.find(({ actionId }) => actionId === "cover-and-brace");
+  if (guard && !actions.includes(guard)) actions.splice(actions.length - 1, 1, guard);
+  const actionCounts = actions.reduce((counts, { actionId }) => {
+    counts.set(actionId, (counts.get(actionId) || 0) + 1);
+    return counts;
+  }, new Map());
+  const actionOccurrences = new Map();
   const instructions = state.exchange === 0
     ? [{
       type: "paragraph",
@@ -113,7 +121,18 @@ function renderActive(context, definition, systemId) {
     sections: [{
       id: "encounter-actions",
       heading: definition.choiceHeading,
-      choices: actions.map((instance) => playerChoice(context, definition, systemId, instance)),
+      choices: actions.map((instance) => {
+        const occurrence = actionOccurrences.get(instance.actionId) || 0;
+        actionOccurrences.set(instance.actionId, occurrence + 1);
+        const suffix = actionCounts.get(instance.actionId) > 1 ? `:${occurrence + 1}` : "";
+        return playerChoice(
+          context,
+          definition,
+          systemId,
+          instance,
+          `encounter-action:${instance.actionId}${suffix}`,
+        );
+      }),
     }],
   };
 }

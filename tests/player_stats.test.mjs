@@ -33,3 +33,16 @@ test("WG player context exposes body-derived health", () => {
   assert.equal(context.player.health, game.player.getStatValue("health"));
   assert.ok(context.player.health < 100);
 });
+
+test("whole-body pain keeps the worst injury legible without summing every part at full weight", () => {
+  const player = new Player();
+  player.applyDamageToPart({ partId: "hand_l", amount: 20 });
+  player.applyDamageToPart({ partId: "face", amount: 10 });
+
+  assert.equal(player.body.getPart("hand_l").pain, 28);
+  assert.equal(player.body.getPart("face").pain, 17);
+  assert.equal(player.getBodyPain(), 33.1);
+
+  player.body.relievePain(1.5);
+  assert.ok(Math.abs(player.getBodyPain() - 31.6) < 1e-9);
+});

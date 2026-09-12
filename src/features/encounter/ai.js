@@ -1,12 +1,14 @@
 import { keyedRandom01 } from "../../shared/util/random.js";
-import { hasUsableControl } from "./affordances.js";
+import { getMovementCapacity, hasUsableControl, isGrounded } from "./affordances.js";
 import {
   getBodyPain,
   getEffectiveHoldLeverage,
+  getPartCapacity,
   holdsControlledBy,
   hostileHoldsOn,
 } from "./combatants.js";
 import { getAvailableActionInstances } from "./availability.js";
+import { BodyPartId } from "../../characters/core/body.js";
 
 export const RETREAT_COMMITMENT_THRESHOLD = 22;
 
@@ -14,6 +16,11 @@ export function getMuggerCommitment(context) {
   const state = context.state;
   const mugger = state.participants.mugger;
   const reward = Math.min(20, state.objective.amount) * 0.5;
+  const bestArm = Math.max(
+    getPartCapacity(context, "mugger", BodyPartId.HAND_L),
+    getPartCapacity(context, "mugger", BodyPartId.HAND_R),
+  );
+  const impairment = (1 - Math.max(bestArm, getMovementCapacity(context, "mugger"))) * 22;
   return Math.max(
     0,
     Math.min(
@@ -24,7 +31,8 @@ export function getMuggerCommitment(context) {
         - state.elapsedSeconds * 0.8
         - getBodyPain(context, "mugger") * 0.8
         - mugger.exertion * 0.35
-        - state.objective.failedControlAttempts * 8,
+        - state.objective.failedControlAttempts * 4
+        - impairment,
       ),
     ),
   );
@@ -32,7 +40,7 @@ export function getMuggerCommitment(context) {
 
 export function getCommitmentBand(context) {
   const commitment = getMuggerCommitment(context);
-  if (commitment <= RETREAT_COMMITMENT_THRESHOLD) return "looking for a way out";
+  if (commitment <= RETREAT_COMMITMENT_THRESHOLD) return "ready to run";
   if (commitment < 40) return "hesitating";
   if (commitment < 65) return "frustrated but committed";
   return "confident";
@@ -70,7 +78,8 @@ function firstAvailable(candidates, actionIds) {
 
 function fallbackChoice(context, candidates) {
   const preferred = candidates.filter(({ actionId }) =>
-    ["strike-face", "drive-body", "shove-away", "cover-and-brace"].includes(actionId));
+    ["headbutt", "knee-strike", "strike-face", "drive-body", "shove-away", "cover-and-brace"]
+      .includes(actionId));
   const pool = preferred.length ? preferred : candidates;
   const roll = keyedRandom01(
     context.game.seed,
@@ -95,7 +104,7 @@ export function selectNpcIntent(context) {
 
   let selected = null;
   if (getMuggerCommitment(context) <= RETREAT_COMMITMENT_THRESHOLD) {
-    selected = firstAvailable(candidates, ["flee", "create-distance", "shove-away"]);
+    selected = firstAvailable(candidates, ["flee", "create-distance", "shove-away", "stand-up"]);
   }
 
   if (!selected && hasUsableControl(context, "mugger", "player")) {
@@ -111,7 +120,20 @@ export function selectNpcIntent(context) {
 
   if (!selected) selected = byAction(candidates, "close-distance");
 
-  const ownHold = holdsControlledBy(context, "mugger")[0];
+  const ownHolds = holdsControlledBy(context, "mugger");
+  const ownHold = ownHolds[0];
+  if (!selected && ownHold && isGrounded(context, "player")) {
+    selected = firstAvailable(candidates, ["pin-limb", "turn-target-away", "strike-face"]);
+  }
+  if (!selected && ownHold && context.state.participants.player.support === "wall") {
+    selected = firstAvailable(candidates, ["pin-limb", "turn-target-away"]);
+  }
+  if (!selected && ownHold && ownHolds.length === 1) {
+    selected = byAction(candidates, "grab-arm");
+  }
+  if (!selected && ownHold && context.state.participants.player.pose === "standing") {
+    selected = firstAvailable(candidates, ["force-to-ground", "force-to-wall"]);
+  }
   if (!selected && ownHold && getEffectiveHoldLeverage(context, ownHold) < 48) {
     selected = byAction(candidates, "tighten-hold");
   }
@@ -122,10 +144,7 @@ export function selectNpcIntent(context) {
     && context.state.objective.failedControlAttempts > 0
     && context.state.exchange % 2 === 0
   ) {
-    selected = firstAvailable(candidates, ["drive-body", "strike-face"]);
-  }
-  if (!selected && ownHold && context.state.participants.player.support === "free") {
-    selected = byAction(candidates, "force-to-wall");
+    selected = firstAvailable(candidates, ["knee-strike", "headbutt", "drive-body", "strike-face"]);
   }
   if (
     !selected
@@ -134,8 +153,8 @@ export function selectNpcIntent(context) {
     && context.state.exchange % 3 !== 0
   ) {
     selected = context.state.exchange % 2 === 0
-      ? firstAvailable(candidates, ["drive-body", "strike-face"])
-      : firstAvailable(candidates, ["strike-face", "drive-body"]);
+      ? firstAvailable(candidates, ["knee-strike", "drive-body", "strike-face"])
+      : firstAvailable(candidates, ["headbutt", "strike-face", "drive-body"]);
   }
   if (!selected && !context.state.relationships.holds.length) {
     selected = byAction(candidates, "grab-arm");

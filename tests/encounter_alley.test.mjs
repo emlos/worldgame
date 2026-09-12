@@ -39,7 +39,7 @@ test("entering an alley triggers the mugging once", () => {
 });
 
 test("failure to disrupt control completes bounded theft exactly once", () => {
-  const game = gameAtStart({ seed: 117, money: 50 });
+  const game = gameAtStart({ seed: 1, money: 50 });
   startEncounter(game);
   const outcome = playUntilTerminal(game, () => "cover-and-brace");
 
@@ -62,7 +62,7 @@ test("failure to disrupt control completes bounded theft exactly once", () => {
 });
 
 test("theft is capped at available money and an empty target invents no new objective", () => {
-  const lowMoney = gameAtStart({ seed: 117, money: 7 });
+  const lowMoney = gameAtStart({ seed: 1, money: 7 });
   startEncounter(lowMoney);
   const theft = playUntilTerminal(lowMoney, () => "cover-and-brace");
   assert.equal(theft.moneyLost, 7);
@@ -105,4 +105,3 @@ test("escape, retreat, incapacitation, and incapacitated theft are reachable out
           : "cover-and-brace").id,
   "theft-completed-player-incapacitated");
 });
-

@@ -132,6 +132,10 @@ export function resolveEncounterExchange({
   };
 
   if (playerSeconds === npcSeconds) {
+    for (const instance of [availablePlayerAction, npcAction]) {
+      if (instance.actionId === "cover-and-brace") runtime.guarded.add(instance.actorId);
+      if (instance.actionId === "create-distance") runtime.evading.add(instance.actorId);
+    }
     resolveOne(context, availablePlayerAction, runtime, { revalidate: false });
     resolveOne(context, npcAction, runtime, { revalidate: false });
   } else {

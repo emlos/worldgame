@@ -168,6 +168,11 @@ function formatStatValue(value) {
   return Number.isInteger(value) ? String(value) : Math.floor(value);
 }
 
+function formatPainValue(value) {
+  const rounded = Math.round(Number(value) * 10) / 10;
+  return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1);
+}
+
 function renderPlayerPanel() {
   playerDiaryButton.hidden = !canReadJournal(game);
   playerMoneyElement.textContent = moneyFormatter.format(game.player.money);
@@ -210,6 +215,38 @@ function renderPlayerPanel() {
     const fill = document.createElement("span");
     fill.className = "player-stat-meter-fill";
     fill.style.width = `${percentage}%`;
+    meter.append(fill);
+    row.append(label, valueElement, meter);
+    playerStatsElement.append(row);
+  }
+
+  const pain = game.player.getBodyPain();
+  if (pain > 0) {
+    const row = document.createElement("div");
+    row.className = "player-stat";
+    row.dataset.stat = "pain";
+    row.dataset.outcome = outcomeForRange(pain, 0, 100, { lowerIsBetter: true });
+
+    const label = document.createElement("span");
+    label.className = "player-stat-label";
+    label.textContent = "Pain";
+
+    const valueElement = document.createElement("output");
+    valueElement.className = "player-stat-value";
+    valueElement.textContent = formatPainValue(pain);
+    valueElement.setAttribute("aria-label", "Pain value");
+
+    const meter = document.createElement("div");
+    meter.className = "player-stat-meter";
+    meter.setAttribute("role", "progressbar");
+    meter.setAttribute("aria-label", "Pain");
+    meter.setAttribute("aria-valuemin", "0");
+    meter.setAttribute("aria-valuemax", "100");
+    meter.setAttribute("aria-valuenow", String(pain));
+
+    const fill = document.createElement("span");
+    fill.className = "player-stat-meter-fill";
+    fill.style.width = `${Math.max(0, Math.min(100, pain))}%`;
     meter.append(fill);
     row.append(label, valueElement, meter);
     playerStatsElement.append(row);
@@ -724,7 +761,11 @@ function makePhoneBodyPart(part) {
   const condition = part.conditions.length
     ? part.conditions.map(formatPhoneLabel).join(", ")
     : "Healthy";
-  detail.textContent = `${formatPhoneLabel(part.region)} | Pain ${formatStatValue(part.pain)} | ${condition}`;
+  detail.textContent = [
+    formatPhoneLabel(part.region),
+    part.pain > 0 ? `Pain ${formatPainValue(part.pain)}` : null,
+    condition,
+  ].filter(Boolean).join(" | ");
 
   item.append(header, meter, detail);
   return item;
@@ -776,15 +817,11 @@ function renderPhoneStats() {
   });
 
   const bodySection = makePhoneStatsSection("Body status");
-  bodySection.append(
-    makePhoneValueList([
+  const bodyStatusEntries = [
       {
         label: "Overall health",
         value: `${formatStatValue(view.body.healthPercentage)}%`,
       },
-      { label: "Condition", value: formatPhoneLabel(view.body.painLabel) },
-      { label: "Pain", value: `${formatStatValue(view.body.pain)} / 100` },
-      { label: "Pain stage", value: `${view.body.painStage} / 3` },
       {
         label: "Physical performance",
         value: `${Math.round(view.body.performanceMultiplier * 100)}%`,
@@ -794,8 +831,15 @@ function renderPhoneStats() {
         value: view.body.criticalBreaks ? "Yes" : "No",
       },
       { label: "Incapacitated", value: view.body.incapacitated ? "Yes" : "No" },
-    ]),
-  );
+  ];
+  if (view.body.pain > 0) {
+    bodyStatusEntries.splice(1, 0,
+      { label: "Condition", value: formatPhoneLabel(view.body.painLabel) },
+      { label: "Pain", value: `${formatPainValue(view.body.pain)} / 100` },
+      { label: "Pain stage", value: `${view.body.painStage} / 3` },
+    );
+  }
+  bodySection.append(makePhoneValueList(bodyStatusEntries));
 
   const bodyPartsSection = makePhoneStatsSection("Body parts");
   bodyPartsSection.append(...view.body.parts.map(makePhoneBodyPart));

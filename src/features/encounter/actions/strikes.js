@@ -1,11 +1,20 @@
 import { BodyPartId } from "../../../characters/core/body.js";
 import {
+  getBalanceCapacity,
+  getLimbCapacity,
+  getPartCapacity,
   getStat,
   getUsableHands,
+  getUsableKnees,
   hostileHoldsOn,
 } from "../combatants.js";
-import { canBeginPhysicalAction, isAtStrikingRange } from "../affordances.js";
 import {
+  canBeginPhysicalAction,
+  isAtStrikingRange,
+  isFacingOpponent,
+} from "../affordances.js";
+import {
+  addAcute,
   actionInstance,
   addDaze,
   addExertion,
@@ -16,6 +25,7 @@ import {
   removeNonfunctionalHolds,
   roll,
 } from "./helpers.js";
+import { ENCOUNTER_POSE, ENCOUNTER_RANGE, getEncounterRange } from "../state.js";
 
 function ordinaryStrikeTargets(context, actorId, actionId) {
   const sourcePartId = getUsableHands(context, actorId)[0];
@@ -26,8 +36,12 @@ function ordinaryStrikeTargets(context, actorId, actionId) {
 
 function ordinaryStrikeAvailable(context, instance) {
   return canBeginPhysicalAction(context, instance.actorId)
-    && isAtStrikingRange(context)
+    && isAtStrikingRange(context, instance.actorId)
     && getUsableHands(context, instance.actorId).includes(instance.parameters.sourcePartId);
+}
+
+function sideName(partId) {
+  return partId.endsWith("_l") ? "left" : "right";
 }
 
 export const STRIKE_FACE = Object.freeze({
@@ -41,7 +55,10 @@ export const STRIKE_FACE = Object.freeze({
     return ordinaryStrikeTargets(context, actorId, this.id);
   },
 
-  isAvailable: ordinaryStrikeAvailable,
+  isAvailable(context, instance) {
+    return ordinaryStrikeAvailable(context, instance)
+      && isFacingOpponent(context, instance.targetId, { allowSide: true });
+  },
 
   label() {
     return "Strike at their face";
@@ -113,7 +130,10 @@ export const STRIKE_HOLDING_ARM = Object.freeze({
   playerOrder: 5,
 
   enumerateTargets(context, actorId) {
-    const sourcePartId = getUsableHands(context, actorId)[0];
+    const sourcePartId = getUsableHands(context, actorId)[0]
+      || (context.state.participants[actorId].pose === ENCOUNTER_POSE.standing
+        ? getUsableKnees(context, actorId)[0]
+        : null);
     if (!sourcePartId) return [];
     return hostileHoldsOn(context, actorId).map((hold) =>
       actionInstance(this.id, actorId, hold.controllerId, {
@@ -123,13 +143,23 @@ export const STRIKE_HOLDING_ARM = Object.freeze({
   },
 
   isAvailable(context, instance) {
+    const usableSource = getUsableHands(context, instance.actorId)
+      .includes(instance.parameters.sourcePartId)
+      || (context.state.participants[instance.actorId].pose === ENCOUNTER_POSE.standing
+        && getUsableKnees(context, instance.actorId).includes(instance.parameters.sourcePartId)
+        && getBalanceCapacity(context, instance.actorId) > 0.4);
     return canBeginPhysicalAction(context, instance.actorId)
-      && getUsableHands(context, instance.actorId).includes(instance.parameters.sourcePartId)
+      && isAtStrikingRange(context, instance.actorId)
+      && usableSource
       && hostileHoldsOn(context, instance.actorId).some(({ id }) => id === instance.parameters.holdId);
   },
 
-  label() {
-    return "Strike the arm gripping your wrist";
+  label(context, instance) {
+    const hold = hostileHoldsOn(context, instance.actorId).find(
+      ({ id }) => id === instance.parameters.holdId,
+    );
+    if (!hold) return "Strike the limb controlling you";
+    return `Strike the ${sideName(hold.sourcePartId)} limb ${hold.kind === "limb-pin" ? "pinning" : "gripping"} your ${sideName(hold.targetPartId)} arm`;
   },
 
   intentLabel() {
@@ -155,5 +185,120 @@ export const STRIKE_HOLDING_ARM = Object.freeze({
     runtime.events.push({ type: "hold.weakened", holdId: hold.id, amount: reduction });
     if (hold.leverage <= 0 || damage >= 14) removeHold(context, hold, runtime, "struck-loose");
     removeNonfunctionalHolds(context, runtime);
+  },
+});
+
+export const HEADBUTT = Object.freeze({
+  id: "headbutt",
+  tags: Object.freeze(["attack", "impact", "daze", "self-risk"]),
+  durationSeconds: 1,
+  usableBy: Object.freeze(["player", "mugger"]),
+  playerOrder: 8,
+
+  enumerateTargets(_context, actorId) {
+    const targetId = actorId === "player" ? "mugger" : "player";
+    return [actionInstance(this.id, actorId, targetId, { sourcePartId: BodyPartId.HEAD })];
+  },
+
+  isAvailable(context, instance) {
+    const pose = context.state.participants[instance.actorId].pose;
+    return canBeginPhysicalAction(context, instance.actorId)
+      && getEncounterRange(context.state) === ENCOUNTER_RANGE.clinch
+      && ![ENCOUNTER_POSE.supine, ENCOUNTER_POSE.prone].includes(pose)
+      && getPartCapacity(context, instance.actorId, BodyPartId.HEAD) > 0.3
+      && isFacingOpponent(context, instance.actorId)
+      && isFacingOpponent(context, instance.targetId, { allowSide: true });
+  },
+
+  label() {
+    return "Try to headbutt them";
+  },
+
+  intentLabel() {
+    return "draws their head back for a close strike";
+  },
+
+  resolve(context, instance, runtime) {
+    addExertion(context, instance.actorId, 7);
+    if (!contest(context, instance, runtime, { baseChance: 0.58 })) {
+      failAction(runtime, instance, "missed");
+      if (roll(context, instance, "self-daze-miss") < 0.18) {
+        addDaze(context, instance.actorId, 1, runtime);
+      }
+      return;
+    }
+    const damage = applyImpact(context, instance, runtime, {
+      partId: BodyPartId.FACE,
+      baseDamage: 8,
+      strengthScale: 0.45,
+    });
+    applyImpact(context, { ...instance, targetId: instance.actorId }, runtime, {
+      partId: BodyPartId.HEAD,
+      baseDamage: 4,
+      strengthScale: 0.1,
+    });
+    if (roll(context, instance, "target-daze") < Math.min(0.62, 0.28 + damage * 0.02)) {
+      addDaze(context, instance.targetId, damage >= 13 ? 2 : 1, runtime);
+    }
+    if (roll(context, instance, "self-daze") < 0.12) addDaze(context, instance.actorId, 1, runtime);
+    removeNonfunctionalHolds(context, runtime);
+  },
+});
+
+export const KNEE_STRIKE = Object.freeze({
+  id: "knee-strike",
+  tags: Object.freeze(["attack", "impact", "pressure", "balance-risk"]),
+  durationSeconds: 2,
+  usableBy: Object.freeze(["player", "mugger"]),
+  playerOrder: 18,
+
+  enumerateTargets(context, actorId) {
+    const sourcePartId = getUsableKnees(context, actorId)[0];
+    if (!sourcePartId) return [];
+    return [actionInstance(this.id, actorId, actorId === "player" ? "mugger" : "player", {
+      sourcePartId,
+    })];
+  },
+
+  isAvailable(context, instance) {
+    const plantedFoot = instance.parameters.sourcePartId === BodyPartId.KNEE_L
+      ? BodyPartId.FOOT_R
+      : BodyPartId.FOOT_L;
+    return canBeginPhysicalAction(context, instance.actorId)
+      && getEncounterRange(context.state) === ENCOUNTER_RANGE.clinch
+      && context.state.participants[instance.actorId].pose === ENCOUNTER_POSE.standing
+      && context.state.participants[instance.targetId].pose !== ENCOUNTER_POSE.prone
+      && isFacingOpponent(context, instance.actorId, { allowSide: true })
+      && getUsableKnees(context, instance.actorId).includes(instance.parameters.sourcePartId)
+      && getLimbCapacity(context, instance.actorId, plantedFoot) > 0.32
+      && getBalanceCapacity(context, instance.actorId) > 0.4;
+  },
+
+  label() {
+    return "Drive a knee into their body";
+  },
+
+  intentLabel() {
+    return "shifts onto one leg to drive a knee into you";
+  },
+
+  resolve(context, instance, runtime) {
+    addExertion(context, instance.actorId, 9);
+    if (!contest(context, instance, runtime, { baseChance: 0.61 })) {
+      failAction(runtime, instance, "lost-balance");
+      if (roll(context, instance, "balance-risk") < 0.38) {
+        addAcute(context, instance.actorId, "off-balance", 1, 2, runtime);
+      }
+      return;
+    }
+    const damage = applyImpact(context, instance, runtime, {
+      partId: BodyPartId.ABDOMEN,
+      baseDamage: 10,
+      strengthScale: 0.6,
+    });
+    addAcute(context, instance.targetId, "winded", damage >= 15 ? 2 : 1, 2, runtime);
+    if (roll(context, instance, "balance-risk") < 0.16) {
+      addAcute(context, instance.actorId, "off-balance", 1, 1, runtime);
+    }
   },
 });

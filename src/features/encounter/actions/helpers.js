@@ -1,6 +1,7 @@
 import { DamageType } from "../../../characters/core/body.js";
 import { keyedRandom01 } from "../../../shared/util/random.js";
 import {
+  getBalanceCapacity,
   getBodyPerformance,
   getCombatant,
   getParticipant,
@@ -8,7 +9,13 @@ import {
   isDazed,
   isPartFunctional,
 } from "../combatants.js";
-import { ENCOUNTER_RANGE, getEncounterRange, setEncounterRange } from "../state.js";
+import {
+  ENCOUNTER_RANGE,
+  getEncounterFacing,
+  getEncounterRange,
+  setEncounterFacing,
+  setEncounterRange,
+} from "../state.js";
 
 export function actionInstance(actionId, actorId, targetId, parameters = {}) {
   return { actionId, actorId, targetId, parameters };
@@ -44,6 +51,8 @@ export function contest(
     - getStat(context, instance.targetId, targetStat);
   let chance = baseChance + statDifference * 0.035 + modifier;
   chance += (getBodyPerformance(context, instance.actorId) - 1) * 0.4;
+  chance += (getBalanceCapacity(context, instance.actorId)
+    - getBalanceCapacity(context, instance.targetId)) * 0.18;
   chance -= attacker.exertion * 0.0025;
   chance += defender.exertion * 0.0015;
   if (isDazed(context, instance.actorId)) chance -= 0.14;
@@ -94,15 +103,19 @@ export function applyImpact(
 }
 
 export function addDaze(context, actorId, severity, runtime) {
+  addAcute(context, actorId, "dazed", severity, 2, runtime);
+}
+
+export function addAcute(context, actorId, id, severity, exchanges, runtime) {
   const participant = getParticipant(context, actorId);
-  const existing = participant.acute.find(({ id }) => id === "dazed");
+  const existing = participant.acute.find((acute) => acute.id === id);
   if (existing) {
     existing.severity = Math.max(existing.severity, severity);
-    existing.exchanges = Math.max(existing.exchanges, 2);
+    existing.exchanges = Math.max(existing.exchanges, exchanges);
   } else {
-    participant.acute.push({ id: "dazed", severity, exchanges: 2 });
+    participant.acute.push({ id, severity, exchanges });
   }
-  runtime.events.push({ type: "acute.applied", actorId, id: "dazed", severity });
+  runtime.events.push({ type: "acute.applied", actorId, id, severity });
 }
 
 export function tickAcuteEffects(context) {
@@ -122,6 +135,8 @@ export function removeHold(context, hold, runtime, reason = "broken") {
     holdId: hold.id,
     controllerId: hold.controllerId,
     targetId: hold.targetId,
+    targetPartId: hold.targetPartId,
+    kind: hold.kind,
     reason,
   });
 }
@@ -137,8 +152,27 @@ export function removeNonfunctionalHolds(context, runtime) {
 export function changeRange(context, value, runtime) {
   const from = getEncounterRange(context.state);
   if (from === value) return;
+  if (value !== ENCOUNTER_RANGE.clinch && context.state.relationships.holds.length) {
+    throw new Error("Physical encounter: range cannot open while a hold remains active");
+  }
   setEncounterRange(context.state, value);
   runtime.events.push({ type: "range.changed", from, to: value });
+}
+
+export function changePose(context, actorId, pose, runtime) {
+  const participant = getParticipant(context, actorId);
+  const from = participant.pose;
+  if (from === pose) return;
+  participant.pose = pose;
+  if (pose !== "standing") participant.support = "free";
+  runtime.events.push({ type: "pose.changed", actorId, from, to: pose });
+}
+
+export function changeFacing(context, actorId, value, runtime) {
+  const from = getEncounterFacing(context.state, actorId);
+  if (from === value) return;
+  setEncounterFacing(context.state, actorId, value);
+  runtime.events.push({ type: "facing.changed", actorId, from, to: value });
 }
 
 export function increaseDistance(context, runtime) {

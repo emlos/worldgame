@@ -53,3 +53,94 @@ test("landed strikes persist damage on the temporary actor body", () => {
   assert.match(JSON.stringify(buildScene(game).content), /blow lands/i);
 });
 
+test("the mugging can build two holds, ground the player, and convert a grip into a pin", () => {
+  const game = gameAtStart({ seed: 1 });
+  startEncounter(game);
+  let sawTwoHolds = false;
+  let sawGrounded = false;
+  let sawPin = false;
+
+  for (let index = 0; index < 16 && game.currentStory.system.state.phase === "active"; index += 1) {
+    const state = game.currentStory.system.state;
+    sawTwoHolds ||= state.relationships.holds.length === 2;
+    sawGrounded ||= state.participants.player.pose !== "standing";
+    sawPin ||= state.relationships.holds.some(({ kind }) => kind === "limb-pin");
+    chooseAction(game, "cover-and-brace");
+  }
+
+  const state = game.currentStory.system.state;
+  sawPin ||= state.relationships.holds.some(({ kind }) => kind === "limb-pin");
+  assert.equal(sawTwoHolds, true);
+  assert.equal(sawGrounded, true);
+  assert.equal(sawPin, true);
+  assert.equal(state.outcome.id, "theft-completed-player-conscious");
+});
+
+test("a grounded actor can roll to face the opponent and then stand", () => {
+  const game = gameAtStart({ seed: 4 });
+  const state = startEncounter(game);
+  state.relationships.range[0].value = "clinch";
+  state.participants.player.pose = "prone";
+  state.participants.mugger.pose = "kneeling";
+  state.relationships.facing.find(({ actor }) => actor === "player").value = "away";
+  state.npcIntent = {
+    actorId: "mugger",
+    actionId: "cover-and-brace",
+    parameters: { targetId: "mugger" },
+  };
+
+  chooseAction(game, "roll-toward");
+  assert.equal(game.currentStory.system.state.participants.player.pose, "supine");
+  assert.equal(
+    game.currentStory.system.state.relationships.facing.find(({ actor }) => actor === "player").value,
+    "toward",
+  );
+
+  game.currentStory.system.state.npcIntent = {
+    actorId: "mugger",
+    actionId: "cover-and-brace",
+    parameters: { targetId: "mugger" },
+  };
+  chooseAction(game, "stand-up");
+  assert.equal(game.currentStory.system.state.participants.player.pose, "standing");
+});
+
+test("headbutts carry self-damage while knee strikes apply acute pressure", () => {
+  const headbutt = gameAtStart({ seed: 3 });
+  headbutt.player.setSkillValue("strength", 10);
+  let state = startEncounter(headbutt);
+  state.relationships.range[0].value = "clinch";
+  state.npcIntent = {
+    actorId: "mugger",
+    actionId: "cover-and-brace",
+    parameters: { targetId: "mugger" },
+  };
+  const ownHeadBefore = headbutt.player.body.getPart("head").health;
+  const targetFaceBefore = headbutt.currentStory.actors.mugger.body.parts.find(
+    ({ id }) => id === "face",
+  ).health;
+
+  chooseAction(headbutt, "headbutt");
+
+  assert.ok(headbutt.player.body.getPart("head").health < ownHeadBefore);
+  assert.ok(
+    headbutt.currentStory.actors.mugger.body.parts.find(({ id }) => id === "face").health
+      < targetFaceBefore,
+  );
+
+  const knee = gameAtStart({ seed: 1 });
+  knee.player.setSkillValue("strength", 10);
+  state = startEncounter(knee);
+  state.relationships.range[0].value = "clinch";
+  state.npcIntent = {
+    actorId: "mugger",
+    actionId: "cover-and-brace",
+    parameters: { targetId: "mugger" },
+  };
+
+  chooseAction(knee, "knee-strike");
+
+  assert.ok(knee.currentStory.system.state.lastEvents.some(
+    ({ type, actorId, id }) => type === "acute.applied" && actorId === "mugger" && id === "winded",
+  ));
+});

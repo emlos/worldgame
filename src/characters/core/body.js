@@ -537,13 +537,42 @@ export class Body {
     // --- Pain / status queries -------------------------------------------------
 
     /**
-     * Sum of all local pain values, clamped to 0..100.
-     * This can be used as a global "how much does the character hurt?" metric.
+     * Whole-body pain load from local pain values.
+     *
+     * The worst injury supplies the baseline while additional injuries add a
+     * smaller cumulative burden. This keeps one serious injury legible without
+     * letting a handful of modest bruises immediately saturate the meter.
      */
     getTotalPain() {
-        let sum = 0;
-        for (const p of this.allParts()) sum += p.pain;
-        return clamp(sum, 0, 100);
+        return clamp(this._getRawPainLoad(), 0, 100);
+    }
+
+    _getRawPainLoad() {
+        const pains = [...this.allParts()]
+            .map((part) => clamp(Number(part.pain) || 0, 0, 100))
+            .sort((left, right) => right - left);
+        if (!pains.length) return 0;
+        const [worst, ...additional] = pains;
+        return worst + additional.reduce((sum, pain) => sum + pain * 0.3, 0);
+    }
+
+    /**
+     * Ease a whole-body amount of pain while preserving where that pain came
+     * from. The pain-load formula is homogeneous, so proportional reduction
+     * reaches the requested visible total without inventing a separate meter.
+     */
+    relievePain(amount) {
+        amount = finiteNumber(amount, "Pain relief");
+        if (amount <= 0) return this.getTotalPain();
+        const raw = this._getRawPainLoad();
+        const visible = clamp(raw, 0, 100);
+        if (visible <= 0) return 0;
+        const target = Math.max(0, visible - amount);
+        const scale = target / raw;
+        for (const part of this.allParts()) {
+            part.pain = clamp(part.pain * scale, 0, 100);
+        }
+        return this.getTotalPain();
     }
 
     /**
@@ -577,19 +606,7 @@ export class Body {
      * 1.0 = unaffected, 0.5 = at half strength, etc.
      */
     getPhysicalPerformanceMultiplier() {
-        const stage = this.getPainStage();
-        switch (stage) {
-            case 0:
-                return 1.0;
-            case 1:
-                return 0.9;
-            case 2:
-                return 0.7;
-            case 3:
-                return 0.5;
-            default:
-                return 1.0;
-        }
+        return clamp(1 - this.getTotalPain() * 0.005, 0.5, 1);
     }
 
     /**

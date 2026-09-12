@@ -30,14 +30,15 @@ export function sceneChoices(game) {
 }
 
 export function findActionChoice(game, actionId) {
-  return sceneChoices(game).find(({ id }) => id === `encounter-action:${actionId}`) || null;
+  return sceneChoices(game).find(({ action }) => action.command?.actionId === actionId) || null;
 }
 
 export function chooseAction(game, actionId) {
   const scene = buildScene(game);
   const choice = scene.sections
     .flatMap((section) => section.choices)
-    .find(({ id }) => id === `encounter-action:${actionId}`);
+    .find(({ id, action }) =>
+      id === `encounter-action:${actionId}` || action.command?.actionId === actionId);
   assert.ok(choice, `expected encounter action '${actionId}'`);
   performChoice(game, { sceneId: scene.id, choiceId: choice.id });
   return choice;
@@ -53,4 +54,3 @@ export function placePlayerAtAlley(game) {
   }
   throw new Error("Test world has no alleyway");
 }
-

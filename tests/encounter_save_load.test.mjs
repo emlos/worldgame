@@ -29,7 +29,7 @@ test("save/load preserves state, intent, prose, choices, and body damage", () =>
 });
 
 test("terminal theft consequences are not repeated by save/load or rendering", () => {
-  const game = gameAtStart({ seed: 117, money: 50 });
+  const game = gameAtStart({ seed: 1, money: 50 });
   startEncounter(game);
   while (game.currentStory.system.state.phase === "active") {
     chooseAction(game, "cover-and-brace");
@@ -42,4 +42,3 @@ test("terminal theft consequences are not repeated by save/load or rendering", (
   assert.equal(restored.player.money, 30);
   assert.equal(restored.currentStory.system.state.outcome.moneyLost, 20);
 });
-

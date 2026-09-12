@@ -1,18 +1,24 @@
 import {
   getEffectiveHoldLeverage,
+  getParticipant,
   getUsableHands,
   holdsControlledBy,
   hostileHoldsOn,
 } from "../combatants.js";
 import {
+  canStandUp,
   canBeginPhysicalAction,
   canMove,
   hasMovementDenyingHold,
+  isGrounded,
 } from "../affordances.js";
 import {
   actionInstance,
   addExertion,
+  changeFacing,
+  changePose,
   changeRange,
+  clamp,
   contest,
   failAction,
   increaseDistance,
@@ -20,8 +26,12 @@ import {
   removeHold,
 } from "./helpers.js";
 import {
+  ENCOUNTER_FACING,
   ENCOUNTER_OUTCOME,
+  ENCOUNTER_POSE,
   ENCOUNTER_RANGE,
+  ENCOUNTER_SUPPORT,
+  getEncounterFacing,
   getEncounterRange,
 } from "../state.js";
 
@@ -70,7 +80,12 @@ export const SHOVE_AWAY = Object.freeze({
         runtime.events.push({ type: "hold.weakened", holdId: hold.id, amount: 20 });
       }
     }
-    if (!hostileHoldsOn(context, instance.actorId).length) increaseDistance(context, runtime);
+    if (!hostileHoldsOn(context, instance.actorId).length) {
+      for (const hold of [...holdsControlledBy(context, instance.actorId)]) {
+        removeHold(context, hold, runtime, "released-to-shove");
+      }
+      increaseDistance(context, runtime);
+    }
   },
 });
 
@@ -111,6 +126,115 @@ export const CREATE_DISTANCE = Object.freeze({
       removeHold(context, hold, runtime, "slipped-loose");
     }
     increaseDistance(context, runtime);
+  },
+});
+
+export const STAND_UP = Object.freeze({
+  id: "stand-up",
+  tags: Object.freeze(["movement", "position", "recovery"]),
+  durationSeconds: 3,
+  usableBy: Object.freeze(["player", "mugger"]),
+  playerOrder: 2,
+
+  enumerateTargets(_context, actorId) {
+    return [actionInstance(this.id, actorId, opponent(actorId))];
+  },
+
+  isAvailable(context, instance) {
+    return canBeginPhysicalAction(context, instance.actorId)
+      && canStandUp(context, instance.actorId);
+  },
+
+  label() {
+    return "Try to stand up";
+  },
+
+  intentLabel() {
+    return "plants their limbs and starts to rise";
+  },
+
+  resolve(context, instance, runtime) {
+    const hostile = hostileHoldsOn(context, instance.actorId);
+    addExertion(context, instance.actorId, 10);
+    if (hostile.length && !contest(context, instance, runtime, {
+      baseChance: 0.61,
+      actorStat: "fitness",
+      targetStat: "strength",
+      modifier: -hostile.reduce(
+        (sum, hold) => sum + getEffectiveHoldLeverage(context, hold) * 0.0015,
+        0,
+      ),
+    })) {
+      failAction(runtime, instance, "kept-down");
+      return;
+    }
+    for (const hold of [...holdsControlledBy(context, instance.actorId)]) {
+      if (hold.kind === "limb-pin" && hold.sourcePartId.startsWith("knee_")) {
+        removeHold(context, hold, runtime, "stood-up");
+      }
+    }
+    changePose(context, instance.actorId, ENCOUNTER_POSE.standing, runtime);
+    changeFacing(context, instance.actorId, ENCOUNTER_FACING.toward, runtime);
+  },
+});
+
+export const ROLL_TOWARD = Object.freeze({
+  id: "roll-toward",
+  tags: Object.freeze(["movement", "position", "facing", "disrupt-hold"]),
+  durationSeconds: 2,
+  usableBy: Object.freeze(["player", "mugger"]),
+  playerOrder: 3,
+
+  enumerateTargets(_context, actorId) {
+    return [actionInstance(this.id, actorId, opponent(actorId))];
+  },
+
+  isAvailable(context, instance) {
+    const participant = getParticipant(context, instance.actorId);
+    return canBeginPhysicalAction(context, instance.actorId)
+      && (isGrounded(context, instance.actorId)
+        || participant.support === ENCOUNTER_SUPPORT.wall)
+      && (getEncounterFacing(context.state, instance.actorId) !== ENCOUNTER_FACING.toward
+        || participant.pose === ENCOUNTER_POSE.prone);
+  },
+
+  label(context, instance) {
+    return isGrounded(context, instance.actorId)
+      ? "Roll to face them"
+      : "Turn back toward them";
+  },
+
+  intentLabel() {
+    return "twists to face you and recover a safer angle";
+  },
+
+  resolve(context, instance, runtime) {
+    const hostile = hostileHoldsOn(context, instance.actorId);
+    addExertion(context, instance.actorId, 7);
+    const strongest = hostile
+      .map((hold) => ({ hold, effective: getEffectiveHoldLeverage(context, hold) }))
+      .sort((left, right) => right.effective - left.effective)[0] || null;
+    if (strongest && !contest(context, instance, runtime, {
+      baseChance: 0.64,
+      actorStat: "fitness",
+      targetStat: "strength",
+      modifier: -strongest.effective * 0.002,
+    })) {
+      strongest.hold.leverage = clamp(strongest.hold.leverage - 8, 1, 100);
+      runtime.events.push({ type: "hold.weakened", holdId: strongest.hold.id, amount: 8 });
+      failAction(runtime, instance, "turn-blocked");
+      return;
+    }
+    changeFacing(context, instance.actorId, ENCOUNTER_FACING.toward, runtime);
+    if (getParticipant(context, instance.actorId).pose === ENCOUNTER_POSE.prone) {
+      changePose(context, instance.actorId, ENCOUNTER_POSE.supine, runtime);
+    }
+    for (const hold of [...hostile]) {
+      const reduction = hold.kind === "limb-pin" ? 14 : 8;
+      hold.leverage = Math.max(0, hold.leverage - reduction);
+      runtime.events.push({ type: "hold.weakened", holdId: hold.id, amount: reduction });
+      if (hold.leverage <= 0) removeHold(context, hold, runtime, "turned-free");
+    }
   },
 });
 
