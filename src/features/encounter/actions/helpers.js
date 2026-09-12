@@ -119,13 +119,15 @@ export function addDaze(context, actorId, severity, runtime) {
 export function addAcute(context, actorId, id, severity, exchanges, runtime) {
   const participant = getParticipant(context, actorId);
   const existing = participant.acute.find((acute) => acute.id === id);
+  let resultingSeverity = severity;
   if (existing) {
-    existing.severity = Math.max(existing.severity, severity);
+    existing.severity = Math.min(3, existing.severity + severity);
     existing.exchanges = Math.max(existing.exchanges, exchanges);
+    resultingSeverity = existing.severity;
   } else {
     participant.acute.push({ id, severity, exchanges });
   }
-  runtime.events.push({ type: "acute.applied", actorId, id, severity });
+  runtime.events.push({ type: "acute.applied", actorId, id, severity: resultingSeverity });
 }
 
 export function tickAcuteEffects(context) {

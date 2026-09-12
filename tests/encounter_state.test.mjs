@@ -5,8 +5,10 @@ import {
   createCombatContext,
   getLimbCapacity,
   getPartCapacity,
+  isEncounterIncapacitated,
   validateCombatantInvariants,
 } from "../src/features/encounter/combatants.js";
+import { addAcute } from "../src/features/encounter/actions/helpers.js";
 import {
   ENCOUNTER_PHASE,
   validateEncounterState,
@@ -25,6 +27,26 @@ test("alley mugging state stores canonical facts without duplicating bodies", ()
   assert.equal(state.npcIntent.actionId, "grab-arm");
   assert.equal(Object.hasOwn(state.participants.player, "body"), false);
   assert.equal(Object.hasOwn(state.participants.mugger, "body"), false);
+});
+
+test("repeated acute effects accumulate to incapacitating severity", () => {
+  const game = gameAtStart();
+  const state = startEncounter(game);
+  const context = createCombatContext({
+    game,
+    state,
+    instanceKey: game.currentStory.instanceKey,
+  });
+  const runtime = { events: [] };
+
+  addAcute(context, "player", "dazed", 2, 2, runtime);
+  assert.equal(state.participants.player.acute[0].severity, 2);
+  assert.equal(isEncounterIncapacitated(context, "player"), false);
+
+  addAcute(context, "player", "dazed", 1, 2, runtime);
+  assert.equal(state.participants.player.acute[0].severity, 3);
+  assert.equal(isEncounterIncapacitated(context, "player"), true);
+  assert.deepEqual(runtime.events.map(({ severity }) => severity), [2, 3]);
 });
 
 test("state validation rejects contradictory position and terminal facts", () => {
