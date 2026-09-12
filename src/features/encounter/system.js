@@ -92,6 +92,11 @@ function playerChoice(context, definition, systemId, instance, id) {
 
 function renderActive(context, definition, systemId) {
   const state = context.state;
+  const threat = state.objective.stage === "disengage"
+    ? state.objective.lootAmount > 0
+      ? `${encounterPronoun(context, "mugger", "subject", { sentence: true })} ${encounterVerb(context, "mugger", "has", "have")} £${state.objective.lootAmount} of your money and ${encounterVerb(context, "mugger", "is", "are")} trying to escape.`
+      : `${encounterPronoun(context, "mugger", "subject", { sentence: true })} found nothing to take and ${encounterVerb(context, "mugger", "is", "are")} trying to leave.`
+    : `${encounterPronoun(context, "mugger", "subject", { sentence: true })} ${encounterVerb(context, "mugger", "is", "are")} trying to take up to £${state.objective.amount}.`;
   const sortedActions = sortPlayerActions(getAvailableActionInstances(context, "player"));
   const actions = sortedActions;
   const actionCounts = actions.reduce((counts, { actionId }) => {
@@ -109,7 +114,7 @@ function renderActive(context, definition, systemId) {
     content: [
       {
         type: "paragraph",
-        text: `Threat: ${encounterPronoun(context, "mugger", "subject", { sentence: true })} ${encounterVerb(context, "mugger", "is", "are")} trying to take up to £${state.objective.amount}. Elapsed: ${clock(state.elapsedSeconds)}.`,
+        text: `Threat: ${threat} Elapsed: ${clock(state.elapsedSeconds)}.`,
       },
       { type: "paragraph", text: `Next: ${renderIntent(context)}` },
       renderSituationTable(context),

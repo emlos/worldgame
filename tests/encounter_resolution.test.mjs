@@ -248,7 +248,7 @@ test("the mugging can build control despite repeated low-risk defense", () => {
   let sawGrounded = false;
   let sawPin = false;
 
-  for (let index = 0; index < 30 && game.currentStory.system.state.phase === "active"; index += 1) {
+  for (let index = 0; index < 60 && game.currentStory.system.state.phase === "active"; index += 1) {
     const state = game.currentStory.system.state;
     sawTwoHolds ||= state.relationships.holds.length === 2;
     sawGrounded ||= state.participants.player.pose !== "standing";

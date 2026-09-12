@@ -252,8 +252,12 @@ function eventText(context, event) {
       return event.to === ENCOUNTER_FACING.away
         ? `${actorName(context, event.actorId, { sentence: true })} ${encounterVerb(context, event.actorId, "is", "are")} turned away.`
         : `${actorName(context, event.actorId, { sentence: true })} ${encounterVerb(context, event.actorId, "turns", "turn")} to face the other again.`;
+    case "theft.taken":
+      return `${encounterPronoun(context, "mugger", "subject", { sentence: true })} ${encounterVerb(context, "mugger", "pulls", "pull")} £${event.amount} free.`;
     case "theft.completed":
-      return `${encounterPronoun(context, "mugger", "subject", { sentence: true })} ${encounterVerb(context, "mugger", "tears", "tear")} away with £${event.amount}.`;
+      return `${encounterPronoun(context, "mugger", "subject", { sentence: true })} ${encounterVerb(context, "mugger", "gets", "get")} away with £${event.amount}.`;
+    case "theft.recovered":
+      return `You recover your £${event.amount} before ${encounterPronoun(context, "mugger", "subject")} can escape.`;
     case "theft.empty":
       return `${encounterPronoun(context, "mugger", "subject", { sentence: true })} ${encounterVerb(context, "mugger", "finds", "find")} nothing to take and ${encounterVerb(context, "mugger", "abandons", "abandon")} the attempt.`;
     case "escape.completed":
@@ -277,6 +281,11 @@ export function renderObjectivePressure(context) {
   const commitment = getCommitmentBand(context);
   if (stage === "access-money") {
     return `${encounterPronoun(context, "mugger", "dependent", { sentence: true })} control is enough to reach for your money. ${encounterPronoun(context, "mugger", "subject", { sentence: true })} ${encounterVerb(context, "mugger", "looks", "look")} ${commitment}.`;
+  }
+  if (stage === "disengage") {
+    return context.state.objective.lootAmount > 0
+      ? `${encounterPronoun(context, "mugger", "subject", { sentence: true })} ${encounterVerb(context, "mugger", "has", "have")} your money but still ${encounterVerb(context, "mugger", "needs", "need")} to get away with it.`
+      : `${encounterPronoun(context, "mugger", "subject", { sentence: true })} found nothing and ${encounterVerb(context, "mugger", "is", "are")} looking for a way out.`;
   }
   return `${encounterPronoun(context, "mugger", "subject", { sentence: true })} still ${encounterVerb(context, "mugger", "needs", "need")} to control you before ${encounterPronoun(context, "mugger", "subject")} can take anything. ${encounterPronoun(context, "mugger", "subject", { sentence: true })} ${encounterVerb(context, "mugger", "looks", "look")} ${commitment}.`;
 }

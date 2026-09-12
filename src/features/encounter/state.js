@@ -1,6 +1,6 @@
 import { MUGGER_PERSONALITY_IDS } from "./personality.js";
 
-export const ENCOUNTER_STATE_VERSION = 4;
+export const ENCOUNTER_STATE_VERSION = 5;
 export const ALLEY_MUGGING_SCENARIO_ID = "alley-mugging";
 
 export const ENCOUNTER_PHASE = Object.freeze({
@@ -258,7 +258,8 @@ export function createAlleyMuggingState({ aggressorAlias, theftAmount, personali
       ownerId: "mugger",
       stage: "gain-control",
       amount: theftAmount,
-      hasLoot: false,
+      searched: false,
+      lootAmount: 0,
       failedControlAttempts: 0,
       lastProgressSecond: 0,
     },
@@ -367,7 +368,8 @@ export function validateEncounterState(state) {
       "ownerId",
       "stage",
       "amount",
-      "hasLoot",
+      "searched",
+      "lootAmount",
       "failedControlAttempts",
       "lastProgressSecond",
     ],
@@ -377,7 +379,24 @@ export function validateEncounterState(state) {
   if (objective.ownerId !== "mugger") fail("state.objective.ownerId must be 'mugger'");
   string(objective.stage, "state.objective.stage", OBJECTIVE_STAGES);
   integer(objective.amount, "state.objective.amount", { min: 0 });
-  boolean(objective.hasLoot, "state.objective.hasLoot");
+  boolean(objective.searched, "state.objective.searched");
+  integer(objective.lootAmount, "state.objective.lootAmount", {
+    min: 0,
+    max: objective.amount,
+  });
+  if (!objective.searched && objective.lootAmount !== 0) {
+    fail("state.objective.lootAmount requires a completed search");
+  }
+  if (state.phase === ENCOUNTER_PHASE.active
+    && objective.stage === "disengage"
+    && !objective.searched) {
+    fail("state.objective cannot disengage before completing its search");
+  }
+  if (state.phase === ENCOUNTER_PHASE.active
+    && objective.searched
+    && objective.stage !== "disengage") {
+    fail("a completed active search must be in the disengage stage");
+  }
   integer(objective.failedControlAttempts, "state.objective.failedControlAttempts", { min: 0 });
   integer(objective.lastProgressSecond, "state.objective.lastProgressSecond", {
     min: 0,
@@ -396,6 +415,18 @@ export function validateEncounterState(state) {
     integer(state.outcome.moneyLost, "state.outcome.moneyLost", { min: 0 });
     if (state.objective.stage !== "complete") {
       fail("a terminal encounter must have a complete objective stage");
+    }
+    if ([
+      ENCOUNTER_OUTCOME.theftPlayerConscious,
+      ENCOUNTER_OUTCOME.theftPlayerIncapacitated,
+    ].includes(state.outcome.id)) {
+      if (!objective.searched) fail("a completed theft requires a completed search");
+      if (objective.lootAmount !== state.outcome.moneyLost) {
+        fail("completed theft loot must match the recorded money loss");
+      }
+      if (holds.length || getEncounterRange(state) === ENCOUNTER_RANGE.clinch) {
+        fail("a completed theft requires the mugger to have escaped physical control");
+      }
     }
   }
 

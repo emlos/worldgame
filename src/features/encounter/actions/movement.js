@@ -37,6 +37,7 @@ import {
   getEncounterRange,
 } from "../state.js";
 import { encounterPronoun, encounterVerb } from "../language.js";
+import { outcomeForMuggerEscape } from "../objectives/steal.js";
 
 function opponent(actorId) {
   return actorId === "player" ? "mugger" : "player";
@@ -362,7 +363,15 @@ export const FLEE = Object.freeze({
 
   resolve(context, instance, runtime) {
     addExertion(context, instance.actorId, 7);
-    proposeOutcome(runtime, ENCOUNTER_OUTCOME.muggerFled);
+    const outcome = outcomeForMuggerEscape(context);
+    if (outcome.id === ENCOUNTER_OUTCOME.theftPlayerConscious) {
+      runtime.events.push({
+        type: "theft.completed",
+        actorId: instance.actorId,
+        amount: outcome.moneyLost,
+      });
+    }
+    proposeOutcome(runtime, outcome.id, outcome.moneyLost);
     runtime.events.push({ type: "escape.completed", actorId: instance.actorId });
   },
 });

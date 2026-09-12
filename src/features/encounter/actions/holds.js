@@ -27,13 +27,11 @@ import {
   clamp,
   contest,
   failAction,
-  proposeOutcome,
   removeHold,
   chanceRoll,
 } from "./helpers.js";
 import {
   ENCOUNTER_FACING,
-  ENCOUNTER_OUTCOME,
   ENCOUNTER_POSE,
   ENCOUNTER_RANGE,
   ENCOUNTER_SUPPORT,
@@ -41,6 +39,7 @@ import {
   getEncounterRange,
 } from "../state.js";
 import { encounterPronoun, encounterVerb } from "../language.js";
+import { takeTheftMoney } from "../objectives/steal.js";
 
 function opponent(actorId) {
   return actorId === "player" ? "mugger" : "player";
@@ -538,17 +537,7 @@ export const SEARCH_MONEY = Object.freeze({
 
   resolve(context, instance, runtime) {
     addExertion(context, instance.actorId, 6);
-    const objective = context.state.objective;
-    const available = Math.max(0, Math.floor(context.game.player.money));
-    const moneyLost = Math.min(objective.amount, available);
-    if (moneyLost > 0) {
-      context.game.player.adjustMoney(-moneyLost);
-      objective.hasLoot = true;
-      runtime.events.push({ type: "theft.completed", actorId: instance.actorId, amount: moneyLost });
-      proposeOutcome(runtime, ENCOUNTER_OUTCOME.theftPlayerConscious, moneyLost);
-      return;
-    }
-    runtime.events.push({ type: "theft.empty", actorId: instance.actorId });
-    proposeOutcome(runtime, ENCOUNTER_OUTCOME.muggerFled);
+    takeTheftMoney(context, runtime.events);
+    context.state.objective.stage = "disengage";
   },
 });

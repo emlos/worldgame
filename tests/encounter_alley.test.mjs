@@ -39,6 +39,27 @@ function playUntilTerminal(game, choose) {
   return game.currentStory.system.state.outcome;
 }
 
+function prepareControlledSearch(game) {
+  const state = game.currentStory.system.state;
+  state.relationships.range[0].value = "clinch";
+  state.participants.player.support = "wall";
+  state.relationships.holds.push({
+    id: "test-search-pin",
+    controllerId: "mugger",
+    sourcePartId: "hand_l",
+    targetId: "player",
+    targetPartId: "lower_arm_l",
+    kind: "limb-pin",
+    leverage: 80,
+  });
+  state.npcIntent = {
+    actorId: "mugger",
+    actionId: "search-money",
+    parameters: { targetId: "player" },
+  };
+  return state;
+}
+
 test("entering an alley triggers the mugging once", () => {
   const game = gameAtStart();
   placePlayerAtAlley(game);
@@ -75,6 +96,72 @@ test("failure to disrupt control completes bounded theft exactly once", () => {
   assert.equal(game.player.money, 30);
   chooseAction(game, "finish");
   assert.equal(game.currentStory, null);
+});
+
+test("taking money begins an interruptible getaway before theft completes", () => {
+  const game = gameAtStart({ seed: 1, money: 50 });
+  startEncounter(game);
+  prepareControlledSearch(game);
+
+  chooseAction(game, "cover-and-brace");
+
+  let state = game.currentStory.system.state;
+  assert.equal(game.player.money, 30);
+  assert.equal(state.phase, "active");
+  assert.equal(state.outcome, null);
+  assert.equal(state.objective.stage, "disengage");
+  assert.equal(state.objective.searched, true);
+  assert.equal(state.objective.lootAmount, 20);
+  assert.equal(state.npcIntent.actionId, "create-distance");
+  assert.ok(state.relationships.holds.length > 0);
+  assert.ok(state.lastEvents.some(({ type }) => type === "theft.taken"));
+  assert.match(JSON.stringify(buildScene(game).content), /trying to escape/i);
+
+  chooseAction(game, "cover-and-brace");
+  state = game.currentStory.system.state;
+  assert.equal(state.phase, "active");
+  assert.equal(state.relationships.range[0].value, "reach");
+  assert.deepEqual(state.relationships.holds, []);
+  assert.equal(state.npcIntent.actionId, "flee");
+
+  chooseAction(game, "cover-and-brace");
+  state = game.currentStory.system.state;
+  assert.deepEqual(state.outcome, {
+    id: "theft-completed-player-conscious",
+    moneyLost: 20,
+  });
+  assert.equal(game.player.money, 30);
+  assert.notEqual(state.relationships.range[0].value, "clinch");
+  assert.deepEqual(state.relationships.holds, []);
+  assert.ok(state.lastEvents.some(({ type }) => type === "theft.completed"));
+});
+
+test("incapacitating the mugger during the getaway recovers the stolen money", () => {
+  const game = gameAtStart({ seed: 2, money: 50 });
+  game.player.setSkillValue("strength", 10);
+  startEncounter(game);
+  prepareControlledSearch(game);
+  chooseAction(game, "cover-and-brace");
+
+  const actor = game.currentStory.actors.mugger;
+  const painThreshold = Math.min(
+    95,
+    78 + actor.stats.resolve * 1.2 + actor.stats.endurance * 0.7,
+  );
+  actor.body.parts.find(({ id }) => id === "face").pain = painThreshold - 1;
+
+  chooseAction(game, "strike-face");
+
+  const state = game.currentStory.system.state;
+  assert.deepEqual(state.outcome, {
+    id: "mugger-incapacitated",
+    moneyLost: 0,
+  });
+  assert.equal(game.player.money, 50);
+  assert.equal(state.objective.lootAmount, 0);
+  assert.ok(state.lastEvents.some(
+    ({ type, amount }) => type === "theft.recovered" && amount === 20,
+  ));
 });
 
 test("an already-incapacitated player receives the mugging consequence on entry", () => {

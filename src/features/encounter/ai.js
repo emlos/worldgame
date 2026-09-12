@@ -61,7 +61,7 @@ export function getTheftObjectiveProgress(context) {
     + (state.relationships.facing.find(({ actor }) => actor === "player")?.value === "away" ? 10 : 0);
   const usableControlProgress = hasUsableControl(context, "mugger", "player") ? 30 : 0;
   return rangeProgress + holdProgress + pinProgress + positionProgress
-    + usableControlProgress + (state.objective.hasLoot ? 200 : 0);
+    + usableControlProgress + (state.objective.searched ? 200 : 0);
 }
 
 export function getMuggerCommitmentDiagnostics(context) {
@@ -141,8 +141,17 @@ function situationalBonuses(context, instance) {
     else if (instance.actionId === "tighten-hold") result.objective += 14;
     else if (tags.includes("control")) result.objective += 5;
   } else if (state.objective.stage === "access-money" && tags.includes("control")) result.objective += 6;
-  if (state.objective.stage === "disengage" && ["flee", "create-distance", "shove-away"].includes(instance.actionId)) {
-    result.objective += 45;
+  if (state.objective.stage === "disengage"
+    && [
+      "flee",
+      "create-distance",
+      "shove-away",
+      "wrench-free",
+      "strike-holding-arm",
+      "stand-up",
+      "roll-toward",
+    ].includes(instance.actionId)) {
+    result.objective += 60;
   }
   if (held) {
     const freesSelf = tags.includes("disrupt-hold") || instance.actionId === "wrench-free";
@@ -179,10 +188,24 @@ export function scoreNpcActions(context) {
   const commitment = getMuggerCommitmentDiagnostics(context);
   const retreatIds = new Set(["flee", "run", "create-distance", "shove-away", "stand-up", "wrench-free", "strike-holding-arm", "cover-and-brace"]);
   const retreating = commitment.value <= RETREAT_COMMITMENT_THRESHOLD;
-  const retreatPool = retreating
-    ? candidates.filter(({ actionId }) => retreatIds.has(actionId))
-    : candidates.filter(({ actionId }) => !["flee", "run"].includes(actionId));
-  const pool = retreatPool.length ? retreatPool : candidates;
+  let pool;
+  if (context.state.objective.stage === "disengage") {
+    const priorityBands = [
+      ["flee"],
+      ["create-distance"],
+      ["wrench-free", "strike-holding-arm", "shove-away"],
+      ["stand-up", "roll-toward"],
+      ["cover-and-brace"],
+    ];
+    pool = priorityBands
+      .map((actionIds) => candidates.filter(({ actionId }) => actionIds.includes(actionId)))
+      .find((matches) => matches.length) || candidates;
+  } else {
+    const retreatPool = retreating
+      ? candidates.filter(({ actionId }) => retreatIds.has(actionId))
+      : candidates.filter(({ actionId }) => !["flee", "run"].includes(actionId));
+    pool = retreatPool.length ? retreatPool : candidates;
+  }
 
   return pool.map((instance) => {
     const profile = ACTION_UTILITY[instance.actionId] || { base: 0 };
@@ -216,7 +239,7 @@ export function getNpcDecisionDiagnostics(context) {
 
 export function syncTheftObjectiveStage(context) {
   const objective = context.state.objective;
-  if (objective.hasLoot) objective.stage = "disengage";
+  if (objective.searched) objective.stage = "disengage";
   else if (hasUsableControl(context, "mugger", "player")) objective.stage = "access-money";
   else objective.stage = "gain-control";
 }

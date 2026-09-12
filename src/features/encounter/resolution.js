@@ -25,7 +25,10 @@ import {
   validateEncounterState,
 } from "./state.js";
 import { removeHold, removeNonfunctionalHolds, tickAcuteEffects } from "./actions/helpers.js";
-import { resolveIncapacitatedTheft } from "./objectives/steal.js";
+import {
+  recoverTheftMoney,
+  resolveIncapacitatedTheft,
+} from "./objectives/steal.js";
 
 function fail(message) {
   throw new Error(`Physical encounter: ${message}`);
@@ -68,16 +71,19 @@ function releaseControlledHolds(context, runtime, actorId) {
 }
 
 function checkPhysicalTerminalState(context, runtime) {
+  if (runtime.outcome) return;
   const muggerIncapacitated = isEncounterIncapacitated(context, "mugger");
   const playerIncapacitated = isEncounterIncapacitated(context, "player");
   if (muggerIncapacitated && playerIncapacitated) {
     releaseControlledHolds(context, runtime, "mugger");
     releaseControlledHolds(context, runtime, "player");
+    recoverTheftMoney(context, runtime.events);
     runtime.outcome = { id: ENCOUNTER_OUTCOME.bothIncapacitated, moneyLost: 0 };
     return;
   }
   if (muggerIncapacitated) {
     releaseControlledHolds(context, runtime, "mugger");
+    recoverTheftMoney(context, runtime.events);
     runtime.outcome = { id: ENCOUNTER_OUTCOME.muggerIncapacitated, moneyLost: 0 };
     return;
   }
@@ -325,7 +331,11 @@ function resolveSimultaneously(context, playerAction, npcAction, sharedRuntime) 
       - baseFailedControlAttempts,
     0,
   );
-  objective.hasLoot ||= branches.some((branch) => branch.context.state.objective.hasLoot);
+  objective.searched ||= branches.some((branch) => branch.context.state.objective.searched);
+  objective.lootAmount = Math.max(
+    objective.lootAmount,
+    ...branches.map((branch) => branch.context.state.objective.lootAmount),
+  );
 
   const baseMoney = context.game.player.money;
   const moneyDelta = branches.reduce(
