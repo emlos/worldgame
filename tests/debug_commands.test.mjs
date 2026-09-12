@@ -40,3 +40,22 @@ test("the cinema feature exposes a debug player teleport", () => {
   assert.equal(game.currentLocationId, String(destination.location.id));
   assert.match(game.log.at(-1).label, /Teleport player to .*Cinema/i);
 });
+
+test("the encounter feature teleports the player into an alley and starts its encounter", () => {
+  const game = new Game({
+    seed: 7302,
+    startDate: new Date("2026-09-04T18:00:00.000Z"),
+    playerOptions: { startPlaceId: null },
+  });
+  const teleport = game.features.getDebugAction("encounter.teleport-player-to-alley");
+
+  assert.equal(typeof teleport, "function");
+  const destination = teleport(game);
+
+  assert.equal(destination.place.key, "alleyway");
+  assert.equal(game.currentPlace?.key, "alleyway");
+  assert.equal(game.currentLocationId, String(destination.location.id));
+  assert.equal(game.currentStory?.id, "encounter.alley-mugging");
+  assert.equal(game.currentStory?.system?.id, "encounter.physical");
+  assert.match(game.log.at(-1).label, /Teleport player to .*Alley/i);
+});

@@ -1661,6 +1661,29 @@ p {
   text-transform: uppercase;
 }
 
+.debug-details {
+  margin-top: 0.65rem;
+}
+
+.debug-details summary {
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.debug-code {
+  box-sizing: border-box;
+  max-height: 18rem;
+  margin: 0.45rem 0 0;
+  padding: 0.55rem;
+  overflow: auto;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 0.25rem;
+  background: rgb(0 0 0 / 24%);
+  font: 0.68rem/1.4 ui-monospace, SFMono-Regular, Consolas, monospace;
+  white-space: pre-wrap;
+}
+
 .debug-section {
   margin-top: 16px;
 }

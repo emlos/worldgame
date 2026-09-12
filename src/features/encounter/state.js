@@ -1,4 +1,6 @@
-export const ENCOUNTER_STATE_VERSION = 2;
+import { MUGGER_PERSONALITY_IDS } from "./personality.js";
+
+export const ENCOUNTER_STATE_VERSION = 3;
 export const ALLEY_MUGGING_SCENARIO_ID = "alley-mugging";
 
 export const ENCOUNTER_PHASE = Object.freeze({
@@ -57,6 +59,7 @@ const HAND_PARTS = new Set(["hand_l", "hand_r"]);
 const PIN_SOURCE_PARTS = new Set(["hand_l", "hand_r", "knee_l", "knee_r"]);
 const HOLD_KINDS = new Set(["wrist-grip", "limb-pin"]);
 const ACUTE_IDS = new Set(["dazed", "off-balance", "winded"]);
+const PERSONALITY_IDS = new Set(MUGGER_PERSONALITY_IDS);
 
 function fail(message) {
   throw new Error(`Physical encounter state: ${message}`);
@@ -125,8 +128,8 @@ function validateAcute(acute, path) {
 function validateParticipant(participant, participantId, path) {
   record(participant, path);
   const keys = participantId === "mugger"
-    ? ["ref", "pose", "support", "exertion", "commitmentBase", "acute"]
-    : ["ref", "pose", "support", "exertion", "acute"];
+    ? ["ref", "pose", "support", "exertion", "commitmentBase", "personalityId", "actionHistory", "acute"]
+    : ["ref", "pose", "support", "exertion", "actionHistory", "acute"];
   exactKeys(participant, keys, path);
   validateRef(participant.ref, participantId, `${path}.ref`);
   string(participant.pose, `${path}.pose`, POSES);
@@ -134,7 +137,11 @@ function validateParticipant(participant, participantId, path) {
   integer(participant.exertion, `${path}.exertion`, { min: 0, max: 100 });
   if (participantId === "mugger") {
     integer(participant.commitmentBase, `${path}.commitmentBase`, { min: 0, max: 100 });
+    string(participant.personalityId, `${path}.personalityId`, PERSONALITY_IDS);
   }
+  const history = array(participant.actionHistory, `${path}.actionHistory`);
+  if (history.length > 8) fail(`${path}.actionHistory cannot contain more than eight actions`);
+  history.forEach((actionId, index) => string(actionId, `${path}.actionHistory[${index}]`));
   array(participant.acute, `${path}.acute`).forEach((acute, index) =>
     validateAcute(acute, `${path}.acute[${index}]`));
   const acuteIds = participant.acute.map(({ id }) => id);
@@ -210,7 +217,7 @@ function validateEvents(events, path) {
   });
 }
 
-export function createAlleyMuggingState({ aggressorAlias, theftAmount }) {
+export function createAlleyMuggingState({ aggressorAlias, theftAmount, personalityId = "opportunist" }) {
   return {
     version: ENCOUNTER_STATE_VERSION,
     scenarioId: ALLEY_MUGGING_SCENARIO_ID,
@@ -223,6 +230,7 @@ export function createAlleyMuggingState({ aggressorAlias, theftAmount }) {
         pose: ENCOUNTER_POSE.standing,
         support: ENCOUNTER_SUPPORT.free,
         exertion: 0,
+        actionHistory: [],
         acute: [],
       },
       mugger: {
@@ -231,6 +239,8 @@ export function createAlleyMuggingState({ aggressorAlias, theftAmount }) {
         support: ENCOUNTER_SUPPORT.free,
         exertion: 0,
         commitmentBase: 60,
+        personalityId,
+        actionHistory: [],
         acute: [],
       },
     },

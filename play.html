@@ -164,6 +164,9 @@
           <button id="debug-teleport-cinema" class="debug-button" type="button">
             Teleport to cinema
           </button>
+          <button id="debug-teleport-alley" class="debug-button" type="button">
+            Teleport to alley
+          </button>
         </section>
         <section class="debug-section">
           <h3>Taylor</h3>
@@ -193,6 +196,34 @@
             <dt>Action</dt>
             <dd id="debug-caro-action"></dd>
           </dl>
+        </section>
+        <section id="debug-encounter-section" class="debug-section" hidden>
+          <h3>Physical encounter</h3>
+          <dl class="debug-state">
+            <dt>Personality</dt><dd id="debug-encounter-personality"></dd>
+            <dt>Commitment</dt><dd id="debug-encounter-commitment"></dd>
+            <dt>Intent</dt><dd id="debug-encounter-intent"></dd>
+          </dl>
+          <details class="debug-details" open>
+            <summary>NPC utility scores</summary>
+            <pre id="debug-encounter-scores" class="debug-code"></pre>
+          </details>
+          <details class="debug-details">
+            <summary>Action availability</summary>
+            <pre id="debug-encounter-availability" class="debug-code"></pre>
+          </details>
+          <details class="debug-details">
+            <summary>Last rolls</summary>
+            <pre id="debug-encounter-rolls" class="debug-code"></pre>
+          </details>
+          <details class="debug-details" open>
+            <summary>State invariants</summary>
+            <pre id="debug-encounter-invariants" class="debug-code"></pre>
+          </details>
+          <details class="debug-details">
+            <summary>Canonical state</summary>
+            <pre id="debug-encounter-state" class="debug-code"></pre>
+          </details>
         </section>
       </aside>
     </div>

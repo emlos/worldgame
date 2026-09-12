@@ -23,9 +23,10 @@ import {
   failAction,
   removeHold,
   removeNonfunctionalHolds,
-  roll,
+  chanceRoll,
 } from "./helpers.js";
 import { ENCOUNTER_POSE, ENCOUNTER_RANGE, getEncounterRange } from "../state.js";
+import { encounterPronoun, encounterVerb } from "../language.js";
 
 function ordinaryStrikeTargets(context, actorId, actionId) {
   const sourcePartId = getUsableHands(context, actorId)[0];
@@ -60,12 +61,12 @@ export const STRIKE_FACE = Object.freeze({
       && isFacingOpponent(context, instance.targetId, { allowSide: true });
   },
 
-  label() {
-    return "Strike at their face";
+  label(context, instance) {
+    return `Strike at ${encounterPronoun(context, instance.targetId, "dependent")} face`;
   },
 
-  intentLabel() {
-    return `draws back a hand to strike at your face`;
+  intentLabel(context, intent) {
+    return `${encounterVerb(context, intent.actorId, "draws", "draw")} back a hand to strike at your face`;
   },
 
   resolve(context, instance, runtime) {
@@ -80,7 +81,7 @@ export const STRIKE_FACE = Object.freeze({
       strengthScale: 0.7,
     });
     const dazeChance = Math.min(0.68, 0.24 + damage * 0.025);
-    if (roll(context, instance, "daze") < dazeChance) {
+    if (chanceRoll(context, instance, runtime, "daze", dazeChance)) {
       addDaze(context, instance.targetId, damage >= 16 ? 2 : 1, runtime);
     }
     removeNonfunctionalHolds(context, runtime);
@@ -100,12 +101,12 @@ export const DRIVE_BODY = Object.freeze({
 
   isAvailable: ordinaryStrikeAvailable,
 
-  label() {
-    return "Drive a strike into their body";
+  label(context, instance) {
+    return `Drive a strike into ${encounterPronoun(context, instance.targetId, "dependent")} body`;
   },
 
-  intentLabel() {
-    return "sets their weight to drive a strike into your body";
+  intentLabel(context, intent) {
+    return `${encounterVerb(context, intent.actorId, "sets", "set")} ${encounterPronoun(context, intent.actorId, "dependent")} weight to drive a strike into your body`;
   },
 
   resolve(context, instance, runtime) {
@@ -162,8 +163,8 @@ export const STRIKE_HOLDING_ARM = Object.freeze({
     return `Strike the ${sideName(hold.sourcePartId)} limb ${hold.kind === "limb-pin" ? "pinning" : "gripping"} your ${sideName(hold.targetPartId)} arm`;
   },
 
-  intentLabel() {
-    return "tries to batter the arm controlling their wrist";
+  intentLabel(context, intent) {
+    return `${encounterVerb(context, intent.actorId, "tries", "try")} to batter the arm controlling ${encounterPronoun(context, intent.actorId, "dependent")} wrist`;
   },
 
   resolve(context, instance, runtime) {
@@ -210,19 +211,19 @@ export const HEADBUTT = Object.freeze({
       && isFacingOpponent(context, instance.targetId, { allowSide: true });
   },
 
-  label() {
-    return "Try to headbutt them";
+  label(context, instance) {
+    return `Try to headbutt ${encounterPronoun(context, instance.targetId, "object")}`;
   },
 
-  intentLabel() {
-    return "draws their head back for a close strike";
+  intentLabel(context, intent) {
+    return `${encounterVerb(context, intent.actorId, "draws", "draw")} ${encounterPronoun(context, intent.actorId, "dependent")} head back for a close strike`;
   },
 
   resolve(context, instance, runtime) {
     addExertion(context, instance.actorId, 7);
     if (!contest(context, instance, runtime, { baseChance: 0.58 })) {
       failAction(runtime, instance, "missed");
-      if (roll(context, instance, "self-daze-miss") < 0.18) {
+      if (chanceRoll(context, instance, runtime, "self-daze-miss", 0.18)) {
         addDaze(context, instance.actorId, 1, runtime);
       }
       return;
@@ -237,10 +238,10 @@ export const HEADBUTT = Object.freeze({
       baseDamage: 4,
       strengthScale: 0.1,
     });
-    if (roll(context, instance, "target-daze") < Math.min(0.62, 0.28 + damage * 0.02)) {
+    if (chanceRoll(context, instance, runtime, "target-daze", Math.min(0.62, 0.28 + damage * 0.02))) {
       addDaze(context, instance.targetId, damage >= 13 ? 2 : 1, runtime);
     }
-    if (roll(context, instance, "self-daze") < 0.12) addDaze(context, instance.actorId, 1, runtime);
+    if (chanceRoll(context, instance, runtime, "self-daze", 0.12)) addDaze(context, instance.actorId, 1, runtime);
     removeNonfunctionalHolds(context, runtime);
   },
 });
@@ -274,19 +275,19 @@ export const KNEE_STRIKE = Object.freeze({
       && getBalanceCapacity(context, instance.actorId) > 0.4;
   },
 
-  label() {
-    return "Drive a knee into their body";
+  label(context, instance) {
+    return `Drive a knee into ${encounterPronoun(context, instance.targetId, "dependent")} body`;
   },
 
-  intentLabel() {
-    return "shifts onto one leg to drive a knee into you";
+  intentLabel(context, intent) {
+    return `${encounterVerb(context, intent.actorId, "shifts", "shift")} onto one leg to drive a knee into you`;
   },
 
   resolve(context, instance, runtime) {
     addExertion(context, instance.actorId, 9);
     if (!contest(context, instance, runtime, { baseChance: 0.61 })) {
       failAction(runtime, instance, "lost-balance");
-      if (roll(context, instance, "balance-risk") < 0.38) {
+      if (chanceRoll(context, instance, runtime, "balance-risk", 0.38)) {
         addAcute(context, instance.actorId, "off-balance", 1, 2, runtime);
       }
       return;
@@ -297,7 +298,7 @@ export const KNEE_STRIKE = Object.freeze({
       strengthScale: 0.6,
     });
     addAcute(context, instance.targetId, "winded", damage >= 15 ? 2 : 1, 2, runtime);
-    if (roll(context, instance, "balance-risk") < 0.16) {
+    if (chanceRoll(context, instance, runtime, "balance-risk", 0.16)) {
       addAcute(context, instance.actorId, "off-balance", 1, 1, runtime);
     }
   },

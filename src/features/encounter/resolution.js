@@ -32,6 +32,9 @@ function resolveOne(context, instance, runtime, { revalidate = true } = {}) {
     targetId: instance.targetId,
     actionId: instance.actionId,
   });
+  const history = context.state.participants[instance.actorId].actionHistory;
+  history.push(instance.actionId);
+  if (history.length > 8) history.splice(0, history.length - 8);
   if (revalidate && !definition.isAvailable(context, instance)) {
     runtime.events.push({
       type: "action.spoiled",
@@ -131,11 +134,14 @@ export function resolveEncounterExchange({
     outcome: null,
   };
 
+  // Reactions chosen for this exchange influence it from the outset, even when their
+  // movement completes after the opponent's action.
+  for (const instance of [availablePlayerAction, npcAction]) {
+    if (instance.actionId === "cover-and-brace") runtime.guarded.add(instance.actorId);
+    if (instance.actionId === "create-distance") runtime.evading.add(instance.actorId);
+  }
+
   if (playerSeconds === npcSeconds) {
-    for (const instance of [availablePlayerAction, npcAction]) {
-      if (instance.actionId === "cover-and-brace") runtime.guarded.add(instance.actorId);
-      if (instance.actionId === "create-distance") runtime.evading.add(instance.actorId);
-    }
     resolveOne(context, availablePlayerAction, runtime, { revalidate: false });
     resolveOne(context, npcAction, runtime, { revalidate: false });
   } else {

@@ -25,6 +25,7 @@ import {
   ENCOUNTER_PHASE,
   validateEncounterState,
 } from "./state.js";
+import { encounterPronoun, encounterVerb } from "./language.js";
 
 export const ENCOUNTER_PHYSICAL_SYSTEM_ID = "encounter.physical";
 
@@ -110,7 +111,7 @@ function renderActive(context, definition, systemId) {
     content: [
       {
         type: "paragraph",
-        text: `Threat: The mugger is trying to take up to £${state.objective.amount}. Elapsed: ${clock(state.elapsedSeconds)}.`,
+        text: `Threat: ${encounterPronoun(context, "mugger", "subject", { sentence: true })} ${encounterVerb(context, "mugger", "is", "are")} trying to take up to £${state.objective.amount}. Elapsed: ${clock(state.elapsedSeconds)}.`,
       },
       { type: "paragraph", text: `Next: ${renderIntent(context)}` },
       renderSituationTable(context),
@@ -140,7 +141,7 @@ function renderActive(context, definition, systemId) {
 function renderTerminal(context, definition, systemId) {
   return {
     content: [
-      { type: "paragraph", text: outcomeText(context.state) },
+      { type: "paragraph", text: outcomeText(context) },
       renderSituationTable(context),
       { type: "paragraph", text: renderLastExchange(context) },
     ],

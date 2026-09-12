@@ -1,5 +1,6 @@
 import { canBeginPhysicalAction } from "../affordances.js";
 import { actionInstance, addExertion } from "./helpers.js";
+import { encounterVerb } from "../language.js";
 
 export const COVER_AND_BRACE = Object.freeze({
   id: "cover-and-brace",
@@ -20,8 +21,8 @@ export const COVER_AND_BRACE = Object.freeze({
     return "Cover and brace";
   },
 
-  intentLabel() {
-    return "covers up and braces for your response";
+  intentLabel(context, intent) {
+    return `${encounterVerb(context, intent.actorId, "covers", "cover")} up and ${encounterVerb(context, intent.actorId, "braces", "brace")} for your response`;
   },
 
   resolve(context, instance, runtime) {
@@ -30,4 +31,3 @@ export const COVER_AND_BRACE = Object.freeze({
     runtime.events.push({ type: "defense.braced", actorId: instance.actorId });
   },
 });
-

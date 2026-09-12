@@ -39,6 +39,22 @@ export function roll(context, instance, purpose) {
   );
 }
 
+export function chanceRoll(context, instance, runtime, purpose, chance, extra = {}) {
+  const value = roll(context, instance, purpose);
+  const success = value < chance;
+  runtime.events.push({
+    type: "chance.rolled",
+    actorId: instance.actorId,
+    actionId: instance.actionId,
+    purpose,
+    chance: Math.round(chance * 10000) / 10000,
+    roll: Math.round(value * 10000) / 10000,
+    success,
+    ...extra,
+  });
+  return success;
+}
+
 export function contest(
   context,
   instance,
@@ -60,14 +76,7 @@ export function contest(
   if (runtime.guarded.has(instance.targetId)) chance -= 0.24;
   if (runtime.evading.has(instance.targetId)) chance -= 0.3;
   chance = clamp(chance, 0.18, 0.9);
-  const value = roll(context, instance, "contest");
-  runtime.events.push({
-    type: "contest.rolled",
-    actorId: instance.actorId,
-    actionId: instance.actionId,
-    success: value < chance,
-  });
-  return value < chance;
+  return chanceRoll(context, instance, runtime, "contest", chance);
 }
 
 export function addExertion(context, actorId, baseAmount) {

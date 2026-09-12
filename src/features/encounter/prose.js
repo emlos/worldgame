@@ -20,16 +20,10 @@ import {
   getEncounterFacing,
   getEncounterRange,
 } from "./state.js";
-
-function capitalize(value) {
-  const text = String(value || "");
-  return text ? `${text[0].toUpperCase()}${text.slice(1)}` : text;
-}
+import { capitalizeEncounterText, encounterPronoun, encounterVerb } from "./language.js";
 
 function actorName(context, actorId, { sentence = false, possessive = false } = {}) {
-  let value = actorId === "player" ? "you" : getCombatant(context, actorId).title;
-  if (possessive) value = actorId === "player" ? "your" : `${value}'s`;
-  return sentence ? capitalize(value) : value;
+  return encounterPronoun(context, actorId, possessive ? "dependent" : "subject", { sentence });
 }
 
 function wristName(partId) {
@@ -40,8 +34,10 @@ function sideName(partId) {
   return partId?.endsWith("_l") ? "left" : "right";
 }
 
-function poseText(actorId, pose) {
-  if (pose === ENCOUNTER_POSE.supine) return actorId === "player" ? "on your back" : "on their back";
+function poseText(context, actorId, pose) {
+  if (pose === ENCOUNTER_POSE.supine) {
+    return `on ${encounterPronoun(context, actorId, "dependent")} back`;
+  }
   if (pose === ENCOUNTER_POSE.prone) return "face-down";
   return pose;
 }
@@ -62,7 +58,7 @@ function rangeText(state) {
 function positionText(context, actorId) {
   const participant = getParticipant(context, actorId);
   const facing = getEncounterFacing(context.state, actorId);
-  const details = [poseText(actorId, participant.pose)];
+  const details = [poseText(context, actorId, participant.pose)];
   if (participant.support === "wall") {
     details.push(facing === ENCOUNTER_FACING.away ? "facing the wall" : "back against the wall");
   } else if (facing === ENCOUNTER_FACING.away) details.push("turned away");
@@ -80,7 +76,7 @@ function positionText(context, actorId) {
       : `holding ${actorName(context, hold.targetId, { possessive: true })} ${wristName(hold.targetPartId)}`);
   }
   details.push(rangeText(context.state));
-  return capitalize(details.join("; "));
+  return capitalizeEncounterText(details.join("; "));
 }
 
 function painText(pain) {
@@ -109,17 +105,19 @@ function conditionText(context, actorId) {
     const grip = Math.min(...holds.map((hold) => getEffectiveHoldLeverage(context, hold)));
     details.push(grip < 28 ? "grip slipping" : grip < 48 ? "grip unsteady" : "grip secure");
   }
-  return capitalize(details.join("; "));
+  return capitalizeEncounterText(details.join("; "));
 }
 
 function actionAttemptText(context, event) {
   const actor = actorName(context, event.actorId, { sentence: true });
+  const targetObject = encounterPronoun(context, event.targetId, "object");
+  const targetPossessive = encounterPronoun(context, event.targetId, "dependent");
   const phrases = {
     "cover-and-brace": ["cover up and brace", "covers up and braces"],
-    "strike-face": ["strike toward the face", "strikes toward the face"],
-    "drive-body": ["drive a blow toward the body", "drives a blow toward the body"],
-    "shove-away": ["try to shove the other away", "tries to shove the other away"],
-    "grab-arm": ["reach for a wrist", "reaches for a wrist"],
+    "strike-face": [`strike toward ${targetPossessive} face`, `strikes toward ${targetPossessive} face`],
+    "drive-body": [`drive a blow toward ${targetPossessive} body`, `drives a blow toward ${targetPossessive} body`],
+    "shove-away": [`try to shove ${targetObject} away`, `tries to shove ${targetObject} away`],
+    "grab-arm": [`reach for ${targetPossessive} wrist`, `reaches for ${targetPossessive} wrist`],
     "strike-holding-arm": ["strike at the arm maintaining the hold", "strikes at the arm maintaining the hold"],
     "wrench-free": ["twist hard against the wrist hold", "twists hard against the wrist hold"],
     "create-distance": ["try to make room", "tries to make room"],
@@ -127,32 +125,32 @@ function actionAttemptText(context, event) {
     run: ["turn and run", "turns and runs"],
     flee: ["break toward the street", "breaks toward the street"],
     "tighten-hold": ["reinforce the wrist hold", "reinforces the wrist hold"],
-    "force-to-wall": ["try to drive the other against the wall", "tries to drive the other against the wall"],
-    "force-to-ground": ["try to force the other to the ground", "tries to force the other to the ground"],
-    "turn-target-away": ["try to turn the other away", "tries to turn the other away"],
-    "pin-limb": ["try to pin a restrained arm", "tries to pin a restrained arm"],
+    "force-to-wall": [`try to drive ${targetObject} against the wall`, `tries to drive ${targetObject} against the wall`],
+    "force-to-ground": [`try to force ${targetObject} to the ground`, `tries to force ${targetObject} to the ground`],
+    "turn-target-away": [`try to turn ${targetObject} away`, `tries to turn ${targetObject} away`],
+    "pin-limb": [`try to pin ${targetPossessive} restrained arm`, `tries to pin ${targetPossessive} restrained arm`],
     "stand-up": ["try to stand", "tries to stand"],
-    "roll-toward": ["twist to face the other", "twists to face the other"],
+    "roll-toward": [`twist to face ${targetObject}`, `twists to face ${targetObject}`],
     headbutt: ["try a headbutt", "tries a headbutt"],
     "knee-strike": ["drive a knee toward the body", "drives a knee toward the body"],
-    "search-money": ["reach for the money", "reaches for the money"],
+    "search-money": [`reach for ${targetPossessive} money`, `reaches for ${targetPossessive} money`],
   };
   const forms = phrases[event.actionId] || ["act", "acts"];
-  return `${actor} ${forms[event.actorId === "player" ? 0 : 1]}.`;
+  return `${actor} ${encounterVerb(context, event.actorId, forms[1], forms[0])}.`;
 }
 
 function eventText(context, event) {
   switch (event.type) {
     case "encounter.started":
-      return `${getCombatant(context, "mugger").title} blocks the alley and demands your money.`;
+      return `${getCombatant(context, "mugger").title} blocks the alley and ${encounterPronoun(context, "mugger", "subject")} ${encounterVerb(context, "mugger", "demands", "demand")} your money.`;
     case "action.attempted":
       return actionAttemptText(context, event);
     case "action.failed":
       return `${actorName(context, event.actorId, { sentence: true })} cannot make it work.`;
     case "action.spoiled":
-      return `${actorName(context, event.actorId, { sentence: true })} ${event.actorId === "player" ? "lose" : "loses"} the chance to finish the slower action.`;
+      return `${actorName(context, event.actorId, { sentence: true })} ${encounterVerb(context, event.actorId, "loses", "lose")} the chance to finish the slower action.`;
     case "defense.braced":
-      return `${actorName(context, event.actorId, { sentence: true })} ${event.actorId === "player" ? "are" : "is"} ready for the impact.`;
+      return `${actorName(context, event.actorId, { sentence: true })} ${encounterVerb(context, event.actorId, "is", "are")} ready for the impact.`;
     case "impact.landed": {
       const part = {
         [BodyPartId.FACE]: "face",
@@ -167,10 +165,10 @@ function eventText(context, event) {
     }
     case "acute.applied": {
       const description = event.id === "winded"
-        ? "loses their breath"
+        ? `${encounterVerb(context, event.actorId, "loses", "lose")} ${encounterPronoun(context, event.actorId, "dependent")} breath`
         : event.id === "off-balance"
-          ? "staggers off balance"
-          : "reels, dazed";
+          ? `${encounterVerb(context, event.actorId, "staggers", "stagger")} off balance`
+          : `${encounterVerb(context, event.actorId, "reels", "reel")}, dazed`;
       if (event.actorId === "player") {
         return event.id === "winded"
           ? "You lose your breath."
@@ -181,7 +179,7 @@ function eventText(context, event) {
       return `${actorName(context, event.actorId, { sentence: true })} ${description}.`;
     }
     case "hold.created":
-      return `${actorName(context, event.controllerId, { sentence: true })} ${event.controllerId === "player" ? "catch" : "catches"} ${actorName(context, event.targetId, { possessive: true })} ${wristName(event.targetPartId)}.`;
+      return `${actorName(context, event.controllerId, { sentence: true })} ${encounterVerb(context, event.controllerId, "catches", "catch")} ${actorName(context, event.targetId, { possessive: true })} ${wristName(event.targetPartId)}.`;
     case "hold.weakened":
       return "The wrist hold loosens.";
     case "hold.strengthened":
@@ -189,7 +187,7 @@ function eventText(context, event) {
     case "hold.broken":
       return event.kind === "limb-pin" ? "The pinned arm comes free." : "The wrist comes free.";
     case "hold.pinned":
-      return `${actorName(context, event.controllerId, { sentence: true })} ${event.controllerId === "player" ? "pin" : "pins"} ${actorName(context, event.targetId, { possessive: true })} ${sideName(event.targetPartId)} arm.`;
+      return `${actorName(context, event.controllerId, { sentence: true })} ${encounterVerb(context, event.controllerId, "pins", "pin")} ${actorName(context, event.targetId, { possessive: true })} ${sideName(event.targetPartId)} arm.`;
     case "range.changed":
       return event.to === ENCOUNTER_RANGE.far
         ? "A clear gap opens between you."
@@ -197,33 +195,33 @@ function eventText(context, event) {
           ? "The struggle opens to arm's reach."
           : "The gap collapses into a clinch.";
     case "support.changed":
-      return `${actorName(context, event.actorId, { sentence: true })} ${event.actorId === "player" ? "are" : "is"} forced back against the wall.`;
+      return `${actorName(context, event.actorId, { sentence: true })} ${encounterVerb(context, event.actorId, "is", "are")} forced back against the wall.`;
     case "pose.changed": {
       if (event.to === ENCOUNTER_POSE.standing) {
         return event.actorId === "player"
           ? "You get back to your feet."
-          : `${actorName(context, event.actorId, { sentence: true })} gets back to their feet.`;
+          : `${actorName(context, event.actorId, { sentence: true })} ${encounterVerb(context, event.actorId, "gets", "get")} back to ${encounterPronoun(context, event.actorId, "dependent")} feet.`;
       }
       if (event.to === ENCOUNTER_POSE.kneeling) {
-        return `${actorName(context, event.actorId, { sentence: true })} ${event.actorId === "player" ? "drop" : "drops"} to a knee.`;
+        return `${actorName(context, event.actorId, { sentence: true })} ${encounterVerb(context, event.actorId, "drops", "drop")} to a knee.`;
       }
       if (event.actorId === "player") {
         return `You go ${event.to === ENCOUNTER_POSE.prone ? "face-down" : "onto your back"}.`;
       }
-      return `${actorName(context, event.actorId, { sentence: true })} goes ${event.to === ENCOUNTER_POSE.prone ? "face-down" : "onto their back"}.`;
+      return `${actorName(context, event.actorId, { sentence: true })} ${encounterVerb(context, event.actorId, "goes", "go")} ${event.to === ENCOUNTER_POSE.prone ? "face-down" : `onto ${encounterPronoun(context, event.actorId, "dependent")} back`}.`;
     }
     case "facing.changed":
       return event.to === ENCOUNTER_FACING.away
-        ? `${actorName(context, event.actorId, { sentence: true })} ${event.actorId === "player" ? "are" : "is"} turned away.`
-        : `${actorName(context, event.actorId, { sentence: true })} ${event.actorId === "player" ? "turn" : "turns"} to face the other again.`;
+        ? `${actorName(context, event.actorId, { sentence: true })} ${encounterVerb(context, event.actorId, "is", "are")} turned away.`
+        : `${actorName(context, event.actorId, { sentence: true })} ${encounterVerb(context, event.actorId, "turns", "turn")} to face the other again.`;
     case "theft.completed":
-      return `The mugger tears away with £${event.amount}.`;
+      return `${encounterPronoun(context, "mugger", "subject", { sentence: true })} ${encounterVerb(context, "mugger", "tears", "tear")} away with £${event.amount}.`;
     case "theft.empty":
-      return "The mugger finds nothing to take and abandons the attempt.";
+      return `${encounterPronoun(context, "mugger", "subject", { sentence: true })} ${encounterVerb(context, "mugger", "finds", "find")} nothing to take and ${encounterVerb(context, "mugger", "abandons", "abandon")} the attempt.`;
     case "escape.completed":
       return event.actorId === "player"
         ? "You reach the street and get clear."
-        : "The mugger turns and runs from the alley.";
+        : `${encounterPronoun(context, "mugger", "subject", { sentence: true })} ${encounterVerb(context, "mugger", "turns", "turn")} and ${encounterVerb(context, "mugger", "runs", "run")} from the alley.`;
     default:
       return "";
   }
@@ -240,15 +238,14 @@ export function renderObjectivePressure(context) {
   const stage = context.state.objective.stage;
   const commitment = getCommitmentBand(context);
   if (stage === "access-money") {
-    return `Their control is enough to reach for your money. They look ${commitment}.`;
+    return `${encounterPronoun(context, "mugger", "dependent", { sentence: true })} control is enough to reach for your money. ${encounterPronoun(context, "mugger", "subject", { sentence: true })} ${encounterVerb(context, "mugger", "looks", "look")} ${commitment}.`;
   }
-  return `They still need to control you before they can take anything. They look ${commitment}.`;
+  return `${encounterPronoun(context, "mugger", "subject", { sentence: true })} still ${encounterVerb(context, "mugger", "needs", "need")} to control you before ${encounterPronoun(context, "mugger", "subject")} can take anything. ${encounterPronoun(context, "mugger", "subject", { sentence: true })} ${encounterVerb(context, "mugger", "looks", "look")} ${commitment}.`;
 }
 
 export function renderIntent(context) {
   const intent = context.state.npcIntent;
-  const actor = getCombatant(context, "mugger").actor;
-  const subject = capitalize(actor.pronouns?.subject || "they");
+  const subject = encounterPronoun(context, "mugger", "subject", { sentence: true });
   return `${subject} ${intentLabel(context, intent)}. ${actionDurationSeconds({
     actionId: intent.actionId,
   })} seconds.`;
@@ -266,21 +263,23 @@ export function renderSituationTable(context) {
   };
 }
 
-export function outcomeText(state) {
+export function outcomeText(context) {
+  const state = context.state;
   const money = state.outcome?.moneyLost || 0;
+  const subject = encounterPronoun(context, "mugger", "subject", { sentence: true });
   switch (state.outcome?.id) {
     case ENCOUNTER_OUTCOME.playerEscaped:
-      return "You make it out of the alley before the mugger can catch you.";
+      return `You make it out of the alley before ${encounterPronoun(context, "mugger", "subject")} can catch you.`;
     case ENCOUNTER_OUTCOME.muggerFled:
-      return "The mugger decides the risk is no longer worth it and flees.";
+      return `${subject} ${encounterVerb(context, "mugger", "decides", "decide")} the risk is no longer worth it and ${encounterVerb(context, "mugger", "flees", "flee")}.`;
     case ENCOUNTER_OUTCOME.muggerIncapacitated:
-      return "The mugger can no longer continue the struggle. You are safe to leave.";
+      return `${subject} can no longer continue the struggle. You are safe to leave.`;
     case ENCOUNTER_OUTCOME.theftPlayerConscious:
-      return `The mugger gets away with £${money} while you are still conscious.`;
+      return `${subject} ${encounterVerb(context, "mugger", "gets", "get")} away with £${money} while you are still conscious.`;
     case ENCOUNTER_OUTCOME.theftPlayerIncapacitated:
       return money > 0
-        ? `By the time you can respond, the mugger has taken £${money} and gone.`
-        : "By the time you can respond, the mugger has searched you, found nothing, and gone.";
+        ? `By the time you can respond, ${encounterPronoun(context, "mugger", "subject")} has taken £${money} and gone.`
+        : `By the time you can respond, ${encounterPronoun(context, "mugger", "subject")} has searched you, found nothing, and gone.`;
     default:
       return "The encounter is over.";
   }

@@ -34,6 +34,7 @@ import {
   getEncounterFacing,
   getEncounterRange,
 } from "../state.js";
+import { encounterPronoun, encounterVerb } from "../language.js";
 
 function opponent(actorId) {
   return actorId === "player" ? "mugger" : "player";
@@ -57,12 +58,12 @@ export const SHOVE_AWAY = Object.freeze({
       && getUsableHands(context, instance.actorId).length > 0;
   },
 
-  label() {
-    return "Shove them away";
+  label(context, instance) {
+    return `Shove ${encounterPronoun(context, instance.targetId, "object")} away`;
   },
 
-  intentLabel() {
-    return "leans in to shove you off balance";
+  intentLabel(context, intent) {
+    return `${encounterVerb(context, intent.actorId, "leans", "lean")} in to shove you off balance`;
   },
 
   resolve(context, instance, runtime) {
@@ -111,8 +112,8 @@ export const CREATE_DISTANCE = Object.freeze({
     return "Create some distance";
   },
 
-  intentLabel() {
-    return "shifts back, looking for room to get away";
+  intentLabel(context, intent) {
+    return `${encounterVerb(context, intent.actorId, "shifts", "shift")} back, looking for room to get away`;
   },
 
   resolve(context, instance, runtime) {
@@ -149,8 +150,8 @@ export const STAND_UP = Object.freeze({
     return "Try to stand up";
   },
 
-  intentLabel() {
-    return "plants their limbs and starts to rise";
+  intentLabel(context, intent) {
+    return `${encounterVerb(context, intent.actorId, "plants", "plant")} ${encounterPronoun(context, intent.actorId, "dependent")} limbs and ${encounterVerb(context, intent.actorId, "starts", "start")} to rise`;
   },
 
   resolve(context, instance, runtime) {
@@ -200,12 +201,12 @@ export const ROLL_TOWARD = Object.freeze({
 
   label(context, instance) {
     return isGrounded(context, instance.actorId)
-      ? "Roll to face them"
-      : "Turn back toward them";
+      ? `Roll to face ${encounterPronoun(context, instance.targetId, "object")}`
+      : `Turn back toward ${encounterPronoun(context, instance.targetId, "object")}`;
   },
 
-  intentLabel() {
-    return "twists to face you and recover a safer angle";
+  intentLabel(context, intent) {
+    return `${encounterVerb(context, intent.actorId, "twists", "twist")} to face you and recover a safer angle`;
   },
 
   resolve(context, instance, runtime) {
@@ -259,8 +260,8 @@ export const CLOSE_DISTANCE = Object.freeze({
     return "Close the distance";
   },
 
-  intentLabel() {
-    return "lunges after you before you can get clear";
+  intentLabel(context, intent) {
+    return `${encounterVerb(context, intent.actorId, "lunges", "lunge")} after you before you can get clear`;
   },
 
   resolve(context, instance, runtime) {
@@ -301,8 +302,8 @@ export const RUN = Object.freeze({
     return "Run from the alley";
   },
 
-  intentLabel() {
-    return "turns to run";
+  intentLabel(context, intent) {
+    return `${encounterVerb(context, intent.actorId, "turns", "turn")} to run`;
   },
 
   resolve(context, instance, runtime) {
@@ -334,8 +335,8 @@ export const FLEE = Object.freeze({
     return "Flee";
   },
 
-  intentLabel() {
-    return "glances toward the street and prepares to bolt";
+  intentLabel(context, intent) {
+    return `${encounterVerb(context, intent.actorId, "glances", "glance")} toward the street and ${encounterVerb(context, intent.actorId, "prepares", "prepare")} to bolt`;
   },
 
   resolve(context, instance, runtime) {

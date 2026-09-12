@@ -26,7 +26,7 @@ import {
   failAction,
   proposeOutcome,
   removeHold,
-  roll,
+  chanceRoll,
 } from "./helpers.js";
 import {
   ENCOUNTER_FACING,
@@ -37,6 +37,7 @@ import {
   getEncounterFacing,
   getEncounterRange,
 } from "../state.js";
+import { encounterPronoun, encounterVerb } from "../language.js";
 
 function opponent(actorId) {
   return actorId === "player" ? "mugger" : "player";
@@ -68,12 +69,12 @@ export const GRAB_ARM = Object.freeze({
       && getUsableArmTargets(context, instance.targetId).includes(instance.parameters.targetPartId);
   },
 
-  label(_context, instance) {
-    return `Grab their ${sideName(instance.parameters.targetPartId)} arm`;
+  label(context, instance) {
+    return `Grab ${encounterPronoun(context, instance.targetId, "dependent")} ${sideName(instance.parameters.targetPartId)} arm`;
   },
 
-  intentLabel(_context, instance) {
-    return `reaches for your ${sideName(instance.parameters.targetPartId)} wrist`;
+  intentLabel(context, instance) {
+    return `${encounterVerb(context, instance.actorId, "reaches", "reach")} for your ${sideName(instance.parameters.targetPartId)} wrist`;
   },
 
   resolve(context, instance, runtime) {
@@ -142,10 +143,10 @@ export const WRENCH_FREE = Object.freeze({
       : "Try to wrench your wrist free";
   },
 
-  intentLabel(_context, instance) {
+  intentLabel(context, instance) {
     return instance.parameters.holdIds.length > 1
-      ? "wrenches against both arm holds at once"
-      : "twists hard against the wrist hold";
+      ? `${encounterVerb(context, instance.actorId, "wrenches", "wrench")} against both arm holds at once`
+      : `${encounterVerb(context, instance.actorId, "twists", "twist")} hard against the wrist hold`;
   },
 
   resolve(context, instance, runtime) {
@@ -172,14 +173,14 @@ export const WRENCH_FREE = Object.freeze({
         0.16,
         0.84,
       );
-      const success = roll(context, instance, `wrench:${hold.id}`) < chance;
-      runtime.events.push({
-        type: "contest.rolled",
-        actorId: instance.actorId,
-        actionId: instance.actionId,
-        holdId: hold.id,
-        success,
-      });
+      const success = chanceRoll(
+        context,
+        instance,
+        runtime,
+        `wrench:${hold.id}`,
+        chance,
+        { holdId: hold.id },
+      );
       if (success) {
         removeHold(context, hold, runtime, "wrenched-free");
         released += 1;
@@ -226,8 +227,8 @@ export const TIGHTEN_HOLD = Object.freeze({
       ({ id }) => id === instance.parameters.holdId,
     );
     return hold?.kind === "limb-pin"
-      ? "settles more weight onto the arm pin"
-      : "adjusts their grip to tighten control of your wrist";
+      ? `${encounterVerb(context, instance.actorId, "settles", "settle")} more weight onto the arm pin`
+      : `${encounterVerb(context, instance.actorId, "adjusts", "adjust")} ${encounterPronoun(context, instance.actorId, "dependent")} grip to tighten control of your wrist`;
   },
 
   resolve(context, instance, runtime) {
@@ -270,12 +271,12 @@ export const FORCE_TO_WALL = Object.freeze({
       );
   },
 
-  label() {
-    return "Try to force them against the wall";
+  label(context, instance) {
+    return `Try to force ${encounterPronoun(context, instance.targetId, "object")} against the wall`;
   },
 
-  intentLabel() {
-    return "shifts their weight to force you against the wall";
+  intentLabel(context, intent) {
+    return `${encounterVerb(context, intent.actorId, "shifts", "shift")} ${encounterPronoun(context, intent.actorId, "dependent")} weight to force you against the wall`;
   },
 
   resolve(context, instance, runtime) {
@@ -331,12 +332,12 @@ export const FORCE_TO_GROUND = Object.freeze({
       && getEffectiveHoldLeverage(context, hold) >= 34;
   },
 
-  label() {
-    return "Try to force them to the ground";
+  label(context, instance) {
+    return `Try to force ${encounterPronoun(context, instance.targetId, "object")} to the ground`;
   },
 
-  intentLabel() {
-    return "drops their weight to force you to the ground";
+  intentLabel(context, intent) {
+    return `${encounterVerb(context, intent.actorId, "drops", "drop")} ${encounterPronoun(context, intent.actorId, "dependent")} weight to force you to the ground`;
   },
 
   resolve(context, instance, runtime) {
@@ -386,12 +387,12 @@ export const TURN_TARGET_AWAY = Object.freeze({
       && getEffectiveHoldLeverage(context, hold) >= 28;
   },
 
-  label() {
-    return "Try to turn them away from you";
+  label(context, instance) {
+    return `Try to turn ${encounterPronoun(context, instance.targetId, "object")} away from you`;
   },
 
-  intentLabel() {
-    return "tries to turn you away and take your line of sight";
+  intentLabel(context, intent) {
+    return `${encounterVerb(context, intent.actorId, "tries", "try")} to turn you away and take your line of sight`;
   },
 
   resolve(context, instance, runtime) {
@@ -463,11 +464,11 @@ export const PIN_LIMB = Object.freeze({
     const hold = holdsControlledBy(context, instance.actorId).find(
       ({ id }) => id === instance.parameters.holdId,
     );
-    return `Try to pin their ${hold ? sideName(hold.targetPartId) : "restrained"} arm`;
+    return `Try to pin ${encounterPronoun(context, instance.targetId, "dependent")} ${hold ? sideName(hold.targetPartId) : "restrained"} arm`;
   },
 
-  intentLabel() {
-    return "shifts their weight to pin your restrained arm";
+  intentLabel(context, intent) {
+    return `${encounterVerb(context, intent.actorId, "shifts", "shift")} ${encounterPronoun(context, intent.actorId, "dependent")} weight to pin your restrained arm`;
   },
 
   resolve(context, instance, runtime) {
@@ -520,8 +521,8 @@ export const SEARCH_MONEY = Object.freeze({
     return "Take the money";
   },
 
-  intentLabel() {
-    return "keeps you controlled and reaches toward your money";
+  intentLabel(context, intent) {
+    return `${encounterVerb(context, intent.actorId, "keeps", "keep")} you controlled and ${encounterVerb(context, intent.actorId, "reaches", "reach")} toward your money`;
   },
 
   resolve(context, instance, runtime) {
