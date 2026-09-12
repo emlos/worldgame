@@ -179,6 +179,8 @@ function eventText(context, event) {
       return `${actorName(context, event.actorId, { sentence: true })} cannot make it work.`;
     case "action.spoiled":
       return `${actorName(context, event.actorId, { sentence: true })} ${encounterVerb(context, event.actorId, "loses", "lose")} the chance to finish the slower action.`;
+    case "state.change-conflicted":
+      return "The opposing movements cancel each other out.";
     case "defense.braced":
       return `${actorName(context, event.actorId, { sentence: true })} ${encounterVerb(context, event.actorId, "is", "are")} ready for the impact.`;
     case "impact.landed": {
@@ -306,6 +308,8 @@ export function outcomeText(context) {
       return `${subject} ${encounterVerb(context, "mugger", "decides", "decide")} the risk is no longer worth it and ${encounterVerb(context, "mugger", "flees", "flee")}.`;
     case ENCOUNTER_OUTCOME.muggerIncapacitated:
       return `${subject} can no longer continue the struggle. You are safe to leave.`;
+    case ENCOUNTER_OUTCOME.bothIncapacitated:
+      return "The struggle leaves both of you unable to continue.";
     case ENCOUNTER_OUTCOME.theftPlayerConscious:
       return `${subject} ${encounterVerb(context, "mugger", "gets", "get")} away with £${money} while you are still conscious.`;
     case ENCOUNTER_OUTCOME.theftPlayerIncapacitated:

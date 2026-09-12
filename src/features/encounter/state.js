@@ -12,6 +12,7 @@ export const ENCOUNTER_OUTCOME = Object.freeze({
   playerEscaped: "player-escaped",
   muggerFled: "mugger-fled",
   muggerIncapacitated: "mugger-incapacitated",
+  bothIncapacitated: "both-incapacitated",
   theftPlayerConscious: "theft-completed-player-conscious",
   theftPlayerIncapacitated: "theft-completed-player-incapacitated",
 });

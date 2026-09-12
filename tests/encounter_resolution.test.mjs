@@ -2,11 +2,40 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import { buildScene } from "../src/game/scene/sceneEngine.js";
+import { getAvailableActionInstances } from "../src/features/encounter/availability.js";
+import { createCombatContext } from "../src/features/encounter/combatants.js";
 import {
   chooseAction,
   gameAtStart,
   startEncounter,
 } from "./support/encounter.mjs";
+
+function forceNpcIntent(game, actionId) {
+  const state = game.currentStory.system.state;
+  const context = createCombatContext({
+    game,
+    state,
+    instanceKey: game.currentStory.instanceKey,
+  });
+  const instance = getAvailableActionInstances(context, "mugger")
+    .find((candidate) => candidate.actionId === actionId);
+  assert.ok(instance, `expected NPC encounter action '${actionId}'`);
+  state.npcIntent = {
+    actorId: instance.actorId,
+    actionId: instance.actionId,
+    parameters: { targetId: instance.targetId, ...instance.parameters },
+  };
+}
+
+function npcContestEvent(game, actionId) {
+  return game.currentStory.system.state.lastEvents.find(
+    ({ type, actorId, actionId: eventActionId, purpose }) =>
+      type === "chance.rolled"
+      && actorId === "mugger"
+      && eventActionId === actionId
+      && purpose === "contest",
+  );
+}
 
 test("an exchange consumes its slower action duration and advances once", () => {
   const game = gameAtStart();
@@ -89,6 +118,97 @@ test("slower movement does not evade an attack that resolves first", () => {
   assert.ok(whileStriking);
   assert.equal(whileMoving.roll, whileStriking.roll);
   assert.equal(whileMoving.chance, whileStriking.chance);
+});
+
+test("equal-speed contests read the shared pre-exchange snapshot", () => {
+  function resolveAgainst(playerActionId) {
+    const game = gameAtStart({ seed: 2 });
+    game.player.setSkillValue("strength", 10);
+    startEncounter(game);
+    forceNpcIntent(game, "drive-body");
+    chooseAction(game, playerActionId);
+    return {
+      contest: npcContestEvent(game, "drive-body"),
+      events: game.currentStory.system.state.lastEvents,
+    };
+  }
+
+  const simultaneous = resolveAgainst("drive-body");
+  const npcFirst = resolveAgainst("shove-away");
+
+  assert.ok(simultaneous.events.some(
+    ({ type, actorId, targetId }) =>
+      type === "impact.landed" && actorId === "player" && targetId === "mugger",
+  ));
+  assert.ok(simultaneous.contest);
+  assert.ok(npcFirst.contest);
+  assert.equal(simultaneous.contest.roll, npcFirst.contest.roll);
+  assert.equal(simultaneous.contest.chance, npcFirst.contest.chance);
+});
+
+test("simultaneous incapacitation is an explicit mutual outcome", () => {
+  const game = gameAtStart({ seed: 2 });
+  game.player.setSkillValue("strength", 10);
+  const state = startEncounter(game);
+  Object.assign(game.currentStory.actors.mugger.stats, {
+    strength: 10,
+    endurance: 0,
+    resolve: 0,
+  });
+  game.player.body.getPart("abdomen").pain = 70;
+  game.currentStory.actors.mugger.body.parts
+    .find(({ id }) => id === "abdomen").pain = 70;
+  forceNpcIntent(game, "drive-body");
+
+  chooseAction(game, "drive-body");
+
+  assert.equal(state.outcome, null);
+  assert.deepEqual(game.currentStory.system.state.outcome, {
+    id: "both-incapacitated",
+    moneyLost: 0,
+  });
+  assert.equal(
+    game.currentStory.system.state.lastEvents
+      .filter(({ type, partId }) => type === "impact.landed" && partId === "abdomen")
+      .length,
+    2,
+  );
+  assert.match(JSON.stringify(buildScene(game).content), /both of you unable to continue/i);
+});
+
+test("directly conflicting simultaneous position changes cancel", () => {
+  const game = gameAtStart({ seed: 9 });
+  const state = startEncounter(game);
+  state.relationships.range[0].value = "clinch";
+  state.participants.player.pose = "supine";
+  state.participants.mugger.pose = "kneeling";
+  state.relationships.facing.find(({ actor }) => actor === "player").value = "side";
+  state.relationships.holds.push({
+    id: "hold-facing-conflict",
+    controllerId: "mugger",
+    sourcePartId: "hand_l",
+    targetId: "player",
+    targetPartId: "lower_arm_l",
+    kind: "wrist-grip",
+    leverage: 50,
+  });
+  forceNpcIntent(game, "turn-target-away");
+
+  chooseAction(game, "roll-toward");
+
+  const next = game.currentStory.system.state;
+  assert.equal(
+    next.relationships.facing.find(({ actor }) => actor === "player").value,
+    "side",
+  );
+  assert.ok(next.lastEvents.some(
+    ({ type, path }) =>
+      type === "state.change-conflicted" && path === "relationships.facing.player",
+  ));
+  assert.ok(!next.lastEvents.some(
+    ({ type, actorId }) => type === "facing.changed" && actorId === "player",
+  ));
+  assert.match(JSON.stringify(buildScene(game).content), /opposing movements cancel/i);
 });
 
 test("landed strikes persist damage on the temporary actor body", () => {

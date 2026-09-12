@@ -108,6 +108,7 @@ export function applyImpact(
     targetId: instance.targetId,
     partId,
     damage,
+    damageType: DamageType.BLUNT,
   });
   return damage;
 }

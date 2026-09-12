@@ -1,3 +1,4 @@
+import { Body, DamageType } from "../../characters/core/body.js";
 import { getEncounterAction } from "./actions/index.js";
 import {
   actionDurationSeconds,
@@ -15,9 +16,10 @@ import {
 import {
   ENCOUNTER_OUTCOME,
   ENCOUNTER_PHASE,
+  ENCOUNTER_RANGE,
   validateEncounterState,
 } from "./state.js";
-import { removeHold, tickAcuteEffects } from "./actions/helpers.js";
+import { removeHold, removeNonfunctionalHolds, tickAcuteEffects } from "./actions/helpers.js";
 
 function fail(message) {
   throw new Error(`Physical encounter: ${message}`);
@@ -66,15 +68,30 @@ function applyIncapacitatedTheft(context, runtime) {
   };
 }
 
+function releaseControlledHolds(context, runtime, actorId) {
+  for (const hold of [...holdsControlledBy(context, actorId)]) {
+    removeHold(context, hold, runtime, "controller-incapacitated");
+  }
+}
+
 function checkPhysicalTerminalState(context, runtime) {
-  if (isEncounterIncapacitated(context, "mugger")) {
-    for (const hold of [...holdsControlledBy(context, "mugger")]) {
-      removeHold(context, hold, runtime, "controller-incapacitated");
-    }
+  const muggerIncapacitated = isEncounterIncapacitated(context, "mugger");
+  const playerIncapacitated = isEncounterIncapacitated(context, "player");
+  if (muggerIncapacitated && playerIncapacitated) {
+    releaseControlledHolds(context, runtime, "mugger");
+    releaseControlledHolds(context, runtime, "player");
+    runtime.outcome = { id: ENCOUNTER_OUTCOME.bothIncapacitated, moneyLost: 0 };
+    return;
+  }
+  if (muggerIncapacitated) {
+    releaseControlledHolds(context, runtime, "mugger");
     runtime.outcome = { id: ENCOUNTER_OUTCOME.muggerIncapacitated, moneyLost: 0 };
     return;
   }
-  if (isEncounterIncapacitated(context, "player")) applyIncapacitatedTheft(context, runtime);
+  if (playerIncapacitated) {
+    releaseControlledHolds(context, runtime, "player");
+    applyIncapacitatedTheft(context, runtime);
+  }
 }
 
 function finalizeOutcome(context, runtime) {
@@ -109,6 +126,256 @@ export function validateEncounterRuntime(context) {
     fail(`stored NPC intent '${intent.actionId}' is no longer legal`);
   }
   return context.state;
+}
+
+function clamp(value, minimum, maximum) {
+  return Math.max(minimum, Math.min(maximum, value));
+}
+
+function createSimultaneousBranch(context) {
+  const branchPlayer = {
+    money: context.game.player.money,
+    adjustMoney(amount) {
+      this.money += amount;
+    },
+  };
+  return {
+    game: { seed: context.game.seed, player: branchPlayer },
+    state: structuredClone(context.state),
+    instanceKey: context.instanceKey,
+    combatants: Object.fromEntries(
+      Object.entries(context.combatants).map(([actorId, combatant]) => [
+        actorId,
+        {
+          ...combatant,
+          body: Body.fromJSON(combatant.body.toJSON()),
+          persist() {},
+        },
+      ]),
+    ),
+  };
+}
+
+function changedValue(baseValue, branchValues, runtime, path) {
+  const changed = [...new Set(branchValues.filter((value) => value !== baseValue))];
+  if (!changed.length) return baseValue;
+  if (changed.length === 1) return changed[0];
+  const participantMatch = /^participants\.(player|mugger)\.(pose|support)$/.exec(path);
+  const facingMatch = /^relationships\.facing\.(player|mugger)$/.exec(path);
+  runtime.events = runtime.events.filter((event) => {
+    if (path === "relationships.range") return event.type !== "range.changed";
+    if (participantMatch) {
+      return event.type !== `${participantMatch[2]}.changed`
+        || event.actorId !== participantMatch[1];
+    }
+    if (facingMatch) {
+      return event.type !== "facing.changed" || event.actorId !== facingMatch[1];
+    }
+    return true;
+  });
+  runtime.events.push({
+    type: "state.change-conflicted",
+    path,
+    values: changed,
+  });
+  return baseValue;
+}
+
+function acuteById(participant) {
+  return new Map(participant.acute.map((acute) => [acute.id, acute]));
+}
+
+function mergeParticipantEffects(context, branches, actorId) {
+  const participant = context.state.participants[actorId];
+  const baseExertion = participant.exertion;
+  participant.exertion = clamp(
+    baseExertion + branches.reduce(
+      (sum, branch) => sum + branch.context.state.participants[actorId].exertion - baseExertion,
+      0,
+    ),
+    0,
+    100,
+  );
+
+  const baseAcute = acuteById(participant);
+  const branchAcute = branches.map((branch) =>
+    acuteById(branch.context.state.participants[actorId]));
+  const acuteIds = new Set([
+    ...baseAcute.keys(),
+    ...branchAcute.flatMap((effects) => [...effects.keys()]),
+  ]);
+  participant.acute = [...acuteIds].map((id) => {
+    const base = baseAcute.get(id);
+    const baseSeverity = base?.severity || 0;
+    const severity = clamp(
+      baseSeverity + branchAcute.reduce(
+        (sum, effects) => sum + (effects.get(id)?.severity || 0) - baseSeverity,
+        0,
+      ),
+      0,
+      3,
+    );
+    const exchanges = Math.max(
+      base?.exchanges || 0,
+      ...branchAcute.map((effects) => effects.get(id)?.exchanges || 0),
+    );
+    return severity > 0 && exchanges > 0 ? { id, severity, exchanges } : null;
+  }).filter(Boolean);
+}
+
+function mergeHoldRelations(context, branches, runtime) {
+  const baseHolds = context.state.relationships.holds;
+  const baseById = new Map(baseHolds.map((hold) => [hold.id, hold]));
+  const branchMaps = branches.map((branch) =>
+    new Map(branch.context.state.relationships.holds.map((hold) => [hold.id, hold])));
+  const merged = [];
+
+  for (const base of baseHolds) {
+    const versions = branchMaps.map((holds) => holds.get(base.id) || null);
+    if (versions.some((hold) => hold === null)) continue;
+    const hold = structuredClone(base);
+    hold.leverage = clamp(
+      base.leverage + versions.reduce(
+        (sum, version) => sum + version.leverage - base.leverage,
+        0,
+      ),
+      1,
+      100,
+    );
+    for (const field of ["sourcePartId", "targetPartId", "kind"]) {
+      hold[field] = changedValue(
+        base[field],
+        versions.map((version) => version[field]),
+        runtime,
+        `relationships.holds.${base.id}.${field}`,
+      );
+    }
+    merged.push(hold);
+  }
+
+  for (const holds of branchMaps) {
+    for (const [holdId, hold] of holds) {
+      if (baseById.has(holdId) || merged.some(({ id }) => id === holdId)) continue;
+      merged.push(structuredClone(hold));
+    }
+  }
+  context.state.relationships.holds = merged;
+}
+
+function mergeBodyDamage(context, branches) {
+  for (const event of branches.flatMap((branch) => branch.runtime.events)) {
+    if (event.type !== "impact.landed") continue;
+    context.combatants[event.targetId].body.applyDamage({
+      partId: event.partId,
+      amount: event.damage,
+      damageType: event.damageType || DamageType.BLUNT,
+    });
+  }
+}
+
+const SIMULTANEOUS_OUTCOME_PRIORITY = Object.freeze([
+  ENCOUNTER_OUTCOME.theftPlayerIncapacitated,
+  ENCOUNTER_OUTCOME.theftPlayerConscious,
+  ENCOUNTER_OUTCOME.playerEscaped,
+  ENCOUNTER_OUTCOME.muggerFled,
+  ENCOUNTER_OUTCOME.muggerIncapacitated,
+]);
+
+function mergeProposedOutcomes(branches) {
+  const outcomes = branches.map((branch) => branch.runtime.outcome).filter(Boolean);
+  if (!outcomes.length) return null;
+  const ids = new Set(outcomes.map(({ id }) => id));
+  if (ids.size === 1) {
+    return {
+      id: outcomes[0].id,
+      moneyLost: Math.max(...outcomes.map(({ moneyLost }) => moneyLost || 0)),
+    };
+  }
+  const id = SIMULTANEOUS_OUTCOME_PRIORITY.find((candidate) => ids.has(candidate));
+  const selected = outcomes.find((outcome) => outcome.id === id);
+  return { id: selected.id, moneyLost: selected.moneyLost || 0 };
+}
+
+function resolveSimultaneously(context, playerAction, npcAction, sharedRuntime) {
+  // Equal-speed actions resolve on isolated copies of the same starting facts.
+  // Their effects are merged only afterward: numeric costs and damage add,
+  // hold removal wins over hold changes, and incompatible scalar movements
+  // cancel back to the pre-exchange value.
+  const branches = [playerAction, npcAction].map((instance) => {
+    const branchContext = createSimultaneousBranch(context);
+    const branchRuntime = {
+      events: [],
+      guarded: new Set(sharedRuntime.guarded),
+      evading: new Set(sharedRuntime.evading),
+      outcome: null,
+    };
+    resolveOne(branchContext, instance, branchRuntime, { revalidate: false });
+    return { context: branchContext, runtime: branchRuntime, instance };
+  });
+
+  sharedRuntime.events.push(...branches.flatMap((branch) => branch.runtime.events));
+  sharedRuntime.outcome = mergeProposedOutcomes(branches);
+  mergeBodyDamage(context, branches);
+  mergeParticipantEffects(context, branches, "player");
+  mergeParticipantEffects(context, branches, "mugger");
+  for (const branch of branches) {
+    const history = context.state.participants[branch.instance.actorId].actionHistory;
+    history.push(branch.instance.actionId);
+    if (history.length > 8) history.splice(0, history.length - 8);
+  }
+
+  const objective = context.state.objective;
+  const baseFailedControlAttempts = objective.failedControlAttempts;
+  objective.failedControlAttempts += branches.reduce(
+    (sum, branch) => sum
+      + branch.context.state.objective.failedControlAttempts
+      - baseFailedControlAttempts,
+    0,
+  );
+  objective.hasLoot ||= branches.some((branch) => branch.context.state.objective.hasLoot);
+
+  const baseMoney = context.game.player.money;
+  const moneyDelta = branches.reduce(
+    (sum, branch) => sum + branch.context.game.player.money - baseMoney,
+    0,
+  );
+  if (moneyDelta) context.game.player.adjustMoney(moneyDelta);
+
+  mergeHoldRelations(context, branches, sharedRuntime);
+  for (const actorId of ["player", "mugger"]) {
+    const participant = context.state.participants[actorId];
+    participant.pose = changedValue(
+      participant.pose,
+      branches.map((branch) => branch.context.state.participants[actorId].pose),
+      sharedRuntime,
+      `participants.${actorId}.pose`,
+    );
+    participant.support = changedValue(
+      participant.support,
+      branches.map((branch) => branch.context.state.participants[actorId].support),
+      sharedRuntime,
+      `participants.${actorId}.support`,
+    );
+    if (participant.pose !== "standing") participant.support = "free";
+    const facing = context.state.relationships.facing.find(({ actor }) => actor === actorId);
+    facing.value = changedValue(
+      facing.value,
+      branches.map((branch) => branch.context.state.relationships.facing
+        .find(({ actor }) => actor === actorId).value),
+      sharedRuntime,
+      `relationships.facing.${actorId}`,
+    );
+  }
+
+  const range = context.state.relationships.range[0];
+  range.value = changedValue(
+    range.value,
+    branches.map((branch) => branch.context.state.relationships.range[0].value),
+    sharedRuntime,
+    "relationships.range",
+  );
+  if (context.state.relationships.holds.length) range.value = ENCOUNTER_RANGE.clinch;
+  removeNonfunctionalHolds(context, sharedRuntime);
 }
 
 export function resolveEncounterExchange({
@@ -146,8 +413,7 @@ export function resolveEncounterExchange({
   }
 
   if (playerSeconds === npcSeconds) {
-    resolveOne(context, availablePlayerAction, runtime, { revalidate: false });
-    resolveOne(context, npcAction, runtime, { revalidate: false });
+    resolveSimultaneously(context, availablePlayerAction, npcAction, runtime);
   } else {
     const ordered = playerSeconds < npcSeconds
       ? [availablePlayerAction, npcAction]
