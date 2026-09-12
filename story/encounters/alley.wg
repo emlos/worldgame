@@ -1,6 +1,10 @@
 :: encounter.alley-mugging -> @exit
 @auto enter-place
 @place-key alleyway
+@when not flags.encounter.alley_mugging_seen
+@onenter
+  @effect set flags.encounter.alley_mugging_seen
+@endonenter
 @actor mugger civilian
-@choices "What do you do?"
+
 @system encounter.physical {"scenario":"alley-mugging","aggressor":"mugger"}

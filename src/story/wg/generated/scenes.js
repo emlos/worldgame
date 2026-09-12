@@ -8962,7 +8962,7 @@ export const WG_BUNDLE = {
       "finalTarget": "@exit",
       "kind": "event",
       "heading": null,
-      "choiceHeading": "What do you do?",
+      "choiceHeading": "Choices",
       "behavior": null,
       "system": {
         "id": "encounter.physical",
@@ -8972,11 +8972,25 @@ export const WG_BUNDLE = {
         },
         "source": {
           "file": "story/encounters/alley.wg",
-          "line": 6,
+          "line": 10,
           "column": 1
         }
       },
-      "onEnter": [],
+      "onEnter": [
+        {
+          "op": "set",
+          "path": [
+            "flags",
+            "encounter",
+            "alley_mugging_seen"
+          ],
+          "source": {
+            "file": "story/encounters/alley.wg",
+            "line": 6,
+            "column": 1
+          }
+        }
+      ],
       "passages": [],
       "placeKeys": [
         "alleyway"
@@ -8989,7 +9003,20 @@ export const WG_BUNDLE = {
         "enter-place"
       ],
       "pools": [],
-      "conditions": [],
+      "conditions": [
+        {
+          "type": "unary",
+          "operator": "not",
+          "value": {
+            "type": "path",
+            "value": [
+              "flags",
+              "encounter",
+              "alley_mugging_seen"
+            ]
+          }
+        }
+      ],
       "label": null,
       "icon": null,
       "hubText": null,
@@ -9007,7 +9034,7 @@ export const WG_BUNDLE = {
           "profileId": "civilian",
           "source": {
             "file": "story/encounters/alley.wg",
-            "line": 4,
+            "line": 8,
             "column": 1
           }
         }
