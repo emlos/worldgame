@@ -77,6 +77,56 @@ test("failure to disrupt control completes bounded theft exactly once", () => {
   assert.equal(game.currentStory, null);
 });
 
+test("an already-incapacitated player receives the mugging consequence on entry", () => {
+  const game = gameAtStart({ seed: 1, money: 50 });
+  game.player.body.getPart("abdomen").pain = 90;
+
+  const state = startEncounter(game);
+
+  assert.deepEqual(state.outcome, {
+    id: "theft-completed-player-incapacitated",
+    moneyLost: 20,
+  });
+  assert.equal(state.phase, "terminal");
+  assert.equal(state.npcIntent, null);
+  assert.equal(state.objective.stage, "complete");
+  assert.equal(game.player.money, 30);
+  assert.ok(state.lastEvents.some(
+    ({ type, reason }) => type === "participant.unable-to-act"
+      && reason === "already-incapacitated",
+  ));
+  assert.ok(state.lastEvents.some(({ type }) => type === "theft.completed"));
+  assert.ok(state.lastEvents.some(
+    ({ type, actorId }) => type === "escape.completed" && actorId === "mugger",
+  ));
+  assert.deepEqual(buildScene(game).sections[0].choices.map(({ id }) => id), [
+    "encounter-action:finish",
+  ]);
+  assert.match(JSON.stringify(buildScene(game).content), /unable to resist/i);
+});
+
+test("a physically helpless but conscious player cannot create an actionless encounter", () => {
+  const game = gameAtStart({ seed: 1, money: 50 });
+  for (const partId of ["hand_l", "hand_r", "foot_l", "foot_r"]) {
+    const part = game.player.body.getPart(partId);
+    part.health = 0;
+    part.pain = 0;
+  }
+  assert.equal(game.player.isIncapacitated(), false);
+
+  const state = startEncounter(game);
+
+  assert.deepEqual(state.outcome, {
+    id: "theft-completed-player-incapacitated",
+    moneyLost: 20,
+  });
+  assert.equal(game.player.money, 30);
+  assert.ok(state.lastEvents.some(
+    ({ type, reason }) => type === "participant.unable-to-act"
+      && reason === "no-legal-response",
+  ));
+});
+
 test("theft is capped at available money and an empty target invents no new objective", () => {
   const lowMoney = gameAtStart({ seed: 1, money: 7 });
   startEncounter(lowMoney);

@@ -173,6 +173,10 @@ function eventText(context, event) {
   switch (event.type) {
     case "encounter.started":
       return `${getCombatant(context, "mugger").title} blocks the alley and ${encounterPronoun(context, "mugger", "subject")} ${encounterVerb(context, "mugger", "demands", "demand")} your money.`;
+    case "participant.unable-to-act":
+      return event.reason === "already-incapacitated"
+        ? "You are already unable to resist when the mugger approaches."
+        : "Your injuries leave you unable to mount a physical response.";
     case "action.attempted":
       return actionAttemptText(context, event);
     case "action.failed":

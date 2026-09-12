@@ -25,6 +25,7 @@ import {
   validateEncounterState,
 } from "./state.js";
 import { removeHold, removeNonfunctionalHolds, tickAcuteEffects } from "./actions/helpers.js";
+import { resolveIncapacitatedTheft } from "./objectives/steal.js";
 
 function fail(message) {
   throw new Error(`Physical encounter: ${message}`);
@@ -57,20 +58,7 @@ function resolveOne(context, instance, runtime, { revalidate = true } = {}) {
 }
 
 function applyIncapacitatedTheft(context, runtime) {
-  const objective = context.state.objective;
-  const available = Math.max(0, Math.floor(context.game.player.money));
-  const moneyLost = Math.min(objective.amount, available);
-  if (moneyLost > 0) {
-    context.game.player.adjustMoney(-moneyLost);
-    objective.hasLoot = true;
-    runtime.events.push({ type: "theft.completed", actorId: "mugger", amount: moneyLost });
-  } else {
-    runtime.events.push({ type: "theft.empty", actorId: "mugger" });
-  }
-  runtime.outcome = {
-    id: ENCOUNTER_OUTCOME.theftPlayerIncapacitated,
-    moneyLost,
-  };
+  runtime.outcome = resolveIncapacitatedTheft(context, runtime.events);
 }
 
 function releaseControlledHolds(context, runtime, actorId) {
