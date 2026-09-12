@@ -5,6 +5,7 @@ import { Game } from "../src/game/game.js";
 import { buildScene } from "../src/game/scene/sceneEngine.js";
 import {
   chooseAction,
+  chooseFirstAvailableAction,
   gameAtStart,
   startEncounter,
 } from "./support/encounter.mjs";
@@ -32,7 +33,18 @@ test("terminal theft consequences are not repeated by save/load or rendering", (
   const game = gameAtStart({ seed: 1, money: 50 });
   startEncounter(game);
   while (game.currentStory.system.state.phase === "active") {
-    chooseAction(game, "cover-and-brace");
+    chooseFirstAvailableAction(game, [
+      "cover-and-brace",
+      "wrench-free",
+      "stand-up",
+      "roll-toward",
+      "shove-away",
+      "create-distance",
+      "run",
+      "strike-holding-arm",
+      "drive-body",
+      "strike-face",
+    ]);
   }
   assert.equal(game.player.money, 30);
 

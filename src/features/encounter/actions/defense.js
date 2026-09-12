@@ -1,4 +1,5 @@
 import { canBeginPhysicalAction } from "../affordances.js";
+import { getUsableHands } from "../combatants.js";
 import { actionInstance, addExertion } from "./helpers.js";
 import { encounterVerb } from "../language.js";
 
@@ -14,7 +15,8 @@ export const COVER_AND_BRACE = Object.freeze({
   },
 
   isAvailable(context, instance) {
-    return canBeginPhysicalAction(context, instance.actorId);
+    return canBeginPhysicalAction(context, instance.actorId)
+      && getUsableHands(context, instance.actorId).length > 0;
   },
 
   label() {

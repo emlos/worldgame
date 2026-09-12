@@ -31,3 +31,30 @@ test("stat-difference matrix records outcomes, pacing, repetition, and invariant
     assert.equal(Object.values(row.outcomeCounts).reduce((sum, value) => sum + value, 0), 4);
   }
 });
+
+test("escape and passive-defense policies have bounded outcome distributions", () => {
+  const escape = runStatDifferenceMatrix({
+    seedCount: 30,
+    statDifferences: [-4, 0, 4],
+    policy: "escape",
+  });
+  const favorableRate = ({ outcomeCounts, runs }) => (
+    (outcomeCounts["player-escaped"] || 0) + (outcomeCounts["mugger-fled"] || 0)
+  ) / runs;
+
+  assert.ok(favorableRate(escape[0]) < 0.55);
+  assert.ok(favorableRate(escape[1]) >= 0.4 && favorableRate(escape[1]) <= 0.8);
+  assert.ok(favorableRate(escape[2]) > 0.75);
+
+  const [brace] = runStatDifferenceMatrix({
+    seedCount: 30,
+    statDifferences: [0],
+    policy: "brace",
+  });
+  const retreats = brace.outcomeCounts["mugger-fled"] || 0;
+  const thefts = (brace.outcomeCounts["theft-completed-player-conscious"] || 0)
+    + (brace.outcomeCounts["theft-completed-player-incapacitated"] || 0);
+  assert.ok(retreats / brace.runs < 0.4);
+  assert.ok(thefts > retreats);
+  assert.ok(brace.timeouts / brace.runs <= 0.2);
+});

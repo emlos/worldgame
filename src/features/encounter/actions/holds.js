@@ -1,5 +1,6 @@
 import {
   getBalanceCapacity,
+  getBodyPerformance,
   getEffectiveHoldLeverage,
   getParticipant,
   getStat,
@@ -8,6 +9,7 @@ import {
   getUsableKnees,
   holdsControlledBy,
   hostileHoldsOn,
+  isDazed,
 } from "../combatants.js";
 import {
   canBeginPhysicalAction,
@@ -80,7 +82,7 @@ export const GRAB_ARM = Object.freeze({
 
   resolve(context, instance, runtime) {
     addExertion(context, instance.actorId, 7);
-    if (!contest(context, instance, runtime, { baseChance: 0.55 })) {
+    if (!contest(context, instance, runtime, { baseChance: 0.6 })) {
       failAction(runtime, instance, "grip-missed");
       if (instance.actorId === "mugger") context.state.objective.failedControlAttempts += 1;
       return;
@@ -168,10 +170,17 @@ export const WRENCH_FREE = Object.freeze({
         0.58
         + (getStat(context, instance.actorId, "strength")
           - getStat(context, hold.controllerId, "strength")) * 0.035
+        + (getBodyPerformance(context, instance.actorId) - 1) * 0.4
+        + (getBalanceCapacity(context, instance.actorId)
+          - getBalanceCapacity(context, hold.controllerId)) * 0.18
+        - getParticipant(context, instance.actorId).exertion * 0.0025
+        + getParticipant(context, hold.controllerId).exertion * 0.0015
+        - (isDazed(context, instance.actorId) ? 0.14 : 0)
+        + (isDazed(context, hold.controllerId) ? 0.12 : 0)
         - effective * 0.004
         - pinPenalty
         - multiplePenalty,
-        0.16,
+        0.12,
         0.84,
       );
       const success = chanceRoll(
@@ -187,7 +196,14 @@ export const WRENCH_FREE = Object.freeze({
         released += 1;
         continue;
       }
-      const reduction = Math.max(5, Math.round(8 + getStat(context, instance.actorId, "strength")));
+      const effortMultiplier = Math.max(
+        0.35,
+        1 - getParticipant(context, instance.actorId).exertion * 0.006,
+      );
+      const reduction = Math.max(
+        3,
+        Math.round((5 + getStat(context, instance.actorId, "strength") * 0.6) * effortMultiplier),
+      );
       hold.leverage = Math.max(0, hold.leverage - reduction);
       runtime.events.push({ type: "hold.weakened", holdId: hold.id, amount: reduction });
       if (hold.leverage <= 0) {

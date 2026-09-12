@@ -44,6 +44,12 @@ export function chooseAction(game, actionId) {
   return choice;
 }
 
+export function chooseFirstAvailableAction(game, actionIds) {
+  const actionId = actionIds.find((candidate) => findActionChoice(game, candidate));
+  assert.ok(actionId, `expected one of these encounter actions: ${actionIds.join(", ")}`);
+  return chooseAction(game, actionId);
+}
+
 export function placePlayerAtAlley(game) {
   for (const location of game.world.locations.values()) {
     const alley = location.places.find(({ key }) => key === "alleyway");

@@ -51,6 +51,19 @@ test("an exchange consumes its slower action duration and advances once", () => 
   assert.equal(game.actionRevision, 1);
 });
 
+test("surviving objective progress resets the commitment stall clock", () => {
+  const game = gameAtStart({ seed: 1 });
+  startEncounter(game);
+
+  chooseAction(game, "cover-and-brace");
+  assert.equal(game.currentStory.system.state.objective.lastProgressSecond, 0);
+  chooseAction(game, "cover-and-brace");
+
+  const state = game.currentStory.system.state;
+  assert.equal(state.relationships.holds.length, 1);
+  assert.equal(state.objective.lastProgressSecond, state.elapsedSeconds);
+});
+
 test("a simultaneous move can evade the telegraphed grab", () => {
   const game = gameAtStart({ seed: 1 });
   startEncounter(game);
@@ -228,19 +241,34 @@ test("landed strikes persist damage on the temporary actor body", () => {
   assert.match(content, /bruised face/i);
 });
 
-test("the mugging can build two holds, ground the player, and convert a grip into a pin", () => {
+test("the mugging can build control despite repeated low-risk defense", () => {
   const game = gameAtStart({ seed: 1 });
   startEncounter(game);
   let sawTwoHolds = false;
   let sawGrounded = false;
   let sawPin = false;
 
-  for (let index = 0; index < 16 && game.currentStory.system.state.phase === "active"; index += 1) {
+  for (let index = 0; index < 30 && game.currentStory.system.state.phase === "active"; index += 1) {
     const state = game.currentStory.system.state;
     sawTwoHolds ||= state.relationships.holds.length === 2;
     sawGrounded ||= state.participants.player.pose !== "standing";
     sawPin ||= state.relationships.holds.some(({ kind }) => kind === "limb-pin");
-    chooseAction(game, "cover-and-brace");
+    const context = createCombatContext({
+      game,
+      state,
+      instanceKey: game.currentStory.instanceKey,
+    });
+    const available = getAvailableActionInstances(context, "player");
+    const response = [
+      "cover-and-brace",
+      "wrench-free",
+      "stand-up",
+      "roll-toward",
+      "shove-away",
+      "create-distance",
+    ].find((actionId) => available.some((candidate) => candidate.actionId === actionId));
+    assert.ok(response);
+    chooseAction(game, response);
   }
 
   const state = game.currentStory.system.state;

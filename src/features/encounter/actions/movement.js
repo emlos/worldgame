@@ -9,6 +9,7 @@ import {
   canStandUp,
   canBeginPhysicalAction,
   canMove,
+  getDisengagementHoldState,
   hasMovementDenyingHold,
   isGrounded,
 } from "../affordances.js";
@@ -44,7 +45,7 @@ function opponent(actorId) {
 export const SHOVE_AWAY = Object.freeze({
   id: "shove-away",
   tags: Object.freeze(["movement", "disrupt-hold", "control"]),
-  durationSeconds: 3,
+  durationSeconds: 2,
   usableBy: Object.freeze(["player", "mugger"]),
   playerOrder: 30,
 
@@ -94,7 +95,7 @@ export const SHOVE_AWAY = Object.freeze({
 export const CREATE_DISTANCE = Object.freeze({
   id: "create-distance",
   tags: Object.freeze(["movement", "escape"]),
-  durationSeconds: 2,
+  durationSeconds: 3,
   usableBy: Object.freeze(["player", "mugger"]),
   playerOrder: 50,
 
@@ -103,10 +104,11 @@ export const CREATE_DISTANCE = Object.freeze({
   },
 
   isAvailable(context, instance) {
+    const holdState = getDisengagementHoldState(context, instance.actorId);
     return canBeginPhysicalAction(context, instance.actorId)
       && canMove(context, instance.actorId)
       && getEncounterRange(context.state) !== ENCOUNTER_RANGE.far
-      && !hasMovementDenyingHold(context, instance.actorId);
+      && holdState !== "blocked";
   },
 
   label() {
@@ -120,8 +122,25 @@ export const CREATE_DISTANCE = Object.freeze({
   resolve(context, instance, runtime) {
     addExertion(context, instance.actorId, 5);
     runtime.evading.add(instance.actorId);
+    const hostile = hostileHoldsOn(context, instance.actorId);
+    if (getDisengagementHoldState(context, instance.actorId) === "contested") {
+      const totalLeverage = hostile.reduce(
+        (sum, hold) => sum + getEffectiveHoldLeverage(context, hold),
+        0,
+      );
+      if (!contest(context, instance, runtime, {
+        baseChance: 0.58,
+        actorStat: "fitness",
+        targetStat: "strength",
+        modifier: -totalLeverage * 0.006,
+        defense: "neutral",
+      })) {
+        failAction(runtime, instance, "could-not-disengage");
+        return;
+      }
+    }
     const disengagedHolds = [
-      ...hostileHoldsOn(context, instance.actorId),
+      ...hostile,
       ...holdsControlledBy(context, instance.actorId),
     ];
     for (const hold of disengagedHolds) {
@@ -269,7 +288,7 @@ export const CLOSE_DISTANCE = Object.freeze({
   resolve(context, instance, runtime) {
     addExertion(context, instance.actorId, 6);
     if (!contest(context, instance, runtime, {
-      baseChance: 0.54,
+      baseChance: 0.68,
       actorStat: "fitness",
       targetStat: "fitness",
     })) {

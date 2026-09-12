@@ -103,6 +103,7 @@ test("a relational wrist hold generates hold-specific responses", () => {
   const ids = actionIds(getAvailableActionInstances(context, "player"));
   assert.ok(ids.includes("strike-holding-arm"));
   assert.ok(ids.includes("wrench-free"));
+  assert.ok(!ids.includes("create-distance"));
   assert.equal(Object.hasOwn(state, "is_left_arm_held"), false);
   assert.equal(Object.hasOwn(state.participants.player, "pressed_against_wall"), false);
 });
@@ -147,6 +148,7 @@ test("two held arms generate one combined wrench and separate holding-limb attac
   assert.ok(holdingLimbStrikes.every(({ parameters }) => parameters.sourcePartId.startsWith("knee_")));
   assert.ok(actionIds(actions).includes("headbutt"));
   assert.ok(actionIds(actions).includes("knee-strike"));
+  assert.ok(!actionIds(actions).includes("cover-and-brace"));
 
   state.npcIntent = {
     actorId: "mugger",

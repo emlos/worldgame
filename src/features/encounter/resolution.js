@@ -5,7 +5,12 @@ import {
   getAvailableActionInstances,
   sameActionInstance,
 } from "./availability.js";
-import { selectNpcIntent, intentToActionInstance, syncTheftObjectiveStage } from "./ai.js";
+import {
+  getTheftObjectiveProgress,
+  selectNpcIntent,
+  intentToActionInstance,
+  syncTheftObjectiveStage,
+} from "./ai.js";
 import {
   createCombatContext,
   holdsControlledBy,
@@ -387,6 +392,7 @@ export function resolveEncounterExchange({
   const next = structuredClone(state);
   const context = createCombatContext({ game, state: next, instanceKey });
   validateEncounterRuntime(context);
+  const startingObjectiveProgress = getTheftObjectiveProgress(context);
 
   const availablePlayerAction = getAvailableActionInstances(context, "player")
     .find((candidate) => sameActionInstance(candidate, playerAction));
@@ -439,6 +445,14 @@ export function resolveEncounterExchange({
   persistCombatantBodies(context);
 
   if (next.phase === ENCOUNTER_PHASE.active) {
+    const npcTags = getEncounterAction(npcAction.actionId)?.tags || [];
+    const npcPursuedObjective = npcTags.includes("control")
+      || npcTags.includes("objective")
+      || npcTags.includes("theft");
+    if (npcPursuedObjective
+      && getTheftObjectiveProgress(context) > startingObjectiveProgress) {
+      next.objective.lastProgressSecond = next.elapsedSeconds;
+    }
     syncTheftObjectiveStage(context);
     next.npcIntent = selectNpcIntent(context);
   }

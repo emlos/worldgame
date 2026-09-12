@@ -25,7 +25,10 @@ export const PLAYER_POLICIES = Object.freeze({
     "roll-toward", "headbutt", "strike-face", "knee-strike", "drive-body",
     "run", "cover-and-brace",
   ]),
-  brace: Object.freeze(["cover-and-brace"]),
+  brace: Object.freeze([
+    "cover-and-brace", "wrench-free", "stand-up", "roll-toward", "shove-away",
+    "create-distance", "run", "strike-holding-arm", "drive-body", "strike-face",
+  ]),
 });
 
 function setStats(target, stats, setter = null) {

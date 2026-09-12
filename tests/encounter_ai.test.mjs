@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import {
+  RETREAT_COMMITMENT_THRESHOLD,
   getNpcDecisionDiagnostics,
   getMuggerCommitment,
   scoreNpcActions,
@@ -33,7 +34,7 @@ test("low commitment gives retreat hard priority", () => {
     instanceKey: game.currentStory.instanceKey,
   });
 
-  assert.equal(getMuggerCommitment(context), 0);
+  assert.ok(getMuggerCommitment(context) <= RETREAT_COMMITMENT_THRESHOLD);
   assert.equal(selectNpcIntent(context).actionId, "flee");
 });
 

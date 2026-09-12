@@ -1,6 +1,6 @@
 import { MUGGER_PERSONALITY_IDS } from "./personality.js";
 
-export const ENCOUNTER_STATE_VERSION = 3;
+export const ENCOUNTER_STATE_VERSION = 4;
 export const ALLEY_MUGGING_SCENARIO_ID = "alley-mugging";
 
 export const ENCOUNTER_PHASE = Object.freeze({
@@ -260,6 +260,7 @@ export function createAlleyMuggingState({ aggressorAlias, theftAmount, personali
       amount: theftAmount,
       hasLoot: false,
       failedControlAttempts: 0,
+      lastProgressSecond: 0,
     },
     npcIntent: null,
     lastEvents: [{ type: "encounter.started", actorId: "mugger" }],
@@ -361,7 +362,15 @@ export function validateEncounterState(state) {
   const objective = record(state.objective, "state.objective");
   exactKeys(
     objective,
-    ["id", "ownerId", "stage", "amount", "hasLoot", "failedControlAttempts"],
+    [
+      "id",
+      "ownerId",
+      "stage",
+      "amount",
+      "hasLoot",
+      "failedControlAttempts",
+      "lastProgressSecond",
+    ],
     "state.objective",
   );
   if (objective.id !== "steal-money") fail("state.objective.id is invalid");
@@ -370,6 +379,10 @@ export function validateEncounterState(state) {
   integer(objective.amount, "state.objective.amount", { min: 0 });
   boolean(objective.hasLoot, "state.objective.hasLoot");
   integer(objective.failedControlAttempts, "state.objective.failedControlAttempts", { min: 0 });
+  integer(objective.lastProgressSecond, "state.objective.lastProgressSecond", {
+    min: 0,
+    max: state.elapsedSeconds,
+  });
   validateEvents(state.lastEvents, "state.lastEvents");
 
   if (state.phase === ENCOUNTER_PHASE.active) {

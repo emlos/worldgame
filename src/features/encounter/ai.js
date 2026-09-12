@@ -2,7 +2,12 @@ import { BodyPartId } from "../../characters/core/body.js";
 import { keyedRandom01 } from "../../shared/util/random.js";
 import { getEncounterAction } from "./actions/index.js";
 import { getMovementCapacity, hasUsableControl } from "./affordances.js";
-import { getBodyPain, getPartCapacity, hostileHoldsOn } from "./combatants.js";
+import {
+  getBodyPain,
+  getPartCapacity,
+  holdsControlledBy,
+  hostileHoldsOn,
+} from "./combatants.js";
 import { actionDurationSeconds, getAvailableActionInstances } from "./availability.js";
 import { getMuggerPersonality } from "./personality.js";
 
@@ -42,6 +47,23 @@ function commitmentBandFor(value) {
   return "confident";
 }
 
+export function getTheftObjectiveProgress(context) {
+  const { state } = context;
+  const range = state.relationships.range[0].value;
+  const player = state.participants.player;
+  const holds = holdsControlledBy(context, "mugger")
+    .filter(({ targetId }) => targetId === "player");
+  const rangeProgress = range === "clinch" ? 20 : range === "reach" ? 10 : 0;
+  const holdProgress = Math.min(70, holds.reduce((sum, hold) => sum + hold.leverage, 0) * 0.5);
+  const pinProgress = holds.some(({ kind }) => kind === "limb-pin") ? 20 : 0;
+  const positionProgress = (player.support === "wall" ? 15 : 0)
+    + (player.pose === "standing" ? 0 : 20)
+    + (state.relationships.facing.find(({ actor }) => actor === "player")?.value === "away" ? 10 : 0);
+  const usableControlProgress = hasUsableControl(context, "mugger", "player") ? 30 : 0;
+  return rangeProgress + holdProgress + pinProgress + positionProgress
+    + usableControlProgress + (state.objective.hasLoot ? 200 : 0);
+}
+
 export function getMuggerCommitmentDiagnostics(context) {
   const { state } = context;
   const mugger = state.participants.mugger;
@@ -54,13 +76,17 @@ export function getMuggerCommitmentDiagnostics(context) {
     getPartCapacity(context, "mugger", BodyPartId.HAND_R),
   );
   const impairment = (1 - Math.max(bestArm, getMovementCapacity(context, "mugger"))) * 22;
+  const stalledSeconds = Math.max(
+    0,
+    state.elapsedSeconds - state.objective.lastProgressSecond - 8,
+  );
   const components = {
     base: mugger.commitmentBase,
     reward,
-    elapsed: -state.elapsedSeconds * personality.commitmentTimeSensitivity,
+    elapsed: -stalledSeconds * personality.commitmentTimeSensitivity,
     pain: -getBodyPain(context, "mugger") * personality.commitmentPainSensitivity,
     exertion: -mugger.exertion * personality.commitmentExertionSensitivity,
-    failedControl: -state.objective.failedControlAttempts * 3,
+    failedControl: -state.objective.failedControlAttempts * 2,
     impairment: -impairment,
   };
   const value = Math.round(clamp(Object.values(components).reduce((sum, part) => sum + part, 0), 0, 100));
@@ -94,6 +120,14 @@ function situationalBonuses(context, instance) {
   const held = hostileHoldsOn(context, "mugger").length > 0;
   const result = { objective: 0, control: 0, pressure: 0, safety: 0, escape: 0 };
   const ownHolds = state.relationships.holds.filter(({ controllerId }) => controllerId === "mugger");
+  const playerHistory = state.participants.player.actionHistory;
+  const recentPlayerActions = playerHistory.slice(-3);
+  const repeatedBrace = recentPlayerActions.filter(
+    (actionId) => actionId === "cover-and-brace",
+  ).length >= 2;
+  const repeatedRetreat = recentPlayerActions.filter(
+    (actionId) => actionId === "create-distance",
+  ).length >= 2;
   if (instance.actionId === "search-money" && hasUsableControl(context, "mugger", "player")) result.objective += 60;
   else if (state.objective.stage === "gain-control") {
     if (instance.actionId === "close-distance") result.objective += 48;
@@ -122,6 +156,14 @@ function situationalBonuses(context, instance) {
   }
   if (tags.includes("attack")) {
     result.pressure += Math.min(35, Math.max(0, (getBodyPain(context, "player") - 40) * 1.5));
+  }
+  if (repeatedBrace && tags.includes("control")) {
+    result.control += 18;
+    if (instance.actionId === "grab-arm") result.objective += 12;
+  }
+  if (repeatedRetreat) {
+    if (instance.actionId === "close-distance") result.objective += 15;
+    if (instance.actionId === "grab-arm") result.control += 10;
   }
   if (!held && ["create-distance", "shove-away"].includes(instance.actionId)) result.objective -= 12;
   if (getBodyPain(context, "mugger") > 35 && (tags.includes("defense") || tags.includes("movement"))) result.safety += 7;

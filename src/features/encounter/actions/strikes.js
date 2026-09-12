@@ -71,7 +71,7 @@ export const STRIKE_FACE = Object.freeze({
 
   resolve(context, instance, runtime) {
     addExertion(context, instance.actorId, 7);
-    if (!contest(context, instance, runtime, { baseChance: 0.57 })) {
+    if (!contest(context, instance, runtime, { baseChance: 0.57, defense: "impact" })) {
       failAction(runtime, instance, "missed");
       return;
     }
@@ -111,7 +111,7 @@ export const DRIVE_BODY = Object.freeze({
 
   resolve(context, instance, runtime) {
     addExertion(context, instance.actorId, 7);
-    if (!contest(context, instance, runtime, { baseChance: 0.64 })) {
+    if (!contest(context, instance, runtime, { baseChance: 0.64, defense: "impact" })) {
       failAction(runtime, instance, "missed");
       return;
     }
@@ -172,7 +172,10 @@ export const STRIKE_HOLDING_ARM = Object.freeze({
       ({ id }) => id === instance.parameters.holdId,
     );
     addExertion(context, instance.actorId, 6);
-    if (!hold || !contest(context, instance, runtime, { baseChance: 0.67 })) {
+    if (!hold || !contest(context, instance, runtime, {
+      baseChance: 0.67,
+      defense: "impact",
+    })) {
       failAction(runtime, instance, hold ? "missed" : "hold-gone");
       return;
     }
@@ -221,7 +224,7 @@ export const HEADBUTT = Object.freeze({
 
   resolve(context, instance, runtime) {
     addExertion(context, instance.actorId, 7);
-    if (!contest(context, instance, runtime, { baseChance: 0.58 })) {
+    if (!contest(context, instance, runtime, { baseChance: 0.58, defense: "impact" })) {
       failAction(runtime, instance, "missed");
       if (chanceRoll(context, instance, runtime, "self-daze-miss", 0.18)) {
         addDaze(context, instance.actorId, 1, runtime);
@@ -285,7 +288,7 @@ export const KNEE_STRIKE = Object.freeze({
 
   resolve(context, instance, runtime) {
     addExertion(context, instance.actorId, 9);
-    if (!contest(context, instance, runtime, { baseChance: 0.61 })) {
+    if (!contest(context, instance, runtime, { baseChance: 0.61, defense: "impact" })) {
       failAction(runtime, instance, "lost-balance");
       if (chanceRoll(context, instance, runtime, "balance-risk", 0.38)) {
         addAcute(context, instance.actorId, "off-balance", 1, 2, runtime);

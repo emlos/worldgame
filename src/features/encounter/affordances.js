@@ -69,6 +69,18 @@ export function hasMovementDenyingHold(context, actorId) {
     || controls.reduce((sum, { effective }) => sum + effective, 0) >= 52;
 }
 
+export function getDisengagementHoldState(context, actorId) {
+  const controls = hostileHoldsOn(context, actorId).map((hold) => ({
+    hold,
+    effective: getEffectiveHoldLeverage(context, hold),
+  }));
+  if (!controls.length) return "free";
+  if (controls.some(({ hold }) => hold.kind === "limb-pin")) return "blocked";
+  const total = controls.reduce((sum, { effective }) => sum + effective, 0);
+  if (total <= 18) return "free";
+  return total <= 30 ? "contested" : "blocked";
+}
+
 export function hasFirmPin(context, actorId) {
   return hostileHoldsOn(context, actorId).some(
     (hold) => hold.kind === "limb-pin" && getEffectiveHoldLeverage(context, hold) >= 32,

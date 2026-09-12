@@ -17,6 +17,7 @@ import {
   setEncounterFacing,
   setEncounterRange,
 } from "../state.js";
+import { getMovementCapacity } from "../affordances.js";
 
 export function actionInstance(actionId, actorId, targetId, parameters = {}) {
   return { actionId, actorId, targetId, parameters };
@@ -60,7 +61,13 @@ export function contest(
   context,
   instance,
   runtime,
-  { baseChance = 0.58, actorStat = "strength", targetStat = actorStat, modifier = 0 } = {},
+  {
+    baseChance = 0.58,
+    actorStat = "strength",
+    targetStat = actorStat,
+    modifier = 0,
+    defense = "control",
+  } = {},
 ) {
   const attacker = getParticipant(context, instance.actorId);
   const defender = getParticipant(context, instance.targetId);
@@ -74,8 +81,19 @@ export function contest(
   chance += defender.exertion * 0.0015;
   if (isDazed(context, instance.actorId)) chance -= 0.14;
   if (isDazed(context, instance.targetId)) chance += 0.12;
-  if (runtime.guarded.has(instance.targetId)) chance -= 0.24;
-  if (runtime.evading.has(instance.targetId)) chance -= 0.3;
+  if (runtime.guarded.has(instance.targetId)) {
+    if (defense === "impact") chance -= 0.18;
+    else if (defense === "control") chance += 0.06;
+  }
+  if (runtime.evading.has(instance.targetId)) {
+    const fitness = getStat(context, instance.targetId, "fitness");
+    const baseEvasion = clamp(0.08 + fitness * 0.015, 0.08, 0.22);
+    const participant = getParticipant(context, instance.targetId);
+    const mobilityPenalty = (1 - getMovementCapacity(context, instance.targetId)) * 0.12;
+    const exertionPenalty = participant.exertion * 0.001;
+    const supportPenalty = participant.support === ENCOUNTER_SUPPORT.wall ? 0.04 : 0;
+    chance -= Math.max(0.03, baseEvasion - mobilityPenalty - exertionPenalty - supportPenalty);
+  }
   chance = clamp(chance, 0.18, 0.9);
   return chanceRoll(context, instance, runtime, "contest", chance);
 }
@@ -95,7 +113,7 @@ export function applyImpact(
   { partId, baseDamage, strengthScale = 0.65 },
 ) {
   let damage = Math.round(baseDamage + getStat(context, instance.actorId, "strength") * strengthScale);
-  if (runtime.guarded.has(instance.targetId)) damage = Math.max(1, Math.round(damage * 0.55));
+  if (runtime.guarded.has(instance.targetId)) damage = Math.max(1, Math.round(damage * 0.62));
   const part = getCombatant(context, instance.targetId).body.applyDamage({
     partId,
     amount: damage,

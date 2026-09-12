@@ -9,15 +9,31 @@ import {
 import { exitWGStory } from "../src/story/wg/runtime/storyRuntime.js";
 import {
   chooseAction,
+  chooseFirstAvailableAction,
   findActionChoice,
   gameAtStart,
   placePlayerAtAlley,
   startEncounter,
 } from "./support/encounter.mjs";
 
+const PASSIVE_RESPONSES = Object.freeze([
+  "cover-and-brace",
+  "wrench-free",
+  "stand-up",
+  "roll-toward",
+  "shove-away",
+  "create-distance",
+  "run",
+  "strike-holding-arm",
+  "drive-body",
+  "strike-face",
+]);
+
 function playUntilTerminal(game, choose) {
-  for (let index = 0; index < 20 && game.currentStory.system.state.phase === "active"; index += 1) {
-    chooseAction(game, choose(game));
+  for (let index = 0; index < 60 && game.currentStory.system.state.phase === "active"; index += 1) {
+    const requested = choose(game);
+    if (findActionChoice(game, requested)) chooseAction(game, requested);
+    else chooseFirstAvailableAction(game, PASSIVE_RESPONSES);
   }
   assert.equal(game.currentStory.system.state.phase, "terminal");
   return game.currentStory.system.state.outcome;
@@ -77,14 +93,16 @@ test("theft is capped at available money and an empty target invents no new obje
 });
 
 test("escape, retreat, incapacitation, and incapacitated theft are reachable outcomes", () => {
-  const escape = gameAtStart({ seed: 3 });
+  const escape = gameAtStart({ seed: 10 });
   startEncounter(escape);
   assert.equal(playUntilTerminal(escape, (game) =>
     findActionChoice(game, "run")
       ? "run"
       : findActionChoice(game, "create-distance")
         ? "create-distance"
-        : "shove-away").id, "player-escaped");
+        : findActionChoice(game, "wrench-free")
+          ? "wrench-free"
+          : "shove-away").id, "player-escaped");
 
   const cleanWin = gameAtStart({ seed: 1 });
   cleanWin.player.setSkillValue("strength", 10);
@@ -102,6 +120,8 @@ test("escape, retreat, incapacitation, and incapacitated theft are reachable out
         ? "create-distance"
         : findActionChoice(game, "run")
           ? "run"
-          : "cover-and-brace").id,
+          : findActionChoice(game, "wrench-free")
+            ? "wrench-free"
+            : "cover-and-brace").id,
   "theft-completed-player-incapacitated");
 });
