@@ -242,6 +242,19 @@ function eventText(context, event) {
       return event.kind === "limb-pin" ? "The pinned arm comes free." : "The wrist comes free.";
     case "hold.pinned":
       return `${actorName(context, event.controllerId, { sentence: true })} ${encounterVerb(context, event.controllerId, "pins", "pin")} ${actorName(context, event.targetId, { possessive: true })} ${sideName(event.targetPartId)} arm.`;
+    case "hold.priority-resolved": {
+      const winner = actorName(context, event.winnerId, { sentence: true });
+      if (event.basis === "exertion") {
+        return `${winner} ${encounterVerb(context, event.winnerId, "is", "are")} fresher and ${encounterVerb(context, event.winnerId, "wins", "win")} the simultaneous struggle for a wrist.`;
+      }
+      if (event.basis === "fitness") {
+        return `${winner} ${encounterVerb(context, event.winnerId, "moves", "move")} first and ${encounterVerb(context, event.winnerId, "secures", "secure")} the wrist.`;
+      }
+      if (event.basis === "strength") {
+        return `${winner} ${encounterVerb(context, event.winnerId, "overpowers", "overpower")} the competing grab and ${encounterVerb(context, event.winnerId, "secures", "secure")} the wrist.`;
+      }
+      return `${winner} ${encounterVerb(context, event.winnerId, "wins", "win")} the split-second scramble and ${encounterVerb(context, event.winnerId, "secures", "secure")} the wrist.`;
+    }
     case "range.changed":
       return event.to === ENCOUNTER_RANGE.far
         ? "A clear gap opens between you."

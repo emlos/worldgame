@@ -356,6 +356,19 @@ export function validateEncounterState(state) {
     }
     controlledTargets.add(targetKey);
   }
+  for (let leftIndex = 0; leftIndex < holds.length; leftIndex += 1) {
+    const left = holds[leftIndex];
+    for (let rightIndex = leftIndex + 1; rightIndex < holds.length; rightIndex += 1) {
+      const right = holds[rightIndex];
+      const mutuallyRestrained = left.controllerId === right.targetId
+        && right.controllerId === left.targetId
+        && limbKey(left.sourcePartId) === limbKey(right.targetPartId)
+        && limbKey(right.sourcePartId) === limbKey(left.targetPartId);
+      if (mutuallyRestrained) {
+        fail(`state.relationships.holds '${left.id}' and '${right.id}' use mutually restrained source limbs`);
+      }
+    }
+  }
   if (holds.length && getEncounterRange(state) !== ENCOUNTER_RANGE.clinch) {
     fail("an active hold requires clinch range");
   }

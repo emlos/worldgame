@@ -5,6 +5,10 @@ import { buildScene } from "../src/game/scene/sceneEngine.js";
 import { getAvailableActionInstances } from "../src/features/encounter/availability.js";
 import { createCombatContext } from "../src/features/encounter/combatants.js";
 import {
+  chooseSimultaneousGrabPriority,
+  resolveEncounterExchange,
+} from "../src/features/encounter/resolution.js";
+import {
   chooseAction,
   gameAtStart,
   startEncounter,
@@ -36,6 +40,129 @@ function npcContestEvent(game, actionId) {
       && purpose === "contest",
   );
 }
+
+const PLAYER_GRAB = Object.freeze({
+  id: "priority-player-grab",
+  controllerId: "player",
+  sourcePartId: "hand_l",
+  targetId: "mugger",
+  targetPartId: "lower_arm_l",
+  kind: "wrist-grip",
+  leverage: 40,
+});
+
+const MUGGER_GRAB = Object.freeze({
+  id: "priority-mugger-grab",
+  controllerId: "mugger",
+  sourcePartId: "hand_l",
+  targetId: "player",
+  targetPartId: "lower_arm_l",
+  kind: "wrist-grip",
+  leverage: 40,
+});
+
+function grabPriorityContext({
+  seed = 17,
+  playerExertion = 0,
+  muggerExertion = 0,
+  playerFitness = 5,
+  playerStrength = 5,
+  muggerStrength = 5,
+  muggerEndurance = 5,
+} = {}) {
+  const game = gameAtStart({ seed });
+  game.player.setSkillValue("fitness", playerFitness);
+  game.player.setSkillValue("strength", playerStrength);
+  const state = startEncounter(game);
+  Object.assign(game.currentStory.actors.mugger.stats, {
+    strength: muggerStrength,
+    endurance: muggerEndurance,
+  });
+  state.participants.player.exertion = playerExertion;
+  state.participants.mugger.exertion = muggerExertion;
+  return createCombatContext({
+    game,
+    state,
+    instanceKey: game.currentStory.instanceKey,
+  });
+}
+
+test("simultaneous incompatible grabs prioritize exertion, fitness, strength, then a seeded roll", () => {
+  const fresher = chooseSimultaneousGrabPriority(grabPriorityContext({
+    playerExertion: 20,
+    muggerExertion: 5,
+    playerFitness: 10,
+    playerStrength: 10,
+    muggerStrength: 1,
+    muggerEndurance: 1,
+  }), PLAYER_GRAB, MUGGER_GRAB);
+  assert.deepEqual(fresher, { winnerId: "mugger", basis: "exertion", roll: null });
+
+  const fitter = chooseSimultaneousGrabPriority(grabPriorityContext({
+    playerFitness: 7,
+    playerStrength: 1,
+    muggerStrength: 4,
+    muggerEndurance: 4,
+  }), PLAYER_GRAB, MUGGER_GRAB);
+  assert.deepEqual(fitter, { winnerId: "player", basis: "fitness", roll: null });
+
+  const stronger = chooseSimultaneousGrabPriority(grabPriorityContext({
+    playerFitness: 5,
+    playerStrength: 7,
+    muggerStrength: 6,
+    muggerEndurance: 4,
+  }), PLAYER_GRAB, MUGGER_GRAB);
+  assert.deepEqual(stronger, { winnerId: "player", basis: "strength", roll: null });
+
+  const tiedContext = grabPriorityContext({ seed: 29 });
+  const tied = chooseSimultaneousGrabPriority(tiedContext, PLAYER_GRAB, MUGGER_GRAB);
+  assert.equal(tied.basis, "roll");
+  assert.ok(["player", "mugger"].includes(tied.winnerId));
+  assert.ok(tied.roll >= 0 && tied.roll < 1);
+  assert.deepEqual(
+    tied,
+    chooseSimultaneousGrabPriority(tiedContext, MUGGER_GRAB, PLAYER_GRAB),
+  );
+});
+
+test("only the priority winner keeps a mutually incompatible simultaneous grab", () => {
+  const game = gameAtStart({ seed: 3 });
+  const state = startEncounter(game);
+  assert.equal(state.npcIntent.actionId, "grab-arm");
+  const context = createCombatContext({
+    game,
+    state,
+    instanceKey: game.currentStory.instanceKey,
+  });
+  const npcSourceSide = state.npcIntent.parameters.sourcePartId.endsWith("_l") ? "_l" : "_r";
+  const npcTargetSide = state.npcIntent.parameters.targetPartId.endsWith("_l") ? "_l" : "_r";
+  const playerGrab = getAvailableActionInstances(context, "player").find(
+    (candidate) => candidate.actionId === "grab-arm"
+      && candidate.parameters.targetPartId.endsWith(npcSourceSide)
+      && candidate.parameters.sourcePartId.endsWith(npcTargetSide),
+  );
+  assert.ok(playerGrab);
+
+  const next = resolveEncounterExchange({
+    game,
+    state,
+    instanceKey: game.currentStory.instanceKey,
+    playerAction: playerGrab,
+  });
+  const successfulGrabRolls = next.lastEvents.filter(
+    ({ type, actionId, purpose, success }) => type === "chance.rolled"
+      && actionId === "grab-arm"
+      && purpose === "contest"
+      && success,
+  );
+  const priority = next.lastEvents.find(({ type }) => type === "hold.priority-resolved");
+
+  assert.equal(successfulGrabRolls.length, 2);
+  assert.ok(priority);
+  assert.equal(next.relationships.holds.length, 1);
+  assert.equal(next.relationships.holds[0].controllerId, priority.winnerId);
+  assert.equal(next.relationships.holds[0].id, priority.holdId);
+});
 
 test("an exchange consumes its slower action duration and advances once", () => {
   const game = gameAtStart();

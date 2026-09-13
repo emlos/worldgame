@@ -1,4 +1,5 @@
 import { Body, DamageType } from "../../characters/core/body.js";
+import { keyedRandom01 } from "../../shared/util/random.js";
 import { getEncounterAction } from "./actions/index.js";
 import {
   actionDurationSeconds,
@@ -13,8 +14,11 @@ import {
 } from "./ai.js";
 import {
   createCombatContext,
+  getParticipant,
+  getStat,
   holdsControlledBy,
   isEncounterIncapacitated,
+  isSameLimb,
   persistCombatantBodies,
   validateCombatantInvariants,
 } from "./combatants.js";
@@ -266,6 +270,117 @@ function mergeParticipantEffects(context, branches, actorId) {
   }).filter(Boolean);
 }
 
+function holdIdentity(hold) {
+  return [
+    hold.controllerId,
+    hold.sourcePartId,
+    hold.targetId,
+    hold.targetPartId,
+    hold.kind,
+  ].join(":");
+}
+
+function mutuallyRestrictSourceLimbs(left, right) {
+  return left.controllerId === right.targetId
+    && right.controllerId === left.targetId
+    && isSameLimb(left.sourcePartId, right.targetPartId)
+    && isSameLimb(right.sourcePartId, left.targetPartId);
+}
+
+/**
+ * Resolve two otherwise-successful simultaneous grabs that cannot coexist
+ * because each grab restrains the limb supplying the other grab.
+ */
+export function chooseSimultaneousGrabPriority(context, leftHold, rightHold) {
+  const actorIds = [leftHold.controllerId, rightHold.controllerId].sort();
+  const [firstId, secondId] = actorIds;
+  const first = getParticipant(context, firstId);
+  const second = getParticipant(context, secondId);
+
+  if (first.exertion !== second.exertion) {
+    return {
+      winnerId: first.exertion < second.exertion ? firstId : secondId,
+      basis: "exertion",
+      roll: null,
+    };
+  }
+
+  const firstFitness = getStat(context, firstId, "fitness");
+  const secondFitness = getStat(context, secondId, "fitness");
+  if (firstFitness !== secondFitness) {
+    return {
+      winnerId: firstFitness > secondFitness ? firstId : secondId,
+      basis: "fitness",
+      roll: null,
+    };
+  }
+
+  const firstStrength = getStat(context, firstId, "strength");
+  const secondStrength = getStat(context, secondId, "strength");
+  if (firstStrength !== secondStrength) {
+    return {
+      winnerId: firstStrength > secondStrength ? firstId : secondId,
+      basis: "strength",
+      roll: null,
+    };
+  }
+
+  const conflictKey = [holdIdentity(leftHold), holdIdentity(rightHold)].sort().join("|");
+  const roll = keyedRandom01(
+    context.game.seed,
+    `encounter-simultaneous-grab-v1:${context.instanceKey}:${context.state.exchange}:${conflictKey}`,
+  );
+  return {
+    winnerId: roll < 0.5 ? firstId : secondId,
+    basis: "roll",
+    roll: Math.round(roll * 10000) / 10000,
+  };
+}
+
+function arbitrateNewHoldConflicts(context, holds, runtime) {
+  const rejectedIds = new Set();
+  for (let leftIndex = 0; leftIndex < holds.length; leftIndex += 1) {
+    const left = holds[leftIndex];
+    if (rejectedIds.has(left.id)) continue;
+    for (let rightIndex = leftIndex + 1; rightIndex < holds.length; rightIndex += 1) {
+      const right = holds[rightIndex];
+      if (rejectedIds.has(right.id) || !mutuallyRestrictSourceLimbs(left, right)) continue;
+
+      const decision = chooseSimultaneousGrabPriority(context, left, right);
+      const winner = decision.winnerId === left.controllerId ? left : right;
+      const loser = winner === left ? right : left;
+      rejectedIds.add(loser.id);
+
+      runtime.events = runtime.events.filter(
+        (event) => event.type !== "hold.created"
+          || (event.holdId !== winner.id && event.holdId !== loser.id),
+      );
+      if (decision.basis === "roll") {
+        const [rollActorId, rollTargetId] = [winner.controllerId, loser.controllerId].sort();
+        runtime.events.push({
+          type: "chance.rolled",
+          actorId: rollActorId,
+          targetId: rollTargetId,
+          actionId: "grab-arm",
+          purpose: "simultaneous-grab-priority",
+          chance: 0.5,
+          roll: decision.roll,
+          success: decision.winnerId === rollActorId,
+        });
+      }
+      runtime.events.push({
+        type: "hold.priority-resolved",
+        winnerId: winner.controllerId,
+        loserId: loser.controllerId,
+        holdId: winner.id,
+        targetPartId: winner.targetPartId,
+        basis: decision.basis,
+      });
+    }
+  }
+  return holds.filter(({ id }) => !rejectedIds.has(id));
+}
+
 function mergeHoldRelations(context, branches, runtime) {
   const baseHolds = context.state.relationships.holds;
   const baseById = new Map(baseHolds.map((hold) => [hold.id, hold]));
@@ -296,12 +411,14 @@ function mergeHoldRelations(context, branches, runtime) {
     merged.push(hold);
   }
 
+  const newHolds = [];
   for (const holds of branchMaps) {
     for (const [holdId, hold] of holds) {
-      if (baseById.has(holdId) || merged.some(({ id }) => id === holdId)) continue;
-      merged.push(structuredClone(hold));
+      if (baseById.has(holdId) || newHolds.some(({ id }) => id === holdId)) continue;
+      newHolds.push(structuredClone(hold));
     }
   }
+  merged.push(...arbitrateNewHoldConflicts(context, newHolds, runtime));
   context.state.relationships.holds = merged;
 }
 
@@ -359,6 +476,9 @@ function resolveSimultaneously(context, playerAction, npcAction, sharedRuntime) 
   sharedRuntime.events.push(...branches.flatMap((branch) => branch.runtime.events));
   sharedRuntime.outcome = mergeProposedOutcomes(branches);
   mergeBodyDamage(context, branches);
+  // Hold priority reads the pre-exchange exertion state, before the costs from
+  // either simultaneous branch are merged into the canonical participants.
+  mergeHoldRelations(context, branches, sharedRuntime);
   mergeParticipantEffects(context, branches, "player");
   mergeParticipantEffects(context, branches, "mugger");
   for (const branch of branches) {
@@ -388,7 +508,6 @@ function resolveSimultaneously(context, playerAction, npcAction, sharedRuntime) 
   );
   if (moneyDelta) context.game.player.adjustMoney(moneyDelta);
 
-  mergeHoldRelations(context, branches, sharedRuntime);
   for (const actorId of ["player", "mugger"]) {
     const participant = context.state.participants[actorId];
     participant.pose = changedValue(

@@ -91,6 +91,33 @@ test("state validation rejects contradictory position and terminal facts", () =>
   impossibleSupport.participants.player.support = "wall";
   assert.throws(() => validateEncounterState(impossibleSupport), /grounded and wall-supported/);
 
+  const mutuallyRestrainedSources = structuredClone(original);
+  mutuallyRestrainedSources.relationships.range[0].value = "clinch";
+  mutuallyRestrainedSources.relationships.holds.push(
+    {
+      id: "hold-player-left",
+      controllerId: "player",
+      sourcePartId: "hand_l",
+      targetId: "mugger",
+      targetPartId: "lower_arm_l",
+      kind: "wrist-grip",
+      leverage: 40,
+    },
+    {
+      id: "hold-mugger-left",
+      controllerId: "mugger",
+      sourcePartId: "hand_l",
+      targetId: "player",
+      targetPartId: "lower_arm_l",
+      kind: "wrist-grip",
+      leverage: 40,
+    },
+  );
+  assert.throws(
+    () => validateEncounterState(mutuallyRestrainedSources),
+    /mutually restrained source limbs/,
+  );
+
   const terminalIntent = structuredClone(original);
   terminalIntent.phase = "terminal";
   terminalIntent.outcome = { id: "player-escaped", moneyLost: 0 };
