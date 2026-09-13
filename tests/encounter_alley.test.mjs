@@ -131,7 +131,7 @@ test("taking money begins an interruptible getaway before theft completes", () =
     moneyLost: 20,
   });
   assert.equal(game.player.money, 30);
-  assert.notEqual(state.relationships.range[0].value, "clinch");
+  assert.equal(state.relationships.range[0].value, "far");
   assert.deepEqual(state.relationships.holds, []);
   assert.ok(state.lastEvents.some(({ type }) => type === "theft.completed"));
 });
@@ -225,6 +225,7 @@ test("theft is capped at available money and an empty target invents no new obje
   startEncounter(empty);
   const emptyOutcome = playUntilTerminal(empty, () => "cover-and-brace");
   assert.equal(emptyOutcome.id, "mugger-fled");
+  assert.equal(empty.currentStory.system.state.relationships.range[0].value, "far");
   assert.equal(empty.currentStory.system.state.objective.amount, 0);
   assert.equal(empty.player.money, 0);
 });

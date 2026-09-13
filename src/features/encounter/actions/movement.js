@@ -363,6 +363,7 @@ export const FLEE = Object.freeze({
 
   resolve(context, instance, runtime) {
     addExertion(context, instance.actorId, 7);
+    changeRange(context, ENCOUNTER_RANGE.far, runtime);
     const outcome = outcomeForMuggerEscape(context);
     if (outcome.id === ENCOUNTER_OUTCOME.theftPlayerConscious) {
       runtime.events.push({
