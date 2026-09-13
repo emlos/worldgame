@@ -204,6 +204,36 @@ test("surrendering during combat ends the mugging and caps the loss", () => {
 });
 
 test("controlled disengagement requires complete control and improves with exhaustion", () => {
+  const tokenControl = gameAtStart({ seed: 4, money: 50 });
+  startEncounter(tokenControl);
+  const tokenState = preparePlayerControl(tokenControl, {
+    stolen: true,
+    muggerExertion: 90,
+  });
+  tokenState.relationships.holds[0].leverage = 1;
+  tokenState.relationships.holds[1].leverage = 1;
+  assert.equal(findActionChoice(tokenControl, "controlled-disengage"), null);
+  assert.equal(findActionChoice(tokenControl, "demand-money-back"), null);
+
+  tokenState.relationships.holds[0].leverage = 100;
+  assert.equal(
+    findActionChoice(tokenControl, "demand-money-back"),
+    null,
+    "one strong wrist hold must not compensate for ineffective control of the other wrist",
+  );
+
+  const weakenedControl = gameAtStart({ seed: 4, money: 50 });
+  startEncounter(weakenedControl);
+  preparePlayerControl(weakenedControl, { stolen: true, muggerExertion: 90 });
+  const leftHand = weakenedControl.player.body.getPart("hand_l");
+  leftHand.health = leftHand.maxHealth * 0.2;
+  leftHand.pain = 0;
+  assert.equal(
+    findActionChoice(weakenedControl, "demand-money-back"),
+    null,
+    "stored leverage must be discounted by the controlling limb's actual capacity",
+  );
+
   const unavailable = gameAtStart({ seed: 4 });
   startEncounter(unavailable);
   preparePlayerControl(unavailable, { muggerExertion: 34 });
@@ -231,6 +261,19 @@ test("controlled disengagement requires complete control and improves with exhau
   assert.equal(highState.relationships.range[0].value, "far");
   assert.deepEqual(highState.relationships.holds, []);
   assert.match(JSON.stringify(buildScene(high).content), /several steps back/i);
+});
+
+test("controlled disengagement requires standing mobility", () => {
+  const game = gameAtStart({ seed: 4, money: 50 });
+  startEncounter(game);
+  const state = preparePlayerControl(game, { stolen: true, muggerExertion: 90 });
+  state.participants.player.pose = "kneeling";
+
+  assert.equal(findActionChoice(game, "controlled-disengage"), null);
+  assert.ok(
+    findActionChoice(game, "demand-money-back"),
+    "kneeling does not by itself prevent a demand from a secure control position",
+  );
 });
 
 test("a Speech demand can recover stolen money and switches the mugger to escape", () => {

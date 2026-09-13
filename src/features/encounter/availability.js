@@ -34,8 +34,8 @@ export function getAvailableActionInstances(context, actorId) {
 
 const AVAILABILITY_HINTS = Object.freeze({
   "surrender-money": "Available until the mugger has abandoned the theft after returning the money.",
-  "controlled-disengage": "Requires both of the mugger's wrists controlled, the mugger against a wall or on the ground, and at least medium exhaustion.",
-  "demand-money-back": "Requires the stolen money, both of the mugger's wrists controlled, and the mugger against a wall or on the ground.",
+  "controlled-disengage": "Requires secure effective control of both of the mugger's wrists, the mugger against a wall or on the ground, standing mobility, and at least medium exhaustion.",
+  "demand-money-back": "Requires the stolen money, secure effective control of both of the mugger's wrists, and the mugger against a wall or on the ground.",
   "cover-and-brace": "Actor cannot begin a physical action.",
   "catch-breath": "Only useful while exerted, hurt, winded, or dazed.",
   "strike-face": "Needs a usable free hand and striking range.",

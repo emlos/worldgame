@@ -1,9 +1,11 @@
 import { calculateSkillCheckChance } from "../../../game/scene/skillChecks.js";
 import {
+  getEffectiveHoldLeverage,
   getParticipant,
   getStat,
   holdsControlledBy,
 } from "../combatants.js";
+import { canMove } from "../affordances.js";
 import {
   ENCOUNTER_POSE,
   ENCOUNTER_RANGE,
@@ -24,14 +26,25 @@ import {
 } from "../objectives/steal.js";
 
 export const CONTROLLED_DISENGAGE_MIN_EXERTION = 35;
+export const COMPLETE_CONTROL_MIN_WRIST_LEVERAGE = 30;
+export const COMPLETE_CONTROL_MIN_TOTAL_LEVERAGE = 72;
 
-function playerControlsBothWrists(context) {
-  const controlledParts = new Set(
-    holdsControlledBy(context, "player")
-      .filter(({ targetId }) => targetId === "mugger")
-      .map(({ targetPartId }) => targetPartId),
-  );
-  return controlledParts.has("lower_arm_l") && controlledParts.has("lower_arm_r");
+function playerHasCompleteWristControl(context) {
+  const strongestByWrist = new Map();
+  for (const hold of holdsControlledBy(context, "player")) {
+    if (hold.targetId !== "mugger") continue;
+    const effective = getEffectiveHoldLeverage(context, hold);
+    strongestByWrist.set(
+      hold.targetPartId,
+      Math.max(strongestByWrist.get(hold.targetPartId) || 0, effective),
+    );
+  }
+
+  const left = strongestByWrist.get("lower_arm_l") || 0;
+  const right = strongestByWrist.get("lower_arm_r") || 0;
+  return left >= COMPLETE_CONTROL_MIN_WRIST_LEVERAGE
+    && right >= COMPLETE_CONTROL_MIN_WRIST_LEVERAGE
+    && left + right >= COMPLETE_CONTROL_MIN_TOTAL_LEVERAGE;
 }
 
 function muggerIsConstrained(context) {
@@ -41,7 +54,7 @@ function muggerIsConstrained(context) {
 }
 
 function hasControlPosition(context) {
-  return playerControlsBothWrists(context) && muggerIsConstrained(context);
+  return playerHasCompleteWristControl(context) && muggerIsConstrained(context);
 }
 
 function releaseAllHolds(context, runtime, reason) {
@@ -100,6 +113,7 @@ export const CONTROLLED_DISENGAGE = Object.freeze({
 
   isAvailable(context, instance) {
     return instance.actorId === "player"
+      && canMove(context, "player")
       && hasControlPosition(context)
       && getParticipant(context, "mugger").exertion >= CONTROLLED_DISENGAGE_MIN_EXERTION;
   },
