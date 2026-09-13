@@ -3,7 +3,9 @@ import assert from "node:assert/strict";
 
 import { buildScene } from "../src/game/scene/sceneEngine.js";
 import {
+  ENCOUNTER_ACTION_PURPOSES,
   actionLabel,
+  getActionPurpose,
   getAvailableActionInstances,
   sameActionInstance,
 } from "../src/features/encounter/availability.js";
@@ -19,24 +21,33 @@ function actionIds(instances) {
   return instances.map(({ actionId }) => actionId);
 }
 
+function encounterChoices(scene) {
+  return scene.sections.flatMap(({ choices }) => choices);
+}
+
 test("the opening state exposes the minimum contextual choices", () => {
   const game = gameAtStart();
   const state = startEncounter(game);
   const scene = buildScene(game);
 
   assert.deepEqual(
-    scene.sections[0].choices.map(({ id }) => id),
+    encounterChoices(scene).map(({ id }) => id),
     [
+      "encounter-action:create-distance",
+      "encounter-action:cover-and-brace",
       "encounter-action:strike-face",
       "encounter-action:drive-body",
       "encounter-action:shove-away",
       "encounter-action:grab-arm:1",
       "encounter-action:grab-arm:2",
-      "encounter-action:create-distance",
-      "encounter-action:cover-and-brace",
     ],
   );
-  assert.ok(scene.sections[0].choices.length <= 7);
+  assert.deepEqual(scene.sections.map(({ heading }) => heading), [
+    "Escape",
+    "Defend",
+    "Attack",
+    "Control",
+  ]);
   assert.match(JSON.stringify(scene.content), /Next:/);
   assert.match(JSON.stringify(scene.content), /Current situation/);
   assert.match(JSON.stringify(scene.content), /complete exchange time/);
@@ -67,7 +78,8 @@ test("the combat screen exposes every mechanically available player action", () 
     instanceKey: game.currentStory.instanceKey,
   });
   const available = getAvailableActionInstances(context, "player");
-  const rendered = buildScene(game).sections[0].choices.map(({ action }) => ({
+  const scene = buildScene(game);
+  const rendered = encounterChoices(scene).map(({ action }) => ({
     actionId: action.command.actionId,
     actorId: action.command.actorId,
     targetId: action.command.targetId,
@@ -79,6 +91,24 @@ test("the combat screen exposes every mechanically available player action", () 
   assert.ok(available.every((instance) =>
     rendered.some((candidate) => sameActionInstance(candidate, instance))));
   assert.ok(rendered.some(({ actionId }) => actionId === "create-distance"));
+  assert.equal(new Set(encounterChoices(scene).map(({ id }) => id)).size, available.length);
+  assert.ok(scene.sections.every(({ choices }) => choices.length > 0));
+});
+
+test("every player action has exactly one immediate-purpose group", () => {
+  const game = gameAtStart();
+  const state = startEncounter(game);
+  state.relationships.range[0].value = "clinch";
+  const context = createCombatContext({
+    game,
+    state,
+    instanceKey: game.currentStory.instanceKey,
+  });
+  const purposeIds = new Set(ENCOUNTER_ACTION_PURPOSES.map(({ id }) => id));
+
+  for (const instance of getAvailableActionInstances(context, "player")) {
+    assert.ok(purposeIds.has(getActionPurpose(context, instance)), instance.actionId);
+  }
 });
 
 test("a relational wrist hold generates hold-specific responses", () => {
@@ -111,6 +141,13 @@ test("a relational wrist hold generates hold-specific responses", () => {
   assert.ok(!ids.includes("create-distance"));
   assert.equal(Object.hasOwn(state, "is_left_arm_held"), false);
   assert.equal(Object.hasOwn(state.participants.player, "pressed_against_wall"), false);
+
+  const scene = buildScene(game);
+  const breakControl = scene.sections.find(({ id }) => id === "encounter-actions-break-control");
+  const groupedActionIds = breakControl.choices.map(({ action }) => action.command.actionId);
+  assert.ok(groupedActionIds.includes("strike-holding-arm"));
+  assert.ok(groupedActionIds.includes("wrench-free"));
+  assert.equal(encounterChoices(scene).length, getAvailableActionInstances(context, "player").length);
 });
 
 test("wrenching requires capacity in the restrained limb", () => {
@@ -157,9 +194,13 @@ test("a fully reinforced hold cannot be reinforced again", () => {
     instanceKey: game.currentStory.instanceKey,
   });
 
-  assert.ok(!getAvailableActionInstances(context, "player").some(
+  const actions = getAvailableActionInstances(context, "player");
+  assert.ok(!actions.some(
     ({ actionId }) => actionId === "tighten-hold",
   ));
+  const positionalControl = actions.find(({ actionId }) => actionId === "force-to-ground");
+  assert.ok(positionalControl);
+  assert.equal(getActionPurpose(context, positionalControl), "control");
 });
 
 test("two held arms generate one combined wrench and separate holding-limb attacks", () => {
@@ -209,8 +250,7 @@ test("two held arms generate one combined wrench and separate holding-limb attac
     actionId: "force-to-ground",
     parameters: { targetId: "player", holdId: "hold-left" },
   };
-  const choices = buildScene(game).sections[0].choices;
-  assert.ok(choices.length <= 7);
+  const choices = encounterChoices(buildScene(game));
   assert.equal(new Set(choices.map(({ id }) => id)).size, choices.length);
   assert.equal(
     choices.filter(({ action }) => action.command.actionId === "strike-holding-arm").length,

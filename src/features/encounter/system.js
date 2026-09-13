@@ -1,8 +1,10 @@
 import { SCENE_ACTION_TYPE } from "../../game/scene/actions.js";
 import { createChoice } from "../../game/scene/choiceContract.js";
 import {
+  ENCOUNTER_ACTION_PURPOSES,
   actionDurationSeconds,
   actionLabel,
+  getActionPurpose,
   getAvailableActionInstances,
   sortPlayerActions,
 } from "./availability.js";
@@ -104,10 +106,25 @@ function renderActive(context, definition, systemId) {
     return counts;
   }, new Map());
   const actionOccurrences = new Map();
+  const choicesByPurpose = new Map(
+    ENCOUNTER_ACTION_PURPOSES.map(({ id }) => [id, []]),
+  );
+  for (const instance of actions) {
+    const occurrence = actionOccurrences.get(instance.actionId) || 0;
+    actionOccurrences.set(instance.actionId, occurrence + 1);
+    const suffix = actionCounts.get(instance.actionId) > 1 ? `:${occurrence + 1}` : "";
+    choicesByPurpose.get(getActionPurpose(context, instance)).push(playerChoice(
+      context,
+      definition,
+      systemId,
+      instance,
+      `encounter-action:${instance.actionId}${suffix}`,
+    ));
+  }
   const instructions = state.exchange === 0
     ? [{
       type: "paragraph",
-      text: "Choose one response for this exchange. Faster actions resolve first; each choice timer shows the complete exchange time.",
+      text: "Choose one response for this exchange. Actions are grouped by immediate purpose. Faster actions resolve first; each choice timer shows the complete exchange time.",
     }]
     : [];
   return {
@@ -122,22 +139,13 @@ function renderActive(context, definition, systemId) {
       { type: "paragraph", text: renderLastExchange(context) },
       ...instructions,
     ],
-    sections: [{
-      id: "encounter-actions",
-      heading: definition.choiceHeading,
-      choices: actions.map((instance) => {
-        const occurrence = actionOccurrences.get(instance.actionId) || 0;
-        actionOccurrences.set(instance.actionId, occurrence + 1);
-        const suffix = actionCounts.get(instance.actionId) > 1 ? `:${occurrence + 1}` : "";
-        return playerChoice(
-          context,
-          definition,
-          systemId,
-          instance,
-          `encounter-action:${instance.actionId}${suffix}`,
-        );
-      }),
-    }],
+    sections: ENCOUNTER_ACTION_PURPOSES
+      .map(({ id, heading }) => ({
+        id: `encounter-actions-${id}`,
+        heading,
+        choices: choicesByPurpose.get(id),
+      }))
+      .filter(({ choices }) => choices.length > 0),
   };
 }
 

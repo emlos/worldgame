@@ -1,5 +1,14 @@
 import { ENCOUNTER_ACTIONS, getEncounterAction } from "./actions/index.js";
+import { hostileHoldsOn } from "./combatants.js";
 import { effortBlockerText, getActionEffortStatus } from "./effort.js";
+
+export const ENCOUNTER_ACTION_PURPOSES = Object.freeze([
+  Object.freeze({ id: "escape", heading: "Escape" }),
+  Object.freeze({ id: "break-control", heading: "Break control" }),
+  Object.freeze({ id: "defend", heading: "Defend" }),
+  Object.freeze({ id: "attack", heading: "Attack" }),
+  Object.freeze({ id: "control", heading: "Control" }),
+]);
 
 function stableParameters(parameters) {
   return JSON.stringify(parameters || {});
@@ -115,6 +124,30 @@ export function actionLabel(context, instance) {
   const definition = getEncounterAction(instance.actionId);
   if (!definition) return instance.actionId;
   return definition.label(context, instance);
+}
+
+export function getActionPurpose(context, instance) {
+  const definition = getEncounterAction(instance?.actionId);
+  if (!definition) {
+    throw new Error(`Physical encounter: unknown action '${String(instance?.actionId)}'`);
+  }
+  const tags = definition.tags;
+  const breakingControl = tags.includes("disrupt-hold")
+    && hostileHoldsOn(context, instance.actorId).length > 0;
+
+  if (breakingControl) return "break-control";
+  if (tags.includes("escape")) return "escape";
+  if (
+    tags.includes("defense")
+    || tags.includes("recovery")
+    || definition.id === "roll-toward"
+  ) {
+    return "defend";
+  }
+  if (tags.includes("attack")) return "attack";
+  if (tags.includes("control") || tags.includes("hold")) return "control";
+
+  throw new Error(`Physical encounter: action '${definition.id}' has no player-facing purpose`);
 }
 
 export function intentLabel(context, intent) {
