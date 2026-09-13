@@ -8,7 +8,10 @@ import {
   isEncounterIncapacitated,
   validateCombatantInvariants,
 } from "../src/features/encounter/combatants.js";
-import { addAcute } from "../src/features/encounter/actions/helpers.js";
+import {
+  addAcute,
+  reconcileEncounterRelationships,
+} from "../src/features/encounter/actions/helpers.js";
 import {
   ENCOUNTER_PHASE,
   validateEncounterState,
@@ -214,6 +217,49 @@ test("ground pins remain relational and reduce derived limb capacity", () => {
 
   state.participants.player.pose = "standing";
   assert.throws(() => validateCombatantInvariants(context), /grounded or wall-supported/);
+});
+
+test("a hand pin downgrades to a weaker wrist grip when wall support is lost", () => {
+  const game = gameAtStart();
+  const state = startEncounter(game);
+  state.relationships.range[0].value = "clinch";
+  state.participants.player.support = "wall";
+  state.relationships.holds.push({
+    id: "wall-pin",
+    controllerId: "mugger",
+    sourcePartId: "hand_l",
+    targetId: "player",
+    targetPartId: "lower_arm_l",
+    kind: "limb-pin",
+    leverage: 60,
+  });
+  const context = createCombatContext({
+    game,
+    state,
+    instanceKey: game.currentStory.instanceKey,
+  });
+  const runtime = { events: [] };
+
+  state.participants.player.support = "free";
+  reconcileEncounterRelationships(context, runtime);
+
+  assert.deepEqual(state.relationships.holds, [{
+    id: "wall-pin",
+    controllerId: "mugger",
+    sourcePartId: "hand_l",
+    targetId: "player",
+    targetPartId: "lower_arm_l",
+    kind: "wrist-grip",
+    leverage: 45,
+  }]);
+  assert.ok(runtime.events.some(
+    ({ type, holdId, leverageLost, reason }) =>
+      type === "hold.downgraded"
+      && holdId === "wall-pin"
+      && leverageLost === 15
+      && reason === "pin-target-unconstrained",
+  ));
+  assert.doesNotThrow(() => validateCombatantInvariants(context));
 });
 
 test("damage anywhere in a source chain reduces the capacity of its hand", () => {

@@ -191,11 +191,6 @@ export const STAND_UP = Object.freeze({
       failAction(runtime, instance, "kept-down");
       return;
     }
-    for (const hold of [...holdsControlledBy(context, instance.actorId)]) {
-      if (hold.kind === "limb-pin" && hold.sourcePartId.startsWith("knee_")) {
-        removeHold(context, hold, runtime, "stood-up");
-      }
-    }
     changePose(context, instance.actorId, ENCOUNTER_POSE.standing, runtime);
     changeFacing(context, instance.actorId, ENCOUNTER_FACING.toward, runtime);
   },

@@ -418,6 +418,8 @@ function eventText(context, event) {
       return "The wrist hold tightens.";
     case "hold.broken":
       return event.kind === "limb-pin" ? "The pinned arm comes free." : "The wrist comes free.";
+    case "hold.downgraded":
+      return "The pin slips, leaving only a wrist grip.";
     case "hold.pinned":
       return `${actorName(context, event.controllerId, { sentence: true })} ${encounterVerb(context, event.controllerId, "pins", "pin")} ${actorName(context, event.targetId, { possessive: true })} ${sideName(event.targetPartId)} arm.`;
     case "hold.priority-resolved": {

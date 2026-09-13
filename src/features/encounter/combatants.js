@@ -1,5 +1,12 @@
 import { Body, BodyPartId, InjuryCondition } from "../../characters/core/body.js";
-import { ENCOUNTER_FACING, ENCOUNTER_POSE, getEncounterFacing } from "./state.js";
+import {
+  ENCOUNTER_FACING,
+  ENCOUNTER_POSE,
+  ENCOUNTER_RANGE,
+  ENCOUNTER_SUPPORT,
+  getEncounterFacing,
+  getEncounterRange,
+} from "./state.js";
 
 const PART_CHAINS = Object.freeze({
   [BodyPartId.HAND_L]: Object.freeze([
@@ -349,30 +356,58 @@ export function getEffectiveHoldLeverage(context, hold) {
     * positionMultiplier;
 }
 
+export function getHoldGeometryProblem(context, hold) {
+  if (!getBodyPart(context, hold.controllerId, hold.sourcePartId)) {
+    return {
+      code: "source-missing",
+      message: `hold '${hold.id}' uses a missing source part`,
+    };
+  }
+  if (!getBodyPart(context, hold.targetId, hold.targetPartId)) {
+    return {
+      code: "target-missing",
+      message: `hold '${hold.id}' targets a missing body part`,
+    };
+  }
+  if (!isPartFunctional(context, hold.controllerId, hold.sourcePartId)) {
+    return {
+      code: "source-disabled",
+      message: `hold '${hold.id}' uses a nonfunctional source limb`,
+    };
+  }
+  if (getEncounterRange(context.state) !== ENCOUNTER_RANGE.clinch) {
+    return {
+      code: "range-opened",
+      message: `hold '${hold.id}' requires clinch range`,
+    };
+  }
+  if (hold.kind !== "limb-pin") return null;
+
+  const target = getParticipant(context, hold.targetId);
+  if (target.pose === ENCOUNTER_POSE.standing
+    && target.support !== ENCOUNTER_SUPPORT.wall) {
+    return {
+      code: "pin-target-unconstrained",
+      message: `pin '${hold.id}' requires a grounded or wall-supported target`,
+    };
+  }
+  if (hold.sourcePartId.startsWith("knee_")) {
+    const controller = getParticipant(context, hold.controllerId);
+    if (controller.pose !== ENCOUNTER_POSE.kneeling
+      || target.pose === ENCOUNTER_POSE.standing) {
+      return {
+        code: "knee-pin-geometry-lost",
+        message: `knee pin '${hold.id}' requires kneeling ground control`,
+      };
+    }
+  }
+  return null;
+}
+
 export function validateCombatantInvariants(context) {
   for (const hold of context.state.relationships.holds) {
-    if (!getBodyPart(context, hold.controllerId, hold.sourcePartId)) {
-      fail(`hold '${hold.id}' uses a missing source part`);
-    }
-    if (!getBodyPart(context, hold.targetId, hold.targetPartId)) {
-      fail(`hold '${hold.id}' targets a missing body part`);
-    }
-    if (!isPartFunctional(context, hold.controllerId, hold.sourcePartId)) {
-      fail(`hold '${hold.id}' uses a nonfunctional source limb`);
-    }
-    if (hold.kind === "limb-pin") {
-      const target = getParticipant(context, hold.targetId);
-      if (target.pose === ENCOUNTER_POSE.standing && target.support !== "wall") {
-        fail(`pin '${hold.id}' requires a grounded or wall-supported target`);
-      }
-      if (hold.sourcePartId.startsWith("knee_")) {
-        const controller = getParticipant(context, hold.controllerId);
-        if (controller.pose !== ENCOUNTER_POSE.kneeling
-          || target.pose === ENCOUNTER_POSE.standing) {
-          fail(`knee pin '${hold.id}' requires kneeling ground control`);
-        }
-      }
-    }
+    const problem = getHoldGeometryProblem(context, hold);
+    if (problem) fail(problem.message);
   }
   if (context.state.phase === "active") {
     for (const actorId of ["player", "mugger"]) {

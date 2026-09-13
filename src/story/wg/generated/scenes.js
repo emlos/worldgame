@@ -8972,7 +8972,7 @@ export const WG_BUNDLE = {
         },
         "source": {
           "file": "story/encounters/alley.wg",
-          "line": 44,
+          "line": 45,
           "column": 1
         }
       },
@@ -8994,7 +8994,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/encounters/alley.wg",
-        "line": 41,
+        "line": 42,
         "column": 1
       },
       "actors": [
@@ -9003,7 +9003,7 @@ export const WG_BUNDLE = {
           "profileId": "civilian",
           "source": {
             "file": "story/encounters/alley.wg",
-            "line": 42,
+            "line": 43,
             "column": 1
           }
         }
@@ -9061,175 +9061,6 @@ export const WG_BUNDLE = {
                   "label": [
                     {
                       "type": "text",
-                      "value": "Hand over up to £20"
-                    }
-                  ],
-                  "target": "@exit",
-                  "icon": null,
-                  "durationMinutes": 0,
-                  "durationRangeMinutes": null,
-                  "timeUntilPath": null,
-                  "energyFree": false,
-                  "resting": false,
-                  "when": null,
-                  "requirements": [],
-                  "warning": null,
-                  "responses": [
-                    {
-                      "paragraphs": [
-                        {
-                          "type": "paragraph",
-                          "parts": [
-                            {
-                              "type": "text",
-                              "value": "You hand over what the mugger demands. Once they have the money, they let you return to the street."
-                            }
-                          ],
-                          "source": {
-                            "file": "story/encounters/alley.wg",
-                            "line": 16,
-                            "column": 1
-                          }
-                        }
-                      ],
-                      "source": {
-                        "file": "story/encounters/alley.wg",
-                        "line": 15,
-                        "column": 1
-                      }
-                    }
-                  ],
-                  "hints": [],
-                  "effects": [
-                    {
-                      "op": "take-money-up-to",
-                      "amount": 20,
-                      "source": {
-                        "file": "story/encounters/alley.wg",
-                        "line": 14,
-                        "column": 1
-                      }
-                    }
-                  ],
-                  "source": {
-                    "file": "story/encounters/alley.wg",
-                    "line": 13,
-                    "column": 1
-                  }
-                },
-                {
-                  "type": "choice",
-                  "id": "choice-2",
-                  "label": [
-                    {
-                      "type": "text",
-                      "value": "Run for the street"
-                    }
-                  ],
-                  "check": {
-                    "targetType": "skill",
-                    "targetId": "fitness",
-                    "difficultyId": "easy",
-                    "source": {
-                      "file": "story/encounters/alley.wg",
-                      "line": 21,
-                      "column": 1
-                    }
-                  },
-                  "outcomes": {
-                    "success": {
-                      "target": "@leave-place",
-                      "durationMinutes": 0,
-                      "durationRangeMinutes": null,
-                      "energyFree": false,
-                      "resting": false,
-                      "responses": [
-                        {
-                          "paragraphs": [
-                            {
-                              "type": "paragraph",
-                              "parts": [
-                                {
-                                  "type": "text",
-                                  "value": "You manage to outrun the mugger and make it safely back to the street."
-                                }
-                              ],
-                              "source": {
-                                "file": "story/encounters/alley.wg",
-                                "line": 24,
-                                "column": 1
-                              }
-                            }
-                          ],
-                          "source": {
-                            "file": "story/encounters/alley.wg",
-                            "line": 23,
-                            "column": 1
-                          }
-                        }
-                      ],
-                      "effects": [],
-                      "source": {
-                        "file": "story/encounters/alley.wg",
-                        "line": 22,
-                        "column": 1
-                      }
-                    },
-                    "failure": {
-                      "target": "encounter.alley-mugging",
-                      "durationMinutes": 0,
-                      "durationRangeMinutes": null,
-                      "energyFree": false,
-                      "resting": false,
-                      "responses": [
-                        {
-                          "paragraphs": [
-                            {
-                              "type": "paragraph",
-                              "parts": [
-                                {
-                                  "type": "text",
-                                  "value": "The mugger catches you before you can reach the street. You turn to face them as the confrontation becomes physical."
-                                }
-                              ],
-                              "source": {
-                                "file": "story/encounters/alley.wg",
-                                "line": 29,
-                                "column": 1
-                              }
-                            }
-                          ],
-                          "source": {
-                            "file": "story/encounters/alley.wg",
-                            "line": 28,
-                            "column": 1
-                          }
-                        }
-                      ],
-                      "effects": [],
-                      "source": {
-                        "file": "story/encounters/alley.wg",
-                        "line": 27,
-                        "column": 1
-                      }
-                    }
-                  },
-                  "icon": null,
-                  "when": null,
-                  "requirements": [],
-                  "warning": null,
-                  "source": {
-                    "file": "story/encounters/alley.wg",
-                    "line": 20,
-                    "column": 1
-                  }
-                },
-                {
-                  "type": "choice",
-                  "id": "choice-3",
-                  "label": [
-                    {
-                      "type": "text",
                       "value": "No way!"
                     }
                   ],
@@ -9256,14 +9087,14 @@ export const WG_BUNDLE = {
                           ],
                           "source": {
                             "file": "story/encounters/alley.wg",
-                            "line": 36,
+                            "line": 16,
                             "column": 1
                           }
                         }
                       ],
                       "source": {
                         "file": "story/encounters/alley.wg",
-                        "line": 35,
+                        "line": 15,
                         "column": 1
                       }
                     }
@@ -9272,7 +9103,7 @@ export const WG_BUNDLE = {
                   "effects": [],
                   "source": {
                     "file": "story/encounters/alley.wg",
-                    "line": 34,
+                    "line": 14,
                     "column": 1
                   }
                 }
@@ -9280,6 +9111,175 @@ export const WG_BUNDLE = {
               "source": {
                 "file": "story/encounters/alley.wg",
                 "line": 12,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-2",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Hand over up to £20"
+                }
+              ],
+              "target": "@exit",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "responses": [
+                {
+                  "paragraphs": [
+                    {
+                      "type": "paragraph",
+                      "parts": [
+                        {
+                          "type": "text",
+                          "value": "You hand over what the mugger demands. Once they have the money, they let you return to the street."
+                        }
+                      ],
+                      "source": {
+                        "file": "story/encounters/alley.wg",
+                        "line": 24,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "source": {
+                    "file": "story/encounters/alley.wg",
+                    "line": 23,
+                    "column": 1
+                  }
+                }
+              ],
+              "hints": [],
+              "effects": [
+                {
+                  "op": "take-money-up-to",
+                  "amount": 20,
+                  "source": {
+                    "file": "story/encounters/alley.wg",
+                    "line": 22,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/encounters/alley.wg",
+                "line": 21,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-3",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Run for the street"
+                }
+              ],
+              "check": {
+                "targetType": "skill",
+                "targetId": "fitness",
+                "difficultyId": "easy",
+                "source": {
+                  "file": "story/encounters/alley.wg",
+                  "line": 29,
+                  "column": 1
+                }
+              },
+              "outcomes": {
+                "success": {
+                  "target": "@leave-place",
+                  "durationMinutes": 0,
+                  "durationRangeMinutes": null,
+                  "energyFree": false,
+                  "resting": false,
+                  "responses": [
+                    {
+                      "paragraphs": [
+                        {
+                          "type": "paragraph",
+                          "parts": [
+                            {
+                              "type": "text",
+                              "value": "You manage to outrun the mugger and make it safely back to the street."
+                            }
+                          ],
+                          "source": {
+                            "file": "story/encounters/alley.wg",
+                            "line": 32,
+                            "column": 1
+                          }
+                        }
+                      ],
+                      "source": {
+                        "file": "story/encounters/alley.wg",
+                        "line": 31,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "effects": [],
+                  "source": {
+                    "file": "story/encounters/alley.wg",
+                    "line": 30,
+                    "column": 1
+                  }
+                },
+                "failure": {
+                  "target": "encounter.alley-mugging",
+                  "durationMinutes": 0,
+                  "durationRangeMinutes": null,
+                  "energyFree": false,
+                  "resting": false,
+                  "responses": [
+                    {
+                      "paragraphs": [
+                        {
+                          "type": "paragraph",
+                          "parts": [
+                            {
+                              "type": "text",
+                              "value": "The mugger catches you before you can reach the street. You turn to face them as the confrontation becomes physical."
+                            }
+                          ],
+                          "source": {
+                            "file": "story/encounters/alley.wg",
+                            "line": 37,
+                            "column": 1
+                          }
+                        }
+                      ],
+                      "source": {
+                        "file": "story/encounters/alley.wg",
+                        "line": 36,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "effects": [],
+                  "source": {
+                    "file": "story/encounters/alley.wg",
+                    "line": 35,
+                    "column": 1
+                  }
+                }
+              },
+              "icon": null,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "source": {
+                "file": "story/encounters/alley.wg",
+                "line": 28,
                 "column": 1
               }
             }

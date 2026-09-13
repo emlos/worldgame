@@ -4,6 +4,7 @@ import {
   getBalanceCapacity,
   getBodyPerformance,
   getCombatant,
+  getHoldGeometryProblem,
   getLimbCapacity,
   getParticipant,
   getStat,
@@ -198,6 +199,42 @@ export function removeNonfunctionalHolds(context, runtime) {
     if (!isPartFunctional(context, hold.controllerId, hold.sourcePartId)) {
       removeHold(context, hold, runtime, "source-disabled");
     }
+  }
+}
+
+export function reconcileEncounterRelationships(context, runtime) {
+  for (const hold of [...context.state.relationships.holds]) {
+    const problem = getHoldGeometryProblem(context, hold);
+    if (!problem) continue;
+
+    if (["source-missing", "target-missing"].includes(problem.code)) {
+      // A missing body part is corrupt data, not a physical transition. Leave it
+      // intact so strict invariant validation reports the underlying error.
+      continue;
+    }
+
+    const canDowngradePin = problem.code === "pin-target-unconstrained"
+      && hold.kind === "limb-pin"
+      && hold.sourcePartId.startsWith("hand_");
+    if (canDowngradePin) {
+      const previousLeverage = hold.leverage;
+      hold.kind = "wrist-grip";
+      hold.leverage = clamp(hold.leverage - 15, 1, 100);
+      runtime.events.push({
+        type: "hold.downgraded",
+        holdId: hold.id,
+        controllerId: hold.controllerId,
+        targetId: hold.targetId,
+        targetPartId: hold.targetPartId,
+        fromKind: "limb-pin",
+        toKind: hold.kind,
+        leverageLost: previousLeverage - hold.leverage,
+        reason: problem.code,
+      });
+      continue;
+    }
+
+    removeHold(context, hold, runtime, problem.code);
   }
 }
 

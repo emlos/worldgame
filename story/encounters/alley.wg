@@ -10,26 +10,6 @@
   A stranger steps into your path and demands your money.
 
   @choicegroup ""
-    @choice "Hand over up to £20" -> @exit
-      @effect take-money up-to 20
-      @response
-        You hand over what the mugger demands. Once they have the money, they let you return to the street.
-      @endresponse
-    @endchoice
-
-    @choice "Run for the street"
-      @check skill fitness easy
-      @success -> @leave-place
-        @response
-          You manage to outrun the mugger and make it safely back to the street.
-        @endresponse
-      @endsuccess
-      @failure -> encounter.alley-mugging
-        @response
-          The mugger catches you before you can reach the street. You turn to face them as the confrontation becomes physical.
-        @endresponse
-      @endfailure
-    @endchoice
 
     @choice "No way!" -> encounter.alley-mugging
       @response
@@ -37,6 +17,27 @@
       @endresponse
     @endchoice
   @endchoicegroup
+
+  @choice "Hand over up to £20" -> @exit
+    @effect take-money up-to 20
+    @response
+      You hand over what the mugger demands. Once they have the money, they let you return to the street.
+    @endresponse
+  @endchoice
+
+  @choice "Run for the street"
+    @check skill fitness easy
+    @success -> @leave-place
+      @response
+        You manage to outrun the mugger and make it safely back to the street.
+      @endresponse
+    @endsuccess
+    @failure -> encounter.alley-mugging
+      @response
+        The mugger catches you before you can reach the street. You turn to face them as the confrontation becomes physical.
+      @endresponse
+    @endfailure
+  @endchoice
 
 :: encounter.alley-mugging -> @exit
   @actor mugger civilian

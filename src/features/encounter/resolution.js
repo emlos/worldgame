@@ -33,8 +33,8 @@ import {
   addExertion,
   chanceRoll,
   failAction,
+  reconcileEncounterRelationships,
   removeHold,
-  removeNonfunctionalHolds,
   tickAcuteEffects,
 } from "./actions/helpers.js";
 import { getActionEffortStatus } from "./effort.js";
@@ -95,6 +95,7 @@ function resolveOne(context, instance, runtime, { revalidate = true, spoiledBy =
     }
   }
   definition.resolve(context, instance, runtime);
+  reconcileEncounterRelationships(context, runtime);
 }
 
 function applyIncapacitatedTheft(context, runtime) {
@@ -579,7 +580,7 @@ function resolveSimultaneously(context, playerAction, npcAction, sharedRuntime) 
     "relationships.range",
   );
   if (context.state.relationships.holds.length) range.value = ENCOUNTER_RANGE.clinch;
-  removeNonfunctionalHolds(context, sharedRuntime);
+  reconcileEncounterRelationships(context, sharedRuntime);
 }
 
 export function resolveEncounterExchange({

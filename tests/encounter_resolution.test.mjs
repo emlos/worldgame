@@ -443,6 +443,81 @@ test("the mugging can build control despite repeated low-risk defense", () => {
   assert.equal(state.outcome.id, "theft-completed-player-conscious");
 });
 
+test("varied sequences of legal actions preserve encounter invariants", () => {
+  const strategies = [
+    [
+      "pin-limb",
+      "turn-target-away",
+      "force-to-ground",
+      "press-to-wall",
+      "tighten-hold",
+      "grab-arm",
+      "stand-up",
+      "roll-toward",
+      "shove-away",
+      "strike-face",
+    ],
+    [
+      "strike-holding-arm",
+      "wrench-free",
+      "shove-away",
+      "stand-up",
+      "roll-toward",
+      "create-distance",
+      "flee",
+      "strike-face",
+      "cover-and-brace",
+    ],
+    [
+      "tighten-hold",
+      "force-to-ground",
+      "pin-limb",
+      "turn-target-away",
+      "grab-arm",
+      "knee-body",
+      "drive-body",
+      "shove-away",
+      "cover-and-brace",
+    ],
+  ];
+
+  for (let seed = 1; seed <= 30; seed += 1) {
+    const game = gameAtStart({ seed });
+    game.player.setSkillValue("strength", 7);
+    game.player.setSkillValue("fitness", 7);
+    let state = startEncounter(game);
+    Object.assign(game.currentStory.actors.mugger.stats, {
+      strength: 5,
+      fitness: 5,
+      endurance: 5,
+    });
+
+    for (let exchange = 0; exchange < 60 && state.phase === "active"; exchange += 1) {
+      const context = createCombatContext({
+        game,
+        state,
+        instanceKey: game.currentStory.instanceKey,
+      });
+      const available = getAvailableActionInstances(context, "player");
+      const priorities = strategies[(seed - 1) % strategies.length];
+      const playerAction = priorities
+        .map((actionId) => available.find((candidate) => candidate.actionId === actionId))
+        .find(Boolean) || available[0];
+      let next;
+      assert.doesNotThrow(() => {
+        next = resolveEncounterExchange({
+          game,
+          state,
+          instanceKey: game.currentStory.instanceKey,
+          playerAction,
+        });
+      }, `seed ${seed}, exchange ${exchange}, action ${playerAction.actionId}`);
+      state = next;
+      game.currentStory.system.state = state;
+    }
+  }
+});
+
 test("catching breath restores exertion and eases winded severity", () => {
   const game = gameAtStart({ seed: 1 });
   const state = startEncounter(game);
@@ -523,6 +598,91 @@ test("a grounded actor can roll to face the opponent and then stand", () => {
   };
   chooseAction(game, "stand-up");
   assert.equal(game.currentStory.system.state.participants.player.pose, "standing");
+});
+
+test("standing from a weak hostile knee pin breaks the pin without invalid geometry", () => {
+  const game = gameAtStart({ seed: 3 });
+  const state = startEncounter(game);
+  state.relationships.range[0].value = "clinch";
+  state.participants.player.pose = "supine";
+  state.participants.mugger.pose = "kneeling";
+  state.relationships.holds.push({
+    id: "weak-knee-pin",
+    controllerId: "mugger",
+    sourcePartId: "knee_l",
+    targetId: "player",
+    targetPartId: "lower_arm_l",
+    kind: "limb-pin",
+    leverage: 10,
+  });
+  state.npcIntent = {
+    actorId: "mugger",
+    actionId: "cover-and-brace",
+    parameters: { targetId: "mugger" },
+  };
+
+  chooseAction(game, "stand-up");
+
+  const next = game.currentStory.system.state;
+  assert.equal(next.participants.player.pose, "standing");
+  assert.ok(!next.relationships.holds.some(({ id }) => id === "weak-knee-pin"));
+  assert.ok(next.lastEvents.some(
+    ({ type, holdId, reason }) =>
+      type === "hold.broken"
+      && holdId === "weak-knee-pin"
+      && reason === "pin-target-unconstrained",
+  ));
+});
+
+test("a new simultaneous pin is reconciled against the merged final pose", () => {
+  const game = gameAtStart({ seed: 2 });
+  game.player.setSkillValue("strength", 10);
+  game.player.setSkillValue("fitness", 10);
+  const state = startEncounter(game);
+  Object.assign(game.currentStory.actors.mugger.stats, {
+    strength: 10,
+    fitness: 10,
+    endurance: 10,
+  });
+  state.relationships.range[0].value = "clinch";
+  state.participants.player.pose = "supine";
+  state.participants.mugger.pose = "kneeling";
+  state.relationships.holds.push(
+    {
+      id: "player-grip",
+      controllerId: "player",
+      sourcePartId: "hand_l",
+      targetId: "mugger",
+      targetPartId: "lower_arm_r",
+      kind: "wrist-grip",
+      leverage: 100,
+    },
+    {
+      id: "mugger-pin",
+      controllerId: "mugger",
+      sourcePartId: "hand_l",
+      targetId: "player",
+      targetPartId: "lower_arm_r",
+      kind: "wrist-grip",
+      leverage: 100,
+    },
+  );
+  forceNpcIntent(game, "pin-limb");
+
+  chooseAction(game, "turn-target-away");
+
+  const next = game.currentStory.system.state;
+  assert.equal(next.participants.mugger.pose, "prone");
+  assert.ok(!next.relationships.holds.some(({ id }) => id === "mugger-pin"));
+  assert.ok(next.lastEvents.some(
+    ({ type, holdId }) => type === "hold.pinned" && holdId === "mugger-pin",
+  ));
+  assert.ok(next.lastEvents.some(
+    ({ type, holdId, reason }) =>
+      type === "hold.broken"
+      && holdId === "mugger-pin"
+      && reason === "knee-pin-geometry-lost",
+  ));
 });
 
 test("headbutts carry self-damage while knee strikes apply acute pressure", () => {
