@@ -1749,7 +1749,7 @@ not implemented.
 | Checked choice | `@icon`, `@event-pool`, `@event-chance`, `@when`, `@require`, `@warning`, `@check`, `@success ... @endsuccess`, `@failure ... @endfailure` |
 | Check outcome | `@time`, `@response ... @endresponse`, `@effect` |
 | On-enter block | `@effect` |
-| Effect operations | `contact add`, `chat start`, `chat finish`, `set`, `add`, `unset`, `reminder add`, `reminder clear`, `timer start`, `timer restart`, `timer stop`, `unlock place`, `relocate home`, `relocate nearest-place`, `teleport npc`, `relationship`, `money`, `skill`, `stat`, `grade`, `attendance` |
+| Effect operations | `contact add`, `chat start`, `chat finish`, `set`, `add`, `unset`, `reminder add`, `reminder clear`, `timer start`, `timer restart`, `timer stop`, `unlock place`, `relocate home`, `relocate nearest-place`, `teleport npc`, `relationship`, `money`, `take-money up-to`, `skill`, `stat`, `grade`, `attendance` |
 | Story targets | `global scene ID`, `local .passage`, `@exit`, `@return`, `@leave-place` |
 <!-- WG-DIRECTIVE-INDEX:END -->
 

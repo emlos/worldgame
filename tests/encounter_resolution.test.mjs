@@ -10,6 +10,7 @@ import {
 } from "../src/features/encounter/resolution.js";
 import {
   chooseAction,
+  findActionChoice,
   gameAtStart,
   startEncounter,
 } from "./support/encounter.mjs";
@@ -316,7 +317,7 @@ test("simultaneous incapacitation is an explicit mutual outcome", () => {
   assert.match(JSON.stringify(buildScene(game).content), /both of you unable to continue/i);
 });
 
-test("losing the last legal response during an exchange resolves as helplessness", () => {
+test("losing the last physical response still leaves surrender available", () => {
   const game = gameAtStart({ seed: 1, money: 50 });
   const state = startEncounter(game);
   const setCapacity = (partId, ratio) => {
@@ -345,17 +346,10 @@ test("losing the last legal response during an exchange resolves as helplessness
   chooseAction(game, "tighten-hold");
 
   const next = game.currentStory.system.state;
-  assert.equal(next.phase, "terminal");
-  assert.deepEqual(next.outcome, {
-    id: "theft-completed-player-incapacitated",
-    moneyLost: 20,
-  });
-  assert.equal(game.player.money, 30);
-  assert.ok(next.lastEvents.some(
-    ({ type, actorId, reason }) => type === "participant.unable-to-act"
-      && actorId === "player"
-      && reason === "no-legal-response",
-  ));
+  assert.equal(next.phase, "active");
+  assert.equal(next.outcome, null);
+  assert.equal(game.player.money, 50);
+  assert.ok(findActionChoice(game, "surrender-money"));
 });
 
 test("directly conflicting simultaneous position changes cancel", () => {

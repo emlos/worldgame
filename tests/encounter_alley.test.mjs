@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import { buildScene } from "../src/game/scene/sceneEngine.js";
+import { performChoice } from "../src/game/scene/choiceEngine.js";
 import {
   resolveWGAutomaticScene,
   WG_AUTO_TRIGGER,
@@ -66,14 +67,208 @@ test("entering an alley triggers the mugging once", () => {
   placePlayerAtAlley(game);
 
   const entered = resolveWGAutomaticScene(game, WG_AUTO_TRIGGER.enterPlace);
-  assert.equal(entered?.id, "encounter.alley-mugging");
+  assert.equal(entered?.id, "encounter.alley-mugging-approach");
+  assert.equal(game.currentStory.system, undefined);
+  const approach = buildScene(game);
+  assert.deepEqual(approach.sections[0].choices.map(({ label }) => label), [
+    "Hand over up to £20",
+    "Run for the street",
+  ]);
+  assert.deepEqual(approach.sections[0].choices[1].skillCheck, {
+    targetType: "skill",
+    targetId: "fitness",
+    targetLabel: "Fitness",
+    difficultyId: "easy",
+    difficultyLabel: "Easy",
+  });
+
+  const result = performChoice(game, {
+    sceneId: approach.id,
+    choiceId: approach.sections[0].choices[1].id,
+  });
   assert.equal(game.currentStory.system.id, "encounter.physical");
   assert.ok(game.currentStory.actors.mugger);
+  assert.match(result.paragraphs.join(" "), /catches you/i);
   assert.equal(game.hasFlag("encounter.alley_mugging_seen"), true);
 
   exitWGStory(game);
   const repeated = resolveWGAutomaticScene(game, WG_AUTO_TRIGGER.enterPlace);
-  assert.notEqual(repeated?.id, "encounter.alley-mugging");
+  assert.notEqual(repeated?.id, "encounter.alley-mugging-approach");
+});
+
+test("the pre-fight choices surrender bounded money or escape to the street", () => {
+  const surrender = gameAtStart({ seed: 1, money: 7 });
+  placePlayerAtAlley(surrender);
+  const surrenderLocationId = surrender.currentLocationId;
+  resolveWGAutomaticScene(surrender, WG_AUTO_TRIGGER.enterPlace);
+  let scene = buildScene(surrender);
+  let result = performChoice(surrender, {
+    sceneId: scene.id,
+    choiceId: scene.sections[0].choices[0].id,
+  });
+
+  assert.equal(surrender.player.money, 0);
+  assert.equal(surrender.currentStory, null);
+  assert.equal(surrender.currentPlace, null);
+  assert.equal(String(surrender.location.id), String(surrenderLocationId));
+  assert.match(result.paragraphs.join(" "), /hand over/i);
+
+  const escape = gameAtStart({ seed: 1, money: 50 });
+  placePlayerAtAlley(escape);
+  const escapeLocationId = escape.currentLocationId;
+  escape.player.setSkillValue("fitness", 0);
+  resolveWGAutomaticScene(escape, WG_AUTO_TRIGGER.enterPlace);
+  scene = buildScene(escape);
+  result = performChoice(escape, {
+    sceneId: scene.id,
+    choiceId: scene.sections[0].choices[1].id,
+  });
+
+  assert.equal(escape.player.money, 50);
+  assert.equal(escape.currentStory, null);
+  assert.equal(escape.currentPlace, null);
+  assert.equal(String(escape.location.id), String(escapeLocationId));
+  assert.match(result.paragraphs.join(" "), /outrun the mugger/i);
+});
+
+function preparePlayerControl(game, { stolen = false, muggerExertion = 35 } = {}) {
+  const state = game.currentStory.system.state;
+  state.relationships.range[0].value = "clinch";
+  state.participants.mugger.support = "wall";
+  state.participants.mugger.exertion = muggerExertion;
+  state.relationships.holds = [
+    {
+      id: "player-left-control",
+      controllerId: "player",
+      sourcePartId: "hand_l",
+      targetId: "mugger",
+      targetPartId: "lower_arm_l",
+      kind: "wrist-grip",
+      leverage: 60,
+    },
+    {
+      id: "player-right-control",
+      controllerId: "player",
+      sourcePartId: "hand_r",
+      targetId: "mugger",
+      targetPartId: "lower_arm_r",
+      kind: "wrist-grip",
+      leverage: 60,
+    },
+  ];
+  if (stolen) {
+    state.objective.searched = true;
+    state.objective.stage = "disengage";
+    state.objective.lootAmount = 20;
+    game.player.adjustMoney(-20);
+  }
+  state.npcIntent = {
+    actorId: "mugger",
+    actionId: "wrench-free",
+    parameters: {
+      targetId: "player",
+      holdIds: ["player-left-control", "player-right-control"],
+    },
+  };
+  return state;
+}
+
+test("surrendering during combat ends the mugging and caps the loss", () => {
+  const game = gameAtStart({ seed: 1, money: 7 });
+  startEncounter(game);
+
+  chooseAction(game, "surrender-money");
+
+  const state = game.currentStory.system.state;
+  assert.deepEqual(state.outcome, {
+    id: "player-surrendered-money",
+    moneyLost: 7,
+  });
+  assert.equal(game.player.money, 0);
+  assert.equal(state.relationships.range[0].value, "far");
+  assert.deepEqual(state.relationships.holds, []);
+  assert.match(JSON.stringify(buildScene(game).content), /surrender £7/i);
+
+  const afterTheft = gameAtStart({ seed: 1, money: 50 });
+  startEncounter(afterTheft);
+  prepareControlledSearch(afterTheft);
+  chooseAction(afterTheft, "cover-and-brace");
+  assert.equal(afterTheft.player.money, 30);
+
+  chooseAction(afterTheft, "surrender-money");
+  assert.deepEqual(afterTheft.currentStory.system.state.outcome, {
+    id: "player-surrendered-money",
+    moneyLost: 20,
+  });
+  assert.equal(afterTheft.player.money, 30, "already-stolen money must not be taken twice");
+});
+
+test("controlled disengagement requires complete control and improves with exhaustion", () => {
+  const unavailable = gameAtStart({ seed: 4 });
+  startEncounter(unavailable);
+  preparePlayerControl(unavailable, { muggerExertion: 34 });
+  assert.equal(findActionChoice(unavailable, "controlled-disengage"), null);
+
+  const low = gameAtStart({ seed: 4 });
+  startEncounter(low);
+  preparePlayerControl(low, { muggerExertion: 35 });
+  chooseAction(low, "controlled-disengage");
+  const lowRoll = low.currentStory.system.state.lastEvents.find(
+    ({ type, actionId }) => type === "chance.rolled" && actionId === "controlled-disengage",
+  );
+  assert.equal(lowRoll.success, false);
+
+  const high = gameAtStart({ seed: 4 });
+  startEncounter(high);
+  preparePlayerControl(high, { muggerExertion: 90 });
+  chooseAction(high, "controlled-disengage");
+  const highState = high.currentStory.system.state;
+  const highRoll = highState.lastEvents.find(
+    ({ type, actionId }) => type === "chance.rolled" && actionId === "controlled-disengage",
+  );
+  assert.equal(highRoll.success, true);
+  assert.ok(highRoll.chance > lowRoll.chance);
+  assert.equal(highState.relationships.range[0].value, "far");
+  assert.deepEqual(highState.relationships.holds, []);
+  assert.match(JSON.stringify(buildScene(high).content), /several steps back/i);
+});
+
+test("a Speech demand can recover stolen money and switches the mugger to escape", () => {
+  const failed = gameAtStart({ seed: 2, money: 50 });
+  startEncounter(failed);
+  preparePlayerControl(failed, { stolen: true });
+  chooseAction(failed, "demand-money-back");
+  const failedState = failed.currentStory.system.state;
+  const failedRoll = failedState.lastEvents.find(
+    ({ type, actionId }) => type === "chance.rolled" && actionId === "demand-money-back",
+  );
+  assert.equal(failedRoll.success, false);
+  assert.equal(failed.player.money, 30);
+  assert.equal(failedState.objective.lootAmount, 20);
+
+  const succeeded = gameAtStart({ seed: 2, money: 50 });
+  succeeded.player.setSkillValue("speech", 10);
+  startEncounter(succeeded);
+  preparePlayerControl(succeeded, { stolen: true });
+  succeeded.currentStory.system.state.npcIntent = {
+    actorId: "mugger",
+    actionId: "headbutt",
+    parameters: { targetId: "player", sourcePartId: "head" },
+  };
+  chooseAction(succeeded, "demand-money-back");
+  const succeededState = succeeded.currentStory.system.state;
+  const succeededRoll = succeededState.lastEvents.find(
+    ({ type, actionId }) => type === "chance.rolled" && actionId === "demand-money-back",
+  );
+  assert.equal(succeededRoll.success, true);
+  assert.ok(succeededRoll.chance > failedRoll.chance);
+  assert.equal(succeeded.player.money, 50);
+  assert.equal(succeededState.objective.lootAmount, 0);
+  assert.equal(succeededState.objective.stage, "disengage");
+  assert.equal(findActionChoice(succeeded, "surrender-money"), null);
+  assert.ok(["flee", "create-distance", "wrench-free", "strike-holding-arm", "shove-away"]
+    .includes(succeededState.npcIntent.actionId));
+  assert.match(JSON.stringify(buildScene(succeeded).content), /gives in to your demand/i);
 });
 
 test("failure to disrupt control completes bounded theft exactly once", () => {

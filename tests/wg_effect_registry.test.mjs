@@ -70,6 +70,7 @@ test("the compiler registry parses every effect without changing the effect IR",
     "  @effect teleport npc kim home",
     "  @effect relationship kim.intimidation -2",
     "  @effect money 3",
+    "  @effect take-money up-to 3",
     "  @effect skill strength 0.1",
     "  @effect stat energy -2",
     "  @effect grade english 1",
@@ -393,6 +394,21 @@ test("runtime effect arrays are preflighted before mutation", () => {
   assert.throws(
     () => validateWGEffectShape({ op: "money", amount: 1, amuont: 1 }),
     /unknown field 'amuont'/,
+  );
+});
+
+test("take-money-up-to caps a loss at the available whole balance", () => {
+  const game = new Game({ seed: 902 });
+  game.player.adjustMoney(7.5);
+
+  applyWGEffects(game, [{ op: "take-money-up-to", amount: 20 }]);
+  assert.equal(game.player.money, 0.5);
+
+  applyWGEffects(game, [{ op: "take-money-up-to", amount: 20 }]);
+  assert.equal(game.player.money, 0.5);
+  assert.throws(
+    () => validateWGEffectShape({ op: "take-money-up-to", amount: -1 }),
+    /non-negative whole amount/,
   );
 });
 

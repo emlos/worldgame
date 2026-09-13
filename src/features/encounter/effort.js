@@ -16,6 +16,9 @@ const DEFAULT_PROFILE = Object.freeze({
 // Readiness is deliberately action-specific. Explosive whole-body actions need
 // much more reserve than guarding, maintaining a grip, or searching a target.
 export const ACTION_EFFORT_PROFILES = Object.freeze({
+  "surrender-money": { requiredReadiness: 0, maximumWinded: 3, maximumDazed: 3 },
+  "demand-money-back": { requiredReadiness: 0, maximumWinded: 3, maximumDazed: 3 },
+  "controlled-disengage": { requiredReadiness: 20, maximumWinded: 2, maximumDazed: 2 },
   "catch-breath": { requiredReadiness: 0, maximumWinded: 3, maximumDazed: 2 },
   "cover-and-brace": { requiredReadiness: 14, maximumWinded: 3, maximumDazed: 2 },
   "strike-face": { requiredReadiness: 18, maximumWinded: 2, maximumDazed: 1 },

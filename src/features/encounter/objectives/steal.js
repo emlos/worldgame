@@ -59,6 +59,25 @@ function releaseAllHolds(context, events) {
   context.state.relationships.holds = [];
 }
 
+export function resolveSurrenderedTheft(context, events) {
+  const moneyLost = takeTheftMoney(context, events);
+  releaseAllHolds(context, events);
+  const from = getEncounterRange(context.state);
+  if (from !== ENCOUNTER_RANGE.far) {
+    setEncounterRange(context.state, ENCOUNTER_RANGE.far);
+    events.push({ type: "range.changed", from, to: ENCOUNTER_RANGE.far });
+  }
+  events.push({ type: "surrender.completed", actorId: "player", amount: moneyLost });
+  if (moneyLost > 0) {
+    events.push({ type: "theft.completed", actorId: "mugger", amount: moneyLost });
+  }
+  events.push({ type: "escape.completed", actorId: "mugger" });
+  return {
+    id: ENCOUNTER_OUTCOME.playerSurrendered,
+    moneyLost,
+  };
+}
+
 /**
  * Apply the mugger's objective once the player cannot resist a search.
  * The scenario or resolver decides when that is true; this helper only applies

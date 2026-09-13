@@ -146,6 +146,12 @@ function applyMoneyEffect(game, effect) {
   game.player.adjustMoney(effect.amount);
 }
 
+function applyTakeMoneyUpToEffect(game, effect) {
+  const available = Math.max(0, Math.floor(game.player.money));
+  const amount = Math.min(effect.amount, available);
+  if (amount > 0) game.player.adjustMoney(-amount);
+}
+
 function applySkillEffect(game, effect) {
   game.player.adjustSkill(effect.id, effect.amount);
 }
@@ -167,6 +173,7 @@ const EFFECT_HANDLERS = new Map([
   ["teleport-npc", applyTeleportNPCEffect],
   ["relationship", applyRelationshipEffect],
   ["money", applyMoneyEffect],
+  ["take-money-up-to", applyTakeMoneyUpToEffect],
   ["skill", applySkillEffect],
   ["stat", applyStatEffect],
 ]);

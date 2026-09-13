@@ -189,6 +189,16 @@ function parseAmountEffect(argument, file, line, at, op) {
   return { op, amount: Number(match[1]), source: source(file, line) };
 }
 
+function parseTakeMoney(argument, file, line, at) {
+  const match = argument.match(/^take-money\s+up-to\s+(\d+)$/);
+  if (!match) failWG("Expected @effect take-money up-to <amount>", at);
+  return {
+    op: "take-money-up-to",
+    amount: Number(match[1]),
+    source: source(file, line),
+  };
+}
+
 function parseIdAmountEffect(argument, file, line, at, op) {
   const match = argument.match(
     new RegExp(`^${op}\\s+(${ID_PATTERN})\\s+([+-]?\\d+(?:\\.\\d+)?)$`),
@@ -225,6 +235,7 @@ const EFFECT_PARSERS = new Map([
   ["relationship", effectParser("relationship", parseRelationship)],
   ["money", effectParser("money", (argument, file, line, at) =>
     parseAmountEffect(argument, file, line, at, "money"))],
+  ["take-money", effectParser("take-money-up-to", parseTakeMoney)],
   ["skill", effectParser("skill", (argument, file, line, at) =>
     parseIdAmountEffect(argument, file, line, at, "skill"))],
   ["stat", effectParser("stat", (argument, file, line, at) =>

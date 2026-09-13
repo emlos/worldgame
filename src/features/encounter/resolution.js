@@ -467,6 +467,7 @@ function mergeBodyDamage(context, branches) {
 }
 
 const SIMULTANEOUS_OUTCOME_PRIORITY = Object.freeze([
+  ENCOUNTER_OUTCOME.playerSurrendered,
   ENCOUNTER_OUTCOME.theftPlayerIncapacitated,
   ENCOUNTER_OUTCOME.theftPlayerConscious,
   ENCOUNTER_OUTCOME.playerEscaped,
@@ -533,6 +534,10 @@ function resolveSimultaneously(context, playerAction, npcAction, sharedRuntime) 
     objective.lootAmount,
     ...branches.map((branch) => branch.context.state.objective.lootAmount),
   );
+  if (branches.some((branch) =>
+    branch.runtime.events.some(({ type }) => type === "theft.recovered"))) {
+    objective.lootAmount = 0;
+  }
 
   const baseMoney = context.game.player.money;
   const moneyDelta = branches.reduce(

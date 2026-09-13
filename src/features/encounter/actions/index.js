@@ -25,8 +25,16 @@ import {
   TURN_TARGET_AWAY,
   WRENCH_FREE,
 } from "./holds.js";
+import {
+  CONTROLLED_DISENGAGE,
+  DEMAND_MONEY_BACK,
+  SURRENDER_MONEY,
+} from "./objective.js";
 
 export const ENCOUNTER_ACTIONS = Object.freeze([
+  SURRENDER_MONEY,
+  CONTROLLED_DISENGAGE,
+  DEMAND_MONEY_BACK,
   COVER_AND_BRACE,
   CATCH_BREATH,
   HEADBUTT,

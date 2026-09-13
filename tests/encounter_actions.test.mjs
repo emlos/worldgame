@@ -33,6 +33,7 @@ test("the opening state exposes the minimum contextual choices", () => {
   assert.deepEqual(
     encounterChoices(scene).map(({ id }) => id),
     [
+      "encounter-action:surrender-money",
       "encounter-action:create-distance",
       "encounter-action:cover-and-brace",
       "encounter-action:strike-face",

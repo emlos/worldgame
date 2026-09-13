@@ -1,10 +1,44 @@
-:: encounter.alley-mugging -> @exit
-@auto enter-place
-@place-key alleyway
-@when not flags.encounter.alley_mugging_seen
-@onenter
-  @effect set flags.encounter.alley_mugging_seen
-@endonenter
-@actor mugger civilian
+:: encounter.alley-mugging-approach -> @exit
+  @auto enter-place
+  @place-key alleyway
+  @when not flags.encounter.alley_mugging_seen
 
-@system encounter.physical {"scenario":"alley-mugging","aggressor":"mugger"}
+  @onenter
+    @effect set flags.encounter.alley_mugging_seen
+  @endonenter
+
+  A stranger steps into your path and demands your money.
+
+  @choicegroup ""
+    @choice "Hand over up to £20" -> @exit
+      @effect take-money up-to 20
+      @response
+        You hand over what the mugger demands. Once they have the money, they let you return to the street.
+      @endresponse
+    @endchoice
+
+    @choice "Run for the street"
+      @check skill fitness easy
+      @success -> @leave-place
+        @response
+          You manage to outrun the mugger and make it safely back to the street.
+        @endresponse
+      @endsuccess
+      @failure -> encounter.alley-mugging
+        @response
+          The mugger catches you before you can reach the street. You turn to face them as the confrontation becomes physical.
+        @endresponse
+      @endfailure
+    @endchoice
+
+    @choice "No way!" -> encounter.alley-mugging
+      @response
+        You refuse to hand over your money. The mugger steps closer, and the confrontation becomes physical.
+      @endresponse
+    @endchoice
+  @endchoicegroup
+
+:: encounter.alley-mugging -> @exit
+  @actor mugger civilian
+
+  @system encounter.physical {"scenario":"alley-mugging","aggressor":"mugger"}

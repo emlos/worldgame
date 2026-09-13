@@ -10,6 +10,7 @@ export const ENCOUNTER_PHASE = Object.freeze({
 
 export const ENCOUNTER_OUTCOME = Object.freeze({
   playerEscaped: "player-escaped",
+  playerSurrendered: "player-surrendered-money",
   muggerFled: "mugger-fled",
   muggerIncapacitated: "mugger-incapacitated",
   bothIncapacitated: "both-incapacitated",
@@ -430,6 +431,7 @@ export function validateEncounterState(state) {
       fail("a terminal encounter must have a complete objective stage");
     }
     if ([
+      ENCOUNTER_OUTCOME.playerSurrendered,
       ENCOUNTER_OUTCOME.theftPlayerConscious,
       ENCOUNTER_OUTCOME.theftPlayerIncapacitated,
     ].includes(state.outcome.id)) {

@@ -181,6 +181,9 @@ function actionAttemptText(context, event) {
     headbutt: ["try a headbutt", "tries a headbutt"],
     "knee-strike": ["drive a knee toward the body", "drives a knee toward the body"],
     "search-money": [`reach for ${targetPossessive} money`, `reaches for ${targetPossessive} money`],
+    "surrender-money": ["offer your money and stop resisting", "offers the money and stops resisting"],
+    "controlled-disengage": ["release your holds and spring away", "releases the holds and springs away"],
+    "demand-money-back": ["demand your stolen money back", "demands the stolen money back"],
   };
   const forms = phrases[event.actionId] || ["act", "acts"];
   return `${actor} ${encounterVerb(context, event.actorId, forms[1], forms[0])}.`;
@@ -290,6 +293,10 @@ function actionFailureText(context, event) {
       return actorIsPlayer
         ? `${target} ${encounterVerb(context, targetId, "keeps", "keep")} enough distance that you cannot close the gap.`
         : "You keep enough distance that the attacker cannot close the gap.";
+    case "disengage-anticipated":
+      return `${target} ${encounterVerb(context, targetId, "reads", "read")} your movement and stays close enough to stop you springing clear.`;
+    case "demand-refused":
+      return `${target} ${encounterVerb(context, targetId, "refuses", "refuse")} and keeps hold of your money.`;
     case "too-winded":
       return actorIsPlayer
         ? "You are too winded to put force behind it, and the attempt dies immediately."
@@ -332,6 +339,10 @@ function spoiledActionText(context, event) {
     return `${spoiler} ${encounterVerb(context, spoilerId, "acts", "act")} first and ${encounterVerb(context, spoilerId, "changes", "change")} the situation before you can finish.`;
   }
   if (spoilerId === "player") {
+    if (event.spoiledByActionId === "surrender-money") {
+      const attacker = actorName(context, actorId, { sentence: true });
+      return `${attacker} ${encounterVerb(context, actorId, "accepts", "accept")} your surrender instead of continuing the attack.`;
+    }
     if (event.actionId === "search-money") {
       return `You break ${encounterPronoun(context, actorId, "dependent")} control before ${encounterPronoun(context, actorId, "subject")} can reach your money.`;
     }
@@ -458,6 +469,14 @@ function eventText(context, event) {
       return `You recover your £${event.amount} before ${encounterPronoun(context, "mugger", "subject")} can escape.`;
     case "theft.empty":
       return `${encounterPronoun(context, "mugger", "subject", { sentence: true })} ${encounterVerb(context, "mugger", "finds", "find")} nothing to take and ${encounterVerb(context, "mugger", "abandons", "abandon")} the attempt.`;
+    case "surrender.completed":
+      return event.amount > 0
+        ? `You stop resisting and surrender £${event.amount}.`
+        : "You stop resisting and show that you have no money to hand over.";
+    case "escape.disengaged":
+      return `You suddenly release ${encounterPronoun(context, "mugger", "object")} and jump away; before ${encounterPronoun(context, "mugger", "subject")} can react, you are already several steps back.`;
+    case "demand.succeeded":
+      return `${encounterPronoun(context, "mugger", "subject", { sentence: true })} ${encounterVerb(context, "mugger", "gives", "give")} in to your demand and ${encounterVerb(context, "mugger", "looks", "look")} for a way to escape.`;
     case "escape.completed":
       return event.actorId === "player"
         ? "You reach the street and get clear."
@@ -515,6 +534,10 @@ export function outcomeText(context) {
   switch (state.outcome?.id) {
     case ENCOUNTER_OUTCOME.playerEscaped:
       return `You make it out of the alley before ${encounterPronoun(context, "mugger", "subject")} can catch you.`;
+    case ENCOUNTER_OUTCOME.playerSurrendered:
+      return money > 0
+        ? `You surrender £${money}. ${subject} ${encounterVerb(context, "mugger", "takes", "take")} it and leaves without continuing the fight.`
+        : `You stop resisting and show your empty pockets. ${subject} ${encounterVerb(context, "mugger", "leaves", "leave")} without continuing the fight.`;
     case ENCOUNTER_OUTCOME.muggerFled:
       return `${subject} ${encounterVerb(context, "mugger", "decides", "decide")} the risk is no longer worth it and ${encounterVerb(context, "mugger", "flees", "flee")}.`;
     case ENCOUNTER_OUTCOME.muggerIncapacitated:

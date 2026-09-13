@@ -447,6 +447,18 @@ const EFFECT_DEFINITIONS = [
     createFeedback: labeledFeedback(() => ({ label: "Money" })),
   },
   {
+    op: "take-money-up-to",
+    keyword: "take-money",
+    syntax: "take-money up-to",
+    allowedInChat: false,
+    validate(effect, fail) {
+      validateBaseEffect(effect, ["amount"], [], fail);
+      if (!Number.isSafeInteger(effect.amount) || effect.amount < 0) {
+        fail("WG take-money-up-to effect requires a non-negative whole amount");
+      }
+    },
+  },
+  {
     op: "skill",
     syntax: "skill",
     validate(effect, fail) {
