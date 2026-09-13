@@ -1,6 +1,30 @@
 import { getActionAvailabilityDiagnostics, getAvailableActionInstances, sameActionInstance } from "./availability.js";
 import { getNpcDecisionDiagnostics, intentToActionInstance } from "./ai.js";
-import { createCombatContext, validateCombatantInvariants } from "./combatants.js";
+import {
+  createCombatContext,
+  getBalanceCapacity,
+  getBodyPain,
+  getBodyPerformance,
+  getCombatant,
+  getEffectiveHoldLeverage,
+  getStat,
+  getUsableHands,
+  getUsableKnees,
+  holdsControlledBy,
+  hostileHoldsOn,
+  isDazed,
+  isEncounterIncapacitated,
+  isOffBalance,
+  isWinded,
+  validateCombatantInvariants,
+} from "./combatants.js";
+import {
+  canBeginPhysicalAction,
+  canMove,
+  getDisengagementHoldState,
+  getMovementCapacity,
+} from "./affordances.js";
+import { calculatePhysicalReadiness } from "./effort.js";
 import { ENCOUNTER_PHASE, validateEncounterState } from "./state.js";
 import { ENCOUNTER_PHYSICAL_SYSTEM_ID } from "./system.js";
 import { requireDebugPlaceByKey } from "../../game/debugCommands.js";
@@ -54,6 +78,64 @@ export function collectEncounterInvariantDiagnostics(context) {
   return { valid: checks.every(({ valid }) => valid), checks };
 }
 
+const COMBAT_STAT_NAMES = Object.freeze(["strength", "endurance", "resolve", "fitness"]);
+
+function round(value) {
+  return Math.round(value * 10000) / 10000;
+}
+
+function combatantDebugSnapshot(context, actorId) {
+  const combatant = getCombatant(context, actorId);
+  const controlledHolds = holdsControlledBy(context, actorId);
+  const hostileHolds = hostileHoldsOn(context, actorId);
+  const identity = actorId === "player"
+    ? { id: "player", title: "you", kind: "player" }
+    : {
+      id: combatant.actor.id,
+      title: combatant.actor.title,
+      kind: "temporary-actor",
+      profileId: combatant.actor.profileId,
+      category: combatant.actor.category,
+      age: combatant.actor.age,
+      gender: combatant.actor.gender,
+      pronouns: structuredClone(combatant.actor.pronouns),
+      tags: [...(combatant.actor.meta?.tags || [])],
+    };
+
+  return {
+    identity,
+    stats: Object.fromEntries(
+      COMBAT_STAT_NAMES.map((name) => [name, round(getStat(context, actorId, name))]),
+    ),
+    participant: structuredClone(context.state.participants[actorId]),
+    derived: {
+      pain: round(getBodyPain(context, actorId)),
+      bodyPerformance: round(getBodyPerformance(context, actorId)),
+      balanceCapacity: round(getBalanceCapacity(context, actorId)),
+      movementCapacity: round(getMovementCapacity(context, actorId)),
+      physicalReadiness: calculatePhysicalReadiness(context, actorId),
+      canBeginPhysicalAction: canBeginPhysicalAction(context, actorId),
+      canMove: canMove(context, actorId),
+      incapacitated: isEncounterIncapacitated(context, actorId),
+      dazed: isDazed(context, actorId),
+      offBalance: isOffBalance(context, actorId),
+      winded: isWinded(context, actorId),
+      usableHands: getUsableHands(context, actorId),
+      usableKnees: getUsableKnees(context, actorId),
+      disengagement: getDisengagementHoldState(context, actorId),
+      controlledHolds: controlledHolds.map((hold) => ({
+        id: hold.id,
+        effectiveLeverage: round(getEffectiveHoldLeverage(context, hold)),
+      })),
+      hostileHolds: hostileHolds.map((hold) => ({
+        id: hold.id,
+        effectiveLeverage: round(getEffectiveHoldLeverage(context, hold)),
+      })),
+    },
+    body: combatant.body.toJSON(),
+  };
+}
+
 export function getEncounterDebugSnapshot(game) {
   const frame = game.currentStory;
   if (frame?.system?.id !== ENCOUNTER_PHYSICAL_SYSTEM_ID || !frame.system.state) return null;
@@ -61,6 +143,10 @@ export function getEncounterDebugSnapshot(game) {
   const active = context.state.phase === ENCOUNTER_PHASE.active;
   return {
     state: structuredClone(context.state),
+    combatants: {
+      player: combatantDebugSnapshot(context, "player"),
+      mugger: combatantDebugSnapshot(context, "mugger"),
+    },
     decision: active ? getNpcDecisionDiagnostics(context) : null,
     availability: {
       player: getActionAvailabilityDiagnostics(context, "player"),

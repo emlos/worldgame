@@ -1,0 +1,318 @@
+:root {
+  color-scheme: dark;
+  --lab-bg: #101319;
+  --lab-panel: #171c24;
+  --lab-panel-raised: #202733;
+  --lab-border: #343e4e;
+  --lab-muted: #99a6b8;
+  --lab-text: #edf2f8;
+  --lab-accent: #71d1b2;
+  --lab-accent-dark: #173e35;
+  --lab-danger: #ef827d;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body.combat-lab-page {
+  min-height: 100vh;
+  margin: 0;
+  background: var(--lab-bg);
+  color: var(--lab-text);
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+.combat-lab-topbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 2rem;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid var(--lab-border);
+  background: #131820;
+}
+
+.combat-lab-topbar h1,
+.combat-lab-topbar p,
+.combat-lab-arena-header h2,
+.combat-lab-panel h2 {
+  margin: 0;
+}
+
+.combat-lab-topbar h1 {
+  margin-bottom: 0.35rem;
+  font-size: clamp(1.45rem, 2vw, 2rem);
+}
+
+.combat-lab-topbar a {
+  color: var(--lab-accent);
+  white-space: nowrap;
+}
+
+.combat-lab-eyebrow,
+.combat-lab-step {
+  color: var(--lab-accent);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.combat-lab-layout {
+  display: grid;
+  grid-template-columns: minmax(15rem, 20rem) minmax(28rem, 1fr) minmax(21rem, 28rem);
+  min-height: calc(100vh - 7.1rem);
+}
+
+.combat-lab-panel {
+  background: var(--lab-panel);
+}
+
+.combat-lab-controls {
+  border-right: 1px solid var(--lab-border);
+}
+
+.combat-lab-diagnostics {
+  border-left: 1px solid var(--lab-border);
+}
+
+.combat-lab-panel > section,
+.combat-lab-panel > details,
+.combat-lab-actions,
+.combat-lab-panel > .combat-lab-notice {
+  margin: 0;
+  padding: 1rem 1.15rem;
+  border-bottom: 1px solid var(--lab-border);
+}
+
+.combat-lab-panel h2 {
+  margin-bottom: 0.85rem;
+  font-size: 1rem;
+}
+
+.combat-lab-field,
+.combat-lab-slider {
+  display: grid;
+  gap: 0.35rem;
+  margin-top: 0.75rem;
+  color: var(--lab-muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.combat-lab-field select,
+.combat-lab-field input,
+.combat-lab-actions button {
+  width: 100%;
+  min-height: 2.35rem;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--lab-border);
+  border-radius: 0.4rem;
+  background: var(--lab-panel-raised);
+  color: var(--lab-text);
+}
+
+.combat-lab-slider-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.combat-lab-slider output,
+.combat-lab-derived output {
+  color: var(--lab-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.combat-lab-slider input {
+  width: 100%;
+  accent-color: var(--lab-accent);
+}
+
+.combat-lab-derived,
+.combat-lab-help {
+  margin: 0.75rem 0 0;
+  color: var(--lab-muted);
+  font-size: 0.78rem;
+}
+
+.combat-lab-actions {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.combat-lab-actions button,
+.combat-lab-choice {
+  cursor: pointer;
+}
+
+.combat-lab-actions .combat-lab-primary {
+  border-color: #4ba88b;
+  background: var(--lab-accent-dark);
+  color: #dffcf3;
+  font-weight: 800;
+}
+
+.combat-lab-notice {
+  min-height: 1.25rem;
+  color: var(--lab-muted);
+  font-size: 0.82rem;
+}
+
+.combat-lab-notice[data-error="true"] {
+  color: var(--lab-danger);
+}
+
+.combat-lab-arena {
+  min-width: 0;
+  padding: 1.5rem clamp(1rem, 3vw, 3rem) 3rem;
+}
+
+.combat-lab-arena-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.combat-lab-badge {
+  padding: 0.35rem 0.55rem;
+  border: 1px solid var(--lab-border);
+  border-radius: 999px;
+  color: var(--lab-muted);
+  font-size: 0.74rem;
+  font-weight: 800;
+}
+
+.combat-lab-badge[data-valid="true"] {
+  border-color: #337d67;
+  color: var(--lab-accent);
+}
+
+.combat-lab-badge[data-valid="false"] {
+  border-color: #9e4f4c;
+  color: var(--lab-danger);
+}
+
+.combat-lab-scene {
+  max-width: 58rem;
+}
+
+.combat-lab-scene .choice-section {
+  margin-top: 1.5rem;
+}
+
+.combat-lab-scene .choice-section h2 {
+  color: var(--lab-muted);
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.combat-lab-scene .choices {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: 0.55rem;
+}
+
+.combat-lab-choice {
+  display: grid;
+  gap: 0.3rem;
+  min-height: 3.2rem;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid var(--lab-border);
+  border-radius: 0.45rem;
+  background: var(--lab-panel);
+  color: var(--lab-text);
+  text-align: left;
+}
+
+.combat-lab-choice:hover:not(:disabled) {
+  border-color: var(--lab-accent);
+  background: var(--lab-panel-raised);
+}
+
+.combat-lab-choice small {
+  color: var(--lab-muted);
+}
+
+.combat-lab-panel details summary {
+  cursor: pointer;
+  color: var(--lab-text);
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.combat-lab-panel pre {
+  max-height: 27rem;
+  margin: 0.8rem 0 0;
+  overflow: auto;
+  color: #cbd8e8;
+  font: 0.72rem/1.48 ui-monospace, SFMono-Regular, Consolas, monospace;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.combatant-card {
+  margin-top: 0.65rem;
+  padding: 0.7rem;
+  border: 1px solid var(--lab-border);
+  border-radius: 0.45rem;
+  background: var(--lab-panel-raised);
+}
+
+.combatant-card h3 {
+  margin: 0 0 0.55rem;
+  font-size: 0.88rem;
+}
+
+.combatant-card dl {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.25rem 0.75rem;
+  margin: 0;
+  font-size: 0.74rem;
+}
+
+.combatant-card dt {
+  color: var(--lab-muted);
+}
+
+.combatant-card dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 1100px) {
+  .combat-lab-layout {
+    grid-template-columns: 18rem minmax(25rem, 1fr);
+  }
+
+  .combat-lab-diagnostics {
+    grid-column: 1 / -1;
+    border-top: 1px solid var(--lab-border);
+    border-left: 0;
+  }
+}
+
+@media (max-width: 720px) {
+  .combat-lab-topbar,
+  .combat-lab-arena-header {
+    flex-direction: column;
+  }
+
+  .combat-lab-layout {
+    display: block;
+  }
+
+  .combat-lab-controls,
+  .combat-lab-diagnostics {
+    border: 0;
+  }
+
+  .combat-lab-arena {
+    padding: 1.25rem 1rem 2rem;
+  }
+}

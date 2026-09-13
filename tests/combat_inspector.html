@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Developer laboratory for configuring and inspecting Worldgame physical encounters."
+    />
+    <title>Physical Combat Laboratory</title>
+    <link rel="stylesheet" href="../src/ui/browser/styles.css" />
+    <link rel="stylesheet" href="./combat_inspector.css" />
+  </head>
+  <body class="combat-lab-page">
+    <header class="combat-lab-topbar">
+      <div>
+        <p class="combat-lab-eyebrow">Worldgame developer tools</p>
+        <h1>Physical Combat Laboratory</h1>
+        <p>Configure both combatants, play a real encounter, and inspect every runtime value.</p>
+      </div>
+      <a href="../index.html">← Test index</a>
+    </header>
+
+    <main class="combat-lab-layout">
+      <aside class="combat-lab-panel combat-lab-controls" aria-label="Combat setup">
+        <section>
+          <p class="combat-lab-step">1</p>
+          <h2>Encounter</h2>
+          <label class="combat-lab-field">
+            <span>Scenario</span>
+            <select id="scenario-select"></select>
+          </label>
+          <label class="combat-lab-field">
+            <span>Attacker</span>
+            <select id="attacker-select"></select>
+          </label>
+          <label class="combat-lab-field">
+            <span>Deterministic seed</span>
+            <input id="seed-input" type="number" step="1" value="117" />
+          </label>
+        </section>
+
+        <section>
+          <p class="combat-lab-step">2</p>
+          <h2>Player combat stats</h2>
+          <div id="player-sliders" class="combat-lab-sliders"></div>
+        </section>
+
+        <section>
+          <p class="combat-lab-step">3</p>
+          <h2>Attacker combat stats</h2>
+          <div id="attacker-sliders" class="combat-lab-sliders"></div>
+          <p class="combat-lab-derived">
+            Derived fitness: <output id="attacker-fitness">5</output>
+          </p>
+          <p class="combat-lab-help">
+            Temporary-actor fitness is the average of strength and endurance.
+          </p>
+        </section>
+
+        <div class="combat-lab-actions">
+          <button id="start-combat" type="button" class="combat-lab-primary">
+            Start / restart combat
+          </button>
+          <button id="reset-setup" type="button">Reset sliders</button>
+        </div>
+        <p id="setup-notice" class="combat-lab-notice" role="status" aria-live="polite"></p>
+      </aside>
+
+      <section class="combat-lab-arena" aria-label="Playable encounter">
+        <header class="combat-lab-arena-header">
+          <div>
+            <p id="encounter-status" class="combat-lab-eyebrow">No encounter running</p>
+            <h2 id="encounter-title">Configure and start a fight</h2>
+          </div>
+          <span id="invariant-badge" class="combat-lab-badge">Not started</span>
+        </header>
+        <div id="combat-notice" class="combat-lab-notice" role="alert"></div>
+        <article id="combat-scene" class="combat-lab-scene"></article>
+      </section>
+
+      <aside class="combat-lab-panel combat-lab-diagnostics" aria-label="Combat diagnostics">
+        <section>
+          <p class="combat-lab-step">Live</p>
+          <h2>Combatant overview</h2>
+          <div id="combatant-overview" class="combatant-overview"></div>
+        </section>
+
+        <details open>
+          <summary>Canonical encounter state</summary>
+          <pre id="state-json"></pre>
+        </details>
+        <details open>
+          <summary>Combatants, body and derived values</summary>
+          <pre id="combatants-json"></pre>
+        </details>
+        <details>
+          <summary>NPC decision and utility scores</summary>
+          <pre id="decision-json"></pre>
+        </details>
+        <details>
+          <summary>Action availability and blockers</summary>
+          <pre id="availability-json"></pre>
+        </details>
+        <details>
+          <summary>Latest hidden rolls</summary>
+          <pre id="rolls-json"></pre>
+        </details>
+        <details open>
+          <summary>Invariant checks</summary>
+          <pre id="invariants-json"></pre>
+        </details>
+        <details>
+          <summary>Complete debug snapshot</summary>
+          <pre id="snapshot-json"></pre>
+        </details>
+        <details>
+          <summary>Rendered scene contract</summary>
+          <pre id="scene-json"></pre>
+        </details>
+      </aside>
+    </main>
+
+    <script type="module" src="./combat_inspector.js"></script>
+  </body>
+</html>

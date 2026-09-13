@@ -14,6 +14,15 @@ test("encounter debug snapshot exposes state, reasons, scores, and invariants wi
   assert.ok(snapshot.decision.candidates.length > 0);
   assert.ok(snapshot.availability.player.some(({ available }) => available));
   assert.ok(snapshot.availability.player.some(({ available, reasons }) => !available && reasons.length));
+  assert.deepEqual(Object.keys(snapshot.combatants), ["player", "mugger"]);
+  assert.deepEqual(Object.keys(snapshot.combatants.player.stats), [
+    "strength",
+    "endurance",
+    "resolve",
+    "fitness",
+  ]);
+  assert.ok(Number.isFinite(snapshot.combatants.mugger.derived.physicalReadiness));
+  assert.ok(Array.isArray(snapshot.combatants.player.body.parts));
   assert.deepEqual(game.currentStory.system.state, before);
 });
 
