@@ -90,6 +90,50 @@ function checkPhysicalTerminalState(context, runtime) {
   if (playerIncapacitated) {
     releaseControlledHolds(context, runtime, "player");
     applyIncapacitatedTheft(context, runtime);
+    return;
+  }
+
+  // Capacity predicates should normally prevent this state. Keep resolution
+  // total if a new action family or positional rule later exposes a gap: loss
+  // of all legal agency is an encounter result, not an invariant exception.
+  const muggerCanAct = getAvailableActionInstances(context, "mugger").length > 0;
+  const playerCanAct = getAvailableActionInstances(context, "player").length > 0;
+  if (!muggerCanAct && !playerCanAct) {
+    runtime.events.push({
+      type: "participant.unable-to-act",
+      actorId: "mugger",
+      reason: "no-legal-response",
+    });
+    runtime.events.push({
+      type: "participant.unable-to-act",
+      actorId: "player",
+      reason: "no-legal-response",
+    });
+    releaseControlledHolds(context, runtime, "mugger");
+    releaseControlledHolds(context, runtime, "player");
+    recoverTheftMoney(context, runtime.events);
+    runtime.outcome = { id: ENCOUNTER_OUTCOME.bothIncapacitated, moneyLost: 0 };
+    return;
+  }
+  if (!muggerCanAct) {
+    runtime.events.push({
+      type: "participant.unable-to-act",
+      actorId: "mugger",
+      reason: "no-legal-response",
+    });
+    releaseControlledHolds(context, runtime, "mugger");
+    recoverTheftMoney(context, runtime.events);
+    runtime.outcome = { id: ENCOUNTER_OUTCOME.muggerIncapacitated, moneyLost: 0 };
+    return;
+  }
+  if (!playerCanAct) {
+    runtime.events.push({
+      type: "participant.unable-to-act",
+      actorId: "player",
+      reason: "no-legal-response",
+    });
+    releaseControlledHolds(context, runtime, "player");
+    applyIncapacitatedTheft(context, runtime);
   }
 }
 

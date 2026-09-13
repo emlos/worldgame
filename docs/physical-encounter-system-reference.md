@@ -357,11 +357,12 @@ A participant is incapacitated when any implemented condition below is true:
 - daze severity is 3;
 - head capacity is at most `0.08`;
 - chest capacity is at most `0.06`;
+- both best-arm and best-leg capacity are at most `0.15`, even if the actor remains conscious;
 - pain reaches `min(95, 78 + resolve × 1.2 + endurance × 0.7)`;
 - while grounded with pain at least 62, both best-leg and best-arm capacity are below `0.25`;
 - winded severity is 3 and pain is at least 68.
 
-If the mugger is incapacitated, their holds are removed and the encounter ends. If the player is incapacitated, theft is resolved immediately and the encounter ends.
+If the mugger is incapacitated, their holds are removed and the encounter ends. If the player is incapacitated, theft is resolved immediately and the encounter ends. Resolution also checks the generated catalogue after each action: if a participant has no legal action despite not matching a capacity threshold, that loss of agency follows the same terminal path instead of leaving an invalid active state.
 
 ## Common action mechanics
 
@@ -634,20 +635,21 @@ A failed mugger grab increments failed-control attempts.
 | Users | P, M |
 | Duration | 3 seconds |
 | Effort | `9 + 3 × number of targeted holds` |
-| Availability | At least one hostile hold. |
+| Availability | At least one hostile hold on a restrained limb whose unrestrained part capacity remains above `0.15`. |
 
 One action instance targets every hostile hold. Each hold is rolled separately:
 
 ```text
 chance = 0.58
        + (actor strength - controller strength) × 0.035
+       + (restrained limb capacity - 1) × 0.28
        - effective leverage × 0.004
        - 0.12 for a limb pin
        - 0.08 for each additional simultaneously targeted hold
 chance = clamp(chance, 0.16, 0.84)
 ```
 
-Success breaks that hold. Failure reduces stored leverage by `max(5, round(8 + strength))`; reaching zero still breaks it. Partial success is possible with multiple holds.
+Success breaks that hold. On failure, the leverage reduction is scaled by the restrained limb's capacity; reaching zero still breaks it. Partial success is possible with multiple holds. Holds on nonfunctional restrained limbs are not included in the generated wrench action.
 
 #### `tighten-hold`
 
@@ -656,7 +658,7 @@ Success breaks that hold. Failure reduces stored leverage by `max(5, round(8 + s
 | Users | P, M |
 | Duration | 2 seconds |
 | Effort | 6 |
-| Availability | Any hold controlled by the actor. |
+| Availability | Any hold controlled by the actor with stored leverage below 100. |
 
 Generates one instance per controlled hold. It is uncontested and increases stored leverage by `round(14 + strength × 0.5)`, capped at 100.
 

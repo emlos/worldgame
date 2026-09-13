@@ -210,7 +210,7 @@ test("a physically helpless but conscious player cannot create an actionless enc
   assert.equal(game.player.money, 30);
   assert.ok(state.lastEvents.some(
     ({ type, reason }) => type === "participant.unable-to-act"
-      && reason === "no-legal-response",
+      && reason === "already-incapacitated",
   ));
 });
 

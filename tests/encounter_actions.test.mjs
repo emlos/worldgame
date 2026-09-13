@@ -109,6 +109,55 @@ test("a relational wrist hold generates hold-specific responses", () => {
   assert.equal(Object.hasOwn(state.participants.player, "pressed_against_wall"), false);
 });
 
+test("wrenching requires capacity in the restrained limb", () => {
+  const game = gameAtStart();
+  const state = startEncounter(game);
+  state.relationships.range[0].value = "clinch";
+  state.relationships.holds.push({
+    id: "disabled-arm-hold",
+    controllerId: "mugger",
+    sourcePartId: "hand_l",
+    targetId: "player",
+    targetPartId: "lower_arm_l",
+    kind: "wrist-grip",
+    leverage: 50,
+  });
+  game.player.body.getPart("lower_arm_l").health = 0;
+  const context = createCombatContext({
+    game,
+    state,
+    instanceKey: game.currentStory.instanceKey,
+  });
+
+  assert.ok(!getAvailableActionInstances(context, "player").some(
+    ({ actionId }) => actionId === "wrench-free",
+  ));
+});
+
+test("a fully reinforced hold cannot be reinforced again", () => {
+  const game = gameAtStart();
+  const state = startEncounter(game);
+  state.relationships.range[0].value = "clinch";
+  state.relationships.holds.push({
+    id: "max-player-hold",
+    controllerId: "player",
+    sourcePartId: "hand_l",
+    targetId: "mugger",
+    targetPartId: "lower_arm_l",
+    kind: "wrist-grip",
+    leverage: 100,
+  });
+  const context = createCombatContext({
+    game,
+    state,
+    instanceKey: game.currentStory.instanceKey,
+  });
+
+  assert.ok(!getAvailableActionInstances(context, "player").some(
+    ({ actionId }) => actionId === "tighten-hold",
+  ));
+});
+
 test("two held arms generate one combined wrench and separate holding-limb attacks", () => {
   const game = gameAtStart();
   const state = startEncounter(game);

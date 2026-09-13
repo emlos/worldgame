@@ -2,6 +2,7 @@ import {
   getBalanceCapacity,
   getBodyPerformance,
   getEffectiveHoldLeverage,
+  getPartCapacity,
   getParticipant,
   getStat,
   getUsableArmTargets,
@@ -47,6 +48,12 @@ function opponent(actorId) {
 
 function sideName(partId) {
   return partId.endsWith("_l") ? "left" : "right";
+}
+
+function wrenchableHolds(context, actorId) {
+  return hostileHoldsOn(context, actorId).filter(
+    (hold) => getPartCapacity(context, actorId, hold.targetPartId) > 0.15,
+  );
 }
 
 export const GRAB_ARM = Object.freeze({
@@ -124,7 +131,7 @@ export const WRENCH_FREE = Object.freeze({
   playerOrder: 4,
 
   enumerateTargets(context, actorId) {
-    const holds = hostileHoldsOn(context, actorId);
+    const holds = wrenchableHolds(context, actorId);
     if (!holds.length) return [];
     return [actionInstance(this.id, actorId, holds[0].controllerId, {
       holdIds: holds.map(({ id }) => id),
@@ -136,7 +143,7 @@ export const WRENCH_FREE = Object.freeze({
       && Array.isArray(instance.parameters.holdIds)
       && instance.parameters.holdIds.length > 0
       && instance.parameters.holdIds.every((holdId) =>
-        hostileHoldsOn(context, instance.actorId).some(({ id }) => id === holdId));
+        wrenchableHolds(context, instance.actorId).some(({ id }) => id === holdId));
   },
 
   label(_context, instance) {
@@ -153,7 +160,7 @@ export const WRENCH_FREE = Object.freeze({
 
   resolve(context, instance, runtime) {
     const holds = instance.parameters.holdIds
-      .map((holdId) => hostileHoldsOn(context, instance.actorId).find(({ id }) => id === holdId))
+      .map((holdId) => wrenchableHolds(context, instance.actorId).find(({ id }) => id === holdId))
       .filter(Boolean);
     addExertion(context, instance.actorId, 9 + holds.length * 3);
     if (!holds.length) {
@@ -163,6 +170,11 @@ export const WRENCH_FREE = Object.freeze({
     let released = 0;
     for (const hold of holds) {
       const effective = getEffectiveHoldLeverage(context, hold);
+      const restrainedLimbCapacity = getPartCapacity(
+        context,
+        instance.actorId,
+        hold.targetPartId,
+      );
       const pinPenalty = hold.kind === "limb-pin" ? 0.12 : 0;
       const multiplePenalty = Math.max(0, holds.length - 1) * 0.08;
       const chance = clamp(
@@ -172,6 +184,7 @@ export const WRENCH_FREE = Object.freeze({
         + (getBodyPerformance(context, instance.actorId) - 1) * 0.4
         + (getBalanceCapacity(context, instance.actorId)
           - getBalanceCapacity(context, hold.controllerId)) * 0.18
+        + (restrainedLimbCapacity - 1) * 0.28
         - getParticipant(context, instance.actorId).exertion * 0.0025
         + getParticipant(context, hold.controllerId).exertion * 0.0015
         - (isDazed(context, instance.actorId) ? 0.14 : 0)
@@ -198,7 +211,7 @@ export const WRENCH_FREE = Object.freeze({
       const effortMultiplier = Math.max(
         0.35,
         1 - getParticipant(context, instance.actorId).exertion * 0.006,
-      );
+      ) * restrainedLimbCapacity;
       const reduction = Math.max(
         3,
         Math.round((5 + getStat(context, instance.actorId, "strength") * 0.6) * effortMultiplier),
@@ -227,8 +240,12 @@ export const TIGHTEN_HOLD = Object.freeze({
   },
 
   isAvailable(context, instance) {
+    const hold = holdsControlledBy(context, instance.actorId).find(
+      ({ id }) => id === instance.parameters.holdId,
+    );
     return canBeginPhysicalAction(context, instance.actorId)
-      && holdsControlledBy(context, instance.actorId).some(({ id }) => id === instance.parameters.holdId);
+      && Boolean(hold)
+      && hold.leverage < 100;
   },
 
   label(context, instance) {
@@ -256,9 +273,17 @@ export const TIGHTEN_HOLD = Object.freeze({
       failAction(runtime, instance, "hold-gone");
       return;
     }
-    const amount = Math.max(8, Math.round(14 + getStat(context, instance.actorId, "strength") * 0.5));
-    hold.leverage = clamp(hold.leverage + amount, 1, 100);
-    runtime.events.push({ type: "hold.strengthened", holdId: hold.id, amount });
+    const requestedAmount = Math.max(
+      8,
+      Math.round(14 + getStat(context, instance.actorId, "strength") * 0.5),
+    );
+    const previousLeverage = hold.leverage;
+    hold.leverage = clamp(hold.leverage + requestedAmount, 1, 100);
+    runtime.events.push({
+      type: "hold.strengthened",
+      holdId: hold.id,
+      amount: hold.leverage - previousLeverage,
+    });
   },
 });
 

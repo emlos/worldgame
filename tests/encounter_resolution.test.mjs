@@ -189,6 +189,48 @@ test("simultaneous incapacitation is an explicit mutual outcome", () => {
   assert.match(JSON.stringify(buildScene(game).content), /both of you unable to continue/i);
 });
 
+test("losing the last legal response during an exchange resolves as helplessness", () => {
+  const game = gameAtStart({ seed: 1, money: 50 });
+  const state = startEncounter(game);
+  const setCapacity = (partId, ratio) => {
+    const part = game.player.body.getPart(partId);
+    part.health = part.maxHealth * ratio;
+    part.pain = 0;
+    part.conditions.clear();
+  };
+  setCapacity("hand_l", 0.18);
+  setCapacity("hand_r", 0);
+  setCapacity("foot_l", 0.18);
+  setCapacity("foot_r", 0.18);
+  state.relationships.range[0].value = "clinch";
+  state.relationships.facing.find(({ actor }) => actor === "player").value = "away";
+  state.relationships.holds.push({
+    id: "last-response-hold",
+    controllerId: "player",
+    sourcePartId: "hand_l",
+    targetId: "mugger",
+    targetPartId: "lower_arm_l",
+    kind: "wrist-grip",
+    leverage: 20,
+  });
+  forceNpcIntent(game, "strike-holding-arm");
+
+  chooseAction(game, "tighten-hold");
+
+  const next = game.currentStory.system.state;
+  assert.equal(next.phase, "terminal");
+  assert.deepEqual(next.outcome, {
+    id: "theft-completed-player-incapacitated",
+    moneyLost: 20,
+  });
+  assert.equal(game.player.money, 30);
+  assert.ok(next.lastEvents.some(
+    ({ type, actorId, reason }) => type === "participant.unable-to-act"
+      && actorId === "player"
+      && reason === "no-legal-response",
+  ));
+});
+
 test("directly conflicting simultaneous position changes cancel", () => {
   const game = gameAtStart({ seed: 9 });
   const state = startEncounter(game);

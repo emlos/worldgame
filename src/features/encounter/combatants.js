@@ -205,6 +205,19 @@ export function isEncounterIncapacitated(context, actorId) {
   const chestCapacity = getPartCapacity(context, actorId, BodyPartId.CHEST);
   if (headCapacity <= 0.08 || chestCapacity <= 0.06) return true;
 
+  // Encounter incapacitation is broader than unconsciousness. If neither an
+  // arm nor a leg can supply gross movement, the current action catalogue has
+  // no honest physical response to offer, even if the actor is still awake.
+  const legCapacity = Math.max(
+    getPartCapacity(context, actorId, BodyPartId.FOOT_L),
+    getPartCapacity(context, actorId, BodyPartId.FOOT_R),
+  );
+  const armCapacity = Math.max(
+    getPartCapacity(context, actorId, BodyPartId.HAND_L),
+    getPartCapacity(context, actorId, BodyPartId.HAND_R),
+  );
+  if (legCapacity <= 0.15 && armCapacity <= 0.15) return true;
+
   const pain = getBodyPain(context, actorId);
   const threshold = Math.min(
     95,
@@ -214,14 +227,6 @@ export function isEncounterIncapacitated(context, actorId) {
 
   const participant = getParticipant(context, actorId);
   if (participant.pose !== ENCOUNTER_POSE.standing && pain >= 62) {
-    const legCapacity = Math.max(
-      getPartCapacity(context, actorId, BodyPartId.FOOT_L),
-      getPartCapacity(context, actorId, BodyPartId.FOOT_R),
-    );
-    const armCapacity = Math.max(
-      getPartCapacity(context, actorId, BodyPartId.HAND_L),
-      getPartCapacity(context, actorId, BodyPartId.HAND_R),
-    );
     if (legCapacity < 0.25 && armCapacity < 0.25) return true;
   }
   return isWinded(context, actorId, 3) && pain >= 68;

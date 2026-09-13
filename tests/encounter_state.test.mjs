@@ -29,6 +29,24 @@ test("alley mugging state stores canonical facts without duplicating bodies", ()
   assert.equal(Object.hasOwn(state.participants.mugger, "body"), false);
 });
 
+test("loss of all gross arm and leg capacity is encounter incapacitation", () => {
+  const game = gameAtStart();
+  const state = startEncounter(game);
+  for (const partId of ["hand_l", "hand_r", "foot_l", "foot_r"]) {
+    const part = game.player.body.getPart(partId);
+    part.health = 0;
+    part.pain = 0;
+  }
+  const context = createCombatContext({
+    game,
+    state,
+    instanceKey: game.currentStory.instanceKey,
+  });
+
+  assert.equal(game.player.isIncapacitated(), false);
+  assert.equal(isEncounterIncapacitated(context, "player"), true);
+});
+
 test("repeated acute effects accumulate to incapacitating severity", () => {
   const game = gameAtStart();
   const state = startEncounter(game);
