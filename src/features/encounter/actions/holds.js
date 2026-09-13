@@ -59,9 +59,9 @@ export const GRAB_ARM = Object.freeze({
   enumerateTargets(context, actorId) {
     const sourcePartId = getUsableHands(context, actorId)[0];
     const targetId = opponent(actorId);
-    const targetPartId = getUsableArmTargets(context, targetId)[0];
-    if (!sourcePartId || !targetPartId) return [];
-    return [actionInstance(this.id, actorId, targetId, { sourcePartId, targetPartId })];
+    if (!sourcePartId) return [];
+    return getUsableArmTargets(context, targetId).map((targetPartId) =>
+      actionInstance(this.id, actorId, targetId, { sourcePartId, targetPartId }));
   },
 
   isAvailable(context, instance) {

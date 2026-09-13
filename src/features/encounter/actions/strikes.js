@@ -45,6 +45,16 @@ function sideName(partId) {
   return partId.endsWith("_l") ? "left" : "right";
 }
 
+function kneeStrikeSource(context, actorId) {
+  if (getBalanceCapacity(context, actorId) <= 0.4) return null;
+  return getUsableKnees(context, actorId).find((kneeId) => {
+    const plantedFoot = kneeId === BodyPartId.KNEE_L
+      ? BodyPartId.FOOT_R
+      : BodyPartId.FOOT_L;
+    return getLimbCapacity(context, actorId, plantedFoot) > 0.32;
+  }) || null;
+}
+
 export const STRIKE_FACE = Object.freeze({
   id: "strike-face",
   tags: Object.freeze(["attack", "impact", "daze"]),
@@ -257,7 +267,7 @@ export const KNEE_STRIKE = Object.freeze({
   playerOrder: 18,
 
   enumerateTargets(context, actorId) {
-    const sourcePartId = getUsableKnees(context, actorId)[0];
+    const sourcePartId = kneeStrikeSource(context, actorId);
     if (!sourcePartId) return [];
     return [actionInstance(this.id, actorId, actorId === "player" ? "mugger" : "player", {
       sourcePartId,

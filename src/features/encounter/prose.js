@@ -34,6 +34,22 @@ function sideName(partId) {
   return partId?.endsWith("_l") ? "left" : "right";
 }
 
+function brokenPartText(context, event) {
+  const partName = getCombatant(context, event.actorId).body
+    .getPart(event.partId)?.displayName?.toLowerCase() || "limb";
+  const isLimb = /_(l|r)$/.test(event.partId);
+  if (event.actorId === "player") {
+    return isLimb
+      ? `You feel your ${partName} snap. The pain is blinding; you can no longer use it.`
+      : `Something in your ${partName} breaks with a sickening crack. The pain is blinding.`;
+  }
+  const possessive = encounterPronoun(context, event.actorId, "dependent", { sentence: true });
+  const subject = encounterPronoun(context, event.actorId, "subject", { sentence: true });
+  return isLimb
+    ? `${possessive} ${partName} turns at an unnatural angle with a sickening snap. ${subject} can no longer use it.`
+    : `A sickening crack comes from ${encounterPronoun(context, event.actorId, "dependent")} ${partName}. ${subject} reels from the break.`;
+}
+
 function poseText(context, actorId, pose) {
   if (pose === ENCOUNTER_POSE.supine) {
     return `on ${encounterPronoun(context, actorId, "dependent")} back`;
@@ -199,6 +215,8 @@ function eventText(context, event) {
       }[event.partId] || "limb";
       return `The blow lands on ${actorName(context, event.targetId, { possessive: true })} ${part}.`;
     }
+    case "injury.broken":
+      return brokenPartText(context, event);
     case "acute.applied": {
       const description = event.id === "winded"
         ? `${encounterVerb(context, event.actorId, "loses", "lose")} ${encounterPronoun(context, event.actorId, "dependent")} breath`

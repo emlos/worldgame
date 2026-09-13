@@ -309,7 +309,9 @@ part capacity *= max(0.65, 1 - local pain × 0.0035)
 chain capacity = minimum capacity in the chain
 ```
 
-A missing, broken, or zero-health part makes the chain capacity zero. A part is considered functional above `0.15` capacity.
+A missing, broken, or zero-health part makes the chain capacity zero. A part is considered functional above `0.15` capacity. Broken parts remain broken and unusable through ordinary integrity healing and passive pain recovery; only the explicit development hard reset can currently clear the condition. A future treatment system will provide the normal recovery path.
+
+Usable hands and knees are ordered by current limb capacity, so actions which choose their source automatically use the strongest available limb. When an action has a source part, reduced source-limb capacity lowers both its contest chance and its impact damage. A newly broken part emits `injury.broken` once, allowing the prose layer to announce the break separately from the ordinary impact.
 
 ### Limb capacity under a hold
 
@@ -409,6 +411,7 @@ Most contested actions calculate success chance as:
 chance = base chance
        + (actor stat - target stat) × 0.035
        + action modifier
+       + (source limb capacity - 1) × 0.32, when the action has a source limb
        + (actor body performance - 1) × 0.40
        + (actor balance - target balance) × 0.18
        - actor exertion × 0.0025
@@ -426,10 +429,11 @@ The final chance is clamped to `0.18..0.90`. Unless an action says otherwise, bo
 Current encounter impacts use blunt damage:
 
 ```text
-damage = round(base damage + actor strength × strength scale)
+source multiplier = 0.45 + source limb capacity × 0.55
+damage = round((base damage + actor strength × strength scale) × source multiplier)
 ```
 
-Guarding multiplies received damage by `0.55`, with a minimum of 1. The body model then reduces part health, updates injury conditions, and adds local pain using that part's pain multiplier.
+Actions without a source limb use a source multiplier of `1`. Guarding multiplies received damage by `0.62`, with a minimum of 1. The body model then reduces part health, updates injury conditions, and adds local pain using that part's pain multiplier.
 
 ### Exertion
 
@@ -613,9 +617,9 @@ Proposes the terminal `mugger-fled` outcome.
 | Users | P, M |
 | Duration | 2 seconds |
 | Effort | 7 |
-| Availability | Reach or clinch range, first usable hand, and first functional uncontrolled target arm. |
+| Availability | Reach or clinch range, strongest usable hand, and at least one functional uncontrolled target arm. |
 
-Uses a `0.55` base contest. Success creates a wrist grip, changes range to clinch, and sets stored leverage to:
+One concrete action instance is generated for each uncontrolled target arm. Uses a `0.60` base contest. Success creates a wrist grip, changes range to clinch, and sets stored leverage to:
 
 ```text
 clamp(round(36 + actor strength × 3 - target strength), 22, 68)
@@ -891,6 +895,7 @@ Resolution emits structured events before prose is assembled. Currently emitted 
 | `action.spoiled` | A slower action became unavailable before completion. |
 | `defense.braced` | Guard was established. |
 | `impact.landed` | Body-part damage was applied. |
+| `injury.broken` | An impact newly broke a body part; rendered once with participant-specific prose. |
 | `acute.applied` | Daze, winded, or off-balance was applied or accumulated. |
 | `hold.created` | A wrist grip was created. |
 | `hold.weakened` | Stored hold leverage fell. |

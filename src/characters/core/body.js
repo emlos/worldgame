@@ -658,9 +658,11 @@ export class Body {
     _downgradeConditionsFromHealth(part) {
         const ratio = part.integrityRatio;
 
-        // If we're back over 70%, no broken / wounded
+        // Ordinary healing can restore integrity and lesser injuries, but a
+        // broken part remains broken until a future explicit treatment system
+        // repairs it. `fullyHeal()` remains the deliberate hard-reset escape
+        // hatch used by development tooling.
         if (ratio >= 0.7) {
-            part.conditions.delete(InjuryCondition.BROKEN);
             part.conditions.delete(InjuryCondition.WOUNDED);
         }
         // If we're back over 90%, no bruise either

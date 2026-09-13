@@ -4,6 +4,7 @@ import {
   getBalanceCapacity,
   getBodyPerformance,
   getCombatant,
+  getLimbCapacity,
   getParticipant,
   getStat,
   isDazed,
@@ -67,6 +68,7 @@ export function contest(
     targetStat = actorStat,
     modifier = 0,
     defense = "control",
+    sourcePartId = instance.parameters?.sourcePartId || null,
   } = {},
 ) {
   const attacker = getParticipant(context, instance.actorId);
@@ -74,6 +76,9 @@ export function contest(
   const statDifference = getStat(context, instance.actorId, actorStat)
     - getStat(context, instance.targetId, targetStat);
   let chance = baseChance + statDifference * 0.035 + modifier;
+  if (sourcePartId) {
+    chance += (getLimbCapacity(context, instance.actorId, sourcePartId) - 1) * 0.32;
+  }
   chance += (getBodyPerformance(context, instance.actorId) - 1) * 0.4;
   chance += (getBalanceCapacity(context, instance.actorId)
     - getBalanceCapacity(context, instance.targetId)) * 0.18;
@@ -112,8 +117,17 @@ export function applyImpact(
   runtime,
   { partId, baseDamage, strengthScale = 0.65 },
 ) {
-  let damage = Math.round(baseDamage + getStat(context, instance.actorId, "strength") * strengthScale);
+  const sourcePartId = instance.parameters?.sourcePartId || null;
+  const sourceCapacity = sourcePartId
+    ? getLimbCapacity(context, instance.actorId, sourcePartId)
+    : 1;
+  const sourceMultiplier = 0.45 + sourceCapacity * 0.55;
+  let damage = Math.round(
+    (baseDamage + getStat(context, instance.actorId, "strength") * strengthScale)
+    * sourceMultiplier,
+  );
   if (runtime.guarded.has(instance.targetId)) damage = Math.max(1, Math.round(damage * 0.62));
+  const wasBroken = getCombatant(context, instance.targetId).body.getPart(partId)?.isBroken || false;
   const part = getCombatant(context, instance.targetId).body.applyDamage({
     partId,
     amount: damage,
@@ -128,6 +142,13 @@ export function applyImpact(
     damage,
     damageType: DamageType.BLUNT,
   });
+  if (!wasBroken && part?.isBroken) {
+    runtime.events.push({
+      type: "injury.broken",
+      actorId: instance.targetId,
+      partId,
+    });
+  }
   return damage;
 }
 

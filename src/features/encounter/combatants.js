@@ -284,7 +284,10 @@ export function getUsableHands(context, actorId) {
     isPartFunctional(context, actorId, handId)
     && !isHandCommitted(context, actorId, handId)
     && !isArmHeld(context, actorId, handId)
-    && getLimbCapacity(context, actorId, handId) > 0.2);
+    && getLimbCapacity(context, actorId, handId) > 0.2)
+    .sort((left, right) =>
+      getLimbCapacity(context, actorId, right) - getLimbCapacity(context, actorId, left)
+      || left.localeCompare(right));
 }
 
 export function getUsableKnees(context, actorId) {
@@ -292,7 +295,10 @@ export function getUsableKnees(context, actorId) {
     isPartFunctional(context, actorId, kneeId)
     && !holdsControlledBy(context, actorId).some(
       ({ sourcePartId }) => isSameLimb(sourcePartId, kneeId),
-    ));
+    ))
+    .sort((left, right) =>
+      getLimbCapacity(context, actorId, right) - getLimbCapacity(context, actorId, left)
+      || left.localeCompare(right));
 }
 
 export function getUsableArmTargets(context, actorId) {
