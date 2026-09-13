@@ -47,7 +47,6 @@ test("old cross-cutting feature paths were removed rather than kept as aliases",
     "../src/characters/player/education.js",
     "../src/characters/player/schedule.js",
     "../story/places/civic-transport.wg",
-    "../story/places/school.wg",
     "../story/events/school-class.wg",
   ];
 

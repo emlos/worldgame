@@ -153,6 +153,7 @@ test("the student council office displays the generated timetable and returns", 
     1,
     taylor.relationshipProfile,
   );
+  game.setDailyFlag("played_spin_the_bottle");
   placeAtSchool(game);
 
   choose(game, "Visit the student council office");

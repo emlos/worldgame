@@ -31,6 +31,14 @@ const PASSIVE_RESPONSES = Object.freeze([
   "strike-face",
 ]);
 
+function sceneChoiceByLabel(scene, label) {
+  const choice = scene.sections
+    .flatMap((section) => section.choices)
+    .find((candidate) => candidate.label === label);
+  assert.ok(choice, `expected scene choice '${label}'`);
+  return choice;
+}
+
 function playUntilTerminal(game, choose) {
   for (let index = 0; index < 60 && game.currentStory.system.state.phase === "active"; index += 1) {
     const requested = choose(game);
@@ -70,11 +78,13 @@ test("entering an alley triggers the mugging once", () => {
   assert.equal(entered?.id, "encounter.alley-mugging-approach");
   assert.equal(game.currentStory.system, undefined);
   const approach = buildScene(game);
-  assert.deepEqual(approach.sections[0].choices.map(({ label }) => label), [
+  assert.deepEqual(approach.sections.flatMap(({ choices }) => choices).map(({ label }) => label), [
+    "No way!",
     "Hand over up to £20",
     "Run for the street",
   ]);
-  assert.deepEqual(approach.sections[0].choices[1].skillCheck, {
+  const run = sceneChoiceByLabel(approach, "Run for the street");
+  assert.deepEqual(run.skillCheck, {
     targetType: "skill",
     targetId: "fitness",
     targetLabel: "Fitness",
@@ -84,7 +94,7 @@ test("entering an alley triggers the mugging once", () => {
 
   const result = performChoice(game, {
     sceneId: approach.id,
-    choiceId: approach.sections[0].choices[1].id,
+    choiceId: run.id,
   });
   assert.equal(game.currentStory.system.id, "encounter.physical");
   assert.ok(game.currentStory.actors.mugger);
@@ -104,24 +114,24 @@ test("the pre-fight choices surrender bounded money or escape to the street", ()
   let scene = buildScene(surrender);
   let result = performChoice(surrender, {
     sceneId: scene.id,
-    choiceId: scene.sections[0].choices[0].id,
+    choiceId: sceneChoiceByLabel(scene, "Hand over up to £20").id,
   });
 
   assert.equal(surrender.player.money, 0);
   assert.equal(surrender.currentStory, null);
-  assert.equal(surrender.currentPlace, null);
+  assert.equal(surrender.currentPlace.key, "alleyway");
   assert.equal(String(surrender.location.id), String(surrenderLocationId));
   assert.match(result.paragraphs.join(" "), /hand over/i);
 
   const escape = gameAtStart({ seed: 1, money: 50 });
   placePlayerAtAlley(escape);
   const escapeLocationId = escape.currentLocationId;
-  escape.player.setSkillValue("fitness", 0);
+  escape.player.setSkillValue("fitness", 10);
   resolveWGAutomaticScene(escape, WG_AUTO_TRIGGER.enterPlace);
   scene = buildScene(escape);
   result = performChoice(escape, {
     sceneId: scene.id,
-    choiceId: scene.sections[0].choices[1].id,
+    choiceId: sceneChoiceByLabel(scene, "Run for the street").id,
   });
 
   assert.equal(escape.player.money, 50);

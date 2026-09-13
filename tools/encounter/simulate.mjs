@@ -1,4 +1,7 @@
-import { runStatDifferenceMatrix } from "./simulationHarness.mjs";
+import {
+  runEncounterStateSpaceMatrix,
+  runStatDifferenceMatrix,
+} from "./simulationHarness.mjs";
 
 function argument(name, fallback) {
   const index = process.argv.indexOf(`--${name}`);
@@ -6,13 +9,26 @@ function argument(name, fallback) {
 }
 
 const runs = Number(argument("runs", "20"));
-const policy = argument("policy", "escape");
-const matrix = runStatDifferenceMatrix({ seedCount: runs, policy });
+const requestedPolicy = argument("policy", null);
+const scenario = argument("scenario", "baseline");
+const matrix = scenario === "all"
+  ? runEncounterStateSpaceMatrix({ seedCount: runs, policy: requestedPolicy })
+  : runStatDifferenceMatrix({
+    seedCount: runs,
+    policy: requestedPolicy || "escape",
+    scenario,
+  });
 if (process.argv.includes("--json")) {
   console.log(JSON.stringify(matrix, null, 2));
 } else {
-  console.table(matrix.map(({ results, actionCounts, ...summary }) => ({
+  console.table(matrix.map(({ results, coverage, playerActionCounts, npcActionCounts, ...summary }) => ({
     ...summary,
     outcomes: JSON.stringify(summary.outcomeCounts),
+    playerActions: JSON.stringify(playerActionCounts),
+    npcActions: JSON.stringify(npcActionCounts),
+    ranges: coverage.ranges.join(","),
+    poses: coverage.playerPoses.join(","),
+    holds: coverage.holdKinds.join(","),
+    acute: coverage.acuteEffects.join(","),
   })));
 }

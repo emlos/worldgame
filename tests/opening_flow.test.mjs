@@ -127,6 +127,11 @@ test("the one-time home neighbour is a stable temporary actor", () => {
     startDate: new Date(NEW_GAME_START_ISO),
   });
   game.setFlag("home.opening_seen");
+  game.story.event.home = {
+    forgotten_mug_played: true,
+    open_window_played: true,
+    late_breakfast_played: true,
+  };
 
   const entered = resolveWGAutomaticScene(game, WG_AUTO_TRIGGER.enterPlace);
   assert.equal(entered?.id, "home.neighbour-introduction");

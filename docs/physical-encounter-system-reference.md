@@ -974,11 +974,16 @@ Availability diagnostics contain action instances and a generic explanation when
 
 - `runEncounterSimulation(options)` for one deterministic encounter;
 - `runStatDifferenceMatrix(options)` for batches across stat differences;
-- scripted player policies named `escape`, `fight`, `resist`, and `brace`.
+- `runEncounterStateSpaceMatrix(options)` for batches across valid high-pressure starting states;
+- scripted player policies named `escape`, `fight`, `resist`, `brace`, `control`, and `surrender`.
 
-Simulation results include outcome, exchange count, elapsed seconds, both pain totals, money lost, NPC action counts and longest repeated streak, player/NPC action histories, diagnostic rolls, and invariant failures.
+The named starting scenarios are `baseline`, `player-wall-pinned`, `player-grounded-injured`, `mutual-grips`, and `player-complete-control`. They exercise wall and ground support, wrist grips and pins, existing injuries, high exertion, acute effects, already-stolen money, and the complete-control objective actions without constructing invalid encounter states.
+
+Simulation results include outcome, exchange count, elapsed seconds, both pain totals, money lost, separate player and NPC action counts, player/NPC action histories, diagnostic rolls, and invariant failures. Coverage data records visited range, pose, support, objective, hold, acute, injury, exertion, meaningful-choice, and availability-reason state. Terminal states receive a final invariant check as well as the checks performed before every exchange.
 
 The harness currently chooses from the full mechanical availability list. The combat screen also exposes the full list, so simulated policies are not selecting hidden actions.
+
+The command-line runner accepts `--scenario <id>`. Use `--scenario all` to run the state-space matrix; omit it to retain the stat-difference matrix for the baseline scenario.
 
 ### Test command
 

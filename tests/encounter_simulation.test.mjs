@@ -2,9 +2,30 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import {
+  ENCOUNTER_SIMULATION_SCENARIOS,
+  PLAYER_POLICIES,
+  runEncounterStateSpaceMatrix,
   runEncounterSimulation,
   runStatDifferenceMatrix,
 } from "../tools/encounter/simulationHarness.mjs";
+import { ENCOUNTER_ACTIONS } from "../src/features/encounter/actions/index.js";
+
+test("simulation policies contain every current player action and no removed aliases", () => {
+  const playerActionIds = ENCOUNTER_ACTIONS
+    .filter(({ usableBy }) => usableBy.includes("player"))
+    .map(({ id }) => id)
+    .sort();
+  const policyActionIds = [...new Set(Object.values(PLAYER_POLICIES).flat())].sort();
+
+  assert.deepEqual(
+    policyActionIds.filter((actionId) => !playerActionIds.includes(actionId)),
+    [],
+  );
+  assert.deepEqual(
+    playerActionIds.filter((actionId) => !policyActionIds.includes(actionId)),
+    [],
+  );
+});
 
 test("seeded encounter simulations reproduce actions, rolls, and outcomes", () => {
   const options = {
@@ -29,7 +50,41 @@ test("stat-difference matrix records outcomes, pacing, repetition, and invariant
     assert.ok(row.meanExchanges > 0);
     assert.ok(row.meanNpcRepeatStreak >= 1);
     assert.equal(Object.values(row.outcomeCounts).reduce((sum, value) => sum + value, 0), 4);
+    assert.ok(Object.keys(row.playerActionCounts).length > 0);
+    assert.ok(Object.keys(row.npcActionCounts).length > 0);
+    assert.ok(row.coverage.visitedStates > row.runs);
   }
+});
+
+test("state-space simulations exercise dangerous valid states and newest objectives", () => {
+  const matrix = runEncounterStateSpaceMatrix({ seedCount: 2 });
+  assert.deepEqual(
+    matrix.map(({ scenario }) => scenario),
+    ENCOUNTER_SIMULATION_SCENARIOS.map(({ id }) => id),
+  );
+  assert.ok(matrix.every(({ invariantFailures, timeouts }) =>
+    invariantFailures === 0 && timeouts === 0));
+
+  const grounded = matrix.find(({ scenario }) => scenario === "player-grounded-injured");
+  assert.ok(grounded.coverage.playerPoses.includes("supine"));
+  assert.ok(grounded.coverage.holdKinds.includes("limb-pin"));
+  assert.deepEqual(grounded.coverage.acuteEffects, ["off-balance", "winded"]);
+  assert.ok(grounded.coverage.maxPlayerExertion >= 78);
+  assert.ok(grounded.coverage.minPlayerIntegrity < 1);
+  assert.ok(Object.keys(grounded.coverage.playerUnavailableReasonCounts).length > 0);
+
+  const controlled = runEncounterSimulation({
+    seed: 431,
+    scenario: "player-complete-control",
+    policy: "control",
+  });
+  assert.equal(controlled.playerActions[0], "demand-money-back");
+  const escaping = runEncounterSimulation({
+    seed: 431,
+    scenario: "player-complete-control",
+    policy: "escape",
+  });
+  assert.equal(escaping.playerActions[0], "controlled-disengage");
 });
 
 test("escape and passive-defense policies have bounded outcome distributions", () => {
