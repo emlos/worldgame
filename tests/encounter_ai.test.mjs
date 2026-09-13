@@ -2,6 +2,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import {
+  EXHAUSTED_RETREAT_SECONDS,
+  PROLONGED_ENCOUNTER_RETREAT_SECONDS,
   RETREAT_COMMITMENT_THRESHOLD,
   getNpcDecisionDiagnostics,
   getMuggerCommitment,
@@ -34,6 +36,33 @@ test("low commitment gives retreat hard priority", () => {
     instanceKey: game.currentStory.instanceKey,
   });
 
+  assert.ok(getMuggerCommitment(context) <= RETREAT_COMMITMENT_THRESHOLD);
+  assert.equal(selectNpcIntent(context).actionId, "flee");
+});
+
+test("extreme exertion and hard encounter pacing force a legal disengagement path", () => {
+  const game = gameAtStart();
+  const state = startEncounter(game);
+  state.participants.mugger.commitmentBase = 100;
+  state.participants.mugger.exertion = 100;
+  state.elapsedSeconds = EXHAUSTED_RETREAT_SECONDS;
+  state.objective.lastProgressSecond = state.elapsedSeconds;
+  let context = createCombatContext({
+    game,
+    state,
+    instanceKey: game.currentStory.instanceKey,
+  });
+  assert.ok(getMuggerCommitment(context) <= RETREAT_COMMITMENT_THRESHOLD);
+  assert.equal(selectNpcIntent(context).actionId, "flee");
+
+  state.participants.mugger.exertion = 0;
+  state.elapsedSeconds = PROLONGED_ENCOUNTER_RETREAT_SECONDS;
+  state.objective.lastProgressSecond = state.elapsedSeconds;
+  context = createCombatContext({
+    game,
+    state,
+    instanceKey: game.currentStory.instanceKey,
+  });
   assert.ok(getMuggerCommitment(context) <= RETREAT_COMMITMENT_THRESHOLD);
   assert.equal(selectNpcIntent(context).actionId, "flee");
 });

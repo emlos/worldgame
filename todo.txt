@@ -1,6 +1,7 @@
 ui:
 - add animations for lowering/increasing the sidebars diaplying player stats
 - generic classes for tables for a unified look+feel [currewntly: cinema + high school timetable]
+- add text effects once substances are implemented - moving 'drunk' css/vsg animated text (disablable in the settings once we implement it later)
 
 game systems:
     player stats:

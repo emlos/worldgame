@@ -47,7 +47,7 @@ function fail(message) {
   throw new Error(`Physical encounter: ${message}`);
 }
 
-function resolveOne(context, instance, runtime, { revalidate = true } = {}) {
+function resolveOne(context, instance, runtime, { revalidate = true, spoiledBy = null } = {}) {
   const definition = getEncounterAction(instance.actionId);
   if (!definition) fail(`unknown action '${String(instance.actionId)}'`);
   runtime.events.push({
@@ -64,6 +64,8 @@ function resolveOne(context, instance, runtime, { revalidate = true } = {}) {
       type: "action.spoiled",
       actorId: instance.actorId,
       actionId: instance.actionId,
+      spoiledByActorId: spoiledBy?.actorId || null,
+      spoiledByActionId: spoiledBy?.actionId || null,
     });
     if (instance.actorId === "mugger" && definition.tags.includes("control")) {
       context.state.objective.failedControlAttempts += 1;
@@ -618,12 +620,19 @@ export function resolveEncounterExchange({
       : [npcAction, availablePlayerAction];
     resolveOne(context, ordered[0], runtime, { revalidate: false });
     checkPhysicalTerminalState(context, runtime);
-    if (!runtime.outcome) resolveOne(context, ordered[1], runtime, { revalidate: true });
+    if (!runtime.outcome) {
+      resolveOne(context, ordered[1], runtime, {
+        revalidate: true,
+        spoiledBy: ordered[0],
+      });
+    }
     else {
       runtime.events.push({
         type: "action.spoiled",
         actorId: ordered[1].actorId,
         actionId: ordered[1].actionId,
+        spoiledByActorId: ordered[0].actorId,
+        spoiledByActionId: ordered[0].actionId,
       });
     }
   }

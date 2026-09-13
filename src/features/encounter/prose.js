@@ -186,6 +186,163 @@ function actionAttemptText(context, event) {
   return `${actor} ${encounterVerb(context, event.actorId, forms[1], forms[0])}.`;
 }
 
+function missedActionText(context, event) {
+  const actorId = event.actorId;
+  const targetId = event.targetId || (actorId === "player" ? "mugger" : "player");
+  const actor = actorName(context, actorId, { sentence: true });
+  const target = actorName(context, targetId, { sentence: true });
+  const targetDependent = encounterPronoun(context, targetId, "dependent");
+
+  if (actorId === "player") {
+    switch (event.actionId) {
+      case "strike-face":
+        return `${target} ${encounterVerb(context, targetId, "pulls", "pull")} clear, and your strike cuts past ${targetDependent} face.`;
+      case "drive-body":
+        return `${target} ${encounterVerb(context, targetId, "shifts", "shift")} away before you can drive the blow into ${targetDependent} body.`;
+      case "strike-holding-arm":
+        return "You cannot land cleanly on the limb maintaining the hold.";
+      case "headbutt":
+        return `${target} ${encounterVerb(context, targetId, "draws", "draw")} back, leaving your headbutt short.`;
+      default:
+        return `${target} ${encounterVerb(context, targetId, "moves", "move")} clear, and your attack misses.`;
+    }
+  }
+
+  switch (event.actionId) {
+    case "strike-face":
+      return `${actor} ${encounterVerb(context, actorId, "strikes", "strike")} at your face, but you pull clear.`;
+    case "drive-body":
+      return `${actor} ${encounterVerb(context, actorId, "drives", "drive")} a blow toward your body, but you shift out of its path.`;
+    case "strike-holding-arm":
+      return `${actor} cannot land cleanly on the limb maintaining your hold.`;
+    case "headbutt":
+      return `${actor} ${encounterVerb(context, actorId, "lunges", "lunge")} with a headbutt, but you draw back in time.`;
+    default:
+      return `${actor} ${encounterVerb(context, actorId, "attacks", "attack")}, but you move clear.`;
+  }
+}
+
+function actionFailureText(context, event) {
+  const actorId = event.actorId;
+  const targetId = event.targetId || (actorId === "player" ? "mugger" : "player");
+  const actor = actorName(context, actorId, { sentence: true });
+  const target = actorName(context, targetId, { sentence: true });
+  const actorDependent = encounterPronoun(context, actorId, "dependent");
+  const targetDependent = encounterPronoun(context, targetId, "dependent", { sentence: true });
+  const actorIsPlayer = actorId === "player";
+
+  switch (event.reason) {
+    case "missed":
+      return missedActionText(context, event);
+    case "grip-missed":
+      return actorIsPlayer
+        ? `${target} ${encounterVerb(context, targetId, "snatches", "snatch")} ${encounterPronoun(context, targetId, "dependent")} wrist clear before your hand can close around it.`
+        : `${actor} ${encounterVerb(context, actorId, "reaches", "reach")} for your wrist, but you pull it clear.`;
+    case "hold-gone":
+      return actorIsPlayer
+        ? "The hold is already gone before you can finish using it for leverage."
+        : `${actor} ${encounterVerb(context, actorId, "loses", "lose")} the hold before ${encounterPronoun(context, actorId, "subject")} can finish using it for leverage.`;
+    case "partly-freed":
+      return actorIsPlayer
+        ? "You tear one arm free, but the remaining grip still holds you."
+        : `${actor} ${encounterVerb(context, actorId, "tears", "tear")} one arm free, but the remaining grip still holds ${encounterPronoun(context, actorId, "object")}.`;
+    case "grip-held":
+      return actorIsPlayer
+        ? "The grip on your arm is too secure; you cannot wrench yourself free."
+        : `${targetDependent} grip is too secure for ${encounterPronoun(context, actorId, "object")} to wrench free.`;
+    case "position-held":
+      return actorIsPlayer
+        ? `${target} ${encounterVerb(context, targetId, "keeps", "keep")} ${encounterPronoun(context, targetId, "dependent")} footing and ${encounterVerb(context, targetId, "denies", "deny")} you the leverage to force ${encounterPronoun(context, targetId, "object")} back.`
+        : "You keep your footing and deny the attempt to force you against the wall.";
+    case "takedown-resisted":
+      return actorIsPlayer
+        ? `${target} ${encounterVerb(context, targetId, "stays", "stay")} under ${encounterPronoun(context, targetId, "dependent")} balance and ${encounterVerb(context, targetId, "resists", "resist")} your attempt to take ${encounterPronoun(context, targetId, "object")} down.`
+        : "You keep your balance and resist the attempt to drag you to the ground.";
+    case "turn-resisted":
+      return actorIsPlayer
+        ? `${target} ${encounterVerb(context, targetId, "braces", "brace")} against your control and ${encounterVerb(context, targetId, "refuses", "refuse")} to be turned away.`
+        : "You brace against the hold and keep yourself facing the threat.";
+    case "pin-resisted":
+      return actorIsPlayer
+        ? `${target} ${encounterVerb(context, targetId, "shifts", "shift")} before you can settle enough weight to pin ${encounterPronoun(context, targetId, "dependent")} arm.`
+        : "You shift the restrained arm before it can be pinned in place.";
+    case "lost-balance":
+      return actorIsPlayer
+        ? "Your footing gives way as you raise your knee, forcing you to abandon the strike."
+        : `${actor} ${encounterVerb(context, actorId, "loses", "lose")} ${actorDependent} footing while raising a knee and ${encounterVerb(context, actorId, "has", "have")} to abandon the strike.`;
+    case "held-ground":
+      return actorIsPlayer
+        ? `${target} ${encounterVerb(context, targetId, "absorbs", "absorb")} the shove and ${encounterVerb(context, targetId, "holds", "hold")} ${encounterPronoun(context, targetId, "dependent")} ground.`
+        : "You absorb the shove and hold your ground.";
+    case "could-not-disengage":
+      return actorIsPlayer
+        ? "The hold checks your movement before you can open a gap."
+        : `${actor} cannot open a gap while your hold keeps ${encounterPronoun(context, actorId, "object")} close.`;
+    case "kept-down":
+      return actorIsPlayer
+        ? `${targetDependent} control keeps you from getting your feet underneath you.`
+        : `Your control keeps ${encounterPronoun(context, actorId, "object")} from getting back to ${actorDependent} feet.`;
+    case "turn-blocked":
+      return actorIsPlayer
+        ? `${targetDependent} hold stops you before you can turn into a safer position.`
+        : `Your hold stops ${encounterPronoun(context, actorId, "object")} from turning into a safer position.`;
+    case "could-not-close":
+      return actorIsPlayer
+        ? `${target} ${encounterVerb(context, targetId, "keeps", "keep")} enough distance that you cannot close the gap.`
+        : "You keep enough distance that the attacker cannot close the gap.";
+    case "too-winded":
+      return actorIsPlayer
+        ? "You are too winded to put force behind it, and the attempt dies immediately."
+        : `${actor} ${encounterVerb(context, actorId, "is", "are")} too winded to put force behind it, and the attempt dies immediately.`;
+    case "too-dazed":
+      return actorIsPlayer
+        ? "Your daze ruins the coordination, and the attempt falls apart."
+        : `${actor} cannot coordinate the movement through the daze, and the attempt falls apart.`;
+    case "too-exhausted":
+      return actorIsPlayer
+        ? "Your exhausted body cannot finish the effort."
+        : `${actor} cannot force ${actorDependent} exhausted body through the effort.`;
+    default:
+      return actorIsPlayer
+        ? "Your attempt fails before it can change the situation."
+        : `${actor} fails to change the situation.`;
+  }
+}
+
+function qualitativeOddsText(event) {
+  if (!Number.isFinite(event.chance)) return "";
+  if (event.chance < 0.35) return "The odds were poor. ";
+  if (event.chance < 0.55) return "The contest was uncertain. ";
+  if (event.chance < 0.75) return "The odds favored the attempt. ";
+  return "The odds strongly favored the attempt. ";
+}
+
+function spoiledActionText(context, event) {
+  const actorId = event.actorId;
+  const spoilerId = event.spoiledByActorId;
+  if (!spoilerId) {
+    return `${actorName(context, actorId, { sentence: true })} ${encounterVerb(context, actorId, "loses", "lose")} the chance to finish the slower action.`;
+  }
+
+  const spoiler = actorName(context, spoilerId, { sentence: true });
+  if (actorId === "player") {
+    if (event.actionId === "run" && event.spoiledByActionId === "close-distance") {
+      return `${spoiler} ${encounterVerb(context, spoilerId, "closes", "close")} the gap before you can break away.`;
+    }
+    return `${spoiler} ${encounterVerb(context, spoilerId, "acts", "act")} first and ${encounterVerb(context, spoilerId, "changes", "change")} the situation before you can finish.`;
+  }
+  if (spoilerId === "player") {
+    if (event.actionId === "search-money") {
+      return `You break ${encounterPronoun(context, actorId, "dependent")} control before ${encounterPronoun(context, actorId, "subject")} can reach your money.`;
+    }
+    if (event.actionId === "grab-arm") {
+      return `You move out of reach before ${encounterPronoun(context, actorId, "subject")} can secure the grab.`;
+    }
+    return `You act first and change the situation before ${encounterPronoun(context, actorId, "subject")} can finish.`;
+  }
+  return `${spoiler} ${encounterVerb(context, spoilerId, "acts", "act")} first and ${encounterVerb(context, spoilerId, "changes", "change")} the situation before ${encounterPronoun(context, actorId, "subject")} can finish.`;
+}
+
 function eventText(context, event) {
   switch (event.type) {
     case "encounter.started":
@@ -197,24 +354,9 @@ function eventText(context, event) {
     case "action.attempted":
       return actionAttemptText(context, event);
     case "action.failed":
-      if (event.reason === "too-winded") {
-        return event.actorId === "player"
-          ? "You are too winded to put force behind it, and the attempt dies immediately."
-          : `${actorName(context, event.actorId, { sentence: true })} ${encounterVerb(context, event.actorId, "is", "are")} too winded to put force behind it, and the attempt dies immediately.`;
-      }
-      if (event.reason === "too-dazed") {
-        return event.actorId === "player"
-          ? "Your daze ruins the coordination, and the attempt falls apart."
-          : `${actorName(context, event.actorId, { sentence: true })} cannot coordinate the movement through the daze, and the attempt falls apart.`;
-      }
-      if (event.reason === "too-exhausted") {
-        return event.actorId === "player"
-          ? "Your exhausted body cannot finish the effort."
-          : `${actorName(context, event.actorId, { sentence: true })} cannot force ${encounterPronoun(context, event.actorId, "dependent")} exhausted body through the effort.`;
-      }
-      return `${actorName(context, event.actorId, { sentence: true })} cannot make it work.`;
+      return `${qualitativeOddsText(event)}${actionFailureText(context, event)}`;
     case "action.spoiled":
-      return `${actorName(context, event.actorId, { sentence: true })} ${encounterVerb(context, event.actorId, "loses", "lose")} the chance to finish the slower action.`;
+      return spoiledActionText(context, event);
     case "state.change-conflicted":
       return "The opposing movements cancel each other out.";
     case "defense.braced":

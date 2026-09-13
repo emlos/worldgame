@@ -242,11 +242,22 @@ export function increaseDistance(context, runtime) {
 }
 
 export function failAction(runtime, instance, reason) {
+  const failedRoll = [...runtime.events].reverse().find((event) =>
+    event.type === "chance.rolled"
+    && event.actorId === instance.actorId
+    && event.actionId === instance.actionId
+    && event.success === false
+  );
   runtime.events.push({
     type: "action.failed",
     actorId: instance.actorId,
+    targetId: instance.targetId,
     actionId: instance.actionId,
     reason,
+    ...(failedRoll ? {
+      chance: failedRoll.chance,
+      rollPurpose: failedRoll.purpose,
+    } : {}),
   });
 }
 
