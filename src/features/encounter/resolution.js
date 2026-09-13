@@ -4,6 +4,7 @@ import { getEncounterAction } from "./actions/index.js";
 import {
   actionDurationSeconds,
   getAvailableActionInstances,
+  isActionInstanceAvailable,
   sameActionInstance,
 } from "./availability.js";
 import {
@@ -28,7 +29,15 @@ import {
   ENCOUNTER_RANGE,
   validateEncounterState,
 } from "./state.js";
-import { removeHold, removeNonfunctionalHolds, tickAcuteEffects } from "./actions/helpers.js";
+import {
+  addExertion,
+  chanceRoll,
+  failAction,
+  removeHold,
+  removeNonfunctionalHolds,
+  tickAcuteEffects,
+} from "./actions/helpers.js";
+import { getActionEffortStatus } from "./effort.js";
 import {
   recoverTheftMoney,
   resolveIncapacitatedTheft,
@@ -50,7 +59,7 @@ function resolveOne(context, instance, runtime, { revalidate = true } = {}) {
   const history = context.state.participants[instance.actorId].actionHistory;
   history.push(instance.actionId);
   if (history.length > 8) history.splice(0, history.length - 8);
-  if (revalidate && !definition.isAvailable(context, instance)) {
+  if (revalidate && !isActionInstanceAvailable(context, instance)) {
     runtime.events.push({
       type: "action.spoiled",
       actorId: instance.actorId,
@@ -60,6 +69,28 @@ function resolveOne(context, instance, runtime, { revalidate = true } = {}) {
       context.state.objective.failedControlAttempts += 1;
     }
     return;
+  }
+  if (instance.actorId !== "player") {
+    const effort = getActionEffortStatus(context, instance);
+    if (!effort.allowed && !chanceRoll(
+      context,
+      instance,
+      runtime,
+      "desperate-effort",
+      effort.desperateChance,
+      {
+        readiness: effort.readiness,
+        requiredReadiness: effort.requiredReadiness,
+        blockers: effort.blockers,
+      },
+    )) {
+      addExertion(context, instance.actorId, Math.max(2, definition.durationSeconds));
+      failAction(runtime, instance, effort.primaryBlocker);
+      if (definition.tags.includes("control")) {
+        context.state.objective.failedControlAttempts += 1;
+      }
+      return;
+    }
   }
   definition.resolve(context, instance, runtime);
 }

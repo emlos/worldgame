@@ -19,6 +19,7 @@ import {
   setEncounterRange,
 } from "../state.js";
 import { getMovementCapacity } from "../affordances.js";
+import { calculateExertionCost } from "../effort.js";
 
 export function actionInstance(actionId, actorId, targetId, parameters = {}) {
   return { actionId, actorId, targetId, parameters };
@@ -105,8 +106,7 @@ export function contest(
 
 export function addExertion(context, actorId, baseAmount) {
   const participant = getParticipant(context, actorId);
-  const endurance = getStat(context, actorId, "endurance");
-  const amount = Math.max(1, Math.round(baseAmount - endurance * 0.35));
+  const amount = calculateExertionCost(context, actorId, baseAmount);
   participant.exertion = clamp(participant.exertion + amount, 0, 100);
   return amount;
 }

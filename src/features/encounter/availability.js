@@ -1,4 +1,5 @@
 import { ENCOUNTER_ACTIONS, getEncounterAction } from "./actions/index.js";
+import { effortBlockerText, getActionEffortStatus } from "./effort.js";
 
 function stableParameters(parameters) {
   return JSON.stringify(parameters || {});
@@ -16,7 +17,7 @@ export function getAvailableActionInstances(context, actorId) {
   for (const definition of ENCOUNTER_ACTIONS) {
     if (!definition.usableBy.includes(actorId)) continue;
     for (const instance of definition.enumerateTargets(context, actorId)) {
-      if (definition.isAvailable(context, instance)) instances.push(instance);
+      if (isActionInstanceAvailable(context, instance)) instances.push(instance);
     }
   }
   return instances;
@@ -24,6 +25,7 @@ export function getAvailableActionInstances(context, actorId) {
 
 const AVAILABILITY_HINTS = Object.freeze({
   "cover-and-brace": "Actor cannot begin a physical action.",
+  "catch-breath": "Only useful while exerted, hurt, winded, or dazed.",
   "strike-face": "Needs a usable free hand and striking range.",
   "drive-body": "Needs a usable free hand and striking range.",
   "strike-holding-arm": "Needs a hostile arm hold that can be struck.",
@@ -46,6 +48,15 @@ const AVAILABILITY_HINTS = Object.freeze({
   "close-distance": "Requires open distance and enough movement capacity.",
 });
 
+export function isActionInstanceAvailable(context, instance) {
+  const definition = getEncounterAction(instance?.actionId);
+  if (!definition || !definition.usableBy.includes(instance.actorId)) return false;
+  if (!definition.isAvailable(context, instance)) return false;
+  // The player's list is a promise that the action is realistically executable.
+  // NPC intent may overreach; resolution gives such attempts a small desperation roll.
+  return instance.actorId !== "player" || getActionEffortStatus(context, instance).allowed;
+}
+
 export function getActionAvailabilityDiagnostics(context, actorId) {
   const diagnostics = [];
   for (const definition of ENCOUNTER_ACTIONS) {
@@ -61,12 +72,20 @@ export function getActionAvailabilityDiagnostics(context, actorId) {
       continue;
     }
     for (const instance of enumerated) {
-      const available = definition.isAvailable(context, instance);
+      const mechanicallyAvailable = definition.isAvailable(context, instance);
+      const effort = mechanicallyAvailable && actorId === "player"
+        ? getActionEffortStatus(context, instance)
+        : null;
+      const available = mechanicallyAvailable && (!effort || effort.allowed);
       diagnostics.push({
         actionId: definition.id,
         available,
         instance,
-        reasons: available ? [] : [AVAILABILITY_HINTS[definition.id] || "Its positional or physical prerequisites are not met."],
+        reasons: available
+          ? []
+          : effort?.blockers.length
+            ? effort.blockers.map(effortBlockerText)
+            : [AVAILABILITY_HINTS[definition.id] || "Its positional or physical prerequisites are not met."],
       });
     }
   }

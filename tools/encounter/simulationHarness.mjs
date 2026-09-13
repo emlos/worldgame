@@ -13,20 +13,20 @@ export const PLAYER_POLICIES = Object.freeze({
   escape: Object.freeze([
     "run", "create-distance", "wrench-free", "strike-holding-arm", "shove-away",
     "stand-up", "roll-toward", "headbutt", "knee-strike", "strike-face",
-    "drive-body", "grab-arm", "cover-and-brace",
+    "drive-body", "grab-arm", "catch-breath", "cover-and-brace",
   ]),
   fight: Object.freeze([
     "strike-holding-arm", "headbutt", "strike-face", "knee-strike", "drive-body",
     "wrench-free", "stand-up", "roll-toward", "shove-away", "create-distance",
-    "run", "grab-arm", "cover-and-brace",
+    "run", "grab-arm", "catch-breath", "cover-and-brace",
   ]),
   resist: Object.freeze([
     "wrench-free", "strike-holding-arm", "shove-away", "create-distance", "stand-up",
     "roll-toward", "headbutt", "strike-face", "knee-strike", "drive-body",
-    "run", "cover-and-brace",
+    "run", "catch-breath", "cover-and-brace",
   ]),
   brace: Object.freeze([
-    "cover-and-brace", "wrench-free", "stand-up", "roll-toward", "shove-away",
+    "cover-and-brace", "catch-breath", "wrench-free", "stand-up", "roll-toward", "shove-away",
     "create-distance", "run", "strike-holding-arm", "drive-body", "strike-face",
   ]),
 });

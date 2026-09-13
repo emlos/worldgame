@@ -1,4 +1,4 @@
-import { COVER_AND_BRACE } from "./defense.js";
+import { CATCH_BREATH, COVER_AND_BRACE } from "./defense.js";
 import {
   DRIVE_BODY,
   HEADBUTT,
@@ -28,6 +28,7 @@ import {
 
 export const ENCOUNTER_ACTIONS = Object.freeze([
   COVER_AND_BRACE,
+  CATCH_BREATH,
   HEADBUTT,
   KNEE_STRIKE,
   STRIKE_FACE,

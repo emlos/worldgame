@@ -160,6 +160,7 @@ function actionAttemptText(context, event) {
   const targetPossessive = encounterPronoun(context, event.targetId, "dependent");
   const phrases = {
     "cover-and-brace": ["cover up and brace", "covers up and braces"],
+    "catch-breath": ["ease back to catch your breath", `eases back to catch ${encounterPronoun(context, event.actorId, "dependent")} breath`],
     "strike-face": [`strike toward ${targetPossessive} face`, `strikes toward ${targetPossessive} face`],
     "drive-body": [`drive a blow toward ${targetPossessive} body`, `drives a blow toward ${targetPossessive} body`],
     "shove-away": [`try to shove ${targetObject} away`, `tries to shove ${targetObject} away`],
@@ -196,6 +197,21 @@ function eventText(context, event) {
     case "action.attempted":
       return actionAttemptText(context, event);
     case "action.failed":
+      if (event.reason === "too-winded") {
+        return event.actorId === "player"
+          ? "You are too winded to put force behind it, and the attempt dies immediately."
+          : `${actorName(context, event.actorId, { sentence: true })} ${encounterVerb(context, event.actorId, "is", "are")} too winded to put force behind it, and the attempt dies immediately.`;
+      }
+      if (event.reason === "too-dazed") {
+        return event.actorId === "player"
+          ? "Your daze ruins the coordination, and the attempt falls apart."
+          : `${actorName(context, event.actorId, { sentence: true })} cannot coordinate the movement through the daze, and the attempt falls apart.`;
+      }
+      if (event.reason === "too-exhausted") {
+        return event.actorId === "player"
+          ? "Your exhausted body cannot finish the effort."
+          : `${actorName(context, event.actorId, { sentence: true })} cannot force ${encounterPronoun(context, event.actorId, "dependent")} exhausted body through the effort.`;
+      }
       return `${actorName(context, event.actorId, { sentence: true })} cannot make it work.`;
     case "action.spoiled":
       return `${actorName(context, event.actorId, { sentence: true })} ${encounterVerb(context, event.actorId, "loses", "lose")} the chance to finish the slower action.`;
@@ -203,6 +219,15 @@ function eventText(context, event) {
       return "The opposing movements cancel each other out.";
     case "defense.braced":
       return `${actorName(context, event.actorId, { sentence: true })} ${encounterVerb(context, event.actorId, "is", "are")} ready for the impact.`;
+    case "exertion.recovered":
+      return event.actorId === "player"
+        ? "You slow your breathing and recover some strength."
+        : `${actorName(context, event.actorId, { sentence: true })} ${encounterVerb(context, event.actorId, "slows", "slow")} ${encounterPronoun(context, event.actorId, "dependent")} breathing and ${encounterVerb(context, event.actorId, "recovers", "recover")} some strength.`;
+    case "acute.eased":
+      if (event.id !== "winded") return "";
+      return event.actorId === "player"
+        ? "Your breath begins to come back."
+        : `${actorName(context, event.actorId, { sentence: true })} ${encounterVerb(context, event.actorId, "gets", "get")} ${encounterPronoun(context, event.actorId, "dependent")} breath partly under control.`;
     case "impact.landed": {
       const part = {
         [BodyPartId.FACE]: "face",

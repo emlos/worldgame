@@ -9,6 +9,10 @@ import {
 } from "../src/features/encounter/availability.js";
 import { intentToActionInstance } from "../src/features/encounter/ai.js";
 import { createCombatContext } from "../src/features/encounter/combatants.js";
+import {
+  calculateExertionCost,
+  getActionEffortStatus,
+} from "../src/features/encounter/effort.js";
 import { gameAtStart, startEncounter } from "./support/encounter.mjs";
 
 function actionIds(instances) {
@@ -245,4 +249,86 @@ test("ground position exposes standing, turning, and pin actions contextually", 
   state.relationships.facing.find(({ actor }) => actor === "player").value = "away";
   playerIds = actionIds(getAvailableActionInstances(context, "player"));
   assert.ok(playerIds.includes("roll-toward"));
+});
+
+test("severe winded or dazed states hide demanding player actions but not recovery", () => {
+  const game = gameAtStart();
+  const state = startEncounter(game);
+  state.relationships.range[0].value = "clinch";
+  state.participants.player.exertion = 92;
+  state.participants.player.acute = [{ id: "winded", severity: 2, exchanges: 3 }];
+  state.relationships.holds.push({
+    id: "player-control",
+    controllerId: "player",
+    sourcePartId: "hand_l",
+    targetId: "mugger",
+    targetPartId: "lower_arm_l",
+    kind: "wrist-grip",
+    leverage: 100,
+  });
+  const context = createCombatContext({
+    game,
+    state,
+    instanceKey: game.currentStory.instanceKey,
+  });
+
+  let ids = actionIds(getAvailableActionInstances(context, "player"));
+  assert.ok(ids.includes("catch-breath"));
+  assert.ok(!ids.includes("headbutt"));
+  assert.ok(!ids.includes("force-to-wall"));
+  assert.ok(!ids.includes("force-to-ground"));
+
+  state.participants.player.exertion = 0;
+  state.participants.player.acute = [{ id: "dazed", severity: 2, exchanges: 3 }];
+  ids = actionIds(getAvailableActionInstances(context, "player"));
+  assert.ok(ids.includes("catch-breath"));
+  assert.ok(!ids.includes("headbutt"));
+  assert.ok(!ids.includes("force-to-wall"));
+  assert.ok(!ids.includes("force-to-ground"));
+});
+
+test("NPCs retain overexerting actions with a documented desperation chance", () => {
+  const game = gameAtStart();
+  const state = startEncounter(game);
+  state.relationships.range[0].value = "clinch";
+  state.participants.mugger.exertion = 100;
+  state.participants.mugger.acute = [{ id: "winded", severity: 2, exchanges: 3 }];
+  const context = createCombatContext({
+    game,
+    state,
+    instanceKey: game.currentStory.instanceKey,
+  });
+  const headbutt = getAvailableActionInstances(context, "mugger")
+    .find(({ actionId }) => actionId === "headbutt");
+
+  assert.ok(headbutt);
+  const effort = getActionEffortStatus(context, headbutt);
+  assert.equal(effort.allowed, false);
+  assert.ok(effort.blockers.includes("too-winded"));
+  assert.ok(effort.desperateChance >= 0.02 && effort.desperateChance <= 0.18);
+});
+
+test("exertion cost rises under fatigue and acute strain while conditioning helps", () => {
+  const game = gameAtStart();
+  const state = startEncounter(game);
+  const context = createCombatContext({
+    game,
+    state,
+    instanceKey: game.currentStory.instanceKey,
+  });
+  const freshCost = calculateExertionCost(context, "player", 10);
+  state.participants.player.exertion = 80;
+  state.participants.player.acute = [
+    { id: "winded", severity: 2, exchanges: 3 },
+    { id: "dazed", severity: 1, exchanges: 2 },
+  ];
+  const strainedCost = calculateExertionCost(context, "player", 10);
+  state.participants.player.exertion = 0;
+  state.participants.player.acute = [];
+  game.player.setSkillValue("endurance", 10);
+  game.player.setSkillValue("fitness", 10);
+  const conditionedCost = calculateExertionCost(context, "player", 10);
+
+  assert.ok(strainedCost > freshCost);
+  assert.ok(conditionedCost < freshCost);
 });

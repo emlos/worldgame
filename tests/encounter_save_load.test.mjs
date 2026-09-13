@@ -35,6 +35,7 @@ test("terminal theft consequences are not repeated by save/load or rendering", (
   while (game.currentStory.system.state.phase === "active") {
     chooseFirstAvailableAction(game, [
       "cover-and-brace",
+      "catch-breath",
       "wrench-free",
       "stand-up",
       "roll-toward",
@@ -64,6 +65,7 @@ test("save/load during the getaway preserves stolen money without applying theft
     index += 1) {
     chooseFirstAvailableAction(game, [
       "cover-and-brace",
+      "catch-breath",
       "wrench-free",
       "stand-up",
       "roll-toward",

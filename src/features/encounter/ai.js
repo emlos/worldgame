@@ -9,13 +9,17 @@ import {
   hostileHoldsOn,
 } from "./combatants.js";
 import { actionDurationSeconds, getAvailableActionInstances } from "./availability.js";
+import { getActionEffortStatus } from "./effort.js";
 import { getMuggerPersonality } from "./personality.js";
 
 export const RETREAT_COMMITMENT_THRESHOLD = 22;
+export const EXHAUSTED_RETREAT_SECONDS = 45;
+export const PROLONGED_ENCOUNTER_RETREAT_SECONDS = 66;
 
 // Design-level motives. Keeping them separate from resolution makes policy tuning inspectable.
 const ACTION_UTILITY = Object.freeze({
   "cover-and-brace": { base: 8, safety: 1 },
+  "catch-breath": { base: 6, safety: 1.2 },
   "strike-face": { base: 8, pressure: 1, control: 0.25, risk: 0.25 },
   "drive-body": { base: 8, pressure: 0.85, risk: 0.15 },
   "strike-holding-arm": { base: 10, pressure: 0.5, escape: 0.9, safety: 0.5, risk: 0.15 },
@@ -80,6 +84,9 @@ export function getMuggerCommitmentDiagnostics(context) {
     0,
     state.elapsedSeconds - state.objective.lastProgressSecond - 8,
   );
+  const pacingLimitReached = (mugger.exertion >= 95
+    && state.elapsedSeconds >= EXHAUSTED_RETREAT_SECONDS)
+    || state.elapsedSeconds >= PROLONGED_ENCOUNTER_RETREAT_SECONDS;
   const components = {
     base: mugger.commitmentBase,
     reward,
@@ -88,6 +95,7 @@ export function getMuggerCommitmentDiagnostics(context) {
     exertion: -mugger.exertion * personality.commitmentExertionSensitivity,
     failedControl: -state.objective.failedControlAttempts * 2,
     impairment: -impairment,
+    pacingLimit: pacingLimitReached ? -100 : 0,
   };
   const value = Math.round(clamp(Object.values(components).reduce((sum, part) => sum + part, 0), 0, 100));
   return { value, band: commitmentBandFor(value), components };
@@ -128,6 +136,14 @@ function situationalBonuses(context, instance) {
   const repeatedRetreat = recentPlayerActions.filter(
     (actionId) => actionId === "create-distance",
   ).length >= 2;
+  if (instance.actionId === "catch-breath") {
+    const participant = state.participants.mugger;
+    const winded = participant.acute.find(({ id }) => id === "winded")?.severity || 0;
+    const dazed = participant.acute.find(({ id }) => id === "dazed")?.severity || 0;
+    result.safety += Math.max(0, participant.exertion - 55) * 1.2
+      + winded * 24
+      + dazed * 16;
+  }
   if (instance.actionId === "search-money" && hasUsableControl(context, "mugger", "player")) result.objective += 60;
   else if (state.objective.stage === "gain-control") {
     if (instance.actionId === "close-distance") result.objective += 48;
@@ -186,25 +202,46 @@ export function scoreNpcActions(context) {
   const participant = context.state.participants.mugger;
   const personality = getMuggerPersonality(participant.personalityId);
   const commitment = getMuggerCommitmentDiagnostics(context);
-  const retreatIds = new Set(["flee", "run", "create-distance", "shove-away", "stand-up", "wrench-free", "strike-holding-arm", "cover-and-brace"]);
+  const retreatIds = new Set(["flee", "run", "create-distance", "shove-away", "stand-up", "wrench-free", "strike-holding-arm", "catch-breath", "cover-and-brace"]);
   const retreating = commitment.value <= RETREAT_COMMITMENT_THRESHOLD;
   let pool;
   if (context.state.objective.stage === "disengage") {
+    const executable = candidates.filter((instance) => getActionEffortStatus(context, instance).allowed);
+    const disengageCandidates = executable.length ? executable : candidates;
     const priorityBands = [
       ["flee"],
       ["create-distance"],
       ["wrench-free", "strike-holding-arm", "shove-away"],
       ["stand-up", "roll-toward"],
+      ["catch-breath"],
       ["cover-and-brace"],
     ];
     pool = priorityBands
-      .map((actionIds) => candidates.filter(({ actionId }) => actionIds.includes(actionId)))
-      .find((matches) => matches.length) || candidates;
+      .map((actionIds) => disengageCandidates.filter(({ actionId }) => actionIds.includes(actionId)))
+      .find((matches) => matches.length) || disengageCandidates;
   } else {
-    const retreatPool = retreating
-      ? candidates.filter(({ actionId }) => retreatIds.has(actionId))
-      : candidates.filter(({ actionId }) => !["flee", "run"].includes(actionId));
-    pool = retreatPool.length ? retreatPool : candidates;
+    if (retreating) {
+      const retreatCandidates = candidates.filter(({ actionId }) => retreatIds.has(actionId));
+      const executable = retreatCandidates.filter(
+        (instance) => getActionEffortStatus(context, instance).allowed,
+      );
+      const usableRetreats = executable.length ? executable : retreatCandidates;
+      const priorityBands = [
+        ["flee"],
+        ["create-distance"],
+        ["wrench-free", "strike-holding-arm", "shove-away"],
+        ["stand-up", "roll-toward"],
+        ["catch-breath"],
+        ["cover-and-brace"],
+      ];
+      pool = priorityBands
+        .map((actionIds) => usableRetreats.filter(({ actionId }) => actionIds.includes(actionId)))
+        .find((matches) => matches.length)
+        || (usableRetreats.length ? usableRetreats : candidates);
+    } else {
+      const objectivePool = candidates.filter(({ actionId }) => !["flee", "run"].includes(actionId));
+      pool = objectivePool.length ? objectivePool : candidates;
+    }
   }
 
   return pool.map((instance) => {
@@ -216,6 +253,12 @@ export function scoreNpcActions(context) {
     }
     const duration = -actionDurationSeconds(instance) * 1.5 * personality.weights.speed;
     const exertionRisk = -(profile.risk || 0) * (10 + participant.exertion * 0.12) / Math.max(0.35, personality.weights.safety);
+    const effort = getActionEffortStatus(context, instance);
+    const overextension = effort.allowed
+      ? 0
+      : -45
+        - Math.max(0, effort.requiredReadiness - effort.readiness) * 1.5
+        - Math.max(0, effort.blockers.length - 1) * 15;
     const repetition = -repetitionPenalty(participant.actionHistory, instance.actionId, personality.weights.novelty);
     const variation = (keyedRandom01(
       context.game.seed,
@@ -223,8 +266,8 @@ export function scoreNpcActions(context) {
     ) - 0.5) * 5;
     const retreatPriority = retreating ? (profile.escape || 0) * 35 : 0;
     const total = profile.base + Object.values(motives).reduce((sum, value) => sum + value, 0)
-      + duration + exertionRisk + repetition + variation + retreatPriority;
-    const rounded = Object.fromEntries(Object.entries({ base: profile.base, ...motives, duration, exertionRisk, repetition, variation, retreatPriority })
+      + duration + exertionRisk + overextension + repetition + variation + retreatPriority;
+    const rounded = Object.fromEntries(Object.entries({ base: profile.base, ...motives, duration, exertionRisk, overextension, repetition, variation, retreatPriority })
       .map(([key, value]) => [key, Math.round(value * 100) / 100]));
     return { instance, score: Math.round(total * 100) / 100, breakdown: rounded };
   }).sort((left, right) => right.score - left.score || stableInstanceKey(left.instance).localeCompare(stableInstanceKey(right.instance)));

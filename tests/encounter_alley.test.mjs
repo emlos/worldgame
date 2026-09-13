@@ -18,6 +18,7 @@ import {
 
 const PASSIVE_RESPONSES = Object.freeze([
   "cover-and-brace",
+  "catch-breath",
   "wrench-free",
   "stand-up",
   "roll-toward",

@@ -430,6 +430,7 @@ test("the mugging can build control despite repeated low-risk defense", () => {
     const available = getAvailableActionInstances(context, "player");
     const response = [
       "cover-and-brace",
+      "catch-breath",
       "wrench-free",
       "stand-up",
       "roll-toward",
@@ -446,6 +447,59 @@ test("the mugging can build control despite repeated low-risk defense", () => {
   assert.equal(sawGrounded, true);
   assert.equal(sawPin, true);
   assert.equal(state.outcome.id, "theft-completed-player-conscious");
+});
+
+test("catching breath restores exertion and eases winded severity", () => {
+  const game = gameAtStart({ seed: 1 });
+  const state = startEncounter(game);
+  state.participants.player.exertion = 80;
+  state.participants.player.acute = [{ id: "winded", severity: 2, exchanges: 4 }];
+  forceNpcIntent(game, "cover-and-brace");
+
+  chooseAction(game, "catch-breath");
+
+  const next = game.currentStory.system.state;
+  assert.ok(next.participants.player.exertion < 80);
+  assert.equal(
+    next.participants.player.acute.find(({ id }) => id === "winded")?.severity,
+    1,
+  );
+  assert.ok(next.lastEvents.some(({ type }) => type === "exertion.recovered"));
+  assert.ok(next.lastEvents.some(({ type }) => type === "acute.eased"));
+  assert.match(JSON.stringify(buildScene(game).content), /slow your breathing/i);
+});
+
+test("an overextended NPC action usually fails before its normal contest and is narrated", () => {
+  const game = gameAtStart({ seed: 1 });
+  const state = startEncounter(game);
+  state.relationships.range[0].value = "clinch";
+  state.participants.mugger.exertion = 100;
+  state.participants.mugger.acute = [{ id: "winded", severity: 2, exchanges: 4 }];
+  forceNpcIntent(game, "headbutt");
+
+  chooseAction(game, "cover-and-brace");
+
+  const events = game.currentStory.system.state.lastEvents;
+  const effortRoll = events.find(
+    ({ type, actorId, actionId, purpose }) => type === "chance.rolled"
+      && actorId === "mugger"
+      && actionId === "headbutt"
+      && purpose === "desperate-effort",
+  );
+  assert.ok(effortRoll);
+  assert.equal(effortRoll.success, false);
+  assert.ok(effortRoll.chance <= 0.18);
+  assert.ok(events.some(
+    ({ type, actorId, reason }) => type === "action.failed"
+      && actorId === "mugger"
+      && reason === "too-winded",
+  ));
+  assert.ok(!events.some(
+    ({ type, actorId, purpose }) => type === "chance.rolled"
+      && actorId === "mugger"
+      && purpose === "contest",
+  ));
+  assert.match(JSON.stringify(buildScene(game).content), /too winded/i);
 });
 
 test("a grounded actor can roll to face the opponent and then stand", () => {
