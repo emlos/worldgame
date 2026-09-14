@@ -6,8 +6,7 @@ import {
 } from "../combatants.js";
 import {
   canBeginPhysicalAction,
-  isAtStrikingRange,
-  isFacingOpponent,
+  hasActionGeometry,
 } from "../affordances.js";
 import { goalOwnerId, goalTargetId } from "../roles.js";
 import { encounterVerb } from "../language.js";
@@ -56,8 +55,7 @@ export const ATTACK_LIMB = Object.freeze({
       && instance.targetId === goalTargetId(context.state)
       && LIMB_TARGETS.includes(instance.parameters.targetPartId)
       && canBeginPhysicalAction(context, instance.actorId)
-      && isAtStrikingRange(context, instance.actorId)
-      && isFacingOpponent(context, instance.targetId, { allowSide: true })
+      && hasActionGeometry(context, instance)
       && getUsableHands(context, instance.actorId).includes(instance.parameters.sourcePartId)
       && getPartCapacity(context, instance.targetId, instance.parameters.targetPartId) > 0;
   },

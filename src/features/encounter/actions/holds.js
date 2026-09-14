@@ -16,8 +16,8 @@ import {
 } from "../combatants.js";
 import {
   canBeginPhysicalAction,
+  hasActionGeometry,
   isGrounded,
-  isStanding,
 } from "../affordances.js";
 import {
   actionInstance,
@@ -37,8 +37,6 @@ import {
   ENCOUNTER_POSE,
   ENCOUNTER_RANGE,
   ENCOUNTER_SUPPORT,
-  getEncounterFacing,
-  getEncounterRange,
 } from "../state.js";
 import { encounterPronoun, encounterVerb } from "../language.js";
 import { requireEncounterObjective } from "../objectives/index.js";
@@ -86,7 +84,7 @@ export const GRAB_ARM = Object.freeze({
 
   isAvailable(context, instance) {
     return canBeginPhysicalAction(context, instance.actorId)
-      && getEncounterRange(context.state) !== ENCOUNTER_RANGE.far
+      && hasActionGeometry(context, instance)
       && getUsableHands(context, instance.actorId).includes(instance.parameters.sourcePartId)
       && getUsableArmTargets(context, instance.targetId).includes(instance.parameters.targetPartId);
   },
@@ -167,6 +165,7 @@ export const WRENCH_FREE = Object.freeze({
 
   isAvailable(context, instance) {
     return canBeginPhysicalAction(context, instance.actorId)
+      && hasActionGeometry(context, instance)
       && Array.isArray(instance.parameters.holdIds)
       && instance.parameters.holdIds.length > 0
       && instance.parameters.holdIds.every((holdId) =>
@@ -271,6 +270,7 @@ export const TIGHTEN_HOLD = Object.freeze({
       ({ id }) => id === instance.parameters.holdId,
     );
     return canBeginPhysicalAction(context, instance.actorId)
+      && hasActionGeometry(context, instance)
       && Boolean(hold)
       && hold.leverage < 100;
   },
@@ -327,12 +327,8 @@ export const FORCE_TO_WALL = Object.freeze({
   },
 
   isAvailable(context, instance) {
-    const target = getParticipant(context, instance.targetId);
     return canBeginPhysicalAction(context, instance.actorId)
-      && getEncounterRange(context.state) === ENCOUNTER_RANGE.clinch
-      && isStanding(context, instance.actorId)
-      && isStanding(context, instance.targetId)
-      && target.support === ENCOUNTER_SUPPORT.free
+      && hasActionGeometry(context, instance)
       && holdsControlledBy(context, instance.actorId).some(
         (hold) => hold.id === instance.parameters.holdId
           && getEffectiveHoldLeverage(context, hold) >= 42,
@@ -390,9 +386,7 @@ export const FORCE_TO_GROUND = Object.freeze({
     );
     return canBeginPhysicalAction(context, instance.actorId)
       && Boolean(hold)
-      && getEncounterRange(context.state) === ENCOUNTER_RANGE.clinch
-      && isStanding(context, instance.actorId)
-      && isStanding(context, instance.targetId)
+      && hasActionGeometry(context, instance)
       && getBalanceCapacity(context, instance.actorId) > 0.35
       && getEffectiveHoldLeverage(context, hold) >= 34;
   },
@@ -441,14 +435,12 @@ export const TURN_TARGET_AWAY = Object.freeze({
   },
 
   isAvailable(context, instance) {
-    const target = getParticipant(context, instance.targetId);
     const hold = holdsControlledBy(context, instance.actorId).find(
       ({ id }) => id === instance.parameters.holdId,
     );
     return canBeginPhysicalAction(context, instance.actorId)
       && Boolean(hold)
-      && (target.support === ENCOUNTER_SUPPORT.wall || isGrounded(context, instance.targetId))
-      && getEncounterFacing(context.state, instance.targetId) !== ENCOUNTER_FACING.away
+      && hasActionGeometry(context, instance)
       && getEffectiveHoldLeverage(context, hold) >= 28;
   },
 
@@ -514,8 +506,6 @@ export const PIN_LIMB = Object.freeze({
     const hold = holdsControlledBy(context, instance.actorId).find(
       ({ id }) => id === instance.parameters.holdId,
     );
-    const constrained = target.support === ENCOUNTER_SUPPORT.wall
-      || target.pose !== ENCOUNTER_POSE.standing;
     const validSource = target.pose === ENCOUNTER_POSE.standing
       ? instance.parameters.pinSourcePartId === hold?.sourcePartId
       : actor.pose === ENCOUNTER_POSE.kneeling
@@ -523,7 +513,7 @@ export const PIN_LIMB = Object.freeze({
     return canBeginPhysicalAction(context, instance.actorId)
       && Boolean(hold)
       && hold.kind !== "limb-pin"
-      && constrained
+      && hasActionGeometry(context, instance)
       && validSource;
   },
 

@@ -177,7 +177,7 @@ function actionAttemptText(context, event) {
     "create-distance": ["try to make room", "tries to make room"],
     "close-distance": ["lunge to close the gap", "lunges to close the gap"],
     run: ["turn and run", "turns and runs"],
-    flee: ["break toward the street", "breaks toward the street"],
+    flee: ["break for an exit", "breaks for an exit"],
     "tighten-hold": ["reinforce the wrist hold", "reinforces the wrist hold"],
     "force-to-wall": [`try to drive ${targetObject} against the wall`, `tries to drive ${targetObject} against the wall`],
     "force-to-ground": [`try to force ${targetObject} to the ground`, `tries to force ${targetObject} to the ground`],

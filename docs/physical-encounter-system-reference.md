@@ -226,6 +226,21 @@ The exact initial intent and personality depend on the seed and actor.
 
 Creating distance clears the acting participant's wall support. Becoming grounded also clears wall support.
 
+### Authoritative action geometry
+
+Physical access is defined centrally in `ACTION_GEOMETRY` and checked again by each affected action's availability function. Facing `toward` or `side` permits deliberate contact; facing `away` does not. The exceptions are actions whose access comes from an existing tactile relationship, self-directed recovery, or movement away from the opponent.
+
+| Requirement | Actions |
+|---|---|
+| Actor facing toward/side | `strike-face`, `drive-body`, `strike-holding-arm`, `knee-strike`, `attack-limb`, `shove-away`, `grab-arm`, `close-distance`, `force-to-wall`, `force-to-ground`, `turn-target-away`, `pin-limb`, `search-money` |
+| Actor facing strictly toward | `headbutt` |
+| Target facing toward/side | `strike-face`, `headbutt`, `attack-limb`, `turn-target-away` |
+| Existing-contact or retreat action; actor facing is irrelevant | `wrench-free`, `tighten-hold`, `create-distance`, `stand-up`, `roll-toward`, `controlled-disengage`, `run`, `flee` |
+| Actor must be standing | `knee-strike`, `create-distance`, `close-distance`, `run`, `flee`, `controlled-disengage`; also both participants for `force-to-wall` and `force-to-ground` |
+| Ground or wall positioning | `stand-up` requires a grounded actor; `roll-toward` requires a grounded or wall-supported actor; `turn-target-away` requires a grounded or wall-supported target; `pin-limb` requires either a standing wall-supported target or a kneeling actor over a grounded target |
+
+Every encounter still assumes that a usable wall is available. `force-to-wall` therefore needs no scenario capability flag; its positional prerequisites are clinch range, both participants standing, and the target not already wall-supported.
+
 ### Hold records
 
 A hold is an explicit relationship:
@@ -512,7 +527,7 @@ Uses a `0.64` base contest. On success it deals `12 + strength × 0.75` damage t
 | Users | P, M |
 | Duration | 2 seconds |
 | Effort | 6 |
-| Availability | A hostile hold and either a usable hand or, while standing with balance above 0.40, a usable knee. |
+| Availability | A hostile hold, actor facing toward/side, and either a usable hand or, while standing with balance above 0.40, a usable knee. |
 
 Generates one concrete choice for each hostile hold. It uses a `0.67` base contest and deals `8 + strength × 0.65` damage to the hold's source part. Stored leverage is reduced by `round(20 + strength × 1.5)`. The hold breaks when leverage reaches zero, the impact deals at least 14 damage, or the source limb becomes nonfunctional.
 
@@ -551,9 +566,9 @@ Uses a `0.61` base contest. A miss has a 38% chance to apply severity-1 off-bala
 | Property | Value |
 |---|---|
 | Users | P, M |
-| Duration | 3 seconds |
+| Duration | 2 seconds |
 | Effort | 9 |
-| Availability | A usable free hand and range other than far. |
+| Availability | A usable free hand, reach or clinch range, and actor facing toward/side. |
 
 Uses a Strength-versus-Strength contest with base `0.61`. On success, hostile holds below 48 effective leverage break; stronger holds lose 20 stored leverage. If no hostile hold remains, the actor releases their own holds and range opens by one step.
 
@@ -562,7 +577,7 @@ Uses a Strength-versus-Strength contest with base `0.61`. On success, hostile ho
 | Property | Value |
 |---|---|
 | Users | P, M |
-| Duration | 2 seconds |
+| Duration | 3 seconds |
 | Effort | 5 |
 | Availability | Standing movement capacity above 0.20, range other than far, and no movement-denying hold. |
 
@@ -599,7 +614,7 @@ Against a hostile hold, it uses a fitness-versus-strength contest with base `0.6
 | Users | M only |
 | Duration | 2 seconds |
 | Effort | 6 |
-| Availability | Far range and sufficient standing movement capacity. |
+| Availability | Far range, actor facing toward/side, and sufficient standing movement capacity. |
 
 Uses a Fitness-versus-Fitness contest with base `0.68`. Success changes far range to reach. Failure increments the mugger's failed-control count.
 
@@ -634,7 +649,7 @@ Proposes the terminal `mugger-fled` outcome.
 | Users | P, M |
 | Duration | 2 seconds |
 | Effort | 7 |
-| Availability | Reach or clinch range, strongest usable hand, and at least one functional uncontrolled target arm. |
+| Availability | Reach or clinch range, actor facing toward/side, strongest usable hand, and at least one functional uncontrolled target arm. The target may be facing away. |
 
 One concrete action instance is generated for each uncontrolled target arm. Uses a Fitness-versus-Fitness contest with base `0.60`. Success creates a wrist grip, changes range to clinch, and sets stored leverage to:
 
@@ -651,7 +666,7 @@ A failed mugger grab increments failed-control attempts.
 | Users | P, M |
 | Duration | 3 seconds |
 | Effort | `9 + 3 × number of targeted holds` |
-| Availability | At least one hostile hold on a restrained limb whose unrestrained part capacity remains above `0.15`. |
+| Availability | Clinch range and at least one hostile hold on a restrained limb whose unrestrained part capacity remains above `0.15`. Facing is irrelevant because the actor can feel the established hold. |
 
 One action instance targets every hostile hold. Each hold is rolled separately:
 
@@ -674,7 +689,7 @@ Success breaks that hold. On failure, the leverage reduction is scaled by the re
 | Users | P, M |
 | Duration | 2 seconds |
 | Effort | 6 |
-| Availability | Any hold controlled by the actor with stored leverage below 100. |
+| Availability | Clinch range and any hold controlled by the actor with stored leverage below 100. Facing is irrelevant because the hold is already established. |
 
 Generates one instance per controlled hold. It is uncontested and increases stored leverage by `round(14 + strength × 0.5)`, capped at 100.
 
@@ -685,7 +700,7 @@ Generates one instance per controlled hold. It is uncontested and increases stor
 | Users | P, M |
 | Duration | 3 seconds |
 | Effort | 10 |
-| Availability | Clinch; both standing; target support free; selected hold has at least 42 effective leverage. |
+| Availability | Clinch; actor facing toward/side; both standing; target support free; selected hold has at least 42 effective leverage. A usable wall is assumed to exist in every encounter. |
 
 Uses a Strength-versus-Strength contest with base `0.50` plus `effective leverage × 0.003`. Success changes target support to wall and adds 8 stored leverage. A failed mugger attempt increments failed-control attempts.
 
@@ -696,7 +711,7 @@ Uses a Strength-versus-Strength contest with base `0.50` plus `effective leverag
 | Users | P, M |
 | Duration | 3 seconds |
 | Effort | 12 |
-| Availability | Actor's first hold has at least 34 effective leverage; clinch; both standing; actor balance above 0.35. |
+| Availability | Strongest eligible hold has at least 34 effective leverage; clinch; actor facing toward/side; both standing; actor balance above 0.35. |
 
 Uses a Strength-versus-Strength contest with base `0.48` plus `effective leverage × 0.003`. Success makes the target supine, the actor kneeling, both facing toward, and adds 6 leverage. A failed mugger attempt increments failed-control attempts.
 
@@ -707,7 +722,7 @@ Uses a Strength-versus-Strength contest with base `0.48` plus `effective leverag
 | Users | P, M |
 | Duration | 2 seconds |
 | Effort | 7 |
-| Availability | Actor's first hold has at least 28 effective leverage; target is wall-supported or grounded and not already facing away. |
+| Availability | Strongest eligible hold has at least 28 effective leverage; clinch; actor and target facing toward/side; target wall-supported or grounded. |
 
 Uses a Fitness-versus-Fitness contest with base `0.56` plus `effective leverage × 0.002`. Success turns the target away, changes a grounded target to prone, and adds 5 leverage.
 
@@ -718,7 +733,7 @@ Uses a Fitness-versus-Fitness contest with base `0.56` plus `effective leverage 
 | Users | P, M |
 | Duration | 2 seconds |
 | Effort | 8 |
-| Availability | A non-pin hold and a constrained target. A standing wall-supported target keeps the holding hand as the pin source; a grounded target requires a kneeling actor and usable knee. |
+| Availability | Actor facing toward/side and controlling a non-pin hold in clinch. A standing wall-supported target keeps the holding hand as the pin source; a grounded target requires a kneeling actor and usable knee. |
 
 Uses a Strength-versus-Strength contest with base `0.62` plus `effective leverage × 0.002`. Success converts the wrist grip to `limb-pin`, replaces the source part when using a knee, and adds 15 leverage.
 
@@ -729,7 +744,7 @@ Uses a Strength-versus-Strength contest with base `0.62` plus `effective leverag
 | Users | M only |
 | Duration | 4 seconds |
 | Effort | 6 |
-| Availability | A usable free hand and usable control over the player. |
+| Availability | Clinch range, actor facing toward/side, a usable free hand, and usable control over the player. |
 
 Usable control requires clinch range, at least one hold, a constrained target, and either:
 

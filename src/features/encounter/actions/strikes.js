@@ -11,8 +11,7 @@ import {
 } from "../combatants.js";
 import {
   canBeginPhysicalAction,
-  isAtStrikingRange,
-  isFacingOpponent,
+  hasActionGeometry,
 } from "../affordances.js";
 import {
   addAcute,
@@ -26,7 +25,7 @@ import {
   removeNonfunctionalHolds,
   chanceRoll,
 } from "./helpers.js";
-import { ENCOUNTER_POSE, ENCOUNTER_RANGE, getEncounterRange } from "../state.js";
+import { ENCOUNTER_POSE } from "../state.js";
 import { encounterPronoun, encounterVerb } from "../language.js";
 
 function ordinaryStrikeTargets(context, actorId, actionId) {
@@ -38,7 +37,7 @@ function ordinaryStrikeTargets(context, actorId, actionId) {
 
 function ordinaryStrikeAvailable(context, instance) {
   return canBeginPhysicalAction(context, instance.actorId)
-    && isAtStrikingRange(context, instance.actorId)
+    && hasActionGeometry(context, instance)
     && getUsableHands(context, instance.actorId).includes(instance.parameters.sourcePartId);
 }
 
@@ -68,8 +67,7 @@ export const STRIKE_FACE = Object.freeze({
   },
 
   isAvailable(context, instance) {
-    return ordinaryStrikeAvailable(context, instance)
-      && isFacingOpponent(context, instance.targetId, { allowSide: true });
+    return ordinaryStrikeAvailable(context, instance);
   },
 
   label(context, instance) {
@@ -161,7 +159,7 @@ export const STRIKE_HOLDING_ARM = Object.freeze({
         && getUsableKnees(context, instance.actorId).includes(instance.parameters.sourcePartId)
         && getBalanceCapacity(context, instance.actorId) > 0.4);
     return canBeginPhysicalAction(context, instance.actorId)
-      && isAtStrikingRange(context, instance.actorId)
+      && hasActionGeometry(context, instance)
       && usableSource
       && hostileHoldsOn(context, instance.actorId).some(({ id }) => id === instance.parameters.holdId);
   },
@@ -216,13 +214,9 @@ export const HEADBUTT = Object.freeze({
   },
 
   isAvailable(context, instance) {
-    const pose = context.state.participants[instance.actorId].pose;
     return canBeginPhysicalAction(context, instance.actorId)
-      && getEncounterRange(context.state) === ENCOUNTER_RANGE.clinch
-      && ![ENCOUNTER_POSE.supine, ENCOUNTER_POSE.prone].includes(pose)
-      && getPartCapacity(context, instance.actorId, BodyPartId.HEAD) > 0.3
-      && isFacingOpponent(context, instance.actorId)
-      && isFacingOpponent(context, instance.targetId, { allowSide: true });
+      && hasActionGeometry(context, instance)
+      && getPartCapacity(context, instance.actorId, BodyPartId.HEAD) > 0.3;
   },
 
   label(context, instance) {
@@ -280,10 +274,7 @@ export const KNEE_STRIKE = Object.freeze({
       ? BodyPartId.FOOT_R
       : BodyPartId.FOOT_L;
     return canBeginPhysicalAction(context, instance.actorId)
-      && getEncounterRange(context.state) === ENCOUNTER_RANGE.clinch
-      && context.state.participants[instance.actorId].pose === ENCOUNTER_POSE.standing
-      && context.state.participants[instance.targetId].pose !== ENCOUNTER_POSE.prone
-      && isFacingOpponent(context, instance.actorId, { allowSide: true })
+      && hasActionGeometry(context, instance)
       && getUsableKnees(context, instance.actorId).includes(instance.parameters.sourcePartId)
       && getLimbCapacity(context, instance.actorId, plantedFoot) > 0.32
       && getBalanceCapacity(context, instance.actorId) > 0.4;

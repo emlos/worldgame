@@ -10,6 +10,7 @@ import {
   sameActionInstance,
 } from "../src/features/encounter/availability.js";
 import { intentToActionInstance } from "../src/features/encounter/ai.js";
+import { getEncounterAction } from "../src/features/encounter/actions/index.js";
 import { createCombatContext } from "../src/features/encounter/combatants.js";
 import {
   calculateExertionCost,
@@ -373,6 +374,101 @@ test("ground position exposes standing, turning, and pin actions contextually", 
   state.relationships.facing.find(({ actor }) => actor === "player").value = "away";
   playerIds = actionIds(getAvailableActionInstances(context, "player"));
   assert.ok(playerIds.includes("roll-toward"));
+});
+
+test("facing away blocks active contact but preserves recovery and retreat", () => {
+  const game = gameAtStart();
+  const state = startEncounter(game);
+  state.relationships.range[0].value = "clinch";
+  state.participants.player.support = "wall";
+  state.relationships.facing.find(({ actor }) => actor === "player").value = "away";
+  state.relationships.holds.push({
+    id: "player-grip",
+    controllerId: "player",
+    sourcePartId: "hand_l",
+    targetId: "mugger",
+    targetPartId: "lower_arm_l",
+    kind: "wrist-grip",
+    leverage: 55,
+  });
+  const context = createCombatContext({
+    game,
+    state,
+    instanceKey: game.currentStory.instanceKey,
+  });
+
+  let ids = actionIds(getAvailableActionInstances(context, "player"));
+  for (const blocked of [
+    "strike-face",
+    "drive-body",
+    "shove-away",
+    "grab-arm",
+    "force-to-wall",
+    "force-to-ground",
+  ]) {
+    assert.ok(!ids.includes(blocked), blocked);
+  }
+  assert.ok(ids.includes("roll-toward"));
+  assert.ok(ids.includes("create-distance"));
+  assert.ok(ids.includes("tighten-hold"));
+
+  state.relationships.facing.find(({ actor }) => actor === "player").value = "toward";
+  ids = actionIds(getAvailableActionInstances(context, "player"));
+  for (const restored of [
+    "strike-face",
+    "drive-body",
+    "shove-away",
+    "grab-arm",
+    "force-to-wall",
+    "force-to-ground",
+  ]) {
+    assert.ok(ids.includes(restored), restored);
+  }
+});
+
+test("target facing governs exposed-target attacks without preventing rear control", () => {
+  const game = gameAtStart();
+  const state = startEncounter(game);
+  state.relationships.facing.find(({ actor }) => actor === "mugger").value = "away";
+  const context = createCombatContext({
+    game,
+    state,
+    instanceKey: game.currentStory.instanceKey,
+  });
+
+  const ids = actionIds(getAvailableActionInstances(context, "player"));
+  assert.ok(!ids.includes("strike-face"));
+  assert.ok(ids.includes("drive-body"));
+  assert.ok(ids.includes("shove-away"));
+  assert.ok(ids.includes("grab-arm"));
+});
+
+test("facing away blocks pursuit but not fleeing", () => {
+  const game = gameAtStart();
+  const state = startEncounter(game);
+  state.relationships.range[0].value = "far";
+  state.relationships.facing.find(({ actor }) => actor === "mugger").value = "away";
+  const context = createCombatContext({
+    game,
+    state,
+    instanceKey: game.currentStory.instanceKey,
+  });
+
+  let ids = actionIds(getAvailableActionInstances(context, "mugger"));
+  assert.ok(!ids.includes("close-distance"));
+  assert.ok(ids.includes("flee"));
+
+  state.relationships.facing.find(({ actor }) => actor === "mugger").value = "side";
+  ids = actionIds(getAvailableActionInstances(context, "mugger"));
+  assert.ok(ids.includes("close-distance"));
+
+  const run = getAvailableActionInstances(context, "player")
+    .find(({ actionId }) => actionId === "run");
+  assert.equal(actionLabel(context, run), "Run for safety");
+  assert.doesNotMatch(
+    getEncounterAction("flee").intentLabel(context, { actorId: "mugger" }),
+    /alley|street/i,
+  );
 });
 
 test("severe winded or dazed states hide demanding player actions but not recovery", () => {

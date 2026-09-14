@@ -11,6 +11,7 @@ import {
   canBeginPhysicalAction,
   canMove,
   getDisengagementHoldState,
+  hasActionGeometry,
   hasMovementDenyingHold,
   isGrounded,
 } from "../affordances.js";
@@ -54,7 +55,7 @@ export const SHOVE_AWAY = Object.freeze({
 
   isAvailable(context, instance) {
     return canBeginPhysicalAction(context, instance.actorId)
-      && getEncounterRange(context.state) !== ENCOUNTER_RANGE.far
+      && hasActionGeometry(context, instance)
       && getUsableHands(context, instance.actorId).length > 0;
   },
 
@@ -109,7 +110,7 @@ export const CREATE_DISTANCE = Object.freeze({
     const holdState = getDisengagementHoldState(context, instance.actorId);
     return canBeginPhysicalAction(context, instance.actorId)
       && canMove(context, instance.actorId)
-      && getEncounterRange(context.state) !== ENCOUNTER_RANGE.far
+      && hasActionGeometry(context, instance)
       && holdState !== "blocked";
   },
 
@@ -166,6 +167,7 @@ export const STAND_UP = Object.freeze({
 
   isAvailable(context, instance) {
     return canBeginPhysicalAction(context, instance.actorId)
+      && hasActionGeometry(context, instance)
       && canStandUp(context, instance.actorId);
   },
 
@@ -211,8 +213,7 @@ export const ROLL_TOWARD = Object.freeze({
   isAvailable(context, instance) {
     const participant = getParticipant(context, instance.actorId);
     return canBeginPhysicalAction(context, instance.actorId)
-      && (isGrounded(context, instance.actorId)
-        || participant.support === ENCOUNTER_SUPPORT.wall)
+      && hasActionGeometry(context, instance)
       && (getEncounterFacing(context.state, instance.actorId) !== ENCOUNTER_FACING.toward
         || participant.pose === ENCOUNTER_POSE.prone);
   },
@@ -271,7 +272,7 @@ export const CLOSE_DISTANCE = Object.freeze({
   isAvailable(context, instance) {
     return canBeginPhysicalAction(context, instance.actorId)
       && canMove(context, instance.actorId)
-      && getEncounterRange(context.state) === ENCOUNTER_RANGE.far;
+      && hasActionGeometry(context, instance);
   },
 
   label() {
@@ -312,12 +313,12 @@ export const RUN = Object.freeze({
     return instance.actorId === controlledParticipantId(context.state)
       && canBeginPhysicalAction(context, instance.actorId)
       && canMove(context, instance.actorId)
-      && getEncounterRange(context.state) === ENCOUNTER_RANGE.far
+      && hasActionGeometry(context, instance)
       && !hasMovementDenyingHold(context, instance.actorId);
   },
 
   label() {
-    return "Run from the alley";
+    return "Run for safety";
   },
 
   intentLabel(context, intent) {
@@ -346,7 +347,7 @@ export const FLEE = Object.freeze({
     return instance.actorId === goalOwnerId(context.state)
       && canBeginPhysicalAction(context, instance.actorId)
       && canMove(context, instance.actorId)
-      && getEncounterRange(context.state) !== ENCOUNTER_RANGE.clinch;
+      && hasActionGeometry(context, instance);
   },
 
   label() {
@@ -354,7 +355,7 @@ export const FLEE = Object.freeze({
   },
 
   intentLabel(context, intent) {
-    return `${encounterVerb(context, intent.actorId, "glances", "glance")} toward the street and ${encounterVerb(context, intent.actorId, "prepares", "prepare")} to bolt`;
+    return `${encounterVerb(context, intent.actorId, "looks", "look")} for an escape route and ${encounterVerb(context, intent.actorId, "prepares", "prepare")} to bolt`;
   },
 
   resolve(context, instance, runtime) {

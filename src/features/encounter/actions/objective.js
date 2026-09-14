@@ -6,7 +6,12 @@ import {
   getUsableHands,
   holdsControlledBy,
 } from "../combatants.js";
-import { canBeginPhysicalAction, canMove, hasUsableControl } from "../affordances.js";
+import {
+  canBeginPhysicalAction,
+  canMove,
+  hasActionGeometry,
+  hasUsableControl,
+} from "../affordances.js";
 import {
   ENCOUNTER_POSE,
   ENCOUNTER_RANGE,
@@ -122,6 +127,7 @@ export const CONTROLLED_DISENGAGE = Object.freeze({
     const opponentId = goalOwnerId(context.state);
     return instance.actorId === playerId
       && canMove(context, playerId)
+      && hasActionGeometry(context, instance)
       && hasControlPosition(context)
       && getParticipant(context, opponentId).exertion >= CONTROLLED_DISENGAGE_MIN_EXERTION;
   },
@@ -217,6 +223,7 @@ export const SEARCH_MONEY = Object.freeze({
   isAvailable(context, instance) {
     return instance.actorId === goalOwnerId(context.state)
       && canBeginPhysicalAction(context, instance.actorId)
+      && hasActionGeometry(context, instance)
       && getUsableHands(context, instance.actorId).length > 0
       && hasUsableControl(context, instance.actorId, instance.targetId);
   },
