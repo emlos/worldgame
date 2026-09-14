@@ -15,6 +15,7 @@ import {
   calculateExertionCost,
   getActionEffortStatus,
 } from "../src/features/encounter/effort.js";
+import { resolveEncounterExchange } from "../src/features/encounter/resolution.js";
 import { gameAtStart, startEncounter } from "./support/encounter.mjs";
 
 function actionIds(instances) {
@@ -202,6 +203,88 @@ test("a fully reinforced hold cannot be reinforced again", () => {
   const positionalControl = actions.find(({ actionId }) => actionId === "force-to-ground");
   assert.ok(positionalControl);
   assert.equal(getActionPurpose(context, positionalControl), "control");
+});
+
+test("positional control selects the strongest hold independent of relationship order", () => {
+  const holds = [
+    {
+      id: "weak-hold",
+      controllerId: "player",
+      sourcePartId: "hand_l",
+      targetId: "mugger",
+      targetPartId: "lower_arm_l",
+      kind: "wrist-grip",
+      leverage: 20,
+    },
+    {
+      id: "strong-hold",
+      controllerId: "player",
+      sourcePartId: "hand_r",
+      targetId: "mugger",
+      targetPartId: "lower_arm_r",
+      kind: "wrist-grip",
+      leverage: 70,
+    },
+  ];
+
+  const runScenario = (orderedHolds) => {
+    const game = gameAtStart({ seed: 23 });
+    const state = startEncounter(game);
+    state.relationships.range[0].value = "clinch";
+    state.participants.mugger.support = "wall";
+    state.relationships.holds = structuredClone(orderedHolds);
+    state.npcIntent = {
+      actorId: "mugger",
+      actionId: "cover-and-brace",
+      parameters: { targetId: "mugger" },
+    };
+    const context = createCombatContext({
+      game,
+      state,
+      instanceKey: game.currentStory.instanceKey,
+    });
+    const positionalActions = getAvailableActionInstances(context, "player")
+      .filter(({ actionId }) => ["force-to-ground", "turn-target-away"].includes(actionId))
+      .map(({ actionId, targetId, parameters }) => ({ actionId, targetId, parameters }));
+    const playerAction = getAvailableActionInstances(context, "player")
+      .find(({ actionId }) => actionId === "force-to-ground");
+    assert.ok(playerAction);
+    const next = resolveEncounterExchange({
+      game,
+      state,
+      instanceKey: game.currentStory.instanceKey,
+      playerAction,
+    });
+    return {
+      positionalActions,
+      result: {
+        participantPositions: Object.fromEntries(
+          Object.entries(next.participants).map(([id, participant]) => [id, {
+            pose: participant.pose,
+            support: participant.support,
+          }]),
+        ),
+        facing: structuredClone(next.relationships.facing),
+        holds: [...next.relationships.holds]
+          .sort((left, right) => left.id.localeCompare(right.id)),
+        events: structuredClone(next.lastEvents),
+      },
+    };
+  };
+
+  const original = runScenario(holds);
+  const reversed = runScenario([...holds].reverse());
+
+  assert.deepEqual(reversed, original);
+  assert.deepEqual(
+    original.positionalActions.map(
+      ({ actionId, parameters }) => [actionId, parameters.holdId],
+    ),
+    [
+      ["force-to-ground", "strong-hold"],
+      ["turn-target-away", "strong-hold"],
+    ],
+  );
 });
 
 test("two held arms generate one combined wrench and separate holding-limb attacks", () => {

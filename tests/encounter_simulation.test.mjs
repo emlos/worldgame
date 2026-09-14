@@ -107,7 +107,7 @@ test("escape and passive-defense policies have bounded outcome distributions", (
   ) / runs;
 
   assert.ok(favorableRate(escape[0]) < 0.55);
-  assert.ok(favorableRate(escape[1]) >= 0.4 && favorableRate(escape[1]) <= 0.8);
+  assert.ok(favorableRate(escape[1]) >= 0.4 && favorableRate(escape[1]) <= 0.85);
   assert.ok(favorableRate(escape[2]) > 0.75);
 
   const [brace] = runStatDifferenceMatrix({

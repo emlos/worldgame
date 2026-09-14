@@ -53,6 +53,22 @@ function wrenchableHolds(context, actorId) {
   );
 }
 
+function strongestControlledHoldsByTarget(context, actorId) {
+  const strongestByTarget = new Map();
+  for (const hold of holdsControlledBy(context, actorId)) {
+    const effective = getEffectiveHoldLeverage(context, hold);
+    const current = strongestByTarget.get(hold.targetId);
+    if (!current
+      || effective > current.effective
+      || (effective === current.effective && hold.id.localeCompare(current.hold.id) < 0)) {
+      strongestByTarget.set(hold.targetId, { hold, effective });
+    }
+  }
+  return [...strongestByTarget.values()]
+    .sort((left, right) => left.hold.targetId.localeCompare(right.hold.targetId))
+    .map(({ hold }) => hold);
+}
+
 export const GRAB_ARM = Object.freeze({
   id: "grab-arm",
   tags: Object.freeze(["hold", "control"]),
@@ -355,10 +371,8 @@ export const FORCE_TO_GROUND = Object.freeze({
   playerOrder: 75,
 
   enumerateTargets(context, actorId) {
-    const hold = holdsControlledBy(context, actorId)[0];
-    return hold
-      ? [actionInstance(this.id, actorId, hold.targetId, { holdId: hold.id })]
-      : [];
+    return strongestControlledHoldsByTarget(context, actorId).map((hold) =>
+      actionInstance(this.id, actorId, hold.targetId, { holdId: hold.id }));
   },
 
   isAvailable(context, instance) {
@@ -411,10 +425,8 @@ export const TURN_TARGET_AWAY = Object.freeze({
   playerOrder: 78,
 
   enumerateTargets(context, actorId) {
-    const hold = holdsControlledBy(context, actorId)[0];
-    return hold
-      ? [actionInstance(this.id, actorId, hold.targetId, { holdId: hold.id })]
-      : [];
+    return strongestControlledHoldsByTarget(context, actorId).map((hold) =>
+      actionInstance(this.id, actorId, hold.targetId, { holdId: hold.id }));
   },
 
   isAvailable(context, instance) {
