@@ -354,6 +354,10 @@ export const STEAL_MONEY_OBJECTIVE = Object.freeze({
       return context.state.objective.stage === "disengage";
     },
 
+    allowsRetreat() {
+      return true;
+    },
+
     pursuitPool(candidates) {
       const pool = candidates.filter(({ actionId }) => !["flee", "run"].includes(actionId));
       return pool.length ? pool : candidates;

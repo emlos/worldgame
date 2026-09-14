@@ -138,9 +138,17 @@ function checkPhysicalTerminalState(context, runtime) {
     runtime.outcome = objective.outcomeForOwnerDefeat(context, runtime.events);
     return;
   }
+  const completedOutcome = objective.outcomeForCompletion?.(context, runtime.events) || null;
+  if (completedOutcome) {
+    releaseControlledHolds(context, runtime, targetId);
+    runtime.outcome = completedOutcome;
+    return;
+  }
   if (targetIncapacitated) {
     releaseControlledHolds(context, runtime, targetId);
-    runtime.outcome = objective.resolveTargetUnable(context, runtime.events);
+    runtime.outcome = objective.resolveTargetUnable(context, runtime.events, {
+      reason: "incapacitated",
+    });
     return;
   }
 
@@ -182,7 +190,9 @@ function checkPhysicalTerminalState(context, runtime) {
       reason: "no-legal-response",
     });
     releaseControlledHolds(context, runtime, targetId);
-    runtime.outcome = objective.resolveTargetUnable(context, runtime.events);
+    runtime.outcome = objective.resolveTargetUnable(context, runtime.events, {
+      reason: "no-legal-response",
+    });
   }
 }
 

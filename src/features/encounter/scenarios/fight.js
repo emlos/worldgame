@@ -35,7 +35,7 @@ function resolveUnopposedEntry(context, reason) {
       actionId: objective.unopposedActionId,
     },
   ];
-  const outcome = objective.resolveTargetUnable(context, events);
+  const outcome = objective.resolveTargetUnable(context, events, { reason });
 
   state.phase = ENCOUNTER_PHASE.terminal;
   state.npcIntent = null;

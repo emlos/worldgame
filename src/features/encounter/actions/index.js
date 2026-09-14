@@ -30,6 +30,7 @@ import {
   SEARCH_MONEY,
   SURRENDER_MONEY,
 } from "./objective.js";
+import { ATTACK_LIMB } from "./beatDown.js";
 import { requireEncounterObjective } from "../objectives/index.js";
 
 export const ENCOUNTER_ACTIONS = Object.freeze([
@@ -56,6 +57,7 @@ export const ENCOUNTER_ACTIONS = Object.freeze([
   FORCE_TO_WALL,
   TURN_TARGET_AWAY,
   SEARCH_MONEY,
+  ATTACK_LIMB,
   FLEE,
   CLOSE_DISTANCE,
 ]);
@@ -71,8 +73,11 @@ export function getEncounterAction(actionId) {
 }
 
 export function getEncounterActions(context) {
-  const objectiveActionIds = new Set(requireEncounterObjective(context.state).actionIds);
+  const objective = requireEncounterObjective(context.state);
+  const objectiveActionIds = new Set(objective.actionIds);
+  const excludedActionIds = new Set(objective.excludedActionIds || []);
   return ENCOUNTER_ACTIONS.filter(
-    (action) => CORE_ENCOUNTER_ACTIONS.includes(action) || objectiveActionIds.has(action.id),
+    (action) => !excludedActionIds.has(action.id)
+      && (CORE_ENCOUNTER_ACTIONS.includes(action) || objectiveActionIds.has(action.id)),
   );
 }

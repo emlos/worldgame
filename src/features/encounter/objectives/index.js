@@ -1,7 +1,9 @@
 import { STEAL_MONEY_OBJECTIVE } from "./steal.js";
+import { BEAT_DOWN_OBJECTIVE } from "./beatDown.js";
 
 const OBJECTIVES = new Map([
   [STEAL_MONEY_OBJECTIVE.id, STEAL_MONEY_OBJECTIVE],
+  [BEAT_DOWN_OBJECTIVE.id, BEAT_DOWN_OBJECTIVE],
 ]);
 
 export function getEncounterObjective(objectiveId) {

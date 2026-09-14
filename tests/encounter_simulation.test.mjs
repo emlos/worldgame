@@ -85,6 +85,15 @@ test("state-space simulations exercise dangerous valid states and newest objecti
     policy: "escape",
   });
   assert.equal(escaping.playerActions[0], "controlled-disengage");
+
+  const beatDown = matrix.find(({ scenario }) => scenario === "beat-down-baseline");
+  assert.ok(beatDown);
+  assert.equal(beatDown.timeouts, 0);
+  assert.equal(beatDown.invariantFailures, 0);
+  assert.ok(Object.keys(beatDown.npcActionCounts).some((actionId) =>
+    ["attack-limb", "strike-face", "drive-body", "headbutt", "knee-strike"]
+      .includes(actionId)));
+  assert.equal(beatDown.npcActionCounts.flee, undefined);
 });
 
 test("escape and passive-defense policies have bounded outcome distributions", () => {

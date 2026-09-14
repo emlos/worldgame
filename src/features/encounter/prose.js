@@ -191,6 +191,7 @@ function actionAttemptText(context, event) {
     "surrender-money": ["offer your money and stop resisting", "offers the money and stops resisting"],
     "controlled-disengage": ["release your holds and spring away", "releases the holds and springs away"],
     "demand-money-back": ["demand your stolen money back", "demands the stolen money back"],
+    "attack-limb": ["drive a blow at a limb", "drives a heavy blow at one of your limbs"],
   };
   const forms = phrases[event.actionId] || ["act", "acts"];
   return `${actor} ${encounterVerb(context, event.actorId, forms[1], forms[0])}.`;

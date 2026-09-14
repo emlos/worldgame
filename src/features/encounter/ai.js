@@ -84,6 +84,11 @@ export function getAiCommitmentDiagnostics(context) {
     impairment: -impairment,
     pacingLimit: pacingLimitReached ? -100 : 0,
   };
+  const beforeMinimum = Object.values(components).reduce((sum, part) => sum + part, 0);
+  components.objectiveMinimum = Math.max(
+    0,
+    (objectiveCommitment.minimum || 0) - beforeMinimum,
+  );
   const value = Math.round(clamp(Object.values(components).reduce((sum, part) => sum + part, 0), 0, 100));
   return { value, band: commitmentBandFor(value), components };
 }
@@ -168,7 +173,8 @@ export function scoreAiActions(context) {
   const commitment = getAiCommitmentDiagnostics(context);
   const objectiveAi = requireEncounterObjective(context.state).ai;
   const retreatIds = new Set(["flee", "run", "create-distance", "shove-away", "stand-up", "wrench-free", "strike-holding-arm", "catch-breath", "cover-and-brace"]);
-  const retreating = commitment.value <= RETREAT_COMMITMENT_THRESHOLD;
+  const retreating = objectiveAi.allowsRetreat(context)
+    && commitment.value <= RETREAT_COMMITMENT_THRESHOLD;
   let pool;
   if (objectiveAi.forceRetreat(context)) {
     const executable = candidates.filter((instance) => getActionEffortStatus(context, instance).allowed);

@@ -45,6 +45,7 @@ test("core action packs exclude theft actions", () => {
   assert.equal(coreIds.has("search-money"), false);
   assert.equal(coreIds.has("surrender-money"), false);
   assert.equal(coreIds.has("demand-money-back"), false);
+  assert.equal(coreIds.has("attack-limb"), false);
   assert.equal(coreIds.has("strike-face"), true);
 });
 

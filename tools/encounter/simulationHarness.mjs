@@ -14,6 +14,7 @@ import { resolveEncounterExchange } from "../../src/features/encounter/resolutio
 import { collectEncounterInvariantDiagnostics } from "../../src/features/encounter/debug.js";
 import { getAiPersonality } from "../../src/features/encounter/personality.js";
 import { selectAiIntent, syncObjectiveStage } from "../../src/features/encounter/ai.js";
+import { FIGHT_SCENARIO } from "../../src/features/encounter/scenarios/fight.js";
 import { enterWGScene, resolveActiveWGStory } from "../../src/story/wg/runtime/storyRuntime.js";
 
 const SCENE_ID = "encounter.alley-mugging";
@@ -80,6 +81,12 @@ export const ENCOUNTER_SIMULATION_SCENARIOS = Object.freeze([
     id: "player-complete-control",
     defaultPolicy: "control",
     description: "The player securely controls both wrists after money has already been taken.",
+  }),
+  Object.freeze({
+    id: "beat-down-baseline",
+    defaultPolicy: "fight",
+    goal: Object.freeze({ id: "beat-down" }),
+    description: "A persistent attacker tries to maximize pain or disable the player's limbs.",
   }),
 ]);
 
@@ -361,12 +368,27 @@ export function runEncounterSimulation({
   scenario = "baseline",
   personalityId = null,
   maxExchanges = 60,
+  goal = null,
 } = {}) {
   const game = new Game({ seed, startDate: FIXED_START, playerOptions: { startPlaceId: null, money } });
   setStats(null, playerStats, (name, value) => game.player.setSkillValue(name, value));
   enterWGScene(game, SCENE_ID);
   setStats(game.currentStory.actors.mugger.stats, npcStats);
   resolveActiveWGStory(game);
+  const scenarioDefinition = SCENARIO_BY_ID.get(scenario);
+  if (!scenarioDefinition) throw new Error(`Unknown encounter simulation scenario '${scenario}'`);
+  const goalConfig = goal || scenarioDefinition.goal || null;
+  if (goalConfig) {
+    game.currentStory.system.state = FIGHT_SCENARIO.create({
+      game,
+      instanceKey: game.currentStory.instanceKey,
+      config: {
+        scenario: "fight",
+        opponent: { id: "mugger", actor: "mugger" },
+        goal: goalConfig,
+      },
+    });
+  }
   if (personalityId) {
     const participant = game.currentStory.system.state.participants.mugger;
     const oldBias = getAiPersonality(participant.controller.personalityId).commitmentBias;
