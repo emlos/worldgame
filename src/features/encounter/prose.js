@@ -14,13 +14,20 @@ import {
 } from "./combatants.js";
 import {
   ENCOUNTER_FACING,
-  ENCOUNTER_OUTCOME,
   ENCOUNTER_POSE,
   ENCOUNTER_RANGE,
   getEncounterFacing,
   getEncounterRange,
 } from "./state.js";
 import { capitalizeEncounterText, encounterPronoun, encounterVerb } from "./language.js";
+import {
+  controlledParticipantId,
+  opponentParticipantId,
+} from "./roles.js";
+import { requireEncounterObjective } from "./objectives/index.js";
+
+const isControlled = (context, actorId) =>
+  actorId === controlledParticipantId(context.state);
 
 function actorName(context, actorId, { sentence = false, possessive = false } = {}) {
   return encounterPronoun(context, actorId, possessive ? "dependent" : "subject", { sentence });
@@ -38,7 +45,7 @@ function brokenPartText(context, event) {
   const partName = getCombatant(context, event.actorId).body
     .getPart(event.partId)?.displayName?.toLowerCase() || "limb";
   const isLimb = /_(l|r)$/.test(event.partId);
-  if (event.actorId === "player") {
+  if (isControlled(context, event.actorId)) {
     return isLimb
       ? `You feel your ${partName} snap. The pain is blinding; you can no longer use it.`
       : `Something in your ${partName} breaks with a sickening crack. The pain is blinding.`;
@@ -191,12 +198,12 @@ function actionAttemptText(context, event) {
 
 function missedActionText(context, event) {
   const actorId = event.actorId;
-  const targetId = event.targetId || (actorId === "player" ? "mugger" : "player");
+  const targetId = event.targetId || opponentParticipantId(context.state, actorId);
   const actor = actorName(context, actorId, { sentence: true });
   const target = actorName(context, targetId, { sentence: true });
   const targetDependent = encounterPronoun(context, targetId, "dependent");
 
-  if (actorId === "player") {
+  if (isControlled(context, actorId)) {
     switch (event.actionId) {
       case "strike-face":
         return `${target} ${encounterVerb(context, targetId, "pulls", "pull")} clear, and your strike cuts past ${targetDependent} face.`;
@@ -227,12 +234,12 @@ function missedActionText(context, event) {
 
 function actionFailureText(context, event) {
   const actorId = event.actorId;
-  const targetId = event.targetId || (actorId === "player" ? "mugger" : "player");
+  const targetId = event.targetId || opponentParticipantId(context.state, actorId);
   const actor = actorName(context, actorId, { sentence: true });
   const target = actorName(context, targetId, { sentence: true });
   const actorDependent = encounterPronoun(context, actorId, "dependent");
   const targetDependent = encounterPronoun(context, targetId, "dependent", { sentence: true });
-  const actorIsPlayer = actorId === "player";
+  const actorIsPlayer = isControlled(context, actorId);
 
   switch (event.reason) {
     case "missed":
@@ -332,13 +339,13 @@ function spoiledActionText(context, event) {
   }
 
   const spoiler = actorName(context, spoilerId, { sentence: true });
-  if (actorId === "player") {
+  if (isControlled(context, actorId)) {
     if (event.actionId === "run" && event.spoiledByActionId === "close-distance") {
       return `${spoiler} ${encounterVerb(context, spoilerId, "closes", "close")} the gap before you can break away.`;
     }
     return `${spoiler} ${encounterVerb(context, spoilerId, "acts", "act")} first and ${encounterVerb(context, spoilerId, "changes", "change")} the situation before you can finish.`;
   }
-  if (spoilerId === "player") {
+  if (isControlled(context, spoilerId)) {
     if (event.spoiledByActionId === "surrender-money") {
       const attacker = actorName(context, actorId, { sentence: true });
       return `${attacker} ${encounterVerb(context, actorId, "accepts", "accept")} your surrender instead of continuing the attack.`;
@@ -355,13 +362,9 @@ function spoiledActionText(context, event) {
 }
 
 function eventText(context, event) {
+  const objectiveText = requireEncounterObjective(context.state).renderEvent(context, event);
+  if (objectiveText !== null) return objectiveText;
   switch (event.type) {
-    case "encounter.started":
-      return `${getCombatant(context, "mugger").title} blocks the alley and ${encounterPronoun(context, "mugger", "subject")} ${encounterVerb(context, "mugger", "demands", "demand")} your money.`;
-    case "participant.unable-to-act":
-      return event.reason === "already-incapacitated"
-        ? "You are already unable to resist when the mugger approaches."
-        : "Your injuries leave you unable to mount a physical response.";
     case "action.attempted":
       return actionAttemptText(context, event);
     case "action.failed":
@@ -373,12 +376,12 @@ function eventText(context, event) {
     case "defense.braced":
       return `${actorName(context, event.actorId, { sentence: true })} ${encounterVerb(context, event.actorId, "is", "are")} ready for the impact.`;
     case "exertion.recovered":
-      return event.actorId === "player"
+      return isControlled(context, event.actorId)
         ? "You slow your breathing and recover some strength."
         : `${actorName(context, event.actorId, { sentence: true })} ${encounterVerb(context, event.actorId, "slows", "slow")} ${encounterPronoun(context, event.actorId, "dependent")} breathing and ${encounterVerb(context, event.actorId, "recovers", "recover")} some strength.`;
     case "acute.eased":
       if (event.id !== "winded") return "";
-      return event.actorId === "player"
+      return isControlled(context, event.actorId)
         ? "Your breath begins to come back."
         : `${actorName(context, event.actorId, { sentence: true })} ${encounterVerb(context, event.actorId, "gets", "get")} ${encounterPronoun(context, event.actorId, "dependent")} breath partly under control.`;
     case "impact.landed": {
@@ -401,7 +404,7 @@ function eventText(context, event) {
         : event.id === "off-balance"
           ? `${encounterVerb(context, event.actorId, "staggers", "stagger")} off balance`
           : `${encounterVerb(context, event.actorId, "reels", "reel")}, dazed`;
-      if (event.actorId === "player") {
+      if (isControlled(context, event.actorId)) {
         return event.id === "winded"
           ? "You lose your breath."
           : event.id === "off-balance"
@@ -447,14 +450,14 @@ function eventText(context, event) {
         : `${actorName(context, event.actorId, { sentence: true })} ${encounterVerb(context, event.actorId, "moves", "move")} clear of the wall.`;
     case "pose.changed": {
       if (event.to === ENCOUNTER_POSE.standing) {
-        return event.actorId === "player"
+        return isControlled(context, event.actorId)
           ? "You get back to your feet."
           : `${actorName(context, event.actorId, { sentence: true })} ${encounterVerb(context, event.actorId, "gets", "get")} back to ${encounterPronoun(context, event.actorId, "dependent")} feet.`;
       }
       if (event.to === ENCOUNTER_POSE.kneeling) {
         return `${actorName(context, event.actorId, { sentence: true })} ${encounterVerb(context, event.actorId, "drops", "drop")} to a knee.`;
       }
-      if (event.actorId === "player") {
+      if (isControlled(context, event.actorId)) {
         return `You go ${event.to === ENCOUNTER_POSE.prone ? "face-down" : "onto your back"}.`;
       }
       return `${actorName(context, event.actorId, { sentence: true })} ${encounterVerb(context, event.actorId, "goes", "go")} ${event.to === ENCOUNTER_POSE.prone ? "face-down" : `onto ${encounterPronoun(context, event.actorId, "dependent")} back`}.`;
@@ -463,26 +466,6 @@ function eventText(context, event) {
       return event.to === ENCOUNTER_FACING.away
         ? `${actorName(context, event.actorId, { sentence: true })} ${encounterVerb(context, event.actorId, "is", "are")} turned away.`
         : `${actorName(context, event.actorId, { sentence: true })} ${encounterVerb(context, event.actorId, "turns", "turn")} to face the other again.`;
-    case "theft.taken":
-      return `${encounterPronoun(context, "mugger", "subject", { sentence: true })} ${encounterVerb(context, "mugger", "pulls", "pull")} £${event.amount} free.`;
-    case "theft.completed":
-      return `${encounterPronoun(context, "mugger", "subject", { sentence: true })} ${encounterVerb(context, "mugger", "gets", "get")} away with £${event.amount}.`;
-    case "theft.recovered":
-      return `You recover your £${event.amount} before ${encounterPronoun(context, "mugger", "subject")} can escape.`;
-    case "theft.empty":
-      return `${encounterPronoun(context, "mugger", "subject", { sentence: true })} ${encounterVerb(context, "mugger", "finds", "find")} nothing to take and ${encounterVerb(context, "mugger", "abandons", "abandon")} the attempt.`;
-    case "surrender.completed":
-      return event.amount > 0
-        ? `You stop resisting and surrender £${event.amount}.`
-        : "You stop resisting and show that you have no money to hand over.";
-    case "escape.disengaged":
-      return `You suddenly release ${encounterPronoun(context, "mugger", "object")} and jump away; before ${encounterPronoun(context, "mugger", "subject")} can react, you are already several steps back.`;
-    case "demand.succeeded":
-      return `${encounterPronoun(context, "mugger", "subject", { sentence: true })} ${encounterVerb(context, "mugger", "gives", "give")} in to your demand and ${encounterVerb(context, "mugger", "looks", "look")} for a way to escape.`;
-    case "escape.completed":
-      return event.actorId === "player"
-        ? "You reach the street and get clear."
-        : `${encounterPronoun(context, "mugger", "subject", { sentence: true })} ${encounterVerb(context, "mugger", "turns", "turn")} and ${encounterVerb(context, "mugger", "runs", "run")} from the alley.`;
     default:
       return "";
   }
@@ -496,63 +479,32 @@ export function renderLastExchange(context) {
 }
 
 export function renderObjectivePressure(context) {
-  const stage = context.state.objective.stage;
   const commitment = getCommitmentBand(context);
-  if (stage === "access-money") {
-    return `${encounterPronoun(context, "mugger", "dependent", { sentence: true })} control is enough to reach for your money. ${encounterPronoun(context, "mugger", "subject", { sentence: true })} ${encounterVerb(context, "mugger", "looks", "look")} ${commitment}.`;
-  }
-  if (stage === "disengage") {
-    return context.state.objective.lootAmount > 0
-      ? `${encounterPronoun(context, "mugger", "subject", { sentence: true })} ${encounterVerb(context, "mugger", "has", "have")} your money but still ${encounterVerb(context, "mugger", "needs", "need")} to get away with it.`
-      : `${encounterPronoun(context, "mugger", "subject", { sentence: true })} found nothing and ${encounterVerb(context, "mugger", "is", "are")} looking for a way out.`;
-  }
-  return `${encounterPronoun(context, "mugger", "subject", { sentence: true })} still ${encounterVerb(context, "mugger", "needs", "need")} to control you before ${encounterPronoun(context, "mugger", "subject")} can take anything. ${encounterPronoun(context, "mugger", "subject", { sentence: true })} ${encounterVerb(context, "mugger", "looks", "look")} ${commitment}.`;
+  return requireEncounterObjective(context.state).renderPressure(context, commitment);
 }
 
 export function renderIntent(context) {
   const intent = context.state.npcIntent;
-  const subject = encounterPronoun(context, "mugger", "subject", { sentence: true });
+  const subject = encounterPronoun(context, intent.actorId, "subject", { sentence: true });
   return `${subject} ${intentLabel(context, intent)}. ${actionDurationSeconds({
     actionId: intent.actionId,
   })} seconds.`;
 }
 
 export function renderSituationTable(context) {
+  const playerId = controlledParticipantId(context.state);
+  const opponentId = opponentParticipantId(context.state, playerId);
   return {
     type: "table",
     caption: "Current situation",
-    columns: ["State", "You", getCombatant(context, "mugger").title],
+    columns: ["State", "You", getCombatant(context, opponentId).title],
     rows: [
-      ["Position", positionText(context, "player"), positionText(context, "mugger")],
-      ["Condition", conditionText(context, "player"), conditionText(context, "mugger")],
+      ["Position", positionText(context, playerId), positionText(context, opponentId)],
+      ["Condition", conditionText(context, playerId), conditionText(context, opponentId)],
     ],
   };
 }
 
 export function outcomeText(context) {
-  const state = context.state;
-  const money = state.outcome?.moneyLost || 0;
-  const subject = encounterPronoun(context, "mugger", "subject", { sentence: true });
-  switch (state.outcome?.id) {
-    case ENCOUNTER_OUTCOME.playerEscaped:
-      return `You make it out of the alley before ${encounterPronoun(context, "mugger", "subject")} can catch you.`;
-    case ENCOUNTER_OUTCOME.playerSurrendered:
-      return money > 0
-        ? `You surrender £${money}. ${subject} ${encounterVerb(context, "mugger", "takes", "take")} it and leaves without continuing the fight.`
-        : `You stop resisting and show your empty pockets. ${subject} ${encounterVerb(context, "mugger", "leaves", "leave")} without continuing the fight.`;
-    case ENCOUNTER_OUTCOME.muggerFled:
-      return `${subject} ${encounterVerb(context, "mugger", "decides", "decide")} the risk is no longer worth it and ${encounterVerb(context, "mugger", "flees", "flee")}.`;
-    case ENCOUNTER_OUTCOME.muggerIncapacitated:
-      return `${subject} can no longer continue the struggle. You are safe to leave.`;
-    case ENCOUNTER_OUTCOME.bothIncapacitated:
-      return "The struggle leaves both of you unable to continue.";
-    case ENCOUNTER_OUTCOME.theftPlayerConscious:
-      return `${subject} ${encounterVerb(context, "mugger", "gets", "get")} away with £${money} while you are still conscious.`;
-    case ENCOUNTER_OUTCOME.theftPlayerIncapacitated:
-      return money > 0
-        ? `By the time you can respond, ${encounterPronoun(context, "mugger", "subject")} has taken £${money} and gone.`
-        : `By the time you can respond, ${encounterPronoun(context, "mugger", "subject")} has searched you, found nothing, and gone.`;
-    default:
-      return "The encounter is over.";
-  }
+  return requireEncounterObjective(context.state).renderOutcome(context);
 }

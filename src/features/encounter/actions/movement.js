@@ -4,6 +4,7 @@ import {
   getUsableHands,
   holdsControlledBy,
   hostileHoldsOn,
+  otherParticipantId,
 } from "../combatants.js";
 import {
   canStandUp,
@@ -24,12 +25,11 @@ import {
   contest,
   failAction,
   increaseDistance,
-  proposeOutcome,
+  recordTerminalFact,
   removeHold,
 } from "./helpers.js";
 import {
   ENCOUNTER_FACING,
-  ENCOUNTER_OUTCOME,
   ENCOUNTER_POSE,
   ENCOUNTER_RANGE,
   ENCOUNTER_SUPPORT,
@@ -37,22 +37,19 @@ import {
   getEncounterRange,
 } from "../state.js";
 import { encounterPronoun, encounterVerb } from "../language.js";
-import { outcomeForMuggerEscape } from "../objectives/steal.js";
-
-function opponent(actorId) {
-  return actorId === "player" ? "mugger" : "player";
-}
+import { requireEncounterObjective } from "../objectives/index.js";
+import { controlledParticipantId, goalOwnerId } from "../roles.js";
 
 export const SHOVE_AWAY = Object.freeze({
   id: "shove-away",
   tags: Object.freeze(["movement", "disrupt-hold", "control"]),
   durationSeconds: 2,
-  usableBy: Object.freeze(["player", "mugger"]),
+  usableBy: "any",
   playerOrder: 30,
 
   enumerateTargets(context, actorId) {
     if (!getUsableHands(context, actorId).length) return [];
-    return [actionInstance(this.id, actorId, opponent(actorId))];
+    return [actionInstance(this.id, actorId, otherParticipantId(context, actorId))];
   },
 
   isAvailable(context, instance) {
@@ -97,11 +94,11 @@ export const CREATE_DISTANCE = Object.freeze({
   id: "create-distance",
   tags: Object.freeze(["movement", "escape"]),
   durationSeconds: 3,
-  usableBy: Object.freeze(["player", "mugger"]),
+  usableBy: "any",
   playerOrder: 50,
 
-  enumerateTargets(_context, actorId) {
-    return [actionInstance(this.id, actorId, opponent(actorId))];
+  enumerateTargets(context, actorId) {
+    return [actionInstance(this.id, actorId, otherParticipantId(context, actorId))];
   },
 
   isAvailable(context, instance) {
@@ -156,11 +153,11 @@ export const STAND_UP = Object.freeze({
   id: "stand-up",
   tags: Object.freeze(["movement", "position", "recovery"]),
   durationSeconds: 3,
-  usableBy: Object.freeze(["player", "mugger"]),
+  usableBy: "any",
   playerOrder: 2,
 
-  enumerateTargets(_context, actorId) {
-    return [actionInstance(this.id, actorId, opponent(actorId))];
+  enumerateTargets(context, actorId) {
+    return [actionInstance(this.id, actorId, otherParticipantId(context, actorId))];
   },
 
   isAvailable(context, instance) {
@@ -200,11 +197,11 @@ export const ROLL_TOWARD = Object.freeze({
   id: "roll-toward",
   tags: Object.freeze(["movement", "position", "facing", "disrupt-hold"]),
   durationSeconds: 2,
-  usableBy: Object.freeze(["player", "mugger"]),
+  usableBy: "any",
   playerOrder: 3,
 
-  enumerateTargets(_context, actorId) {
-    return [actionInstance(this.id, actorId, opponent(actorId))];
+  enumerateTargets(context, actorId) {
+    return [actionInstance(this.id, actorId, otherParticipantId(context, actorId))];
   },
 
   isAvailable(context, instance) {
@@ -260,11 +257,11 @@ export const CLOSE_DISTANCE = Object.freeze({
   id: "close-distance",
   tags: Object.freeze(["movement", "control"]),
   durationSeconds: 2,
-  usableBy: Object.freeze(["mugger"]),
+  usableBy: "goal-owner",
   playerOrder: 100,
 
-  enumerateTargets(_context, actorId) {
-    return [actionInstance(this.id, actorId, opponent(actorId))];
+  enumerateTargets(context, actorId) {
+    return [actionInstance(this.id, actorId, otherParticipantId(context, actorId))];
   },
 
   isAvailable(context, instance) {
@@ -289,7 +286,7 @@ export const CLOSE_DISTANCE = Object.freeze({
       targetStat: "fitness",
     })) {
       failAction(runtime, instance, "could-not-close");
-      context.state.objective.failedControlAttempts += 1;
+      requireEncounterObjective(context.state).recordControlFailure?.(context, instance.actorId);
       return;
     }
     changeRange(context, ENCOUNTER_RANGE.reach, runtime);
@@ -300,7 +297,7 @@ export const RUN = Object.freeze({
   id: "run",
   tags: Object.freeze(["movement", "escape", "terminal"]),
   durationSeconds: 4,
-  usableBy: Object.freeze(["player"]),
+  usableBy: "controlled",
   playerOrder: 1,
 
   enumerateTargets(_context, actorId) {
@@ -308,7 +305,7 @@ export const RUN = Object.freeze({
   },
 
   isAvailable(context, instance) {
-    return instance.actorId === "player"
+    return instance.actorId === controlledParticipantId(context.state)
       && canBeginPhysicalAction(context, instance.actorId)
       && canMove(context, instance.actorId)
       && getEncounterRange(context.state) === ENCOUNTER_RANGE.far
@@ -325,7 +322,7 @@ export const RUN = Object.freeze({
 
   resolve(context, instance, runtime) {
     addExertion(context, instance.actorId, 10);
-    proposeOutcome(runtime, ENCOUNTER_OUTCOME.playerEscaped);
+    recordTerminalFact(runtime, { type: "participant-escaped", participantId: instance.actorId });
     runtime.events.push({ type: "escape.completed", actorId: instance.actorId });
   },
 });
@@ -334,7 +331,7 @@ export const FLEE = Object.freeze({
   id: "flee",
   tags: Object.freeze(["movement", "retreat", "terminal"]),
   durationSeconds: 3,
-  usableBy: Object.freeze(["mugger"]),
+  usableBy: "goal-owner",
   playerOrder: 100,
 
   enumerateTargets(_context, actorId) {
@@ -342,7 +339,7 @@ export const FLEE = Object.freeze({
   },
 
   isAvailable(context, instance) {
-    return instance.actorId === "mugger"
+    return instance.actorId === goalOwnerId(context.state)
       && canBeginPhysicalAction(context, instance.actorId)
       && canMove(context, instance.actorId)
       && getEncounterRange(context.state) !== ENCOUNTER_RANGE.clinch;
@@ -359,15 +356,7 @@ export const FLEE = Object.freeze({
   resolve(context, instance, runtime) {
     addExertion(context, instance.actorId, 7);
     changeRange(context, ENCOUNTER_RANGE.far, runtime);
-    const outcome = outcomeForMuggerEscape(context);
-    if (outcome.id === ENCOUNTER_OUTCOME.theftPlayerConscious) {
-      runtime.events.push({
-        type: "theft.completed",
-        actorId: instance.actorId,
-        amount: outcome.moneyLost,
-      });
-    }
-    proposeOutcome(runtime, outcome.id, outcome.moneyLost);
+    recordTerminalFact(runtime, { type: "participant-escaped", participantId: instance.actorId });
     runtime.events.push({ type: "escape.completed", actorId: instance.actorId });
   },
 });

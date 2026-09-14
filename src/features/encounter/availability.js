@@ -1,6 +1,7 @@
-import { ENCOUNTER_ACTIONS, getEncounterAction } from "./actions/index.js";
+import { getEncounterAction, getEncounterActions } from "./actions/index.js";
 import { hostileHoldsOn } from "./combatants.js";
 import { effortBlockerText, getActionEffortStatus } from "./effort.js";
+import { controlledParticipantId, goalOwnerId } from "./roles.js";
 
 export const ENCOUNTER_ACTION_PURPOSES = Object.freeze([
   Object.freeze({ id: "escape", heading: "Escape" }),
@@ -21,10 +22,20 @@ export function sameActionInstance(left, right) {
     && stableParameters(left?.parameters) === stableParameters(right?.parameters);
 }
 
+function definitionAllowsActor(context, definition, actorId) {
+  if (!Object.hasOwn(context.state.participants, actorId)) return false;
+  if (definition.usableBy === "any") return true;
+  if (definition.usableBy === "controlled") {
+    return actorId === controlledParticipantId(context.state);
+  }
+  if (definition.usableBy === "goal-owner") return actorId === goalOwnerId(context.state);
+  return false;
+}
+
 export function getAvailableActionInstances(context, actorId) {
   const instances = [];
-  for (const definition of ENCOUNTER_ACTIONS) {
-    if (!definition.usableBy.includes(actorId)) continue;
+  for (const definition of getEncounterActions(context)) {
+    if (!definitionAllowsActor(context, definition, actorId)) continue;
     for (const instance of definition.enumerateTargets(context, actorId)) {
       if (isActionInstanceAvailable(context, instance)) instances.push(instance);
     }
@@ -33,9 +44,6 @@ export function getAvailableActionInstances(context, actorId) {
 }
 
 const AVAILABILITY_HINTS = Object.freeze({
-  "surrender-money": "Available until the mugger has abandoned the theft after returning the money.",
-  "controlled-disengage": "Requires secure effective control of both of the mugger's wrists, the mugger against a wall or on the ground, standing mobility, and at least medium exhaustion.",
-  "demand-money-back": "Requires the stolen money, secure effective control of both of the mugger's wrists, and the mugger against a wall or on the ground.",
   "cover-and-brace": "Actor cannot begin a physical action.",
   "catch-breath": "Only useful while exerted, hurt, winded, or dazed.",
   "strike-face": "Needs a usable free hand and striking range.",
@@ -56,36 +64,40 @@ const AVAILABILITY_HINTS = Object.freeze({
   "force-to-ground": "Requires a usable hold on a standing target.",
   "force-to-wall": "Requires a usable hold on a standing, unsupported target.",
   "turn-target-away": "Requires a usable hold and compatible facing.",
-  "search-money": "Requires sufficient usable control over the player.",
   "close-distance": "Requires open distance and enough movement capacity.",
 });
 
 export function isActionInstanceAvailable(context, instance) {
   const definition = getEncounterAction(instance?.actionId);
-  if (!definition || !definition.usableBy.includes(instance.actorId)) return false;
+  if (!definition
+    || !getEncounterActions(context).includes(definition)
+    || !definitionAllowsActor(context, definition, instance.actorId)) return false;
   if (!definition.isAvailable(context, instance)) return false;
   // The player's list is a promise that the action is realistically executable.
   // NPC intent may overreach; resolution gives such attempts a small desperation roll.
-  return instance.actorId !== "player" || getActionEffortStatus(context, instance).allowed;
+  return instance.actorId !== controlledParticipantId(context.state)
+    || getActionEffortStatus(context, instance).allowed;
 }
 
 export function getActionAvailabilityDiagnostics(context, actorId) {
   const diagnostics = [];
-  for (const definition of ENCOUNTER_ACTIONS) {
-    if (!definition.usableBy.includes(actorId)) continue;
+  for (const definition of getEncounterActions(context)) {
+    if (!definitionAllowsActor(context, definition, actorId)) continue;
     const enumerated = definition.enumerateTargets(context, actorId);
     if (!enumerated.length) {
       diagnostics.push({
         actionId: definition.id,
         available: false,
         instance: null,
-        reasons: [AVAILABILITY_HINTS[definition.id] || "No legal target or source limb."],
+        reasons: [definition.availabilityHint
+          || AVAILABILITY_HINTS[definition.id]
+          || "No legal target or source limb."],
       });
       continue;
     }
     for (const instance of enumerated) {
       const mechanicallyAvailable = definition.isAvailable(context, instance);
-      const effort = mechanicallyAvailable && actorId === "player"
+      const effort = mechanicallyAvailable && actorId === controlledParticipantId(context.state)
         ? getActionEffortStatus(context, instance)
         : null;
       const available = mechanicallyAvailable && (!effort || effort.allowed);
@@ -97,7 +109,9 @@ export function getActionAvailabilityDiagnostics(context, actorId) {
           ? []
           : effort?.blockers.length
             ? effort.blockers.map(effortBlockerText)
-            : [AVAILABILITY_HINTS[definition.id] || "Its positional or physical prerequisites are not met."],
+            : [definition.availabilityHint
+              || AVAILABILITY_HINTS[definition.id]
+              || "Its positional or physical prerequisites are not met."],
       });
     }
   }

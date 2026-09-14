@@ -12,8 +12,8 @@ import {
 } from "../../src/features/encounter/combatants.js";
 import { resolveEncounterExchange } from "../../src/features/encounter/resolution.js";
 import { collectEncounterInvariantDiagnostics } from "../../src/features/encounter/debug.js";
-import { getMuggerPersonality } from "../../src/features/encounter/personality.js";
-import { selectNpcIntent, syncTheftObjectiveStage } from "../../src/features/encounter/ai.js";
+import { getAiPersonality } from "../../src/features/encounter/personality.js";
+import { selectAiIntent, syncObjectiveStage } from "../../src/features/encounter/ai.js";
 import { enterWGScene, resolveActiveWGStory } from "../../src/story/wg/runtime/storyRuntime.js";
 
 const SCENE_ID = "encounter.alley-mugging";
@@ -90,7 +90,7 @@ const SCENARIO_BY_ID = new Map(ENCOUNTER_SIMULATION_SCENARIOS.map((scenario) => 
 
 const PLAYER_ACTION_IDS = Object.freeze(
   ENCOUNTER_ACTIONS
-    .filter(({ usableBy }) => usableBy.includes("player"))
+    .filter(({ usableBy }) => usableBy === "any" || usableBy === "controlled")
     .map(({ id }) => id)
     .sort(),
 );
@@ -202,8 +202,8 @@ function configureScenario(context, scenarioId) {
   // Scenario setup changes the facts from which both objective progress and the
   // telegraphed intent are derived. Never carry the opening intent into a stress state.
   persistCombatantBodies(context);
-  syncTheftObjectiveStage(context);
-  state.npcIntent = selectNpcIntent(context);
+  syncObjectiveStage(context);
+  state.npcIntent = selectAiIntent(context);
   return scenario;
 }
 
@@ -369,11 +369,11 @@ export function runEncounterSimulation({
   resolveActiveWGStory(game);
   if (personalityId) {
     const participant = game.currentStory.system.state.participants.mugger;
-    const oldBias = getMuggerPersonality(participant.personalityId).commitmentBias;
-    const newPersonality = getMuggerPersonality(personalityId);
-    participant.personalityId = personalityId;
-    participant.commitmentBase = Math.max(0, Math.min(100,
-      participant.commitmentBase - oldBias + newPersonality.commitmentBias));
+    const oldBias = getAiPersonality(participant.controller.personalityId).commitmentBias;
+    const newPersonality = getAiPersonality(personalityId);
+    participant.controller.personalityId = personalityId;
+    participant.controller.commitmentBase = Math.max(0, Math.min(100,
+      participant.controller.commitmentBase - oldBias + newPersonality.commitmentBias));
   }
 
   const instanceKey = game.currentStory.instanceKey;
@@ -414,7 +414,7 @@ export function runEncounterSimulation({
     seed,
     policy,
     scenario,
-    personalityId: state.participants.mugger.personalityId,
+    personalityId: state.participants.mugger.controller.personalityId,
     outcome: state.outcome?.id || (invariantFailure ? "invariant-failure" : "timeout"),
     exchanges: state.exchange,
     elapsedSeconds: state.elapsedSeconds,

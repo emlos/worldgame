@@ -1,6 +1,6 @@
 import { keyedRandom01 } from "../../shared/util/random.js";
 
-export const MUGGER_PERSONALITIES = Object.freeze({
+export const AI_PERSONALITIES = Object.freeze({
   opportunist: Object.freeze({
     id: "opportunist",
     label: "Opportunist",
@@ -39,19 +39,19 @@ export const MUGGER_PERSONALITIES = Object.freeze({
   }),
 });
 
-export const MUGGER_PERSONALITY_IDS = Object.freeze(Object.keys(MUGGER_PERSONALITIES));
+export const AI_PERSONALITY_IDS = Object.freeze(Object.keys(AI_PERSONALITIES));
 
-export function getMuggerPersonality(id) {
-  const personality = MUGGER_PERSONALITIES[id];
-  if (!personality) throw new Error(`Physical encounter: unknown mugger personality '${String(id)}'`);
+export function getAiPersonality(id) {
+  const personality = AI_PERSONALITIES[id];
+  if (!personality) throw new Error(`Physical encounter: unknown AI personality '${String(id)}'`);
   return personality;
 }
 
-export function selectMuggerPersonality(seed, instanceKey) {
+export function selectAiPersonality(seed, instanceKey) {
   const roll = keyedRandom01(seed, `encounter-personality-v1:${instanceKey}`);
-  if (roll < 0.2) return MUGGER_PERSONALITIES.opportunist;
-  if (roll < 0.4) return MUGGER_PERSONALITIES.desperate;
-  if (roll < 0.65) return MUGGER_PERSONALITIES.forceful;
-  if (roll < 0.85) return MUGGER_PERSONALITIES.skittish;
-  return MUGGER_PERSONALITIES.opportunist;
+  if (roll < 0.2) return AI_PERSONALITIES.opportunist;
+  if (roll < 0.4) return AI_PERSONALITIES.desperate;
+  if (roll < 0.65) return AI_PERSONALITIES.forceful;
+  if (roll < 0.85) return AI_PERSONALITIES.skittish;
+  return AI_PERSONALITIES.opportunist;
 }

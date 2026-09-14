@@ -1,21 +1,12 @@
-import { MUGGER_PERSONALITY_IDS } from "./personality.js";
+import { AI_PERSONALITY_IDS } from "./personality.js";
+import { requireEncounterObjective } from "./objectives/index.js";
 
-export const ENCOUNTER_STATE_VERSION = 5;
-export const ALLEY_MUGGING_SCENARIO_ID = "alley-mugging";
+export const ENCOUNTER_STATE_VERSION = 6;
+export const FIGHT_SCENARIO_ID = "fight";
 
 export const ENCOUNTER_PHASE = Object.freeze({
   active: "active",
   terminal: "terminal",
-});
-
-export const ENCOUNTER_OUTCOME = Object.freeze({
-  playerEscaped: "player-escaped",
-  playerSurrendered: "player-surrendered-money",
-  muggerFled: "mugger-fled",
-  muggerIncapacitated: "mugger-incapacitated",
-  bothIncapacitated: "both-incapacitated",
-  theftPlayerConscious: "theft-completed-player-conscious",
-  theftPlayerIncapacitated: "theft-completed-player-incapacitated",
 });
 
 export const ENCOUNTER_RANGE = Object.freeze({
@@ -42,26 +33,17 @@ export const ENCOUNTER_FACING = Object.freeze({
   side: "side",
 });
 
-const PARTICIPANT_IDS = Object.freeze(["player", "mugger"]);
-const PARTICIPANT_ID_SET = new Set(PARTICIPANT_IDS);
 const PHASES = new Set(Object.values(ENCOUNTER_PHASE));
-const OUTCOMES = new Set(Object.values(ENCOUNTER_OUTCOME));
 const RANGES = new Set(Object.values(ENCOUNTER_RANGE));
 const POSES = new Set(Object.values(ENCOUNTER_POSE));
 const SUPPORTS = new Set(Object.values(ENCOUNTER_SUPPORT));
 const FACINGS = new Set(Object.values(ENCOUNTER_FACING));
-const OBJECTIVE_STAGES = new Set([
-  "gain-control",
-  "access-money",
-  "disengage",
-  "complete",
-]);
 const WRIST_PARTS = new Set(["lower_arm_l", "lower_arm_r"]);
 const HAND_PARTS = new Set(["hand_l", "hand_r"]);
 const PIN_SOURCE_PARTS = new Set(["hand_l", "hand_r", "knee_l", "knee_r"]);
 const HOLD_KINDS = new Set(["wrist-grip", "limb-pin"]);
 const ACUTE_IDS = new Set(["dazed", "off-balance", "winded"]);
-const PERSONALITY_IDS = new Set(MUGGER_PERSONALITY_IDS);
+const PERSONALITY_IDS = new Set(AI_PERSONALITY_IDS);
 
 function fail(message) {
   throw new Error(`Physical encounter state: ${message}`);
@@ -107,11 +89,10 @@ function array(value, path) {
   return value;
 }
 
-function validateRef(ref, participantId, path) {
+function validateRef(ref, path) {
   record(ref, path);
-  if (participantId === "player") {
+  if (ref.type === "player") {
     exactKeys(ref, ["type"], path);
-    if (ref.type !== "player") fail(`${path}.type must be 'player'`);
     return;
   }
   exactKeys(ref, ["type", "alias"], path);
@@ -127,20 +108,33 @@ function validateAcute(acute, path) {
   integer(acute.exchanges, `${path}.exchanges`, { min: 1, max: 10 });
 }
 
-function validateParticipant(participant, participantId, path) {
+function validateParticipant(participant, path) {
   record(participant, path);
-  const keys = participantId === "mugger"
-    ? ["ref", "pose", "support", "exertion", "commitmentBase", "personalityId", "actionHistory", "acute"]
-    : ["ref", "pose", "support", "exertion", "actionHistory", "acute"];
+  const keys = ["ref", "controller", "pose", "support", "exertion", "actionHistory", "acute"];
   exactKeys(participant, keys, path);
-  validateRef(participant.ref, participantId, `${path}.ref`);
+  validateRef(participant.ref, `${path}.ref`);
+  record(participant.controller, `${path}.controller`);
+  if (participant.controller.type === "human") {
+    exactKeys(participant.controller, ["type"], `${path}.controller`);
+    if (participant.ref.type !== "player") fail(`${path}.controller human must reference the player`);
+  } else if (participant.controller.type === "ai") {
+    exactKeys(
+      participant.controller,
+      ["type", "policyId", "commitmentBase", "personalityId"],
+      `${path}.controller`,
+    );
+    string(participant.controller.policyId, `${path}.controller.policyId`);
+    integer(participant.controller.commitmentBase, `${path}.controller.commitmentBase`, {
+      min: 0,
+      max: 100,
+    });
+    string(participant.controller.personalityId, `${path}.controller.personalityId`, PERSONALITY_IDS);
+  } else {
+    fail(`${path}.controller.type is invalid`);
+  }
   string(participant.pose, `${path}.pose`, POSES);
   string(participant.support, `${path}.support`, SUPPORTS);
   integer(participant.exertion, `${path}.exertion`, { min: 0, max: 100 });
-  if (participantId === "mugger") {
-    integer(participant.commitmentBase, `${path}.commitmentBase`, { min: 0, max: 100 });
-    string(participant.personalityId, `${path}.personalityId`, PERSONALITY_IDS);
-  }
   const history = array(participant.actionHistory, `${path}.actionHistory`);
   if (history.length > 8) fail(`${path}.actionHistory cannot contain more than eight actions`);
   history.forEach((actionId, index) => string(actionId, `${path}.actionHistory[${index}]`));
@@ -153,25 +147,25 @@ function validateParticipant(participant, participantId, path) {
   }
 }
 
-function validateRange(range, path) {
+function validateRange(range, path, participantIdSet) {
   record(range, path);
   exactKeys(range, ["a", "b", "value"], path);
-  string(range.a, `${path}.a`, PARTICIPANT_ID_SET);
-  string(range.b, `${path}.b`, PARTICIPANT_ID_SET);
+  string(range.a, `${path}.a`, participantIdSet);
+  string(range.b, `${path}.b`, participantIdSet);
   if (range.a === range.b) fail(`${path} must connect different participants`);
   string(range.value, `${path}.value`, RANGES);
 }
 
-function validateFacing(facing, path) {
+function validateFacing(facing, path, participantIdSet) {
   record(facing, path);
   exactKeys(facing, ["actor", "other", "value"], path);
-  string(facing.actor, `${path}.actor`, PARTICIPANT_ID_SET);
-  string(facing.other, `${path}.other`, PARTICIPANT_ID_SET);
+  string(facing.actor, `${path}.actor`, participantIdSet);
+  string(facing.other, `${path}.other`, participantIdSet);
   if (facing.actor === facing.other) fail(`${path} must relate different participants`);
   string(facing.value, `${path}.value`, FACINGS);
 }
 
-function validateHold(hold, path) {
+function validateHold(hold, path, participantIdSet) {
   record(hold, path);
   exactKeys(
     hold,
@@ -179,8 +173,8 @@ function validateHold(hold, path) {
     path,
   );
   string(hold.id, `${path}.id`);
-  string(hold.controllerId, `${path}.controllerId`, PARTICIPANT_ID_SET);
-  string(hold.targetId, `${path}.targetId`, PARTICIPANT_ID_SET);
+  string(hold.controllerId, `${path}.controllerId`, participantIdSet);
+  string(hold.targetId, `${path}.targetId`, participantIdSet);
   if (hold.controllerId === hold.targetId) fail(`${path} cannot target its controller`);
   string(hold.kind, `${path}.kind`, HOLD_KINDS);
   const allowedSources = hold.kind === "wrist-grip" ? HAND_PARTS : PIN_SOURCE_PARTS;
@@ -201,10 +195,11 @@ function limbKey(partId) {
   return `${family}:${side}`;
 }
 
-function validateIntent(intent, path) {
+function validateIntent(intent, path, participantIdSet, ownerId) {
   record(intent, path);
   exactKeys(intent, ["actorId", "actionId", "parameters"], path);
-  if (intent.actorId !== "mugger") fail(`${path}.actorId must be 'mugger'`);
+  string(intent.actorId, `${path}.actorId`, participantIdSet);
+  if (intent.actorId !== ownerId) fail(`${path}.actorId must be the goal owner`);
   string(intent.actionId, `${path}.actionId`);
   record(intent.parameters, `${path}.parameters`);
 }
@@ -219,53 +214,57 @@ function validateEvents(events, path) {
   });
 }
 
-export function createAlleyMuggingState({ aggressorAlias, theftAmount, personalityId = "opportunist" }) {
+export function createFightState({
+  controlledId = "player",
+  opponentId = "opponent",
+  opponentAlias,
+  objective,
+  personalityId = "opportunist",
+}) {
+  const ownerId = opponentId;
+  const targetId = controlledId;
   return {
     version: ENCOUNTER_STATE_VERSION,
-    scenarioId: ALLEY_MUGGING_SCENARIO_ID,
+    scenarioId: FIGHT_SCENARIO_ID,
     phase: ENCOUNTER_PHASE.active,
     elapsedSeconds: 0,
     exchange: 0,
     participants: {
-      player: {
+      [controlledId]: {
         ref: { type: "player" },
+        controller: { type: "human" },
         pose: ENCOUNTER_POSE.standing,
         support: ENCOUNTER_SUPPORT.free,
         exertion: 0,
         actionHistory: [],
         acute: [],
       },
-      mugger: {
-        ref: { type: "scene-actor", alias: aggressorAlias },
+      [opponentId]: {
+        ref: { type: "scene-actor", alias: opponentAlias },
+        controller: {
+          type: "ai",
+          policyId: "hostile",
+          commitmentBase: 60,
+          personalityId,
+        },
         pose: ENCOUNTER_POSE.standing,
         support: ENCOUNTER_SUPPORT.free,
         exertion: 0,
-        commitmentBase: 60,
-        personalityId,
         actionHistory: [],
         acute: [],
       },
     },
     relationships: {
-      range: [{ a: "player", b: "mugger", value: ENCOUNTER_RANGE.reach }],
+      range: [{ a: targetId, b: ownerId, value: ENCOUNTER_RANGE.reach }],
       facing: [
-        { actor: "player", other: "mugger", value: ENCOUNTER_FACING.toward },
-        { actor: "mugger", other: "player", value: ENCOUNTER_FACING.toward },
+        { actor: targetId, other: ownerId, value: ENCOUNTER_FACING.toward },
+        { actor: ownerId, other: targetId, value: ENCOUNTER_FACING.toward },
       ],
       holds: [],
     },
-    objective: {
-      id: "steal-money",
-      ownerId: "mugger",
-      stage: "gain-control",
-      amount: theftAmount,
-      searched: false,
-      lootAmount: 0,
-      failedControlAttempts: 0,
-      lastProgressSecond: 0,
-    },
+    objective: { ...objective, ownerId, targetId },
     npcIntent: null,
-    lastEvents: [{ type: "encounter.started", actorId: "mugger" }],
+    lastEvents: [{ type: "encounter.started", actorId: ownerId, targetId }],
     outcome: null,
   };
 }
@@ -284,7 +283,7 @@ export function getEncounterFacing(state, actorId) {
 }
 
 export function setEncounterFacing(state, actorId, value) {
-  if (!PARTICIPANT_ID_SET.has(actorId)) fail(`unknown facing actor '${String(actorId)}'`);
+  if (!Object.hasOwn(state.participants, actorId)) fail(`unknown facing actor '${String(actorId)}'`);
   if (!FACINGS.has(value)) fail(`cannot set invalid facing '${String(value)}'`);
   const relation = state.relationships.facing.find(({ actor }) => actor === actorId);
   if (!relation) fail(`missing facing relation for '${actorId}'`);
@@ -311,35 +310,52 @@ export function validateEncounterState(state) {
     "state",
   );
   if (state.version !== ENCOUNTER_STATE_VERSION) fail("state.version is invalid");
-  if (state.scenarioId !== ALLEY_MUGGING_SCENARIO_ID) fail("state.scenarioId is invalid");
+  if (state.scenarioId !== FIGHT_SCENARIO_ID) fail("state.scenarioId is invalid");
   string(state.phase, "state.phase", PHASES);
   integer(state.elapsedSeconds, "state.elapsedSeconds", { min: 0 });
   integer(state.exchange, "state.exchange", { min: 0 });
 
   record(state.participants, "state.participants");
-  exactKeys(state.participants, PARTICIPANT_IDS, "state.participants");
-  for (const participantId of PARTICIPANT_IDS) {
+  const participantIds = Object.keys(state.participants);
+  if (participantIds.length !== 2 || new Set(participantIds).size !== 2) {
+    fail("state.participants must contain exactly two distinct participants");
+  }
+  const participantIdSet = new Set(participantIds);
+  for (const participantId of participantIds) {
     validateParticipant(
       state.participants[participantId],
-      participantId,
       `state.participants.${participantId}`,
     );
+  }
+  if (participantIds.filter((id) => state.participants[id].ref.type === "player").length !== 1) {
+    fail("state.participants must contain exactly one player reference");
   }
 
   record(state.relationships, "state.relationships");
   exactKeys(state.relationships, ["range", "facing", "holds"], "state.relationships");
   const ranges = array(state.relationships.range, "state.relationships.range");
   if (ranges.length !== 1) fail("state.relationships.range must contain the participant pair once");
-  validateRange(ranges[0], "state.relationships.range[0]");
+  validateRange(ranges[0], "state.relationships.range[0]", participantIdSet);
+  if (new Set([ranges[0].a, ranges[0].b]).size !== 2) {
+    fail("state.relationships.range must contain the participant pair");
+  }
   const facings = array(state.relationships.facing, "state.relationships.facing");
   if (facings.length !== 2) fail("state.relationships.facing must contain both directions");
-  facings.forEach((facing, index) => validateFacing(facing, `state.relationships.facing[${index}]`));
+  facings.forEach((facing, index) => validateFacing(
+    facing,
+    `state.relationships.facing[${index}]`,
+    participantIdSet,
+  ));
   if (new Set(facings.map(({ actor }) => actor)).size !== 2) {
     fail("state.relationships.facing must contain one entry for each participant");
   }
   const holds = array(state.relationships.holds, "state.relationships.holds");
   if (holds.length > 8) fail("state.relationships.holds cannot contain more than eight holds");
-  holds.forEach((hold, index) => validateHold(hold, `state.relationships.holds[${index}]`));
+  holds.forEach((hold, index) => validateHold(
+    hold,
+    `state.relationships.holds[${index}]`,
+    participantIdSet,
+  ));
   const holdIds = new Set();
   const committedSources = new Set();
   const controlledTargets = new Set();
@@ -375,75 +391,23 @@ export function validateEncounterState(state) {
   }
 
   const objective = record(state.objective, "state.objective");
-  exactKeys(
-    objective,
-    [
-      "id",
-      "ownerId",
-      "stage",
-      "amount",
-      "searched",
-      "lootAmount",
-      "failedControlAttempts",
-      "lastProgressSecond",
-    ],
-    "state.objective",
-  );
-  if (objective.id !== "steal-money") fail("state.objective.id is invalid");
-  if (objective.ownerId !== "mugger") fail("state.objective.ownerId must be 'mugger'");
-  string(objective.stage, "state.objective.stage", OBJECTIVE_STAGES);
-  integer(objective.amount, "state.objective.amount", { min: 0 });
-  boolean(objective.searched, "state.objective.searched");
-  integer(objective.lootAmount, "state.objective.lootAmount", {
-    min: 0,
-    max: objective.amount,
-  });
-  if (!objective.searched && objective.lootAmount !== 0) {
-    fail("state.objective.lootAmount requires a completed search");
-  }
-  if (state.phase === ENCOUNTER_PHASE.active
-    && objective.stage === "disengage"
-    && !objective.searched) {
-    fail("state.objective cannot disengage before completing its search");
-  }
-  if (state.phase === ENCOUNTER_PHASE.active
-    && objective.searched
-    && objective.stage !== "disengage") {
-    fail("a completed active search must be in the disengage stage");
-  }
-  integer(objective.failedControlAttempts, "state.objective.failedControlAttempts", { min: 0 });
-  integer(objective.lastProgressSecond, "state.objective.lastProgressSecond", {
-    min: 0,
-    max: state.elapsedSeconds,
-  });
+  string(objective.id, "state.objective.id");
+  string(objective.ownerId, "state.objective.ownerId", participantIdSet);
+  string(objective.targetId, "state.objective.targetId", participantIdSet);
+  if (objective.ownerId === objective.targetId) fail("state.objective cannot target its owner");
+  const objectiveDefinition = requireEncounterObjective(state);
   validateEvents(state.lastEvents, "state.lastEvents");
 
   if (state.phase === ENCOUNTER_PHASE.active) {
     if (state.outcome !== null) fail("an active encounter cannot have an outcome");
-    validateIntent(state.npcIntent, "state.npcIntent");
+    validateIntent(state.npcIntent, "state.npcIntent", participantIdSet, objective.ownerId);
   } else {
     if (state.npcIntent !== null) fail("a terminal encounter cannot retain NPC intent");
     record(state.outcome, "state.outcome");
-    exactKeys(state.outcome, ["id", "moneyLost"], "state.outcome");
-    string(state.outcome.id, "state.outcome.id", OUTCOMES);
-    integer(state.outcome.moneyLost, "state.outcome.moneyLost", { min: 0 });
-    if (state.objective.stage !== "complete") {
-      fail("a terminal encounter must have a complete objective stage");
-    }
-    if ([
-      ENCOUNTER_OUTCOME.playerSurrendered,
-      ENCOUNTER_OUTCOME.theftPlayerConscious,
-      ENCOUNTER_OUTCOME.theftPlayerIncapacitated,
-    ].includes(state.outcome.id)) {
-      if (!objective.searched) fail("a completed theft requires a completed search");
-      if (objective.lootAmount !== state.outcome.moneyLost) {
-        fail("completed theft loot must match the recorded money loss");
-      }
-      if (holds.length || getEncounterRange(state) === ENCOUNTER_RANGE.clinch) {
-        fail("a completed theft requires the mugger to have escaped physical control");
-      }
-    }
+    string(state.outcome.id, "state.outcome.id");
   }
+
+  objectiveDefinition.validateState(state, { fail, exactKeys, string, integer, boolean });
 
   return state;
 }

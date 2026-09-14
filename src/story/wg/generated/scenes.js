@@ -8967,8 +8967,15 @@ export const WG_BUNDLE = {
       "system": {
         "id": "encounter.physical",
         "config": {
-          "scenario": "alley-mugging",
-          "aggressor": "mugger"
+          "scenario": "fight",
+          "opponent": {
+            "id": "mugger",
+            "actor": "mugger"
+          },
+          "goal": {
+            "id": "steal-money",
+            "maxAmount": 20
+          }
         },
         "source": {
           "file": "story/encounters/alley.wg",

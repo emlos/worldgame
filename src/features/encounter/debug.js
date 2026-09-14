@@ -1,5 +1,5 @@
 import { getActionAvailabilityDiagnostics, getAvailableActionInstances, sameActionInstance } from "./availability.js";
-import { getNpcDecisionDiagnostics, intentToActionInstance } from "./ai.js";
+import { getAiDecisionDiagnostics, intentToActionInstance } from "./ai.js";
 import {
   createCombatContext,
   getBalanceCapacity,
@@ -32,6 +32,7 @@ import {
   resolveWGAutomaticScene,
   WG_AUTO_TRIGGER,
 } from "../../story/wg/runtime/sceneExposure.js";
+import { controlledParticipantId, goalOwnerId, participantIds } from "./roles.js";
 
 export const ALLEYWAY_PLACE_KEY = "alleyway";
 
@@ -66,12 +67,14 @@ export function collectEncounterInvariantDiagnostics(context) {
     check("body-relations", "Body and relationship invariants", () => validateCombatantInvariants(context)),
   ];
   if (active) {
+    const controlledId = controlledParticipantId(context.state);
+    const ownerId = goalOwnerId(context.state);
     checks.push(
-      check("player-affordance", "Player has a legal response", () => getAvailableActionInstances(context, "player").length > 0),
-      check("npc-affordance", "NPC has a legal action", () => getAvailableActionInstances(context, "mugger").length > 0),
+      check("player-affordance", "Player has a legal response", () => getAvailableActionInstances(context, controlledId).length > 0),
+      check("npc-affordance", "NPC has a legal action", () => getAvailableActionInstances(context, ownerId).length > 0),
       check("intent-legal", "Telegraphed NPC intent remains legal", () => {
         const intent = intentToActionInstance(context.state.npcIntent);
-        return getAvailableActionInstances(context, "mugger").some((candidate) => sameActionInstance(candidate, intent));
+        return getAvailableActionInstances(context, ownerId).some((candidate) => sameActionInstance(candidate, intent));
       }),
     );
   }
@@ -88,8 +91,8 @@ function combatantDebugSnapshot(context, actorId) {
   const combatant = getCombatant(context, actorId);
   const controlledHolds = holdsControlledBy(context, actorId);
   const hostileHolds = hostileHoldsOn(context, actorId);
-  const identity = actorId === "player"
-    ? { id: "player", title: "you", kind: "player" }
+  const identity = context.state.participants[actorId].ref.type === "player"
+    ? { id: actorId, title: "you", kind: "player" }
     : {
       id: combatant.actor.id,
       title: combatant.actor.title,
@@ -141,17 +144,16 @@ export function getEncounterDebugSnapshot(game) {
   if (frame?.system?.id !== ENCOUNTER_PHYSICAL_SYSTEM_ID || !frame.system.state) return null;
   const context = createCombatContext({ game, state: frame.system.state, instanceKey: frame.instanceKey });
   const active = context.state.phase === ENCOUNTER_PHASE.active;
+  const ids = participantIds(context.state);
   return {
     state: structuredClone(context.state),
-    combatants: {
-      player: combatantDebugSnapshot(context, "player"),
-      mugger: combatantDebugSnapshot(context, "mugger"),
-    },
-    decision: active ? getNpcDecisionDiagnostics(context) : null,
-    availability: {
-      player: getActionAvailabilityDiagnostics(context, "player"),
-      mugger: getActionAvailabilityDiagnostics(context, "mugger"),
-    },
+    combatants: Object.fromEntries(ids.map(
+      (participantId) => [participantId, combatantDebugSnapshot(context, participantId)],
+    )),
+    decision: active ? getAiDecisionDiagnostics(context) : null,
+    availability: Object.fromEntries(ids.map(
+      (participantId) => [participantId, getActionAvailabilityDiagnostics(context, participantId)],
+    )),
     rolls: context.state.lastEvents.filter(({ type }) => type === "chance.rolled"),
     invariants: collectEncounterInvariantDiagnostics(context),
   };

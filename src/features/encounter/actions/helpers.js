@@ -298,6 +298,11 @@ export function failAction(runtime, instance, reason) {
   });
 }
 
-export function proposeOutcome(runtime, id, moneyLost = 0) {
-  if (!runtime.outcome) runtime.outcome = { id, moneyLost };
+export function proposeOutcome(runtime, outcome) {
+  if (!runtime.outcome) runtime.outcome = structuredClone(outcome);
+}
+
+export function recordTerminalFact(runtime, fact) {
+  runtime.terminalFacts ||= [];
+  runtime.terminalFacts.push(fact);
 }

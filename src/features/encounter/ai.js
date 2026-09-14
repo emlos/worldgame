@@ -5,12 +5,13 @@ import { getMovementCapacity, hasUsableControl } from "./affordances.js";
 import {
   getBodyPain,
   getPartCapacity,
-  holdsControlledBy,
   hostileHoldsOn,
 } from "./combatants.js";
 import { actionDurationSeconds, getAvailableActionInstances } from "./availability.js";
 import { getActionEffortStatus } from "./effort.js";
-import { getMuggerPersonality } from "./personality.js";
+import { getAiPersonality } from "./personality.js";
+import { goalOwnerId, goalTargetId } from "./roles.js";
+import { requireEncounterObjective } from "./objectives/index.js";
 
 export const RETREAT_COMMITMENT_THRESHOLD = 22;
 export const EXHAUSTED_RETREAT_SECONDS = 45;
@@ -39,7 +40,6 @@ const ACTION_UTILITY = Object.freeze({
   "force-to-ground": { base: 8, objective: 0.8, control: 1.2, risk: 0.5 },
   "turn-target-away": { base: 7, objective: 0.8, control: 0.8, risk: 0.2 },
   "pin-limb": { base: 9, objective: 1, control: 1.3, risk: 0.2 },
-  "search-money": { base: 10, objective: 2, risk: 0.6 },
 });
 
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
@@ -51,49 +51,36 @@ function commitmentBandFor(value) {
   return "confident";
 }
 
-export function getTheftObjectiveProgress(context) {
-  const { state } = context;
-  const range = state.relationships.range[0].value;
-  const player = state.participants.player;
-  const holds = holdsControlledBy(context, "mugger")
-    .filter(({ targetId }) => targetId === "player");
-  const rangeProgress = range === "clinch" ? 20 : range === "reach" ? 10 : 0;
-  const holdProgress = Math.min(70, holds.reduce((sum, hold) => sum + hold.leverage, 0) * 0.5);
-  const pinProgress = holds.some(({ kind }) => kind === "limb-pin") ? 20 : 0;
-  const positionProgress = (player.support === "wall" ? 15 : 0)
-    + (player.pose === "standing" ? 0 : 20)
-    + (state.relationships.facing.find(({ actor }) => actor === "player")?.value === "away" ? 10 : 0);
-  const usableControlProgress = hasUsableControl(context, "mugger", "player") ? 30 : 0;
-  return rangeProgress + holdProgress + pinProgress + positionProgress
-    + usableControlProgress + (state.objective.searched ? 200 : 0);
+export function getObjectiveProgress(context) {
+  return requireEncounterObjective(context.state).progress(context, { hasUsableControl });
 }
 
-export function getMuggerCommitmentDiagnostics(context) {
+export function getAiCommitmentDiagnostics(context) {
   const { state } = context;
-  const mugger = state.participants.mugger;
-  const personality = getMuggerPersonality(mugger.personalityId);
-  const reward = state.objective.amount > 0
-    ? Math.min(20, state.objective.amount) * 0.5
-    : -45;
+  const ownerId = goalOwnerId(state);
+  const owner = state.participants[ownerId];
+  const personality = getAiPersonality(owner.controller.personalityId);
+  const objective = requireEncounterObjective(state);
+  const objectiveCommitment = objective.ai.commitment(context);
   const bestArm = Math.max(
-    getPartCapacity(context, "mugger", BodyPartId.HAND_L),
-    getPartCapacity(context, "mugger", BodyPartId.HAND_R),
+    getPartCapacity(context, ownerId, BodyPartId.HAND_L),
+    getPartCapacity(context, ownerId, BodyPartId.HAND_R),
   );
-  const impairment = (1 - Math.max(bestArm, getMovementCapacity(context, "mugger"))) * 22;
+  const impairment = (1 - Math.max(bestArm, getMovementCapacity(context, ownerId))) * 22;
   const stalledSeconds = Math.max(
     0,
-    state.elapsedSeconds - state.objective.lastProgressSecond - 8,
+    state.elapsedSeconds - objectiveCommitment.lastProgressSecond - 8,
   );
-  const pacingLimitReached = (mugger.exertion >= 95
+  const pacingLimitReached = (owner.exertion >= 95
     && state.elapsedSeconds >= EXHAUSTED_RETREAT_SECONDS)
     || state.elapsedSeconds >= PROLONGED_ENCOUNTER_RETREAT_SECONDS;
   const components = {
-    base: mugger.commitmentBase,
-    reward,
+    base: owner.controller.commitmentBase,
+    reward: objectiveCommitment.reward,
     elapsed: -stalledSeconds * personality.commitmentTimeSensitivity,
-    pain: -getBodyPain(context, "mugger") * personality.commitmentPainSensitivity,
-    exertion: -mugger.exertion * personality.commitmentExertionSensitivity,
-    failedControl: -state.objective.failedControlAttempts * 2,
+    pain: -getBodyPain(context, ownerId) * personality.commitmentPainSensitivity,
+    exertion: -owner.exertion * personality.commitmentExertionSensitivity,
+    failedControl: -objectiveCommitment.failedAttempts * 2,
     impairment: -impairment,
     pacingLimit: pacingLimitReached ? -100 : 0,
   };
@@ -101,8 +88,8 @@ export function getMuggerCommitmentDiagnostics(context) {
   return { value, band: commitmentBandFor(value), components };
 }
 
-export const getMuggerCommitment = (context) => getMuggerCommitmentDiagnostics(context).value;
-export const getCommitmentBand = (context) => commitmentBandFor(getMuggerCommitment(context));
+export const getAiCommitment = (context) => getAiCommitmentDiagnostics(context).value;
+export const getCommitmentBand = (context) => commitmentBandFor(getAiCommitment(context));
 
 export function intentToActionInstance(intent) {
   const { targetId, ...parameters } = intent.parameters;
@@ -124,11 +111,12 @@ function repetitionPenalty(history, actionId, noveltyWeight) {
 
 function situationalBonuses(context, instance) {
   const { state } = context;
+  const ownerId = goalOwnerId(state);
+  const targetId = goalTargetId(state);
   const tags = getEncounterAction(instance.actionId)?.tags || [];
-  const held = hostileHoldsOn(context, "mugger").length > 0;
+  const held = hostileHoldsOn(context, ownerId).length > 0;
   const result = { objective: 0, control: 0, pressure: 0, safety: 0, escape: 0 };
-  const ownHolds = state.relationships.holds.filter(({ controllerId }) => controllerId === "mugger");
-  const playerHistory = state.participants.player.actionHistory;
+  const playerHistory = state.participants[targetId].actionHistory;
   const recentPlayerActions = playerHistory.slice(-3);
   const repeatedBrace = recentPlayerActions.filter(
     (actionId) => actionId === "cover-and-brace",
@@ -137,50 +125,26 @@ function situationalBonuses(context, instance) {
     (actionId) => actionId === "create-distance",
   ).length >= 2;
   if (instance.actionId === "catch-breath") {
-    const participant = state.participants.mugger;
+    const participant = state.participants[ownerId];
     const winded = participant.acute.find(({ id }) => id === "winded")?.severity || 0;
     const dazed = participant.acute.find(({ id }) => id === "dazed")?.severity || 0;
     result.safety += Math.max(0, participant.exertion - 55) * 1.2
       + winded * 24
       + dazed * 16;
   }
-  if (instance.actionId === "search-money" && hasUsableControl(context, "mugger", "player")) result.objective += 60;
-  else if (state.objective.stage === "gain-control") {
-    if (instance.actionId === "close-distance") result.objective += 48;
-    else if (instance.actionId === "grab-arm") result.objective += ownHolds.length ? 54 : 44;
-    else if (instance.actionId === "force-to-ground") {
-      result.objective += state.participants.player.pose === "standing" ? 62 : 20;
-    } else if (instance.actionId === "pin-limb") {
-      result.objective += state.participants.player.pose === "standing" ? 8 : 48;
-    } else if (instance.actionId === "force-to-wall") result.objective += 24;
-    else if (instance.actionId === "turn-target-away") result.objective += 24;
-    else if (instance.actionId === "tighten-hold") result.objective += 14;
-    else if (tags.includes("control")) result.objective += 5;
-  } else if (state.objective.stage === "access-money" && tags.includes("control")) result.objective += 6;
-  if (state.objective.stage === "disengage"
-    && [
-      "flee",
-      "create-distance",
-      "shove-away",
-      "wrench-free",
-      "strike-holding-arm",
-      "stand-up",
-      "roll-toward",
-    ].includes(instance.actionId)) {
-    result.objective += 60;
-  }
+  const objectiveBonuses = requireEncounterObjective(state).ai.situationalBonuses(
+    context,
+    instance,
+    { tags, hasUsableControl },
+  );
+  for (const motive of Object.keys(result)) result[motive] += objectiveBonuses[motive] || 0;
   if (held) {
     const freesSelf = tags.includes("disrupt-hold") || instance.actionId === "wrench-free";
     result.escape += freesSelf ? 20 : 0;
     result.safety -= freesSelf ? 0 : 10;
   }
-  if (state.objective.failedControlAttempts > 0 && tags.includes("attack")) {
-    const previousAction = state.participants.mugger.actionHistory.at(-1);
-    if (previousAction === "grab-arm") result.pressure += 25;
-    else if (previousAction === "close-distance") result.pressure += 90;
-  }
   if (tags.includes("attack")) {
-    result.pressure += Math.min(35, Math.max(0, (getBodyPain(context, "player") - 40) * 1.5));
+    result.pressure += Math.min(35, Math.max(0, (getBodyPain(context, targetId) - 40) * 1.5));
   }
   if (repeatedBrace && tags.includes("control")) {
     result.control += 18;
@@ -190,22 +154,23 @@ function situationalBonuses(context, instance) {
     if (instance.actionId === "close-distance") result.objective += 15;
     if (instance.actionId === "grab-arm") result.control += 10;
   }
-  if (!held && ["create-distance", "shove-away"].includes(instance.actionId)) result.objective -= 12;
-  if (getBodyPain(context, "mugger") > 35 && (tags.includes("defense") || tags.includes("movement"))) result.safety += 7;
-  if (state.participants.mugger.pose !== "standing" && instance.actionId === "stand-up") result.safety += 12;
+  if (getBodyPain(context, ownerId) > 35 && (tags.includes("defense") || tags.includes("movement"))) result.safety += 7;
+  if (state.participants[ownerId].pose !== "standing" && instance.actionId === "stand-up") result.safety += 12;
   return result;
 }
 
-export function scoreNpcActions(context) {
-  syncTheftObjectiveStage(context);
-  const candidates = getAvailableActionInstances(context, "mugger");
-  const participant = context.state.participants.mugger;
-  const personality = getMuggerPersonality(participant.personalityId);
-  const commitment = getMuggerCommitmentDiagnostics(context);
+export function scoreAiActions(context) {
+  syncObjectiveStage(context);
+  const ownerId = goalOwnerId(context.state);
+  const candidates = getAvailableActionInstances(context, ownerId);
+  const participant = context.state.participants[ownerId];
+  const personality = getAiPersonality(participant.controller.personalityId);
+  const commitment = getAiCommitmentDiagnostics(context);
+  const objectiveAi = requireEncounterObjective(context.state).ai;
   const retreatIds = new Set(["flee", "run", "create-distance", "shove-away", "stand-up", "wrench-free", "strike-holding-arm", "catch-breath", "cover-and-brace"]);
   const retreating = commitment.value <= RETREAT_COMMITMENT_THRESHOLD;
   let pool;
-  if (context.state.objective.stage === "disengage") {
+  if (objectiveAi.forceRetreat(context)) {
     const executable = candidates.filter((instance) => getActionEffortStatus(context, instance).allowed);
     const disengageCandidates = executable.length ? executable : candidates;
     const priorityBands = [
@@ -239,13 +204,14 @@ export function scoreNpcActions(context) {
         .find((matches) => matches.length)
         || (usableRetreats.length ? usableRetreats : candidates);
     } else {
-      const objectivePool = candidates.filter(({ actionId }) => !["flee", "run"].includes(actionId));
-      pool = objectivePool.length ? objectivePool : candidates;
+      pool = objectiveAi.pursuitPool(candidates);
     }
   }
 
   return pool.map((instance) => {
-    const profile = ACTION_UTILITY[instance.actionId] || { base: 0 };
+    const profile = objectiveAi.actionUtility(instance)
+      || ACTION_UTILITY[instance.actionId]
+      || { base: 0 };
     const situation = situationalBonuses(context, instance);
     const motives = {};
     for (const motive of ["objective", "control", "pressure", "safety", "escape"]) {
@@ -273,22 +239,21 @@ export function scoreNpcActions(context) {
   }).sort((left, right) => right.score - left.score || stableInstanceKey(left.instance).localeCompare(stableInstanceKey(right.instance)));
 }
 
-export function getNpcDecisionDiagnostics(context) {
-  const commitment = getMuggerCommitmentDiagnostics(context);
-  const personality = getMuggerPersonality(context.state.participants.mugger.personalityId);
-  const candidates = scoreNpcActions(context);
+export function getAiDecisionDiagnostics(context) {
+  const commitment = getAiCommitmentDiagnostics(context);
+  const personality = getAiPersonality(
+    context.state.participants[goalOwnerId(context.state)].controller.personalityId,
+  );
+  const candidates = scoreAiActions(context);
   return { personality, commitment, candidates, selected: candidates[0] || null };
 }
 
-export function syncTheftObjectiveStage(context) {
-  const objective = context.state.objective;
-  if (objective.searched) objective.stage = "disengage";
-  else if (hasUsableControl(context, "mugger", "player")) objective.stage = "access-money";
-  else objective.stage = "gain-control";
+export function syncObjectiveStage(context) {
+  requireEncounterObjective(context.state).syncStage(context, { hasUsableControl });
 }
 
-export function selectNpcIntent(context) {
-  const { selected } = getNpcDecisionDiagnostics(context);
-  if (!selected) throw new Error("Physical encounter: the mugger has no legal action or retreat fallback");
+export function selectAiIntent(context) {
+  const { selected } = getAiDecisionDiagnostics(context);
+  if (!selected) throw new Error("Physical encounter: the AI participant has no legal action or retreat fallback");
   return storedIntent(selected.instance);
 }

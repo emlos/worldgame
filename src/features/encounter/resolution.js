@@ -8,10 +8,10 @@ import {
   sameActionInstance,
 } from "./availability.js";
 import {
-  getTheftObjectiveProgress,
-  selectNpcIntent,
+  getObjectiveProgress,
+  selectAiIntent,
   intentToActionInstance,
-  syncTheftObjectiveStage,
+  syncObjectiveStage,
 } from "./ai.js";
 import {
   createCombatContext,
@@ -24,7 +24,6 @@ import {
   validateCombatantInvariants,
 } from "./combatants.js";
 import {
-  ENCOUNTER_OUTCOME,
   ENCOUNTER_PHASE,
   ENCOUNTER_RANGE,
   validateEncounterState,
@@ -38,10 +37,13 @@ import {
   tickAcuteEffects,
 } from "./actions/helpers.js";
 import { getActionEffortStatus } from "./effort.js";
+import { requireEncounterObjective } from "./objectives/index.js";
 import {
-  recoverTheftMoney,
-  resolveIncapacitatedTheft,
-} from "./objectives/steal.js";
+  controlledParticipantId,
+  goalOwnerId,
+  goalTargetId,
+  participantIds,
+} from "./roles.js";
 
 function fail(message) {
   throw new Error(`Physical encounter: ${message}`);
@@ -67,12 +69,12 @@ function resolveOne(context, instance, runtime, { revalidate = true, spoiledBy =
       spoiledByActorId: spoiledBy?.actorId || null,
       spoiledByActionId: spoiledBy?.actionId || null,
     });
-    if (instance.actorId === "mugger" && definition.tags.includes("control")) {
-      context.state.objective.failedControlAttempts += 1;
+    if (definition.tags.includes("control")) {
+      requireEncounterObjective(context.state).recordControlFailure?.(context, instance.actorId);
     }
     return;
   }
-  if (instance.actorId !== "player") {
+  if (instance.actorId !== controlledParticipantId(context.state)) {
     const effort = getActionEffortStatus(context, instance);
     if (!effort.allowed && !chanceRoll(
       context,
@@ -89,17 +91,13 @@ function resolveOne(context, instance, runtime, { revalidate = true, spoiledBy =
       addExertion(context, instance.actorId, Math.max(2, definition.durationSeconds));
       failAction(runtime, instance, effort.primaryBlocker);
       if (definition.tags.includes("control")) {
-        context.state.objective.failedControlAttempts += 1;
+        requireEncounterObjective(context.state).recordControlFailure?.(context, instance.actorId);
       }
       return;
     }
   }
   definition.resolve(context, instance, runtime);
   reconcileEncounterRelationships(context, runtime);
-}
-
-function applyIncapacitatedTheft(context, runtime) {
-  runtime.outcome = resolveIncapacitatedTheft(context, runtime.events);
 }
 
 function releaseControlledHolds(context, runtime, actorId) {
@@ -110,68 +108,81 @@ function releaseControlledHolds(context, runtime, actorId) {
 
 function checkPhysicalTerminalState(context, runtime) {
   if (runtime.outcome) return;
-  const muggerIncapacitated = isEncounterIncapacitated(context, "mugger");
-  const playerIncapacitated = isEncounterIncapacitated(context, "player");
-  if (muggerIncapacitated && playerIncapacitated) {
-    releaseControlledHolds(context, runtime, "mugger");
-    releaseControlledHolds(context, runtime, "player");
-    recoverTheftMoney(context, runtime.events);
-    runtime.outcome = { id: ENCOUNTER_OUTCOME.bothIncapacitated, moneyLost: 0 };
+  const objective = requireEncounterObjective(context.state);
+  const ownerId = goalOwnerId(context.state);
+  const targetId = goalTargetId(context.state);
+  const escapedIds = new Set(
+    (runtime.terminalFacts || [])
+      .filter(({ type }) => type === "participant-escaped")
+      .map(({ participantId }) => participantId),
+  );
+  if (escapedIds.has(targetId)) {
+    runtime.outcome = objective.outcomeForTargetEscape(context, runtime.events);
     return;
   }
-  if (muggerIncapacitated) {
-    releaseControlledHolds(context, runtime, "mugger");
-    recoverTheftMoney(context, runtime.events);
-    runtime.outcome = { id: ENCOUNTER_OUTCOME.muggerIncapacitated, moneyLost: 0 };
+  if (escapedIds.has(ownerId)) {
+    runtime.outcome = objective.outcomeForOwnerEscape(context, runtime.events);
     return;
   }
-  if (playerIncapacitated) {
-    releaseControlledHolds(context, runtime, "player");
-    applyIncapacitatedTheft(context, runtime);
+
+  const ownerIncapacitated = isEncounterIncapacitated(context, ownerId);
+  const targetIncapacitated = isEncounterIncapacitated(context, targetId);
+  if (ownerIncapacitated && targetIncapacitated) {
+    releaseControlledHolds(context, runtime, ownerId);
+    releaseControlledHolds(context, runtime, targetId);
+    runtime.outcome = objective.outcomeForMutualDefeat(context, runtime.events);
+    return;
+  }
+  if (ownerIncapacitated) {
+    releaseControlledHolds(context, runtime, ownerId);
+    runtime.outcome = objective.outcomeForOwnerDefeat(context, runtime.events);
+    return;
+  }
+  if (targetIncapacitated) {
+    releaseControlledHolds(context, runtime, targetId);
+    runtime.outcome = objective.resolveTargetUnable(context, runtime.events);
     return;
   }
 
   // Capacity predicates should normally prevent this state. Keep resolution
   // total if a new action family or positional rule later exposes a gap: loss
   // of all legal agency is an encounter result, not an invariant exception.
-  const muggerCanAct = getAvailableActionInstances(context, "mugger").length > 0;
-  const playerCanAct = getAvailableActionInstances(context, "player").length > 0;
-  if (!muggerCanAct && !playerCanAct) {
+  const ownerCanAct = getAvailableActionInstances(context, ownerId).length > 0;
+  const targetCanAct = getAvailableActionInstances(context, targetId).length > 0;
+  if (!ownerCanAct && !targetCanAct) {
     runtime.events.push({
       type: "participant.unable-to-act",
-      actorId: "mugger",
+      actorId: ownerId,
       reason: "no-legal-response",
     });
     runtime.events.push({
       type: "participant.unable-to-act",
-      actorId: "player",
+      actorId: targetId,
       reason: "no-legal-response",
     });
-    releaseControlledHolds(context, runtime, "mugger");
-    releaseControlledHolds(context, runtime, "player");
-    recoverTheftMoney(context, runtime.events);
-    runtime.outcome = { id: ENCOUNTER_OUTCOME.bothIncapacitated, moneyLost: 0 };
+    releaseControlledHolds(context, runtime, ownerId);
+    releaseControlledHolds(context, runtime, targetId);
+    runtime.outcome = objective.outcomeForMutualDefeat(context, runtime.events);
     return;
   }
-  if (!muggerCanAct) {
+  if (!ownerCanAct) {
     runtime.events.push({
       type: "participant.unable-to-act",
-      actorId: "mugger",
+      actorId: ownerId,
       reason: "no-legal-response",
     });
-    releaseControlledHolds(context, runtime, "mugger");
-    recoverTheftMoney(context, runtime.events);
-    runtime.outcome = { id: ENCOUNTER_OUTCOME.muggerIncapacitated, moneyLost: 0 };
+    releaseControlledHolds(context, runtime, ownerId);
+    runtime.outcome = objective.outcomeForOwnerDefeat(context, runtime.events);
     return;
   }
-  if (!playerCanAct) {
+  if (!targetCanAct) {
     runtime.events.push({
       type: "participant.unable-to-act",
-      actorId: "player",
+      actorId: targetId,
       reason: "no-legal-response",
     });
-    releaseControlledHolds(context, runtime, "player");
-    applyIncapacitatedTheft(context, runtime);
+    releaseControlledHolds(context, runtime, targetId);
+    runtime.outcome = objective.resolveTargetUnable(context, runtime.events);
   }
 }
 
@@ -180,15 +191,12 @@ function finalizeOutcome(context, runtime) {
   if (!outcome) return false;
   context.state.phase = ENCOUNTER_PHASE.terminal;
   context.state.npcIntent = null;
-  context.state.objective.stage = "complete";
-  context.state.outcome = {
-    id: outcome.id,
-    moneyLost: Number.isSafeInteger(outcome.moneyLost) ? outcome.moneyLost : 0,
-  };
+  requireEncounterObjective(context.state).complete(context);
+  context.state.outcome = structuredClone(outcome);
   runtime.events.push({
     type: "encounter.ended",
     outcomeId: context.state.outcome.id,
-    moneyLost: context.state.outcome.moneyLost,
+    details: structuredClone(context.state.outcome),
   });
   return true;
 }
@@ -198,10 +206,12 @@ export function validateEncounterRuntime(context) {
   validateCombatantInvariants(context);
   if (context.state.phase !== ENCOUNTER_PHASE.active) return context.state;
 
-  const playerActions = getAvailableActionInstances(context, "player");
+  const controlledId = controlledParticipantId(context.state);
+  const ownerId = goalOwnerId(context.state);
+  const playerActions = getAvailableActionInstances(context, controlledId);
   if (!playerActions.length) fail("active player state has no legal response");
-  const npcActions = getAvailableActionInstances(context, "mugger");
-  if (!npcActions.length) fail("active theft objective has no action or retreat fallback");
+  const npcActions = getAvailableActionInstances(context, ownerId);
+  if (!npcActions.length) fail("active objective owner has no action or retreat fallback");
   const intent = intentToActionInstance(context.state.npcIntent);
   if (!npcActions.some((candidate) => sameActionInstance(candidate, intent))) {
     fail(`stored NPC intent '${intent.actionId}' is no longer legal`);
@@ -214,14 +224,11 @@ function clamp(value, minimum, maximum) {
 }
 
 function createSimultaneousBranch(context) {
-  const branchPlayer = {
-    money: context.game.player.money,
-    adjustMoney(amount) {
-      this.money += amount;
-    },
-  };
   return {
-    game: { seed: context.game.seed, player: branchPlayer },
+    // Resolution branches may inspect the game, but action and objective
+    // policies must keep mutations in encounter state until the canonical
+    // post-merge commit.
+    game: context.game,
     state: structuredClone(context.state),
     instanceKey: context.instanceKey,
     combatants: Object.fromEntries(
@@ -241,8 +248,8 @@ function changedValue(baseValue, branchValues, runtime, path) {
   const changed = [...new Set(branchValues.filter((value) => value !== baseValue))];
   if (!changed.length) return baseValue;
   if (changed.length === 1) return changed[0];
-  const participantMatch = /^participants\.(player|mugger)\.(pose|support)$/.exec(path);
-  const facingMatch = /^relationships\.facing\.(player|mugger)$/.exec(path);
+  const participantMatch = /^participants\.([^.]+)\.(pose|support)$/.exec(path);
+  const facingMatch = /^relationships\.facing\.([^.]+)$/.exec(path);
   runtime.events = runtime.events.filter((event) => {
     if (path === "relationships.range") return event.type !== "range.changed";
     if (participantMatch) {
@@ -467,28 +474,10 @@ function mergeBodyDamage(context, branches) {
   }
 }
 
-const SIMULTANEOUS_OUTCOME_PRIORITY = Object.freeze([
-  ENCOUNTER_OUTCOME.playerSurrendered,
-  ENCOUNTER_OUTCOME.theftPlayerIncapacitated,
-  ENCOUNTER_OUTCOME.theftPlayerConscious,
-  ENCOUNTER_OUTCOME.playerEscaped,
-  ENCOUNTER_OUTCOME.muggerFled,
-  ENCOUNTER_OUTCOME.muggerIncapacitated,
-]);
-
-function mergeProposedOutcomes(branches) {
+function mergeProposedOutcomes(context, branches) {
   const outcomes = branches.map((branch) => branch.runtime.outcome).filter(Boolean);
   if (!outcomes.length) return null;
-  const ids = new Set(outcomes.map(({ id }) => id));
-  if (ids.size === 1) {
-    return {
-      id: outcomes[0].id,
-      moneyLost: Math.max(...outcomes.map(({ moneyLost }) => moneyLost || 0)),
-    };
-  }
-  const id = SIMULTANEOUS_OUTCOME_PRIORITY.find((candidate) => ids.has(candidate));
-  const selected = outcomes.find((outcome) => outcome.id === id);
-  return { id: selected.id, moneyLost: selected.moneyLost || 0 };
+  return requireEncounterObjective(context.state).mergeOutcomes(outcomes);
 }
 
 function resolveSimultaneously(context, playerAction, npcAction, sharedRuntime) {
@@ -503,51 +492,33 @@ function resolveSimultaneously(context, playerAction, npcAction, sharedRuntime) 
       guarded: new Set(sharedRuntime.guarded),
       evading: new Set(sharedRuntime.evading),
       outcome: null,
+      terminalFacts: [],
     };
     resolveOne(branchContext, instance, branchRuntime, { revalidate: false });
     return { context: branchContext, runtime: branchRuntime, instance };
   });
 
   sharedRuntime.events.push(...branches.flatMap((branch) => branch.runtime.events));
-  sharedRuntime.outcome = mergeProposedOutcomes(branches);
+  sharedRuntime.outcome = mergeProposedOutcomes(context, branches);
+  sharedRuntime.terminalFacts.push(
+    ...branches.flatMap((branch) => branch.runtime.terminalFacts),
+  );
   mergeBodyDamage(context, branches);
   // Hold priority reads the pre-exchange exertion state, before the costs from
   // either simultaneous branch are merged into the canonical participants.
   mergeHoldRelations(context, branches, sharedRuntime);
-  mergeParticipantEffects(context, branches, "player");
-  mergeParticipantEffects(context, branches, "mugger");
+  for (const actorId of participantIds(context.state)) {
+    mergeParticipantEffects(context, branches, actorId);
+  }
   for (const branch of branches) {
     const history = context.state.participants[branch.instance.actorId].actionHistory;
     history.push(branch.instance.actionId);
     if (history.length > 8) history.splice(0, history.length - 8);
   }
 
-  const objective = context.state.objective;
-  const baseFailedControlAttempts = objective.failedControlAttempts;
-  objective.failedControlAttempts += branches.reduce(
-    (sum, branch) => sum
-      + branch.context.state.objective.failedControlAttempts
-      - baseFailedControlAttempts,
-    0,
-  );
-  objective.searched ||= branches.some((branch) => branch.context.state.objective.searched);
-  objective.lootAmount = Math.max(
-    objective.lootAmount,
-    ...branches.map((branch) => branch.context.state.objective.lootAmount),
-  );
-  if (branches.some((branch) =>
-    branch.runtime.events.some(({ type }) => type === "theft.recovered"))) {
-    objective.lootAmount = 0;
-  }
+  requireEncounterObjective(context.state).mergeSimultaneous(context, branches);
 
-  const baseMoney = context.game.player.money;
-  const moneyDelta = branches.reduce(
-    (sum, branch) => sum + branch.context.game.player.money - baseMoney,
-    0,
-  );
-  if (moneyDelta) context.game.player.adjustMoney(moneyDelta);
-
-  for (const actorId of ["player", "mugger"]) {
+  for (const actorId of participantIds(context.state)) {
     const participant = context.state.participants[actorId];
     participant.pose = changedValue(
       participant.pose,
@@ -592,9 +563,12 @@ export function resolveEncounterExchange({
   const next = structuredClone(state);
   const context = createCombatContext({ game, state: next, instanceKey });
   validateEncounterRuntime(context);
-  const startingObjectiveProgress = getTheftObjectiveProgress(context);
+  const previousObjective = structuredClone(next.objective);
+  const startingObjectiveProgress = getObjectiveProgress(context);
+  const controlledId = controlledParticipantId(next);
+  const ownerId = goalOwnerId(next);
 
-  const availablePlayerAction = getAvailableActionInstances(context, "player")
+  const availablePlayerAction = getAvailableActionInstances(context, controlledId)
     .find((candidate) => sameActionInstance(candidate, playerAction));
   if (!availablePlayerAction) fail(`player action '${String(playerAction?.actionId)}' is unavailable`);
   const npcAction = intentToActionInstance(next.npcIntent);
@@ -605,6 +579,7 @@ export function resolveEncounterExchange({
     guarded: new Set(),
     evading: new Set(),
     outcome: null,
+    terminalFacts: [],
   };
 
   // A reaction can influence an equal-speed action from the outset. Faster actions
@@ -650,18 +625,18 @@ export function resolveEncounterExchange({
   finalizeOutcome(context, runtime);
   next.lastEvents = runtime.events.slice(-24);
   persistCombatantBodies(context);
+  requireEncounterObjective(next).commitGameState(context, previousObjective);
 
   if (next.phase === ENCOUNTER_PHASE.active) {
     const npcTags = getEncounterAction(npcAction.actionId)?.tags || [];
-    const npcPursuedObjective = npcTags.includes("control")
-      || npcTags.includes("objective")
-      || npcTags.includes("theft");
+    const npcPursuedObjective = requireEncounterObjective(next)
+      .ai.isProgressAction(npcTags);
     if (npcPursuedObjective
-      && getTheftObjectiveProgress(context) > startingObjectiveProgress) {
-      next.objective.lastProgressSecond = next.elapsedSeconds;
+      && getObjectiveProgress(context) > startingObjectiveProgress) {
+      requireEncounterObjective(next).recordProgress(context);
     }
-    syncTheftObjectiveStage(context);
-    next.npcIntent = selectNpcIntent(context);
+    syncObjectiveStage(context);
+    next.npcIntent = selectAiIntent(context);
   }
   validateEncounterRuntime(context);
   return next;

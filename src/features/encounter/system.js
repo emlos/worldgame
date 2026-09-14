@@ -23,11 +23,11 @@ import {
 } from "./resolution.js";
 import { getEncounterScenario } from "./scenarios/index.js";
 import {
-  ALLEY_MUGGING_SCENARIO_ID,
   ENCOUNTER_PHASE,
   validateEncounterState,
 } from "./state.js";
-import { encounterPronoun, encounterVerb } from "./language.js";
+import { controlledParticipantId } from "./roles.js";
+import { requireEncounterObjective } from "./objectives/index.js";
 
 export const ENCOUNTER_PHYSICAL_SYSTEM_ID = "encounter.physical";
 
@@ -44,12 +44,11 @@ function requireRecord(value, label) {
 
 function validateConfig(config) {
   requireRecord(config, "config");
-  if (config.scenario !== ALLEY_MUGGING_SCENARIO_ID || !getEncounterScenario(config.scenario)) {
+  const scenario = getEncounterScenario(config.scenario);
+  if (!scenario) {
     fail(`unknown scenario '${String(config.scenario)}'`);
   }
-  if (typeof config.aggressor !== "string" || !config.aggressor) {
-    fail("config requires an aggressor actor alias");
-  }
+  scenario.validateConfig(config);
 }
 
 function clock(seconds) {
@@ -94,12 +93,9 @@ function playerChoice(context, definition, systemId, instance, id) {
 
 function renderActive(context, definition, systemId) {
   const state = context.state;
-  const threat = state.objective.stage === "disengage"
-    ? state.objective.lootAmount > 0
-      ? `${encounterPronoun(context, "mugger", "subject", { sentence: true })} ${encounterVerb(context, "mugger", "has", "have")} £${state.objective.lootAmount} of your money and ${encounterVerb(context, "mugger", "is", "are")} trying to escape.`
-      : `${encounterPronoun(context, "mugger", "subject", { sentence: true })} found nothing to take and ${encounterVerb(context, "mugger", "is", "are")} trying to leave.`
-    : `${encounterPronoun(context, "mugger", "subject", { sentence: true })} ${encounterVerb(context, "mugger", "is", "are")} trying to take up to £${state.objective.amount}.`;
-  const sortedActions = sortPlayerActions(getAvailableActionInstances(context, "player"));
+  const playerId = controlledParticipantId(state);
+  const threat = requireEncounterObjective(state).renderThreat(context);
+  const sortedActions = sortPlayerActions(getAvailableActionInstances(context, playerId));
   const actions = sortedActions;
   const actionCounts = actions.reduce((counts, { actionId }) => {
     counts.set(actionId, (counts.get(actionId) || 0) + 1);
@@ -195,7 +191,13 @@ export const PHYSICAL_ENCOUNTER_STORY_SYSTEM = Object.freeze({
     requireRecord(command, "command");
     if (command.type === "finish") {
       if (state.phase !== ENCOUNTER_PHASE.terminal) fail("an active encounter cannot be left");
-      return { target: definition.finalTarget };
+      return getEncounterScenario(state.scenarioId).finish({
+        game,
+        config,
+        definition,
+        state,
+        instanceKey,
+      });
     }
     if (command.type !== "choose-action") {
       fail(`unknown command '${String(command.type)}'`);
@@ -207,7 +209,9 @@ export const PHYSICAL_ENCOUNTER_STORY_SYSTEM = Object.freeze({
       targetId: command.targetId,
       parameters: command.parameters,
     };
-    if (playerAction.actorId !== "player") fail("the player can only choose player actions");
+    if (playerAction.actorId !== controlledParticipantId(state)) {
+      fail("the player can only choose actions for the controlled participant");
+    }
     return {
       state: resolveEncounterExchange({
         game,

@@ -20,7 +20,6 @@ import {
   FORCE_TO_WALL,
   GRAB_ARM,
   PIN_LIMB,
-  SEARCH_MONEY,
   TIGHTEN_HOLD,
   TURN_TARGET_AWAY,
   WRENCH_FREE,
@@ -28,8 +27,10 @@ import {
 import {
   CONTROLLED_DISENGAGE,
   DEMAND_MONEY_BACK,
+  SEARCH_MONEY,
   SURRENDER_MONEY,
 } from "./objective.js";
+import { requireEncounterObjective } from "../objectives/index.js";
 
 export const ENCOUNTER_ACTIONS = Object.freeze([
   SURRENDER_MONEY,
@@ -59,8 +60,19 @@ export const ENCOUNTER_ACTIONS = Object.freeze([
   CLOSE_DISTANCE,
 ]);
 
+export const CORE_ENCOUNTER_ACTIONS = Object.freeze(ENCOUNTER_ACTIONS.filter(
+  ({ tags }) => !tags.includes("objective") && !tags.includes("theft"),
+));
+
 const ACTION_BY_ID = new Map(ENCOUNTER_ACTIONS.map((action) => [action.id, action]));
 
 export function getEncounterAction(actionId) {
   return ACTION_BY_ID.get(String(actionId)) || null;
+}
+
+export function getEncounterActions(context) {
+  const objectiveActionIds = new Set(requireEncounterObjective(context.state).actionIds);
+  return ENCOUNTER_ACTIONS.filter(
+    (action) => CORE_ENCOUNTER_ACTIONS.includes(action) || objectiveActionIds.has(action.id),
+  );
 }

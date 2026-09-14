@@ -42,4 +42,4 @@
 :: encounter.alley-mugging -> @exit
   @actor mugger civilian
 
-  @system encounter.physical {"scenario":"alley-mugging","aggressor":"mugger"}
+  @system encounter.physical {"scenario":"fight","opponent":{"id":"mugger","actor":"mugger"},"goal":{"id":"steal-money","maxAmount":20}}

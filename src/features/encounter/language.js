@@ -21,7 +21,7 @@ export function capitalizeEncounterText(value) {
 }
 
 export function encounterPronouns(context, actorId) {
-  if (actorId === "player") return PLAYER_PRONOUNS;
+  if (context.state.participants[actorId]?.ref?.type === "player") return PLAYER_PRONOUNS;
   return context.combatants?.[actorId]?.actor?.pronouns || FALLBACK_PRONOUNS;
 }
 
@@ -32,5 +32,7 @@ export function encounterPronoun(context, actorId, form, { sentence = false } = 
 
 export function encounterVerb(context, actorId, singular, plural) {
   const subject = encounterPronoun(context, actorId, "subject").toLowerCase();
-  return actorId === "player" || subject === "they" ? plural : singular;
+  return context.state.participants[actorId]?.ref?.type === "player" || subject === "they"
+    ? plural
+    : singular;
 }

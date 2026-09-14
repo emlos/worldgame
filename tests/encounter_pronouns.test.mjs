@@ -11,7 +11,7 @@ import {
   renderLastExchange,
   renderObjectivePressure,
 } from "../src/features/encounter/prose.js";
-import { ENCOUNTER_OUTCOME } from "../src/features/encounter/state.js";
+import { STEAL_MONEY_OUTCOME } from "../src/features/encounter/objectives/steal.js";
 import { gameAtStart, startEncounter } from "./support/encounter.mjs";
 
 function setup(pronouns) {
@@ -72,7 +72,7 @@ test("player-facing labels, exchange prose, pressure, and outcomes use attacker 
     assert.match(opening, new RegExp(`\\b${expected.subject.toLowerCase()} ${expected.demand} your money\\b`, "i"));
     assert.match(renderObjectivePressure(context), new RegExp(`^${expected.subject} still `));
 
-    state.outcome = { id: ENCOUNTER_OUTCOME.muggerFled, moneyLost: 0 };
+    state.outcome = { id: STEAL_MONEY_OUTCOME.muggerFled, moneyLost: 0 };
     assert.match(outcomeText(context), new RegExp(`^${expected.subject} ${expected.verb} `));
   }
 });

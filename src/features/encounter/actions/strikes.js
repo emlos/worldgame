@@ -7,6 +7,7 @@ import {
   getUsableHands,
   getUsableKnees,
   hostileHoldsOn,
+  otherParticipantId,
 } from "../combatants.js";
 import {
   canBeginPhysicalAction,
@@ -31,7 +32,7 @@ import { encounterPronoun, encounterVerb } from "../language.js";
 function ordinaryStrikeTargets(context, actorId, actionId) {
   const sourcePartId = getUsableHands(context, actorId)[0];
   if (!sourcePartId) return [];
-  const targetId = actorId === "player" ? "mugger" : "player";
+  const targetId = otherParticipantId(context, actorId);
   return [actionInstance(actionId, actorId, targetId, { sourcePartId })];
 }
 
@@ -59,7 +60,7 @@ export const STRIKE_FACE = Object.freeze({
   id: "strike-face",
   tags: Object.freeze(["attack", "impact", "daze"]),
   durationSeconds: 2,
-  usableBy: Object.freeze(["player", "mugger"]),
+  usableBy: "any",
   playerOrder: 10,
 
   enumerateTargets(context, actorId) {
@@ -102,7 +103,7 @@ export const DRIVE_BODY = Object.freeze({
   id: "drive-body",
   tags: Object.freeze(["attack", "impact", "pressure"]),
   durationSeconds: 2,
-  usableBy: Object.freeze(["player", "mugger"]),
+  usableBy: "any",
   playerOrder: 20,
 
   enumerateTargets(context, actorId) {
@@ -137,7 +138,7 @@ export const STRIKE_HOLDING_ARM = Object.freeze({
   id: "strike-holding-arm",
   tags: Object.freeze(["attack", "impact", "disrupt-hold"]),
   durationSeconds: 2,
-  usableBy: Object.freeze(["player", "mugger"]),
+  usableBy: "any",
   playerOrder: 5,
 
   enumerateTargets(context, actorId) {
@@ -206,11 +207,11 @@ export const HEADBUTT = Object.freeze({
   id: "headbutt",
   tags: Object.freeze(["attack", "impact", "daze", "self-risk"]),
   durationSeconds: 1,
-  usableBy: Object.freeze(["player", "mugger"]),
+  usableBy: "any",
   playerOrder: 8,
 
-  enumerateTargets(_context, actorId) {
-    const targetId = actorId === "player" ? "mugger" : "player";
+  enumerateTargets(context, actorId) {
+    const targetId = otherParticipantId(context, actorId);
     return [actionInstance(this.id, actorId, targetId, { sourcePartId: BodyPartId.HEAD })];
   },
 
@@ -263,13 +264,13 @@ export const KNEE_STRIKE = Object.freeze({
   id: "knee-strike",
   tags: Object.freeze(["attack", "impact", "pressure", "balance-risk"]),
   durationSeconds: 2,
-  usableBy: Object.freeze(["player", "mugger"]),
+  usableBy: "any",
   playerOrder: 18,
 
   enumerateTargets(context, actorId) {
     const sourcePartId = kneeStrikeSource(context, actorId);
     if (!sourcePartId) return [];
-    return [actionInstance(this.id, actorId, actorId === "player" ? "mugger" : "player", {
+    return [actionInstance(this.id, actorId, otherParticipantId(context, actorId), {
       sourcePartId,
     })];
   },

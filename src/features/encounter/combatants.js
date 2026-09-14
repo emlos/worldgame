@@ -7,6 +7,11 @@ import {
   getEncounterFacing,
   getEncounterRange,
 } from "./state.js";
+import {
+  controlledParticipantId,
+  opponentParticipantId,
+  participantIds,
+} from "./roles.js";
 
 const PART_CHAINS = Object.freeze({
   [BodyPartId.HAND_L]: Object.freeze([
@@ -106,32 +111,37 @@ function actorStat(actor, name) {
 }
 
 export function createCombatContext({ game, state, instanceKey }) {
-  const alias = state.participants.mugger.ref.alias;
-  const actor = sceneActor(game, alias);
-  const actorBody = Body.fromJSON(actor.body);
-  return {
-    game,
-    state,
-    instanceKey,
-    combatants: {
-      player: {
-        id: "player",
+  const combatants = {};
+  for (const participantId of participantIds(state)) {
+    const participant = state.participants[participantId];
+    if (participant.ref.type === "player") {
+      combatants[participantId] = {
+        id: participantId,
         title: "you",
         body: game.player.body,
         stat: (name) => playerStat(game, name),
         persist() {},
+      };
+      continue;
+    }
+    const actor = sceneActor(game, participant.ref.alias);
+    const actorBody = Body.fromJSON(actor.body);
+    combatants[participantId] = {
+      id: participantId,
+      title: actor.title,
+      actor,
+      body: actorBody,
+      stat: (name) => actorStat(actor, name),
+      persist() {
+        actor.body = actorBody.toJSON();
       },
-      mugger: {
-        id: "mugger",
-        title: actor.title,
-        actor,
-        body: actorBody,
-        stat: (name) => actorStat(actor, name),
-        persist() {
-          actor.body = actorBody.toJSON();
-        },
-      },
-    },
+    };
+  }
+  return {
+    game,
+    state,
+    instanceKey,
+    combatants,
   };
 }
 
@@ -139,11 +149,14 @@ export function persistCombatantBodies(context) {
   for (const combatant of Object.values(context.combatants)) combatant.persist();
 }
 
-export function otherParticipantId(actorId) {
-  if (actorId === "player") return "mugger";
-  if (actorId === "mugger") return "player";
-  fail(`unknown participant '${String(actorId)}'`);
+export function otherParticipantId(contextOrState, actorId) {
+  const state = contextOrState?.state || contextOrState;
+  return opponentParticipantId(state, actorId);
 }
+
+export const getControlledParticipantId = (context) => controlledParticipantId(context.state);
+export const getOpponentParticipantId = (context, actorId) =>
+  opponentParticipantId(context.state, actorId);
 
 export function getCombatant(context, actorId) {
   const combatant = context.combatants[actorId];
@@ -410,7 +423,7 @@ export function validateCombatantInvariants(context) {
     if (problem) fail(problem.message);
   }
   if (context.state.phase === "active") {
-    for (const actorId of ["player", "mugger"]) {
+    for (const actorId of participantIds(context.state)) {
       if (isEncounterIncapacitated(context, actorId)) {
         fail(`active participant '${actorId}' is incapacitated`);
       }

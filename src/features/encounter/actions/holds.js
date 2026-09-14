@@ -11,10 +11,10 @@ import {
   holdsControlledBy,
   hostileHoldsOn,
   isDazed,
+  otherParticipantId,
 } from "../combatants.js";
 import {
   canBeginPhysicalAction,
-  hasUsableControl,
   isGrounded,
   isStanding,
 } from "../affordances.js";
@@ -40,11 +40,7 @@ import {
   getEncounterRange,
 } from "../state.js";
 import { encounterPronoun, encounterVerb } from "../language.js";
-import { takeTheftMoney } from "../objectives/steal.js";
-
-function opponent(actorId) {
-  return actorId === "player" ? "mugger" : "player";
-}
+import { requireEncounterObjective } from "../objectives/index.js";
 
 function sideName(partId) {
   return partId.endsWith("_l") ? "left" : "right";
@@ -60,12 +56,12 @@ export const GRAB_ARM = Object.freeze({
   id: "grab-arm",
   tags: Object.freeze(["hold", "control"]),
   durationSeconds: 2,
-  usableBy: Object.freeze(["player", "mugger"]),
+  usableBy: "any",
   playerOrder: 40,
 
   enumerateTargets(context, actorId) {
     const sourcePartId = getUsableHands(context, actorId)[0];
-    const targetId = opponent(actorId);
+    const targetId = otherParticipantId(context, actorId);
     if (!sourcePartId) return [];
     return getUsableArmTargets(context, targetId).map((targetPartId) =>
       actionInstance(this.id, actorId, targetId, { sourcePartId, targetPartId }));
@@ -90,7 +86,7 @@ export const GRAB_ARM = Object.freeze({
     addExertion(context, instance.actorId, 7);
     if (!contest(context, instance, runtime, { baseChance: 0.6 })) {
       failAction(runtime, instance, "grip-missed");
-      if (instance.actorId === "mugger") context.state.objective.failedControlAttempts += 1;
+      requireEncounterObjective(context.state).recordControlFailure?.(context, instance.actorId);
       return;
     }
     const leverage = clamp(
@@ -127,7 +123,7 @@ export const WRENCH_FREE = Object.freeze({
   id: "wrench-free",
   tags: Object.freeze(["escape", "disrupt-hold"]),
   durationSeconds: 3,
-  usableBy: Object.freeze(["player", "mugger"]),
+  usableBy: "any",
   playerOrder: 4,
 
   enumerateTargets(context, actorId) {
@@ -231,7 +227,7 @@ export const TIGHTEN_HOLD = Object.freeze({
   id: "tighten-hold",
   tags: Object.freeze(["hold", "control"]),
   durationSeconds: 2,
-  usableBy: Object.freeze(["player", "mugger"]),
+  usableBy: "any",
   playerOrder: 70,
 
   enumerateTargets(context, actorId) {
@@ -291,7 +287,7 @@ export const FORCE_TO_WALL = Object.freeze({
   id: "force-to-wall",
   tags: Object.freeze(["hold", "control", "position"]),
   durationSeconds: 3,
-  usableBy: Object.freeze(["player", "mugger"]),
+  usableBy: "any",
   playerOrder: 80,
 
   enumerateTargets(context, actorId) {
@@ -332,7 +328,7 @@ export const FORCE_TO_WALL = Object.freeze({
     const modifier = getEffectiveHoldLeverage(context, hold) * 0.003;
     if (!contest(context, instance, runtime, { baseChance: 0.5, modifier })) {
       failAction(runtime, instance, "position-held");
-      if (instance.actorId === "mugger") context.state.objective.failedControlAttempts += 1;
+      requireEncounterObjective(context.state).recordControlFailure?.(context, instance.actorId);
       return;
     }
     changeSupport(context, instance.targetId, ENCOUNTER_SUPPORT.wall, runtime);
@@ -344,7 +340,7 @@ export const FORCE_TO_GROUND = Object.freeze({
   id: "force-to-ground",
   tags: Object.freeze(["hold", "control", "position", "takedown"]),
   durationSeconds: 3,
-  usableBy: Object.freeze(["player", "mugger"]),
+  usableBy: "any",
   playerOrder: 75,
 
   enumerateTargets(context, actorId) {
@@ -385,7 +381,7 @@ export const FORCE_TO_GROUND = Object.freeze({
       modifier: hold ? getEffectiveHoldLeverage(context, hold) * 0.003 : 0,
     })) {
       failAction(runtime, instance, hold ? "takedown-resisted" : "hold-gone");
-      if (instance.actorId === "mugger") context.state.objective.failedControlAttempts += 1;
+      requireEncounterObjective(context.state).recordControlFailure?.(context, instance.actorId);
       return;
     }
     changePose(context, instance.targetId, ENCOUNTER_POSE.supine, runtime);
@@ -400,7 +396,7 @@ export const TURN_TARGET_AWAY = Object.freeze({
   id: "turn-target-away",
   tags: Object.freeze(["hold", "control", "position", "facing"]),
   durationSeconds: 2,
-  usableBy: Object.freeze(["player", "mugger"]),
+  usableBy: "any",
   playerOrder: 78,
 
   enumerateTargets(context, actorId) {
@@ -454,7 +450,7 @@ export const PIN_LIMB = Object.freeze({
   id: "pin-limb",
   tags: Object.freeze(["hold", "control", "pin"]),
   durationSeconds: 2,
-  usableBy: Object.freeze(["player", "mugger"]),
+  usableBy: "any",
   playerOrder: 72,
 
   enumerateTargets(context, actorId) {
@@ -531,38 +527,5 @@ export const PIN_LIMB = Object.freeze({
       previousSourcePartId,
       sourcePartId: hold.sourcePartId,
     });
-  },
-});
-
-export const SEARCH_MONEY = Object.freeze({
-  id: "search-money",
-  tags: Object.freeze(["objective", "theft", "terminal"]),
-  durationSeconds: 4,
-  usableBy: Object.freeze(["mugger"]),
-  playerOrder: 100,
-
-  enumerateTargets(_context, actorId) {
-    return [actionInstance(this.id, actorId, "player")];
-  },
-
-  isAvailable(context, instance) {
-    return instance.actorId === "mugger"
-      && canBeginPhysicalAction(context, instance.actorId)
-      && getUsableHands(context, instance.actorId).length > 0
-      && hasUsableControl(context, instance.actorId, instance.targetId);
-  },
-
-  label() {
-    return "Take the money";
-  },
-
-  intentLabel(context, intent) {
-    return `${encounterVerb(context, intent.actorId, "keeps", "keep")} you controlled and ${encounterVerb(context, intent.actorId, "reaches", "reach")} toward your money`;
-  },
-
-  resolve(context, instance, runtime) {
-    addExertion(context, instance.actorId, 6);
-    takeTheftMoney(context, runtime.events);
-    context.state.objective.stage = "disengage";
   },
 });

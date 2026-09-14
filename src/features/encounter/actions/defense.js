@@ -8,7 +8,7 @@ export const CATCH_BREATH = Object.freeze({
   id: "catch-breath",
   tags: Object.freeze(["defense", "recovery"]),
   durationSeconds: 3,
-  usableBy: Object.freeze(["player", "mugger"]),
+  usableBy: "any",
   playerOrder: 58,
 
   enumerateTargets(_context, actorId) {
@@ -50,7 +50,7 @@ export const COVER_AND_BRACE = Object.freeze({
   id: "cover-and-brace",
   tags: Object.freeze(["defense", "guard"]),
   durationSeconds: 1,
-  usableBy: Object.freeze(["player", "mugger"]),
+  usableBy: "any",
   playerOrder: 60,
 
   enumerateTargets(_context, actorId) {

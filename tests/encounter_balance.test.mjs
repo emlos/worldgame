@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { getMuggerCommitmentDiagnostics } from "../src/features/encounter/ai.js";
+import { getAiCommitmentDiagnostics } from "../src/features/encounter/ai.js";
 import { getDisengagementHoldState } from "../src/features/encounter/affordances.js";
 import { contest } from "../src/features/encounter/actions/helpers.js";
 import { createCombatContext } from "../src/features/encounter/combatants.js";
@@ -89,9 +89,9 @@ test("ordinary holds block free disengagement while a slipping grip remains cont
 test("commitment time pressure measures stalled time since objective progress", () => {
   const { state, context } = balancedContext();
   state.elapsedSeconds = 40;
-  const stalled = getMuggerCommitmentDiagnostics(context);
+  const stalled = getAiCommitmentDiagnostics(context);
   state.objective.lastProgressSecond = 40;
-  const justProgressed = getMuggerCommitmentDiagnostics(context);
+  const justProgressed = getAiCommitmentDiagnostics(context);
 
   assert.ok(justProgressed.value > stalled.value);
   assert.ok(Math.abs(justProgressed.components.elapsed) === 0);

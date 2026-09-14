@@ -3,9 +3,10 @@ import {
   getEffectiveHoldLeverage,
   getParticipant,
   getStat,
+  getUsableHands,
   holdsControlledBy,
 } from "../combatants.js";
-import { canMove } from "../affordances.js";
+import { canBeginPhysicalAction, canMove, hasUsableControl } from "../affordances.js";
 import {
   ENCOUNTER_POSE,
   ENCOUNTER_RANGE,
@@ -13,6 +14,7 @@ import {
 } from "../state.js";
 import {
   actionInstance,
+  addExertion,
   chanceRoll,
   changeRange,
   clamp,
@@ -20,19 +22,20 @@ import {
   proposeOutcome,
   removeHold,
 } from "./helpers.js";
-import {
-  recoverTheftMoney,
-  resolveSurrenderedTheft,
-} from "../objectives/steal.js";
+import { requireEncounterObjective } from "../objectives/index.js";
+import { controlledParticipantId, goalOwnerId, goalTargetId } from "../roles.js";
+import { encounterVerb } from "../language.js";
 
 export const CONTROLLED_DISENGAGE_MIN_EXERTION = 35;
 export const COMPLETE_CONTROL_MIN_WRIST_LEVERAGE = 30;
 export const COMPLETE_CONTROL_MIN_TOTAL_LEVERAGE = 72;
 
 function playerHasCompleteWristControl(context) {
+  const playerId = controlledParticipantId(context.state);
+  const opponentId = goalOwnerId(context.state);
   const strongestByWrist = new Map();
-  for (const hold of holdsControlledBy(context, "player")) {
-    if (hold.targetId !== "mugger") continue;
+  for (const hold of holdsControlledBy(context, playerId)) {
+    if (hold.targetId !== opponentId) continue;
     const effective = getEffectiveHoldLeverage(context, hold);
     strongestByWrist.set(
       hold.targetPartId,
@@ -47,14 +50,14 @@ function playerHasCompleteWristControl(context) {
     && left + right >= COMPLETE_CONTROL_MIN_TOTAL_LEVERAGE;
 }
 
-function muggerIsConstrained(context) {
-  const mugger = getParticipant(context, "mugger");
-  return mugger.support === ENCOUNTER_SUPPORT.wall
-    || mugger.pose !== ENCOUNTER_POSE.standing;
+function opponentIsConstrained(context) {
+  const opponent = getParticipant(context, goalOwnerId(context.state));
+  return opponent.support === ENCOUNTER_SUPPORT.wall
+    || opponent.pose !== ENCOUNTER_POSE.standing;
 }
 
 function hasControlPosition(context) {
-  return playerHasCompleteWristControl(context) && muggerIsConstrained(context);
+  return playerHasCompleteWristControl(context) && opponentIsConstrained(context);
 }
 
 function releaseAllHolds(context, runtime, reason) {
@@ -67,16 +70,17 @@ export const SURRENDER_MONEY = Object.freeze({
   id: "surrender-money",
   tags: Object.freeze(["escape", "objective", "terminal"]),
   durationSeconds: 0,
-  usableBy: Object.freeze(["player"]),
+  usableBy: "controlled",
   playerOrder: 0,
+  availabilityHint: "Available until the attacker has abandoned the theft after returning the money.",
 
-  enumerateTargets(_context, actorId) {
-    return [actionInstance(this.id, actorId, "mugger")];
+  enumerateTargets(context, actorId) {
+    return [actionInstance(this.id, actorId, goalOwnerId(context.state))];
   },
 
   isAvailable(context, instance) {
     const objective = context.state.objective;
-    return instance.actorId === "player"
+    return instance.actorId === controlledParticipantId(context.state)
       && (!objective.searched || objective.lootAmount > 0);
   },
 
@@ -95,8 +99,9 @@ export const SURRENDER_MONEY = Object.freeze({
   },
 
   resolve(context, _instance, runtime) {
-    const outcome = resolveSurrenderedTheft(context, runtime.events);
-    proposeOutcome(runtime, outcome.id, outcome.moneyLost);
+    const outcome = requireEncounterObjective(context.state)
+      .resolveSurrender(context, runtime.events);
+    proposeOutcome(runtime, outcome);
   },
 });
 
@@ -104,18 +109,21 @@ export const CONTROLLED_DISENGAGE = Object.freeze({
   id: "controlled-disengage",
   tags: Object.freeze(["escape", "movement", "disrupt-hold"]),
   durationSeconds: 1,
-  usableBy: Object.freeze(["player"]),
+  usableBy: "controlled",
   playerOrder: 2,
+  availabilityHint: "Requires secure effective control of both opposing wrists, the opponent against a wall or on the ground, standing mobility, and at least medium exhaustion.",
 
-  enumerateTargets(_context, actorId) {
-    return [actionInstance(this.id, actorId, "mugger")];
+  enumerateTargets(context, actorId) {
+    return [actionInstance(this.id, actorId, goalOwnerId(context.state))];
   },
 
   isAvailable(context, instance) {
-    return instance.actorId === "player"
-      && canMove(context, "player")
+    const playerId = controlledParticipantId(context.state);
+    const opponentId = goalOwnerId(context.state);
+    return instance.actorId === playerId
+      && canMove(context, playerId)
       && hasControlPosition(context)
-      && getParticipant(context, "mugger").exertion >= CONTROLLED_DISENGAGE_MIN_EXERTION;
+      && getParticipant(context, opponentId).exertion >= CONTROLLED_DISENGAGE_MIN_EXERTION;
   },
 
   label() {
@@ -127,7 +135,7 @@ export const CONTROLLED_DISENGAGE = Object.freeze({
   },
 
   resolve(context, instance, runtime) {
-    const exertion = getParticipant(context, "mugger").exertion;
+    const exertion = getParticipant(context, goalOwnerId(context.state)).exertion;
     const chance = clamp(
       0.5 + (exertion - CONTROLLED_DISENGAGE_MIN_EXERTION) * 0.006,
       0.5,
@@ -142,7 +150,10 @@ export const CONTROLLED_DISENGAGE = Object.freeze({
 
     releaseAllHolds(context, runtime, "controlled-disengage");
     changeRange(context, ENCOUNTER_RANGE.far, runtime);
-    runtime.events.push({ type: "escape.disengaged", actorId: "player" });
+    runtime.events.push({
+      type: "escape.disengaged",
+      actorId: controlledParticipantId(context.state),
+    });
   },
 });
 
@@ -150,15 +161,16 @@ export const DEMAND_MONEY_BACK = Object.freeze({
   id: "demand-money-back",
   tags: Object.freeze(["escape", "objective"]),
   durationSeconds: 1,
-  usableBy: Object.freeze(["player"]),
+  usableBy: "controlled",
   playerOrder: 3,
+  availabilityHint: "Requires stolen money, secure effective control of both opposing wrists, and the opponent against a wall or on the ground.",
 
-  enumerateTargets(_context, actorId) {
-    return [actionInstance(this.id, actorId, "mugger")];
+  enumerateTargets(context, actorId) {
+    return [actionInstance(this.id, actorId, goalOwnerId(context.state))];
   },
 
   isAvailable(context, instance) {
-    return instance.actorId === "player"
+    return instance.actorId === controlledParticipantId(context.state)
       && context.state.objective.searched
       && context.state.objective.lootAmount > 0
       && hasControlPosition(context);
@@ -173,7 +185,8 @@ export const DEMAND_MONEY_BACK = Object.freeze({
   },
 
   resolve(context, instance, runtime) {
-    const speech = getStat(context, "player", "speech");
+    const playerId = controlledParticipantId(context.state);
+    const speech = getStat(context, playerId, "speech");
     const chance = calculateSkillCheckChance(speech, "tricky");
     if (!chanceRoll(context, instance, runtime, "speech-demand", chance, {
       skillId: "speech",
@@ -184,7 +197,41 @@ export const DEMAND_MONEY_BACK = Object.freeze({
       return;
     }
 
-    const amount = recoverTheftMoney(context, runtime.events);
-    runtime.events.push({ type: "demand.succeeded", actorId: "player", amount });
+    const amount = requireEncounterObjective(context.state).recover(context, runtime.events);
+    runtime.events.push({ type: "demand.succeeded", actorId: playerId, amount });
+  },
+});
+
+export const SEARCH_MONEY = Object.freeze({
+  id: "search-money",
+  tags: Object.freeze(["objective", "theft"]),
+  durationSeconds: 4,
+  usableBy: "goal-owner",
+  playerOrder: 100,
+  availabilityHint: "Requires sufficient usable control over the target.",
+
+  enumerateTargets(context, actorId) {
+    return [actionInstance(this.id, actorId, goalTargetId(context.state))];
+  },
+
+  isAvailable(context, instance) {
+    return instance.actorId === goalOwnerId(context.state)
+      && canBeginPhysicalAction(context, instance.actorId)
+      && getUsableHands(context, instance.actorId).length > 0
+      && hasUsableControl(context, instance.actorId, instance.targetId);
+  },
+
+  label() {
+    return "Take the money";
+  },
+
+  intentLabel(context, intent) {
+    return `${encounterVerb(context, intent.actorId, "keeps", "keep")} you controlled and ${encounterVerb(context, intent.actorId, "reaches", "reach")} toward your money`;
+  },
+
+  resolve(context, instance, runtime) {
+    addExertion(context, instance.actorId, 6);
+    requireEncounterObjective(context.state).take(context, runtime.events);
+    context.state.objective.stage = "disengage";
   },
 });

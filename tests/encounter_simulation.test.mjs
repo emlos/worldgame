@@ -12,7 +12,7 @@ import { ENCOUNTER_ACTIONS } from "../src/features/encounter/actions/index.js";
 
 test("simulation policies contain every current player action and no removed aliases", () => {
   const playerActionIds = ENCOUNTER_ACTIONS
-    .filter(({ usableBy }) => usableBy.includes("player"))
+    .filter(({ usableBy }) => usableBy === "any" || usableBy === "controlled")
     .map(({ id }) => id)
     .sort();
   const policyActionIds = [...new Set(Object.values(PLAYER_POLICIES).flat())].sort();
