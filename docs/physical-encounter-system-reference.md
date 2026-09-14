@@ -293,8 +293,18 @@ Encounter state does not duplicate either body.
 - The player adapter uses `game.player.body` directly.
 - The mugger adapter reconstructs a `Body` from the current WG temporary actor's serialized body and writes it back after an exchange.
 - Player stats come from `game.player.getSkillValue(name)`.
-- Temporary-actor `strength`, `endurance`, and `resolve` come from `actor.stats`.
-- Temporary-actor `fitness` is derived as `(strength + endurance) / 2`; player fitness is its own skill value.
+- Temporary-actor `strength`, `fitness`, `endurance`, and `resolve` each come directly from `actor.stats`.
+
+The four physical combat stats have separate responsibilities:
+
+| Stat | Combat responsibility |
+|---|---|
+| Strength | Applied force, shoves, hold leverage, and raw impact damage. |
+| Fitness | Obtaining or slipping grips, evasion, pursuit, and repositioning. |
+| Endurance | Readiness under repeated effort, exertion cost, and recovery. |
+| Resolve | Pain tolerance and the chance to complete a desperate overextended action. |
+
+Perception is not part of physical combat resolution for either the player or temporary actors.
 
 ### Body-part capacity
 
@@ -358,7 +368,7 @@ A participant is incapacitated when any implemented condition below is true:
 - head capacity is at most `0.08`;
 - chest capacity is at most `0.06`;
 - both best-arm and best-leg capacity are at most `0.15`, even if the actor remains conscious;
-- pain reaches `min(95, 78 + resolve × 1.2 + endurance × 0.7)`;
+- pain reaches `min(95, 78 + resolve × 1.9)`;
 - while grounded with pain at least 62, both best-leg and best-arm capacity are below `0.25`;
 - winded severity is 3 and pain is at least 68.
 
@@ -410,7 +420,7 @@ Most contested actions calculate success chance as:
 
 ```text
 chance = base chance
-       + (actor stat - target stat) × 0.035
+       + optional (actor stat - target stat) × 0.035
        + action modifier
        + (source limb capacity - 1) × 0.32, when the action has a source limb
        + (actor body performance - 1) × 0.40
@@ -419,11 +429,12 @@ chance = base chance
        + target exertion × 0.0015
        - 0.14 if actor is dazed
        + 0.12 if target is dazed
-       - 0.24 if target is guarding
-       - 0.30 if target is evading
+       - 0.18 if target is guarding against an impact
+       + 0.06 if target is guarding against control
+       - the target's Fitness-scaled evasion when evading
 ```
 
-The final chance is clamped to `0.18..0.90`. Unless an action says otherwise, both contest stats are strength.
+The final chance is clamped to `0.18..0.90`. A contest has no stat term unless the action declares one. Ordinary strike accuracy is therefore not improved by Strength; Strength still increases the resulting damage. Force actions use Strength, while grip access, pursuit, evasion, and repositioning use Fitness. Slipping a grip compares the restrained actor's Fitness against the controller's Strength.
 
 ### Damage
 
@@ -439,10 +450,15 @@ Actions without a source limb use a source multiplier of `1`. Guarding multiplie
 ### Exertion
 
 ```text
-exertion gained = max(1, round(base action effort - endurance × 0.35))
+strain = 1 + exertion / 180 + winded × 0.16 + dazed × 0.10 + pain / 250
+exertion gained = max(1, round(base action effort × strain - endurance × 0.45))
+readiness = 100 - exertion + endurance × 3
+          - max(0, pain - resolve × 1.5) × 0.18
+          - winded × 10 - dazed × 8
+recovery = max(6, round(8 + endurance × 2.4))
 ```
 
-Participant exertion is capped at 100. It affects contests and effective hold leverage and contributes to mugger commitment.
+Participant exertion is capped at 100. It affects contests and effective hold leverage and contributes to mugger commitment. Fitness does not reduce exertion or improve recovery. When an NPC attempts an action despite failing its effort profile, its desperate-effort chance is `0.13 + resolve × 0.01 - readiness deficit × 0.008 - excess acute severity × 0.06`, clamped to `0.02..0.23`.
 
 ### Deterministic randomness
 
@@ -539,7 +555,7 @@ Uses a `0.61` base contest. A miss has a 38% chance to apply severity-1 off-bala
 | Effort | 9 |
 | Availability | A usable free hand and range other than far. |
 
-Uses a `0.61` base contest. On success, hostile holds below 48 effective leverage break; stronger holds lose 20 stored leverage. If no hostile hold remains, the actor releases their own holds and range opens by one step.
+Uses a Strength-versus-Strength contest with base `0.61`. On success, hostile holds below 48 effective leverage break; stronger holds lose 20 stored leverage. If no hostile hold remains, the actor releases their own holds and range opens by one step.
 
 #### `create-distance`
 
@@ -585,7 +601,7 @@ Against a hostile hold, it uses a fitness-versus-strength contest with base `0.6
 | Effort | 6 |
 | Availability | Far range and sufficient standing movement capacity. |
 
-Uses a fitness-versus-fitness contest with base `0.54`. Success changes far range to reach. Failure increments the mugger's failed-control count.
+Uses a Fitness-versus-Fitness contest with base `0.68`. Success changes far range to reach. Failure increments the mugger's failed-control count.
 
 #### `run`
 
@@ -620,7 +636,7 @@ Proposes the terminal `mugger-fled` outcome.
 | Effort | 7 |
 | Availability | Reach or clinch range, strongest usable hand, and at least one functional uncontrolled target arm. |
 
-One concrete action instance is generated for each uncontrolled target arm. Uses a `0.60` base contest. Success creates a wrist grip, changes range to clinch, and sets stored leverage to:
+One concrete action instance is generated for each uncontrolled target arm. Uses a Fitness-versus-Fitness contest with base `0.60`. Success creates a wrist grip, changes range to clinch, and sets stored leverage to:
 
 ```text
 clamp(round(36 + actor strength × 3 - target strength), 22, 68)
@@ -641,7 +657,7 @@ One action instance targets every hostile hold. Each hold is rolled separately:
 
 ```text
 chance = 0.58
-       + (actor strength - controller strength) × 0.035
+       + (actor fitness - controller strength) × 0.035
        + (restrained limb capacity - 1) × 0.28
        - effective leverage × 0.004
        - 0.12 for a limb pin
@@ -671,7 +687,7 @@ Generates one instance per controlled hold. It is uncontested and increases stor
 | Effort | 10 |
 | Availability | Clinch; both standing; target support free; selected hold has at least 42 effective leverage. |
 
-Uses base contest `0.50` plus `effective leverage × 0.003`. Success changes target support to wall and adds 8 stored leverage. A failed mugger attempt increments failed-control attempts.
+Uses a Strength-versus-Strength contest with base `0.50` plus `effective leverage × 0.003`. Success changes target support to wall and adds 8 stored leverage. A failed mugger attempt increments failed-control attempts.
 
 #### `force-to-ground`
 
@@ -682,7 +698,7 @@ Uses base contest `0.50` plus `effective leverage × 0.003`. Success changes tar
 | Effort | 12 |
 | Availability | Actor's first hold has at least 34 effective leverage; clinch; both standing; actor balance above 0.35. |
 
-Uses base contest `0.48` plus `effective leverage × 0.003`. Success makes the target supine, the actor kneeling, both facing toward, and adds 6 leverage. A failed mugger attempt increments failed-control attempts.
+Uses a Strength-versus-Strength contest with base `0.48` plus `effective leverage × 0.003`. Success makes the target supine, the actor kneeling, both facing toward, and adds 6 leverage. A failed mugger attempt increments failed-control attempts.
 
 #### `turn-target-away`
 
@@ -693,7 +709,7 @@ Uses base contest `0.48` plus `effective leverage × 0.003`. Success makes the t
 | Effort | 7 |
 | Availability | Actor's first hold has at least 28 effective leverage; target is wall-supported or grounded and not already facing away. |
 
-Uses base contest `0.56` plus `effective leverage × 0.002`. Success turns the target away, changes a grounded target to prone, and adds 5 leverage.
+Uses a Fitness-versus-Fitness contest with base `0.56` plus `effective leverage × 0.002`. Success turns the target away, changes a grounded target to prone, and adds 5 leverage.
 
 #### `pin-limb`
 
@@ -704,7 +720,7 @@ Uses base contest `0.56` plus `effective leverage × 0.002`. Success turns the t
 | Effort | 8 |
 | Availability | A non-pin hold and a constrained target. A standing wall-supported target keeps the holding hand as the pin source; a grounded target requires a kneeling actor and usable knee. |
 
-Uses base contest `0.62` plus `effective leverage × 0.002`. Success converts the wrist grip to `limb-pin`, replaces the source part when using a knee, and adds 15 leverage.
+Uses a Strength-versus-Strength contest with base `0.62` plus `effective leverage × 0.002`. Success converts the wrist grip to `limb-pin`, replaces the source part when using a knee, and adds 15 leverage.
 
 #### `search-money`
 

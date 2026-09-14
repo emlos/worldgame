@@ -49,13 +49,13 @@ export function calculatePhysicalReadiness(context, actorId) {
   const winded = getAcute(context, actorId, "winded")?.severity || 0;
   const dazed = getAcute(context, actorId, "dazed")?.severity || 0;
   const pain = getBodyPain(context, actorId);
+  const toleratedPain = Math.max(0, pain - getStat(context, actorId, "resolve") * 1.5);
   return clamp(
     Math.round(
       100
       - participant.exertion
-      + getStat(context, actorId, "endurance") * 2
-      + getStat(context, actorId, "fitness")
-      - pain * 0.18
+      + getStat(context, actorId, "endurance") * 3
+      - toleratedPain * 0.18
       - winded * 10
       - dazed * 8,
     ),
@@ -77,7 +77,14 @@ export function getActionEffortStatus(context, instance) {
   const deficit = Math.max(0, profile.requiredReadiness - readiness);
   const acuteExcess = Math.max(0, winded - profile.maximumWinded)
     + Math.max(0, dazed - profile.maximumDazed);
-  const desperateChance = clamp(0.18 - deficit * 0.008 - acuteExcess * 0.06, 0.02, 0.18);
+  const desperateChance = clamp(
+    0.13
+      + getStat(context, instance.actorId, "resolve") * 0.01
+      - deficit * 0.008
+      - acuteExcess * 0.06,
+    0.02,
+    0.23,
+  );
   return {
     allowed: blockers.length === 0,
     blockers,
@@ -98,8 +105,7 @@ export function calculateExertionCost(context, actorId, baseAmount) {
     + winded * 0.16
     + dazed * 0.1
     + pain / 250;
-  const conditioning = getStat(context, actorId, "endurance") * 0.3
-    + getStat(context, actorId, "fitness") * 0.15;
+  const conditioning = getStat(context, actorId, "endurance") * 0.45;
   return Math.max(1, Math.round(baseAmount * strainMultiplier - conditioning));
 }
 
@@ -107,8 +113,7 @@ export function recoverExertion(context, actorId) {
   const participant = getParticipant(context, actorId);
   const amount = Math.max(
     6,
-    Math.round(8 + getStat(context, actorId, "endurance") * 1.6
-      + getStat(context, actorId, "fitness") * 0.8),
+    Math.round(8 + getStat(context, actorId, "endurance") * 2.4),
   );
   const recovered = Math.min(participant.exertion, amount);
   participant.exertion -= recovered;

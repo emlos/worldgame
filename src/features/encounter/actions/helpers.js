@@ -66,7 +66,7 @@ export function contest(
   runtime,
   {
     baseChance = 0.58,
-    actorStat = "strength",
+    actorStat = null,
     targetStat = actorStat,
     modifier = 0,
     defense = "control",
@@ -75,8 +75,10 @@ export function contest(
 ) {
   const attacker = getParticipant(context, instance.actorId);
   const defender = getParticipant(context, instance.targetId);
-  const statDifference = getStat(context, instance.actorId, actorStat)
-    - getStat(context, instance.targetId, targetStat);
+  const statDifference = actorStat === null
+    ? 0
+    : getStat(context, instance.actorId, actorStat)
+      - getStat(context, instance.targetId, targetStat);
   let chance = baseChance + statDifference * 0.035 + modifier;
   if (sourcePartId) {
     chance += (getLimbCapacity(context, instance.actorId, sourcePartId) - 1) * 0.32;

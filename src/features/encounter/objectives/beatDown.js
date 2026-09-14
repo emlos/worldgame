@@ -1,5 +1,6 @@
 import { BodyPartId } from "../../../characters/core/body.js";
 import {
+  calculatePainTolerance,
   getBodyPain,
   getBodyPart,
   getPartCapacity,
@@ -106,8 +107,7 @@ export const BEAT_DOWN_OBJECTIVE = Object.freeze({
 
   create({ game }) {
     const resolve = Number(game.player.getSkillValue("resolve")) || 0;
-    const endurance = Number(game.player.getSkillValue("endurance")) || 0;
-    const painThreshold = Math.min(95, 78 + resolve * 1.2 + endurance * 0.7);
+    const painThreshold = calculatePainTolerance(resolve);
     return {
       id: BEAT_DOWN_OBJECTIVE_ID,
       stage: "attack",

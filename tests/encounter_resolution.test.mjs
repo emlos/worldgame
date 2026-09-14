@@ -70,6 +70,7 @@ function grabPriorityContext({
   playerStrength = 5,
   muggerStrength = 5,
   muggerEndurance = 5,
+  muggerFitness = 5,
 } = {}) {
   const game = gameAtStart({ seed });
   game.player.setSkillValue("fitness", playerFitness);
@@ -78,6 +79,7 @@ function grabPriorityContext({
   Object.assign(game.currentStory.actors.mugger.stats, {
     strength: muggerStrength,
     endurance: muggerEndurance,
+    fitness: muggerFitness,
   });
   state.participants.player.exertion = playerExertion;
   state.participants.mugger.exertion = muggerExertion;
@@ -104,6 +106,7 @@ test("simultaneous incompatible grabs prioritize exertion, fitness, strength, th
     playerStrength: 1,
     muggerStrength: 4,
     muggerEndurance: 4,
+    muggerFitness: 4,
   }), PLAYER_GRAB, MUGGER_GRAB);
   assert.deepEqual(fitter, { winnerId: "player", basis: "fitness", roll: null });
 
@@ -388,7 +391,7 @@ test("directly conflicting simultaneous position changes cancel", () => {
 });
 
 test("landed strikes persist damage on the temporary actor body", () => {
-  const game = gameAtStart({ seed: 1 });
+  const game = gameAtStart({ seed: 2 });
   game.player.setSkillValue("strength", 10);
   startEncounter(game);
   const faceBefore = game.currentStory.actors.mugger.body.parts

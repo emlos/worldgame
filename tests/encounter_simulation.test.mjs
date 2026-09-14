@@ -32,7 +32,7 @@ test("seeded encounter simulations reproduce actions, rolls, and outcomes", () =
     seed: 431,
     policy: "escape",
     playerStats: { strength: 6, endurance: 6, resolve: 6, fitness: 6 },
-    npcStats: { strength: 5, endurance: 5, resolve: 5 },
+    npcStats: { strength: 5, endurance: 5, resolve: 5, fitness: 5 },
   };
   const first = runEncounterSimulation(options);
   assert.deepEqual(first, runEncounterSimulation(options));

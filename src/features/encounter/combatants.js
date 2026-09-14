@@ -88,6 +88,7 @@ function fail(message) {
   throw new Error(`Physical encounter combatant: ${message}`);
 }
 
+//TODO: move to util
 function finite(value, fallback = 0) {
   const number = Number(value);
   return Number.isFinite(number) ? number : fallback;
@@ -104,10 +105,11 @@ function playerStat(game, name) {
 }
 
 function actorStat(actor, name) {
-  if (name === "fitness") {
-    return (finite(actor.stats?.strength) + finite(actor.stats?.endurance)) / 2;
-  }
   return finite(actor.stats?.[name], 0);
+}
+
+export function calculatePainTolerance(resolve) {
+  return Math.min(95, 78 + finite(resolve) * 1.9);
 }
 
 export function createCombatContext({ game, state, instanceKey }) {
@@ -239,10 +241,7 @@ export function isEncounterIncapacitated(context, actorId) {
   if (legCapacity <= 0.15 && armCapacity <= 0.15) return true;
 
   const pain = getBodyPain(context, actorId);
-  const threshold = Math.min(
-    95,
-    78 + getStat(context, actorId, "resolve") * 1.2 + getStat(context, actorId, "endurance") * 0.7,
-  );
+  const threshold = calculatePainTolerance(getStat(context, actorId, "resolve"));
   if (pain >= threshold) return true;
 
   const participant = getParticipant(context, actorId);

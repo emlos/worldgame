@@ -17,7 +17,7 @@ import { createChoiceSection, renderSceneContent } from "../src/ui/browser/scene
 
 const START_DATE = new Date("2026-09-11T20:00:00.000Z");
 const PLAYER_STATS = Object.freeze(["strength", "endurance", "resolve", "fitness"]);
-const ATTACKER_STATS = Object.freeze(["strength", "endurance", "resolve"]);
+const ATTACKER_STATS = Object.freeze(["strength", "endurance", "resolve", "fitness"]);
 const DEFAULT_STAT = 5;
 
 const identities = Object.freeze([
@@ -72,7 +72,6 @@ const elements = {
   seedInput: document.querySelector("#seed-input"),
   playerSliders: document.querySelector("#player-sliders"),
   attackerSliders: document.querySelector("#attacker-sliders"),
-  attackerFitness: document.querySelector("#attacker-fitness"),
   startCombat: document.querySelector("#start-combat"),
   resetSetup: document.querySelector("#reset-setup"),
   setupNotice: document.querySelector("#setup-notice"),
@@ -119,12 +118,6 @@ function selectedAttacker() {
   return attackerPresets.find(({ id }) => id === elements.attackerSelect.value) || null;
 }
 
-function updateDerivedFitness() {
-  const strength = Number(sliderInputs.attacker.get("strength")?.value || 0);
-  const endurance = Number(sliderInputs.attacker.get("endurance")?.value || 0);
-  elements.attackerFitness.value = ((strength + endurance) / 2).toFixed(1);
-}
-
 function createSlider(container, owner, statName) {
   const label = document.createElement("label");
   label.className = "combat-lab-slider";
@@ -145,7 +138,6 @@ function createSlider(container, owner, statName) {
   input.setAttribute("aria-label", `${titleCase(owner)} ${titleCase(statName)}`);
   input.addEventListener("input", () => {
     output.value = Number(input.value).toFixed(1);
-    updateDerivedFitness();
     if (game) setNotice(elements.setupNotice, "Setup changed. Restart combat to apply it.");
   });
   label.append(heading, input);
@@ -168,7 +160,6 @@ function populateSetup() {
   }
   PLAYER_STATS.forEach((name) => createSlider(elements.playerSliders, "player", name));
   ATTACKER_STATS.forEach((name) => createSlider(elements.attackerSliders, "attacker", name));
-  updateDerivedFitness();
   elements.startCombat.disabled = scenarios.length === 0 || attackerPresets.length === 0;
   if (!scenarios.length) {
     setNotice(elements.setupNotice, "No authored physical-encounter scenarios were found.", { error: true });
@@ -207,9 +198,6 @@ function createConfiguredGame(scenario, preset) {
   for (const statName of ATTACKER_STATS) {
     generated.stats[statName] = configuredValue("attacker", statName);
   }
-  generated.stats.fitness = (
-    generated.stats.strength + generated.stats.endurance
-  ) / 2;
   nextGame.currentStory.actors[scenario.aggressorAlias] = generated;
   resolveActiveWGStory(nextGame);
   return nextGame;

@@ -101,7 +101,11 @@ export const GRAB_ARM = Object.freeze({
 
   resolve(context, instance, runtime) {
     addExertion(context, instance.actorId, 7);
-    if (!contest(context, instance, runtime, { baseChance: 0.6 })) {
+    if (!contest(context, instance, runtime, {
+      baseChance: 0.6,
+      actorStat: "fitness",
+      targetStat: "fitness",
+    })) {
       failAction(runtime, instance, "grip-missed");
       requireEncounterObjective(context.state).recordControlFailure?.(context, instance.actorId);
       return;
@@ -202,7 +206,7 @@ export const WRENCH_FREE = Object.freeze({
       const multiplePenalty = Math.max(0, holds.length - 1) * 0.08;
       const chance = clamp(
         0.58
-        + (getStat(context, instance.actorId, "strength")
+        + (getStat(context, instance.actorId, "fitness")
           - getStat(context, hold.controllerId, "strength")) * 0.035
         + (getBodyPerformance(context, instance.actorId) - 1) * 0.4
         + (getBalanceCapacity(context, instance.actorId)
@@ -237,7 +241,7 @@ export const WRENCH_FREE = Object.freeze({
       ) * restrainedLimbCapacity;
       const reduction = Math.max(
         3,
-        Math.round((5 + getStat(context, instance.actorId, "strength") * 0.6) * effortMultiplier),
+        Math.round((5 + getStat(context, instance.actorId, "fitness") * 0.6) * effortMultiplier),
       );
       hold.leverage = Math.max(0, hold.leverage - reduction);
       runtime.events.push({ type: "hold.weakened", holdId: hold.id, amount: reduction });
@@ -353,7 +357,12 @@ export const FORCE_TO_WALL = Object.freeze({
       return;
     }
     const modifier = getEffectiveHoldLeverage(context, hold) * 0.003;
-    if (!contest(context, instance, runtime, { baseChance: 0.5, modifier })) {
+    if (!contest(context, instance, runtime, {
+      baseChance: 0.5,
+      actorStat: "strength",
+      targetStat: "strength",
+      modifier,
+    })) {
       failAction(runtime, instance, "position-held");
       requireEncounterObjective(context.state).recordControlFailure?.(context, instance.actorId);
       return;
@@ -403,6 +412,8 @@ export const FORCE_TO_GROUND = Object.freeze({
     addExertion(context, instance.actorId, 12);
     if (!hold || !contest(context, instance, runtime, {
       baseChance: 0.48,
+      actorStat: "strength",
+      targetStat: "strength",
       modifier: hold ? getEffectiveHoldLeverage(context, hold) * 0.003 : 0,
     })) {
       failAction(runtime, instance, hold ? "takedown-resisted" : "hold-gone");
@@ -456,6 +467,8 @@ export const TURN_TARGET_AWAY = Object.freeze({
     addExertion(context, instance.actorId, 7);
     if (!hold || !contest(context, instance, runtime, {
       baseChance: 0.56,
+      actorStat: "fitness",
+      targetStat: "fitness",
       modifier: hold ? getEffectiveHoldLeverage(context, hold) * 0.002 : 0,
     })) {
       failAction(runtime, instance, hold ? "turn-resisted" : "hold-gone");
@@ -532,6 +545,8 @@ export const PIN_LIMB = Object.freeze({
     addExertion(context, instance.actorId, 8);
     if (!hold || !contest(context, instance, runtime, {
       baseChance: 0.62,
+      actorStat: "strength",
+      targetStat: "strength",
       modifier: hold ? getEffectiveHoldLeverage(context, hold) * 0.002 : 0,
     })) {
       failAction(runtime, instance, hold ? "pin-resisted" : "hold-gone");

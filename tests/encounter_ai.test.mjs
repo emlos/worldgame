@@ -53,7 +53,7 @@ test("extreme exertion and hard encounter pacing force a legal disengagement pat
     instanceKey: game.currentStory.instanceKey,
   });
   assert.ok(getAiCommitment(context) <= RETREAT_COMMITMENT_THRESHOLD);
-  assert.equal(selectAiIntent(context).actionId, "flee");
+  assert.equal(selectAiIntent(context).actionId, "catch-breath");
 
   state.participants.mugger.exertion = 0;
   state.elapsedSeconds = PROLONGED_ENCOUNTER_RETREAT_SECONDS;

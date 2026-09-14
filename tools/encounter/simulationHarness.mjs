@@ -548,7 +548,12 @@ export function runStatDifferenceMatrix({
       policy,
       scenario,
       playerStats: { strength: playerValue, endurance: playerValue, resolve: playerValue, fitness: playerValue },
-      npcStats: { strength: baseline, endurance: baseline, resolve: baseline },
+      npcStats: {
+        strength: baseline,
+        endurance: baseline,
+        resolve: baseline,
+        fitness: baseline,
+      },
     }));
     return {
       statDifference: difference,

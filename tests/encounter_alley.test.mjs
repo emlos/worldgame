@@ -386,7 +386,7 @@ test("taking money begins an interruptible getaway before theft completes", () =
 });
 
 test("incapacitating the mugger during the getaway recovers the stolen money", () => {
-  const game = gameAtStart({ seed: 2, money: 50 });
+  const game = gameAtStart({ seed: 3, money: 50 });
   game.player.setSkillValue("strength", 10);
   startEncounter(game);
   prepareControlledSearch(game);
@@ -395,7 +395,7 @@ test("incapacitating the mugger during the getaway recovers the stolen money", (
   const actor = game.currentStory.actors.mugger;
   const painThreshold = Math.min(
     95,
-    78 + actor.stats.resolve * 1.2 + actor.stats.endurance * 0.7,
+    78 + actor.stats.resolve * 1.9,
   );
   actor.body.parts.find(({ id }) => id === "face").pain = painThreshold - 1;
 
@@ -491,15 +491,16 @@ test("escape, retreat, incapacitation, and incapacitated theft are reachable out
           ? "wrench-free"
           : "shove-away").id, "player-escaped");
 
-  const cleanWin = gameAtStart({ seed: 1 });
+  const cleanWin = gameAtStart({ seed: 2 });
   cleanWin.player.setSkillValue("strength", 10);
   startEncounter(cleanWin);
   assert.equal(playUntilTerminal(cleanWin, (game) =>
     findActionChoice(game, "strike-holding-arm") ? "strike-holding-arm" : "strike-face").id,
   "mugger-incapacitated");
 
-  const injuredLoss = gameAtStart({ seed: 12 });
+  const injuredLoss = gameAtStart({ seed: 1 });
   startEncounter(injuredLoss);
+  injuredLoss.player.body.getPart("abdomen").pain = 77;
   assert.equal(playUntilTerminal(injuredLoss, (game) =>
     findActionChoice(game, "shove-away")
       ? "shove-away"

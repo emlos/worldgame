@@ -68,7 +68,11 @@ export const SHOVE_AWAY = Object.freeze({
 
   resolve(context, instance, runtime) {
     addExertion(context, instance.actorId, 9);
-    if (!contest(context, instance, runtime, { baseChance: 0.61 })) {
+    if (!contest(context, instance, runtime, {
+      baseChance: 0.61,
+      actorStat: "strength",
+      targetStat: "strength",
+    })) {
       failAction(runtime, instance, "held-ground");
       return;
     }

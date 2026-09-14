@@ -429,7 +429,7 @@ test("NPCs retain overexerting actions with a documented desperation chance", ()
   const effort = getActionEffortStatus(context, headbutt);
   assert.equal(effort.allowed, false);
   assert.ok(effort.blockers.includes("too-winded"));
-  assert.ok(effort.desperateChance >= 0.02 && effort.desperateChance <= 0.18);
+  assert.ok(effort.desperateChance >= 0.02 && effort.desperateChance <= 0.23);
 });
 
 test("exertion cost rises under fatigue and acute strain while conditioning helps", () => {
@@ -450,7 +450,6 @@ test("exertion cost rises under fatigue and acute strain while conditioning help
   state.participants.player.exertion = 0;
   state.participants.player.acute = [];
   game.player.setSkillValue("endurance", 10);
-  game.player.setSkillValue("fitness", 10);
   const conditionedCost = calculateExertionCost(context, "player", 10);
 
   assert.ok(strainedCost > freshCost);
