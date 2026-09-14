@@ -11,6 +11,7 @@ import {
   holdsControlledBy,
   hostileHoldsOn,
   isDazed,
+  isSameLimb,
   otherParticipantId,
 } from "../combatants.js";
 import {
@@ -107,6 +108,16 @@ export const GRAB_ARM = Object.freeze({
       kind: "wrist-grip",
       leverage,
     };
+    // A successful counter-grab cannot coexist with the old grip when each
+    // hold restrains the limb supplying the other. The new action has just won
+    // its contest, so it displaces the incompatible established grip.
+    for (const existing of [...context.state.relationships.holds]) {
+      const mutuallyRestrained = existing.controllerId === hold.targetId
+        && existing.targetId === hold.controllerId
+        && isSameLimb(existing.sourcePartId, hold.targetPartId)
+        && isSameLimb(hold.sourcePartId, existing.targetPartId);
+      if (mutuallyRestrained) removeHold(context, existing, runtime, "source-restrained");
+    }
     context.state.relationships.holds.push(hold);
     changeRange(context, ENCOUNTER_RANGE.clinch, runtime);
     runtime.events.push({

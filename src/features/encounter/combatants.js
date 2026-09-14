@@ -286,21 +286,77 @@ export function isHandCommitted(context, actorId, handId) {
   );
 }
 
-export function isArmHeld(context, actorId, handId) {
-  return hostileHoldsOn(context, actorId).some(
-    (hold) => isSameLimb(hold.targetPartId, handId),
+function holdPositionMultiplier(context, hold) {
+  const target = getParticipant(context, hold.targetId);
+  if (hold.kind !== "limb-pin") return 1;
+
+  let multiplier = target.support === ENCOUNTER_SUPPORT.wall ? 1.08 : 1.18;
+  if (getEncounterFacing(context.state, hold.targetId) === ENCOUNTER_FACING.away) {
+    multiplier += 0.08;
+  }
+  return multiplier;
+}
+
+function unrestrainedHoldLeverage(context, hold) {
+  const participant = getParticipant(context, hold.controllerId);
+  const dazeMultiplier = isDazed(context, hold.controllerId) ? 0.7 : 1;
+  const exertionMultiplier = Math.max(0.55, 1 - participant.exertion * 0.0045);
+  return hold.leverage
+    * getPartCapacity(context, hold.controllerId, hold.sourcePartId)
+    * getBalanceCapacity(context, hold.controllerId)
+    * dazeMultiplier
+    * exertionMultiplier
+    * holdPositionMultiplier(context, hold);
+}
+
+function restraintMultiplier(context, actorId, partId, effectiveByHoldId) {
+  let multiplier = 1;
+  for (const hold of hostileHoldsOn(context, actorId)) {
+    if (!isSameLimb(hold.targetPartId, partId)) continue;
+    const effective = effectiveByHoldId.get(hold.id) || 0;
+    const denominator = hold.kind === "limb-pin" ? 70 : 105;
+    const floor = hold.kind === "limb-pin" ? 0.02 : 0.12;
+    multiplier *= Math.max(floor, 1 - effective / denominator);
+  }
+  return multiplier;
+}
+
+function solveEffectiveHoldLeverages(context) {
+  const holds = context.state.relationships.holds;
+  const baseByHoldId = new Map(
+    holds.map((hold) => [hold.id, unrestrainedHoldLeverage(context, hold)]),
   );
+  let effectiveByHoldId = new Map(baseByHoldId);
+
+  // Holds can restrain limbs which are themselves maintaining other holds.
+  // Resolve that small coupled system together so the answer does not depend
+  // on hold array order. Damping also gives reciprocal restraint a stable,
+  // deterministic result instead of alternating between two extremes.
+  for (let iteration = 0; iteration < 32; iteration += 1) {
+    const next = new Map();
+    let largestChange = 0;
+    for (const hold of holds) {
+      const constrained = baseByHoldId.get(hold.id) * restraintMultiplier(
+        context,
+        hold.controllerId,
+        hold.sourcePartId,
+        effectiveByHoldId,
+      );
+      const previous = effectiveByHoldId.get(hold.id);
+      const value = (previous + constrained) / 2;
+      next.set(hold.id, value);
+      largestChange = Math.max(largestChange, Math.abs(value - previous));
+    }
+    effectiveByHoldId = next;
+    if (largestChange < 0.0001) break;
+  }
+  return effectiveByHoldId;
 }
 
 export function getLimbCapacity(context, actorId, partId) {
-  let capacity = getPartCapacity(context, actorId, partId);
-  for (const hold of hostileHoldsOn(context, actorId)) {
-    if (!isSameLimb(hold.targetPartId, partId)) continue;
-    const effective = getEffectiveHoldLeverage(context, hold);
-    const denominator = hold.kind === "limb-pin" ? 70 : 105;
-    const floor = hold.kind === "limb-pin" ? 0.02 : 0.12;
-    capacity *= Math.max(floor, 1 - effective / denominator);
-  }
+  const effectiveByHoldId = solveEffectiveHoldLeverages(context);
+  const capacity = getPartCapacity(context, actorId, partId)
+    * restraintMultiplier(context, actorId, partId, effectiveByHoldId);
   return Math.max(0, Math.min(1, capacity));
 }
 
@@ -308,8 +364,7 @@ export function getUsableHands(context, actorId) {
   return [BodyPartId.HAND_L, BodyPartId.HAND_R].filter((handId) =>
     isPartFunctional(context, actorId, handId)
     && !isHandCommitted(context, actorId, handId)
-    && !isArmHeld(context, actorId, handId)
-    && getLimbCapacity(context, actorId, handId) > 0.2)
+    && getLimbCapacity(context, actorId, handId) > 0.55)
     .sort((left, right) =>
       getLimbCapacity(context, actorId, right) - getLimbCapacity(context, actorId, left)
       || left.localeCompare(right));
@@ -349,24 +404,9 @@ export function getBalanceCapacity(context, actorId) {
 }
 
 export function getEffectiveHoldLeverage(context, hold) {
-  const capacity = getPartCapacity(context, hold.controllerId, hold.sourcePartId);
-  const participant = getParticipant(context, hold.controllerId);
-  const dazeMultiplier = isDazed(context, hold.controllerId) ? 0.7 : 1;
-  const exertionMultiplier = Math.max(0.55, 1 - participant.exertion * 0.0045);
-  const target = getParticipant(context, hold.targetId);
-  let positionMultiplier = 1;
-  if (hold.kind === "limb-pin") {
-    positionMultiplier = target.support === "wall" ? 1.08 : 1.18;
-    if (getEncounterFacing(context.state, hold.targetId) === ENCOUNTER_FACING.away) {
-      positionMultiplier += 0.08;
-    }
-  }
-  return hold.leverage
-    * capacity
-    * getBalanceCapacity(context, hold.controllerId)
-    * dazeMultiplier
-    * exertionMultiplier
-    * positionMultiplier;
+  const solved = solveEffectiveHoldLeverages(context).get(hold.id);
+  if (solved !== undefined) return solved;
+  return unrestrainedHoldLeverage(context, hold);
 }
 
 export function getHoldGeometryProblem(context, hold) {
@@ -386,6 +426,12 @@ export function getHoldGeometryProblem(context, hold) {
     return {
       code: "source-disabled",
       message: `hold '${hold.id}' uses a nonfunctional source limb`,
+    };
+  }
+  if (getLimbCapacity(context, hold.controllerId, hold.sourcePartId) <= 0.15) {
+    return {
+      code: "source-restrained",
+      message: `hold '${hold.id}' uses a source limb disabled by restraint`,
     };
   }
   if (getEncounterRange(context.state) !== ENCOUNTER_RANGE.clinch) {

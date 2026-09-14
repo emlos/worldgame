@@ -203,8 +203,13 @@ export function removeNonfunctionalHolds(context, runtime) {
 }
 
 export function reconcileEncounterRelationships(context, runtime) {
-  for (const hold of [...context.state.relationships.holds]) {
-    const problem = getHoldGeometryProblem(context, hold);
+  // Diagnose from one shared snapshot. Removing one invalid hold must not make
+  // another result depend on relationship array order during this pass.
+  const diagnosed = context.state.relationships.holds.map((hold) => ({
+    hold,
+    problem: getHoldGeometryProblem(context, hold),
+  }));
+  for (const { hold, problem } of diagnosed) {
     if (!problem) continue;
 
     if (["source-missing", "target-missing"].includes(problem.code)) {

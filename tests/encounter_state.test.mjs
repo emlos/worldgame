@@ -3,8 +3,10 @@ import assert from "node:assert/strict";
 
 import {
   createCombatContext,
+  getEffectiveHoldLeverage,
   getLimbCapacity,
   getPartCapacity,
+  getUsableHands,
   isEncounterIncapacitated,
   validateCombatantInvariants,
 } from "../src/features/encounter/combatants.js";
@@ -149,6 +151,80 @@ test("runtime invariants reject a hold maintained by a nonfunctional hand", () =
     instanceKey: game.currentStory.instanceKey,
   });
   assert.throws(() => validateCombatantInvariants(context), /nonfunctional source limb/);
+});
+
+test("a weak grip reduces capacity without completely disabling the held hand", () => {
+  const game = gameAtStart();
+  const state = startEncounter(game);
+  state.relationships.range[0].value = "clinch";
+  state.relationships.holds.push({
+    id: "weak-grip",
+    controllerId: "mugger",
+    sourcePartId: "hand_l",
+    targetId: "player",
+    targetPartId: "lower_arm_l",
+    kind: "wrist-grip",
+    leverage: 1,
+  });
+  const context = createCombatContext({
+    game,
+    state,
+    instanceKey: game.currentStory.instanceKey,
+  });
+
+  assert.ok(getLimbCapacity(context, "player", "hand_l") > 0.9);
+  assert.ok(getUsableHands(context, "player").includes("hand_l"));
+});
+
+test("restraining a hold's source arm weakens and can release that outgoing hold", () => {
+  const game = gameAtStart();
+  const state = startEncounter(game);
+  state.relationships.range[0].value = "clinch";
+  state.participants.player.support = "wall";
+  const outgoing = {
+    id: "player-outgoing",
+    controllerId: "player",
+    sourcePartId: "hand_l",
+    targetId: "mugger",
+    targetPartId: "lower_arm_l",
+    kind: "wrist-grip",
+    leverage: 60,
+  };
+  state.relationships.holds.push(outgoing);
+  let context = createCombatContext({
+    game,
+    state,
+    instanceKey: game.currentStory.instanceKey,
+  });
+  const unrestrained = getEffectiveHoldLeverage(context, outgoing);
+
+  state.relationships.holds.push({
+    id: "mugger-pin",
+    controllerId: "mugger",
+    sourcePartId: "hand_r",
+    targetId: "player",
+    targetPartId: "lower_arm_l",
+    kind: "limb-pin",
+    leverage: 80,
+  });
+  context = createCombatContext({
+    game,
+    state,
+    instanceKey: game.currentStory.instanceKey,
+  });
+
+  assert.doesNotThrow(() => validateEncounterState(state));
+  assert.ok(getLimbCapacity(context, "player", "hand_l") <= 0.15);
+  assert.ok(getEffectiveHoldLeverage(context, outgoing) < unrestrained * 0.1);
+
+  const runtime = { events: [] };
+  reconcileEncounterRelationships(context, runtime);
+
+  assert.deepEqual(state.relationships.holds.map(({ id }) => id), ["mugger-pin"]);
+  assert.ok(runtime.events.some((event) =>
+    event.type === "hold.broken"
+      && event.holdId === outgoing.id
+      && event.reason === "source-restrained"));
 });
 
 test("multiple holds use distinct source and target limb chains", () => {
