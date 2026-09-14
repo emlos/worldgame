@@ -11,7 +11,6 @@ import {
   applyImpact,
   contest,
 } from "../src/features/encounter/actions/helpers.js";
-import { renderLastExchange } from "../src/features/encounter/prose.js";
 import { gameAtStart, startEncounter } from "./support/encounter.mjs";
 
 function encounterContext() {
@@ -89,8 +88,8 @@ test("an injured source limb reduces both action chance and impact damage", () =
   assert.ok(injuredDamage < healthyDamage);
 });
 
-test("a newly broken player limb is announced once and ordinary healing cannot restore its use", () => {
-  const { game, state, context } = encounterContext();
+test("severe combat damage creates only a temporary bruise", () => {
+  const { game, context } = encounterContext();
   const forearm = game.player.body.getPart(BodyPartId.LOWER_ARM_L);
   forearm.health = forearm.maxHealth * 0.31;
   forearm.pain = 0;
@@ -108,55 +107,26 @@ test("a newly broken player limb is announced once and ordinary healing cannot r
     baseDamage: 10,
     strengthScale: 0,
   });
-  assert.equal(forearm.isBroken, true);
-  assert.equal(getPartCapacity(context, "player", BodyPartId.HAND_L), 0);
-  assert.equal(firstRuntime.events.filter(({ type }) => type === "injury.broken").length, 1);
-
-  state.lastEvents = firstRuntime.events;
-  assert.match(
-    renderLastExchange(context),
-    /feel your left forearm snap.*pain is blinding.*no longer use it/i,
+  assert.deepEqual([...forearm.conditions], ["bruised"]);
+  assert.ok(getPartCapacity(context, "player", BodyPartId.HAND_L) > 0);
+  assert.ok(firstRuntime.events.every(({ type }) => type !== "injury.broken"));
+  assert.deepEqual(
+    [...Body.fromJSON(game.player.body.toJSON()).getPart(BodyPartId.LOWER_ARM_L).conditions],
+    ["bruised"],
   );
 
-  const secondRuntime = runtime();
-  applyImpact(context, impact, secondRuntime, {
-    partId: BodyPartId.LOWER_ARM_L,
-    baseDamage: 2,
-    strengthScale: 0,
-  });
-  assert.equal(secondRuntime.events.some(({ type }) => type === "injury.broken"), false);
-
-  game.player.healBodyPart(BodyPartId.LOWER_ARM_L, forearm.maxHealth);
+  game.player.body.relievePain(100);
   assert.equal(forearm.health, forearm.maxHealth);
-  assert.equal(forearm.isBroken, true);
-  assert.equal(getPartCapacity(context, "player", BodyPartId.HAND_L), 0);
-  assert.equal(
-    Body.fromJSON(game.player.body.toJSON()).getPart(BodyPartId.LOWER_ARM_L).isBroken,
-    true,
-  );
+  assert.deepEqual([...forearm.conditions], []);
+  assert.equal(getPartCapacity(context, "player", BodyPartId.HAND_L), 1);
 });
 
-test("a newly broken opponent limb receives visible third-person prose", () => {
-  const { state, context } = encounterContext();
-  const foot = context.combatants.mugger.body.getPart(BodyPartId.FOOT_L);
-  foot.health = foot.maxHealth * 0.31;
-  foot.pain = 0;
-  foot.conditions.clear();
-  const result = runtime();
+test("body hydration rejects disabled wound and break conditions", () => {
+  const body = new Body();
+  const data = body.toJSON();
+  data.parts[0].conditions = ["wounded"];
+  assert.throws(() => Body.fromJSON(data), /only 'bruised'/i);
 
-  applyImpact(context, {
-    actionId: "anatomy-test",
-    actorId: "player",
-    targetId: "mugger",
-    parameters: { sourcePartId: BodyPartId.HAND_L },
-  }, result, {
-    partId: BodyPartId.FOOT_L,
-    baseDamage: 10,
-    strengthScale: 0,
-  });
-
-  state.lastEvents = result.events;
-  assert.equal(foot.isBroken, true);
-  assert.match(renderLastExchange(context), /left foot turns at an unnatural angle/i);
-  assert.match(renderLastExchange(context), /can no longer use it/i);
+  data.parts[0].conditions = ["broken"];
+  assert.throws(() => Body.fromJSON(data), /only 'bruised'/i);
 });

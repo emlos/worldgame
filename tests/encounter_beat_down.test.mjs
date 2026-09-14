@@ -112,19 +112,21 @@ test("reaching maximum pain forces one helpless exchange before the beat-down co
   assert.doesNotThrow(() => validateEncounterState(next));
 });
 
-test("breaking every gross limb chain records the limb-incapacitation victory", () => {
+test("zero-integrity bruised limbs use generic incapacitation without a break state", () => {
   const game = preparedGame();
   for (const partId of ["lower_arm_l", "lower_arm_r", "knee_l", "knee_r"]) {
     const part = game.player.body.getPart(partId);
     part.health = 0;
     part.pain = 0;
-    part.conditions.add(InjuryCondition.BROKEN);
+    part.conditions.add(InjuryCondition.BRUISED);
   }
   const state = createBeatDown(game);
 
   assert.equal(state.phase, "terminal");
   assert.equal(state.outcome.id, BEAT_DOWN_OUTCOME.targetBeatenDown);
-  assert.equal(state.outcome.cause, "broken-limbs");
+  assert.equal(state.outcome.cause, "already-incapacitated");
   assert.equal(state.outcome.pain, 0);
+  assert.ok(game.player.body.allParts().every((part) =>
+    [...part.conditions].every((condition) => condition === InjuryCondition.BRUISED)));
   assert.doesNotThrow(() => validateEncounterState(state));
 });

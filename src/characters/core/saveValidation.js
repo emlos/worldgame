@@ -13,6 +13,7 @@ import {
   RELATIONSHIP_MAX,
   RELATIONSHIP_MIN,
 } from "./relationship.js";
+import { InjuryCondition } from "./body.js";
 
 export function validateStatsSave(data, path) {
   const stats = saveRecord(data, path);
@@ -53,7 +54,6 @@ export function validateBodySave(data, path) {
         min: 0,
         max: maxHealth,
       });
-      saveBoolean(requiredSaveField(part, "canBreak", partPath), `${partPath}.canBreak`);
       saveFiniteNumber(
         requiredSaveField(part, "painMultiplier", partPath),
         `${partPath}.painMultiplier`,
@@ -63,11 +63,16 @@ export function validateBodySave(data, path) {
         min: 0,
         max: 100,
       });
-      saveUniqueStrings(
+      const conditions = saveUniqueStrings(
         requiredSaveField(part, "conditions", partPath),
         `${partPath}.conditions`,
         { nonEmpty: true },
       );
+      for (const condition of conditions) {
+        if (condition !== InjuryCondition.BRUISED) {
+          failSave(`${partPath}.conditions`, `does not support condition '${condition}'`);
+        }
+      }
     },
   );
   return body;

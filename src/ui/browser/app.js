@@ -839,10 +839,6 @@ function renderPhoneStats() {
         label: "Physical performance",
         value: `${Math.round(view.body.performanceMultiplier * 100)}%`,
       },
-      {
-        label: "Critical breaks",
-        value: view.body.criticalBreaks ? "Yes" : "No",
-      },
       { label: "Incapacitated", value: view.body.incapacitated ? "Yes" : "No" },
   ];
   if (view.body.pain > 0) {

@@ -35,8 +35,8 @@ game systems:
         - 70-100 clean: no penalty and occasional contextual benefits
         - 40-69 presentable: ordinary state
         - 15-39 dirty: noticeable reactions during close social situations
-        - 0-14 filthy: strong reactions, problems with customer-facing work, and increased wound-infection risk
-        - low hygiene should influence NPC reactions, intimacy, jobs/school, comfort, wound care, and contextual prose
+        - 0-14 filthy: strong reactions and problems with customer-facing work
+        - low hygiene should influence NPC reactions, intimacy, jobs/school, comfort, and contextual prose
         - eventually consider separate internal body hygiene and clothing cleanliness while presenting one general status
     - stat/state interplay:
         - low energy can raise stress when the player continues exerting themself

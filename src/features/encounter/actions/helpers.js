@@ -134,7 +134,6 @@ export function applyImpact(
     * sourceMultiplier,
   );
   if (runtime.guarded.has(instance.targetId)) damage = Math.max(1, Math.round(damage * 0.62));
-  const wasBroken = getCombatant(context, instance.targetId).body.getPart(partId)?.isBroken || false;
   const part = getCombatant(context, instance.targetId).body.applyDamage({
     partId,
     amount: damage,
@@ -149,13 +148,6 @@ export function applyImpact(
     damage,
     damageType: DamageType.BLUNT,
   });
-  if (!wasBroken && part?.isBroken) {
-    runtime.events.push({
-      type: "injury.broken",
-      actorId: instance.targetId,
-      partId,
-    });
-  }
   return damage;
 }
 

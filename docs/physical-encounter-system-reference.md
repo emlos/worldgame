@@ -336,14 +336,14 @@ For every part in the chain:
 
 ```text
 part capacity = integrity ratio
-part capacity *= 0.80 when wounded, otherwise 0.94 when bruised
+part capacity *= 0.94 when bruised
 part capacity *= max(0.65, 1 - local pain × 0.0035)
 chain capacity = minimum capacity in the chain
 ```
 
-A missing, broken, or zero-health part makes the chain capacity zero. A part is considered functional above `0.15` capacity. Broken parts remain broken and unusable through ordinary integrity healing and passive pain recovery; only the explicit development hard reset can currently clear the condition. A future treatment system will provide the normal recovery path.
+A missing or zero-health part makes the chain capacity zero. A part is considered functional above `0.15` capacity. Body parts support only two condition states: no condition and `bruised`. Existing passive pain recovery restores lost integrity by the same proportion, so even a zero-integrity part recovers instead of permanently disabling the save. The bruise clears once integrity reaches at least 90%.
 
-Usable hands and knees are ordered by current limb capacity, so actions which choose their source automatically use the strongest available limb. When an action has a source part, reduced source-limb capacity lowers both its contest chance and its impact damage. A newly broken part emits `injury.broken` once, allowing the prose layer to announce the break separately from the ordinary impact.
+Usable hands and knees are ordered by current limb capacity, so actions which choose their source automatically use the strongest available limb. When an action has a source part, reduced source-limb capacity lowers both its contest chance and its impact damage.
 
 ### Limb capacity under a hold
 
@@ -926,7 +926,7 @@ Condition summaries include:
 
 - qualitative whole-body pain;
 - qualitative exertion;
-- up to two most significant visible body-part injuries, prioritized by broken/wounded/bruised severity, then integrity and pain;
+- up to two most significant bruised body parts, prioritized by integrity and pain;
 - dazed, winded, and off-balance states;
 - qualitative hold security for a participant maintaining holds.
 
@@ -947,7 +947,6 @@ Resolution emits structured events before prose is assembled. Currently emitted 
 | `action.spoiled` | A slower action became unavailable before completion. |
 | `defense.braced` | Guard was established. |
 | `impact.landed` | Body-part damage was applied. |
-| `injury.broken` | An impact newly broke a body part; rendered once with participant-specific prose. |
 | `acute.applied` | Daze, winded, or off-balance was applied or accumulated. |
 | `hold.created` | A wrist grip was created. |
 | `hold.weakened` | Stored hold leverage fell. |

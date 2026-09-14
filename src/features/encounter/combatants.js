@@ -284,10 +284,9 @@ export function getPartCapacity(context, actorId, partId) {
   let capacity = 1;
   for (const id of chain) {
     const part = combatant.body.getPart(id);
-    if (!part || part.isBroken || part.health <= 0) return 0;
+    if (!part || part.health <= 0) return 0;
     let partCapacity = part.integrityRatio;
-    if (part.conditions.has(InjuryCondition.WOUNDED)) partCapacity *= 0.8;
-    else if (part.conditions.has(InjuryCondition.BRUISED)) partCapacity *= 0.94;
+    if (part.conditions.has(InjuryCondition.BRUISED)) partCapacity *= 0.94;
     partCapacity *= Math.max(0.65, 1 - part.pain * 0.0035);
     capacity = Math.min(capacity, partCapacity);
   }

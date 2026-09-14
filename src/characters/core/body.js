@@ -67,14 +67,12 @@ export const BodyPartId = Object.freeze({
 });
 
 /**
- * Simple condition tags - non-gory but descriptive.
- * You can stack these on a part (e.g. bruised + wounded).
+ * The deliberately limited set of visible body-part conditions.
+ * Bruised is currently the only supported condition.
  */
 
 export const InjuryCondition = Object.freeze({
     BRUISED: "bruised",
-    WOUNDED: "wounded", // cuts, open wounds, deeper damage
-    BROKEN: "broken", // bones, if canBreak = true
 });
 
 /**
@@ -98,7 +96,6 @@ export const HUMAN_BODY_TEMPLATE = deepFreeze([
         displayName: "Head",
         region: BodyRegion.HEAD,
         maxHealth: 100,
-        canBreak: true, // concussion / skull fracture analog
         painMultiplier: 1.5,
     },
     {
@@ -106,7 +103,6 @@ export const HUMAN_BODY_TEMPLATE = deepFreeze([
         displayName: "Face",
         region: BodyRegion.FACE,
         maxHealth: 80,
-        canBreak: true, // nose, cheekbone
         painMultiplier: 1.7,
     },
     {
@@ -114,7 +110,6 @@ export const HUMAN_BODY_TEMPLATE = deepFreeze([
         displayName: "Neck",
         region: BodyRegion.NECK,
         maxHealth: 80,
-        canBreak: true,
         painMultiplier: 1.6,
     },
 
@@ -124,7 +119,6 @@ export const HUMAN_BODY_TEMPLATE = deepFreeze([
         displayName: "Chest",
         region: BodyRegion.UPPER,
         maxHealth: 120,
-        canBreak: true, // ribs
         painMultiplier: 1.3,
     },
     {
@@ -132,7 +126,6 @@ export const HUMAN_BODY_TEMPLATE = deepFreeze([
         displayName: "Back",
         region: BodyRegion.UPPER,
         maxHealth: 120,
-        canBreak: true,
         painMultiplier: 1.2,
     },
     {
@@ -140,7 +133,6 @@ export const HUMAN_BODY_TEMPLATE = deepFreeze([
         displayName: "Abdomen",
         region: BodyRegion.LOWER,
         maxHealth: 100,
-        canBreak: false,
         painMultiplier: 1.4,
     },
     {
@@ -148,7 +140,6 @@ export const HUMAN_BODY_TEMPLATE = deepFreeze([
         displayName: "Groin",
         region: BodyRegion.LOWER,
         maxHealth: 60,
-        canBreak: false,
         painMultiplier: 2.0,
     },
     // Arms / hands -----------------------------------------------
@@ -157,7 +148,6 @@ export const HUMAN_BODY_TEMPLATE = deepFreeze([
         displayName: "Left shoulder",
         region: BodyRegion.UPPER,
         maxHealth: 90,
-        canBreak: true,
         painMultiplier: 1.1,
     },
     {
@@ -165,7 +155,6 @@ export const HUMAN_BODY_TEMPLATE = deepFreeze([
         displayName: "Right shoulder",
         region: BodyRegion.UPPER,
         maxHealth: 90,
-        canBreak: true,
         painMultiplier: 1.1,
     },
     {
@@ -173,7 +162,6 @@ export const HUMAN_BODY_TEMPLATE = deepFreeze([
         displayName: "Left upper arm",
         region: BodyRegion.UPPER,
         maxHealth: 90,
-        canBreak: true,
         painMultiplier: 1.0,
     },
     {
@@ -181,7 +169,6 @@ export const HUMAN_BODY_TEMPLATE = deepFreeze([
         displayName: "Right upper arm",
         region: BodyRegion.UPPER,
         maxHealth: 90,
-        canBreak: true,
         painMultiplier: 1.0,
     },
     {
@@ -189,7 +176,6 @@ export const HUMAN_BODY_TEMPLATE = deepFreeze([
         displayName: "Left forearm",
         region: BodyRegion.UPPER,
         maxHealth: 80,
-        canBreak: true,
         painMultiplier: 1.1,
     },
     {
@@ -197,7 +183,6 @@ export const HUMAN_BODY_TEMPLATE = deepFreeze([
         displayName: "Right forearm",
         region: BodyRegion.UPPER,
         maxHealth: 80,
-        canBreak: true,
         painMultiplier: 1.1,
     },
     {
@@ -205,7 +190,6 @@ export const HUMAN_BODY_TEMPLATE = deepFreeze([
         displayName: "Left hand",
         region: BodyRegion.HANDS,
         maxHealth: 70,
-        canBreak: true,
         painMultiplier: 1.4,
     },
     {
@@ -213,7 +197,6 @@ export const HUMAN_BODY_TEMPLATE = deepFreeze([
         displayName: "Right hand",
         region: BodyRegion.HANDS,
         maxHealth: 70,
-        canBreak: true,
         painMultiplier: 1.4,
     },
 
@@ -224,7 +207,6 @@ export const HUMAN_BODY_TEMPLATE = deepFreeze([
         displayName: "Left thigh",
         region: BodyRegion.LEGS,
         maxHealth: 100,
-        canBreak: true,
         painMultiplier: 1.2,
     },
     {
@@ -232,7 +214,6 @@ export const HUMAN_BODY_TEMPLATE = deepFreeze([
         displayName: "Right thigh",
         region: BodyRegion.LEGS,
         maxHealth: 100,
-        canBreak: true,
         painMultiplier: 1.2,
     },
     {
@@ -240,7 +221,6 @@ export const HUMAN_BODY_TEMPLATE = deepFreeze([
         displayName: "Left knee",
         region: BodyRegion.LEGS,
         maxHealth: 80,
-        canBreak: true,
         painMultiplier: 1.5,
     },
     {
@@ -248,7 +228,6 @@ export const HUMAN_BODY_TEMPLATE = deepFreeze([
         displayName: "Right knee",
         region: BodyRegion.LEGS,
         maxHealth: 80,
-        canBreak: true,
         painMultiplier: 1.5,
     },
     {
@@ -256,7 +235,6 @@ export const HUMAN_BODY_TEMPLATE = deepFreeze([
         displayName: "Left calf",
         region: BodyRegion.LEGS,
         maxHealth: 90,
-        canBreak: true,
         painMultiplier: 1.3,
     },
     {
@@ -264,7 +242,6 @@ export const HUMAN_BODY_TEMPLATE = deepFreeze([
         displayName: "Right calf",
         region: BodyRegion.LEGS,
         maxHealth: 90,
-        canBreak: true,
         painMultiplier: 1.3,
     },
     {
@@ -272,7 +249,6 @@ export const HUMAN_BODY_TEMPLATE = deepFreeze([
         displayName: "Left ankle",
         region: BodyRegion.FEET,
         maxHealth: 70,
-        canBreak: true,
         painMultiplier: 1.5,
     },
     {
@@ -280,7 +256,6 @@ export const HUMAN_BODY_TEMPLATE = deepFreeze([
         displayName: "Right ankle",
         region: BodyRegion.FEET,
         maxHealth: 70,
-        canBreak: true,
         painMultiplier: 1.5,
     },
     {
@@ -288,7 +263,6 @@ export const HUMAN_BODY_TEMPLATE = deepFreeze([
         displayName: "Left foot",
         region: BodyRegion.FEET,
         maxHealth: 70,
-        canBreak: true,
         painMultiplier: 1.3,
     },
     {
@@ -296,7 +270,6 @@ export const HUMAN_BODY_TEMPLATE = deepFreeze([
         displayName: "Right foot",
         region: BodyRegion.FEET,
         maxHealth: 70,
-        canBreak: true,
         painMultiplier: 1.3,
     },
 ]);
@@ -315,23 +288,14 @@ export class BodyPartState {
         this.region = template.region;
         this.maxHealth = template.maxHealth;
         this.health = template.maxHealth;
-        this.canBreak = !!template.canBreak;
         this.painMultiplier = template.painMultiplier ?? 1;
 
         this.pain = 0; // local pain
-        this.conditions = new Set(); // e.g. "bruised", "broken"
-    }
-
-    get isBroken() {
-        return this.conditions.has(InjuryCondition.BROKEN);
+        this.conditions = new Set();
     }
 
     get isBruised() {
         return this.conditions.has(InjuryCondition.BRUISED);
-    }
-
-    get isWounded() {
-        return this.conditions.has(InjuryCondition.WOUNDED);
     }
 
     /**
@@ -348,7 +312,6 @@ export class BodyPartState {
             region: this.region,
             maxHealth: this.maxHealth,
             health: this.health,
-            canBreak: this.canBreak,
             painMultiplier: this.painMultiplier,
             pain: this.pain,
             conditions: [...this.conditions],
@@ -363,16 +326,17 @@ export class BodyPartState {
             displayName: data?.displayName,
             region: data?.region,
             maxHealth: Number(data?.maxHealth) || 0,
-            canBreak: !!data?.canBreak,
             painMultiplier: Number.isFinite(Number(data?.painMultiplier))
                 ? Number(data.painMultiplier)
                 : 1,
         });
         part.health = clamp(Number(data?.health), 0, part.maxHealth);
         part.pain = clamp(Number(data?.pain) || 0, 0, 100);
-        part.conditions = new Set(
-            Array.isArray(data?.conditions) ? data.conditions.map(String) : [],
-        );
+        const conditions = Array.isArray(data?.conditions) ? data.conditions.map(String) : [];
+        if (conditions.some((condition) => condition !== InjuryCondition.BRUISED)) {
+            throw new TypeError("Body part conditions support only 'bruised'");
+        }
+        part.conditions = new Set(conditions);
         return part;
     }
 }
@@ -470,7 +434,7 @@ export class Body {
         part.health = clamp(part.health - amount, 0, part.maxHealth);
 
         // Update conditions based on remaining health ratio
-        this._updateConditionsFromHealth(part, damageType);
+        this._updateConditionsFromHealth(part);
 
         // Pain is proportional to damage and part sensitivity
         const painDelta = amount * part.painMultiplier;
@@ -480,8 +444,8 @@ export class Body {
     }
 
     /**
-     * Variant of applyDamage that uses randomness to decide injuries
-     * (bruised / wounded / broken) based on amount, type and current health.
+     * Variant of applyDamage that uses randomness to decide whether the impact
+     * leaves a visible bruise.
      *
      * - rnd: function that returns a float in [0, 1), normally a seeded game RNG such as game.rnd.
      */
@@ -498,8 +462,7 @@ export class Body {
         const painDelta = amount * part.painMultiplier;
         part.pain = clamp(part.pain + painDelta, 0, 100);
 
-        // --- Random injuries -------
-        this._applyRandomInjury(part, amount, damageType, rnd);
+        this._applyRandomBruise(part, amount, damageType, rnd);
 
         return part;
     }
@@ -558,8 +521,8 @@ export class Body {
 
     /**
      * Ease a whole-body amount of pain while preserving where that pain came
-     * from. The pain-load formula is homogeneous, so proportional reduction
-     * reaches the requested visible total without inventing a separate meter.
+     * from. Bruise integrity recovers by the same proportion, making combat
+     * impairment temporary without a separate treatment system.
      */
     relievePain(amount) {
         amount = finiteNumber(amount, "Pain relief");
@@ -571,6 +534,9 @@ export class Body {
         const scale = target / raw;
         for (const part of this.allParts()) {
             part.pain = clamp(part.pain * scale, 0, 100);
+            const missingHealth = part.maxHealth - part.health;
+            part.health = clamp(part.health + missingHealth * (1 - scale), 0, part.maxHealth);
+            this._downgradeConditionsFromHealth(part);
         }
         return this.getTotalPain();
     }
@@ -609,73 +575,26 @@ export class Body {
         return clamp(1 - this.getTotalPain() * 0.005, 0.5, 1);
     }
 
-    /**
-     * Quick check: are any critical parts broken?
-     * Good for KO / incapacitation logic.
-     */
-    hasCriticalBreaks() {
-        const critical = [
-            BodyPartId.HEAD,
-            BodyPartId.NECK,
-            BodyPartId.CHEST,
-            BodyPartId.BACK,
-            BodyPartId.THIGH_L,
-            BodyPartId.THIGH_R,
-        ];
-        return critical.some((id) => {
-            const p = this.getPart(id);
-            return p && p.isBroken;
-        });
-    }
-
     // --- Internal helpers ------------------------------------------------------
 
-    _updateConditionsFromHealth(part, damageType) {
+    _updateConditionsFromHealth(part) {
         const ratio = part.integrityRatio;
-
-        // Damage must not remove an existing injury. Healing is responsible for
-        // downgrading conditions once integrity has recovered far enough.
-
-        // Lightly hurt -> bruised
-        if (ratio < 1.0 && ratio >= 0.7) {
-            part.conditions.add(InjuryCondition.BRUISED);
-        }
-        // Medium -> bruised + wounded
-        else if (ratio < 0.7 && ratio >= 0.3) {
-            part.conditions.add(InjuryCondition.BRUISED);
-            part.conditions.add(InjuryCondition.WOUNDED);
-        }
-        // Severe -> wounded + maybe broken
-        else if (ratio < 0.3) {
-            part.conditions.add(InjuryCondition.WOUNDED);
-            if (part.canBreak && damageType !== DamageType.SHARP) {
-                // e.g. heavy blunt/impact damage -> broken
-                part.conditions.add(InjuryCondition.BROKEN);
-            }
-        }
+        if (ratio < 1) part.conditions.add(InjuryCondition.BRUISED);
     }
 
     _downgradeConditionsFromHealth(part) {
         const ratio = part.integrityRatio;
 
-        // Ordinary healing can restore integrity and lesser injuries, but a
-        // broken part remains broken until a future explicit treatment system
-        // repairs it. `fullyHeal()` remains the deliberate hard-reset escape
-        // hatch used by development tooling.
-        if (ratio >= 0.7) {
-            part.conditions.delete(InjuryCondition.WOUNDED);
-        }
-        // If we're back over 90%, no bruise either
         if (ratio >= 0.9) {
             part.conditions.delete(InjuryCondition.BRUISED);
         }
     }
 
     /**
-     * Internal helper: uses damage amount, type, and current integrity
-     * plus rnd() to decide which conditions to apply.
+     * Internal helper: uses damage amount, type, and current integrity plus
+     * rnd() to decide whether to apply the only supported condition: bruised.
      */
-    _applyRandomInjury(part, amount, damageType, rnd) {
+    _applyRandomBruise(part, amount, damageType, rnd) {
         const ratio = part.integrityRatio; // 0..1 (remaining)
         const fracOfMax = clamp(amount / part.maxHealth, 0, 1); // 0..1 (how big this hit was)
 
@@ -684,54 +603,9 @@ export class Body {
         if (damageType === DamageType.IMPACT) typeFactor = 1.2;
         else if (damageType === DamageType.SHARP) typeFactor = 1.1;
 
-        // Base chances for each condition. These combine:
-        //  - size of this hit (fracOfMax)
-        //  - how beaten up the part already is (1 - ratio)
-        //  - damage type (typeFactor)
-        let bruiseChance = clamp(fracOfMax * 1.5 * typeFactor + (1 - ratio) * 0.5, 0, 1);
-        let woundChance = clamp(
-            fracOfMax * (damageType === DamageType.SHARP ? 2.0 : 1.2) * typeFactor +
-                (1 - ratio) * 0.5,
-            0,
-            1,
-        );
-
-        let breakChance = 0;
-        if (part.canBreak) {
-            // Blunt/impact more likely to break than sharp, which tends to wound instead.
-            const breakTypeFactor = damageType === DamageType.SHARP ? 0.6 : 1.4;
-            breakChance = clamp(
-                fracOfMax * 1.8 * breakTypeFactor * typeFactor + (1 - ratio) * 0.7,
-                0,
-                1,
-            );
-        }
-
-        // Roll in a stacked way: broken ⇒ wounded ⇒ bruised
-        if (rnd() < bruiseChance) {
+        const bruiseChance = clamp(fracOfMax * 1.5 * typeFactor + (1 - ratio) * 0.5, 0, 1);
+        if (rnd() < bruiseChance || ratio < 0.7) {
             part.conditions.add(InjuryCondition.BRUISED);
-        }
-
-        if (rnd() < woundChance) {
-            part.conditions.add(InjuryCondition.WOUNDED);
-            part.conditions.add(InjuryCondition.BRUISED);
-        }
-
-        if (part.canBreak && rnd() < breakChance) {
-            part.conditions.add(InjuryCondition.BROKEN);
-            part.conditions.add(InjuryCondition.WOUNDED);
-            part.conditions.add(InjuryCondition.BRUISED);
-        }
-
-        // Safety net: if health is clearly down but rolls all failed,
-        // enforce at least a bruise / wound so feedback matches numbers.
-        if (part.conditions.size === 0) {
-            if (ratio < 0.7 && ratio >= 0.3) {
-                part.conditions.add(InjuryCondition.BRUISED);
-            } else if (ratio < 0.3) {
-                part.conditions.add(InjuryCondition.WOUNDED);
-                part.conditions.add(InjuryCondition.BRUISED);
-            }
         }
     }
 }

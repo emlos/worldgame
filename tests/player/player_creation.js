@@ -211,7 +211,6 @@ function init() {
         ["Health", `${bodyPartInfo.health}/${bodyPartInfo.maxHealth}`],
         ["Pain", `${bodyPartInfo.pain}`],
         ["Pain Multiplier", `${bodyPartInfo.painMultiplier}`],
-        ["can break?", `<code>${bodyPartInfo.canBreak}</code>`],
         [
           "Conditions",
           Object.values(InjuryCondition)

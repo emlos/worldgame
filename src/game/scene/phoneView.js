@@ -110,7 +110,6 @@ export function buildPhonePlayerStatsView(game) {
       painStage: player.getBodyPainStage(),
       performanceMultiplier: player.getPhysicalPerformanceMultiplier(),
       incapacitated: player.isIncapacitated(),
-      criticalBreaks: player.body?.hasCriticalBreaks() ?? false,
       parts: [...(player.body?.allParts() ?? [])].map((part) => ({
         id: part.id,
         label: part.displayName,

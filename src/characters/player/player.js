@@ -534,11 +534,10 @@ export class Player {
     }
 
     /**
-     * Simple "is this character basically out of it?" check.
-     * Uses critical breaks + high pain.
+     * Simple "is this character basically out of it?" check based on high pain.
      */
     isIncapacitated() {
         if (!this.body) return false;
-        return this.body.hasCriticalBreaks() || this.body.getPainStage() >= 3;
+        return this.body.getPainStage() >= 3;
     }
 }

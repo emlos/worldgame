@@ -3,8 +3,6 @@ import {
   calculatePainTolerance,
   getBodyPain,
   getBodyPart,
-  getPartCapacity,
-  getPartChain,
 } from "../combatants.js";
 import { controlledParticipantId, goalOwnerId, goalTargetId } from "../roles.js";
 import { encounterPronoun, encounterVerb } from "../language.js";
@@ -22,45 +20,13 @@ export const BEAT_DOWN_OUTCOME = Object.freeze({
 
 const BEAT_DOWN_CAUSES = new Set([
   "pain-threshold",
-  "broken-limbs",
   "already-incapacitated",
   "incapacitated",
   "no-legal-response",
   "energy-exhausted",
 ]);
 
-const GROSS_LIMB_ENDPOINTS = Object.freeze([
-  BodyPartId.HAND_L,
-  BodyPartId.HAND_R,
-  BodyPartId.FOOT_L,
-  BodyPartId.FOOT_R,
-]);
-
-function targetHasBrokenLimbChain(context, targetId, endpointId) {
-  return getPartChain(endpointId).some(
-    (partId) => getBodyPart(context, targetId, partId)?.isBroken,
-  );
-}
-
-function targetIsIncapacitatedByBrokenLimbs(context) {
-  const targetId = goalTargetId(context.state);
-  const bestArm = Math.max(
-    getPartCapacity(context, targetId, BodyPartId.HAND_L),
-    getPartCapacity(context, targetId, BodyPartId.HAND_R),
-  );
-  const bestLeg = Math.max(
-    getPartCapacity(context, targetId, BodyPartId.FOOT_L),
-    getPartCapacity(context, targetId, BodyPartId.FOOT_R),
-  );
-  return bestArm <= 0.15
-    && bestLeg <= 0.15
-    && GROSS_LIMB_ENDPOINTS.every(
-      (endpointId) => targetHasBrokenLimbChain(context, targetId, endpointId),
-    );
-}
-
 function completedCause(context, fallback = null, { allowPainCompletion = true } = {}) {
-  if (targetIsIncapacitatedByBrokenLimbs(context)) return "broken-limbs";
   if (allowPainCompletion
     && getBodyPain(context, goalTargetId(context.state)) >= context.state.objective.painThreshold) {
     return "pain-threshold";
@@ -168,10 +134,7 @@ export const BEAT_DOWN_OBJECTIVE = Object.freeze({
 
   progress(context) {
     const targetId = goalTargetId(context.state);
-    const brokenLimbChains = GROSS_LIMB_ENDPOINTS.filter(
-      (endpointId) => targetHasBrokenLimbChain(context, targetId, endpointId),
-    ).length;
-    return getBodyPain(context, targetId) + brokenLimbChains * 20;
+    return getBodyPain(context, targetId);
   },
 
   syncStage(context) {
@@ -311,9 +274,6 @@ export const BEAT_DOWN_OBJECTIVE = Object.freeze({
           ? "You are already unable to defend yourself when the attacker closes in."
           : "Your injuries leave you unable to continue defending yourself.";
       case "beat-down.completed":
-        if (event.cause === "broken-limbs") {
-          return "Your damaged limbs can no longer support an effective defense.";
-        }
         if (event.cause === "pain-threshold") {
           return "The accumulated pain finally overwhelms your ability to fight back.";
         }
@@ -337,9 +297,6 @@ export const BEAT_DOWN_OBJECTIVE = Object.freeze({
       case BEAT_DOWN_OUTCOME.targetRescued:
         return `Your call is answered. ${subject} breaks off the attack as help approaches.`;
       case BEAT_DOWN_OUTCOME.targetBeatenDown:
-        if (outcome.cause === "broken-limbs") {
-          return "Your broken limbs leave you unable to continue. The attacker has beaten you down.";
-        }
         if (outcome.cause === "pain-threshold") {
           return `Your pain reaches its limit. ${subject} has beaten you down.`;
         }

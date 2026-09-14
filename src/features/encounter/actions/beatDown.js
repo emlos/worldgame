@@ -36,7 +36,7 @@ export const ATTACK_LIMB = Object.freeze({
   durationSeconds: 3,
   usableBy: "goal-owner",
   playerOrder: 100,
-  availabilityHint: "Requires a usable free hand, striking range, and an unbroken target limb.",
+  availabilityHint: "Requires a usable free hand, striking range, and a usable target limb.",
 
   enumerateTargets(context, actorId) {
     const sourcePartId = getUsableHands(context, actorId)[0];
