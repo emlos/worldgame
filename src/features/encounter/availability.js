@@ -2,6 +2,11 @@ import { getEncounterAction, getEncounterActions } from "./actions/index.js";
 import { getControlledHelplessActionId, hostileHoldsOn } from "./combatants.js";
 import { effortBlockerText, getActionEffortStatus } from "./effort.js";
 import { controlledParticipantId, goalOwnerId } from "./roles.js";
+import {
+  getPlayerCombatRank,
+  isCombatActionUnlocked,
+  minimumCombatRankForAction,
+} from "./combatSkill.js";
 
 export const ENCOUNTER_ACTION_PURPOSES = Object.freeze([
   Object.freeze({ id: "helpless", heading: "Unable to act" }),
@@ -38,6 +43,8 @@ export function getAvailableActionInstances(context, actorId) {
   const instances = [];
   for (const definition of getEncounterActions(context)) {
     if (!definitionAllowsActor(context, definition, actorId)) continue;
+    if (actorId === controlledParticipantId(context.state)
+      && !isCombatActionUnlocked(context.game.player, definition.id)) continue;
     if (helplessActionId && definition.id !== helplessActionId) continue;
     if (!helplessActionId && definition.tags.includes("helpless")) continue;
     for (const instance of definition.enumerateTargets(context, actorId)) {
@@ -79,6 +86,8 @@ export function isActionInstanceAvailable(context, instance) {
   if (!definition
     || !getEncounterActions(context).includes(definition)
     || !definitionAllowsActor(context, definition, instance.actorId)) return false;
+  if (instance.actorId === controlledParticipantId(context.state)
+    && !isCombatActionUnlocked(context.game.player, definition.id)) return false;
   const helplessActionId = getControlledHelplessActionId(context, instance.actorId);
   if (helplessActionId && definition.id !== helplessActionId) return false;
   if (!helplessActionId && definition.tags.includes("helpless")) return false;
@@ -94,6 +103,18 @@ export function getActionAvailabilityDiagnostics(context, actorId) {
   const diagnostics = [];
   for (const definition of getEncounterActions(context)) {
     if (!definitionAllowsActor(context, definition, actorId)) continue;
+    const requiredCombatRank = actorId === controlledParticipantId(context.state)
+      ? minimumCombatRankForAction(definition.id)
+      : 0;
+    if (requiredCombatRank > getPlayerCombatRank(context.game.player)) {
+      diagnostics.push({
+        actionId: definition.id,
+        available: false,
+        instance: null,
+        reasons: [`Requires Combat rank ${requiredCombatRank}.`],
+      });
+      continue;
+    }
     const enumerated = definition.enumerateTargets(context, actorId);
     if (!enumerated.length) {
       diagnostics.push({
@@ -159,7 +180,27 @@ export function actionDurationSeconds(instance) {
 export function actionLabel(context, instance) {
   const definition = getEncounterAction(instance.actionId);
   if (!definition) return instance.actionId;
-  return definition.label(context, instance);
+  const label = definition.label(context, instance);
+  if (instance.actorId !== controlledParticipantId(context.state)) return label;
+  const rank = getPlayerCombatRank(context.game.player);
+  const broadLabels = {
+    "drive-body": rank === 0 ? "Strike body" : "Strike body (direct attack)",
+    "wrench-free": rank === 0 ? "Break away" : "Break away (useful against a hold)",
+    "cover-and-brace": rank === 0 ? "Defend yourself" : "Cover and brace (defensive)",
+    "create-distance": rank === 0 ? "Try to get away" : "Create distance (escape setup)",
+  };
+  if (rank < 2 && broadLabels[instance.actionId]) return broadLabels[instance.actionId];
+  if (rank < 4 || definition.tags.some((tag) =>
+    ["objective", "support", "helpless"].includes(tag))) return label;
+
+  const opponentSeconds = getEncounterAction(context.state.npcIntent?.actionId)?.durationSeconds;
+  if (!Number.isFinite(opponentSeconds)) return label;
+  const timing = definition.durationSeconds < opponentSeconds
+    ? "acts first"
+    : definition.durationSeconds === opponentSeconds
+      ? "same timing"
+      : "acts after their move";
+  return `${label} (${timing})`;
 }
 
 export function getActionPurpose(context, instance) {

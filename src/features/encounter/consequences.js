@@ -7,6 +7,11 @@ import {
   saveString,
 } from "../../shared/util/saveValidation.js";
 import { controlledParticipantId } from "./roles.js";
+import { requireEncounterObjective } from "./objectives/index.js";
+import {
+  COMBAT_SKILL_ID,
+  COMBAT_SKILL_LOSS_PENALTY,
+} from "./combatSkill.js";
 
 export const POST_COMBAT_FATIGUE_DURATION_MINUTES = 30;
 export const POST_COMBAT_MAX_ENERGY_DRAIN_MULTIPLIER = 3;
@@ -175,6 +180,11 @@ export function settleEncounterConsequences(game, state, instanceKey) {
       )),
       remainingMinutes: POST_COMBAT_FATIGUE_DURATION_MINUTES,
     };
+  }
+
+  const lossOutcomeIds = requireEncounterObjective(state).playerLossOutcomeIds || [];
+  if (lossOutcomeIds.includes(state.outcome?.id)) {
+    game.player.adjustSkill(COMBAT_SKILL_ID, -COMBAT_SKILL_LOSS_PENALTY);
   }
 
   state.terminalConsequencesSettled = true;

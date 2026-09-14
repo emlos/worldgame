@@ -70,15 +70,6 @@ game systems:
     - smoking/drinking mechanic + addiction? stat penalty?
 
     - combat system:
-        - add a five-level player combat skill that improves both situational understanding and the contextual action set while preserving trial-and-error discovery:
-            - level 0: show only broad actions such as strike body, defend, break away, and escape, with names and durations but little tactical explanation
-            - level 1: reveal basic action roles and broad hints such as fast, risky, defensive, or useful against a hold
-            - level 2: unlock targeted fundamentals such as striking a holding arm, wrenching free, controlled shoves, and simple positional actions
-            - level 3: unlock more technical or situational options such as headbutts, knee strikes, takedowns, pins, and deliberate counters to telegraphed intent
-            - level 4: unlock creative combinations and precise contextual forecasts such as likely timing advantage, injury-created openings, and especially promising counters; never expose exact percentages outside debug mode
-            - as a more advanced action replaces a generic action with the same immediate purpose, hide the generic version to control choice count
-            - always retain at least one reliable fallback for each currently possible purpose so progression cannot remove the player's only sensible response
-            - consider per-action familiarity alongside the general skill so using or witnessing techniques teaches their risks and opportunities
         - optional after combat scenes: if the player incapacitates the attacker/flees they should exit the place they were at, if applicable, if nott hey stay in the same location and a scene optionally plays in both cases. if the attacker suceeds with their goal, the player is left in the same place/location they were at - and optionally a scene plays after too.
 
     - very light sickness system -> mostly stat drains

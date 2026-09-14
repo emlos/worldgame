@@ -58,6 +58,9 @@ function recordCompletion(context, events, cause) {
 
 export const BEAT_DOWN_OBJECTIVE = Object.freeze({
   id: BEAT_DOWN_OBJECTIVE_ID,
+  label: "Beat down",
+  laboratoryConfig: Object.freeze({ id: BEAT_DOWN_OBJECTIVE_ID }),
+  playerLossOutcomeIds: Object.freeze([BEAT_DOWN_OUTCOME.targetBeatenDown]),
   unopposedActionId: "attack-limb",
   actionIds: Object.freeze(["attack-limb"]),
   excludedActionIds: Object.freeze(["flee"]),

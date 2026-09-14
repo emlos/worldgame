@@ -11,12 +11,14 @@ import {
 export const ENCOUNTER_SCENE_ID = "encounter.alley-mugging";
 export const FIXED_START = new Date("2026-09-11T20:00:00.000Z");
 
-export function gameAtStart({ seed = 117, money = 50 } = {}) {
-  return new Game({
+export function gameAtStart({ seed = 117, money = 50, combatSkill = 300 } = {}) {
+  const game = new Game({
     seed,
     startDate: FIXED_START,
     playerOptions: { startPlaceId: null, money },
   });
+  game.player.setSkillValue("combat", combatSkill);
+  return game;
 }
 
 export function startEncounter(game) {

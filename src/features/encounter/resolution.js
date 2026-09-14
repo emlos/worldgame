@@ -41,6 +41,7 @@ import { getActionEffortStatus } from "./effort.js";
 import { requireEncounterObjective } from "./objectives/index.js";
 import { PLAYER_RESCUED_OUTCOME_ID } from "./outcomes.js";
 import { applyEncounterHygiene } from "./consequences.js";
+import { awardCombatSkillForExchange } from "./combatSkill.js";
 import {
   controlledParticipantId,
   goalOwnerId,
@@ -686,6 +687,12 @@ export function resolveEncounterExchange({
   checkPhysicalTerminalState(context, runtime, { allowPainCompletion: playerIsHelpless });
   finalizeOutcome(context, runtime);
   applyEncounterHygiene(game, next, availablePlayerAction.actionId, runtime.events);
+  awardCombatSkillForExchange(
+    game.player,
+    getEncounterAction(availablePlayerAction.actionId),
+    controlledId,
+    runtime.events,
+  );
   next.lastEvents = runtime.events.slice(-24);
   persistCombatantBodies(context);
   requireEncounterObjective(next).commitGameState(context, previousObjective);

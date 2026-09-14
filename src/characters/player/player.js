@@ -46,7 +46,7 @@ function normalizedSkillValue(value, definition, label) {
     - Bounded player meters and derived health
     - Physical appearance & colors (incl. tan/losenTan helpers)
     - Relationships with NPCs
-    - Skills (flag or meter 0..1)
+    - Bounded numeric skills
     - Gender, pronouns, and perceived gender (derived)
     - Clothing inventory & wear slots
 */
@@ -134,7 +134,7 @@ export class Player {
 
         // Relationships, Skills -----------------------------------
         this.relationships = new Map(); // npcId -> RelationshipProfile
-        this.skills = new Map(); // registered name -> fractional 0..10 value
+        this.skills = new Map(); // registered name -> bounded numeric value
         const suppliedSkills = skills instanceof Map
             ? Object.fromEntries(skills)
             : (skills || initialPlayerSkills());

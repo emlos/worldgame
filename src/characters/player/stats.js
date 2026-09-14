@@ -65,7 +65,12 @@ export function initialPlayerStats() {
   );
 }
 
-// Fractional 0..10 abilities used by authored skill checks.
+export const COMBAT_SKILL_RANK_COUNT = 5;
+export const COMBAT_SKILL_POINTS_PER_RANK = 100;
+export const COMBAT_SKILL_MAX_POINTS = COMBAT_SKILL_RANK_COUNT
+  * COMBAT_SKILL_POINTS_PER_RANK;
+
+// Abilities used by authored skill checks and progression systems.
 export const SKILLS = Object.freeze({
   strength: Object.freeze({ label: "Strength", min: 0, max: 10, initial: 0 }),
   perception: Object.freeze({ label: "Perception", min: 0, max: 10, initial: 0 }),
@@ -73,6 +78,14 @@ export const SKILLS = Object.freeze({
   speech: Object.freeze({ label: "Speech", min: 0, max: 10, initial: 0 }),
   resolve: Object.freeze({ label: "Resolve", min: 0, max: 10, initial: 0 }),
   fitness: Object.freeze({ label: "Fitness", min: 0, max: 10, initial: 0 }),
+  combat: Object.freeze({
+    label: "Combat",
+    min: 0,
+    max: COMBAT_SKILL_MAX_POINTS,
+    initial: 0,
+    rankCount: COMBAT_SKILL_RANK_COUNT,
+    pointsPerRank: COMBAT_SKILL_POINTS_PER_RANK,
+  }),
 });
 
 export function initialPlayerSkills() {

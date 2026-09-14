@@ -93,13 +93,31 @@ export function buildPhonePlayerStatsView(game) {
       min: definition.min,
       max: definition.max,
     })),
-    skills: Object.entries(SKILLS).map(([id, definition]) => ({
-      id,
-      label: definition.label,
-      value: player.getSkillValue(id),
-      min: definition.min,
-      max: definition.max,
-    })),
+    skills: Object.entries(SKILLS).map(([id, definition]) => {
+      const total = player.getSkillValue(id);
+      if (!definition.rankCount || !definition.pointsPerRank) {
+        return {
+          id,
+          label: definition.label,
+          value: total,
+          min: definition.min,
+          max: definition.max,
+        };
+      }
+      const rank = Math.min(
+        definition.rankCount - 1,
+        Math.floor(total / definition.pointsPerRank),
+      );
+      return {
+        id,
+        label: definition.label,
+        value: total - rank * definition.pointsPerRank,
+        min: 0,
+        max: definition.pointsPerRank,
+        rank,
+        total,
+      };
+    }),
     featureSections: game.features.buildPlayerStatsSections(game),
     body: {
       health: player.body?.getTotalHealth() ?? 0,

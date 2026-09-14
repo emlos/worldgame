@@ -127,6 +127,13 @@ export function resolveIncapacitatedTheft(context, events) {
 
 export const STEAL_MONEY_OBJECTIVE = Object.freeze({
   id: STEAL_MONEY_OBJECTIVE_ID,
+  label: "Steal money",
+  laboratoryConfig: Object.freeze({ id: STEAL_MONEY_OBJECTIVE_ID, maxAmount: 20 }),
+  playerLossOutcomeIds: Object.freeze([
+    STEAL_MONEY_OUTCOME.playerSurrendered,
+    STEAL_MONEY_OUTCOME.theftPlayerConscious,
+    STEAL_MONEY_OUTCOME.theftPlayerIncapacitated,
+  ]),
   unopposedActionId: "search-money",
   outcomePriority: Object.freeze([
     PLAYER_RESCUED_OUTCOME_ID,

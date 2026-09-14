@@ -367,6 +367,7 @@ function longestStreak(actionIds) {
 export function runEncounterSimulation({
   seed = 1,
   money = 50,
+  combatSkill = 300,
   playerStats = {},
   npcStats = {},
   policy = "escape",
@@ -376,6 +377,7 @@ export function runEncounterSimulation({
   goal = null,
 } = {}) {
   const game = new Game({ seed, startDate: FIXED_START, playerOptions: { startPlaceId: null, money } });
+  game.player.setSkillValue("combat", combatSkill);
   setStats(null, playerStats, (name, value) => game.player.setSkillValue(name, value));
   enterWGScene(game, SCENE_ID);
   setStats(game.currentStory.actors.mugger.stats, npcStats);

@@ -4,6 +4,8 @@ import {
   generateSceneActors,
 } from "../src/characters/npc/temporaryActors.js";
 import { getEncounterDebugSnapshot } from "../src/features/encounter/debug.js";
+import { combatSkillProgress } from "../src/features/encounter/combatSkill.js";
+import { getEncounterObjectives } from "../src/features/encounter/objectives/index.js";
 import { ENCOUNTER_PHYSICAL_SYSTEM_ID } from "../src/features/encounter/system.js";
 import { Game } from "../src/game/game.js";
 import { performChoice } from "../src/game/scene/choiceEngine.js";
@@ -52,7 +54,7 @@ const scenarios = Object.values(WG_BUNDLE.scenes)
   .map((definition) => ({
     sceneId: definition.id,
     scenarioId: definition.system.config.scenario,
-    aggressorAlias: definition.system.config.aggressor,
+    aggressorAlias: definition.system.config.opponent.actor,
     definition,
   }))
   .sort((left, right) => left.scenarioId.localeCompare(right.scenarioId));
@@ -66,8 +68,18 @@ const attackerPresets = Object.values(ACTOR_PROFILES).flatMap((profile) =>
   }))
 );
 
+const attackerGoals = getEncounterObjectives()
+  .map((objective) => {
+    if (!objective.laboratoryConfig) {
+      throw new Error(`Combat objective '${objective.id}' has no default laboratory configuration.`);
+    }
+    return objective;
+  })
+  .sort((left, right) => left.label.localeCompare(right.label));
+
 const elements = {
   scenarioSelect: document.querySelector("#scenario-select"),
+  goalSelect: document.querySelector("#goal-select"),
   attackerSelect: document.querySelector("#attacker-select"),
   seedInput: document.querySelector("#seed-input"),
   playerSliders: document.querySelector("#player-sliders"),
@@ -118,7 +130,16 @@ function selectedAttacker() {
   return attackerPresets.find(({ id }) => id === elements.attackerSelect.value) || null;
 }
 
-function createSlider(container, owner, statName) {
+function selectedGoal() {
+  return attackerGoals.find(({ id }) => id === elements.goalSelect.value) || null;
+}
+
+function createSlider(container, owner, statName, {
+  max = 10,
+  step = 0.5,
+  value = DEFAULT_STAT,
+  formatValue = (current) => Number(current).toFixed(1),
+} = {}) {
   const label = document.createElement("label");
   label.className = "combat-lab-slider";
   const heading = document.createElement("span");
@@ -126,18 +147,19 @@ function createSlider(container, owner, statName) {
   const name = document.createElement("span");
   name.textContent = titleCase(statName);
   const output = document.createElement("output");
-  output.value = String(DEFAULT_STAT);
+  output.value = formatValue(value);
   heading.append(name, output);
 
   const input = document.createElement("input");
   input.type = "range";
   input.min = "0";
-  input.max = "10";
-  input.step = "0.5";
-  input.value = String(DEFAULT_STAT);
+  input.max = String(max);
+  input.step = String(step);
+  input.value = String(value);
+  input.dataset.defaultValue = String(value);
   input.setAttribute("aria-label", `${titleCase(owner)} ${titleCase(statName)}`);
   input.addEventListener("input", () => {
-    output.value = Number(input.value).toFixed(1);
+    output.value = formatValue(input.value);
     if (game) setNotice(elements.setupNotice, "Setup changed. Restart combat to apply it.");
   });
   label.append(heading, input);
@@ -152,6 +174,16 @@ function populateSetup() {
     option.textContent = `${scenario.scenarioId} (${scenario.sceneId})`;
     elements.scenarioSelect.append(option);
   }
+  for (const objective of attackerGoals) {
+    const option = document.createElement("option");
+    option.value = objective.id;
+    option.textContent = `${objective.label} (${objective.id})`;
+    elements.goalSelect.append(option);
+  }
+  const authoredGoalId = selectedScenario()?.definition.system.config.goal.id;
+  if (attackerGoals.some(({ id }) => id === authoredGoalId)) {
+    elements.goalSelect.value = authoredGoalId;
+  }
   for (const preset of attackerPresets) {
     const option = document.createElement("option");
     option.value = preset.id;
@@ -159,10 +191,24 @@ function populateSetup() {
     elements.attackerSelect.append(option);
   }
   PLAYER_STATS.forEach((name) => createSlider(elements.playerSliders, "player", name));
+  createSlider(elements.playerSliders, "player", "combat", {
+    max: 500,
+    step: 1,
+    value: 0,
+    formatValue: (current) => {
+      const { rank, points } = combatSkillProgress(current);
+      return `Rank ${rank} · ${Number(points.toFixed(2))} / 100`;
+    },
+  });
   ATTACKER_STATS.forEach((name) => createSlider(elements.attackerSliders, "attacker", name));
-  elements.startCombat.disabled = scenarios.length === 0 || attackerPresets.length === 0;
+  elements.startCombat.disabled = scenarios.length === 0
+    || attackerGoals.length === 0
+    || attackerPresets.length === 0;
   if (!scenarios.length) {
     setNotice(elements.setupNotice, "No authored physical-encounter scenarios were found.", { error: true });
+  }
+  if (!attackerGoals.length) {
+    setNotice(elements.setupNotice, "No physical-encounter attacker goals were found.", { error: true });
   }
 }
 
@@ -170,7 +216,7 @@ function configuredValue(owner, statName) {
   return Number(sliderInputs[owner].get(statName).value);
 }
 
-function createConfiguredGame(scenario, preset) {
+function createConfiguredGame(scenario, goal, preset) {
   const seed = Number(elements.seedInput.value);
   if (!Number.isFinite(seed)) throw new TypeError("Seed must be a finite number.");
   const nextGame = new Game({
@@ -181,7 +227,18 @@ function createConfiguredGame(scenario, preset) {
   for (const statName of PLAYER_STATS) {
     nextGame.player.setSkillValue(statName, configuredValue("player", statName));
   }
+  nextGame.player.setSkillValue("combat", configuredValue("player", "combat"));
 
+  WG_BUNDLE.scenes[scenario.sceneId] = {
+    ...scenario.definition,
+    system: {
+      ...scenario.definition.system,
+      config: {
+        ...scenario.definition.system.config,
+        goal: structuredClone(goal.laboratoryConfig),
+      },
+    },
+  };
   enterWGScene(nextGame, scenario.sceneId, { runOnEnter: false });
   const generated = generateSceneActors(
     nextGame.seed,
@@ -335,10 +392,14 @@ function refresh() {
 function startCombat() {
   try {
     const scenario = selectedScenario();
+    const goal = selectedGoal();
     const preset = selectedAttacker();
-    if (!scenario || !preset) throw new Error("Choose a scenario and attacker.");
-    game = createConfiguredGame(scenario, preset);
-    setNotice(elements.setupNotice, `Started ${scenario.scenarioId} with ${preset.label}.`);
+    if (!scenario || !goal || !preset) throw new Error("Choose a scenario, attacker goal, and attacker.");
+    game = createConfiguredGame(scenario, goal, preset);
+    setNotice(
+      elements.setupNotice,
+      `Started ${scenario.scenarioId}: ${goal.label.toLowerCase()} with ${preset.label}.`,
+    );
     setNotice(elements.combatNotice, "");
     refresh();
   } catch (error) {
@@ -349,7 +410,7 @@ function startCombat() {
 function resetSetup() {
   for (const inputs of Object.values(sliderInputs)) {
     for (const input of inputs.values()) {
-      input.value = String(DEFAULT_STAT);
+      input.value = input.dataset.defaultValue;
       input.dispatchEvent(new Event("input"));
     }
   }
@@ -362,7 +423,14 @@ function resetSetup() {
 elements.startCombat.addEventListener("click", startCombat);
 elements.resetSetup.addEventListener("click", resetSetup);
 elements.scenarioSelect.addEventListener("change", () => {
+  const authoredGoalId = selectedScenario()?.definition.system.config.goal.id;
+  if (attackerGoals.some(({ id }) => id === authoredGoalId)) {
+    elements.goalSelect.value = authoredGoalId;
+  }
   if (game) setNotice(elements.setupNotice, "Scenario changed. Restart combat to apply it.");
+});
+elements.goalSelect.addEventListener("change", () => {
+  if (game) setNotice(elements.setupNotice, "Attacker goal changed. Restart combat to apply it.");
 });
 elements.attackerSelect.addEventListener("change", () => {
   if (game) setNotice(elements.setupNotice, "Attacker changed. Restart combat to apply it.");

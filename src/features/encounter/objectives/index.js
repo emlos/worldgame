@@ -6,6 +6,10 @@ const OBJECTIVES = new Map([
   [BEAT_DOWN_OBJECTIVE.id, BEAT_DOWN_OBJECTIVE],
 ]);
 
+export function getEncounterObjectives() {
+  return [...OBJECTIVES.values()];
+}
+
 export function getEncounterObjective(objectiveId) {
   return OBJECTIVES.get(String(objectiveId)) || null;
 }

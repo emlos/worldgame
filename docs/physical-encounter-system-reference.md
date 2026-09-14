@@ -314,7 +314,7 @@ Encounter state does not duplicate either body.
 
 - The player adapter uses `game.player.body` directly.
 - The mugger adapter reconstructs a `Body` from the current WG temporary actor's serialized body and writes it back after an exchange.
-- Player stats come from `game.player.getSkillValue(name)`.
+- Player physical stats and Combat progression come from `game.player.getSkillValue(name)`.
 - Temporary-actor `strength`, `fitness`, `endurance`, and `resolve` each come directly from `actor.stats`.
 
 The four physical combat stats have separate responsibilities:
@@ -327,6 +327,24 @@ The four physical combat stats have separate responsibilities:
 | Resolve | Pain tolerance and the chance to complete a desperate overextended action. |
 
 Perception is not part of physical combat resolution for either the player or temporary actors.
+
+### Player Combat skill
+
+Combat is a five-rank player skill backed by one bounded total from 0 through 500. Every rank contains 100 progress points: totals 0, 100, 200, 300, and 400 begin ranks 0 through 4 respectively. Rank 4 can continue to 100/100 at the 500-point cap. Subtraction crosses boundaries normally, so losing one point at Rank 4 with 0/100 produces Rank 3 with 99/100.
+
+A successful player action tagged as damaging, controlling, or hold-establishing awards `0.15` Combat points. Failed, spoiled, and lost simultaneous actions award nothing. This adjustment emits no player-facing event or prose; progress is visible in the phone's Skills section.
+
+An encounter loss subtracts one Combat point exactly once during terminal consequence settlement. Theft counts as lost when the player surrenders money or the theft completes; a beat-down counts as lost when the player is beaten down. Escape, rescue, attacker defeat or abandonment, and mutual incapacitation do not apply the penalty.
+
+The controlled player's visible action set is rank-gated without restricting NPC decisions:
+
+- Rank 0 retains broad `Strike body`, `Defend yourself`, `Break away`, distance, and running fallbacks whenever their physical prerequisites exist.
+- Rank 1 adds broad role hints to those fallback labels.
+- Rank 2 uses technical labels and unlocks targeted strikes, strikes against a holding arm, controlled shoves, arm grabs, grip reinforcement, and wall control.
+- Rank 3 unlocks headbutts, knee strikes, controlled disengagement, takedowns, turning, and pins.
+- Rank 4 retains the complete technical set and adds qualitative `acts first`, `same timing`, or `acts after their move` forecasts. Exact chances remain debug-only.
+
+Objective, help, helpless, and basic fallback actions are not removed by rank progression. Physical and positional prerequisites can still make an individual fallback temporarily impossible.
 
 ### Body-part capacity
 
@@ -918,7 +936,7 @@ An active encounter renders:
 - a situation table for position and condition;
 - current theft pressure and qualitative commitment;
 - prose generated from the last exchange's structured events;
-- every mechanically available player action.
+- every mechanically available player action unlocked by the player's Combat rank.
 
 Position summaries include pose, wall relationship, facing, held or pinned arms, holds controlled by the participant, and current range.
 

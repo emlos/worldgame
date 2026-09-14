@@ -701,11 +701,12 @@ function makePhoneMeterEntry(entry, kind) {
   label.textContent = entry.label;
 
   const value = document.createElement("output");
-  value.textContent = entry.valueLabel ?? (
-    kind === "skill"
-      ? `${formatStatValue(entry.value)} / ${formatStatValue(entry.max)}`
-      : formatStatValue(entry.value)
-  );
+  value.textContent = entry.valueLabel
+    ?? (Number.isInteger(entry.rank)
+      ? `Rank ${entry.rank} · ${formatStatValue(entry.value)} / ${formatStatValue(entry.max)}`
+      : kind === "skill"
+        ? `${formatStatValue(entry.value)} / ${formatStatValue(entry.max)}`
+        : formatStatValue(entry.value));
   value.setAttribute("aria-label", `${entry.label} value`);
   header.append(label, value);
 
