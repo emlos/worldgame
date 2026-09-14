@@ -2,7 +2,6 @@ import { SCENE_ACTION_TYPE } from "../../game/scene/actions.js";
 import { createChoice } from "../../game/scene/choiceContract.js";
 import {
   ENCOUNTER_ACTION_PURPOSES,
-  actionDurationSeconds,
   actionLabel,
   getActionPurpose,
   getAvailableActionInstances,
@@ -72,6 +71,7 @@ function systemChoice(definition, systemId, {
     id,
     label,
     durationMinutes: seconds / 60,
+    showDuration: false,
     action: {
       type: SCENE_ACTION_TYPE.wgSystem,
       sceneId: definition.id,
@@ -82,14 +82,10 @@ function systemChoice(definition, systemId, {
 }
 
 function playerChoice(context, definition, systemId, instance, id) {
-  const actionSeconds = actionDurationSeconds(instance);
   const exchangeSeconds = encounterExchangeDurationSeconds(context.state, instance);
-  const label = exchangeSeconds === actionSeconds
-    ? actionLabel(context, instance)
-    : `${actionLabel(context, instance)} — acts in ${actionSeconds} sec`;
   return systemChoice(definition, systemId, {
     id,
-    label,
+    label: actionLabel(context, instance),
     seconds: exchangeSeconds,
     command: { type: "choose-action", ...instance },
   });
@@ -124,7 +120,7 @@ function renderActive(context, definition, systemId) {
   const instructions = state.exchange === 0
     ? [{
       type: "paragraph",
-      text: "Choose one response for this exchange. Actions are grouped by immediate purpose. Faster actions resolve first; each choice timer shows the complete exchange time.",
+      text: "Choose one response for this exchange. Actions are grouped by immediate purpose.",
     }]
     : [];
   return {

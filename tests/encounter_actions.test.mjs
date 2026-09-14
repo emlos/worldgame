@@ -53,9 +53,15 @@ test("the opening state exposes the minimum contextual choices", () => {
     "Attack",
     "Control",
   ]);
-  assert.match(JSON.stringify(scene.content), /Next:/);
-  assert.match(JSON.stringify(scene.content), /Current situation/);
-  assert.match(JSON.stringify(scene.content), /complete exchange time/);
+  const content = JSON.stringify(scene.content);
+  assert.match(content, /Next:/);
+  assert.match(content, /Current situation/);
+  assert.match(content, /Actions are grouped by immediate purpose/);
+  assert.doesNotMatch(content, /complete exchange time/);
+  for (const choice of encounterChoices(scene)) {
+    assert.equal(choice.showDuration, false);
+    assert.doesNotMatch(choice.label, /acts in \d+ sec/);
+  }
 
   const context = createCombatContext({
     game,

@@ -215,9 +215,15 @@ function makeChoiceButton(choice) {
   button.disabled = !choice.enabled;
   const label = document.createElement("span");
   label.textContent = choice.label;
-  const detail = document.createElement("small");
-  detail.textContent = choice.disabledReason || choice.warning || formatSeconds(choice);
-  button.append(label, detail);
+  const detailText = choice.disabledReason
+    || choice.warning
+    || (choice.showDuration === false ? "" : formatSeconds(choice));
+  button.append(label);
+  if (detailText) {
+    const detail = document.createElement("small");
+    detail.textContent = detailText;
+    button.append(detail);
+  }
   button.addEventListener("click", () => {
     try {
       performChoice(game, { sceneId: currentScene.id, choiceId: choice.id });

@@ -79,7 +79,6 @@ game systems:
             - as a more advanced action replaces a generic action with the same immediate purpose, hide the generic version to control choice count
             - always retain at least one reliable fallback for each currently possible purpose so progression cannot remove the player's only sensible response
             - consider per-action familiarity alongside the general skill so using or witnessing techniques teaches their risks and opportunities
-        - remove the "acts in n sec" from the choice text
         - optional after combat scenes: if the player incapacitates the attacker/flees they should exit the place they were at, if applicable, if nott hey stay in the same location and a scene optionally plays in both cases. if the attacker suceeds with their goal, the player is left in the same place/location they were at - and optionally a scene plays after too.
 
     - very light sickness system -> mostly stat drains

@@ -145,6 +145,9 @@ export function validateChoice(choice, path = "choice") {
   if (typeof choice.resting !== "boolean") {
     fail(`${path}.resting must be a boolean`);
   }
+  if (choice.showDuration !== undefined && typeof choice.showDuration !== "boolean") {
+    fail(`${path}.showDuration must be a boolean when present`);
+  }
   if (choice.resting && !choice.energyFree) {
     fail(`${path}.resting requires energyFree`);
   }

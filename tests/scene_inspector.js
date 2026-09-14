@@ -514,12 +514,12 @@ function formatDuration(minutes) {
 
 function choiceMeta(choice) {
   const details = [];
-  if (choice.durationRangeMinutes) {
+  if (choice.showDuration !== false && choice.durationRangeMinutes) {
     details.push(
       `${formatDuration(choice.durationRangeMinutes.min)}-` +
       formatDuration(choice.durationRangeMinutes.max),
     );
-  } else if (choice.durationMinutes) {
+  } else if (choice.showDuration !== false && choice.durationMinutes) {
     details.push(formatDuration(choice.durationMinutes));
   }
   for (const cost of choice.costs || []) details.push(cost.label || `${cost.amount} ${cost.type}`);
