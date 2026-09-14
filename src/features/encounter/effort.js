@@ -17,6 +17,7 @@ const DEFAULT_PROFILE = Object.freeze({
 // much more reserve than guarding, maintaining a grip, or searching a target.
 export const ACTION_EFFORT_PROFILES = Object.freeze({
   "surrender-money": { requiredReadiness: 0, maximumWinded: 3, maximumDazed: 3 },
+  "scream-for-help": { requiredReadiness: 0, maximumWinded: 3, maximumDazed: 3 },
   "demand-money-back": { requiredReadiness: 0, maximumWinded: 3, maximumDazed: 3 },
   "controlled-disengage": { requiredReadiness: 20, maximumWinded: 2, maximumDazed: 2 },
   "catch-breath": { requiredReadiness: 0, maximumWinded: 3, maximumDazed: 2 },

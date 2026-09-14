@@ -4,11 +4,11 @@ This document describes the physical encounter system that is implemented in the
 
 ## Current scope
 
-The registered story system is `encounter.physical`. The only registered scenario is `alley-mugging`.
+The registered story system is `encounter.physical`. The registered scenario is `fight`; its current goal modules are `steal-money` and `beat-down`.
 
 The current scenario supports:
 
-- one player and one temporary scene actor identified internally as `mugger`;
+- one player and one temporary scene actor used as the opponent;
 - telegraphed NPC intent and one player response per exchange;
 - second-based action durations and interruption of slower actions;
 - range, pose, wall support, facing, wrist grips, and limb pins;
@@ -16,10 +16,10 @@ The current scenario supports:
 - persistent body-part damage and pain;
 - scene-local exertion, daze, winded, and off-balance effects;
 - goal-aware, personality-weighted deterministic NPC action selection;
-- player escape, NPC retreat, NPC incapacitation, conscious theft, and incapacitated theft outcomes;
+- player escape or rescue, NPC retreat, NPC incapacitation, conscious theft, and incapacitated theft outcomes;
 - save/load validation, deterministic rolls, debug diagnostics, and simulation tooling.
 
-It does not currently provide weapons, armor, selectable stances, more than two participants, a generic objective API, pursuit after theft, surrendering money, attacks against legs or the groin, or a general injury-healing system.
+It does not currently provide weapons, armor, selectable stances, more than two participants, mouth restraints, attacks against legs or the groin, or a general injury-healing system.
 
 ## Declaring an encounter in WG
 
@@ -29,15 +29,9 @@ The implemented alley mugging is declared in [`story/encounters/alley.wg`](../st
 
 ```wg
 :: encounter.alley-mugging -> @exit
-@auto enter-place
-@place-key alleyway
-@when not flags.encounter.alley_mugging_seen
-@onenter
-  @effect set flags.encounter.alley_mugging_seen
-@endonenter
-@actor mugger civilian
+  @actor mugger civilian
 
-@system encounter.physical {"scenario":"alley-mugging","aggressor":"mugger"}
+  @system encounter.physical {"scenario":"fight","opponent":{"id":"mugger","actor":"mugger"},"goal":{"id":"steal-money","maxAmount":20},"outcomes":{"player-rescued":"encounter.alley-mugging-rescue"}}
 ```
 
 The declarations have these roles:
@@ -45,10 +39,6 @@ The declarations have these roles:
 | Declaration | Purpose |
 |---|---|
 | `:: encounter.alley-mugging -> @exit` | Declares the WG scene and sends `finish` to the ordinary story exit. |
-| `@auto enter-place` | Makes the scene eligible when a place is entered. |
-| `@place-key alleyway` | Restricts the automatic scene to generated alleyway places. |
-| `@when ...` | Prevents the normal trigger from occurring more than once. |
-| `@onenter` effect | Sets the one-time flag as the scene begins. |
 | `@actor mugger civilian` | Generates and serializes a temporary actor under the alias `mugger`. |
 | `@system encounter.physical ...` | Hands the scene body to the registered JavaScript story system. |
 
@@ -58,10 +48,20 @@ The `@system` JSON object currently accepts these meaningful fields:
 
 | Field | Required | Current value | Meaning |
 |---|---:|---|---|
-| `scenario` | yes | `"alley-mugging"` | Selects a scenario from the encounter scenario registry. No other value is registered. |
-| `aggressor` | yes | `"mugger"` | Names the WG temporary actor alias used as the opponent. |
+| `scenario` | yes | `"fight"` | Selects the general two-participant fight scenario. |
+| `opponent` | yes | `{"id":"mugger","actor":"mugger"}` | Gives the non-player participant ID and its WG temporary-actor alias. |
+| `goal` | yes | `{"id":"steal-money","maxAmount":20}` | Selects and configures the encounter objective. |
+| `outcomes` | no | `{"player-rescued":"..."}` | Maps terminal outcome IDs (or `default`) to authored scene routes. |
 
-The aggressor alias must exist in `game.currentStory.actors` when the system state is created. The current validator requires the scenario to be exactly `alley-mugging`.
+The current fight scenario can also route individual terminal outcomes to authored WG scenes. A string route is sufficient when no extra effects or paragraphs are needed:
+
+```wg
+@system encounter.physical {"scenario":"fight","opponent":{"id":"mugger","actor":"mugger"},"goal":{"id":"steal-money","maxAmount":20},"outcomes":{"player-rescued":"encounter.alley-mugging-rescue"}}
+```
+
+`outcomes.default` may provide a fallback. An outcome route may instead be an object with a required `target` plus optional `effects` and `paragraphs`. If no route matches, finishing the combat uses the encounter scene's ordinary final target.
+
+The opponent actor alias must exist in `game.currentStory.actors` when the system state is created. The current validator requires the scenario to be `fight` and delegates goal-specific validation to the selected objective.
 
 ## Feature and scenario registration
 
@@ -295,6 +295,7 @@ Terminal state has `phase: "terminal"`, `npcIntent: null`, objective stage `comp
 
 Allowed outcome IDs are:
 
+- `player-rescued`;
 - `player-escaped`;
 - `mugger-fled`;
 - `mugger-incapacitated`;
@@ -390,6 +391,18 @@ A participant is incapacitated when any implemented condition below is true:
 If the mugger is incapacitated, their holds are removed and the encounter ends. If the player is incapacitated, theft is resolved immediately and the encounter ends. Resolution also checks the generated catalogue after each action: if a participant has no legal action despite not matching a capacity threshold, that loss of agency follows the same terminal path instead of leaving an invalid active state.
 
 ## Common action mechanics
+
+### Calling for help
+
+`scream-for-help` is a two-second, player-only escape action. A successful roll ends the encounter with `player-rescued`; a failed roll consumes the exchange and combat remains active. Its hearing chances are:
+
+| Conditions | Day | Night |
+|---|---:|---:|
+| Clear, cloudy, windy, or sunny | 40% | 20% |
+| Rain or snow | 25% | 12.5% |
+| Storm | 15% | 7.5% |
+
+The action records the daylight period and weather on its deterministic `chance.rolled` event. Encounter authors can map `player-rescued` to a specific scene through `config.outcomes`; the alley mugging routes it to a scene that creates a random temporary civilian rescuer.
 
 ### Action-definition contract
 

@@ -44,6 +44,7 @@ export function getAvailableActionInstances(context, actorId) {
 }
 
 const AVAILABILITY_HINTS = Object.freeze({
+  "scream-for-help": "Only the player can call for outside help.",
   "cover-and-brace": "Actor cannot begin a physical action.",
   "catch-breath": "Only useful while exerted, hurt, winded, or dazed.",
   "strike-face": "Needs a usable free hand and striking range.",

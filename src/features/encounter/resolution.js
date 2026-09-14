@@ -38,6 +38,7 @@ import {
 } from "./actions/helpers.js";
 import { getActionEffortStatus } from "./effort.js";
 import { requireEncounterObjective } from "./objectives/index.js";
+import { PLAYER_RESCUED_OUTCOME_ID } from "./outcomes.js";
 import {
   controlledParticipantId,
   goalOwnerId,
@@ -100,9 +101,14 @@ function resolveOne(context, instance, runtime, { revalidate = true, spoiledBy =
   reconcileEncounterRelationships(context, runtime);
 }
 
-function releaseControlledHolds(context, runtime, actorId) {
+function releaseControlledHolds(
+  context,
+  runtime,
+  actorId,
+  reason = "controller-incapacitated",
+) {
   for (const hold of [...holdsControlledBy(context, actorId)]) {
-    removeHold(context, hold, runtime, "controller-incapacitated");
+    removeHold(context, hold, runtime, reason);
   }
 }
 
@@ -199,6 +205,17 @@ function checkPhysicalTerminalState(context, runtime) {
 function finalizeOutcome(context, runtime) {
   const outcome = runtime.outcome;
   if (!outcome) return false;
+  if (outcome.id === PLAYER_RESCUED_OUTCOME_ID) {
+    for (const actorId of participantIds(context.state)) {
+      releaseControlledHolds(context, runtime, actorId, "rescuer-arrived");
+    }
+    const range = context.state.relationships.range[0];
+    if (range.value !== ENCOUNTER_RANGE.far) {
+      const from = range.value;
+      range.value = ENCOUNTER_RANGE.far;
+      runtime.events.push({ type: "range.changed", from, to: ENCOUNTER_RANGE.far });
+    }
+  }
   context.state.phase = ENCOUNTER_PHASE.terminal;
   context.state.npcIntent = null;
   requireEncounterObjective(context.state).complete(context);

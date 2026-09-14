@@ -5,9 +5,11 @@ import {
 } from "../state.js";
 import { controlledParticipantId, goalOwnerId, goalTargetId } from "../roles.js";
 import { encounterPronoun, encounterVerb } from "../language.js";
+import { PLAYER_RESCUED_OUTCOME_ID } from "../outcomes.js";
 
 export const STEAL_MONEY_OBJECTIVE_ID = "steal-money";
 export const STEAL_MONEY_OUTCOME = Object.freeze({
+  playerRescued: PLAYER_RESCUED_OUTCOME_ID,
   playerEscaped: "player-escaped",
   playerSurrendered: "player-surrendered-money",
   muggerFled: "mugger-fled",
@@ -127,6 +129,7 @@ export const STEAL_MONEY_OBJECTIVE = Object.freeze({
   id: STEAL_MONEY_OBJECTIVE_ID,
   unopposedActionId: "search-money",
   outcomePriority: Object.freeze([
+    PLAYER_RESCUED_OUTCOME_ID,
     "player-surrendered-money",
     "theft-completed-player-incapacitated",
     "theft-completed-player-conscious",
@@ -408,6 +411,11 @@ export const STEAL_MONEY_OBJECTIVE = Object.freeze({
     return { id: STEAL_MONEY_OUTCOME.playerEscaped, moneyLost: 0 };
   },
 
+  outcomeForTargetRescue(context, events) {
+    recoverTheftMoney(context, events);
+    return { id: STEAL_MONEY_OUTCOME.playerRescued, moneyLost: 0 };
+  },
+
   outcomeForOwnerDefeat(context, events) {
     recoverTheftMoney(context, events);
     return { id: STEAL_MONEY_OUTCOME.muggerIncapacitated, moneyLost: 0 };
@@ -486,6 +494,8 @@ export const STEAL_MONEY_OBJECTIVE = Object.freeze({
     switch (outcome?.id) {
       case STEAL_MONEY_OUTCOME.playerEscaped:
         return `You make it out of the alley before ${encounterPronoun(context, ownerId, "subject")} can catch you.`;
+      case STEAL_MONEY_OUTCOME.playerRescued:
+        return `Your call is answered. ${subject} breaks off the attack as help approaches.`;
       case STEAL_MONEY_OUTCOME.playerSurrendered:
         return money > 0
           ? `You surrender £${money}. ${subject} ${encounterVerb(context, ownerId, "takes", "take")} it and leaves without continuing the fight.`

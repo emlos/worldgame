@@ -8975,6 +8975,9 @@ export const WG_BUNDLE = {
           "goal": {
             "id": "steal-money",
             "maxAmount": 20
+          },
+          "outcomes": {
+            "player-rescued": "encounter.alley-mugging-rescue"
           }
         },
         "source": {
@@ -9335,6 +9338,126 @@ export const WG_BUNDLE = {
         "line": 1,
         "column": 1
       }
+    },
+    "encounter.alley-mugging-rescue": {
+      "id": "encounter.alley-mugging-rescue",
+      "finalTarget": "@exit",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Choices",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Your scream carries beyond the alley. A nearby "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "actor",
+                    "rescuer",
+                    "noun"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": " rushes toward you, shouting that help is coming."
+                }
+              ],
+              "source": {
+                "file": "story/encounters/alley.wg",
+                "line": 50,
+                "column": 1
+              }
+            },
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The interruption is enough. The mugger releases you and runs before "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "actor",
+                    "rescuer",
+                    "subject"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": " can reach the fight. Once the attacker is gone, the "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "actor",
+                    "rescuer",
+                    "noun"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": " stays with you and makes sure you are safe."
+                }
+              ],
+              "source": {
+                "file": "story/encounters/alley.wg",
+                "line": 52,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/encounters/alley.wg",
+            "line": 50,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [],
+      "conditions": [],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/encounters/alley.wg",
+        "line": 47,
+        "column": 1
+      },
+      "actors": [
+        {
+          "alias": "rescuer",
+          "profileId": "civilian",
+          "source": {
+            "file": "story/encounters/alley.wg",
+            "line": 48,
+            "column": 1
+          }
+        }
+      ]
     },
     "home.clothes": {
       "id": "home.clothes",

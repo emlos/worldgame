@@ -8,9 +8,11 @@ import {
 } from "../combatants.js";
 import { controlledParticipantId, goalOwnerId, goalTargetId } from "../roles.js";
 import { encounterPronoun, encounterVerb } from "../language.js";
+import { PLAYER_RESCUED_OUTCOME_ID } from "../outcomes.js";
 
 export const BEAT_DOWN_OBJECTIVE_ID = "beat-down";
 export const BEAT_DOWN_OUTCOME = Object.freeze({
+  targetRescued: PLAYER_RESCUED_OUTCOME_ID,
   targetEscaped: "player-escaped",
   targetBeatenDown: "player-beaten-down",
   ownerAbandoned: "attacker-abandoned",
@@ -92,6 +94,7 @@ export const BEAT_DOWN_OBJECTIVE = Object.freeze({
   actionIds: Object.freeze(["attack-limb"]),
   excludedActionIds: Object.freeze(["flee"]),
   outcomePriority: Object.freeze([
+    BEAT_DOWN_OUTCOME.targetRescued,
     BEAT_DOWN_OUTCOME.mutualIncapacitation,
     BEAT_DOWN_OUTCOME.ownerIncapacitated,
     BEAT_DOWN_OUTCOME.targetBeatenDown,
@@ -261,6 +264,10 @@ export const BEAT_DOWN_OBJECTIVE = Object.freeze({
     return { id: BEAT_DOWN_OUTCOME.targetEscaped };
   },
 
+  outcomeForTargetRescue() {
+    return { id: BEAT_DOWN_OUTCOME.targetRescued };
+  },
+
   outcomeForOwnerEscape() {
     return { id: BEAT_DOWN_OUTCOME.ownerAbandoned };
   },
@@ -322,6 +329,8 @@ export const BEAT_DOWN_OBJECTIVE = Object.freeze({
     switch (outcome?.id) {
       case BEAT_DOWN_OUTCOME.targetEscaped:
         return `You escape before ${encounterPronoun(context, ownerId, "subject")} can finish beating you down.`;
+      case BEAT_DOWN_OUTCOME.targetRescued:
+        return `Your call is answered. ${subject} breaks off the attack as help approaches.`;
       case BEAT_DOWN_OUTCOME.targetBeatenDown:
         if (outcome.cause === "broken-limbs") {
           return "Your broken limbs leave you unable to continue. The attacker has beaten you down.";

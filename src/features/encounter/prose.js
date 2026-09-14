@@ -189,6 +189,7 @@ function actionAttemptText(context, event) {
     "knee-strike": ["drive a knee toward the body", "drives a knee toward the body"],
     "search-money": [`reach for ${targetPossessive} money`, `reaches for ${targetPossessive} money`],
     "surrender-money": ["offer your money and stop resisting", "offers the money and stops resisting"],
+    "scream-for-help": ["scream for help", "screams for help"],
     "controlled-disengage": ["release your holds and spring away", "releases the holds and springs away"],
     "demand-money-back": ["demand your stolen money back", "demands the stolen money back"],
     "attack-limb": ["drive a blow at a limb", "drives a heavy blow at one of your limbs"],
@@ -305,6 +306,8 @@ function actionFailureText(context, event) {
       return `${target} ${encounterVerb(context, targetId, "reads", "read")} your movement and stays close enough to stop you springing clear.`;
     case "demand-refused":
       return `${target} ${encounterVerb(context, targetId, "refuses", "refuse")} and keeps hold of your money.`;
+    case "help-not-heard":
+      return "Your scream goes unanswered; nobody comes to help.";
     case "too-winded":
       return actorIsPlayer
         ? "You are too winded to put force behind it, and the attempt dies immediately."
@@ -372,6 +375,8 @@ function eventText(context, event) {
       return `${qualitativeOddsText(event)}${actionFailureText(context, event)}`;
     case "action.spoiled":
       return spoiledActionText(context, event);
+    case "help.heard":
+      return "Someone nearby hears you and calls out as they rush toward the fight.";
     case "state.change-conflicted":
       return "The opposing movements cancel each other out.";
     case "defense.braced":

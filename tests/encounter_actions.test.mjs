@@ -11,6 +11,7 @@ import {
 } from "../src/features/encounter/availability.js";
 import { intentToActionInstance } from "../src/features/encounter/ai.js";
 import { getEncounterAction } from "../src/features/encounter/actions/index.js";
+import { calculateScreamForHelpChance } from "../src/features/encounter/actions/help.js";
 import { createCombatContext } from "../src/features/encounter/combatants.js";
 import {
   calculateExertionCost,
@@ -36,6 +37,7 @@ test("the opening state exposes the minimum contextual choices", () => {
     encounterChoices(scene).map(({ id }) => id),
     [
       "encounter-action:surrender-money",
+      "encounter-action:scream-for-help",
       "encounter-action:create-distance",
       "encounter-action:cover-and-brace",
       "encounter-action:strike-face",
@@ -63,6 +65,19 @@ test("the opening state exposes the minimum contextual choices", () => {
   const npcActions = getAvailableActionInstances(context, "mugger");
   assert.ok(npcActions.some((candidate) =>
     sameActionInstance(candidate, intentToActionInstance(state.npcIntent))));
+});
+
+test("calls for help use explicit daylight and weather odds", () => {
+  for (const weather of ["clear", "cloudy", "windy", "sunny"]) {
+    assert.equal(calculateScreamForHelpChance({ daylightPeriod: "day", weather }), 0.4);
+    assert.equal(calculateScreamForHelpChance({ daylightPeriod: "night", weather }), 0.2);
+  }
+  assert.equal(calculateScreamForHelpChance({ daylightPeriod: "day", weather: "rain" }), 0.25);
+  assert.equal(calculateScreamForHelpChance({ daylightPeriod: "day", weather: "snow" }), 0.25);
+  assert.equal(calculateScreamForHelpChance({ daylightPeriod: "day", weather: "storm" }), 0.15);
+  assert.equal(calculateScreamForHelpChance({ daylightPeriod: "night", weather: "rain" }), 0.125);
+  assert.equal(calculateScreamForHelpChance({ daylightPeriod: "night", weather: "snow" }), 0.125);
+  assert.equal(calculateScreamForHelpChance({ daylightPeriod: "night", weather: "storm" }), 0.075);
 });
 
 test("the combat screen exposes every mechanically available player action", () => {

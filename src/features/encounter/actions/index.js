@@ -31,10 +31,12 @@ import {
   SURRENDER_MONEY,
 } from "./objective.js";
 import { ATTACK_LIMB } from "./beatDown.js";
+import { SCREAM_FOR_HELP } from "./help.js";
 import { requireEncounterObjective } from "../objectives/index.js";
 
 export const ENCOUNTER_ACTIONS = Object.freeze([
   SURRENDER_MONEY,
+  SCREAM_FOR_HELP,
   CONTROLLED_DISENGAGE,
   DEMAND_MONEY_BACK,
   COVER_AND_BRACE,

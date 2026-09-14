@@ -42,4 +42,11 @@
 :: encounter.alley-mugging -> @exit
   @actor mugger civilian
 
-  @system encounter.physical {"scenario":"fight","opponent":{"id":"mugger","actor":"mugger"},"goal":{"id":"steal-money","maxAmount":20}}
+  @system encounter.physical {"scenario":"fight","opponent":{"id":"mugger","actor":"mugger"},"goal":{"id":"steal-money","maxAmount":20},"outcomes":{"player-rescued":"encounter.alley-mugging-rescue"}}
+
+:: encounter.alley-mugging-rescue -> @exit
+  @actor rescuer civilian
+
+  Your scream carries beyond the alley. A nearby {{actor.rescuer.noun}} rushes toward you, shouting that help is coming.
+
+  The interruption is enough. The mugger releases you and runs before {{actor.rescuer.subject}} can reach the fight. Once the attacker is gone, the {{actor.rescuer.noun}} stays with you and makes sure you are safe.

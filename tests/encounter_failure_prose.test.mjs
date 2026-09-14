@@ -45,6 +45,7 @@ const failureCases = [
   ["too-winded", /too winded/i],
   ["too-dazed", /daze/i],
   ["too-exhausted", /exhausted/i],
+  ["help-not-heard", /nobody comes to help/i],
 ];
 
 test("every action failure reason has specific player and NPC feedback", () => {

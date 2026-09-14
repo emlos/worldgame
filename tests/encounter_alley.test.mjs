@@ -141,6 +141,59 @@ test("the pre-fight choices surrender bounded money or escape to the street", ()
   assert.match(result.paragraphs.join(" "), /outrun the mugger/i);
 });
 
+test("an unanswered scream spends the exchange and leaves the fight active", () => {
+  const game = gameAtStart({ seed: 1 });
+  startEncounter(game);
+
+  chooseAction(game, "scream-for-help");
+
+  const state = game.currentStory.system.state;
+  assert.equal(state.phase, "active");
+  assert.equal(state.outcome, null);
+  assert.ok(state.lastEvents.some(({ type, actionId, purpose, chance, success }) =>
+    type === "chance.rolled"
+      && actionId === "scream-for-help"
+      && purpose === "heard-by-bystander"
+      && chance === 0.2
+      && success === false));
+  assert.ok(state.lastEvents.some(({ type, reason }) =>
+    type === "action.failed" && reason === "help-not-heard"));
+  assert.ok(findActionChoice(game, "scream-for-help"));
+  assert.match(JSON.stringify(buildScene(game).content), /nobody comes to help/i);
+});
+
+test("a heard scream ends combat and routes to a scene with a generated rescuer", () => {
+  const game = gameAtStart({ seed: 4 });
+  startEncounter(game);
+
+  chooseAction(game, "scream-for-help");
+
+  const state = game.currentStory.system.state;
+  assert.equal(state.phase, "terminal");
+  assert.deepEqual(state.outcome, { id: "player-rescued", moneyLost: 0 });
+  assert.deepEqual(state.relationships.holds, []);
+  assert.equal(state.relationships.range[0].value, "far");
+  assert.ok(state.lastEvents.some(({ type }) => type === "help.heard"));
+  let scene = buildScene(game);
+  assert.match(JSON.stringify(scene.content), /call is answered/i);
+
+  const continueChoice = scene.sections
+    .flatMap(({ choices }) => choices)
+    .find(({ id }) => id === "encounter-action:finish");
+  assert.ok(continueChoice);
+  performChoice(game, { sceneId: scene.id, choiceId: continueChoice.id });
+
+  assert.ok(game.currentStory.actors.rescuer);
+  assert.equal(game.currentStory.actors.rescuer.profileId, "civilian");
+  assert.equal(
+    [...game.npcs.values()].some(({ id }) => id === game.currentStory.actors.rescuer.id),
+    false,
+  );
+  scene = buildScene(game);
+  assert.match(JSON.stringify(scene.content), /mugger releases you and runs/i);
+  assert.match(JSON.stringify(scene.content), /stays with you and makes sure you are safe/i);
+});
+
 function preparePlayerControl(game, { stolen = false, muggerExertion = 35 } = {}) {
   const state = game.currentStory.system.state;
   state.relationships.range[0].value = "clinch";

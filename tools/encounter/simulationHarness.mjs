@@ -21,6 +21,10 @@ const SCENE_ID = "encounter.alley-mugging";
 const FIXED_START = new Date("2026-09-11T20:00:00.000Z");
 
 export const PLAYER_POLICIES = Object.freeze({
+  help: Object.freeze([
+    "scream-for-help", "cover-and-brace", "create-distance", "run", "wrench-free",
+    "stand-up", "roll-toward", "shove-away", "strike-face", "drive-body",
+  ]),
   escape: Object.freeze([
     "controlled-disengage", "run", "create-distance", "wrench-free", "strike-holding-arm", "shove-away",
     "stand-up", "roll-toward", "headbutt", "knee-strike", "strike-face",
