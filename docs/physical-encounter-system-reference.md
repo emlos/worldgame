@@ -1,31 +1,57 @@
 # Physical Encounter System Reference
 
-This document describes the physical encounter system that is implemented in the repository now. It is an implementation reference for story authors and developers, not a roadmap. For design rationale and proposed future work, see [`physical-encounter-system-design.md`](physical-encounter-system-design.md).
+This is the maintainer and story-author reference for the physical encounter system as it exists now. It describes implemented behavior only. Values in this document are gameplay tuning unless explicitly described as a validation limit.
 
-## Current scope
+## Implemented system at a glance
 
-The registered story system is `encounter.physical`. The registered scenario is `fight`; its current goal modules are `steal-money` and `beat-down`.
+The registered WG system is `encounter.physical`. Its only scenario is `fight`, a deterministic fight between exactly two participants:
 
-The current scenario supports:
+- one human-controlled player;
+- one temporary scene actor controlled by the shared hostile AI;
+- one attacker-owned objective, currently `steal-money` or `beat-down`;
+- one stored, player-visible NPC intent and one player response per exchange;
+- second-based action timing, simultaneous actions, interruption, range, pose, facing, wall support, wrist grips, limb pins, blunt damage, pain, exertion, and short acute effects;
+- player Combat ranks that progressively reveal technical actions;
+- terminal outcomes routed back into ordinary WG scenes;
+- persistent body state, deterministic rolls, strict save validation, a browser combat lab, and simulation tests.
 
-- one player and one temporary scene actor used as the opponent;
-- telegraphed NPC intent and one player response per exchange;
-- second-based action durations and interruption of slower actions;
-- range, pose, wall support, facing, wrist grips, and limb pins;
-- strikes, defensive reactions, movement, escape, holds, takedowns, pins, and theft;
-- persistent body-part damage and pain;
-- scene-local exertion, daze, winded, and off-balance effects;
-- goal-aware, personality-weighted deterministic NPC action selection;
-- player escape or rescue, NPC retreat, NPC incapacitation, conscious theft, and incapacitated theft outcomes;
-- save/load validation, deterministic rolls, debug diagnostics, and simulation tooling.
+Body-part conditions are deliberately limited to no condition or `bruised`. The combat system has no broken-limb or wound state.
 
-It does not currently provide weapons, armor, selectable stances, more than two participants, mouth restraints, attacks against legs or the groin, or a general injury-healing system.
+## Runtime architecture
 
-## Declaring an encounter in WG
+The main flow is:
 
-Physical encounters are runtime story systems. There is no `@combat` directive.
+```text
+WG @system declaration
+  -> encounter.physical adapter
+  -> fight scenario creates canonical state
+  -> objective creates objective-specific state
+  -> AI selects and stores an intent
+  -> renderer shows that intent and legal player responses
+  -> resolver processes one exchange
+  -> objective decides whether the result is terminal
+  -> scenario routes the terminal outcome back to WG
+```
 
-The implemented alley mugging is declared in [`story/encounters/alley.wg`](../story/encounters/alley.wg):
+The important ownership boundaries are:
+
+| Concern | Owner |
+|---|---|
+| WG configuration and outcome routes | `scenarios/fight.js` |
+| Exact serialized shape and structural invariants | `state.js` |
+| Player/NPC body and stat adapters | `combatants.js` |
+| Geometry and derived movement/control rules | `affordances.js` |
+| Concrete action enumeration and player rank filtering | `availability.js` |
+| Action effects | `actions/` |
+| Exchange order, interruption, simultaneous merge, terminal checks | `resolution.js` |
+| Objective stages, objective AI bonuses, money/defeat outcomes | `objectives/` |
+| Shared AI commitment and utility scoring | `ai.js` and `personality.js` |
+| Screen content and event prose | `system.js` and `prose.js` |
+| Aftermath, Combat loss, and hygiene | `consequences.js` |
+
+## Declaring a fight in WG
+
+Physical encounters are runtime story systems; there is no `@combat` directive. The current authored example is:
 
 ```wg
 :: encounter.alley-mugging -> @exit
@@ -34,137 +60,86 @@ The implemented alley mugging is declared in [`story/encounters/alley.wg`](../st
   @system encounter.physical {"scenario":"fight","opponent":{"id":"mugger","actor":"mugger"},"goal":{"id":"steal-money","maxAmount":20},"outcomes":{"player-rescued":"encounter.alley-mugging-rescue"}}
 ```
 
-The declarations have these roles:
+### Fight configuration
 
-| Declaration | Purpose |
-|---|---|
-| `:: encounter.alley-mugging -> @exit` | Declares the WG scene and sends `finish` to the ordinary story exit. |
-| `@actor mugger civilian` | Generates and serializes a temporary actor under the alias `mugger`. |
-| `@system encounter.physical ...` | Hands the scene body to the registered JavaScript story system. |
+| Field | Required | Meaning |
+|---|---:|---|
+| `scenario` | yes | Must currently be `"fight"`. |
+| `opponent.id` | yes | Encounter participant ID. It must be non-empty and cannot be `player`. |
+| `opponent.actor` | yes | Alias of an `@actor` available in `game.currentStory.actors`. |
+| `goal` | yes | Objective configuration. Its `id` selects the objective module. |
+| `outcomes` | no | Outcome-ID-to-route map, with optional `default`. |
 
-### System configuration
+An outcome route may be a target string or an object:
 
-The `@system` JSON object currently accepts these meaningful fields:
-
-| Field | Required | Current value | Meaning |
-|---|---:|---|---|
-| `scenario` | yes | `"fight"` | Selects the general two-participant fight scenario. |
-| `opponent` | yes | `{"id":"mugger","actor":"mugger"}` | Gives the non-player participant ID and its WG temporary-actor alias. |
-| `goal` | yes | `{"id":"steal-money","maxAmount":20}` | Selects and configures the encounter objective. |
-| `outcomes` | no | `{"player-rescued":"..."}` | Maps terminal outcome IDs (or `default`) to authored scene routes. |
-
-The current fight scenario can also route individual terminal outcomes to authored WG scenes. A string route is sufficient when no extra effects or paragraphs are needed:
-
-```wg
-@system encounter.physical {"scenario":"fight","opponent":{"id":"mugger","actor":"mugger"},"goal":{"id":"steal-money","maxAmount":20},"outcomes":{"player-rescued":"encounter.alley-mugging-rescue"}}
-```
-
-`outcomes.default` may provide a fallback. An outcome route may instead be an object with a required `target` plus optional `effects` and `paragraphs`. If no route matches, finishing the combat uses the encounter scene's ordinary final target.
-
-The opponent actor alias must exist in `game.currentStory.actors` when the system state is created. The current validator requires the scenario to be `fight` and delegates goal-specific validation to the selected objective.
-
-## Feature and scenario registration
-
-The feature is registered in [`src/features/encounter/index.js`](../src/features/encounter/index.js):
-
-```js
-export const ENCOUNTER_FEATURE = defineFeature({
-  id: "encounter",
-  wgSystems: {
-    "encounter.physical": PHYSICAL_ENCOUNTER_STORY_SYSTEM,
-  },
-  timeChangeHandlers: [recoverPlayerPainOutsideEncounter],
-  debugActions: {
-    "encounter.teleport-player-to-alley": teleportPlayerToAlley,
-  },
-});
-```
-
-This registers three feature surfaces:
-
-1. the `encounter.physical` WG story system;
-2. passive player pain recovery when game time changes outside a physical encounter;
-3. a debug action that teleports the player to an alley and resolves its automatic scene.
-
-Scenarios are stored in the map in [`src/features/encounter/scenarios/index.js`](../src/features/encounter/scenarios/index.js). A scenario definition currently has this contract:
-
-```js
+```json
 {
-  id: "alley-mugging",
-  create({ game, instanceKey, config }) {
-    // Return complete, serializable encounter state.
-  },
+  "target": "some.scene",
+  "effects": [],
+  "paragraphs": ["Optional transition prose."]
 }
 ```
 
-The alley scenario:
+If no outcome-specific or default route matches, `finish` uses the encounter scene's normal final target.
 
-- resolves `config.aggressor` to the temporary actor;
-- stores a theft amount equal to the smaller of £20 or the player's current non-negative whole-pound balance;
-- deterministically chooses a mugger personality from the game seed and story instance key;
-- derives initial commitment from that personality and the actor's resolve;
-- creates the canonical state at reach range with both participants standing and facing one another;
-- selects and stores the first NPC intent.
+### Current objective configurations
+
+```json
+{ "id": "steal-money", "maxAmount": 20 }
+```
+
+`maxAmount` must be a non-negative safe integer. At entry, the stored target amount is the smaller of `maxAmount` and the player's current non-negative whole-pound balance. Changing `maxAmount` changes both the maximum loss and the theft reward used by NPC commitment, up to the commitment reward cap described below.
+
+```json
+{ "id": "beat-down" }
+```
+
+`beat-down` accepts no additional fields. Its pain threshold is calculated from the player's Resolve when the fight begins.
 
 ## Story-system lifecycle
 
-`PHYSICAL_ENCOUNTER_STORY_SYSTEM` implements three hooks in [`src/features/encounter/system.js`](../src/features/encounter/system.js):
+### Create
 
-### `create`
+Creation validates configuration, creates the fight and objective state, deterministically selects an AI personality, calculates initial commitment, and stores the first NPC intent.
 
-1. Validates WG configuration.
-2. Looks up the requested scenario.
-3. Calls the scenario's `create` function.
-4. Validates the serialized state and live combatant invariants.
-5. Requires an available player response, an available NPC action, and a legal stored NPC intent.
+If the player is already hard-incapacitated on entry, the objective's unopposed-entry resolution runs immediately. Low Energy does not use that shortcut: an active screen is created with only `You're too tired to move`. Pain-only overwhelm likewise creates an active screen with only `Writhe in pain`. This preserves the telegraphed NPC action.
 
-### `render`
+### Render
 
-Rendering is pure under normal valid state. It validates the configuration and encounter, builds the active or terminal scene, and exposes every mechanically available player action. It does not reroll intent or combat results.
+Rendering validates but does not mutate state or reroll anything. An active screen shows:
 
-### `act`
+- the objective threat and elapsed time;
+- the stored NPC intent and its duration;
+- position, conditions, current objective pressure, and qualitative commitment;
+- prose derived from the latest structured events;
+- legal player choices grouped as Unable to act, Escape, Break control, Defend, Attack, or Control.
 
-The system accepts two command shapes:
+A terminal screen shows the outcome, final situation, final exchange, and `Continue`.
 
-```js
-{
-  type: "choose-action",
-  actionId,
-  actorId: "player",
-  targetId,
-  parameters,
-}
-```
+### Act
 
-and, after a terminal outcome:
+`choose-action` re-derives the submitted concrete action instance from canonical state, resolves one exchange, applies hygiene and Combat learning, persists both bodies, commits objective effects, and stores the next intent if combat remains active.
 
-```js
-{ type: "finish" }
-```
+`finish` is accepted only in terminal state. Terminal consequences are settled before that screen is shown, exactly once.
 
-`choose-action` rechecks the submitted action against the action catalogue before resolution. `finish` is rejected while the encounter remains active and otherwise returns the WG scene's final target.
+The general action runner advances the game clock by the full exchange duration and performs ordinary Energy drain. The duration of an exchange is the slower of the two actions, not the duration of the player's response alone.
 
-Combat choices use the general action runner's ordinary energy drain for their full exchange duration. A submitted response resolves before that time cost is applied. If Energy is below one when an encounter screen is built, including on encounter entry, every ordinary response is replaced by the single `too-tired-to-move` choice. That zero-second helpless response and the stored NPC intent resolve in the same exchange, whose total duration remains the NPC action's duration. If the exchange ends combat, the ordinary exhaustion interrupt remains pending until the player leaves the terminal encounter screen.
+## Canonical state
 
-Encounter exertion remains the short-term measure used by action availability, contests, and AI. When an encounter becomes terminal, an idempotent settlement converts the player's remaining exertion into a post-combat energy-drain multiplier. The multiplier scales linearly from `1×` at zero exertion to `3×` at 100 exertion, then decays linearly to `1×` over 30 in-game minutes. This adds only the multiplier's extra drain during later non-resting time; exertion is not also charged as a lump-sum energy loss.
-
-Hygiene loss is action- and event-specific. Speech and surrender have no inherent hygiene cost. Physical movement, grappling, and strikes have small per-action costs, while direct contact adds further costs: being hit, grabbed, pinned, forced against a wall, or knocked to the ground is dirtier than merely calling for help. The applied amount is recorded as `hygiene.lost` with separate action and event components.
-
-## Canonical encounter state
-
-The current serialized state version is `8`. A newly created state has the following shape:
+The exact serialized version is `8`. A representative theft fight is:
 
 ```js
 {
   version: 8,
-  scenarioId: "alley-mugging",
-  phase: "active",                 // "active" | "terminal"
+  scenarioId: "fight",
+  phase: "active",                  // "active" | "terminal"
   elapsedSeconds: 0,
   exchange: 0,
 
   participants: {
     player: {
       ref: { type: "player" },
+      controller: { type: "human" },
       pose: "standing",
       support: "free",
       exertion: 0,
@@ -173,11 +148,15 @@ The current serialized state version is `8`. A newly created state has the follo
     },
     mugger: {
       ref: { type: "scene-actor", alias: "mugger" },
+      controller: {
+        type: "ai",
+        policyId: "hostile",
+        commitmentBase: 60,
+        personalityId: "opportunist",
+      },
       pose: "standing",
       support: "free",
       exertion: 0,
-      commitmentBase: 60,
-      personalityId: "opportunist",
       actionHistory: [],
       acute: [],
     },
@@ -195,10 +174,13 @@ The current serialized state version is `8`. A newly created state has the follo
   objective: {
     id: "steal-money",
     ownerId: "mugger",
+    targetId: "player",
     stage: "gain-control",
     amount: 20,
-    hasLoot: false,
+    searched: false,
+    lootAmount: 0,
     failedControlAttempts: 0,
+    lastProgressSecond: 0,
   },
 
   npcIntent: {
@@ -213,874 +195,885 @@ The current serialized state version is `8`. A newly created state has the follo
 
   screamForHelpRoll: null,
   terminalConsequencesSettled: false,
-  lastEvents: [{ type: "encounter.started", actorId: "mugger" }],
+  lastEvents: [{ type: "encounter.started", actorId: "mugger", targetId: "player" }],
   outcome: null,
 }
 ```
 
-The exact initial intent and personality depend on the seed and actor.
+### Allowed physical values
 
-### Physical state values
-
-| Dimension | Values | Scope |
-|---|---|---|
-| Range | `far`, `reach`, `clinch` | One pairwise relationship between player and mugger. |
-| Pose | `standing`, `kneeling`, `supine`, `prone` | Stored per participant. |
-| Support | `free`, `wall` | Stored per participant. Wall support is valid only while standing. |
-| Facing | `toward`, `away`, `side` | One directional relationship per participant. |
-| Acute state | `dazed`, `off-balance`, `winded` | Stored per participant with severity and remaining exchanges. |
-
-Creating distance clears the acting participant's wall support. Becoming grounded also clears wall support.
-
-### Authoritative action geometry
-
-Physical access is defined centrally in `ACTION_GEOMETRY` and checked again by each affected action's availability function. Facing `toward` or `side` permits deliberate contact; facing `away` does not. The exceptions are actions whose access comes from an existing tactile relationship, self-directed recovery, or movement away from the opponent.
-
-| Requirement | Actions |
+| Dimension | Values and limits |
 |---|---|
-| Actor facing toward/side | `strike-face`, `drive-body`, `strike-holding-arm`, `knee-strike`, `attack-limb`, `shove-away`, `grab-arm`, `close-distance`, `force-to-wall`, `force-to-ground`, `turn-target-away`, `pin-limb`, `search-money` |
-| Actor facing strictly toward | `headbutt` |
-| Target facing toward/side | `strike-face`, `headbutt`, `attack-limb`, `turn-target-away` |
-| Existing-contact or retreat action; actor facing is irrelevant | `wrench-free`, `tighten-hold`, `create-distance`, `stand-up`, `roll-toward`, `controlled-disengage`, `run`, `flee` |
-| Actor must be standing | `knee-strike`, `create-distance`, `close-distance`, `run`, `flee`, `controlled-disengage`; also both participants for `force-to-wall` and `force-to-ground` |
-| Ground or wall positioning | `stand-up` requires a grounded actor; `roll-toward` requires a grounded or wall-supported actor; `turn-target-away` requires a grounded or wall-supported target; `pin-limb` requires either a standing wall-supported target or a kneeling actor over a grounded target |
+| Participants | Exactly two, exactly one player reference. |
+| Range | `far`, `reach`, `clinch`; exactly one pair relationship. |
+| Pose | `standing`, `kneeling`, `supine`, `prone`. |
+| Support | `free`, `wall`; wall support is valid only while standing. |
+| Facing | `toward`, `away`, `side`; exactly one record per participant. |
+| Holds | `wrist-grip` or `limb-pin`; maximum eight. |
+| Stored hold leverage | Integer `1..100`. |
+| Acute effects | `dazed`, `off-balance`, `winded`; severity `1..3`, remaining exchanges `1..10`. |
+| Action history | At most eight action IDs per participant. |
+| Recent events | At most 24. |
+| Exertion | Integer `0..100`. |
 
-Every encounter still assumes that a usable wall is available. `force-to-wall` therefore needs no scenario capability flag; its positional prerequisites are clinch range, both participants standing, and the target not already wall-supported.
+Only hands may maintain wrist grips. Hands or knees may maintain pins. Every source limb and every controlled target limb may occur in at most one hold. Any active hold forces clinch range. Mutually restraining the exact source limbs of two reciprocal holds is invalid.
 
-### Hold records
+Validation uses exact keys. Adding a serialized field therefore also requires updating the relevant validator; undocumented extra data is rejected instead of silently retained.
 
-A hold is an explicit relationship:
+## Combat priorities and exchange order
 
-```js
-{
-  id: "hold-2-mugger-left",
-  controllerId: "mugger",
-  sourcePartId: "hand_l",
-  targetId: "player",
-  targetPartId: "lower_arm_l",
-  kind: "wrist-grip",              // "wrist-grip" | "limb-pin"
-  leverage: 51,                    // stored leverage, 1..100
-}
-```
+These priorities determine which facts win when two actions interact.
 
-Current hold restrictions are:
+### 1. Helplessness replaces the player's catalogue
 
-- wrist grips use `hand_l` or `hand_r` and target `lower_arm_l` or `lower_arm_r`;
-- limb pins use a hand or knee and currently target the same wrist/arm parts;
-- one source limb cannot maintain two holds;
-- one target limb cannot be controlled by two holds;
-- all hold IDs must be unique;
-- any active hold requires `clinch` range;
-- a knee pin requires a kneeling controller and a grounded target;
-- a hand pin requires a grounded or wall-supported target.
+For the controlled player, pain overwhelm is checked before low Energy:
 
-### Acute records
+1. pain at or above tolerance -> only `writhe-in-pain`;
+2. otherwise Energy below `1` -> only `too-tired-to-move`;
+3. otherwise enumerate ordinary legal, rank-unlocked responses.
 
-```js
-{
-  id: "dazed",
-  severity: 2,       // 1..3
-  exchanges: 1,      // 1..10 in valid saved state
-}
-```
+Both helpless actions take zero seconds. The stored NPC intent still resolves afterward, its contest against the player is unopposed, and player-controlled holds are released. The objective ends only if that actual intent or the resulting state satisfies its completion rules.
 
-Reapplying the same acute effect adds its new severity to the existing severity, capped at 3, and refreshes its duration to the larger duration. Acute durations tick down once after each resolved exchange. Severity 3 daze immediately satisfies an incapacitation condition.
+Energy is not encounter exertion. Energy is a world stat consumed by elapsed time. Exertion is temporary fight-local fatigue used by readiness, contests, holds, AI, and the post-combat fatigue conversion.
 
-### Terminal state
+### 2. Duration establishes action priority
 
-Terminal state has `phase: "terminal"`, `npcIntent: null`, objective stage `complete`, and:
+- A faster action resolves first.
+- Physical terminal state is checked before a slower action may resolve.
+- If the fight is still active, the slower action is revalidated. Changed range, pose, holds, body capacity, or another prerequisite may spoil it.
+- Guard and evasion influence an opposing action from the start only if the defensive response is equally fast or faster.
+- The exchange clock advances by `max(player duration, NPC duration)`.
 
-```js
-{
-  outcome: {
-    id: "player-escaped",
-    moneyLost: 0,
-  },
-}
-```
+Increasing an action's duration makes it easier to interrupt, delays when its guard/evasion starts, adds a larger AI speed penalty, and lengthens both the encounter and ordinary Energy drain. Decreasing it does the reverse.
 
-Allowed outcome IDs are:
+### 3. Equal-duration actions use simultaneous resolution
 
-- `player-rescued`;
-- `player-escaped`;
-- `mugger-fled`;
-- `mugger-incapacitated`;
-- `theft-completed-player-conscious`;
-- `theft-completed-player-incapacitated`.
+Equal-speed actions resolve from isolated copies of the same starting state. Their effects are merged afterward:
 
-## Combatant and body integration
+- damage and exertion from both branches add;
+- acute severity adds up to 3 and the longest remaining duration wins;
+- removing an existing hold beats changing it;
+- compatible new holds survive;
+- incompatible changes to one scalar position value, such as two different ranges or poses, cancel to the pre-exchange value and emit `state.change-conflicted`;
+- objective modules merge their own mutable state and proposed outcomes.
 
-Encounter state does not duplicate either body.
+When two successful simultaneous grabs would each restrain the source limb used by the other, the winner is selected in this order: lower pre-exchange exertion, higher Fitness, higher Strength, then a deterministic 50/50 roll.
 
-- The player adapter uses `game.player.body` directly.
-- The mugger adapter reconstructs a `Body` from the current WG temporary actor's serialized body and writes it back after an exchange.
-- Player physical stats and Combat progression come from `game.player.getSkillValue(name)`.
-- Temporary-actor `strength`, `fitness`, `endurance`, and `resolve` each come directly from `actor.stats`.
+### 4. Physical terminal checks
 
-The four physical combat stats have separate responsibilities:
+After a faster action and again after the whole exchange, resolution checks in this order:
 
-| Stat | Combat responsibility |
-|---|---|
-| Strength | Applied force, shoves, hold leverage, and raw impact damage. |
-| Fitness | Obtaining or slipping grips, evasion, pursuit, and repositioning. |
-| Endurance | Readiness under repeated effort, exertion cost, and recovery. |
-| Resolve | Pain tolerance and the chance to complete a desperate overextended action. |
+1. objective target escaped;
+2. objective owner escaped;
+3. both participants hard-incapacitated;
+4. objective owner incapacitated;
+5. objective-specific completion;
+6. objective target hard-incapacitated;
+7. neither participant has any legal action;
+8. objective owner has no legal action;
+9. objective target has no legal action.
 
-Perception is not part of physical combat resolution for either the player or temporary actors.
+Pain-only completion is intentionally deferred until the player has spent an exchange writhing, allowing the stored NPC intent to resolve first.
 
-### Player Combat skill
+### 5. Simultaneous terminal outcomes
 
-Combat is a five-rank player skill backed by one bounded total from 0 through 500. Every rank contains 100 progress points: totals 0, 100, 200, 300, and 400 begin ranks 0 through 4 respectively. Rank 4 can continue to 100/100 at the 500-point cap. Subtraction crosses boundaries normally, so losing one point at Rank 4 with 0/100 produces Rank 3 with 99/100.
+An objective owns the priority for merging outcomes proposed by equal-speed actions.
 
-A successful player action tagged as damaging, controlling, or hold-establishing awards `0.15` Combat points. Failed, spoiled, and lost simultaneous actions award nothing. This adjustment emits no player-facing event or prose; progress is visible in the phone's Skills section.
+`steal-money` uses: rescue -> surrender -> incapacitated theft -> conscious theft -> player escape -> mugger fled -> mugger incapacitated.
 
-An encounter loss subtracts one Combat point exactly once during terminal consequence settlement. Theft counts as lost when the player surrenders money or the theft completes; a beat-down counts as lost when the player is beaten down. Escape, rescue, attacker defeat or abandonment, and mutual incapacitation do not apply the penalty.
+`beat-down` uses: rescue -> mutual incapacitation -> attacker incapacitated -> player beaten down -> player escape -> attacker abandoned.
 
-The controlled player's visible action set is rank-gated without restricting NPC decisions:
+Changing this ordering changes who receives the benefit when terminal events happen on the same beat. It does not affect unequal-speed interruption.
 
-- Rank 0 retains broad `Strike body`, `Defend yourself`, `Break away`, distance, and running fallbacks whenever their physical prerequisites exist.
-- Rank 1 adds broad role hints to those fallback labels.
-- Rank 2 uses technical labels and unlocks targeted strikes, strikes against a holding arm, controlled shoves, arm grabs, grip reinforcement, and wall control.
-- Rank 3 unlocks headbutts, knee strikes, controlled disengagement, takedowns, turning, and pins.
-- Rank 4 retains the complete technical set and adds qualitative `acts first`, `same timing`, or `acts after their move` forecasts. Exact chances remain debug-only.
+## Player Combat skill
 
-Objective, help, helpless, and basic fallback actions are not removed by rank progression. Physical and positional prerequisites can still make an individual fallback temporarily impossible.
+Combat is one total from `0` through `500`, displayed as five ranks of 100 points:
 
-### Body-part capacity
+| Total | Display |
+|---:|---|
+| `0..99.999...` | Rank 0 |
+| `100..199.999...` | Rank 1 |
+| `200..299.999...` | Rank 2 |
+| `300..399.999...` | Rank 3 |
+| `400..500` | Rank 4; 500 displays 100/100 |
 
-Capacity is calculated for a requested body part and its dependency chain. Examples include hand → lower arm → upper arm → shoulder, foot → ankle → calf → knee → thigh, and head → neck.
+A successful player action tagged `impact`, `control`, or `hold` awards `0.15` points with no encounter feedback. Failed, spoiled, self-only impacts, and a lost simultaneous grab award nothing. A player-loss outcome subtracts `1` point once during consequence settlement. Subtraction crosses rank boundaries normally; Rank 4 at 0/100 becomes Rank 3 at 99/100.
 
-For every part in the chain:
+Changing `0.15` changes progression speed: at the current value, roughly 667 qualifying successes equal 100 points. Changing the `1`-point loss penalty changes how punitive defeat is without changing fight resolution.
 
-```text
-part capacity = integrity ratio
-part capacity *= 0.94 when bruised
-part capacity *= max(0.65, 1 - local pain × 0.0035)
-chain capacity = minimum capacity in the chain
-```
+### Rank unlocks
 
-A missing or zero-health part makes the chain capacity zero. A part is considered functional above `0.15` capacity. Body parts support only two condition states: no condition and `bruised`. Existing passive pain recovery restores lost integrity by the same proportion, so even a zero-integrity part recovers instead of permanently disabling the save. The bruise clears once integrity reaches at least 90%.
+| Rank | Newly available behavior |
+|---:|---|
+| 0 | Core broad responses: body strike, brace, recovery, break away, stand/roll, create distance, run, objective/help/helpless actions. |
+| 1 | No new actions; broad fallback labels gain explanatory role hints. |
+| 2 | `strike-face`, `strike-holding-arm`, `shove-away`, `grab-arm`, `tighten-hold`, `force-to-wall`. |
+| 3 | `headbutt`, `knee-strike`, `controlled-disengage`, `force-to-ground`, `turn-target-away`, `pin-limb`. |
+| 4 | No new actions; labels add `acts first`, `same timing`, or `acts after their move`. |
 
-Usable hands and knees are ordered by current limb capacity, so actions which choose their source automatically use the strongest available limb. When an action has a source part, reduced source-limb capacity lowers both its contest chance and its impact damage.
+`attack-limb`, `search-money`, `flee`, and `close-distance` have rank entries for registry completeness but are goal-owner-only. Rank gating applies only to the controlled player; the NPC uses the full mechanically legal catalogue.
 
-### Limb capacity under a hold
+Changing an action's entry in `COMBAT_ACTION_MINIMUM_RANK` changes only when the player can see/use it. It does not change its chance, AI use, prose, or physical prerequisites.
 
-When a hostile hold controls the same limb:
+## Core physical tuning
 
-```text
-wrist-grip limb multiplier = max(0.12, 1 - effective leverage / 105)
-limb-pin limb multiplier   = max(0.02, 1 - effective leverage / 70)
-```
+### Body damage and pain
 
-The current usable-hand query is stricter than this multiplier: a hand cannot be selected for ordinary actions while any hostile hold controls its arm. A hand maintaining a hold is likewise committed and unavailable.
+Every body part has maximum health and a pain multiplier:
 
-### Balance and movement
+| Parts | Max health | Pain multiplier |
+|---|---:|---:|
+| Head | 100 | 1.5 |
+| Face | 80 | 1.7 |
+| Neck | 80 | 1.6 |
+| Chest | 120 | 1.3 |
+| Back | 120 | 1.2 |
+| Abdomen | 100 | 1.4 |
+| Groin | 60 | 2.0 |
+| Each shoulder | 90 | 1.1 |
+| Each upper arm | 90 | 1.0 |
+| Each forearm | 80 | 1.1 |
+| Each hand | 70 | 1.4 |
+| Each thigh | 100 | 1.2 |
+| Each knee | 80 | 1.5 |
+| Each calf | 90 | 1.3 |
+| Each ankle | 70 | 1.5 |
+| Each foot | 70 | 1.3 |
 
-Each leg's movement capacity is the minimum capacity of its thigh, knee, and foot chains. Overall movement capacity is the better of the two legs. Movement requires standing pose and capacity above `0.20`.
+`applyDamage` removes the numeric damage from part health, adds `damage × painMultiplier` to that part's local pain, and marks any damaged part bruised. Raising max health makes the part retain integrity longer but does not reduce pain from a fixed hit. Raising the pain multiplier makes attacks to that part reach whole-body pain thresholds faster without increasing structural damage.
 
-Balance is calculated as:
-
-```text
-balance = better foot capacity × 0.70 + worse foot capacity × 0.30
-```
-
-It is then multiplied by:
-
-- `0.72` while kneeling;
-- `0.35` while supine or prone;
-- `max(0.25, 1 - offBalanceSeverity × 0.20 - dazeSeverity × 0.12)`.
-
-### Pain and physical performance
-
-The shared body model calculates visible whole-body pain as the worst local pain plus 30% of every other local pain, capped to `0..100`.
+Whole-body pain is the largest local pain plus 30% of every other local pain, clamped to `0..100`. Increasing the 30% carry-over makes distributed hits much more effective; decreasing it makes the worst single injury dominate.
 
 ```text
 physical performance = clamp(1 - whole-body pain × 0.005, 0.5, 1)
 ```
 
-Outside an open `encounter.physical` scene, elapsed game time relieves player pain at `1.5` visible pain per minute. Combat exchange time does not apply this recovery. Passive recovery changes pain only, not integrity or injury conditions.
+At 100 pain, performance is 0.5. Increasing `0.005` makes pain suppress all contests sooner; changing the 0.5 floor determines the minimum remaining generic performance.
 
-### Encounter incapacitation
+### Part and limb capacity
 
-A participant is incapacitated when any implemented condition below is true:
+For a requested part and its dependency chain:
 
-- daze severity is 3;
-- head capacity is at most `0.08`;
-- chest capacity is at most `0.06`;
-- both best-arm and best-leg capacity are at most `0.15`, even if the actor remains conscious;
-- pain reaches `min(95, 78 + resolve × 1.9)`, which is handled as player helplessness rather than immediate defeat when it is the player's only incapacitating condition;
-- while grounded with pain at least 62, both best-leg and best-arm capacity are below `0.25`;
-- winded severity is 3 and pain is at least 68.
-
-If the mugger is incapacitated, their holds are removed and the encounter ends. Hard player incapacitation from daze, critical capacity, disabled gross movement, or the combined grounded/winded conditions still follows the objective's immediate unable-target outcome. Pain at the player's tolerance limit instead leaves the encounter active with only `writhe-in-pain`; Energy below one similarly leaves only `too-tired-to-move`. In either helpless state the NPC must resolve its stored intent, with its contest against the helpless target treated as unopposed, and the objective completes only when that action and the resulting state justify it. Resolution also checks the generated catalogue after each action: if a participant has no legal action despite not matching a capacity threshold, that loss of agency follows the same terminal path instead of leaving an invalid active state.
-
-## Common action mechanics
-
-### Calling for help
-
-`scream-for-help` is a two-second, player-only escape action. A successful roll ends the encounter with `player-rescued`; a failed roll consumes the exchange and combat remains active. The first attempt stores its random number in encounter state. Further attempts made before 45 in-game seconds have elapsed reuse that number; the first attempt at or after the deadline generates a new number and starts another 45-second interval. The stored roll and timer survive save/load. Its hearing chances are:
-
-| Conditions | Day | Night |
-|---|---:|---:|
-| Clear, cloudy, windy, or sunny | 40% | 20% |
-| Rain or snow | 25% | 12.5% |
-| Storm | 15% | 7.5% |
-
-The action records the daylight period, weather, whether the number was reused, and the next reroll time on its deterministic `chance.rolled` event. Encounter authors can map `player-rescued` to a specific scene through `config.outcomes`; the alley mugging routes it to a scene that creates a random temporary civilian rescuer.
-
-### Action-definition contract
-
-Actions are JavaScript data/function definitions registered in `ENCOUNTER_ACTIONS` in [`src/features/encounter/actions/index.js`](../src/features/encounter/actions/index.js):
-
-```js
-export const EXAMPLE_ACTION = Object.freeze({
-  id: "example-action",
-  tags: Object.freeze(["movement"]),
-  durationSeconds: 2,
-  usableBy: Object.freeze(["player", "mugger"]),
-  playerOrder: 50,
-
-  enumerateTargets(context, actorId) {
-    return [actionInstance(this.id, actorId, targetId, parameters)];
-  },
-
-  isAvailable(context, instance) {
-    return true;
-  },
-
-  label(context, instance) {
-    return "Player-facing choice label";
-  },
-
-  intentLabel(context, instance) {
-    return "telegraphed NPC intent text";
-  },
-
-  resolve(context, instance, runtime) {
-    // Mutate encounter state/body and emit structured events.
-  },
-});
+```text
+part capacity = integrity ratio
+              × 0.94 if bruised
+              × max(0.65, 1 - local pain × 0.0035)
+chain capacity = minimum part capacity in the chain
 ```
 
-`enumerateTargets` creates concrete action instances. An instance contains `actionId`, `actorId`, `targetId`, and serializable `parameters`. Availability is re-derived from canonical state; functions are never saved.
+Chains include hand -> forearm -> upper arm -> shoulder, foot -> ankle -> calf -> knee -> thigh, and head -> neck. A missing or zero-health part gives zero capacity. A part is functional only above `0.15`.
 
-`usableBy` currently contains the literal internal IDs `player` and/or `mugger`. `playerOrder` determines display order only. AI scoring uses tags and a separate utility profile.
+Increasing the bruise multiplier toward 1 weakens the mechanical effect of the condition. Lowering the pain floor below 0.65 lets local pain disable limbs more completely. Raising `0.0035` makes local pain reduce limb use faster. Raising the functional threshold makes actions and holds disappear earlier as parts are damaged.
 
-### Contests
+A usable hand must be functional, not maintaining a hold, not controlled by any hostile hold on that arm, and have final limb capacity above `0.55`. This `0.55` is intentionally much stricter than mere functionality; lowering it preserves hand actions under damage/restraint, while raising it makes grips and strikes easier to shut down.
 
-Most contested actions calculate success chance as:
+### Balance and movement
+
+```text
+balance = better foot capacity × 0.70 + worse foot capacity × 0.30
+balance *= 0.72 while kneeling
+balance *= 0.35 while supine or prone
+balance *= max(0.25, 1 - off-balance severity × 0.20 - daze severity × 0.12)
+```
+
+Favoring the better foot more strongly makes one healthy leg compensate for the other. Lower pose multipliers make grounded actions and resistance harder. The final 0.25 floor prevents acute effects alone from reducing balance to zero.
+
+Movement capacity is the better leg's minimum thigh/knee/foot-chain capacity. Ordinary movement requires standing and capacity above `0.20`.
+
+Movement/control thresholds:
+
+| Threshold | Current value | What raising it does |
+|---|---:|---|
+| General movement | `> 0.20` | Removes movement and escape earlier under leg damage. |
+| Wrenchable restrained part | `> 0.15` unrestrained capacity | Removes the physical wrench response earlier. |
+| Stand movement | `>= 0.22` | Makes rising with damaged legs harder. |
+| Stand arm alternative | `>= 0.20` | Requires a healthier arm when balance is poor. |
+| Stand balance alternative | `>= 0.28` | Requires better footing when arms are poor. |
+| Firm pin preventing stand | effective leverage `>= 32` | Makes fewer pins completely deny standing. |
+| Knee-strike balance | `> 0.40` | Makes the strike more position-sensitive. |
+| Knee-strike planted leg | `> 0.32` | Requires a healthier supporting leg. |
+| Force-to-ground balance | `> 0.35` | Makes takedowns harder for an unstable controller. |
+| Headbutt head capacity | `> 0.30` | Prevents headbutts at a healthier head state. |
+
+### Incapacitation and helplessness
+
+Pain tolerance is:
+
+```text
+min(95, 78 + Resolve × 1.9)
+```
+
+Resolve 0 gives 78; Resolve 9 reaches the 95 cap. Raising 78 makes everyone withstand more pain. Raising 1.9 increases the value of Resolve. Raising the 95 cap lets high-Resolve characters remain active closer to maximum pain.
+
+Hard incapacitation occurs if any of these are true:
+
+- daze severity `3`;
+- head capacity `<= 0.08`;
+- chest capacity `<= 0.06`;
+- best leg and best arm capacity are both `<= 0.15`;
+- while not standing, pain is at least `62` and both best-leg and best-arm capacity are below `0.25`;
+- winded severity is `3` and pain is at least `68`.
+
+Raising a pain/capacity requirement makes that particular defeat condition rarer. Lowering it makes the objective reach unable-target resolution sooner. Player pain reaching tolerance is separated from hard incapacitation so the NPC still has to perform its telegraphed exchange while the player writhes.
+
+### Contest formula
+
+Most contested actions use:
 
 ```text
 chance = base chance
-       + optional (actor stat - target stat) × 0.035
-       + action modifier
-       + (source limb capacity - 1) × 0.32, when the action has a source limb
+       + (actor stat - target stat) × 0.035        when stats are configured
+       + action-specific modifier
+       + (source limb capacity - 1) × 0.32         when a source exists
        + (actor body performance - 1) × 0.40
        + (actor balance - target balance) × 0.18
        - actor exertion × 0.0025
        + target exertion × 0.0015
        - 0.14 if actor is dazed
        + 0.12 if target is dazed
-       - 0.18 if target is guarding against an impact
-       + 0.06 if target is guarding against control
-       - the target's Fitness-scaled evasion when evading
+       + guard/evasion adjustment
+chance = clamp(chance, 0.18, 0.90)
 ```
 
-The final chance is clamped to `0.18..0.90`. A contest has no stat term unless the action declares one. Ordinary strike accuracy is therefore not improved by Strength; Strength still increases the resulting damage. Force actions use Strength, while grip access, pursuit, evasion, and repositioning use Fitness. Slipping a grip compares the restrained actor's Fitness against the controller's Strength.
+Changing a base chance shifts only that action. The stat coefficient means one stat point is 3.5 percentage points before clamping. Raising the source/body/balance coefficients makes injuries and position more decisive. Raising the actor-exertion coefficient punishes active fatigue; raising the target-exertion coefficient rewards attacking a tired opponent. Widening the 18%-90% clamp increases certainty at extremes; narrowing it preserves more upset results.
 
-### Damage
+Guard subtracts `0.18` from impact contests but adds `0.06` to control contests: covering up makes hits harder to land but makes the defender easier to grab or position. Guarded damage is multiplied by `0.62`, minimum 1. Changing these three values controls the attack-versus-grapple tradeoff of bracing.
 
-Current encounter impacts use blunt damage:
+Evasion subtracts:
+
+```text
+max(0.03,
+    clamp(0.08 + defender Fitness × 0.015, 0.08, 0.22)
+    - (1 - movement capacity) × 0.12
+    - exertion × 0.001
+    - 0.04 while wall-supported)
+```
+
+Raising the Fitness coefficient or 0.22 cap strengthens skilled evasion. Raising mobility, exertion, or wall penalties makes impaired evasion lose value faster. The 0.03 floor guarantees at least a small benefit after the action activates.
+
+### Damage formula
 
 ```text
 source multiplier = 0.45 + source limb capacity × 0.55
-damage = round((base damage + actor strength × strength scale) × source multiplier)
+damage = round((base damage + Strength × strength scale) × source multiplier)
 ```
 
-Actions without a source limb use a source multiplier of `1`. Guarding multiplies received damage by `0.62`, with a minimum of 1. The body model then reduces part health, updates injury conditions, and adds local pain using that part's pain multiplier.
+An action without a source part uses multiplier 1. Raising an action's base damage helps weak and strong actors equally. Raising its Strength scale increases stat differentiation. The source formula currently leaves a low-capacity limb at 45% nominal force; lowering that floor makes damaged limbs matter more.
 
-### Exertion
+### Exertion and readiness
 
 ```text
 strain = 1 + exertion / 180 + winded × 0.16 + dazed × 0.10 + pain / 250
-exertion gained = max(1, round(base action effort × strain - endurance × 0.45))
-readiness = 100 - exertion + endurance × 3
-          - max(0, pain - resolve × 1.5) × 0.18
-          - winded × 10 - dazed × 8
-recovery = max(6, round(8 + endurance × 2.4))
+exertion gained = max(1, round(base effort × strain - Endurance × 0.45))
+
+readiness = clamp(round(
+    100 - exertion + Endurance × 3
+    - max(0, pain - Resolve × 1.5) × 0.18
+    - winded × 10 - dazed × 8
+), 0, 120)
+
+catch-breath recovery = max(6, round(8 + Endurance × 2.4))
 ```
 
-Participant exertion is capped at 100. It affects contests and effective hold leverage and contributes to mugger commitment. Fitness does not reduce exertion or improve recovery. When an NPC attempts an action despite failing its effort profile, its desperate-effort chance is `0.13 + resolve × 0.01 - readiness deficit × 0.008 - excess acute severity × 0.06`, clamped to `0.02..0.23`.
+Raising a base effort makes that action more expensive and increasingly expensive late in a fight. Smaller strain denominators/coefficient increases make existing fatigue, pain, winded, or daze snowball faster. Raising Endurance's `0.45`, `3`, or `2.4` coefficient respectively lowers action cost, raises readiness, or improves recovery.
 
-### Deterministic randomness
-
-Combat rolls are keyed by game seed, WG instance key, exchange number, actor ID, action ID, and roll purpose. Re-rendering and save/load therefore do not reroll an exchange. Chance events retain the calculated chance, roll, purpose, and result for debugging.
-
-## Implemented action catalogue
-
-The order below groups actions by purpose. `P` means player, `M` means mugger.
-
-### Defense
-
-#### `cover-and-brace`
-
-| Property | Value |
-|---|---|
-| Users | P, M |
-| Duration | 1 second |
-| Effort | 2 |
-| Availability | Active encounter and actor not incapacitated. |
-
-Marks the actor as guarding for the exchange, reducing incoming contest chance by `0.24` and incoming damage to 55%. Emits `defense.braced`.
-
-### Strikes
-
-#### `strike-face`
-
-| Property | Value |
-|---|---|
-| Users | P, M |
-| Duration | 2 seconds |
-| Effort | 7 |
-| Availability | A usable free hand, not at far range, attacker facing toward/side, and target facing toward/side. |
-
-Uses a `0.57` base contest. On success it deals `10 + strength × 0.70` damage to the face. Daze chance is `min(0.68, 0.24 + damage × 0.025)`; severity is 2 at damage 16 or more, otherwise 1. A disabled holding limb automatically releases its holds.
-
-#### `drive-body`
-
-| Property | Value |
-|---|---|
-| Users | P, M |
-| Duration | 2 seconds |
-| Effort | 7 |
-| Availability | A usable free hand, not at far range, and attacker facing toward/side. |
-
-Uses a `0.64` base contest. On success it deals `12 + strength × 0.75` damage to the abdomen.
-
-#### `strike-holding-arm`
-
-| Property | Value |
-|---|---|
-| Users | P, M |
-| Duration | 2 seconds |
-| Effort | 6 |
-| Availability | A hostile hold, actor facing toward/side, and either a usable hand or, while standing with balance above 0.40, a usable knee. |
-
-Generates one concrete choice for each hostile hold. It uses a `0.67` base contest and deals `8 + strength × 0.65` damage to the hold's source part. Stored leverage is reduced by `round(20 + strength × 1.5)`. The hold breaks when leverage reaches zero, the impact deals at least 14 damage, or the source limb becomes nonfunctional.
-
-#### `headbutt`
-
-| Property | Value |
-|---|---|
-| Users | P, M |
-| Duration | 1 second |
-| Effort | 7 |
-| Availability | Clinch range; actor not supine/prone; head capacity above 0.30; actor facing target; target facing toward/side. |
-
-Uses a `0.58` base contest. A miss has an 18% self-daze chance. A hit:
-
-- deals `8 + strength × 0.45` damage to the target's face;
-- deals `4 + strength × 0.10` damage to the actor's head;
-- has target-daze chance `min(0.62, 0.28 + damage × 0.02)`, severity 2 at damage 13 or more;
-- has a separate 12% self-daze chance;
-- releases holds whose source limb becomes nonfunctional.
-
-#### `knee-strike`
-
-| Property | Value |
-|---|---|
-| Users | P, M |
-| Duration | 2 seconds |
-| Effort | 9 |
-| Availability | Clinch range; actor standing and facing toward/side; target not prone; usable knee; opposite planted leg capacity above 0.32; balance above 0.40. |
-
-Uses a `0.61` base contest. A miss has a 38% chance to apply severity-1 off-balance for two exchanges. A hit deals `10 + strength × 0.60` damage to the abdomen, applies winded for two exchanges (severity 2 at damage 15 or more), and has a 16% chance to apply severity-1 off-balance to the attacker for one exchange.
-
-### Movement and escape
-
-#### `shove-away`
-
-| Property | Value |
-|---|---|
-| Users | P, M |
-| Duration | 2 seconds |
-| Effort | 9 |
-| Availability | A usable free hand, reach or clinch range, and actor facing toward/side. |
-
-Uses a Strength-versus-Strength contest with base `0.61`. On success, hostile holds below 48 effective leverage break; stronger holds lose 20 stored leverage. If no hostile hold remains, the actor releases their own holds and range opens by one step.
-
-#### `create-distance`
-
-| Property | Value |
-|---|---|
-| Users | P, M |
-| Duration | 3 seconds |
-| Effort | 5 |
-| Availability | Standing movement capacity above 0.20, range other than far, and no movement-denying hold. |
-
-The action releases all holds controlled by or targeting the actor, clears the actor's wall support, and opens range by one step. It counts as evasion only against an equal-speed or slower opposing action; a faster attack resolves before its evasion modifier begins.
-
-A movement-denying hold is any limb pin with at least 28 effective leverage or hostile holds with combined effective leverage of at least 52.
-
-#### `stand-up`
-
-| Property | Value |
-|---|---|
-| Users | P, M |
-| Duration | 3 seconds |
-| Effort | 10 |
-| Availability | Grounded; no limb pin at 32 or more effective leverage; movement capacity at least 0.22; and either best-arm capacity at least 0.20 or balance at least 0.28. |
-
-With hostile holds, it uses a fitness-versus-strength contest with base `0.61` and modifier `-0.0015 × combined effective leverage`. On success, knee pins maintained by the rising actor are released, their pose becomes standing, and they face the opponent.
-
-#### `roll-toward`
-
-| Property | Value |
-|---|---|
-| Users | P, M |
-| Duration | 2 seconds |
-| Effort | 7 |
-| Availability | Grounded or wall-supported and not already facing toward, except that a prone actor may always attempt it. |
-
-Against a hostile hold, it uses a fitness-versus-strength contest with base `0.64` and modifier `-0.002 × strongest effective leverage`. Failure weakens that hold by 8. Success turns the actor toward the opponent, changes prone to supine, weakens wrist grips by 8 and pins by 14, and breaks any hold reduced to zero.
-
-#### `close-distance`
-
-| Property | Value |
-|---|---|
-| Users | M only |
-| Duration | 2 seconds |
-| Effort | 6 |
-| Availability | Far range, actor facing toward/side, and sufficient standing movement capacity. |
-
-Uses a Fitness-versus-Fitness contest with base `0.68`. Success changes far range to reach. Failure increments the mugger's failed-control count.
-
-#### `run`
-
-| Property | Value |
-|---|---|
-| Users | P only |
-| Duration | 4 seconds |
-| Effort | 10 |
-| Availability | Far range, sufficient standing movement capacity, and no movement-denying hold. |
-
-Proposes the terminal `player-escaped` outcome. A faster successful intercept can invalidate it before it resolves.
-
-#### `flee`
-
-| Property | Value |
-|---|---|
-| Users | M only |
-| Duration | 3 seconds |
-| Effort | 7 |
-| Availability | Reach or far range and sufficient standing movement capacity. |
-
-Proposes the terminal `mugger-fled` outcome.
-
-### Holds, position, and theft
-
-#### `grab-arm`
-
-| Property | Value |
-|---|---|
-| Users | P, M |
-| Duration | 2 seconds |
-| Effort | 7 |
-| Availability | Reach or clinch range, actor facing toward/side, strongest usable hand, and at least one functional uncontrolled target arm. The target may be facing away. |
-
-One concrete action instance is generated for each uncontrolled target arm. Uses a Fitness-versus-Fitness contest with base `0.60`. Success creates a wrist grip, changes range to clinch, and sets stored leverage to:
+The player never sees actions whose readiness or acute caps are currently violated. The NPC may select an overextended action, but must pass:
 
 ```text
-clamp(round(36 + actor strength × 3 - target strength), 22, 68)
+clamp(0.13 + Resolve × 0.01
+      - readiness deficit × 0.008
+      - excess acute severity × 0.06,
+      0.02, 0.23)
 ```
 
-A failed mugger grab increments failed-control attempts.
+Failure still adds exertion with base `max(2, action duration)` and records the action as failed. Raising the 0.13 base or 0.23 cap makes desperate NPC feats more frequent; raising either penalty makes overextension fail more reliably.
 
-#### `wrench-free`
+## Action tuning catalogue
 
-| Property | Value |
+`Effort` is the base passed to the strain formula. `Ready` is required readiness. `W/D` are maximum allowed winded/dazed severities. `—` means the action does not add exertion; catch breath instead recovers it.
+
+| Action | Users | Rank | Seconds | Effort | Ready | W/D | Principal tuning/effect |
+|---|---|---:|---:|---:|---:|---:|---|
+| `too-tired-to-move` | player | 0 | 0 | — | 0 | 3/3 | Exclusive while Energy `< 1`; NPC acts unopposed. |
+| `writhe-in-pain` | player | 0 | 0 | — | 0 | 3/3 | Exclusive at pain tolerance; NPC acts unopposed. |
+| `surrender-money` | player | 0 | 0 | — | 0 | 3/3 | Immediate theft surrender outcome. |
+| `scream-for-help` | player | 0 | 2 | — | 0 | 3/3 | Environmental rescue roll; see below. |
+| `controlled-disengage` | player | 3 | 1 | — | 20 | 2/2 | Requires complete player wrist control and opponent exertion `>=35`; chance below. |
+| `demand-money-back` | player | 0 | 1 | — | 0 | 3/3 | Requires stolen money and complete control; tricky Speech roll. |
+| `cover-and-brace` | both | 0 | 1 | 2 | 14 | 3/2 | Guard adjustments described above. |
+| `catch-breath` | both | 0 | 3 | recovery | 0 | 3/2 | Available at exertion `>=12`, pain `>=20`, winded, or dazed; eases winded by 1. |
+| `headbutt` | both | 3 | 1 | 7 | 36 | 1/1 | Base 0.58; face `8 + Str×0.45`; self head `4 + Str×0.10`. |
+| `knee-strike` | both | 3 | 2 | 9 | 34 | 1/1 | Base 0.61; abdomen `10 + Str×0.60`; applies winded. |
+| `strike-face` | both | 2 | 2 | 7 | 18 | 2/1 | Base 0.57; face `10 + Str×0.70`; may daze. |
+| `drive-body` | both | 0 | 2 | 7 | 22 | 2/1 | Base 0.64; abdomen `12 + Str×0.75`. |
+| `shove-away` | both | 2 | 2 | 9 | 28 | 1/2 | Strength contest base 0.61; breaks/weakens holds and opens range. |
+| `grab-arm` | both | 2 | 2 | 7 | 22 | 2/2 | Fitness contest base 0.60; creates wrist grip. |
+| `strike-holding-arm` | both | 2 | 2 | 6 | 18 | 2/1 | Base 0.67; source limb `8 + Str×0.65`; weakens hold. |
+| `wrench-free` | both | 0 | 3 | `9 + 3×holds` | 36 | 1/2 | One specialized escape roll per hostile hold. |
+| `stand-up` | both | 0 | 3 | 10 | 40 | 1/1 | Fitness-vs-Strength base 0.61 if held. |
+| `roll-toward` | both | 0 | 2 | 7 | 24 | 2/2 | Base 0.64 if held; changes facing/pose and weakens holds. |
+| `create-distance` | both | 0 | 3 | 5 | 30 | 1/2 | May contest light holds; activates evasion and opens range one step. |
+| `run` | player | 0 | 4 | 10 | 42 | 1/1 | From far range; proposes player escape. |
+| `tighten-hold` | both | 2 | 2 | 6 | 16 | 2/2 | Uncontested leverage gain. |
+| `pin-limb` | both | 3 | 2 | 8 | 34 | 1/1 | Strength contest base 0.62; converts grip to pin. |
+| `force-to-ground` | both | 3 | 3 | 12 | 44 | 1/1 | Strength contest base 0.48; takedown. |
+| `force-to-wall` | both | 2 | 3 | 10 | 38 | 1/1 | Strength contest base 0.50; wall support. |
+| `turn-target-away` | both | 3 | 2 | 7 | 28 | 2/1 | Fitness contest base 0.56; facing/pose control. |
+| `search-money` | goal owner | 0 | 4 | 6 | 18 | 2/2 | Requires usable theft control; takes money then enters disengage. |
+| `attack-limb` | goal owner | 2 | 3 | 9 | 12 | 2/2 | Beat-down only; base 0.52; forearm/knee `14 + Str×0.80`. |
+| `flee` | goal owner | 0 | 3 | 7 | 8 | 2/2 | From reach/far; proposes owner escape. |
+| `close-distance` | goal owner | 0 | 2 | 6 | 34 | 1/2 | Fitness contest base 0.68; far -> reach. |
+
+### Action geometry
+
+Geometry is authoritative availability, not merely prose. “Front” below means `toward` or `side`.
+
+| Actions | Required geometry |
 |---|---|
-| Users | P, M |
-| Duration | 3 seconds |
-| Effort | `9 + 3 × number of targeted holds` |
-| Availability | Clinch range and at least one hostile hold on a restrained limb whose unrestrained part capacity remains above `0.15`. Facing is irrelevant because the actor can feel the established hold. |
+| `strike-face`, `attack-limb` | Reach or clinch; actor and target front-facing. |
+| `drive-body`, `strike-holding-arm`, `shove-away`, `grab-arm` | Reach or clinch; actor front-facing. |
+| `headbutt` | Clinch; actor facing toward; target front-facing; actor standing or kneeling. |
+| `knee-strike` | Clinch; actor front-facing and standing; target standing, kneeling, or supine. |
+| `create-distance` | Reach or clinch; actor standing. |
+| `stand-up` | Actor kneeling, supine, or prone. |
+| `roll-toward` | Actor grounded, or standing against a wall. |
+| `close-distance` | Far; actor front-facing and standing. |
+| `run` | Far; actor standing. |
+| `flee` | Reach or far; actor standing. |
+| `wrench-free`, `tighten-hold` | Clinch; facing is irrelevant because contact already exists. |
+| `force-to-wall` | Clinch; actor front-facing; both standing; target support free. |
+| `force-to-ground` | Clinch; actor front-facing; both standing. |
+| `turn-target-away` | Clinch; actor and target front-facing; target wall-supported or grounded. |
+| `pin-limb` | Clinch and actor front-facing; either a standing wall-supported target, or a kneeling actor over a grounded target. |
+| `search-money` | Clinch; actor front-facing. |
+| `controlled-disengage` | Clinch; actor standing. |
 
-One action instance targets every hostile hold. Each hold is rolled separately:
+Helpless actions, surrender, calling for help, demanding money back, bracing, and catching breath have no separate range/facing geometry rule; their own availability predicates still apply. Raising a capacity or leverage threshold does not override geometry, and loosening geometry does not override physical readiness.
+
+### Strike secondary tuning
+
+- `strike-face`: target daze chance is `min(0.68, 0.24 + damage × 0.025)`; severity 2 at damage `>=16`, otherwise 1.
+- `headbutt`: an outright miss has 18% self-daze chance. On hit, target daze is `min(0.62, 0.28 + damage × 0.02)` and becomes severity 2 at damage `>=13`; self-daze is separately 12%.
+- `knee-strike`: a miss has 38% chance to apply severity-1 off-balance for two exchanges. A hit applies winded for two exchanges, severity 2 at damage `>=15`, and has 16% chance to apply self off-balance for one exchange.
+- Acute applications stack severity to 3 and keep the longer remaining duration. Every completed exchange reduces remaining duration by one.
+
+Raising a secondary-effect chance or damage breakpoint makes that action more reliable at disrupting future turns. Increasing acute duration does not increase initial severity, but keeps its readiness, balance, or contest penalty active for more exchanges.
+
+### Hold tuning
+
+`grab-arm` creates stored leverage:
 
 ```text
-chance = 0.58
-       + (actor fitness - controller strength) × 0.035
-       + (restrained limb capacity - 1) × 0.28
-       - effective leverage × 0.004
-       - 0.12 for a limb pin
-       - 0.08 for each additional simultaneously targeted hold
-chance = clamp(chance, 0.16, 0.84)
+clamp(round(36 + attacker Strength × 3 - target Strength), 22, 68)
 ```
 
-Success breaks that hold. On failure, the leverage reduction is scaled by the restrained limb's capacity; reaching zero still breaks it. Partial success is possible with multiple holds. Holds on nonfunctional restrained limbs are not included in the generated wrench action.
+The 36 controls the typical grip, the Strength coefficients control differentiation, and 22/68 prevent an initial grip from being trivial or nearly complete.
 
-#### `tighten-hold`
-
-| Property | Value |
-|---|---|
-| Users | P, M |
-| Duration | 2 seconds |
-| Effort | 6 |
-| Availability | Clinch range and any hold controlled by the actor with stored leverage below 100. Facing is irrelevant because the hold is already established. |
-
-Generates one instance per controlled hold. It is uncontested and increases stored leverage by `round(14 + strength × 0.5)`, capped at 100.
-
-#### `force-to-wall`
-
-| Property | Value |
-|---|---|
-| Users | P, M |
-| Duration | 3 seconds |
-| Effort | 10 |
-| Availability | Clinch; actor facing toward/side; both standing; target support free; selected hold has at least 42 effective leverage. A usable wall is assumed to exist in every encounter. |
-
-Uses a Strength-versus-Strength contest with base `0.50` plus `effective leverage × 0.003`. Success changes target support to wall and adds 8 stored leverage. A failed mugger attempt increments failed-control attempts.
-
-#### `force-to-ground`
-
-| Property | Value |
-|---|---|
-| Users | P, M |
-| Duration | 3 seconds |
-| Effort | 12 |
-| Availability | Strongest eligible hold has at least 34 effective leverage; clinch; actor facing toward/side; both standing; actor balance above 0.35. |
-
-Uses a Strength-versus-Strength contest with base `0.48` plus `effective leverage × 0.003`. Success makes the target supine, the actor kneeling, both facing toward, and adds 6 leverage. A failed mugger attempt increments failed-control attempts.
-
-#### `turn-target-away`
-
-| Property | Value |
-|---|---|
-| Users | P, M |
-| Duration | 2 seconds |
-| Effort | 7 |
-| Availability | Strongest eligible hold has at least 28 effective leverage; clinch; actor and target facing toward/side; target wall-supported or grounded. |
-
-Uses a Fitness-versus-Fitness contest with base `0.56` plus `effective leverage × 0.002`. Success turns the target away, changes a grounded target to prone, and adds 5 leverage.
-
-#### `pin-limb`
-
-| Property | Value |
-|---|---|
-| Users | P, M |
-| Duration | 2 seconds |
-| Effort | 8 |
-| Availability | Actor facing toward/side and controlling a non-pin hold in clinch. A standing wall-supported target keeps the holding hand as the pin source; a grounded target requires a kneeling actor and usable knee. |
-
-Uses a Strength-versus-Strength contest with base `0.62` plus `effective leverage × 0.002`. Success converts the wrist grip to `limb-pin`, replaces the source part when using a knee, and adds 15 leverage.
-
-#### `search-money`
-
-| Property | Value |
-|---|---|
-| Users | M only |
-| Duration | 4 seconds |
-| Effort | 6 |
-| Availability | Clinch range, actor facing toward/side, a usable free hand, and usable control over the player. |
-
-Usable control requires clinch range, at least one hold, a constrained target, and either:
-
-- a limb pin with at least 38 effective leverage; or
-- at least 72 combined effective leverage, with each hold contributing at most 70.
-
-The target is constrained when wall-supported, grounded, or dazed. On resolution, the action deducts the smaller of the stored theft amount and the player's current whole-pound balance. Positive theft ends with `theft-completed-player-conscious`; finding nothing ends with `mugger-fled`.
-
-Although `disengage` and `hasLoot` exist in the state and AI, successful `search-money` currently ends the encounter immediately, so there is no active post-theft disengagement exchange.
-
-## Hold effectiveness
-
-Stored leverage is modified at query time:
+Stored leverage becomes effective leverage at query time:
 
 ```text
-effective leverage = stored leverage
-                   × source-part capacity
-                   × controller balance
-                   × daze multiplier
-                   × exertion multiplier
-                   × position multiplier
+effective = stored
+          × source-part capacity
+          × controller balance
+          × (0.70 if dazed, else 1)
+          × max(0.55, 1 - exertion × 0.0045)
+          × pin position multiplier
 ```
 
-Where:
+Pin position is 1.08 against a wall or 1.18 on the ground, plus 0.08 if the pinned target faces away. Raising these makes positional pins more decisive. Lowering the exertion floor or raising 0.0045 makes tired controllers lose effective control faster.
 
-- daze multiplier is `0.70` while dazed, otherwise `1`;
-- exertion multiplier is `max(0.55, 1 - exertion × 0.0045)`;
-- ordinary wrist-grip position multiplier is `1`;
-- a limb pin uses `1.08` against a wall-supported target or `1.18` against a grounded target;
-- an away-facing pinned target adds another `0.08` to the pin's position multiplier.
+Hostile restraint reduces the controlled limb:
 
-Damage to any part in the source limb's dependency chain can therefore weaken or disable the hold without changing its stored leverage.
+```text
+wrist multiplier = max(0.12, 1 - effective / 105)
+pin multiplier   = max(0.02, 1 - effective / 70)
+```
 
-## Exchange timing and resolution
+Lower denominators make leverage suppress limbs faster. Floors define how much capacity a hold can never remove by itself.
 
-Each active screen shows the stored NPC intent and its action duration before the player chooses one response.
+Important control breakpoints and changes:
 
-Resolution proceeds as follows:
+| Rule | Value | If increased |
+|---|---:|---|
+| `create-distance` treats combined grip as free | `<=18` | More weak holds are ignored. |
+| `create-distance` treats combined grip as contested | `19..30` | Raising the upper bound permits escape attempts against stronger holds. |
+| Any pin denies ordinary disengagement | any pin | This is categorical, not leverage-scaled. |
+| Movement-denying pin | `>=28` effective | Fewer pins block running/movement if raised. |
+| Movement-denying combined holds | `>=52` effective | Requires more total control if raised. |
+| Shove breaks a hold | `<48` effective | Raising it lets shove break stronger holds. |
+| Stronger hold shove loss | 20 stored | Raising it wears down surviving holds faster. |
+| Firm pin blocks standing | `>=32` effective | Raising it allows standing through more pins. |
+| Force to wall prerequisite | `>=42` effective | Raising it lengthens the control chain. |
+| Force to ground prerequisite | `>=34` effective | Same for takedowns. |
+| Turn-away prerequisite | `>=28` effective | Same for facing control. |
+| Usable control firm pin | `>=38` effective | Makes objective access require a stronger single pin. |
+| Usable control total | `>=72`, max 70 per hold | Makes multiple holds necessary/relevant. |
+| Complete player control | each wrist `>=30`, total `>=72` | Makes special player leverage actions harder to unlock. |
 
-1. Validate the state, bodies, available responses, and stored intent.
-2. Re-resolve the player's submitted action to a canonical available instance.
-3. Calculate both action durations.
-4. If the player's response is a helpless action, record it, resolve the stored NPC intent unopposed against the player, release any holds the player can no longer maintain, and continue at step 9.
-5. Activate guard or evasion at the start only when that reaction is no slower than the opposing action.
-6. If durations differ, resolve the faster action first.
-7. Check incapacitation and terminal outcomes.
-8. Revalidate the slower action. If its requirements were invalidated, emit `action.spoiled`; otherwise resolve it. If durations are equal, resolve the player action and then the NPC action without revalidating either between them. Both were legal in the pre-exchange state, but the current implementation does not clone a separate calculation snapshot for each action.
-9. Tick acute effects once.
-10. Add the longer of the two durations to encounter time and advance the exchange counter once.
-11. Check terminal state, retain the last 24 events, and persist bodies.
-12. If still active, synchronize the theft stage and select/store the next NPC intent.
-13. Validate the resulting runtime state.
+`tighten-hold` adds `max(8, round(14 + Strength × 0.5))` stored leverage, capped at 100. `force-to-wall`, `force-to-ground`, and `turn-target-away` add 8, 6, and 5 respectively. `pin-limb` adds 15.
 
-The general game clock advances by the same longer duration through the choice contract. A player action that takes one second against a three-second NPC action is labelled as acting in one second, while the choice timer represents the complete three-second exchange.
+`wrench-free` uses the common injury, balance, exertion, and daze terms but has its own final clamp of `0.12..0.84`, plus `-effective × 0.004`, `-0.12` for a pin, and `-0.08` per additional targeted hold. On failure it removes at least 3 stored leverage; the normal reduction is `round((5 + Fitness × 0.6) × effort multiplier × restrained-part capacity)`. Raising leverage penalties makes clean escapes rarer, while raising failure wear prevents a permanent-feeling deadlock.
 
-### Terminal precedence
+### Escape and objective-action tuning
 
-For unequal speeds, a terminal result from the faster action prevents the slower action. For equal speeds, both actions resolve and the first proposed explicit outcome is retained. Physical terminal checking tests mugger incapacitation before player incapacitation.
+`controlled-disengage` requires both opposing wrists to meet complete-control thresholds, a wall-supported or grounded opponent, player movement, and opponent exertion at least 35:
 
-## Theft objective
+```text
+chance = clamp(0.50 + (opponent exertion - 35) × 0.006, 0.50, 0.88)
+```
 
-The objective stage is synchronized from current facts:
+Raising the exertion prerequisite delays access. Raising 0.006 makes exhausted opponents easier to surprise. The 50%-88% clamp defines its baseline risk and maximum reliability.
 
-- `gain-control` when the mugger lacks usable control;
-- `access-money` when usable control exists;
-- `disengage` when `hasLoot` is true;
-- `complete` for every terminal outcome.
+`demand-money-back` uses the general `tricky` Speech curve: target 2.5, spread 1.25, with the player's Speech floored to an integer first. Lowering the target makes the demand easier; increasing spread makes the transition from poor to strong Speech more gradual.
 
-Current conscious theft completes and terminates in the same action, so `disengage` is not normally observed in active play.
+`scream-for-help` starts from 40% during daytime. Non-daylight halves it. Rain and snow multiply it by 0.625; storms by 0.375. The penalties compound:
 
-If the player becomes hard-incapacitated, theft resolves immediately without requiring `search-money`. Pain-only or Energy helplessness does not use that shortcut: the mugger must gain control, search, and escape through actual selected intents. Any deducted amount remains capped by the stored amount and current balance.
+| Weather | Day | Non-daylight |
+|---|---:|---:|
+| Other/clear | 40% | 20% |
+| Rain or snow | 25% | 12.5% |
+| Storm | 15% | 7.5% |
 
-Money consequences are applied once during resolution and stored in the terminal outcome. Rendering and finishing a terminal scene do not apply them again.
+The deterministic roll is reused for 45 encounter seconds. Raising 45 makes repeated calls less able to fish for a new result; lowering it gives retries new chances sooner.
 
-## NPC decision system
+## Objective behavior
 
-The NPC uses the same generated availability catalogue as the player, filtered by each action's `usableBy` field.
+### `steal-money`
 
-### Personality selection
+Stages are derived from facts:
 
-Personality is deterministically selected from seed and story instance key:
+1. `gain-control`: the owner lacks usable control;
+2. `access-money`: usable control exists;
+3. `disengage`: a search occurred, whether or not money was found;
+4. `complete`: terminal.
 
-| Personality | Probability | Bias | Time sensitivity | Pain sensitivity | Exertion sensitivity |
+Objective progress is:
+
+```text
+range: clinch 20, reach 10, far 0
++ min(70, sum stored hold leverage × 0.5)
++ 20 if any hold is a pin
++ 15 if target is wall-supported
++ 20 if target is not standing
++ 10 if target faces away
++ 30 if usable control is currently true
++ 200 after search
+```
+
+This score is used only to detect meaningful AI progress and reset the stall timer. Raising a component makes that transition count more strongly; because the check is simply “greater than before,” relative regressions can still prevent the timer reset.
+
+`search-money` deducts the bounded amount immediately and moves the objective to `disengage`. The encounter remains active: the attacker must actually flee. If the player incapacitates the attacker or is rescued before that escape, `lootAmount` is returned. The player may also recover it through `demand-money-back` while holding complete control. Conscious theft completes only when the owner escapes with positive loot; escaping after finding nothing produces `mugger-fled`.
+
+Hard player incapacitation performs bounded unopposed theft and the attacker leaves. Surrender does the same without further violence. Money mutation is based on the difference in stored `lootAmount`, making rendering and repeated terminal settlement idempotent.
+
+### `beat-down`
+
+The only active stage is `attack`; terminal state is `complete`. Progress is the player's whole-body pain. The attacker never voluntarily retreats: commitment has a minimum of 100, retreat is disallowed, and `flee` is excluded from this objective's action catalogue.
+
+The objective action `attack-limb` can target either forearm or knee with capacity above zero. General attacks also receive strong objective bonuses. Completion occurs when the player's pain reaches the stored tolerance threshold after the helpless exchange, or when hard incapacitation/no legal response makes the player unable to continue.
+
+### Routable outcome IDs
+
+| Objective | Outcome ID | Meaning | Player loss? |
+|---|---|---|---:|
+| Theft | `player-rescued` | Help interrupts the encounter; taken money is recovered. | no |
+| Theft | `player-escaped` | Player gets away. | no |
+| Theft | `player-surrendered-money` | Player gives up and the attacker leaves. | yes |
+| Theft | `mugger-fled` | Attacker abandons the attempt or escapes with no loot. | no |
+| Theft | `mugger-incapacitated` | Attacker cannot continue; taken money is recovered. | no |
+| Theft | `both-incapacitated` | Neither can continue; taken money is recovered. | no |
+| Theft | `theft-completed-player-conscious` | Attacker escapes with loot after searching. | yes |
+| Theft | `theft-completed-player-incapacitated` | Unable player is searched and attacker leaves. | yes |
+| Beat-down | `player-rescued` | Help interrupts the attack. | no |
+| Beat-down | `player-escaped` | Player gets away. | no |
+| Beat-down | `player-beaten-down` | Pain/physical inability completes the goal. | yes |
+| Beat-down | `attacker-abandoned` | Owner leaves. | no |
+| Beat-down | `attacker-incapacitated` | Owner cannot continue. | no |
+| Beat-down | `both-incapacitated` | Neither can continue. | no |
+
+Every theft outcome stores `moneyLost`; beat-down completion additionally stores its cause, final pain, and pain threshold. Use these exact IDs in WG `outcomes` routing.
+
+## NPC AI priorities and tuning
+
+The NPC selects only mechanically enumerated actions. Combat rank does not filter NPC actions. Selection is deterministic for the same game seed, instance key, exchange, personality, action, target, and parameters.
+
+### Personality selection and commitment
+
+| Personality | Probability | Bias | Time | Pain | Exertion |
 |---|---:|---:|---:|---:|---:|
 | Opportunist | 35% | 0 | 0.85 | 0.80 | 0.35 |
 | Desperate | 20% | +14 | 0.45 | 0.25 | 0.15 |
 | Forceful | 25% | +8 | 0.85 | 0.70 | 0.30 |
 | Skittish | 20% | -10 | 1.10 | 1.05 | 0.45 |
 
-The opportunist occupies both the first 20% and final 15% of the selection range.
-
-Each personality also weights the utility motives `objective`, `control`, `pressure`, `safety`, `escape`, `speed`, and `novelty`. Forceful emphasizes control and pressure; skittish emphasizes safety and escape; desperate strongly emphasizes pressure and discounts risk; opportunist emphasizes objective progress.
-
-### Initial commitment
+The seeded selection intervals are opportunist 0-.20, desperate .20-.40, forceful .40-.65, skittish .65-.85, and opportunist .85-1. Changing interval boundaries changes encounter frequency, not behavior within a personality.
 
 ```text
-commitment base = min(75, 50 + personality bias + round(actor resolve × 3))
+initial base = min(75, 50 + personality bias + round(actor Resolve × 3))
 ```
 
-### Current commitment
+The cap prevents a high-Resolve actor from starting fully committed. Raising it delays retreat for strong actors.
+
+Current commitment is:
 
 ```text
-commitment = clamp(
+stalled seconds = max(0, elapsed - last progress second - 8)
+impairment = (1 - max(best-arm capacity, movement capacity)) × 22
+
+commitment = clamp(round(
     base
-  + reward
-  - elapsed seconds × personality time sensitivity
-  - pain × personality pain sensitivity
-  - exertion × personality exertion sensitivity
-  - failed control attempts × 3
-  - impairment,
-  0,
-  100
-)
+  + objective reward
+  - stalled seconds × personality time sensitivity
+  - owner pain × personality pain sensitivity
+  - owner exertion × personality exertion sensitivity
+  - failed control attempts × 2
+  - impairment
+  - 100 if pacing limit reached
+  + any objective-enforced minimum
+), 0, 100)
 ```
 
-Reward is half the stored theft amount up to +10, or `-45` when there is nothing to steal. Impairment is based on the better of best-hand capacity and movement capacity, with a maximum 22-point penalty.
+The first 8 seconds after progress are free of stall decay. Raising 8 makes attackers more patient. Raising any sensitivity makes that pressure reduce commitment faster. Raising the 22 impairment scale makes limb/movement damage more intimidating. Theft reward is `min(20, amount) × 0.5`, so it ranges from 0 to +10; an empty target instead gives -45.
 
-Visible commitment bands are:
+The pacing limit applies at exertion `>=95` after 45 seconds, or unconditionally after 66 seconds. It forces retreat-capable objectives to 0 commitment. Lowering either time shortens fights. Lowering 95 causes tired attackers to abandon sooner. `beat-down`'s objective minimum restores commitment to 100, so these pacing limits do not make it retreat.
 
-| Value | Text |
+| Commitment | Player-facing band |
 |---:|---|
 | `0..22` | ready to run |
 | `23..39` | hesitating |
 | `40..64` | frustrated but committed |
 | `65..100` | confident |
 
-### Utility selection
+At 22 or below, a retreat-capable objective enters retreat selection. Raising 22 makes retreat start earlier; lowering it makes attackers remain in pursuit longer.
 
-At commitment 22 or below, the candidate pool is restricted when possible to retreat-supporting actions: flee, run, create distance, shove, stand, wrench free, strike a holding arm, and brace. Above that threshold, `flee` and `run` are excluded from the normal pool.
+### Forced retreat priority
 
-Every candidate receives:
+Theft after a search and low-commitment retreat both prefer the first non-empty executable band:
 
-- its action-specific base and motive profile;
-- situation bonuses for current objective stage, holds, failed control, pain, safety, and position;
-- a duration penalty of `1.5 × seconds × personality speed weight`;
-- an exertion-sensitive risk penalty;
-- a repetition penalty weighted by personality novelty;
-- deterministic seeded variation from `-2.5` to `+2.5`;
-- an additional escape priority while retreating.
+1. `flee`;
+2. `create-distance`;
+3. `wrench-free`, `strike-holding-arm`, `shove-away`;
+4. `stand-up`, `roll-toward`;
+5. `catch-breath`;
+6. `cover-and-brace`.
 
-The immediate repeated action penalty begins at 12, plus 1.5 for every occurrence of that action in the retained history, then receives the novelty weight. Each participant retains at most eight action IDs.
+This ordering is stronger than utility scores: a lower band is not considered while a higher band contains a candidate. Reordering bands changes tactical escape plans directly. Within the selected band, ordinary utility scoring chooses the action.
 
-Candidates are sorted by total score, with a stable action-instance key as the tie-breaker. The highest-scoring candidate is stored as `npcIntent`; exact scores and components are available through debugging but are not shown to players.
+### Utility formula
 
-## Player-facing presentation
+For each candidate:
 
-An active encounter renders:
+```text
+each motive = (profile motive × 10 + situational bonus)
+              × personality motive weight
+duration = -seconds × 1.5 × personality speed weight
+risk = -profile risk × (10 + exertion × 0.12)
+       / max(0.35, personality safety weight)
+overextension = 0 when effort-legal, otherwise
+                -45 - readiness deficit × 1.5
+                - 15 × additional blocker count
+repetition = -(12 if immediately repeated, else 0
+               + 1.5 × occurrences in the eight-action history)
+             × personality novelty weight
+variation = deterministic value from -2.5 through +2.5
+retreat priority = profile escape × 35 while low-commitment retreating
 
-- threat and maximum theft amount;
-- elapsed encounter clock;
-- exact telegraphed NPC action and duration;
-- a situation table for position and condition;
-- current theft pressure and qualitative commitment;
-- prose generated from the last exchange's structured events;
-- every mechanically available player action unlocked by the player's Combat rank.
+total = profile base + objective + control + pressure + safety + escape
+        + duration + risk + overextension + repetition + variation
+```
 
-Position summaries include pose, wall relationship, facing, held or pinned arms, holds controlled by the participant, and current range.
+Raising a profile motive makes personalities that emphasize that motive choose the action more often. Raising the duration coefficient favors quick actions. Raising risk or the exertion-risk coefficient suppresses demanding actions late in a fight. Raising repetition penalties creates more varied behavior. Raising variation creates more seed-dependent behavior and less predictable tuning.
 
-Condition summaries include:
+### Generic action utility profiles
 
-- qualitative whole-body pain;
-- qualitative exertion;
-- up to two most significant bruised body parts, prioritized by integrity and pain;
-- dazed, winded, and off-balance states;
-- qualitative hold security for a participant maintaining holds.
+Blank motives are zero.
 
-Action labels describe attempts rather than guaranteed outcomes where appropriate. When several instances share an action ID, rendered choice IDs receive numeric suffixes while their commands retain distinct parameters.
+| Action | Base | Objective | Control | Pressure | Safety | Escape | Risk |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Brace | 8 | | | | 1.0 | | |
+| Catch breath | 6 | | | | 1.2 | | |
+| Strike face | 8 | | .25 | 1.0 | | | .25 |
+| Drive body | 8 | | | .85 | | | .15 |
+| Strike holding arm | 10 | | | .50 | .50 | .90 | .15 |
+| Headbutt | 7 | | .30 | 1.10 | | | .80 |
+| Knee strike | 8 | | .20 | .90 | | | .45 |
+| Shove | 9 | | .35 | | .40 | .75 | .15 |
+| Create distance | 8 | | | | .60 | 1.0 | .10 |
+| Stand | 10 | | | | 1.0 | .45 | .10 |
+| Roll | 9 | | | | .85 | .35 | .15 |
+| Close distance | 8 | .50 | .60 | | | | .20 |
+| Run/flee | 12 | | | | 1.0 | 1.50 | .10 |
+| Grab | 9 | .50 | 1.0 | | | | .20 |
+| Wrench | 11 | | | | .70 | 1.0 | .20 |
+| Tighten | 7 | .50 | 1.0 | | | | .10 |
+| Force wall | 8 | .80 | 1.10 | | | | .35 |
+| Force ground | 8 | .80 | 1.20 | | | | .50 |
+| Turn away | 7 | .80 | .80 | | | | .20 |
+| Pin | 9 | 1.0 | 1.30 | | | | .20 |
 
-Terminal presentation shows the outcome, final situation, last exchange, and a single `Continue` choice.
+Objectives may supply a profile for their own actions: theft search is base 10, objective 2, risk .6; beat-down limb attack is base 11, objective 1.5, pressure 1.1, risk .35.
 
-## Structured event output
+### Situational AI bonuses
 
-Resolution emits structured events before prose is assembled. Currently emitted event types include:
+Shared bonuses include:
 
-| Event | Meaning |
-|---|---|
-| `encounter.started` | Initial confrontation. |
-| `action.attempted` | An action began resolution. |
-| `chance.rolled` | Deterministic roll with chance, value, purpose, and success. Hidden from normal prose. |
-| `action.failed` | A resolved action failed its own roll or requirement. |
-| `action.spoiled` | A slower action became unavailable before completion. |
-| `defense.braced` | Guard was established. |
-| `impact.landed` | Body-part damage was applied. |
-| `acute.applied` | Daze, winded, or off-balance was applied or accumulated. |
-| `hold.created` | A wrist grip was created. |
-| `hold.weakened` | Stored hold leverage fell. |
-| `hold.strengthened` | Stored hold leverage rose. |
-| `hold.broken` | A wrist grip or pin ended. |
-| `hold.pinned` | A grip became a limb pin. |
-| `range.changed` | Pairwise range changed. |
-| `pose.changed` | A participant changed pose. |
-| `support.changed` | A participant entered or left wall support. |
-| `facing.changed` | A participant changed facing. |
-| `theft.completed` | Money was deducted. |
-| `theft.empty` | No money was available. |
-| `escape.completed` | Player escape or mugger retreat resolved. |
-| `encounter.ended` | Terminal state and outcome were finalized. |
+- catch breath safety: `max(0, exertion - 55) × 1.2 + winded × 24 + dazed × 16`;
+- if held: +20 escape for a hold-disrupting action, otherwise -10 safety;
+- attack pressure against a hurting target: `min(35, max(0, (target pain - 40) × 1.5))`;
+- after at least two braces in the player's last three actions: +18 control, plus +12 objective for grab;
+- after at least two create-distance actions in the last three: +15 objective for close-distance, +10 control for grab;
+- owner pain above 35: +7 safety for defense/movement;
+- non-standing owner: +12 safety for stand-up.
 
-Only the most recent 24 events are saved in `lastEvents`. The prose renderer ignores diagnostic roll events and turns the remaining events into the last-exchange paragraph.
+Theft adds large stage-specific bonuses: search +60 when control is usable; close +48, grabs +44/+54, takedown +62, ground pin +48, and smaller positioning/control bonuses while gaining control; escape-support actions gain +60 after search. A failed prior grab adds +25 pressure to attacks, while a failed prior close adds +90. These are deliberate priorities, not percentages: raising one changes its relative score against every other candidate.
 
-## Validation and persistence
+Beat-down adds +70 objective plus up to +35 for existing damage to the selected limb, +30 pressure for `attack-limb`, +50 objective/+20 pressure for other attacks, and +65 objective for closing distance. It subtracts 25 objective from create-distance and shove.
 
-Serialized encounter validation uses exact-key schemas. Unknown or missing state keys are rejected. It checks:
+### Personality motive weights
 
-- state version, scenario, phase, counters, objective, intent, events, and outcome;
-- exact player and mugger participant shapes;
-- allowed physical values and acute-effect bounds;
-- the single range relation and both facing directions;
-- hold structure, IDs, source-limb uniqueness, target-limb uniqueness, and clinch requirement;
-- terminal/active consistency.
+| Personality | Objective | Control | Pressure | Safety | Escape | Speed | Novelty |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Opportunist | 1.25 | 1.00 | .65 | 1.00 | 1.00 | .90 | 1.00 |
+| Desperate | .80 | .80 | 1.70 | .45 | .45 | 1.00 | .55 |
+| Forceful | 1.00 | 1.25 | 1.20 | .65 | .65 | .80 | .70 |
+| Skittish | .90 | .80 | .55 | 1.35 | 1.40 | 1.10 | 1.15 |
 
-Live runtime validation additionally checks:
+Increasing a weight increases the importance of that motive. `speed` and `novelty` multiply penalties, so increasing them favors shorter or less-repeated actions rather than increasing a positive score.
 
-- hold source and target body parts exist;
-- every hold source limb remains functional;
-- pin geometry is valid;
-- active participants are not already hard-incapacitated; the controlled participant may remain active at maximum pain with only the helpless response;
-- an active player has at least one legal response;
-- an active mugger has at least one legal action;
-- stored NPC intent exactly matches a currently available action instance.
+## Recovery, aftermath, and hygiene
 
-Save/load preserves encounter state, WG temporary-actor body state, player body state, NPC intent, available actions, last-exchange prose, and deterministic future resolution.
+Outside an open physical encounter, time relieves `1.5` visible whole-body pain per minute. Relief scales every part's local pain down proportionally and restores the same proportion of each part's missing health. Bruised clears when integrity reaches at least 90%. Raising 1.5 shortens both pain and integrity recovery; lowering it lengthens combat consequences.
 
-## Debugging and simulation
+Terminal settlement converts the player's remaining encounter exertion to post-combat fatigue:
 
-### In-browser debug action
+```text
+starting multiplier = 1 + 2 × exertion / 100
+```
 
-The feature exposes `encounter.teleport-player-to-alley`. It finds a generated place with key `alleyway`, moves the player there, and resolves the `enter-place` automatic scene trigger.
+It is capped at 3x, combines with an existing fatigue bonus up to that cap, lasts 30 game minutes, and decays linearly to 1x. It adds only the extra ordinary Energy drain. Base Energy drain is `0.1` per non-resting minute. Raising the 3x cap or 30-minute duration makes fight fatigue more costly; changing base drain affects the entire game, not combat alone.
 
-### Debug snapshot
+The exhaustion interrupt remains pending after a terminal combat screen because fatigue settlement does not refill Energy and the terminal choice is not an escape around the normal time/interrupt flow.
 
-`getEncounterDebugSnapshot(game)` returns data only while an `encounter.physical` system is open:
+### Hygiene tuning
+
+The player's own chosen action costs:
+
+| Cost | Actions |
+|---:|---|
+| 0 | helpless actions, surrender, scream, demand money back, search money |
+| .01 | catch breath |
+| .02 | brace |
+| .04 | controlled disengage, grab, tighten hold |
+| .05 | create distance, close distance |
+| .06 | strike face, turn away |
+| .07 | shove, strike holding arm |
+| .08 | drive body, stand, attack limb |
+| .09 | knee strike |
+| .10 | headbutt, wrench, pin, flee |
+| .12 | run |
+| .14 | force to ground |
+| .25 | roll toward |
+
+Additional event costs are .08 when hit, .03 when grabbed, .12 when pinned, .12 when forced to a wall, .30 when moved to kneeling, and .75 when moved to prone or supine. Costs add and are clamped only by the player's Hygiene stat. Raising action costs makes player strategy itself dirtier; raising event costs makes losing position/contact the main source of hygiene loss.
+
+## Adding or modifying an objective
+
+An objective is the best extension point for a new attacker goal. Keep generic mechanics in shared actions and put goal state, completion, AI priorities, and outcome semantics in the objective.
+
+1. Add a module in `src/features/encounter/objectives/`.
+2. Give it a unique `id`, player-facing `label`, and a valid default `laboratoryConfig`.
+3. Register it in `objectives/index.js`; the combat lab reads this registry automatically.
+4. Add objective-only actions to `actionIds`. Use `excludedActionIds` to remove otherwise-core actions for this goal.
+5. Implement strict config/state validation and update the objective stage from current facts.
+6. Define progress, AI profiles/bonuses, retreat policy, outcomes, and simultaneous outcome priority.
+7. Define which outcomes count as player losses for the one-point Combat penalty.
+8. Add threat, pressure, event, and outcome prose.
+9. Add unit, deterministic replay, terminal settlement, and combat-lab-default tests.
+
+The current objective contract is:
 
 ```js
 {
-  state,
-  decision: {
-    personality,
-    commitment,
-    candidates,
-    selected,
+  id,
+  label,
+  laboratoryConfig,
+  playerLossOutcomeIds,
+  unopposedActionId,
+  actionIds,
+  excludedActionIds?,
+  outcomePriority,
+
+  validateConfig(config, fail),
+  create({ game, config, ownerId, targetId }),
+  validateState(state, validation),
+  complete(context),
+  progress(context, helpers),
+  syncStage(context, helpers),
+  recordProgress(context),
+  recordControlFailure(context, actorId),
+
+  ai: {
+    actionUtility(instance),
+    commitment(context),
+    situationalBonuses(context, instance, helpers),
+    allowsRetreat(context),
+    forceRetreat(context),
+    pursuitPool(candidates),
+    isProgressAction(tags),
   },
-  availability: {
-    player,
-    mugger,
-  },
-  rolls,
-  invariants,
+
+  mergeSimultaneous(context, branches),
+  mergeOutcomes(outcomes),
+  commitGameState(context, previousObjective),
+
+  outcomeForCompletion(context, events, options),
+  resolveTargetUnable(context, events, options),
+  outcomeForTargetEscape(context, events),
+  outcomeForTargetRescue(context, events),
+  outcomeForOwnerEscape(context, events),
+  outcomeForOwnerDefeat(context, events),
+  outcomeForMutualDefeat(context, events),
+
+  renderThreat(context),
+  renderPressure(context, commitmentBand),
+  renderEvent(context, event),
+  renderOutcome(context),
 }
 ```
 
-Availability diagnostics contain action instances and a generic explanation when an action is unavailable. Decision candidates contain total utility and a component breakdown. Invariant diagnostics cover schema, body relations, player affordances, NPC affordances, and stored intent legality.
+`unopposedActionId` is descriptive/event data for a target already unable to resist on encounter entry; it is not used to replace an NPC's stored intent during normal exchanges. `commitGameState` is where objective state becomes durable game state. Make it delta-based or otherwise idempotent.
 
-### Simulation harness
+## Adding or modifying an action
 
-[`tools/encounter/simulationHarness.mjs`](../tools/encounter/simulationHarness.mjs) exports:
+An action definition contains:
 
-- `runEncounterSimulation(options)` for one deterministic encounter;
-- `runStatDifferenceMatrix(options)` for batches across stat differences;
-- `runEncounterStateSpaceMatrix(options)` for batches across valid high-pressure starting states;
-- scripted player policies named `escape`, `fight`, `resist`, `brace`, `control`, and `surrender`.
+```js
+{
+  id,
+  tags: Object.freeze([...]),
+  durationSeconds,
+  usableBy: "any" | "controlled" | "goal-owner",
+  playerOrder,
+  availabilityHint?,
+  enumerateTargets(context, actorId),
+  isAvailable(context, instance),
+  label(context, instance),
+  intentLabel(context, instance),
+  resolve(context, instance, runtime),
+}
+```
 
-The named starting scenarios are `baseline`, `player-wall-pinned`, `player-grounded-injured`, `mutual-grips`, and `player-complete-control`. They exercise wall and ground support, wrist grips and pins, existing injuries, high exertion, acute effects, already-stolen money, and the complete-control objective actions without constructing invalid encounter states.
+To add one completely:
 
-Simulation results include outcome, exchange count, elapsed seconds, both pain totals, money lost, separate player and NPC action counts, player/NPC action histories, diagnostic rolls, and invariant failures. Coverage data records visited range, pose, support, objective, hold, acute, injury, exertion, meaningful-choice, and availability-reason state. Terminal states receive a final invariant check as well as the checks performed before every exchange.
+1. Implement it under `actions/` and return concrete serializable instances from `enumerateTargets`.
+2. Put all range/facing/pose/support rules in `ACTION_GEOMETRY` and call `hasActionGeometry` from availability.
+3. Register the definition in `ENCOUNTER_ACTIONS`.
+4. Assign a player Combat rank in `COMBAT_ACTION_MINIMUM_RANK`, even if it is currently NPC-only.
+5. Assign an effort profile in `ACTION_EFFORT_PROFILES`, or deliberately accept the default readiness 12 / maximum winded 2 / maximum dazed 2.
+6. Assign a player action hygiene cost in `PLAYER_ACTION_HYGIENE_COST`; a missing entry throws when chosen by the player.
+7. Ensure its tags place it in a player-facing purpose and correctly identify `impact`, `control`, `hold`, `escape`, `defense`, and objective progress behavior.
+8. Add a generic `ACTION_UTILITY` profile or have the objective provide one. Without either, base and motives are zero.
+9. Add generic event prose in `prose.js` or objective event prose where semantics are goal-specific.
+10. Test enumeration, physical prerequisites, timing against faster/equal/slower actions, event output, deterministic rolls, simultaneous merge, skill progression, and terminal behavior.
 
-The harness currently chooses from the full mechanical availability list. The combat screen also exposes the full list, so simulated policies are not selecting hidden actions.
+`playerOrder` affects display order only. `durationSeconds` affects resolution priority, exchange time, guard/evasion activation, and AI speed cost. `usableBy` uses roles, not literal actor names. Do not mutate game money or other durable world state inside an isolated simultaneous branch; store objective state/events and commit it after the canonical merge.
 
-The command-line runner accepts `--scenario <id>`. Use `--scenario all` to run the state-space matrix; omit it to retain the stat-difference matrix for the baseline scenario.
+When modifying an action, check all five tuning surfaces together: availability threshold, duration, success chance, effect magnitude, and effort/readiness. Improving several at once can compound sharply.
 
-### Test command
+## Modifying NPC behavior
 
-Run the encounter-specific suite from the repository root:
+There are three supported levels of change:
+
+1. Change one action's shared utility profile in `ai.js` to affect every goal that can use it.
+2. Change `objective.ai` to alter stage priorities, progress, retreat permission, or an objective-only action.
+3. Change or add a personality in `personality.js` to alter motive weights and commitment sensitivities across goals.
+
+When adding a personality, add its immutable definition, ensure its ID appears through `AI_PERSONALITY_IDS`, update `selectAiPersonality` probability intervals, and test seeded selection plus save validation.
+
+The saved `controller.policyId` is currently always `hostile`; the live selector is the shared scorer described above. Changing that string alone does not select a different algorithm. A genuinely new policy would need an explicit policy registry/dispatch in AI selection and corresponding validation.
+
+Useful tuning diagnostics are `getAiCommitmentDiagnostics` and `getAiDecisionDiagnostics`. The latter reports every candidate's total and component breakdown, making it possible to see whether objective, pressure, safety, repetition, effort, or random variation caused a choice.
+
+## Adding a scenario or changing presentation
+
+A scenario owns configuration, initial participants/geometry, entry incapacitation handling, and outcome routing. Add it to `scenarios/index.js`. If its state shape is not the existing two-person fight shape, the central state validator and most role helpers must change as well.
+
+Player-facing prose is event-driven. Action resolution should emit structured facts; `prose.js` handles shared facts and objectives handle goal-specific facts. This keeps rendering pure and save/load stable. New positional values or event types also need situation/outcome rendering and tests.
+
+Choice sections are assigned by action tags in `availability.js`. Rank 0/1 broad labels and Rank 4 timing hints are also defined there.
+
+## Structured events and prose
+
+The resolver records facts first and renders prose from them afterward. Common event families are:
+
+| Family | Events |
+|---|---|
+| Exchange | `encounter.started`, `action.attempted`, `action.failed`, `action.spoiled`, `encounter.ended` |
+| Hidden rolls | `chance.rolled` with purpose, chance, roll, success, and optional diagnostic fields |
+| Defense/recovery | `defense.braced`, `exertion.recovered`, `acute.applied`, `acute.eased` |
+| Damage | `impact.landed` with actor, target, part, damage, and damage type |
+| Holds | `hold.created`, `hold.weakened`, `hold.strengthened`, `hold.pinned`, `hold.downgraded`, `hold.broken`, `hold.priority-resolved` |
+| Position | `range.changed`, `pose.changed`, `support.changed`, `facing.changed`, `state.change-conflicted` |
+| Help/escape | `help.heard`, `escape.disengaged`, `escape.completed`, `participant.unable-to-act` |
+| Theft | `theft.taken`, `theft.empty`, `theft.recovered`, `theft.completed`, `surrender.completed`, `demand.succeeded` |
+| Beat-down | `beat-down.completed` |
+| Consequences | `hygiene.lost`, `consequences.settled` |
+
+Only the latest 24 are retained in encounter state. Diagnostic roll events are intentionally omitted from normal prose. When an action can fail for several reasons, keep the machine-readable reason specific; it is used by tests and can support better prose later.
+
+## Debugging, combat lab, and tests
+
+Open `tests/combat_inspector.html` through the development web server for the browser combat lab. It can:
+
+- choose any registered objective with a `laboratoryConfig`;
+- choose an authored encounter scene and temporary-actor profile/identity;
+- set deterministic seed;
+- tune player Strength, Endurance, Resolve, Fitness, and Combat from 0 to 500;
+- tune attacker Strength, Endurance, Resolve, and Fitness;
+- play the real rendered choice flow;
+- inspect canonical state, bodies, capacities, readiness, action blockers, hidden rolls, AI score breakdowns, and invariant checks.
+
+`getEncounterDebugSnapshot(game)` provides the same core diagnostics to other debug UI. The in-game debug action `encounter.teleport-player-to-alley` moves the player to an alleyway and resolves its enter-place trigger.
+
+The simulation harness in `tools/encounter/simulationHarness.mjs` supports one deterministic run, stat-difference matrices, and state-space matrices. Current presets include baseline, wall-pinned, grounded/injured, mutual grips, complete player control, and beat-down baseline. Player policies include help, escape, fight, resist, brace, control, and surrender. Simulation uses actual Combat rank gating; configure the desired player Combat value when testing technical policies.
+
+Run encounter tests from the repository root:
 
 ```powershell
 node --test tests/encounter_*.test.mjs
 ```
 
-The encounter tests cover contextual action generation, AI decisions and personalities, theft outcomes, debugging, pain recovery, pronouns, timing and interruption, holds and pins, injury persistence and display, acute accumulation, save/load determinism, seeded simulation, state schema, and body/relationship invariants.
+At minimum, changes should preserve:
+
+- strict state and objective validation;
+- a legal player response and stored NPC intent in every active state;
+- seeded replay across save/load;
+- no illegal hold geometry after either sequential or simultaneous actions;
+- objective-specific terminal precedence and idempotent game-state consequences;
+- player fallbacks at low Combat ranks and exclusive helpless choices at low Energy/max pain.
 
 ## Source map
 
 | Area | Source |
 |---|---|
-| Feature registration | [`src/features/encounter/index.js`](../src/features/encounter/index.js) |
-| WG system adapter and screen choices | [`src/features/encounter/system.js`](../src/features/encounter/system.js) |
+| Feature registration and time handlers | [`src/features/encounter/index.js`](../src/features/encounter/index.js) |
+| WG adapter and rendered choices | [`src/features/encounter/system.js`](../src/features/encounter/system.js) |
 | State schema and validation | [`src/features/encounter/state.js`](../src/features/encounter/state.js) |
-| Combatant/body adapters | [`src/features/encounter/combatants.js`](../src/features/encounter/combatants.js) |
-| Derived physical affordances | [`src/features/encounter/affordances.js`](../src/features/encounter/affordances.js) |
-| Action enumeration and diagnostics | [`src/features/encounter/availability.js`](../src/features/encounter/availability.js) |
-| Exchange resolution | [`src/features/encounter/resolution.js`](../src/features/encounter/resolution.js) |
-| NPC scoring and intent | [`src/features/encounter/ai.js`](../src/features/encounter/ai.js) |
-| Mugger personalities | [`src/features/encounter/personality.js`](../src/features/encounter/personality.js) |
-| Prose and situation summaries | [`src/features/encounter/prose.js`](../src/features/encounter/prose.js) |
-| Pronoun helpers | [`src/features/encounter/language.js`](../src/features/encounter/language.js) |
-| Passive pain recovery | [`src/features/encounter/pain.js`](../src/features/encounter/pain.js) |
-| Debug actions and snapshots | [`src/features/encounter/debug.js`](../src/features/encounter/debug.js) |
-| Action catalogue | [`src/features/encounter/actions/`](../src/features/encounter/actions/) |
-| Scenario registry | [`src/features/encounter/scenarios/`](../src/features/encounter/scenarios/) |
-| Authored alley encounter | [`story/encounters/alley.wg`](../story/encounters/alley.wg) |
+| Fight creation and outcome routing | [`src/features/encounter/scenarios/fight.js`](../src/features/encounter/scenarios/fight.js) |
+| Objective registry and implementations | [`src/features/encounter/objectives/`](../src/features/encounter/objectives/) |
+| Action registry and implementations | [`src/features/encounter/actions/`](../src/features/encounter/actions/) |
+| Availability, grouping, labels, rank filtering | [`src/features/encounter/availability.js`](../src/features/encounter/availability.js) |
+| Combat skill tuning | [`src/features/encounter/combatSkill.js`](../src/features/encounter/combatSkill.js) |
+| Geometry and control affordances | [`src/features/encounter/affordances.js`](../src/features/encounter/affordances.js) |
+| Bodies, capacities, holds, incapacitation | [`src/features/encounter/combatants.js`](../src/features/encounter/combatants.js) |
+| Effort and readiness | [`src/features/encounter/effort.js`](../src/features/encounter/effort.js) |
+| Exchange resolution and priority | [`src/features/encounter/resolution.js`](../src/features/encounter/resolution.js) |
+| AI scoring | [`src/features/encounter/ai.js`](../src/features/encounter/ai.js) |
+| AI personalities | [`src/features/encounter/personality.js`](../src/features/encounter/personality.js) |
+| Consequences and hygiene | [`src/features/encounter/consequences.js`](../src/features/encounter/consequences.js) |
+| Pain/integrity recovery | [`src/features/encounter/pain.js`](../src/features/encounter/pain.js) and [`src/characters/core/body.js`](../src/characters/core/body.js) |
+| Player-facing prose | [`src/features/encounter/prose.js`](../src/features/encounter/prose.js) |
+| Debug snapshot | [`src/features/encounter/debug.js`](../src/features/encounter/debug.js) |
+| Browser combat lab | [`tests/combat_inspector.html`](../tests/combat_inspector.html) and [`tests/combat_inspector.js`](../tests/combat_inspector.js) |
 | Simulation harness | [`tools/encounter/simulationHarness.mjs`](../tools/encounter/simulationHarness.mjs) |
-| Encounter tests | [`tests/`](../tests/) files beginning with `encounter_` |
+| Authored alley fight | [`story/encounters/alley.wg`](../story/encounters/alley.wg) |
