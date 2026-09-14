@@ -26,6 +26,7 @@ const BEAT_DOWN_CAUSES = new Set([
   "already-incapacitated",
   "incapacitated",
   "no-legal-response",
+  "energy-exhausted",
 ]);
 
 const GROSS_LIMB_ENDPOINTS = Object.freeze([
@@ -302,6 +303,9 @@ export const BEAT_DOWN_OBJECTIVE = Object.freeze({
         return `${context.combatants[ownerId].title} advances with the clear intent of beating you down.`;
       case "participant.unable-to-act":
         if (event.actorId !== goalTargetId(context.state)) return null;
+        if (event.reason === "energy-exhausted") {
+          return "Your remaining energy gives out, leaving you unable to defend yourself.";
+        }
         return event.reason === "already-incapacitated"
           ? "You are already unable to defend yourself when the attacker closes in."
           : "Your injuries leave you unable to continue defending yourself.";

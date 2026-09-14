@@ -144,15 +144,19 @@ and, after a terminal outcome:
 
 `choose-action` rechecks the submitted action against the action catalogue before resolution. `finish` is rejected while the encounter remains active and otherwise returns the WG scene's final target.
 
-All rendered combat choices are marked `energyFree` in the general action runner. Their cost is represented by encounter-local exertion instead of the player's ordinary energy meter.
+Combat choices use the general action runner's ordinary energy drain for their full exchange duration. If that elapsed time would take displayed energy below one, the chosen response does not occur: the player becomes too exhausted to resist and the attacker resolves the current objective unopposed.
+
+Encounter exertion remains the short-term measure used by action availability, contests, and AI. When an encounter becomes terminal, an idempotent settlement converts the player's remaining exertion into a post-combat energy-drain multiplier. The multiplier scales linearly from `1×` at zero exertion to `3×` at 100 exertion, then decays linearly to `1×` over 30 in-game minutes. This adds only the multiplier's extra drain during later non-resting time; exertion is not also charged as a lump-sum energy loss.
+
+Hygiene loss is action- and event-specific. Speech and surrender have no inherent hygiene cost. Physical movement, grappling, and strikes have small per-action costs, while direct contact adds further costs: being hit, grabbed, pinned, forced against a wall, or knocked to the ground is dirtier than merely calling for help. The applied amount is recorded as `hygiene.lost` with separate action and event components.
 
 ## Canonical encounter state
 
-The current serialized state version is `7`. A newly created state has the following shape:
+The current serialized state version is `8`. A newly created state has the following shape:
 
 ```js
 {
-  version: 7,
+  version: 8,
   scenarioId: "alley-mugging",
   phase: "active",                 // "active" | "terminal"
   elapsedSeconds: 0,
@@ -208,6 +212,7 @@ The current serialized state version is `7`. A newly created state has the follo
   },
 
   screamForHelpRoll: null,
+  terminalConsequencesSettled: false,
   lastEvents: [{ type: "encounter.started", actorId: "mugger" }],
   outcome: null,
 }

@@ -1,7 +1,7 @@
 import { AI_PERSONALITY_IDS } from "./personality.js";
 import { requireEncounterObjective } from "./objectives/index.js";
 
-export const ENCOUNTER_STATE_VERSION = 7;
+export const ENCOUNTER_STATE_VERSION = 8;
 export const FIGHT_SCENARIO_ID = "fight";
 
 export const ENCOUNTER_PHASE = Object.freeze({
@@ -272,6 +272,7 @@ export function createFightState({
     objective: { ...objective, ownerId, targetId },
     npcIntent: null,
     screamForHelpRoll: null,
+    terminalConsequencesSettled: false,
     lastEvents: [{ type: "encounter.started", actorId: ownerId, targetId }],
     outcome: null,
   };
@@ -313,6 +314,7 @@ export function validateEncounterState(state) {
       "objective",
       "npcIntent",
       "screamForHelpRoll",
+      "terminalConsequencesSettled",
       "lastEvents",
       "outcome",
     ],
@@ -323,6 +325,10 @@ export function validateEncounterState(state) {
   string(state.phase, "state.phase", PHASES);
   integer(state.elapsedSeconds, "state.elapsedSeconds", { min: 0 });
   integer(state.exchange, "state.exchange", { min: 0 });
+  boolean(state.terminalConsequencesSettled, "state.terminalConsequencesSettled");
+  if (state.phase === ENCOUNTER_PHASE.active && state.terminalConsequencesSettled) {
+    fail("an active encounter cannot have settled terminal consequences");
+  }
   if (state.screamForHelpRoll !== null) {
     const helpRoll = record(state.screamForHelpRoll, "state.screamForHelpRoll");
     exactKeys(helpRoll, ["value", "rolledAtSecond"], "state.screamForHelpRoll");

@@ -30,6 +30,7 @@ test("the default catalog composes each special system through feature registrat
   assert.ok(features.getStoryBehavior("school.class"));
   assert.deepEqual(features.stateDefinitions.map((definition) => definition.id), [
     "cinema",
+    "encounter",
     "school",
   ]);
   assert.ok(features.timerDefinitions["rent.weekly"]);
@@ -50,6 +51,7 @@ test("the default catalog composes each special system through feature registrat
   assert.ok(features.createWGContext(game).school);
   assert.ok(game.featureState.school);
   assert.deepEqual(game.featureState.cinema, { screeningReminders: [] });
+  assert.deepEqual(game.featureState.encounter, { postCombatFatigue: null });
   assert.equal(
     features.matchesNPCScheduleConditions(
       game,

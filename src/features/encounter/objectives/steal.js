@@ -458,6 +458,9 @@ export const STEAL_MONEY_OBJECTIVE = Object.freeze({
         return `${context.combatants[ownerId].title} blocks the alley and ${encounterPronoun(context, ownerId, "subject")} ${encounterVerb(context, ownerId, "demands", "demand")} your money.`;
       case "participant.unable-to-act":
         if (event.actorId !== goalTargetId(context.state)) return null;
+        if (event.reason === "energy-exhausted") {
+          return "Your remaining energy gives out, leaving you unable to resist the search.";
+        }
         return event.reason === "already-incapacitated"
           ? "You are already unable to resist when the mugger approaches."
           : "Your injuries leave you unable to mount a physical response.";

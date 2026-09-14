@@ -39,6 +39,7 @@ import {
 import { getActionEffortStatus } from "./effort.js";
 import { requireEncounterObjective } from "./objectives/index.js";
 import { PLAYER_RESCUED_OUTCOME_ID } from "./outcomes.js";
+import { applyEncounterHygiene } from "./consequences.js";
 import {
   controlledParticipantId,
   goalOwnerId,
@@ -662,6 +663,7 @@ export function resolveEncounterExchange({
   next.exchange += 1;
   checkPhysicalTerminalState(context, runtime);
   finalizeOutcome(context, runtime);
+  applyEncounterHygiene(game, next, availablePlayerAction.actionId, runtime.events);
   next.lastEvents = runtime.events.slice(-24);
   persistCombatantBodies(context);
   requireEncounterObjective(next).commitGameState(context, previousObjective);
@@ -677,6 +679,54 @@ export function resolveEncounterExchange({
     syncObjectiveStage(context);
     next.npcIntent = selectAiIntent(context);
   }
+  validateEncounterRuntime(context);
+  return next;
+}
+
+export function resolveEncounterPlayerExhaustion({
+  game,
+  state,
+  instanceKey,
+  exchangeSeconds,
+}) {
+  const next = structuredClone(state);
+  const context = createCombatContext({ game, state: next, instanceKey });
+  validateEncounterRuntime(context);
+  const previousObjective = structuredClone(next.objective);
+  const controlledId = controlledParticipantId(next);
+  const ownerId = goalOwnerId(next);
+  const objective = requireEncounterObjective(next);
+  const runtime = {
+    events: [
+      {
+        type: "participant.unable-to-act",
+        actorId: controlledId,
+        reason: "energy-exhausted",
+      },
+      {
+        type: "action.attempted",
+        actorId: ownerId,
+        targetId: controlledId,
+        actionId: objective.unopposedActionId,
+      },
+    ],
+    guarded: new Set(),
+    evading: new Set(),
+    outcome: null,
+    terminalFacts: [],
+  };
+
+  releaseControlledHolds(context, runtime, controlledId, "controller-exhausted");
+  runtime.outcome = objective.resolveTargetUnable(context, runtime.events, {
+    reason: "energy-exhausted",
+  });
+  tickAcuteEffects(context);
+  next.elapsedSeconds += exchangeSeconds;
+  next.exchange += 1;
+  finalizeOutcome(context, runtime);
+  next.lastEvents = runtime.events.slice(-24);
+  persistCombatantBodies(context);
+  objective.commitGameState(context, previousObjective);
   validateEncounterRuntime(context);
   return next;
 }

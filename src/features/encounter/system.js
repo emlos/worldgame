@@ -19,6 +19,7 @@ import {
 import {
   encounterExchangeDurationSeconds,
   resolveEncounterExchange,
+  resolveEncounterPlayerExhaustion,
   validateEncounterRuntime,
 } from "./resolution.js";
 import { getEncounterScenario } from "./scenarios/index.js";
@@ -28,6 +29,10 @@ import {
 } from "./state.js";
 import { controlledParticipantId } from "./roles.js";
 import { requireEncounterObjective } from "./objectives/index.js";
+import {
+  projectPlayerEnergyAfterMinutes,
+  settleEncounterConsequences,
+} from "./consequences.js";
 
 export const ENCOUNTER_PHYSICAL_SYSTEM_ID = "encounter.physical";
 
@@ -67,7 +72,6 @@ function systemChoice(definition, systemId, {
     id,
     label,
     durationMinutes: seconds / 60,
-    energyFree: true,
     action: {
       type: SCENE_ACTION_TYPE.wgSystem,
       sceneId: definition.id,
@@ -169,6 +173,9 @@ export const PHYSICAL_ENCOUNTER_STORY_SYSTEM = Object.freeze({
     validateConfig(config);
     const scenario = getEncounterScenario(config.scenario);
     const state = scenario.create({ game, config, instanceKey });
+    if (state.phase === ENCOUNTER_PHASE.terminal) {
+      settleEncounterConsequences(game, state, instanceKey);
+    }
     validateEncounterState(state);
     const context = createCombatContext({ game, state, instanceKey });
     validateEncounterRuntime(context);
@@ -212,13 +219,24 @@ export const PHYSICAL_ENCOUNTER_STORY_SYSTEM = Object.freeze({
     if (playerAction.actorId !== controlledParticipantId(state)) {
       fail("the player can only choose actions for the controlled participant");
     }
-    return {
-      state: resolveEncounterExchange({
+    const exchangeSeconds = encounterExchangeDurationSeconds(state, playerAction);
+    const projectedEnergy = projectPlayerEnergyAfterMinutes(game, exchangeSeconds / 60);
+    const next = projectedEnergy < 1
+      ? resolveEncounterPlayerExhaustion({
+        game,
+        state,
+        instanceKey,
+        exchangeSeconds,
+      })
+      : resolveEncounterExchange({
         game,
         state,
         instanceKey,
         playerAction,
-      }),
-    };
+      });
+    if (next.phase === ENCOUNTER_PHASE.terminal) {
+      settleEncounterConsequences(game, next, instanceKey);
+    }
+    return { state: next };
   },
 });
