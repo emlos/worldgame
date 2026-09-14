@@ -1,9 +1,10 @@
 import { getEncounterAction, getEncounterActions } from "./actions/index.js";
-import { hostileHoldsOn } from "./combatants.js";
+import { getControlledHelplessActionId, hostileHoldsOn } from "./combatants.js";
 import { effortBlockerText, getActionEffortStatus } from "./effort.js";
 import { controlledParticipantId, goalOwnerId } from "./roles.js";
 
 export const ENCOUNTER_ACTION_PURPOSES = Object.freeze([
+  Object.freeze({ id: "helpless", heading: "Unable to act" }),
   Object.freeze({ id: "escape", heading: "Escape" }),
   Object.freeze({ id: "break-control", heading: "Break control" }),
   Object.freeze({ id: "defend", heading: "Defend" }),
@@ -33,9 +34,12 @@ function definitionAllowsActor(context, definition, actorId) {
 }
 
 export function getAvailableActionInstances(context, actorId) {
+  const helplessActionId = getControlledHelplessActionId(context, actorId);
   const instances = [];
   for (const definition of getEncounterActions(context)) {
     if (!definitionAllowsActor(context, definition, actorId)) continue;
+    if (helplessActionId && definition.id !== helplessActionId) continue;
+    if (!helplessActionId && definition.tags.includes("helpless")) continue;
     for (const instance of definition.enumerateTargets(context, actorId)) {
       if (isActionInstanceAvailable(context, instance)) instances.push(instance);
     }
@@ -44,6 +48,8 @@ export function getAvailableActionInstances(context, actorId) {
 }
 
 const AVAILABILITY_HINTS = Object.freeze({
+  "too-tired-to-move": "Available only while the player's Energy is below one.",
+  "writhe-in-pain": "Available only while the player's pain is at its tolerance limit.",
   "scream-for-help": "Only the player can call for outside help.",
   "cover-and-brace": "Actor cannot begin a physical action.",
   "catch-breath": "Only useful while exerted, hurt, winded, or dazed.",
@@ -73,6 +79,9 @@ export function isActionInstanceAvailable(context, instance) {
   if (!definition
     || !getEncounterActions(context).includes(definition)
     || !definitionAllowsActor(context, definition, instance.actorId)) return false;
+  const helplessActionId = getControlledHelplessActionId(context, instance.actorId);
+  if (helplessActionId && definition.id !== helplessActionId) return false;
+  if (!helplessActionId && definition.tags.includes("helpless")) return false;
   if (!definition.isAvailable(context, instance)) return false;
   // The player's list is a promise that the action is realistically executable.
   // NPC intent may overreach; resolution gives such attempts a small desperation roll.
@@ -81,6 +90,7 @@ export function isActionInstanceAvailable(context, instance) {
 }
 
 export function getActionAvailabilityDiagnostics(context, actorId) {
+  const helplessActionId = getControlledHelplessActionId(context, actorId);
   const diagnostics = [];
   for (const definition of getEncounterActions(context)) {
     if (!definitionAllowsActor(context, definition, actorId)) continue;
@@ -98,17 +108,25 @@ export function getActionAvailabilityDiagnostics(context, actorId) {
     }
     for (const instance of enumerated) {
       const mechanicallyAvailable = definition.isAvailable(context, instance);
-      const effort = mechanicallyAvailable && actorId === controlledParticipantId(context.state)
+      const blockedByHelplessness = (helplessActionId && definition.id !== helplessActionId)
+        || (!helplessActionId && definition.tags.includes("helpless"));
+      const effort = mechanicallyAvailable
+        && !blockedByHelplessness
+        && actorId === controlledParticipantId(context.state)
         ? getActionEffortStatus(context, instance)
         : null;
-      const available = mechanicallyAvailable && (!effort || effort.allowed);
+      const available = mechanicallyAvailable
+        && !blockedByHelplessness
+        && (!effort || effort.allowed);
       diagnostics.push({
         actionId: definition.id,
         available,
         instance,
         reasons: available
           ? []
-          : effort?.blockers.length
+          : blockedByHelplessness && helplessActionId
+            ? ["The player is currently limited to their helpless response."]
+            : effort?.blockers.length
             ? effort.blockers.map(effortBlockerText)
             : [definition.availabilityHint
               || AVAILABILITY_HINTS[definition.id]
@@ -150,6 +168,7 @@ export function getActionPurpose(context, instance) {
     throw new Error(`Physical encounter: unknown action '${String(instance?.actionId)}'`);
   }
   const tags = definition.tags;
+  if (tags.includes("helpless")) return "helpless";
   const breakingControl = tags.includes("disrupt-hold")
     && hostileHoldsOn(context, instance.actorId).length > 0;
 

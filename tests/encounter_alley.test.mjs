@@ -466,32 +466,36 @@ test("incapacitating the mugger during the getaway recovers the stolen money", (
   ));
 });
 
-test("an already-incapacitated player receives the mugging consequence on entry", () => {
+test("a player at maximum pain can only writhe while the mugger follows the telegraphed intent", () => {
   const game = gameAtStart({ seed: 1, money: 50 });
   game.player.body.getPart("abdomen").pain = 90;
+  game.player.setStatValue("energy", 0.5);
 
   const state = startEncounter(game);
+  const telegraphedActionId = state.npcIntent.actionId;
 
-  assert.deepEqual(state.outcome, {
-    id: "theft-completed-player-incapacitated",
-    moneyLost: 20,
-  });
-  assert.equal(state.phase, "terminal");
-  assert.equal(state.npcIntent, null);
-  assert.equal(state.objective.stage, "complete");
-  assert.equal(game.player.money, 30);
-  assert.ok(state.lastEvents.some(
-    ({ type, reason }) => type === "participant.unable-to-act"
-      && reason === "already-incapacitated",
-  ));
-  assert.ok(state.lastEvents.some(({ type }) => type === "theft.completed"));
-  assert.ok(state.lastEvents.some(
-    ({ type, actorId }) => type === "escape.completed" && actorId === "mugger",
-  ));
-  assert.deepEqual(buildScene(game).sections[0].choices.map(({ id }) => id), [
-    "encounter-action:finish",
+  assert.equal(state.outcome, null);
+  assert.equal(state.phase, "active");
+  assert.equal(game.player.money, 50);
+  assert.deepEqual(buildScene(game).sections.flatMap(({ choices }) => choices).map(({ label }) => label), [
+    "Writhe in pain",
   ]);
-  assert.match(JSON.stringify(buildScene(game).content), /unable to resist/i);
+
+  chooseAction(game, "writhe-in-pain");
+
+  const next = game.currentStory.system.state;
+  assert.ok(next.lastEvents.some(
+    ({ type, reason }) => type === "participant.unable-to-act"
+      && reason === "pain-overwhelmed",
+  ));
+  assert.ok(next.lastEvents.some(
+    ({ type, actorId, actionId }) => type === "action.attempted"
+      && actorId === "mugger"
+      && actionId === telegraphedActionId,
+  ));
+  assert.ok(!next.lastEvents.some(({ type }) => type === "theft.completed"));
+  assert.equal(game.player.money, 50);
+  assert.match(JSON.stringify(buildScene(game).content), /pain|injur/i);
 });
 
 test("a physically helpless but conscious player cannot create an actionless encounter", () => {
@@ -532,7 +536,7 @@ test("theft is capped at available money and an empty target invents no new obje
   assert.equal(empty.player.money, 0);
 });
 
-test("escape, retreat, incapacitation, and incapacitated theft are reachable outcomes", () => {
+test("escape, attacker incapacitation, and theft from a pain-overwhelmed target are reachable", () => {
   const escape = gameAtStart({ seed: 10 });
   startEncounter(escape);
   assert.equal(playUntilTerminal(escape, (game) =>
@@ -563,6 +567,8 @@ test("escape, retreat, incapacitation, and incapacitated theft are reachable out
           ? "run"
           : findActionChoice(game, "wrench-free")
             ? "wrench-free"
-            : "cover-and-brace").id,
-  "theft-completed-player-incapacitated");
+            : findActionChoice(game, "writhe-in-pain")
+              ? "writhe-in-pain"
+              : "cover-and-brace").id,
+  "theft-completed-player-conscious");
 });

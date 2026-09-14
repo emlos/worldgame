@@ -19,6 +19,7 @@ import {
   getStat,
   holdsControlledBy,
   isEncounterIncapacitated,
+  isEncounterIncapacitatedBeyondPain,
   isSameLimb,
   persistCombatantBodies,
   validateCombatantInvariants,
@@ -113,7 +114,11 @@ function releaseControlledHolds(
   }
 }
 
-function checkPhysicalTerminalState(context, runtime) {
+function checkPhysicalTerminalState(
+  context,
+  runtime,
+  { allowPainCompletion = false } = {},
+) {
   if (runtime.outcome) return;
   const objective = requireEncounterObjective(context.state);
   const ownerId = goalOwnerId(context.state);
@@ -133,7 +138,7 @@ function checkPhysicalTerminalState(context, runtime) {
   }
 
   const ownerIncapacitated = isEncounterIncapacitated(context, ownerId);
-  const targetIncapacitated = isEncounterIncapacitated(context, targetId);
+  const targetIncapacitated = isEncounterIncapacitatedBeyondPain(context, targetId);
   if (ownerIncapacitated && targetIncapacitated) {
     releaseControlledHolds(context, runtime, ownerId);
     releaseControlledHolds(context, runtime, targetId);
@@ -145,7 +150,11 @@ function checkPhysicalTerminalState(context, runtime) {
     runtime.outcome = objective.outcomeForOwnerDefeat(context, runtime.events);
     return;
   }
-  const completedOutcome = objective.outcomeForCompletion?.(context, runtime.events) || null;
+  const completedOutcome = objective.outcomeForCompletion?.(
+    context,
+    runtime.events,
+    { allowPainCompletion },
+  ) || null;
   if (completedOutcome) {
     releaseControlledHolds(context, runtime, targetId);
     runtime.outcome = completedOutcome;
@@ -614,54 +623,67 @@ export function resolveEncounterExchange({
   const npcAction = intentToActionInstance(next.npcIntent);
   const playerSeconds = actionDurationSeconds(availablePlayerAction);
   const npcSeconds = actionDurationSeconds(npcAction);
+  const playerIsHelpless = getEncounterAction(availablePlayerAction.actionId)
+    .tags.includes("helpless");
   const runtime = {
     events: [],
     guarded: new Set(),
     evading: new Set(),
+    unopposedTargets: new Set(),
     outcome: null,
     terminalFacts: [],
   };
 
-  // A reaction can influence an equal-speed action from the outset. Faster actions
-  // resolve before a slower reaction has taken effect.
-  for (const [instance, seconds, opposingSeconds] of [
-    [availablePlayerAction, playerSeconds, npcSeconds],
-    [npcAction, npcSeconds, playerSeconds],
-  ]) {
-    if (seconds > opposingSeconds) continue;
-    if (instance.actionId === "cover-and-brace") runtime.guarded.add(instance.actorId);
-    if (instance.actionId === "create-distance") runtime.evading.add(instance.actorId);
-  }
-
-  if (playerSeconds === npcSeconds) {
-    resolveSimultaneously(context, availablePlayerAction, npcAction, runtime);
+  if (playerIsHelpless) {
+    // Helplessness is the player's real response to the stored intent. It does
+    // not invent an objective action or let a zero-second response pre-empt the
+    // opponent's telegraphed move.
+    resolveOne(context, availablePlayerAction, runtime, { revalidate: false });
+    runtime.unopposedTargets.add(controlledId);
+    resolveOne(context, npcAction, runtime, { revalidate: false });
+    releaseControlledHolds(context, runtime, controlledId, "controller-helpless");
   } else {
-    const ordered = playerSeconds < npcSeconds
-      ? [availablePlayerAction, npcAction]
-      : [npcAction, availablePlayerAction];
-    resolveOne(context, ordered[0], runtime, { revalidate: false });
-    checkPhysicalTerminalState(context, runtime);
-    if (!runtime.outcome) {
-      resolveOne(context, ordered[1], runtime, {
-        revalidate: true,
-        spoiledBy: ordered[0],
-      });
+    // A reaction can influence an equal-speed action from the outset. Faster actions
+    // resolve before a slower reaction has taken effect.
+    for (const [instance, seconds, opposingSeconds] of [
+      [availablePlayerAction, playerSeconds, npcSeconds],
+      [npcAction, npcSeconds, playerSeconds],
+    ]) {
+      if (seconds > opposingSeconds) continue;
+      if (instance.actionId === "cover-and-brace") runtime.guarded.add(instance.actorId);
+      if (instance.actionId === "create-distance") runtime.evading.add(instance.actorId);
     }
-    else {
-      runtime.events.push({
-        type: "action.spoiled",
-        actorId: ordered[1].actorId,
-        actionId: ordered[1].actionId,
-        spoiledByActorId: ordered[0].actorId,
-        spoiledByActionId: ordered[0].actionId,
-      });
+
+    if (playerSeconds === npcSeconds) {
+      resolveSimultaneously(context, availablePlayerAction, npcAction, runtime);
+    } else {
+      const ordered = playerSeconds < npcSeconds
+        ? [availablePlayerAction, npcAction]
+        : [npcAction, availablePlayerAction];
+      resolveOne(context, ordered[0], runtime, { revalidate: false });
+      checkPhysicalTerminalState(context, runtime);
+      if (!runtime.outcome) {
+        resolveOne(context, ordered[1], runtime, {
+          revalidate: true,
+          spoiledBy: ordered[0],
+        });
+      }
+      else {
+        runtime.events.push({
+          type: "action.spoiled",
+          actorId: ordered[1].actorId,
+          actionId: ordered[1].actionId,
+          spoiledByActorId: ordered[0].actorId,
+          spoiledByActionId: ordered[0].actionId,
+        });
+      }
     }
   }
 
   tickAcuteEffects(context);
   next.elapsedSeconds += Math.max(playerSeconds, npcSeconds);
   next.exchange += 1;
-  checkPhysicalTerminalState(context, runtime);
+  checkPhysicalTerminalState(context, runtime, { allowPainCompletion: playerIsHelpless });
   finalizeOutcome(context, runtime);
   applyEncounterHygiene(game, next, availablePlayerAction.actionId, runtime.events);
   next.lastEvents = runtime.events.slice(-24);
@@ -679,54 +701,6 @@ export function resolveEncounterExchange({
     syncObjectiveStage(context);
     next.npcIntent = selectAiIntent(context);
   }
-  validateEncounterRuntime(context);
-  return next;
-}
-
-export function resolveEncounterPlayerExhaustion({
-  game,
-  state,
-  instanceKey,
-  exchangeSeconds,
-}) {
-  const next = structuredClone(state);
-  const context = createCombatContext({ game, state: next, instanceKey });
-  validateEncounterRuntime(context);
-  const previousObjective = structuredClone(next.objective);
-  const controlledId = controlledParticipantId(next);
-  const ownerId = goalOwnerId(next);
-  const objective = requireEncounterObjective(next);
-  const runtime = {
-    events: [
-      {
-        type: "participant.unable-to-act",
-        actorId: controlledId,
-        reason: "energy-exhausted",
-      },
-      {
-        type: "action.attempted",
-        actorId: ownerId,
-        targetId: controlledId,
-        actionId: objective.unopposedActionId,
-      },
-    ],
-    guarded: new Set(),
-    evading: new Set(),
-    outcome: null,
-    terminalFacts: [],
-  };
-
-  releaseControlledHolds(context, runtime, controlledId, "controller-exhausted");
-  runtime.outcome = objective.resolveTargetUnable(context, runtime.events, {
-    reason: "energy-exhausted",
-  });
-  tickAcuteEffects(context);
-  next.elapsedSeconds += exchangeSeconds;
-  next.exchange += 1;
-  finalizeOutcome(context, runtime);
-  next.lastEvents = runtime.events.slice(-24);
-  persistCombatantBodies(context);
-  objective.commitGameState(context, previousObjective);
   validateEncounterRuntime(context);
   return next;
 }

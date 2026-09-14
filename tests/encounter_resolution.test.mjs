@@ -290,7 +290,7 @@ test("equal-speed contests read the shared pre-exchange snapshot", () => {
   assert.equal(simultaneous.contest.chance, npcFirst.contest.chance);
 });
 
-test("simultaneous incapacitation is an explicit mutual outcome", () => {
+test("simultaneous pain limits leave the player helpless but incapacitate the attacker", () => {
   const game = gameAtStart({ seed: 2 });
   game.player.setSkillValue("strength", 10);
   const state = startEncounter(game);
@@ -308,7 +308,7 @@ test("simultaneous incapacitation is an explicit mutual outcome", () => {
 
   assert.equal(state.outcome, null);
   assert.deepEqual(game.currentStory.system.state.outcome, {
-    id: "both-incapacitated",
+    id: "mugger-incapacitated",
     moneyLost: 0,
   });
   assert.equal(
@@ -317,7 +317,7 @@ test("simultaneous incapacitation is an explicit mutual outcome", () => {
       .length,
     2,
   );
-  assert.match(JSON.stringify(buildScene(game).content), /both of you unable to continue/i);
+  assert.match(JSON.stringify(buildScene(game).content), /cannot continue|safe to leave/i);
 });
 
 test("losing the last physical response still leaves surrender available", () => {

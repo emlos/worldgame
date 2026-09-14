@@ -22,6 +22,7 @@ const FIXED_START = new Date("2026-09-11T20:00:00.000Z");
 
 export const PLAYER_POLICIES = Object.freeze({
   help: Object.freeze([
+    "too-tired-to-move", "writhe-in-pain",
     "scream-for-help", "cover-and-brace", "create-distance", "run", "wrench-free",
     "stand-up", "roll-toward", "shove-away", "strike-face", "drive-body",
   ]),

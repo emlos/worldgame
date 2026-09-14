@@ -459,7 +459,7 @@ export const STEAL_MONEY_OBJECTIVE = Object.freeze({
       case "participant.unable-to-act":
         if (event.actorId !== goalTargetId(context.state)) return null;
         if (event.reason === "energy-exhausted") {
-          return "Your remaining energy gives out, leaving you unable to resist the search.";
+          return "Your remaining energy gives out, leaving you unable to respond.";
         }
         return event.reason === "already-incapacitated"
           ? "You are already unable to resist when the mugger approaches."

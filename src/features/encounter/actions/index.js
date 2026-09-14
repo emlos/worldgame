@@ -32,9 +32,12 @@ import {
 } from "./objective.js";
 import { ATTACK_LIMB } from "./beatDown.js";
 import { SCREAM_FOR_HELP } from "./help.js";
+import { TOO_TIRED_TO_MOVE, WRITHE_IN_PAIN } from "./helpless.js";
 import { requireEncounterObjective } from "../objectives/index.js";
 
 export const ENCOUNTER_ACTIONS = Object.freeze([
+  TOO_TIRED_TO_MOVE,
+  WRITHE_IN_PAIN,
   SURRENDER_MONEY,
   SCREAM_FOR_HELP,
   CONTROLLED_DISENGAGE,

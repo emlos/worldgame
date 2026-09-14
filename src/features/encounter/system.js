@@ -18,7 +18,6 @@ import {
 import {
   encounterExchangeDurationSeconds,
   resolveEncounterExchange,
-  resolveEncounterPlayerExhaustion,
   validateEncounterRuntime,
 } from "./resolution.js";
 import { getEncounterScenario } from "./scenarios/index.js";
@@ -28,10 +27,7 @@ import {
 } from "./state.js";
 import { controlledParticipantId } from "./roles.js";
 import { requireEncounterObjective } from "./objectives/index.js";
-import {
-  projectPlayerEnergyAfterMinutes,
-  settleEncounterConsequences,
-} from "./consequences.js";
+import { settleEncounterConsequences } from "./consequences.js";
 
 export const ENCOUNTER_PHYSICAL_SYSTEM_ID = "encounter.physical";
 
@@ -215,21 +211,12 @@ export const PHYSICAL_ENCOUNTER_STORY_SYSTEM = Object.freeze({
     if (playerAction.actorId !== controlledParticipantId(state)) {
       fail("the player can only choose actions for the controlled participant");
     }
-    const exchangeSeconds = encounterExchangeDurationSeconds(state, playerAction);
-    const projectedEnergy = projectPlayerEnergyAfterMinutes(game, exchangeSeconds / 60);
-    const next = projectedEnergy < 1
-      ? resolveEncounterPlayerExhaustion({
-        game,
-        state,
-        instanceKey,
-        exchangeSeconds,
-      })
-      : resolveEncounterExchange({
-        game,
-        state,
-        instanceKey,
-        playerAction,
-      });
+    const next = resolveEncounterExchange({
+      game,
+      state,
+      instanceKey,
+      playerAction,
+    });
     if (next.phase === ENCOUNTER_PHASE.terminal) {
       settleEncounterConsequences(game, next, instanceKey);
     }

@@ -221,7 +221,13 @@ export function isWinded(context, actorId, minimumSeverity = 1) {
   return (getAcute(context, actorId, "winded")?.severity || 0) >= minimumSeverity;
 }
 
-export function isEncounterIncapacitated(context, actorId) {
+export function isEncounterPainOverwhelmed(context, actorId) {
+  const pain = getBodyPain(context, actorId);
+  const threshold = calculatePainTolerance(getStat(context, actorId, "resolve"));
+  return pain >= threshold;
+}
+
+export function isEncounterIncapacitatedBeyondPain(context, actorId) {
   if (isDazed(context, actorId, 3)) return true;
   const headCapacity = getPartCapacity(context, actorId, BodyPartId.HEAD);
   const chestCapacity = getPartCapacity(context, actorId, BodyPartId.CHEST);
@@ -241,14 +247,35 @@ export function isEncounterIncapacitated(context, actorId) {
   if (legCapacity <= 0.15 && armCapacity <= 0.15) return true;
 
   const pain = getBodyPain(context, actorId);
-  const threshold = calculatePainTolerance(getStat(context, actorId, "resolve"));
-  if (pain >= threshold) return true;
-
   const participant = getParticipant(context, actorId);
   if (participant.pose !== ENCOUNTER_POSE.standing && pain >= 62) {
     if (legCapacity < 0.25 && armCapacity < 0.25) return true;
   }
   return isWinded(context, actorId, 3) && pain >= 68;
+}
+
+export function isEncounterIncapacitated(context, actorId) {
+  return isEncounterIncapacitatedBeyondPain(context, actorId)
+    || isEncounterPainOverwhelmed(context, actorId);
+}
+
+export const ENCOUNTER_HELPLESS_ACTION = Object.freeze({
+  energy: "too-tired-to-move",
+  pain: "writhe-in-pain",
+});
+
+export function getControlledHelplessReason(context, actorId) {
+  if (actorId !== controlledParticipantId(context.state)) return null;
+  if (isEncounterPainOverwhelmed(context, actorId)) return "pain-overwhelmed";
+  if (Number(context.game.player.getStatValue("energy")) < 1) return "energy-exhausted";
+  return null;
+}
+
+export function getControlledHelplessActionId(context, actorId) {
+  const reason = getControlledHelplessReason(context, actorId);
+  if (reason === "energy-exhausted") return ENCOUNTER_HELPLESS_ACTION.energy;
+  if (reason === "pain-overwhelmed") return ENCOUNTER_HELPLESS_ACTION.pain;
+  return null;
 }
 
 export function getPartCapacity(context, actorId, partId) {
@@ -469,7 +496,10 @@ export function validateCombatantInvariants(context) {
   }
   if (context.state.phase === "active") {
     for (const actorId of participantIds(context.state)) {
-      if (isEncounterIncapacitated(context, actorId)) {
+      const painOnlyHelplessness = actorId === controlledParticipantId(context.state)
+        && isEncounterPainOverwhelmed(context, actorId)
+        && !isEncounterIncapacitatedBeyondPain(context, actorId);
+      if (isEncounterIncapacitated(context, actorId) && !painOnlyHelplessness) {
         fail(`active participant '${actorId}' is incapacitated`);
       }
     }

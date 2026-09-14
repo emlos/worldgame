@@ -5,6 +5,8 @@ import { Game } from "../src/game/game.js";
 import { buildScene } from "../src/game/scene/sceneEngine.js";
 import { performChoice } from "../src/game/scene/choiceEngine.js";
 import { ENCOUNTER_ACTIONS } from "../src/features/encounter/actions/index.js";
+import { selectAiIntent } from "../src/features/encounter/ai.js";
+import { createCombatContext } from "../src/features/encounter/combatants.js";
 import {
   PLAYER_ACTION_HYGIENE_COST,
   applyEncounterHygiene,
@@ -98,24 +100,93 @@ test("terminal exertion creates one proportional fatigue multiplier that decays 
   assert.equal(saved.featureState.encounter.postCombatFatigue, null);
 });
 
-test("running out of displayed energy lets the attacker complete the goal unopposed", () => {
+test("energy exhaustion offers one helpless response and preserves the telegraphed intent", () => {
   const game = gameAtStart({ seed: 1, money: 50 });
-  startEncounter(game);
-  game.player.setStatValue("energy", 0.001);
+  game.player.setStatValue("energy", 0.5);
+  const opening = startEncounter(game);
+  const telegraphedActionId = opening.npcIntent.actionId;
   const hygieneBefore = game.player.getStatValue("hygiene");
+  const exhaustedScene = buildScene(game);
+  const exhaustedChoices = exhaustedScene.sections.flatMap(({ choices }) => choices);
+
+  assert.deepEqual(exhaustedChoices.map(({ label }) => label), ["You're too tired to move"]);
+  assert.equal(exhaustedChoices[0].action.command.actionId, "too-tired-to-move");
+  chooseAction(game, "too-tired-to-move");
+
+  let state = game.currentStory.system.state;
+  assert.ok(game.player.getStatValue("energy") < 1);
+  assert.equal(game.player.money, 50);
+  assert.equal(state.phase, "active");
+  assert.equal(game.player.getStatValue("hygiene"), hygieneBefore - 0.03);
+  assert.ok(state.lastEvents.some(({ type, reason }) =>
+    type === "participant.unable-to-act" && reason === "energy-exhausted"));
+  assert.ok(state.lastEvents.some(({ type, actorId, actionId }) =>
+    type === "action.attempted" && actorId === "player" && actionId === "too-tired-to-move"));
+  assert.ok(state.lastEvents.some(({ type, actorId, actionId }) =>
+    type === "action.attempted" && actorId === "mugger" && actionId === telegraphedActionId));
+  assert.ok(state.lastEvents.some(({ type, unopposed, success, chance }) =>
+    type === "chance.rolled" && unopposed === true && success === true && chance === 1));
+  assert.equal(state.relationships.holds.length, 1);
+  assert.equal(game.interruptState.pending?.sceneId, "interrupt.exhaustion.hospital");
+
+  for (let exchange = 0; state.phase === "active" && exchange < 30; exchange += 1) {
+    chooseAction(game, "too-tired-to-move");
+    state = game.currentStory.system.state;
+  }
+  assert.equal(state.phase, "terminal");
+  assert.equal(state.outcome.id, "theft-completed-player-conscious");
+  assert.equal(game.player.money, 30);
+  assert.equal(state.terminalConsequencesSettled, true);
+  assert.equal(game.interruptState.pending?.sceneId, "interrupt.exhaustion.hospital");
+
+  const terminalScene = buildScene(game);
+  const finish = terminalScene.sections.flatMap(({ choices }) => choices)
+    .find(({ id }) => id === "encounter-action:finish");
+  performChoice(game, { sceneId: terminalScene.id, choiceId: finish.id });
+  assert.equal(game.currentStory?.id, "interrupt.exhaustion.hospital");
+  assert.equal(game.interruptState.pending, null);
+  assert.equal(game.interruptState.active?.sceneId, "interrupt.exhaustion.hospital");
+});
+
+test("an action that spends the last energy resolves before helplessness begins", () => {
+  const game = gameAtStart({ seed: 1 });
+  const opening = startEncounter(game);
+  const telegraphedActionId = opening.npcIntent.actionId;
+  game.player.setStatValue("energy", 1.001);
 
   chooseAction(game, "scream-for-help");
 
   const state = game.currentStory.system.state;
-  assert.equal(game.player.getStatValue("energy"), 0);
-  assert.equal(game.player.money, 30);
-  assert.equal(state.phase, "terminal");
-  assert.equal(state.outcome.id, "theft-completed-player-incapacitated");
-  assert.equal(state.terminalConsequencesSettled, true);
-  assert.equal(game.player.getStatValue("hygiene"), hygieneBefore);
-  assert.ok(state.lastEvents.some(({ type, reason }) =>
+  assert.equal(state.phase, "active");
+  assert.ok(game.player.getStatValue("energy") < 1);
+  assert.ok(state.lastEvents.some(({ type, actorId, actionId }) =>
+    type === "action.attempted" && actorId === "player" && actionId === "scream-for-help"));
+  assert.ok(state.lastEvents.some(({ type, actorId, actionId }) =>
+    type === "action.attempted" && actorId === "mugger" && actionId === telegraphedActionId));
+  assert.ok(!state.lastEvents.some(({ type, reason }) =>
     type === "participant.unable-to-act" && reason === "energy-exhausted"));
-  assert.ok(!state.lastEvents.some(({ type, actorId }) =>
-    type === "action.attempted" && actorId === "player"));
-  assert.match(JSON.stringify(buildScene(game).content), /energy gives out/i);
+  assert.deepEqual(
+    buildScene(game).sections.flatMap(({ choices }) => choices).map(({ label }) => label),
+    ["You're too tired to move"],
+  );
+});
+
+test("exhaustion narration does not invent a search when the mugger flees", () => {
+  const game = gameAtStart({ seed: 117, money: 0 });
+  game.player.setStatValue("energy", 0.5);
+  const state = startEncounter(game);
+  state.elapsedSeconds = 100;
+  state.npcIntent = selectAiIntent(createCombatContext({
+    game,
+    state,
+    instanceKey: game.currentStory.instanceKey,
+  }));
+  assert.equal(state.npcIntent.actionId, "flee");
+
+  chooseAction(game, "too-tired-to-move");
+
+  const content = JSON.stringify(buildScene(game).content);
+  assert.equal(game.currentStory.system.state.outcome.id, "mugger-fled");
+  assert.match(content, /unable to respond/i);
+  assert.doesNotMatch(content, /resist the search/i);
 });

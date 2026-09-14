@@ -59,9 +59,10 @@ function targetIsIncapacitatedByBrokenLimbs(context) {
     );
 }
 
-function completedCause(context, fallback = null) {
+function completedCause(context, fallback = null, { allowPainCompletion = true } = {}) {
   if (targetIsIncapacitatedByBrokenLimbs(context)) return "broken-limbs";
-  if (getBodyPain(context, goalTargetId(context.state)) >= context.state.objective.painThreshold) {
+  if (allowPainCompletion
+    && getBodyPain(context, goalTargetId(context.state)) >= context.state.objective.painThreshold) {
     return "pain-threshold";
   }
   return fallback;
@@ -252,8 +253,8 @@ export const BEAT_DOWN_OBJECTIVE = Object.freeze({
     return structuredClone(selected);
   },
 
-  outcomeForCompletion(context, events) {
-    const cause = completedCause(context);
+  outcomeForCompletion(context, events, options) {
+    const cause = completedCause(context, null, options);
     return cause ? recordCompletion(context, events, cause) : null;
   },
 

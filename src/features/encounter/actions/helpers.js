@@ -45,16 +45,20 @@ export function roll(context, instance, purpose) {
 }
 
 export function chanceRoll(context, instance, runtime, purpose, chance, extra = {}) {
-  const value = roll(context, instance, purpose);
-  const success = value < chance;
+  const unopposed = runtime.unopposedTargets?.has(instance.targetId)
+    && (purpose === "contest" || String(purpose).startsWith("wrench:"));
+  const value = unopposed ? 0 : roll(context, instance, purpose);
+  const resolvedChance = unopposed ? 1 : chance;
+  const success = value < resolvedChance;
   runtime.events.push({
     type: "chance.rolled",
     actorId: instance.actorId,
     actionId: instance.actionId,
     purpose,
-    chance: Math.round(chance * 10000) / 10000,
+    chance: Math.round(resolvedChance * 10000) / 10000,
     roll: Math.round(value * 10000) / 10000,
     success,
+    ...(unopposed ? { unopposed: true } : {}),
     ...extra,
   });
   return success;

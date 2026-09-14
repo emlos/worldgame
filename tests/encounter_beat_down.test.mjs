@@ -14,6 +14,7 @@ import {
   BEAT_DOWN_OUTCOME,
 } from "../src/features/encounter/objectives/beatDown.js";
 import { FIGHT_SCENARIO } from "../src/features/encounter/scenarios/fight.js";
+import { resolveEncounterExchange } from "../src/features/encounter/resolution.js";
 import { validateEncounterState } from "../src/features/encounter/state.js";
 import { gameAtStart, startEncounter } from "./support/encounter.mjs";
 
@@ -77,17 +78,38 @@ test("beat-down attacker remains fully committed despite injury and hard pacing 
   assert.ok(getEncounterAction(intent.actionId).tags.includes("attack"));
 });
 
-test("reaching the target's maximum pain tolerance completes the beat-down", () => {
+test("reaching maximum pain forces one helpless exchange before the beat-down completes", () => {
   const game = preparedGame();
   game.player.body.getPart("abdomen").pain = 100;
   const state = createBeatDown(game);
+  const telegraphedActionId = state.npcIntent.actionId;
+  const context = createCombatContext({
+    game,
+    state,
+    instanceKey: game.currentStory.instanceKey,
+  });
+  const playerActions = getAvailableActionInstances(context, "player");
 
-  assert.equal(state.phase, "terminal");
-  assert.equal(state.objective.stage, "complete");
-  assert.equal(state.outcome.id, BEAT_DOWN_OUTCOME.targetBeatenDown);
-  assert.equal(state.outcome.cause, "pain-threshold");
-  assert.ok(state.outcome.pain >= state.outcome.painThreshold);
-  assert.doesNotThrow(() => validateEncounterState(state));
+  assert.equal(state.phase, "active");
+  assert.deepEqual(playerActions.map(({ actionId }) => actionId), ["writhe-in-pain"]);
+
+  const next = resolveEncounterExchange({
+    game,
+    state,
+    instanceKey: game.currentStory.instanceKey,
+    playerAction: playerActions[0],
+  });
+
+  assert.equal(next.phase, "terminal");
+  assert.equal(next.objective.stage, "complete");
+  assert.equal(next.outcome.id, BEAT_DOWN_OUTCOME.targetBeatenDown);
+  assert.equal(next.outcome.cause, "pain-threshold");
+  assert.ok(next.outcome.pain >= next.outcome.painThreshold);
+  assert.ok(next.lastEvents.some(({ type, actorId, actionId }) =>
+    type === "action.attempted" && actorId === "attacker" && actionId === telegraphedActionId));
+  assert.ok(next.lastEvents.some(({ type, reason }) =>
+    type === "participant.unable-to-act" && reason === "pain-overwhelmed"));
+  assert.doesNotThrow(() => validateEncounterState(next));
 });
 
 test("breaking every gross limb chain records the limb-incapacitation victory", () => {

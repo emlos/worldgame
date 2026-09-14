@@ -16,6 +16,8 @@ const STAT_PRECISION = 1_000_000;
 // These costs represent sweat and contact caused by the player's own action.
 // Dirt caused by the opponent or environment is accounted for from events below.
 export const PLAYER_ACTION_HYGIENE_COST = Object.freeze({
+  "too-tired-to-move": 0,
+  "writhe-in-pain": 0,
   "surrender-money": 0,
   "scream-for-help": 0,
   "controlled-disengage": 0.04,
@@ -134,14 +136,6 @@ export function validateEncounterFeatureStateSave(
     failSave(`${path}.postCombatFatigue.remainingMinutes`, "must be above 0");
   }
   return state;
-}
-
-export function projectPlayerEnergyAfterMinutes(game, minutes) {
-  const amount = Number(minutes);
-  const baseEnergy = amount * PLAYER_ENERGY_DRAIN_PER_MINUTE;
-  const fatigue = encounterFeatureState(game).postCombatFatigue;
-  const extraEnergy = fatigueDrain(fatigue, amount).extraEnergy;
-  return Math.max(0, game.player.getStatValue("energy") - baseEnergy - extraEnergy);
 }
 
 export function updatePostCombatFatigue(game, change) {

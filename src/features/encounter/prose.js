@@ -166,6 +166,8 @@ function actionAttemptText(context, event) {
   const targetObject = encounterPronoun(context, event.targetId, "object");
   const targetPossessive = encounterPronoun(context, event.targetId, "dependent");
   const phrases = {
+    "too-tired-to-move": ["try to move, but your body will not answer", "tries to move, but cannot"],
+    "writhe-in-pain": ["writhe in pain", "writhes in pain"],
     "cover-and-brace": ["cover up and brace", "covers up and braces"],
     "catch-breath": ["ease back to catch your breath", `eases back to catch ${encounterPronoun(context, event.actorId, "dependent")} breath`],
     "strike-face": [`strike toward ${targetPossessive} face`, `strikes toward ${targetPossessive} face`],

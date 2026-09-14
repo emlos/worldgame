@@ -144,7 +144,7 @@ and, after a terminal outcome:
 
 `choose-action` rechecks the submitted action against the action catalogue before resolution. `finish` is rejected while the encounter remains active and otherwise returns the WG scene's final target.
 
-Combat choices use the general action runner's ordinary energy drain for their full exchange duration. If that elapsed time would take displayed energy below one, the chosen response does not occur: the player becomes too exhausted to resist and the attacker resolves the current objective unopposed.
+Combat choices use the general action runner's ordinary energy drain for their full exchange duration. A submitted response resolves before that time cost is applied. If Energy is below one when an encounter screen is built, including on encounter entry, every ordinary response is replaced by the single `too-tired-to-move` choice. That zero-second helpless response and the stored NPC intent resolve in the same exchange, whose total duration remains the NPC action's duration. If the exchange ends combat, the ordinary exhaustion interrupt remains pending until the player leaves the terminal encounter screen.
 
 Encounter exertion remains the short-term measure used by action availability, contests, and AI. When an encounter becomes terminal, an idempotent settlement converts the player's remaining exertion into a post-combat energy-drain multiplier. The multiplier scales linearly from `1×` at zero exertion to `3×` at 100 exertion, then decays linearly to `1×` over 30 in-game minutes. This adds only the multiplier's extra drain during later non-resting time; exertion is not also charged as a lump-sum energy loss.
 
@@ -390,11 +390,11 @@ A participant is incapacitated when any implemented condition below is true:
 - head capacity is at most `0.08`;
 - chest capacity is at most `0.06`;
 - both best-arm and best-leg capacity are at most `0.15`, even if the actor remains conscious;
-- pain reaches `min(95, 78 + resolve × 1.9)`;
+- pain reaches `min(95, 78 + resolve × 1.9)`, which is handled as player helplessness rather than immediate defeat when it is the player's only incapacitating condition;
 - while grounded with pain at least 62, both best-leg and best-arm capacity are below `0.25`;
 - winded severity is 3 and pain is at least 68.
 
-If the mugger is incapacitated, their holds are removed and the encounter ends. If the player is incapacitated, theft is resolved immediately and the encounter ends. Resolution also checks the generated catalogue after each action: if a participant has no legal action despite not matching a capacity threshold, that loss of agency follows the same terminal path instead of leaving an invalid active state.
+If the mugger is incapacitated, their holds are removed and the encounter ends. Hard player incapacitation from daze, critical capacity, disabled gross movement, or the combined grounded/winded conditions still follows the objective's immediate unable-target outcome. Pain at the player's tolerance limit instead leaves the encounter active with only `writhe-in-pain`; Energy below one similarly leaves only `too-tired-to-move`. In either helpless state the NPC must resolve its stored intent, with its contest against the helpless target treated as unopposed, and the objective completes only when that action and the resulting state justify it. Resolution also checks the generated catalogue after each action: if a participant has no legal action despite not matching a capacity threshold, that loss of agency follows the same terminal path instead of leaving an invalid active state.
 
 ## Common action mechanics
 
@@ -806,11 +806,11 @@ Resolution proceeds as follows:
 1. Validate the state, bodies, available responses, and stored intent.
 2. Re-resolve the player's submitted action to a canonical available instance.
 3. Calculate both action durations.
-4. Activate guard or evasion at the start only when that reaction is no slower than the opposing action.
-5. If durations differ, resolve the faster action first.
-6. Check incapacitation and terminal outcomes.
-7. Revalidate the slower action. If its requirements were invalidated, emit `action.spoiled`; otherwise resolve it.
-8. If durations are equal, resolve the player action and then the NPC action without revalidating either between them. Both were legal in the pre-exchange state, but the current implementation does not clone a separate calculation snapshot for each action.
+4. If the player's response is a helpless action, record it, resolve the stored NPC intent unopposed against the player, release any holds the player can no longer maintain, and continue at step 9.
+5. Activate guard or evasion at the start only when that reaction is no slower than the opposing action.
+6. If durations differ, resolve the faster action first.
+7. Check incapacitation and terminal outcomes.
+8. Revalidate the slower action. If its requirements were invalidated, emit `action.spoiled`; otherwise resolve it. If durations are equal, resolve the player action and then the NPC action without revalidating either between them. Both were legal in the pre-exchange state, but the current implementation does not clone a separate calculation snapshot for each action.
 9. Tick acute effects once.
 10. Add the longer of the two durations to encounter time and advance the exchange counter once.
 11. Check terminal state, retain the last 24 events, and persist bodies.
@@ -834,7 +834,7 @@ The objective stage is synchronized from current facts:
 
 Current conscious theft completes and terminates in the same action, so `disengage` is not normally observed in active play.
 
-If the player becomes incapacitated, theft resolves immediately without requiring `search-money`. The deducted amount is capped by the stored amount and current balance. If the player has no money, the mugger finds nothing and the incapacitated-theft outcome records zero lost.
+If the player becomes hard-incapacitated, theft resolves immediately without requiring `search-money`. Pain-only or Energy helplessness does not use that shortcut: the mugger must gain control, search, and escape through actual selected intents. Any deducted amount remains capped by the stored amount and current balance.
 
 Money consequences are applied once during resolution and stored in the terminal outcome. Rendering and finishing a terminal scene do not apply them again.
 
@@ -981,7 +981,7 @@ Live runtime validation additionally checks:
 - hold source and target body parts exist;
 - every hold source limb remains functional;
 - pin geometry is valid;
-- active participants are not already incapacitated;
+- active participants are not already hard-incapacitated; the controlled participant may remain active at maximum pain with only the helpless response;
 - an active player has at least one legal response;
 - an active mugger has at least one legal action;
 - stored NPC intent exactly matches a currently available action instance.

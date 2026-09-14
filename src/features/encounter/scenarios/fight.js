@@ -1,6 +1,6 @@
 import { selectAiIntent } from "../ai.js";
 import { getAvailableActionInstances } from "../availability.js";
-import { createCombatContext, isEncounterIncapacitated } from "../combatants.js";
+import { createCombatContext, isEncounterIncapacitatedBeyondPain } from "../combatants.js";
 import { requireEncounterObjective } from "../objectives/index.js";
 import { controlledParticipantId, goalOwnerId } from "../roles.js";
 import {
@@ -109,7 +109,7 @@ export const FIGHT_SCENARIO = Object.freeze({
     );
     const context = createCombatContext({ game, state, instanceKey });
     const controlledId = controlledParticipantId(state);
-    if (isEncounterIncapacitated(context, controlledId)) {
+    if (isEncounterIncapacitatedBeyondPain(context, controlledId)) {
       resolveUnopposedEntry(context, "already-incapacitated");
       return state;
     }
