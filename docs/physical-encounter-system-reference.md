@@ -148,11 +148,11 @@ All rendered combat choices are marked `energyFree` in the general action runner
 
 ## Canonical encounter state
 
-The current serialized state version is `3`. A newly created state has the following shape:
+The current serialized state version is `7`. A newly created state has the following shape:
 
 ```js
 {
-  version: 3,
+  version: 7,
   scenarioId: "alley-mugging",
   phase: "active",                 // "active" | "terminal"
   elapsedSeconds: 0,
@@ -207,6 +207,7 @@ The current serialized state version is `3`. A newly created state has the follo
     },
   },
 
+  screamForHelpRoll: null,
   lastEvents: [{ type: "encounter.started", actorId: "mugger" }],
   outcome: null,
 }
@@ -394,7 +395,7 @@ If the mugger is incapacitated, their holds are removed and the encounter ends. 
 
 ### Calling for help
 
-`scream-for-help` is a two-second, player-only escape action. A successful roll ends the encounter with `player-rescued`; a failed roll consumes the exchange and combat remains active. Its hearing chances are:
+`scream-for-help` is a two-second, player-only escape action. A successful roll ends the encounter with `player-rescued`; a failed roll consumes the exchange and combat remains active. The first attempt stores its random number in encounter state. Further attempts made before 45 in-game seconds have elapsed reuse that number; the first attempt at or after the deadline generates a new number and starts another 45-second interval. The stored roll and timer survive save/load. Its hearing chances are:
 
 | Conditions | Day | Night |
 |---|---:|---:|
@@ -402,7 +403,7 @@ If the mugger is incapacitated, their holds are removed and the encounter ends. 
 | Rain or snow | 25% | 12.5% |
 | Storm | 15% | 7.5% |
 
-The action records the daylight period and weather on its deterministic `chance.rolled` event. Encounter authors can map `player-rescued` to a specific scene through `config.outcomes`; the alley mugging routes it to a scene that creates a random temporary civilian rescuer.
+The action records the daylight period, weather, whether the number was reused, and the next reroll time on its deterministic `chance.rolled` event. Encounter authors can map `player-rescued` to a specific scene through `config.outcomes`; the alley mugging routes it to a scene that creates a random temporary civilian rescuer.
 
 ### Action-definition contract
 

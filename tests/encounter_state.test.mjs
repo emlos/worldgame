@@ -27,6 +27,7 @@ test("alley mugging state stores canonical facts without duplicating bodies", ()
   assert.doesNotThrow(() => validateEncounterState(state));
   assert.equal(state.phase, ENCOUNTER_PHASE.active);
   assert.equal(state.objective.amount, 20);
+  assert.equal(state.screamForHelpRoll, null);
   assert.equal(state.relationships.range[0].value, "reach");
   assert.deepEqual(state.relationships.holds, []);
   assert.equal(state.npcIntent.actionId, "grab-arm");

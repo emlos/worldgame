@@ -1,7 +1,7 @@
 import { AI_PERSONALITY_IDS } from "./personality.js";
 import { requireEncounterObjective } from "./objectives/index.js";
 
-export const ENCOUNTER_STATE_VERSION = 6;
+export const ENCOUNTER_STATE_VERSION = 7;
 export const FIGHT_SCENARIO_ID = "fight";
 
 export const ENCOUNTER_PHASE = Object.freeze({
@@ -75,6 +75,13 @@ function string(value, path, allowed = null) {
 function integer(value, path, { min = Number.MIN_SAFE_INTEGER, max = Number.MAX_SAFE_INTEGER } = {}) {
   if (!Number.isSafeInteger(value) || value < min || value > max) {
     fail(`${path} must be an integer from ${min} through ${max}`);
+  }
+  return value;
+}
+
+function finiteNumber(value, path, { min = -Infinity, maxExclusive = Infinity } = {}) {
+  if (!Number.isFinite(value) || value < min || value >= maxExclusive) {
+    fail(`${path} must be a finite number from ${min} (inclusive) to ${maxExclusive} (exclusive)`);
   }
   return value;
 }
@@ -264,6 +271,7 @@ export function createFightState({
     },
     objective: { ...objective, ownerId, targetId },
     npcIntent: null,
+    screamForHelpRoll: null,
     lastEvents: [{ type: "encounter.started", actorId: ownerId, targetId }],
     outcome: null,
   };
@@ -304,6 +312,7 @@ export function validateEncounterState(state) {
       "relationships",
       "objective",
       "npcIntent",
+      "screamForHelpRoll",
       "lastEvents",
       "outcome",
     ],
@@ -314,6 +323,15 @@ export function validateEncounterState(state) {
   string(state.phase, "state.phase", PHASES);
   integer(state.elapsedSeconds, "state.elapsedSeconds", { min: 0 });
   integer(state.exchange, "state.exchange", { min: 0 });
+  if (state.screamForHelpRoll !== null) {
+    const helpRoll = record(state.screamForHelpRoll, "state.screamForHelpRoll");
+    exactKeys(helpRoll, ["value", "rolledAtSecond"], "state.screamForHelpRoll");
+    finiteNumber(helpRoll.value, "state.screamForHelpRoll.value", { min: 0, maxExclusive: 1 });
+    integer(helpRoll.rolledAtSecond, "state.screamForHelpRoll.rolledAtSecond", {
+      min: 0,
+      max: state.elapsedSeconds,
+    });
+  }
 
   record(state.participants, "state.participants");
   const participantIds = Object.keys(state.participants);

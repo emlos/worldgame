@@ -3,10 +3,12 @@ import { controlledParticipantId } from "../roles.js";
 import { requireEncounterObjective } from "../objectives/index.js";
 import {
   actionInstance,
-  chanceRoll,
   failAction,
   proposeOutcome,
+  roll,
 } from "./helpers.js";
+
+export const SCREAM_FOR_HELP_REROLL_SECONDS = 45;
 
 const WEATHER_MULTIPLIER = Object.freeze({
   [WeatherType.RAIN]: 0.625,
@@ -35,6 +37,23 @@ export function screamForHelpEnvironment(context) {
   };
 }
 
+function screamForHelpRoll(context, instance) {
+  const previous = context.state.screamForHelpRoll;
+  if (
+    previous
+    && context.state.elapsedSeconds - previous.rolledAtSecond < SCREAM_FOR_HELP_REROLL_SECONDS
+  ) {
+    return { ...previous, reused: true };
+  }
+
+  const next = {
+    value: roll(context, instance, "heard-by-bystander"),
+    rolledAtSecond: context.state.elapsedSeconds,
+  };
+  context.state.screamForHelpRoll = next;
+  return { ...next, reused: false };
+}
+
 export const SCREAM_FOR_HELP = Object.freeze({
   id: "scream-for-help",
   tags: Object.freeze(["escape", "support"]),
@@ -61,17 +80,24 @@ export const SCREAM_FOR_HELP = Object.freeze({
 
   resolve(context, instance, runtime) {
     const environment = screamForHelpEnvironment(context);
-    if (!chanceRoll(
-      context,
-      instance,
-      runtime,
-      "heard-by-bystander",
-      environment.chance,
-      {
-        daylightPeriod: environment.daylightPeriod,
-        weather: environment.weather,
-      },
-    )) {
+    const helpRoll = screamForHelpRoll(context, instance);
+    const success = helpRoll.value < environment.chance;
+    runtime.events.push({
+      type: "chance.rolled",
+      actorId: instance.actorId,
+      actionId: instance.actionId,
+      purpose: "heard-by-bystander",
+      chance: Math.round(environment.chance * 10000) / 10000,
+      roll: Math.round(helpRoll.value * 10000) / 10000,
+      success,
+      reused: helpRoll.reused,
+      rolledAtSecond: helpRoll.rolledAtSecond,
+      rerollAtSecond: helpRoll.rolledAtSecond + SCREAM_FOR_HELP_REROLL_SECONDS,
+      daylightPeriod: environment.daylightPeriod,
+      weather: environment.weather,
+    });
+
+    if (!success) {
       failAction(runtime, instance, "help-not-heard");
       return;
     }

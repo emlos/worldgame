@@ -507,6 +507,17 @@ function mergeProposedOutcomes(context, branches) {
   return requireEncounterObjective(context.state).mergeOutcomes(outcomes);
 }
 
+function mergeScreamForHelpRoll(context, branches) {
+  const rolls = branches
+    .map((branch) => branch.context.state.screamForHelpRoll)
+    .filter(Boolean);
+  if (!rolls.length) return;
+
+  const latest = rolls.reduce((current, candidate) =>
+    candidate.rolledAtSecond > current.rolledAtSecond ? candidate : current);
+  context.state.screamForHelpRoll = structuredClone(latest);
+}
+
 function resolveSimultaneously(context, playerAction, npcAction, sharedRuntime) {
   // Equal-speed actions resolve on isolated copies of the same starting facts.
   // Their effects are merged only afterward: numeric costs and damage add,
@@ -544,6 +555,7 @@ function resolveSimultaneously(context, playerAction, npcAction, sharedRuntime) 
   }
 
   requireEncounterObjective(context.state).mergeSimultaneous(context, branches);
+  mergeScreamForHelpRoll(context, branches);
 
   for (const actorId of participantIds(context.state)) {
     const participant = context.state.participants[actorId];

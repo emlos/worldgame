@@ -3,12 +3,20 @@ import assert from "node:assert/strict";
 
 import { Game } from "../src/game/game.js";
 import { buildScene } from "../src/game/scene/sceneEngine.js";
+import { SCREAM_FOR_HELP_REROLL_SECONDS } from "../src/features/encounter/actions/help.js";
 import {
   chooseAction,
   chooseFirstAvailableAction,
   gameAtStart,
   startEncounter,
 } from "./support/encounter.mjs";
+
+function screamRollEvent(game) {
+  return game.currentStory.system.state.lastEvents.find(({ type, actionId, purpose }) =>
+    type === "chance.rolled"
+      && actionId === "scream-for-help"
+      && purpose === "heard-by-bystander");
+}
 
 test("save/load preserves state, intent, prose, choices, and body damage", () => {
   const game = gameAtStart({ seed: 1 });
@@ -27,6 +35,39 @@ test("save/load preserves state, intent, prose, choices, and body damage", () =>
   assert.deepEqual(afterScene.content, beforeScene.content);
   assert.deepEqual(afterScene.sections, beforeScene.sections);
   assert.deepEqual(buildScene(restored), afterScene);
+});
+
+test("screaming reuses its saved roll until 45 in-game seconds have elapsed", () => {
+  const game = gameAtStart({ seed: 1 });
+  startEncounter(game);
+  chooseAction(game, "scream-for-help");
+
+  const firstRoll = screamRollEvent(game);
+  assert.equal(firstRoll.success, false);
+  assert.equal(firstRoll.reused, false);
+  assert.equal(firstRoll.rolledAtSecond, 0);
+  assert.equal(firstRoll.rerollAtSecond, SCREAM_FOR_HELP_REROLL_SECONDS);
+
+  const restored = Game.fromJSON(JSON.parse(JSON.stringify(game.toJSON())));
+  chooseAction(restored, "scream-for-help");
+  const reusedRoll = screamRollEvent(restored);
+  assert.equal(reusedRoll.roll, firstRoll.roll);
+  assert.equal(reusedRoll.reused, true);
+  assert.deepEqual(restored.currentStory.system.state.screamForHelpRoll, {
+    value: game.currentStory.system.state.screamForHelpRoll.value,
+    rolledAtSecond: 0,
+  });
+
+  restored.currentStory.system.state.elapsedSeconds = SCREAM_FOR_HELP_REROLL_SECONDS;
+  chooseAction(restored, "scream-for-help");
+  const freshRoll = screamRollEvent(restored);
+  assert.equal(freshRoll.reused, false);
+  assert.equal(freshRoll.rolledAtSecond, SCREAM_FOR_HELP_REROLL_SECONDS);
+  assert.equal(
+    freshRoll.rerollAtSecond,
+    SCREAM_FOR_HELP_REROLL_SECONDS * 2,
+  );
+  assert.notEqual(freshRoll.roll, firstRoll.roll);
 });
 
 test("terminal theft consequences are not repeated by save/load or rendering", () => {
