@@ -63,7 +63,7 @@ test("beat-down attacker remains fully committed despite injury and hard pacing 
   const game = preparedGame({ seed: 45 });
   const state = createBeatDown(game);
   game.currentStory.actors.mugger.body.parts
-    .find(({ id }) => id === "abdomen").pain = 50;
+    .find(({ id }) => id === "abdomen").acutePain = 50;
   state.elapsedSeconds = 100;
   state.objective.lastProgressSecond = 0;
   const context = createCombatContext({
@@ -80,7 +80,7 @@ test("beat-down attacker remains fully committed despite injury and hard pacing 
 
 test("reaching maximum pain forces one helpless exchange before the beat-down completes", () => {
   const game = preparedGame();
-  game.player.body.getPart("abdomen").pain = 100;
+  game.player.body.getPart("abdomen").acutePain = 100;
   const state = createBeatDown(game);
   const telegraphedActionId = state.npcIntent.actionId;
   const context = createCombatContext({
@@ -116,8 +116,8 @@ test("zero-integrity bruised limbs use generic incapacitation without a break st
   const game = preparedGame();
   for (const partId of ["lower_arm_l", "lower_arm_r", "knee_l", "knee_r"]) {
     const part = game.player.body.getPart(partId);
-    part.health = 0;
-    part.pain = 0;
+    part.integrity = 0;
+    part.acutePain = 0;
     part.conditions.add(InjuryCondition.BRUISED);
   }
   const state = createBeatDown(game);
@@ -125,7 +125,7 @@ test("zero-integrity bruised limbs use generic incapacitation without a break st
   assert.equal(state.phase, "terminal");
   assert.equal(state.outcome.id, BEAT_DOWN_OUTCOME.targetBeatenDown);
   assert.equal(state.outcome.cause, "already-incapacitated");
-  assert.equal(state.outcome.pain, 0);
+  assert.ok(state.outcome.pain > 0, "destroyed limbs retain an injury pain floor");
   assert.ok(game.player.body.allParts().every((part) =>
     [...part.conditions].every((condition) => condition === InjuryCondition.BRUISED)));
   assert.doesNotThrow(() => validateEncounterState(state));

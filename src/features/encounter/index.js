@@ -3,7 +3,7 @@ import {
   ENCOUNTER_PHYSICAL_SYSTEM_ID,
   PHYSICAL_ENCOUNTER_STORY_SYSTEM,
 } from "./system.js";
-import { recoverPlayerPainOutsideEncounter } from "./pain.js";
+import { recoverPlayerBodyOutsideEncounter } from "./pain.js";
 import { teleportPlayerToAlley } from "./debug.js";
 import {
   createEncounterFeatureState,
@@ -20,7 +20,7 @@ export const ENCOUNTER_FEATURE = defineFeature({
   wgSystems: {
     [ENCOUNTER_PHYSICAL_SYSTEM_ID]: PHYSICAL_ENCOUNTER_STORY_SYSTEM,
   },
-  timeChangeHandlers: [recoverPlayerPainOutsideEncounter, updatePostCombatFatigue],
+  timeChangeHandlers: [recoverPlayerBodyOutsideEncounter, updatePostCombatFatigue],
   debugActions: {
     "encounter.teleport-player-to-alley": teleportPlayerToAlley,
   },

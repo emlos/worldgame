@@ -136,7 +136,7 @@ export function applyImpact(
   if (runtime.guarded.has(instance.targetId)) damage = Math.max(1, Math.round(damage * 0.62));
   const part = getCombatant(context, instance.targetId).body.applyDamage({
     partId,
-    amount: damage,
+    integrityDamage: damage,
     damageType: DamageType.BLUNT,
   });
   if (!part) return 0;

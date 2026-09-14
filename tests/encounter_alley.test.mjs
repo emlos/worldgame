@@ -289,8 +289,8 @@ test("controlled disengagement requires complete control and improves with exhau
   startEncounter(weakenedControl);
   preparePlayerControl(weakenedControl, { stolen: true, muggerExertion: 90 });
   const leftHand = weakenedControl.player.body.getPart("hand_l");
-  leftHand.health = leftHand.maxHealth * 0.2;
-  leftHand.pain = 0;
+  leftHand.integrity = leftHand.maxIntegrity * 0.2;
+  leftHand.acutePain = 0;
   assert.equal(
     findActionChoice(weakenedControl, "demand-money-back"),
     null,
@@ -450,7 +450,7 @@ test("incapacitating the mugger during the getaway recovers the stolen money", (
     95,
     78 + actor.stats.resolve * 1.9,
   );
-  actor.body.parts.find(({ id }) => id === "face").pain = painThreshold - 1;
+  actor.body.parts.find(({ id }) => id === "face").acutePain = painThreshold - 1;
 
   chooseAction(game, "strike-face");
 
@@ -468,7 +468,7 @@ test("incapacitating the mugger during the getaway recovers the stolen money", (
 
 test("a player at maximum pain can only writhe while the mugger follows the telegraphed intent", () => {
   const game = gameAtStart({ seed: 1, money: 50 });
-  game.player.body.getPart("abdomen").pain = 90;
+  game.player.body.getPart("abdomen").acutePain = 90;
   game.player.setStatValue("energy", 0.5);
 
   const state = startEncounter(game);
@@ -498,14 +498,14 @@ test("a player at maximum pain can only writhe while the mugger follows the tele
   assert.match(JSON.stringify(buildScene(game).content), /pain|injur/i);
 });
 
-test("a physically helpless but conscious player cannot create an actionless encounter", () => {
+test("a structurally incapacitated player cannot create an actionless encounter", () => {
   const game = gameAtStart({ seed: 1, money: 50 });
   for (const partId of ["hand_l", "hand_r", "foot_l", "foot_r"]) {
     const part = game.player.body.getPart(partId);
-    part.health = 0;
-    part.pain = 0;
+    part.integrity = 0;
+    part.acutePain = 0;
   }
-  assert.equal(game.player.isIncapacitated(), false);
+  assert.equal(game.player.isIncapacitated(), true);
 
   const state = startEncounter(game);
 
@@ -570,7 +570,7 @@ test("escape, attacker incapacitation, and theft from a pain-overwhelmed target 
   const injuredLoss = gameAtStart({ seed: 1 });
   const injuredLossAlley = placePlayerAtAlley(injuredLoss);
   startEncounter(injuredLoss);
-  injuredLoss.player.body.getPart("abdomen").pain = 77;
+  injuredLoss.player.body.getPart("abdomen").acutePain = 77;
   assert.equal(playUntilTerminal(injuredLoss, (game) =>
     findActionChoice(game, "shove-away")
       ? "shove-away"

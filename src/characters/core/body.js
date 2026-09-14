@@ -84,6 +84,78 @@ export const DamageType = Object.freeze({
     IMPACT: "impact", // car crash, tackles, etc.
 });
 
+export const BodyCondition = Object.freeze({
+    FINE: "fine",
+    HURT: "hurt",
+    INJURED: "injured",
+    BADLY_INJURED: "badly-injured",
+    CRITICAL: "critical",
+    INCAPACITATED: "incapacitated",
+});
+
+export const BODY_CONDITION_LABEL = Object.freeze({
+    [BodyCondition.FINE]: "Fine",
+    [BodyCondition.HURT]: "Hurt",
+    [BodyCondition.INJURED]: "Injured",
+    [BodyCondition.BADLY_INJURED]: "Badly injured",
+    [BodyCondition.CRITICAL]: "Critical",
+    [BodyCondition.INCAPACITATED]: "Incapacitated",
+});
+
+const INJURY_PAIN_FLOOR_FACTOR = 35;
+const VITAL_INCAPACITATION_RATIO = Object.freeze({
+    [BodyPartId.HEAD]: 0.08,
+    [BodyPartId.CHEST]: 0.06,
+});
+
+export const BODY_PART_CHAINS = deepFreeze({
+    [BodyPartId.HAND_L]: [
+        BodyPartId.HAND_L,
+        BodyPartId.LOWER_ARM_L,
+        BodyPartId.UPPER_ARM_L,
+        BodyPartId.SHOULDER_L,
+    ],
+    [BodyPartId.HAND_R]: [
+        BodyPartId.HAND_R,
+        BodyPartId.LOWER_ARM_R,
+        BodyPartId.UPPER_ARM_R,
+        BodyPartId.SHOULDER_R,
+    ],
+    [BodyPartId.LOWER_ARM_L]: [
+        BodyPartId.LOWER_ARM_L,
+        BodyPartId.UPPER_ARM_L,
+        BodyPartId.SHOULDER_L,
+    ],
+    [BodyPartId.LOWER_ARM_R]: [
+        BodyPartId.LOWER_ARM_R,
+        BodyPartId.UPPER_ARM_R,
+        BodyPartId.SHOULDER_R,
+    ],
+    [BodyPartId.UPPER_ARM_L]: [BodyPartId.UPPER_ARM_L, BodyPartId.SHOULDER_L],
+    [BodyPartId.UPPER_ARM_R]: [BodyPartId.UPPER_ARM_R, BodyPartId.SHOULDER_R],
+    [BodyPartId.FOOT_L]: [
+        BodyPartId.FOOT_L,
+        BodyPartId.ANKLE_L,
+        BodyPartId.CALF_L,
+        BodyPartId.KNEE_L,
+        BodyPartId.THIGH_L,
+    ],
+    [BodyPartId.FOOT_R]: [
+        BodyPartId.FOOT_R,
+        BodyPartId.ANKLE_R,
+        BodyPartId.CALF_R,
+        BodyPartId.KNEE_R,
+        BodyPartId.THIGH_R,
+    ],
+    [BodyPartId.KNEE_L]: [BodyPartId.KNEE_L, BodyPartId.THIGH_L],
+    [BodyPartId.KNEE_R]: [BodyPartId.KNEE_R, BodyPartId.THIGH_R],
+    [BodyPartId.HEAD]: [BodyPartId.HEAD, BodyPartId.NECK],
+});
+
+export function getBodyPartChain(partId) {
+    return BODY_PART_CHAINS[partId] || [partId];
+}
+
 /**
  * Template describing one part of the body.
  * This is immutable and used to initialize per-instance state.
@@ -95,21 +167,21 @@ export const HUMAN_BODY_TEMPLATE = deepFreeze([
         id: BodyPartId.HEAD,
         displayName: "Head",
         region: BodyRegion.HEAD,
-        maxHealth: 100,
+        maxIntegrity: 100,
         painMultiplier: 1.5,
     },
     {
         id: BodyPartId.FACE,
         displayName: "Face",
         region: BodyRegion.FACE,
-        maxHealth: 80,
+        maxIntegrity: 80,
         painMultiplier: 1.7,
     },
     {
         id: BodyPartId.NECK,
         displayName: "Neck",
         region: BodyRegion.NECK,
-        maxHealth: 80,
+        maxIntegrity: 80,
         painMultiplier: 1.6,
     },
 
@@ -118,28 +190,28 @@ export const HUMAN_BODY_TEMPLATE = deepFreeze([
         id: BodyPartId.CHEST,
         displayName: "Chest",
         region: BodyRegion.UPPER,
-        maxHealth: 120,
+        maxIntegrity: 120,
         painMultiplier: 1.3,
     },
     {
         id: BodyPartId.BACK,
         displayName: "Back",
         region: BodyRegion.UPPER,
-        maxHealth: 120,
+        maxIntegrity: 120,
         painMultiplier: 1.2,
     },
     {
         id: BodyPartId.ABDOMEN,
         displayName: "Abdomen",
         region: BodyRegion.LOWER,
-        maxHealth: 100,
+        maxIntegrity: 100,
         painMultiplier: 1.4,
     },
     {
         id: BodyPartId.GROIN,
         displayName: "Groin",
         region: BodyRegion.LOWER,
-        maxHealth: 60,
+        maxIntegrity: 60,
         painMultiplier: 2.0,
     },
     // Arms / hands -----------------------------------------------
@@ -147,56 +219,56 @@ export const HUMAN_BODY_TEMPLATE = deepFreeze([
         id: BodyPartId.SHOULDER_L,
         displayName: "Left shoulder",
         region: BodyRegion.UPPER,
-        maxHealth: 90,
+        maxIntegrity: 90,
         painMultiplier: 1.1,
     },
     {
         id: BodyPartId.SHOULDER_R,
         displayName: "Right shoulder",
         region: BodyRegion.UPPER,
-        maxHealth: 90,
+        maxIntegrity: 90,
         painMultiplier: 1.1,
     },
     {
         id: BodyPartId.UPPER_ARM_L,
         displayName: "Left upper arm",
         region: BodyRegion.UPPER,
-        maxHealth: 90,
+        maxIntegrity: 90,
         painMultiplier: 1.0,
     },
     {
         id: BodyPartId.UPPER_ARM_R,
         displayName: "Right upper arm",
         region: BodyRegion.UPPER,
-        maxHealth: 90,
+        maxIntegrity: 90,
         painMultiplier: 1.0,
     },
     {
         id: BodyPartId.LOWER_ARM_L,
         displayName: "Left forearm",
         region: BodyRegion.UPPER,
-        maxHealth: 80,
+        maxIntegrity: 80,
         painMultiplier: 1.1,
     },
     {
         id: BodyPartId.LOWER_ARM_R,
         displayName: "Right forearm",
         region: BodyRegion.UPPER,
-        maxHealth: 80,
+        maxIntegrity: 80,
         painMultiplier: 1.1,
     },
     {
         id: BodyPartId.HAND_L,
         displayName: "Left hand",
         region: BodyRegion.HANDS,
-        maxHealth: 70,
+        maxIntegrity: 70,
         painMultiplier: 1.4,
     },
     {
         id: BodyPartId.HAND_R,
         displayName: "Right hand",
         region: BodyRegion.HANDS,
-        maxHealth: 70,
+        maxIntegrity: 70,
         painMultiplier: 1.4,
     },
 
@@ -206,70 +278,70 @@ export const HUMAN_BODY_TEMPLATE = deepFreeze([
         id: BodyPartId.THIGH_L,
         displayName: "Left thigh",
         region: BodyRegion.LEGS,
-        maxHealth: 100,
+        maxIntegrity: 100,
         painMultiplier: 1.2,
     },
     {
         id: BodyPartId.THIGH_R,
         displayName: "Right thigh",
         region: BodyRegion.LEGS,
-        maxHealth: 100,
+        maxIntegrity: 100,
         painMultiplier: 1.2,
     },
     {
         id: BodyPartId.KNEE_L,
         displayName: "Left knee",
         region: BodyRegion.LEGS,
-        maxHealth: 80,
+        maxIntegrity: 80,
         painMultiplier: 1.5,
     },
     {
         id: BodyPartId.KNEE_R,
         displayName: "Right knee",
         region: BodyRegion.LEGS,
-        maxHealth: 80,
+        maxIntegrity: 80,
         painMultiplier: 1.5,
     },
     {
         id: BodyPartId.CALF_L,
         displayName: "Left calf",
         region: BodyRegion.LEGS,
-        maxHealth: 90,
+        maxIntegrity: 90,
         painMultiplier: 1.3,
     },
     {
         id: BodyPartId.CALF_R,
         displayName: "Right calf",
         region: BodyRegion.LEGS,
-        maxHealth: 90,
+        maxIntegrity: 90,
         painMultiplier: 1.3,
     },
     {
         id: BodyPartId.ANKLE_L,
         displayName: "Left ankle",
         region: BodyRegion.FEET,
-        maxHealth: 70,
+        maxIntegrity: 70,
         painMultiplier: 1.5,
     },
     {
         id: BodyPartId.ANKLE_R,
         displayName: "Right ankle",
         region: BodyRegion.FEET,
-        maxHealth: 70,
+        maxIntegrity: 70,
         painMultiplier: 1.5,
     },
     {
         id: BodyPartId.FOOT_L,
         displayName: "Left foot",
         region: BodyRegion.FEET,
-        maxHealth: 70,
+        maxIntegrity: 70,
         painMultiplier: 1.3,
     },
     {
         id: BodyPartId.FOOT_R,
         displayName: "Right foot",
         region: BodyRegion.FEET,
-        maxHealth: 70,
+        maxIntegrity: 70,
         painMultiplier: 1.3,
     },
 ]);
@@ -277,8 +349,8 @@ export const HUMAN_BODY_TEMPLATE = deepFreeze([
 /**
  * Instance state for one body part.
  *
- * health:    0..maxHealth
- * pain:      0..100 (abstract pain meter for that part)
+ * integrity: 0..maxIntegrity
+ * acutePain: 0..100 (short-lived pain above the persistent injury floor)
  * conditions:Set(InjuryCondition.*)
  */
 export class BodyPartState {
@@ -286,11 +358,12 @@ export class BodyPartState {
         this.id = template.id;
         this.displayName = template.displayName;
         this.region = template.region;
-        this.maxHealth = template.maxHealth;
-        this.health = template.maxHealth;
+        this.maxIntegrity = template.maxIntegrity;
+        this.integrity = template.maxIntegrity;
         this.painMultiplier = template.painMultiplier ?? 1;
 
-        this.pain = 0; // local pain
+        this.acutePain = 0;
+        this.healingDelayMinutes = 0;
         this.conditions = new Set();
     }
 
@@ -302,7 +375,20 @@ export class BodyPartState {
      * Useful for "is this part basically okay?" checks.
      */
     get integrityRatio() {
-        return this.health / this.maxHealth;
+        return this.integrity / this.maxIntegrity;
+    }
+
+    get injuryPainFloor() {
+        const damageRatio = clamp(1 - this.integrityRatio, 0, 1);
+        return clamp(
+            INJURY_PAIN_FLOOR_FACTOR * Math.pow(damageRatio, 1.5) * this.painMultiplier,
+            0,
+            100,
+        );
+    }
+
+    get pain() {
+        return clamp(this.injuryPainFloor + this.acutePain, 0, 100);
     }
 
     toJSON() {
@@ -310,10 +396,11 @@ export class BodyPartState {
             id: this.id,
             displayName: this.displayName,
             region: this.region,
-            maxHealth: this.maxHealth,
-            health: this.health,
+            maxIntegrity: this.maxIntegrity,
+            integrity: this.integrity,
             painMultiplier: this.painMultiplier,
-            pain: this.pain,
+            acutePain: this.acutePain,
+            healingDelayMinutes: this.healingDelayMinutes,
             conditions: [...this.conditions],
         };
     }
@@ -325,13 +412,14 @@ export class BodyPartState {
             id: data?.id,
             displayName: data?.displayName,
             region: data?.region,
-            maxHealth: Number(data?.maxHealth) || 0,
+            maxIntegrity: Number(data?.maxIntegrity) || 0,
             painMultiplier: Number.isFinite(Number(data?.painMultiplier))
                 ? Number(data.painMultiplier)
                 : 1,
         });
-        part.health = clamp(Number(data?.health), 0, part.maxHealth);
-        part.pain = clamp(Number(data?.pain) || 0, 0, 100);
+        part.integrity = clamp(Number(data?.integrity), 0, part.maxIntegrity);
+        part.acutePain = clamp(Number(data?.acutePain) || 0, 0, 100);
+        part.healingDelayMinutes = Math.max(0, Number(data?.healingDelayMinutes) || 0);
         const conditions = Array.isArray(data?.conditions) ? data.conditions.map(String) : [];
         if (conditions.some((condition) => condition !== InjuryCondition.BRUISED)) {
             throw new TypeError("Body part conditions support only 'bruised'");
@@ -397,48 +485,126 @@ export class Body {
         return list;
     }
 
-    /** Combined current health across every body part. */
-    getTotalHealth() {
-        let total = 0;
-        for (const part of this.allParts()) total += part.health;
-        return total;
+    getStructuralPartCapacity(partId) {
+        let capacity = 1;
+        for (const id of getBodyPartChain(partId)) {
+            const part = this.getPart(id);
+            if (!part || part.integrity <= 0) return 0;
+            const bruiseMultiplier = part.isBruised ? 0.94 : 1;
+            capacity = Math.min(capacity, part.integrityRatio * bruiseMultiplier);
+        }
+        return clamp(capacity, 0, 1);
     }
 
-    /** Combined maximum health across every body part. */
-    getMaximumHealth() {
-        let total = 0;
-        for (const part of this.allParts()) total += part.maxHealth;
-        return total;
+    getPartCapacity(partId) {
+        let capacity = 1;
+        for (const id of getBodyPartChain(partId)) {
+            const part = this.getPart(id);
+            if (!part || part.integrity <= 0) return 0;
+            const bruiseMultiplier = part.isBruised ? 0.94 : 1;
+            const painMultiplier = Math.max(0.65, 1 - part.pain * 0.0035);
+            capacity = Math.min(
+                capacity,
+                part.integrityRatio * bruiseMultiplier * painMultiplier,
+            );
+        }
+        return clamp(capacity, 0, 1);
     }
 
-    /** Overall health as the pooled body-part percentage, from 0 through 100. */
-    getHealthPercentage() {
-        const maximum = this.getMaximumHealth();
-        return maximum > 0 ? clamp((this.getTotalHealth() / maximum) * 100, 0, 100) : 0;
+    isStructurallyIncapacitated() {
+        for (const [partId, threshold] of Object.entries(VITAL_INCAPACITATION_RATIO)) {
+            if (this.getStructuralPartCapacity(partId) <= threshold) return true;
+        }
+        const bestArm = Math.max(
+            this.getStructuralPartCapacity(BodyPartId.HAND_L),
+            this.getStructuralPartCapacity(BodyPartId.HAND_R),
+        );
+        const bestLeg = Math.max(
+            this.getStructuralPartCapacity(BodyPartId.FOOT_L),
+            this.getStructuralPartCapacity(BodyPartId.FOOT_R),
+        );
+        return bestArm <= 0.15 && bestLeg <= 0.15;
+    }
+
+    getConditionScore() {
+        if (this.isStructurallyIncapacitated()) return 0;
+        const parts = [...this.allParts()];
+        if (!parts.length) return 0;
+        const damageRatio = (partId) => clamp(
+            1 - Math.min(
+                ...getBodyPartChain(partId).map(
+                    (id) => this.getPart(id)?.integrityRatio ?? 0,
+                ),
+            ),
+            0,
+            1,
+        );
+        const vitalSeverity = Math.max(
+            damageRatio(BodyPartId.HEAD) / (1 - VITAL_INCAPACITATION_RATIO[BodyPartId.HEAD]),
+            damageRatio(BodyPartId.CHEST) / (1 - VITAL_INCAPACITATION_RATIO[BodyPartId.CHEST]),
+        );
+        const worstPartSeverity = Math.max(
+            ...parts.map((part) => 1 - part.integrityRatio),
+        ) * 0.65;
+        const maximumIntegrity = parts.reduce((sum, part) => sum + part.maxIntegrity, 0);
+        const missingIntegrity = parts.reduce(
+            (sum, part) => sum + part.maxIntegrity - part.integrity,
+            0,
+        );
+        const burdenSeverity = maximumIntegrity > 0
+            ? (missingIntegrity / maximumIntegrity) * 2
+            : 1;
+        const severity = clamp(
+            Math.max(vitalSeverity, worstPartSeverity, burdenSeverity),
+            0,
+            1,
+        );
+        return Math.round((100 * (1 - severity)) * 100) / 100;
+    }
+
+    getCondition() {
+        if (this.isStructurallyIncapacitated()) return BodyCondition.INCAPACITATED;
+        const score = this.getConditionScore();
+        if (score >= 90) return BodyCondition.FINE;
+        if (score >= 70) return BodyCondition.HURT;
+        if (score >= 45) return BodyCondition.INJURED;
+        if (score >= 20) return BodyCondition.BADLY_INJURED;
+        return BodyCondition.CRITICAL;
+    }
+
+    getConditionLabel() {
+        return BODY_CONDITION_LABEL[this.getCondition()];
     }
 
     // --- Damage / healing ------------------------------------------------------
 
     /**
      * Apply damage to a specific body part.
-     * - amount: numeric damage
+     * - integrityDamage: structural damage
+     * - painDamage: optional total pain increase; defaults from sensitivity
      * - partId: BodyPartId.*
      * - damageType: DamageType.*
      */
-    applyDamage({ partId, amount, damageType = DamageType.BLUNT }) {
-        amount = finiteNumber(amount, "Damage");
+    applyDamage({ partId, integrityDamage, painDamage = null, damageType = DamageType.BLUNT }) {
+        integrityDamage = finiteNumber(integrityDamage, "Integrity damage");
         const part = this.getPart(partId);
-        if (!part || amount <= 0) return null;
+        if (!part || integrityDamage <= 0) return null;
 
-        // Reduce health
-        part.health = clamp(part.health - amount, 0, part.maxHealth);
+        const previousFloor = part.injuryPainFloor;
+        part.integrity = clamp(part.integrity - integrityDamage, 0, part.maxIntegrity);
+        part.healingDelayMinutes = Math.max(part.healingDelayMinutes, 360);
 
-        // Update conditions based on remaining health ratio
-        this._updateConditionsFromHealth(part);
+        this._updateConditionsFromIntegrity(part);
 
-        // Pain is proportional to damage and part sensitivity
-        const painDelta = amount * part.painMultiplier;
-        part.pain = clamp(part.pain + painDelta, 0, 100);
+        const totalPainDamage = painDamage == null
+            ? integrityDamage * part.painMultiplier
+            : finiteNumber(painDamage, "Pain damage");
+        const floorIncrease = Math.max(0, part.injuryPainFloor - previousFloor);
+        part.acutePain = clamp(
+            part.acutePain + Math.max(0, totalPainDamage - floorIncrease),
+            0,
+            100,
+        );
 
         return part;
     }
@@ -449,20 +615,34 @@ export class Body {
      *
      * - rnd: function that returns a float in [0, 1), normally a seeded game RNG such as game.rnd.
      */
-    applyDamageRandomized({ partId, amount, damageType = DamageType.BLUNT, rnd }) {
-        amount = finiteNumber(amount, "Randomized damage");
+    applyDamageRandomized({
+        partId,
+        integrityDamage,
+        painDamage = null,
+        damageType = DamageType.BLUNT,
+        rnd,
+    }) {
+        integrityDamage = finiteNumber(integrityDamage, "Randomized integrity damage");
         if (typeof rnd !== "function") {
             throw new Error("applyDamageRandomized expects an rnd() function");
         }
         const part = this.getPart(partId);
-        if (!part || amount <= 0) return null;
+        if (!part || integrityDamage <= 0) return null;
 
-        part.health = clamp(part.health - amount, 0, part.maxHealth);
+        const previousFloor = part.injuryPainFloor;
+        part.integrity = clamp(part.integrity - integrityDamage, 0, part.maxIntegrity);
+        part.healingDelayMinutes = Math.max(part.healingDelayMinutes, 360);
+        const totalPainDamage = painDamage == null
+            ? integrityDamage * part.painMultiplier
+            : finiteNumber(painDamage, "Randomized pain damage");
+        const floorIncrease = Math.max(0, part.injuryPainFloor - previousFloor);
+        part.acutePain = clamp(
+            part.acutePain + Math.max(0, totalPainDamage - floorIncrease),
+            0,
+            100,
+        );
 
-        const painDelta = amount * part.painMultiplier;
-        part.pain = clamp(part.pain + painDelta, 0, 100);
-
-        this._applyRandomBruise(part, amount, damageType, rnd);
+        this._applyRandomBruise(part, integrityDamage, damageType, rnd);
 
         return part;
     }
@@ -470,18 +650,15 @@ export class Body {
     /**
      * Heal a part by a certain amount (not removing all conditions by default).
      */
-    healPart(partId, amount) {
-        amount = finiteNumber(amount, "Healing");
+    healIntegrity(partId, amount) {
+        amount = finiteNumber(amount, "Integrity healing");
         const part = this.getPart(partId);
         if (!part || amount <= 0) return null;
 
-        part.health = clamp(part.health + amount, 0, part.maxHealth);
+        part.integrity = clamp(part.integrity + amount, 0, part.maxIntegrity);
+        if (part.integrity >= part.maxIntegrity) part.healingDelayMinutes = 0;
 
-        // If health comes back up, you might want to auto-downgrade conditions.
-        this._downgradeConditionsFromHealth(part);
-
-        // Pain eases as well
-        part.pain = clamp(part.pain - amount * 0.5, 0, 100);
+        this._downgradeConditionsFromIntegrity(part);
 
         return part;
     }
@@ -491,8 +668,9 @@ export class Body {
      */
     fullyHeal() {
         for (const part of this.allParts()) {
-            part.health = part.maxHealth;
-            part.pain = 0;
+            part.integrity = part.maxIntegrity;
+            part.acutePain = 0;
+            part.healingDelayMinutes = 0;
             part.conditions.clear();
         }
     }
@@ -512,7 +690,7 @@ export class Body {
 
     _getRawPainLoad() {
         const pains = [...this.allParts()]
-            .map((part) => clamp(Number(part.pain) || 0, 0, 100))
+            .map((part) => part.pain)
             .sort((left, right) => right - left);
         if (!pains.length) return 0;
         const [worst, ...additional] = pains;
@@ -520,9 +698,7 @@ export class Body {
     }
 
     /**
-     * Ease a whole-body amount of pain while preserving where that pain came
-     * from. Bruise integrity recovers by the same proportion, making combat
-     * impairment temporary without a separate treatment system.
+     * Ease acute pain without changing body-part integrity or injury floors.
      */
     relievePain(amount) {
         amount = finiteNumber(amount, "Pain relief");
@@ -530,15 +706,57 @@ export class Body {
         const raw = this._getRawPainLoad();
         const visible = clamp(raw, 0, 100);
         if (visible <= 0) return 0;
-        const target = Math.max(0, visible - amount);
-        const scale = target / raw;
+        const injuryFloor = this._painLoadFor((part) => part.injuryPainFloor);
+        const target = Math.max(injuryFloor, visible - amount);
+        const recoverable = Math.max(0, visible - injuryFloor);
+        const scale = recoverable > 0 ? (target - injuryFloor) / recoverable : 0;
         for (const part of this.allParts()) {
-            part.pain = clamp(part.pain * scale, 0, 100);
-            const missingHealth = part.maxHealth - part.health;
-            part.health = clamp(part.health + missingHealth * (1 - scale), 0, part.maxHealth);
-            this._downgradeConditionsFromHealth(part);
+            part.acutePain = clamp(part.acutePain * scale, 0, 100);
         }
         return this.getTotalPain();
+    }
+
+    decayAcutePain(minutes, { halfLifeMinutes = 90 } = {}) {
+        minutes = finiteNumber(minutes, "Pain recovery time");
+        halfLifeMinutes = finiteNumber(halfLifeMinutes, "Pain recovery half-life");
+        if (minutes <= 0) return this.getTotalPain();
+        if (halfLifeMinutes <= 0) throw new RangeError("Pain recovery half-life must be positive");
+        const scale = Math.pow(0.5, minutes / halfLifeMinutes);
+        for (const part of this.allParts()) {
+            part.acutePain = clamp(part.acutePain * scale, 0, 100);
+        }
+        return this.getTotalPain();
+    }
+
+    recoverIntegrity(minutes) {
+        minutes = finiteNumber(minutes, "Integrity recovery time");
+        if (minutes <= 0) return;
+        for (const part of this.allParts()) {
+            const delayElapsed = Math.min(minutes, part.healingDelayMinutes);
+            part.healingDelayMinutes -= delayElapsed;
+            let days = (minutes - delayElapsed) / 1440;
+            while (days > 0 && part.integrity < part.maxIntegrity) {
+                const ratio = part.integrityRatio;
+                if (ratio < 0.2) break;
+                const { rate, boundary } = ratio < 0.5
+                    ? { rate: 0.02, boundary: 0.5 }
+                    : ratio < 0.85
+                        ? { rate: 0.05, boundary: 0.85 }
+                        : { rate: 0.10, boundary: 1 };
+                const integrityPerDay = part.maxIntegrity * rate;
+                const boundaryIntegrity = part.maxIntegrity * boundary;
+                const daysToBoundary = (boundaryIntegrity - part.integrity) / integrityPerDay;
+                const elapsed = Math.min(days, daysToBoundary);
+                part.integrity = clamp(
+                    part.integrity + integrityPerDay * elapsed,
+                    0,
+                    part.maxIntegrity,
+                );
+                days -= elapsed;
+                if (elapsed <= 0) break;
+            }
+            this._downgradeConditionsFromIntegrity(part);
+        }
     }
 
     /**
@@ -577,12 +795,21 @@ export class Body {
 
     // --- Internal helpers ------------------------------------------------------
 
-    _updateConditionsFromHealth(part) {
+    _painLoadFor(valueForPart) {
+        const pains = [...this.allParts()]
+            .map((part) => clamp(Number(valueForPart(part)) || 0, 0, 100))
+            .sort((left, right) => right - left);
+        if (!pains.length) return 0;
+        const [worst, ...additional] = pains;
+        return clamp(worst + additional.reduce((sum, pain) => sum + pain * 0.3, 0), 0, 100);
+    }
+
+    _updateConditionsFromIntegrity(part) {
         const ratio = part.integrityRatio;
         if (ratio < 1) part.conditions.add(InjuryCondition.BRUISED);
     }
 
-    _downgradeConditionsFromHealth(part) {
+    _downgradeConditionsFromIntegrity(part) {
         const ratio = part.integrityRatio;
 
         if (ratio >= 0.9) {
@@ -596,7 +823,7 @@ export class Body {
      */
     _applyRandomBruise(part, amount, damageType, rnd) {
         const ratio = part.integrityRatio; // 0..1 (remaining)
-        const fracOfMax = clamp(amount / part.maxHealth, 0, 1); // 0..1 (how big this hit was)
+        const fracOfMax = clamp(amount / part.maxIntegrity, 0, 1); // 0..1 (how big this hit was)
 
         // Damage-type multiplier: tweak to taste
         let typeFactor = 1;

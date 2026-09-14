@@ -187,7 +187,7 @@ test("wrenching requires capacity in the restrained limb", () => {
     kind: "wrist-grip",
     leverage: 50,
   });
-  game.player.body.getPart("lower_arm_l").health = 0;
+  game.player.body.getPart("lower_arm_l").integrity = 0;
   const context = createCombatContext({
     game,
     state,

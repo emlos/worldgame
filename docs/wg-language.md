@@ -894,8 +894,11 @@ The currently exposed paths are:
   local passage changes, temporary event suspension, and saving/loading, then
   are discarded when the scene exits or another scene replaces it. Chat locals
   likewise survive passages, waits, and saves, then are discarded on `@finish`.
-- `player.health`, `player.energy`, `player.stress`, and `player.hygiene`:
-  evaluated player stats.
+- `player.energy`, `player.stress`, and `player.hygiene`: mutable player stats.
+- `player.condition`, `player.conditionScore`, `player.pain`, and
+  `player.incapacitated`: read-only physical state derived from the player's
+  body. `condition` is a qualitative ID; `conditionScore` is its internal
+  `0..100` severity summary and is not pooled hit points.
 - `player.subject`, `player.object`, `player.dependent`,
   `player.independent`, and `player.reflexive`: player pronouns.
 - `player.gender`, `player.age`, `player.money`, and `player.temperature`. Temperature is one
@@ -1511,8 +1514,9 @@ Implemented effects are:
 - `skill <skill-id> <signed-number>` adjusts and clamps a registered player
   skill while preserving fractional progress.
 - `stat <stat-id> <signed-number>` adjusts and clamps a mutable player meter:
-  `energy`, `stress`, or `hygiene`. Health is read-only and derived from body
-  parts; injuries and healing must use explicit body operations.
+  `energy`, `stress`, or `hygiene`. Body condition, integrity, and pain are
+  separate read-only context values; injuries and treatment must use explicit
+  body operations.
 - `grade <subject-id> <signed-whole-number>` adjusts a registered school
   subject's achievement. Crossing a hundred-point boundary changes the letter
   grade in either direction and carries the remainder: `D | 99 + 1` becomes

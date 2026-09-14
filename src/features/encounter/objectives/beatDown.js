@@ -229,7 +229,7 @@ export const BEAT_DOWN_OBJECTIVE = Object.freeze({
   },
 
   resolveTargetUnable(context, events, { reason = "incapacitated" } = {}) {
-    return recordCompletion(context, events, completedCause(context, reason));
+    return recordCompletion(context, events, reason);
   },
 
   outcomeForTargetEscape() {

@@ -7,13 +7,13 @@ game systems:
     player stats:
     - postpone the full stats rework until there is enough content to exercise and balance it
     - do not restore the mind stat; it overlaps with stress, fear, trauma, energy, and resolve
-    - keep four baseline meters permanently visible:
-        - health: physical damage, derived from the condition of individual body parts
+    - keep body condition and three baseline meters permanently visible:
+        - condition: a qualitative physical state derived from weighted body-part integrity; do not present it as pooled health
         - energy: the basic currency for interacting with the world; spent by time and effort and restored by rest
         - stress: accumulated difficulty coping; rises and recovers over hours or days rather than behaving like a momentary emotion
         - hygiene: bodily cleanliness; changed mainly by tagged activities rather than uniform passive decay
     - show other states only while relevant:
-        - pain: derived from body-part injuries rather than stored independently
+        - pain: derived from persistent injury pain plus short-lived acute pain on each body part
         - comfort: derived from temperature, weather, wetness, clothing, hygiene, pain, shelter, furniture, and sleeping conditions
         - fear: a fast-changing response to an identifiable threat; darkness alone should not automatically cause it
         - anger: a fast-changing emotional state that can be useful as well as harmful

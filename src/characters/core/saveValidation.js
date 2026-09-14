@@ -45,24 +45,29 @@ export function validateBodySave(data, path) {
       saveString(requiredSaveField(part, "region", partPath), `${partPath}.region`, {
         nonEmpty: true,
       });
-      const maxHealth = saveFiniteNumber(
-        requiredSaveField(part, "maxHealth", partPath),
-        `${partPath}.maxHealth`,
+      const maxIntegrity = saveFiniteNumber(
+        requiredSaveField(part, "maxIntegrity", partPath),
+        `${partPath}.maxIntegrity`,
         { min: Number.MIN_VALUE },
       );
-      saveFiniteNumber(requiredSaveField(part, "health", partPath), `${partPath}.health`, {
+      saveFiniteNumber(requiredSaveField(part, "integrity", partPath), `${partPath}.integrity`, {
         min: 0,
-        max: maxHealth,
+        max: maxIntegrity,
       });
       saveFiniteNumber(
         requiredSaveField(part, "painMultiplier", partPath),
         `${partPath}.painMultiplier`,
         { min: 0 },
       );
-      saveFiniteNumber(requiredSaveField(part, "pain", partPath), `${partPath}.pain`, {
+      saveFiniteNumber(requiredSaveField(part, "acutePain", partPath), `${partPath}.acutePain`, {
         min: 0,
         max: 100,
       });
+      saveFiniteNumber(
+        requiredSaveField(part, "healingDelayMinutes", partPath),
+        `${partPath}.healingDelayMinutes`,
+        { min: 0 },
+      );
       const conditions = saveUniqueStrings(
         requiredSaveField(part, "conditions", partPath),
         `${partPath}.conditions`,

@@ -299,9 +299,9 @@ test("simultaneous pain limits leave the player helpless but incapacitate the at
     endurance: 0,
     resolve: 0,
   });
-  game.player.body.getPart("abdomen").pain = 70;
+  game.player.body.getPart("abdomen").acutePain = 70;
   game.currentStory.actors.mugger.body.parts
-    .find(({ id }) => id === "abdomen").pain = 70;
+    .find(({ id }) => id === "abdomen").acutePain = 70;
   forceNpcIntent(game, "drive-body");
 
   chooseAction(game, "drive-body");
@@ -322,11 +322,12 @@ test("simultaneous pain limits leave the player helpless but incapacitate the at
 
 test("losing the last physical response still leaves surrender available", () => {
   const game = gameAtStart({ seed: 1, money: 50 });
+  game.player.setSkillValue("resolve", 4);
   const state = startEncounter(game);
   const setCapacity = (partId, ratio) => {
     const part = game.player.body.getPart(partId);
-    part.health = part.maxHealth * ratio;
-    part.pain = 0;
+    part.integrity = part.maxIntegrity * ratio;
+    part.acutePain = 0;
     part.conditions.clear();
   };
   setCapacity("hand_l", 0.18);
@@ -395,12 +396,12 @@ test("landed strikes persist damage on the temporary actor body", () => {
   game.player.setSkillValue("strength", 10);
   startEncounter(game);
   const faceBefore = game.currentStory.actors.mugger.body.parts
-    .find(({ id }) => id === "face").health;
+    .find(({ id }) => id === "face").integrity;
 
   chooseAction(game, "strike-face");
 
   const faceAfter = game.currentStory.actors.mugger.body.parts
-    .find(({ id }) => id === "face").health;
+    .find(({ id }) => id === "face").integrity;
   assert.ok(faceAfter < faceBefore);
   const content = JSON.stringify(buildScene(game).content);
   assert.match(content, /blow lands/i);
@@ -698,16 +699,16 @@ test("headbutts carry self-damage while knee strikes apply acute pressure", () =
     actionId: "cover-and-brace",
     parameters: { targetId: "mugger" },
   };
-  const ownHeadBefore = headbutt.player.body.getPart("head").health;
+  const ownHeadBefore = headbutt.player.body.getPart("head").integrity;
   const targetFaceBefore = headbutt.currentStory.actors.mugger.body.parts.find(
     ({ id }) => id === "face",
-  ).health;
+  ).integrity;
 
   chooseAction(headbutt, "headbutt");
 
-  assert.ok(headbutt.player.body.getPart("head").health < ownHeadBefore);
+  assert.ok(headbutt.player.body.getPart("head").integrity < ownHeadBefore);
   assert.ok(
-    headbutt.currentStory.actors.mugger.body.parts.find(({ id }) => id === "face").health
+    headbutt.currentStory.actors.mugger.body.parts.find(({ id }) => id === "face").integrity
       < targetFaceBefore,
   );
 

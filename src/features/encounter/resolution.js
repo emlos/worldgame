@@ -506,7 +506,7 @@ function mergeBodyDamage(context, branches) {
     if (event.type !== "impact.landed") continue;
     context.combatants[event.targetId].body.applyDamage({
       partId: event.partId,
-      amount: event.damage,
+      integrityDamage: event.damage,
       damageType: event.damageType || DamageType.BLUNT,
     });
   }

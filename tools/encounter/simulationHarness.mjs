@@ -115,7 +115,10 @@ function setStats(target, stats, setter = null) {
 }
 
 function damagePart(context, actorId, partId, amount) {
-  const part = context.combatants[actorId].body.applyDamage({ partId, amount });
+  const part = context.combatants[actorId].body.applyDamage({
+    partId,
+    integrityDamage: amount,
+  });
   if (!part) throw new Error(`Unknown ${actorId} body part '${partId}' in simulation scenario`);
 }
 

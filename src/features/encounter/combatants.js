@@ -1,4 +1,4 @@
-import { Body, BodyPartId, InjuryCondition } from "../../characters/core/body.js";
+import { Body, BodyPartId } from "../../characters/core/body.js";
 import {
   ENCOUNTER_FACING,
   ENCOUNTER_POSE,
@@ -12,50 +12,6 @@ import {
   opponentParticipantId,
   participantIds,
 } from "./roles.js";
-
-const PART_CHAINS = Object.freeze({
-  [BodyPartId.HAND_L]: Object.freeze([
-    BodyPartId.HAND_L,
-    BodyPartId.LOWER_ARM_L,
-    BodyPartId.UPPER_ARM_L,
-    BodyPartId.SHOULDER_L,
-  ]),
-  [BodyPartId.HAND_R]: Object.freeze([
-    BodyPartId.HAND_R,
-    BodyPartId.LOWER_ARM_R,
-    BodyPartId.UPPER_ARM_R,
-    BodyPartId.SHOULDER_R,
-  ]),
-  [BodyPartId.LOWER_ARM_L]: Object.freeze([
-    BodyPartId.LOWER_ARM_L,
-    BodyPartId.UPPER_ARM_L,
-    BodyPartId.SHOULDER_L,
-  ]),
-  [BodyPartId.LOWER_ARM_R]: Object.freeze([
-    BodyPartId.LOWER_ARM_R,
-    BodyPartId.UPPER_ARM_R,
-    BodyPartId.SHOULDER_R,
-  ]),
-  [BodyPartId.UPPER_ARM_L]: Object.freeze([BodyPartId.UPPER_ARM_L, BodyPartId.SHOULDER_L]),
-  [BodyPartId.UPPER_ARM_R]: Object.freeze([BodyPartId.UPPER_ARM_R, BodyPartId.SHOULDER_R]),
-  [BodyPartId.FOOT_L]: Object.freeze([
-    BodyPartId.FOOT_L,
-    BodyPartId.ANKLE_L,
-    BodyPartId.CALF_L,
-    BodyPartId.KNEE_L,
-    BodyPartId.THIGH_L,
-  ]),
-  [BodyPartId.FOOT_R]: Object.freeze([
-    BodyPartId.FOOT_R,
-    BodyPartId.ANKLE_R,
-    BodyPartId.CALF_R,
-    BodyPartId.KNEE_R,
-    BodyPartId.THIGH_R,
-  ]),
-  [BodyPartId.KNEE_L]: Object.freeze([BodyPartId.KNEE_L, BodyPartId.THIGH_L]),
-  [BodyPartId.KNEE_R]: Object.freeze([BodyPartId.KNEE_R, BodyPartId.THIGH_R]),
-  [BodyPartId.HEAD]: Object.freeze([BodyPartId.HEAD, BodyPartId.NECK]),
-});
 
 const LEFT_ARM = new Set([
   BodyPartId.HAND_L,
@@ -184,10 +140,6 @@ export function getBodyPerformance(context, actorId) {
   return getCombatant(context, actorId).body.getPhysicalPerformanceMultiplier();
 }
 
-export function getPartChain(partId) {
-  return PART_CHAINS[partId] || [partId];
-}
-
 export function getLimbGroup(partId) {
   if (LEFT_ARM.has(partId)) return "arm-left";
   if (RIGHT_ARM.has(partId)) return "arm-right";
@@ -229,13 +181,8 @@ export function isEncounterPainOverwhelmed(context, actorId) {
 
 export function isEncounterIncapacitatedBeyondPain(context, actorId) {
   if (isDazed(context, actorId, 3)) return true;
-  const headCapacity = getPartCapacity(context, actorId, BodyPartId.HEAD);
-  const chestCapacity = getPartCapacity(context, actorId, BodyPartId.CHEST);
-  if (headCapacity <= 0.08 || chestCapacity <= 0.06) return true;
+  if (getCombatant(context, actorId).body.isStructurallyIncapacitated()) return true;
 
-  // Encounter incapacitation is broader than unconsciousness. If neither an
-  // arm nor a leg can supply gross movement, the current action catalogue has
-  // no honest physical response to offer, even if the actor is still awake.
   const legCapacity = Math.max(
     getPartCapacity(context, actorId, BodyPartId.FOOT_L),
     getPartCapacity(context, actorId, BodyPartId.FOOT_R),
@@ -279,18 +226,7 @@ export function getControlledHelplessActionId(context, actorId) {
 }
 
 export function getPartCapacity(context, actorId, partId) {
-  const combatant = getCombatant(context, actorId);
-  const chain = getPartChain(partId);
-  let capacity = 1;
-  for (const id of chain) {
-    const part = combatant.body.getPart(id);
-    if (!part || part.health <= 0) return 0;
-    let partCapacity = part.integrityRatio;
-    if (part.conditions.has(InjuryCondition.BRUISED)) partCapacity *= 0.94;
-    partCapacity *= Math.max(0.65, 1 - part.pain * 0.0035);
-    capacity = Math.min(capacity, partCapacity);
-  }
-  return Math.max(0, Math.min(1, capacity));
+  return getCombatant(context, actorId).body.getPartCapacity(partId);
 }
 
 export function isPartFunctional(context, actorId, partId) {

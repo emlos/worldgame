@@ -44,6 +44,10 @@ function skillValues(player) {
 function playerContext(player) {
   return {
     ...evaluatedStats(player, Object.keys(STATS)),
+    condition: player.getBodyCondition(),
+    conditionScore: player.getBodyConditionScore(),
+    pain: player.getBodyPain(),
+    incapacitated: player.isIncapacitated(),
     ...pronounValues(player),
     gender: player.gender,
     age: player.age,

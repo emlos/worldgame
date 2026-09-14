@@ -43,7 +43,7 @@ function normalizedSkillValue(value, definition, label) {
   ----------------------------------------------------------------
   This file defines the data model for a Twine-like, text‑based HTML game.
   It focuses on Player state, including:
-    - Bounded player meters and derived health
+    - Bounded player meters and derived body condition
     - Physical appearance & colors (incl. tan/losenTan helpers)
     - Relationships with NPCs
     - Bounded numeric skills
@@ -188,7 +188,7 @@ export class Player {
         const id = String(name);
         const definition = STATS[id];
         if (!definition) throw new Error(`Unknown player stat '${id}'`);
-        if (definition.derived) return this.body?.getHealthPercentage() ?? 0;
+        if (definition.derived) throw new Error(`Player stat '${id}' has no resolver`);
         return this.stats[id];
     }
     setStatValue(name, value) {
@@ -462,22 +462,39 @@ export class Player {
 
     /**
      * Apply damage to a body part.
-     * Usage: player.applyDamageToPart({ partId: BodyPartId.HEAD, amount: 20 })
+     * Usage: player.applyDamageToPart({ partId: BodyPartId.HEAD, integrityDamage: 20 })
      */
-    applyDamageToPart({ partId, amount, damageType = DamageType.BLUNT }) {
+    applyDamageToPart({
+        partId,
+        integrityDamage,
+        painDamage = null,
+        damageType = DamageType.BLUNT,
+    }) {
         if (!this.body) return null;
-        return this.body.applyDamage({ partId, amount, damageType });
+        return this.body.applyDamage({
+            partId,
+            integrityDamage,
+            painDamage,
+            damageType,
+        });
     }
 
     /**
      * Apply damage to a body part with chance of causing injury.
-     * Usage: player.applyDamageToPart({ partId: BodyPartId.HEAD, amount: 20 , rnd: game.rnd })
+     * Usage: player.applyDamageToPartRandom({ partId: BodyPartId.HEAD, integrityDamage: 20, rnd: game.rnd })
      */
-    applyDamageToPartRandom({ partId, amount, damageType = DamageType.BLUNT, rnd }) {
+    applyDamageToPartRandom({
+        partId,
+        integrityDamage,
+        painDamage = null,
+        damageType = DamageType.BLUNT,
+        rnd,
+    }) {
         if (!this.body) return null;
         return this.body.applyDamageRandomized({
             partId,
-            amount,
+            integrityDamage,
+            painDamage,
             damageType,
             rnd,
         });
@@ -488,7 +505,7 @@ export class Player {
      */
     healBodyPart(partId, amount) {
         if (!this.body) return null;
-        return this.body.healPart(partId, amount);
+        return this.body.healIntegrity(partId, amount);
     }
 
     /**
@@ -524,6 +541,18 @@ export class Player {
         return this.body.getPainStage();
     }
 
+    getBodyCondition() {
+        return this.body?.getCondition() ?? "incapacitated";
+    }
+
+    getBodyConditionLabel() {
+        return this.body?.getConditionLabel() ?? "Incapacitated";
+    }
+
+    getBodyConditionScore() {
+        return this.body?.getConditionScore() ?? 0;
+    }
+
     /**
      * Multiplier for physical performance from 1.0 down to ~0.5.
      * You can use this when reading physical stats.
@@ -534,10 +563,11 @@ export class Player {
     }
 
     /**
-     * Simple "is this character basically out of it?" check based on high pain.
+     * Persistent structural incapacitation. Encounter-local pain and acute
+     * states are evaluated by the combat system.
      */
     isIncapacitated() {
         if (!this.body) return false;
-        return this.body.getPainStage() >= 3;
+        return this.body.isStructurallyIncapacitated();
     }
 }

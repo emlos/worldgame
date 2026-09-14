@@ -12,7 +12,7 @@ function clone(value) {
 
 export function serializeGame(game) {
   return {
-    saveVersion: 42,
+    saveVersion: 43,
     seed: game.seed,
     random: game.random.toJSON(),
     time: game.now.toISOString(),

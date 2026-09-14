@@ -14,35 +14,49 @@ test("player meters are bounded plain values", () => {
   assert.equal(typeof player.stats.energy, "number");
 });
 
-test("derived health is readable but cannot be changed as a generic stat", () => {
+test("body condition is separate from mutable player stats", () => {
   const player = new Player();
-  const before = player.body.toJSON();
 
-  assert.equal(player.getStatValue("health"), 100);
-  assert.throws(() => player.setStatValue("health", 50), /read-only/);
-  assert.throws(() => player.adjustStat("health", -10), /read-only/);
-  assert.deepEqual(player.body.toJSON(), before);
-  assert.equal(typeof player.body.setHealthPercentage, "undefined");
+  assert.equal(player.getBodyCondition(), "fine");
+  assert.equal(player.getBodyConditionScore(), 100);
+  assert.throws(() => player.getStatValue("health"), /unknown player stat/i);
+  assert.equal(typeof player.body.getHealthPercentage, "undefined");
 });
 
-test("WG player context exposes body-derived health", () => {
+test("WG player context exposes condition, pain, and structural incapacitation", () => {
   const game = new Game({ seed: 417 });
-  game.player.applyDamageToPart({ partId: "hand_l", amount: 35 });
+  game.player.applyDamageToPart({ partId: "hand_l", integrityDamage: 35 });
 
   const context = createWGRuntimeContext(game);
-  assert.equal(context.player.health, game.player.getStatValue("health"));
-  assert.ok(context.player.health < 100);
+  assert.equal(context.player.condition, game.player.getBodyCondition());
+  assert.equal(context.player.conditionScore, game.player.getBodyConditionScore());
+  assert.equal(context.player.pain, game.player.getBodyPain());
+  assert.equal(context.player.incapacitated, false);
+  assert.equal(Object.hasOwn(context.player, "health"), false);
 });
 
 test("whole-body pain keeps the worst injury legible without summing every part at full weight", () => {
   const player = new Player();
-  player.applyDamageToPart({ partId: "hand_l", amount: 20 });
-  player.applyDamageToPart({ partId: "face", amount: 10 });
+  player.applyDamageToPart({ partId: "hand_l", integrityDamage: 20 });
+  player.applyDamageToPart({ partId: "face", integrityDamage: 10 });
 
   assert.equal(player.body.getPart("hand_l").pain, 28);
   assert.equal(player.body.getPart("face").pain, 17);
   assert.equal(player.getBodyPain(), 33.1);
 
+  const integrity = player.body.getPart("hand_l").integrity;
   player.body.relievePain(1.5);
-  assert.ok(Math.abs(player.getBodyPain() - 31.6) < 1e-9);
+  assert.ok(player.getBodyPain() < 33.1);
+  assert.equal(player.body.getPart("hand_l").integrity, integrity);
+});
+
+test("a vital injury dominates body condition instead of disappearing into a pooled total", () => {
+  const player = new Player();
+  const head = player.body.getPart("head");
+  head.integrity = head.maxIntegrity * 0.08;
+  head.conditions.add("bruised");
+
+  assert.equal(player.getBodyConditionScore(), 0);
+  assert.equal(player.getBodyCondition(), "incapacitated");
+  assert.equal(player.isIncapacitated(), true);
 });

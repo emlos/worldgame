@@ -39,7 +39,7 @@ function runtime() {
 test("actions choose the stronger free hand and expose both available arm targets", () => {
   const { game, context } = encounterContext();
   const leftHand = game.player.body.getPart(BodyPartId.HAND_L);
-  leftHand.health = leftHand.maxHealth * 0.5;
+  leftHand.integrity = leftHand.maxIntegrity * 0.5;
 
   const actions = getAvailableActionInstances(context, "player");
   const strike = actions.find(({ actionId }) => actionId === "strike-face");
@@ -56,7 +56,7 @@ test("actions choose the stronger free hand and expose both available arm target
 test("an injured source limb reduces both action chance and impact damage", () => {
   const { game, context } = encounterContext();
   const leftHand = game.player.body.getPart(BodyPartId.HAND_L);
-  leftHand.health = leftHand.maxHealth * 0.5;
+  leftHand.integrity = leftHand.maxIntegrity * 0.5;
 
   const healthyRuntime = runtime();
   const injuredRuntime = runtime();
@@ -91,8 +91,8 @@ test("an injured source limb reduces both action chance and impact damage", () =
 test("severe combat damage creates only a temporary bruise", () => {
   const { game, context } = encounterContext();
   const forearm = game.player.body.getPart(BodyPartId.LOWER_ARM_L);
-  forearm.health = forearm.maxHealth * 0.31;
-  forearm.pain = 0;
+  forearm.integrity = forearm.maxIntegrity * 0.31;
+  forearm.acutePain = 0;
   forearm.conditions.clear();
   const firstRuntime = runtime();
   const impact = {
@@ -115,8 +115,14 @@ test("severe combat damage creates only a temporary bruise", () => {
     ["bruised"],
   );
 
+  const damagedIntegrity = forearm.integrity;
   game.player.body.relievePain(100);
-  assert.equal(forearm.health, forearm.maxHealth);
+  assert.equal(forearm.integrity, damagedIntegrity);
+  assert.deepEqual([...forearm.conditions], ["bruised"]);
+  assert.ok(getPartCapacity(context, "player", BodyPartId.HAND_L) < 1);
+
+  game.player.body.healIntegrity(BodyPartId.LOWER_ARM_L, forearm.maxIntegrity);
+  assert.equal(forearm.integrity, forearm.maxIntegrity);
   assert.deepEqual([...forearm.conditions], []);
   assert.equal(getPartCapacity(context, "player", BodyPartId.HAND_L), 1);
 });

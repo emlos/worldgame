@@ -40,8 +40,8 @@ test("loss of all gross arm and leg capacity is encounter incapacitation", () =>
   const state = startEncounter(game);
   for (const partId of ["hand_l", "hand_r", "foot_l", "foot_r"]) {
     const part = game.player.body.getPart(partId);
-    part.health = 0;
-    part.pain = 0;
+    part.integrity = 0;
+    part.acutePain = 0;
   }
   const context = createCombatContext({
     game,
@@ -49,7 +49,7 @@ test("loss of all gross arm and leg capacity is encounter incapacitation", () =>
     instanceKey: game.currentStory.instanceKey,
   });
 
-  assert.equal(game.player.isIncapacitated(), false);
+  assert.equal(game.player.isIncapacitated(), true);
   assert.equal(isEncounterIncapacitated(context, "player"), true);
 });
 
@@ -144,7 +144,7 @@ test("runtime invariants reject a hold maintained by a nonfunctional hand", () =
     kind: "wrist-grip",
     leverage: 50,
   });
-  game.currentStory.actors.mugger.body.parts.find(({ id }) => id === "hand_l").health = 0;
+  game.currentStory.actors.mugger.body.parts.find(({ id }) => id === "hand_l").integrity = 0;
 
   const context = createCombatContext({
     game,
@@ -345,8 +345,8 @@ test("damage anywhere in a source chain reduces the capacity of its hand", () =>
   const forearm = game.currentStory.actors.mugger.body.parts.find(
     ({ id }) => id === "lower_arm_l",
   );
-  forearm.health = 16;
-  forearm.pain = 40;
+  forearm.integrity = 16;
+  forearm.acutePain = 40;
   const context = createCombatContext({
     game,
     state,

@@ -324,9 +324,9 @@ Changing an action's entry in `COMBAT_ACTION_MINIMUM_RANK` changes only when the
 
 ### Body damage and pain
 
-Every body part has maximum health and a pain multiplier:
+Every body part has maximum integrity and a pain multiplier:
 
-| Parts | Max health | Pain multiplier |
+| Parts | Max integrity | Pain multiplier |
 |---|---:|---:|
 | Head | 100 | 1.5 |
 | Face | 80 | 1.7 |
@@ -345,7 +345,14 @@ Every body part has maximum health and a pain multiplier:
 | Each ankle | 70 | 1.5 |
 | Each foot | 70 | 1.3 |
 
-`applyDamage` removes the numeric damage from part health, adds `damage × painMultiplier` to that part's local pain, and marks any damaged part bruised. Raising max health makes the part retain integrity longer but does not reduce pain from a fixed hit. Raising the pain multiplier makes attacks to that part reach whole-body pain thresholds faster without increasing structural damage.
+`applyDamage` removes structural damage from part integrity. By default the same hit creates `damage × painMultiplier` total local pain, split between a persistent injury floor and acute pain. The injury floor is recalculated from integrity:
+
+```text
+injury pain floor = 35 × (missing integrity ratio ^ 1.5) × pain multiplier
+local pain = injury pain floor + acute pain, clamped to 100
+```
+
+Explicit `painDamage` can make an impact more or less painful without changing its structural damage. Raising maximum integrity makes the part withstand more structural damage. Raising the pain multiplier makes injuries to that part more painful without increasing integrity loss. Randomized combat damage may also apply a bruise.
 
 Whole-body pain is the largest local pain plus 30% of every other local pain, clamped to `0..100`. Increasing the 30% carry-over makes distributed hits much more effective; decreasing it makes the worst single injury dominate.
 
@@ -354,6 +361,23 @@ physical performance = clamp(1 - whole-body pain × 0.005, 0.5, 1)
 ```
 
 At 100 pain, performance is 0.5. Increasing `0.005` makes pain suppress all contests sooner; changing the 0.5 floor determines the minimum remaining generic performance.
+
+There is no pooled health meter. The UI presents a qualitative body condition:
+
+| Internal condition score | Displayed condition |
+|---:|---|
+| 90 to 100 | Fine |
+| 70 to below 90 | Hurt |
+| 45 to below 70 | Injured |
+| 20 to below 45 | Badly injured |
+| Below 20 | Critical |
+
+The score is the worst of vital-part severity, 65% of the worst individual-part
+damage ratio, and twice the body's pooled missing-integrity ratio. It is a
+display summary, not expendable hit points. Structural incapacitation overrides
+the score and displays `Incapacitated`: head-chain capacity at or below 8%,
+chest capacity at or below 6%, or both the better arm chain and better leg chain
+at or below 15%.
 
 ### Part and limb capacity
 
@@ -366,7 +390,7 @@ part capacity = integrity ratio
 chain capacity = minimum part capacity in the chain
 ```
 
-Chains include hand -> forearm -> upper arm -> shoulder, foot -> ankle -> calf -> knee -> thigh, and head -> neck. A missing or zero-health part gives zero capacity. A part is functional only above `0.15`.
+Chains include hand -> forearm -> upper arm -> shoulder, foot -> ankle -> calf -> knee -> thigh, and head -> neck. A missing or zero-integrity part gives zero capacity. A part is functional only above `0.15`.
 
 Increasing the bruise multiplier toward 1 weakens the mechanical effect of the condition. Lowering the pain floor below 0.65 lets local pain disable limbs more completely. Raising `0.0035` makes local pain reduce limb use faster. Raising the functional threshold makes actions and holds disappear earlier as parts are damaged.
 
@@ -847,7 +871,25 @@ Increasing a weight increases the importance of that motive. `speed` and `novelt
 
 ## Recovery, aftermath, and hygiene
 
-Outside an open physical encounter, time relieves `1.5` visible whole-body pain per minute. Relief scales every part's local pain down proportionally and restores the same proportion of each part's missing health. Bruised clears when integrity reaches at least 90%. Raising 1.5 shortens both pain and integrity recovery; lowering it lengthens combat consequences.
+Outside an open physical encounter, acute pain decays exponentially with a
+90-minute half-life. This never restores integrity and cannot reduce local pain
+below the floor produced by the injury itself. Direct pain relief likewise
+affects only the acute component.
+
+New damage pauses natural integrity recovery for six hours. Once that delay has
+expired, each part recovers according to its current integrity ratio:
+
+| Integrity | Natural recovery |
+|---:|---:|
+| Below 20% | none; treatment is required |
+| 20% to below 50% | 2% of maximum integrity per day |
+| 50% to below 85% | 5% per day |
+| 85% to below 100% | 10% per day |
+
+Recovery crosses these bands continuously, so advancing one long interval and
+many short intervals produces the same result. A bruise clears once integrity
+reaches at least 90%. Acute pain may fade over hours; meaningful tissue damage
+therefore remains for days and critical damage remains until treated.
 
 Terminal settlement converts the player's remaining encounter exertion to post-combat fatigue:
 

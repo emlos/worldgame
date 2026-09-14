@@ -132,14 +132,14 @@ test("WG effects, expression context, and the phone expose progress", () => {
   });
 });
 
-test("save version 42 round-trips feature-owned subject achievement", () => {
+test("save version 43 round-trips feature-owned subject achievement", () => {
   const game = new Game({ seed: 117 });
   setSubjectGrade(game, "art", "B");
   setSubjectProgress(game, "art", 42);
   recordSubjectAttendance(game, "art", 3);
 
   const save = game.toJSON();
-  assert.equal(save.saveVersion, 42);
+  assert.equal(save.saveVersion, 43);
   assert.equal(Object.hasOwn(save.player, "education"), false);
   assert.deepEqual(save.featureState.school.subjects.art, {
     achievement: 242,

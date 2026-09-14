@@ -1,13 +1,5 @@
 // Dynamic stats for the player, changed by time and choices.
 export const STATS = {
-  health: {
-    label: "Health",
-    max: 100,
-    min: 0,
-    initial: 100,
-    derived: true,
-    higherIsBetter: true,
-  },
   stress: {
     label: "Stress",
     max: 100,

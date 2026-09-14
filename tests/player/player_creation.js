@@ -208,7 +208,7 @@ function init() {
       [
         ["id", `<code>${bodyPartInfo.id}</code>`],
         ["Body region", `<code style = "cursor: pointer;" class="bodypartgroup" id="codegroup-${bodyPartInfo.id}">${bodyPartInfo.region}</code> <small class="small">hover over me!</small>`],
-        ["Health", `${bodyPartInfo.health}/${bodyPartInfo.maxHealth}`],
+        ["Integrity", `${bodyPartInfo.integrity}/${bodyPartInfo.maxIntegrity}`],
         ["Pain", `${bodyPartInfo.pain}`],
         ["Pain Multiplier", `${bodyPartInfo.painMultiplier}`],
         [
@@ -263,13 +263,17 @@ function init() {
   });
 
   byId("btnDamage").addEventListener("click", () => {
-    p.applyDamageToPart({ partId: currentBodyPart.id, amount: 10 });
+    p.applyDamageToPart({ partId: currentBodyPart.id, integrityDamage: 10 });
     render();
     renderPart(lastElemPart);
   });
 
   byId("btnDamageRandom").addEventListener("click", () => {
-    p.applyDamageToPartRandom({ partId: currentBodyPart.id, amount: 10, rnd: Math.random });
+    p.applyDamageToPartRandom({
+        partId: currentBodyPart.id,
+        integrityDamage: 10,
+        rnd: Math.random,
+    });
     render();
     renderPart(lastElemPart);
   });

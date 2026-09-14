@@ -195,6 +195,24 @@ function renderPlayerPanel() {
   playerTemperatureElement.dataset.temperature = game.player.temperature;
   playerStatsElement.replaceChildren();
 
+  const conditionRow = document.createElement("div");
+  conditionRow.className = "player-stat";
+  conditionRow.dataset.stat = "condition";
+  conditionRow.dataset.outcome = outcomeForRange(
+    game.player.getBodyConditionScore(),
+    0,
+    100,
+  );
+  const conditionLabel = document.createElement("span");
+  conditionLabel.className = "player-stat-label";
+  conditionLabel.textContent = "Condition";
+  const conditionValue = document.createElement("output");
+  conditionValue.className = "player-stat-value";
+  conditionValue.textContent = game.player.getBodyConditionLabel();
+  conditionValue.setAttribute("aria-label", "Condition value");
+  conditionRow.append(conditionLabel, conditionValue);
+  playerStatsElement.append(conditionRow);
+
   for (const [name, definition] of Object.entries(STATS)) {
     const value = game.player.getStatValue(name);
     const fraction =
@@ -729,15 +747,15 @@ function makePhoneMeterEntry(entry, kind) {
 }
 
 function bodyPartOutcome(part) {
-  const fraction = part.maxHealth ? part.health / part.maxHealth : 0;
-  const healthOutcome = outcomeForRange(fraction, 0, 1);
+  const fraction = part.maxIntegrity ? part.integrity / part.maxIntegrity : 0;
+  const integrityOutcome = outcomeForRange(fraction, 0, 1);
   if (
     (part.pain > 0 || part.conditions.length) &&
-    [OUTCOME.VERY_GOOD, OUTCOME.OK].includes(healthOutcome)
+    [OUTCOME.VERY_GOOD, OUTCOME.OK].includes(integrityOutcome)
   ) {
     return OUTCOME.WARNING;
   }
-  return healthOutcome;
+  return integrityOutcome;
 }
 
 function makePhoneBodyPart(part) {
@@ -753,21 +771,21 @@ function makePhoneBodyPart(part) {
   label.textContent = part.label;
 
   const value = document.createElement("output");
-  value.textContent = `${formatStatValue(part.health)} / ${formatStatValue(part.maxHealth)}`;
-  value.setAttribute("aria-label", `${part.label} health`);
+  value.textContent = `${formatStatValue(part.integrity)} / ${formatStatValue(part.maxIntegrity)}`;
+  value.setAttribute("aria-label", `${part.label} integrity`);
   header.append(label, value);
 
   const meter = document.createElement("div");
   meter.className = "phone-meter phone-body-part-meter";
   meter.setAttribute("role", "progressbar");
-  meter.setAttribute("aria-label", `${part.label} health`);
+  meter.setAttribute("aria-label", `${part.label} integrity`);
   meter.setAttribute("aria-valuemin", "0");
-  meter.setAttribute("aria-valuemax", String(part.maxHealth));
-  meter.setAttribute("aria-valuenow", String(part.health));
+  meter.setAttribute("aria-valuemax", String(part.maxIntegrity));
+  meter.setAttribute("aria-valuenow", String(part.integrity));
 
   const fill = document.createElement("span");
   fill.className = "phone-meter-fill";
-  fill.style.width = `${meterPercentage(part.health, 0, part.maxHealth)}%`;
+  fill.style.width = `${meterPercentage(part.integrity, 0, part.maxIntegrity)}%`;
   meter.append(fill);
 
   const detail = document.createElement("p");
@@ -833,8 +851,8 @@ function renderPhoneStats() {
   const bodySection = makePhoneStatsSection("Body status");
   const bodyStatusEntries = [
       {
-        label: "Overall health",
-        value: `${formatStatValue(view.body.healthPercentage)}%`,
+        label: "Condition",
+        value: view.body.conditionLabel,
       },
       {
         label: "Physical performance",
@@ -844,7 +862,7 @@ function renderPhoneStats() {
   ];
   if (view.body.pain > 0) {
     bodyStatusEntries.splice(1, 0,
-      { label: "Condition", value: formatPhoneLabel(view.body.painLabel) },
+      { label: "Pain description", value: formatPhoneLabel(view.body.painLabel) },
       { label: "Pain", value: `${formatPainValue(view.body.pain)} / 100` },
       { label: "Pain stage", value: `${view.body.painStage} / 3` },
     );
