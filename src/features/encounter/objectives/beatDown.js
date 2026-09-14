@@ -61,6 +61,10 @@ export const BEAT_DOWN_OBJECTIVE = Object.freeze({
   label: "Beat down",
   laboratoryConfig: Object.freeze({ id: BEAT_DOWN_OBJECTIVE_ID }),
   playerLossOutcomeIds: Object.freeze([BEAT_DOWN_OUTCOME.targetBeatenDown]),
+  playerLeavesPlaceOutcomeIds: Object.freeze([
+    BEAT_DOWN_OUTCOME.targetEscaped,
+    BEAT_DOWN_OUTCOME.ownerIncapacitated,
+  ]),
   unopposedActionId: "attack-limb",
   actionIds: Object.freeze(["attack-limb"]),
   excludedActionIds: Object.freeze(["flee"]),

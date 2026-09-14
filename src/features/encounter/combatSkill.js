@@ -5,7 +5,7 @@ import {
 } from "../../characters/player/stats.js";
 
 export const COMBAT_SKILL_ID = "combat";
-export const COMBAT_SKILL_SUCCESS_GAIN = 0.15;
+export const COMBAT_SKILL_SUCCESS_GAIN = 1.5;
 export const COMBAT_SKILL_LOSS_PENALTY = 1;
 
 export const COMBAT_ACTION_MINIMUM_RANK = Object.freeze({

@@ -334,6 +334,7 @@ function performWGSystem(game, choice, minutes) {
   let notice = "";
   let paragraphs = [];
   let outcomeTarget = null;
+  let leftPosition = null;
   runChoiceAction(game, {
     label: choice.label,
     minutes,
@@ -350,6 +351,13 @@ function performWGSystem(game, choice, minutes) {
       applyWGEffects(currentGame, outcome.effects);
       notice = outcome.notice;
       paragraphs = outcome.paragraphs;
+      if (outcome.leavePlace && currentGame.currentPlace) {
+        leftPosition = {
+          location: currentGame.location,
+          place: currentGame.currentPlace,
+        };
+        currentGame.setCurrentPlace({ preserveStory: true });
+      }
       if (outcome.target !== null) {
         outcomeTarget = outcome.target;
         return;
@@ -360,6 +368,11 @@ function performWGSystem(game, choice, minutes) {
     },
     after(currentGame) {
       if (outcomeTarget !== null) enterWGTarget(currentGame, outcomeTarget);
+      if (leftPosition && !currentGame.currentStory) {
+        resolveWGAutomaticScene(currentGame, WG_AUTO_TRIGGER.leavePlace, {
+          position: leftPosition,
+        });
+      }
       resolveActiveWGStory(currentGame);
     },
   });

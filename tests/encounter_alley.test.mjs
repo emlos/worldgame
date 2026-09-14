@@ -538,6 +538,8 @@ test("theft is capped at available money and an empty target invents no new obje
 
 test("escape, attacker incapacitation, and theft from a pain-overwhelmed target are reachable", () => {
   const escape = gameAtStart({ seed: 10 });
+  placePlayerAtAlley(escape);
+  const escapeLocationId = escape.currentLocationId;
   startEncounter(escape);
   assert.equal(playUntilTerminal(escape, (game) =>
     findActionChoice(game, "run")
@@ -547,15 +549,26 @@ test("escape, attacker incapacitation, and theft from a pain-overwhelmed target 
         : findActionChoice(game, "wrench-free")
           ? "wrench-free"
           : "shove-away").id, "player-escaped");
+  chooseAction(escape, "finish");
+  assert.equal(escape.currentStory, null);
+  assert.equal(escape.currentPlace, null);
+  assert.equal(String(escape.currentLocationId), String(escapeLocationId));
 
   const cleanWin = gameAtStart({ seed: 2 });
   cleanWin.player.setSkillValue("strength", 10);
+  placePlayerAtAlley(cleanWin);
+  const cleanWinLocationId = cleanWin.currentLocationId;
   startEncounter(cleanWin);
   assert.equal(playUntilTerminal(cleanWin, (game) =>
     findActionChoice(game, "strike-holding-arm") ? "strike-holding-arm" : "strike-face").id,
   "mugger-incapacitated");
+  chooseAction(cleanWin, "finish");
+  assert.equal(cleanWin.currentStory, null);
+  assert.equal(cleanWin.currentPlace, null);
+  assert.equal(String(cleanWin.currentLocationId), String(cleanWinLocationId));
 
   const injuredLoss = gameAtStart({ seed: 1 });
+  const injuredLossAlley = placePlayerAtAlley(injuredLoss);
   startEncounter(injuredLoss);
   injuredLoss.player.body.getPart("abdomen").pain = 77;
   assert.equal(playUntilTerminal(injuredLoss, (game) =>
@@ -571,4 +584,7 @@ test("escape, attacker incapacitation, and theft from a pain-overwhelmed target 
               ? "writhe-in-pain"
               : "cover-and-brace").id,
   "theft-completed-player-conscious");
+  chooseAction(injuredLoss, "finish");
+  assert.equal(injuredLoss.currentStory, null);
+  assert.equal(injuredLoss.currentPlace.id, injuredLossAlley.id);
 });

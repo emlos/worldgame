@@ -69,9 +69,6 @@ game systems:
     player mechanics:
     - smoking/drinking mechanic + addiction? stat penalty?
 
-    - combat system:
-        - optional after combat scenes: if the player incapacitates the attacker/flees they should exit the place they were at, if applicable, if nott hey stay in the same location and a scene optionally plays in both cases. if the attacker suceeds with their goal, the player is left in the same place/location they were at - and optionally a scene plays after too.
-
     - very light sickness system -> mostly stat drains
 
     - computer -> livestreaming system, with procedurally generated chat window [non save persistent/scene local]

@@ -81,6 +81,9 @@ export const FIGHT_SCENARIO = Object.freeze({
             || route.paragraphs.some((paragraph) => typeof paragraph !== "string"))) {
           fail(`config.outcomes.${outcomeId}.paragraphs must contain strings`);
         }
+        if (route.leavePlace !== undefined && typeof route.leavePlace !== "boolean") {
+          fail(`config.outcomes.${outcomeId}.leavePlace must be a boolean`);
+        }
       }
     }
   },
@@ -122,13 +125,20 @@ export const FIGHT_SCENARIO = Object.freeze({
   },
 
   finish({ config, definition, state }) {
-    const route = config.outcomes?.[state.outcome.id] || config.outcomes?.default || null;
-    if (typeof route === "string") return { target: route };
+    const route = config.outcomes?.[state.outcome.id] ?? config.outcomes?.default ?? null;
+    const objective = requireEncounterObjective(state);
+    const leavesByDefault = objective.playerLeavesPlaceOutcomeIds.includes(state.outcome.id);
+    const leavePlace = typeof route === "object" && route !== null
+      ? route.leavePlace ?? leavesByDefault
+      : leavesByDefault;
+    const locationOutcome = leavePlace ? { leavePlace: true } : {};
+    if (typeof route === "string") return { target: route, ...locationOutcome };
     if (route) return {
       target: route.target,
       ...(route.effects ? { effects: structuredClone(route.effects) } : {}),
       ...(route.paragraphs ? { paragraphs: [...route.paragraphs] } : {}),
+      ...locationOutcome,
     };
-    return { target: definition.finalTarget };
+    return { target: definition.finalTarget, ...locationOutcome };
   },
 });

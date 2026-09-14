@@ -76,11 +76,16 @@ An outcome route may be a target string or an object:
 {
   "target": "some.scene",
   "effects": [],
-  "paragraphs": ["Optional transition prose."]
+  "paragraphs": ["Optional transition prose."],
+  "leavePlace": false
 }
 ```
 
-If no outcome-specific or default route matches, `finish` uses the encounter scene's normal final target.
+`target` may point at an authored aftermath scene. `effects` and `paragraphs` are optional. `leavePlace` is also optional and overrides the objective's normal post-combat location behavior for that route.
+
+By default, `player-escaped`, `mugger-incapacitated`, and `attacker-incapacitated` leave the current place if the fight began inside one. The location itself does not change. Other outcomes keep the player in the current place, including attacker success, rescue, attacker retreat, and mutual incapacitation. Leaving is a no-op when the player is already outside. If no outcome-specific or default route matches, `finish` uses the encounter scene's normal final target.
+
+When a leaving outcome targets an aftermath scene, the place transition happens before that scene begins. Without an aftermath target, normal `leave-place` automatic scenes remain eligible after combat.
 
 ### Current objective configurations
 
@@ -882,13 +887,14 @@ An objective is the best extension point for a new attacker goal. Keep generic m
 
 1. Add a module in `src/features/encounter/objectives/`.
 2. Give it a unique `id`, player-facing `label`, and a valid default `laboratoryConfig`.
-3. Register it in `objectives/index.js`; the combat lab reads this registry automatically.
-4. Add objective-only actions to `actionIds`. Use `excludedActionIds` to remove otherwise-core actions for this goal.
-5. Implement strict config/state validation and update the objective stage from current facts.
-6. Define progress, AI profiles/bonuses, retreat policy, outcomes, and simultaneous outcome priority.
-7. Define which outcomes count as player losses for the one-point Combat penalty.
-8. Add threat, pressure, event, and outcome prose.
-9. Add unit, deterministic replay, terminal settlement, and combat-lab-default tests.
+3. List outcomes where the player gets out of the current place in `playerLeavesPlaceOutcomeIds`.
+4. Register it in `objectives/index.js`; the combat lab reads this registry automatically.
+5. Add objective-only actions to `actionIds`. Use `excludedActionIds` to remove otherwise-core actions for this goal.
+6. Implement strict config/state validation and update the objective stage from current facts.
+7. Define progress, AI profiles/bonuses, retreat policy, outcomes, and simultaneous outcome priority.
+8. Define which outcomes count as player losses for the one-point Combat penalty.
+9. Add threat, pressure, event, and outcome prose.
+10. Add unit, deterministic replay, terminal settlement, and combat-lab-default tests.
 
 The current objective contract is:
 
@@ -898,6 +904,7 @@ The current objective contract is:
   label,
   laboratoryConfig,
   playerLossOutcomeIds,
+  playerLeavesPlaceOutcomeIds,
   unopposedActionId,
   actionIds,
   excludedActionIds?,

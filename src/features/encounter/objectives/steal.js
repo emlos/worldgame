@@ -134,6 +134,10 @@ export const STEAL_MONEY_OBJECTIVE = Object.freeze({
     STEAL_MONEY_OUTCOME.theftPlayerConscious,
     STEAL_MONEY_OUTCOME.theftPlayerIncapacitated,
   ]),
+  playerLeavesPlaceOutcomeIds: Object.freeze([
+    STEAL_MONEY_OUTCOME.playerEscaped,
+    STEAL_MONEY_OUTCOME.muggerIncapacitated,
+  ]),
   unopposedActionId: "search-money",
   outcomePriority: Object.freeze([
     PLAYER_RESCUED_OUTCOME_ID,

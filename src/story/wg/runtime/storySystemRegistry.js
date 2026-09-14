@@ -158,6 +158,9 @@ export function actWGSystem(game, definition, frame, command) {
   if (outcome.notice !== undefined && typeof outcome.notice !== "string") {
     fail(`WG story system '${systemId}' notice must be a string`);
   }
+  if (outcome.leavePlace !== undefined && typeof outcome.leavePlace !== "boolean") {
+    fail(`WG story system '${systemId}' leavePlace must be a boolean`);
+  }
 
   return {
     state: Object.prototype.hasOwnProperty.call(outcome, "state")
@@ -167,5 +170,6 @@ export function actWGSystem(game, definition, frame, command) {
     effects: cloneWGSystemJSON(outcome.effects || [], `WG system '${systemId}' effects`),
     paragraphs: [...(outcome.paragraphs || [])],
     notice: outcome.notice ?? "",
+    leavePlace: outcome.leavePlace ?? false,
   };
 }

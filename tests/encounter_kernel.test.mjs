@@ -54,12 +54,18 @@ test("fight outcome routing selects an authored target with a final-target fallb
   const routed = FIGHT_SCENARIO.finish({
     config: { outcomes: { "mugger-fled": "victory.target" } },
     definition,
-    state: { outcome: { id: "mugger-fled" } },
+    state: {
+      objective: { id: "steal-money" },
+      outcome: { id: "mugger-fled" },
+    },
   });
   const fallback = FIGHT_SCENARIO.finish({
     config: {},
     definition,
-    state: { outcome: { id: "unmapped" } },
+    state: {
+      objective: { id: "steal-money" },
+      outcome: { id: "unmapped" },
+    },
   });
 
   assert.deepEqual(routed, { target: "victory.target" });
@@ -75,9 +81,82 @@ test("fight outcome routing can return story effects and response paragraphs", (
   const result = FIGHT_SCENARIO.finish({
     config: { outcomes: { "player-escaped": route } },
     definition: { finalTarget: "fallback.target" },
-    state: { outcome: { id: "player-escaped" } },
+    state: {
+      objective: { id: "steal-money" },
+      outcome: { id: "player-escaped" },
+    },
   });
 
-  assert.deepEqual(result, route);
+  assert.deepEqual(result, { ...route, leavePlace: true });
   assert.notEqual(result.effects, route.effects);
+});
+
+test("fight outcome routing derives post-combat place changes and permits authored overrides", () => {
+  const definition = { finalTarget: "fallback.target" };
+  const escaped = FIGHT_SCENARIO.finish({
+    config: {},
+    definition,
+    state: {
+      objective: { id: "steal-money" },
+      outcome: { id: "player-escaped" },
+    },
+  });
+  const stayedByAuthor = FIGHT_SCENARIO.finish({
+    config: {
+      outcomes: {
+        "mugger-incapacitated": {
+          target: "special.target",
+          leavePlace: false,
+        },
+      },
+    },
+    definition,
+    state: {
+      objective: { id: "steal-money" },
+      outcome: { id: "mugger-incapacitated" },
+    },
+  });
+  const removedAfterLoss = FIGHT_SCENARIO.finish({
+    config: {
+      outcomes: {
+        "player-surrendered-money": {
+          target: "special.target",
+          leavePlace: true,
+        },
+      },
+    },
+    definition,
+    state: {
+      objective: { id: "steal-money" },
+      outcome: { id: "player-surrendered-money" },
+    },
+  });
+  const beatDownWin = FIGHT_SCENARIO.finish({
+    config: {},
+    definition,
+    state: {
+      objective: { id: "beat-down" },
+      outcome: { id: "attacker-incapacitated" },
+    },
+  });
+  const beatenDown = FIGHT_SCENARIO.finish({
+    config: {},
+    definition,
+    state: {
+      objective: { id: "beat-down" },
+      outcome: { id: "player-beaten-down" },
+    },
+  });
+
+  assert.deepEqual(escaped, { target: "fallback.target", leavePlace: true });
+  assert.deepEqual(stayedByAuthor, { target: "special.target" });
+  assert.deepEqual(removedAfterLoss, {
+    target: "special.target",
+    leavePlace: true,
+  });
+  assert.deepEqual(beatDownWin, {
+    target: "fallback.target",
+    leavePlace: true,
+  });
+  assert.deepEqual(beatenDown, { target: "fallback.target" });
 });
