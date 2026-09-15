@@ -408,6 +408,23 @@ test("landed strikes persist damage on the temporary actor body", () => {
   assert.match(content, /bruised face/i);
 });
 
+test("a terminal exchange narrates the player's landed strike before the opponent flees", () => {
+  const game = gameAtStart({ seed: 117, money: 20, combatSkill: 300 });
+  startEncounter(game);
+  forceNpcIntent(game, "flee");
+
+  chooseAction(game, "drive-body");
+
+  const state = game.currentStory.system.state;
+  assert.equal(state.outcome.id, "mugger-fled");
+  const paragraphs = buildScene(game).content
+    .filter(({ type }) => type === "paragraph")
+    .map(({ text }) => text);
+  assert.match(paragraphs[0], /You drive a blow toward her body/);
+  assert.match(paragraphs[0], /The blow lands on her body/);
+  assert.match(paragraphs[1], /decides the risk is no longer worth it and flees/);
+});
+
 test("the mugging can build control despite repeated low-risk defense", () => {
   const game = gameAtStart({ seed: 1 });
   startEncounter(game);

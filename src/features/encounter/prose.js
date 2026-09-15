@@ -25,6 +25,7 @@ import {
   opponentParticipantId,
 } from "./roles.js";
 import { requireEncounterObjective } from "./objectives/index.js";
+import { getEncounterAction } from "./actions/index.js";
 
 const isControlled = (context, actorId) =>
   actorId === controlledParticipantId(context.state);
@@ -465,6 +466,45 @@ export function renderLastExchange(context) {
     .map((event) => eventText(context, event))
     .filter(Boolean);
   return sentences.length ? sentences.join(" ") : "Both of you hesitate for a moment.";
+}
+
+const TERMINAL_RESOLUTION_EVENT_TYPES = new Set([
+  "beat-down.completed",
+  "encounter.ended",
+  "escape.completed",
+  "help.heard",
+  "participant.unable-to-act",
+  "surrender.completed",
+  "theft.completed",
+  "theft.empty",
+]);
+
+/**
+ * Preserve the actions and mechanical results from the exchange that ended an
+ * encounter without repeating the outcome events covered by renderTerminal().
+ */
+export function renderTerminalExchange(context) {
+  const events = context.state.lastEvents;
+  const hasTerminalTransition = events.some((event) =>
+    ["escape.completed", "help.heard", "surrender.completed"].includes(event.type));
+  const isTerminalAction = (actionId) =>
+    getEncounterAction(actionId)?.tags.includes("terminal");
+  const sentences = events
+    .filter((event) => {
+      if (TERMINAL_RESOLUTION_EVENT_TYPES.has(event.type)) return false;
+      if (event.type === "range.changed"
+        && event.to === ENCOUNTER_RANGE.far
+        && hasTerminalTransition) return false;
+      if (event.type === "action.attempted") return !isTerminalAction(event.actionId);
+      if (event.type === "action.spoiled") {
+        return !isTerminalAction(event.actionId)
+          && !isTerminalAction(event.spoiledByActionId);
+      }
+      return true;
+    })
+    .map((event) => eventText(context, event))
+    .filter(Boolean);
+  return sentences.join(" ");
 }
 
 export function renderObjectivePressure(context) {

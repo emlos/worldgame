@@ -13,6 +13,7 @@ import {
   renderLastExchange,
   renderObjectivePressure,
   renderSituationTable,
+  renderTerminalExchange,
 } from "./prose.js";
 import {
   encounterExchangeDurationSeconds,
@@ -142,8 +143,12 @@ function renderActive(context, definition, systemId) {
 
 function renderTerminal(context, definition, systemId) {
   const objective = requireEncounterObjective(context.state);
+  const finalExchange = context.state.exchange > 0
+    ? renderTerminalExchange(context)
+    : "";
   return {
     content: [
+      ...(finalExchange ? [{ type: "paragraph", text: finalExchange }] : []),
       ...objective.renderTerminal(context),
       renderSituationTable(context),
     ],
