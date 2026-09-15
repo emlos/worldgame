@@ -4,9 +4,16 @@ import {
   getBodyPain,
   getBodyPart,
 } from "../combatants.js";
-import { controlledParticipantId, goalOwnerId, goalTargetId } from "../roles.js";
-import { encounterPronoun, encounterVerb } from "../language.js";
+import { goalOwnerId, goalTargetId } from "../roles.js";
 import { PLAYER_RESCUED_OUTCOME_ID } from "../outcomes.js";
+import {
+  beatDownEscapeProseVariants,
+  beatDownEventProse,
+  beatDownPressureProse,
+  beatDownTerminalStaticProse,
+  beatDownThreatProse,
+} from "../proseData.js";
+import { pickProseVariant } from "../proseVariants.js";
 
 export const BEAT_DOWN_OBJECTIVE_ID = "beat-down";
 export const BEAT_DOWN_OUTCOME = Object.freeze({
@@ -322,89 +329,27 @@ export const BEAT_DOWN_OBJECTIVE = Object.freeze({
   },
 
   renderThreat(context) {
-    const ownerId = goalOwnerId(context.state);
-    return context.state.objective.stage === "escalated"
-      ? `${encounterPronoun(context, ownerId, "subject", { sentence: true })} ${encounterVerb(context, ownerId, "has", "have")} lost all restraint and intends to leave you unable to fight back.`
-      : `${encounterPronoun(context, ownerId, "subject", { sentence: true })} ${encounterVerb(context, ownerId, "intends", "intend")} to hurt and humiliate you, but is still holding back.`;
+    return beatDownThreatProse(context);
   },
 
   renderPressure(context) {
-    const ownerId = goalOwnerId(context.state);
-    const objective = context.state.objective;
-    const targetPain = Math.round(getBodyPain(context, goalTargetId(context.state)));
-    const ownerPain = getBodyPain(context, ownerId);
-    const anger = context.state.participants[ownerId].anger;
-    const temper = anger >= objective.angerThreshold
-      ? ` ${encounterPronoun(context, ownerId, "subject", { sentence: true })} ${encounterVerb(context, ownerId, "has", "have")} lost all restraint.`
-      : anger >= 20
-        ? ` ${encounterPronoun(context, ownerId, "subject", { sentence: true })} ${encounterVerb(context, ownerId, "looks", "look")} increasingly irritated.`
-        : "";
-    const persistence = ownerPain >= 45
-      ? `Even badly hurt, ${encounterPronoun(context, ownerId, "subject")} ${encounterVerb(context, ownerId, "shows", "show")} no sign of backing off.`
-      : `${encounterPronoun(context, ownerId, "subject", { sentence: true })} ${encounterVerb(context, ownerId, "shows", "show")} no sign of backing off.`;
-    return `Your pain is ${targetPain} of ${context.state.objective.painThreshold}. ${persistence}${temper}`;
+    return beatDownPressureProse(context);
   },
 
   renderEvent(context, event) {
-    const ownerId = goalOwnerId(context.state);
-    switch (event.type) {
-      case "encounter.started":
-        return `${context.combatants[ownerId].title} advances with the clear intent of beating you down.`;
-      case "participant.unable-to-act":
-        if (event.actorId !== goalTargetId(context.state)) return null;
-        if (event.reason === "energy-exhausted") {
-          return "Your remaining energy gives out, leaving you unable to defend yourself.";
-        }
-        return event.reason === "already-incapacitated"
-          ? "You are already unable to defend yourself when the attacker closes in."
-          : "Your injuries leave you unable to continue defending yourself.";
-      case "beat-down.completed":
-        if (event.cause === "pain-threshold") {
-          return "The accumulated pain finally overwhelms your ability to fight back.";
-        }
-        return "You can no longer continue the fight.";
-      case "beat-down.escalated":
-        return "The hit wipes away what restraint the attacker had. This is no longer a light beating.";
-      case "escape.completed":
-        return event.actorId === controlledParticipantId(context.state)
-          ? "You get clear before the attacker can finish the beating."
-          : null;
-      default:
-        return null;
-    }
+    return beatDownEventProse(context, event);
   },
 
   renderTerminal(context) {
     const { outcome } = context.state;
     const ownerId = goalOwnerId(context.state);
-    const subject = encounterPronoun(context, ownerId, "subject", { sentence: true });
-    let text;
-    switch (outcome?.id) {
-      case BEAT_DOWN_OUTCOME.targetEscaped:
-        text = `You escape before ${encounterPronoun(context, ownerId, "subject")} can finish beating you down.`;
-        break;
-      case BEAT_DOWN_OUTCOME.targetRescued:
-        text = `Your call is answered. ${subject} ${encounterVerb(context, ownerId, "breaks", "break")} off the attack as help approaches.`;
-        break;
-      case BEAT_DOWN_OUTCOME.targetBeatenDown:
-        if (outcome.cause === "pain-threshold") {
-          text = `Your pain reaches its limit. ${subject} ${encounterVerb(context, ownerId, "has", "have")} beaten you down.`;
-          break;
-        }
-        text = `You can no longer defend yourself. ${subject} ${encounterVerb(context, ownerId, "has", "have")} beaten you down.`;
-        break;
-      case BEAT_DOWN_OUTCOME.ownerAbandoned:
-        text = `${subject} abandons the attack and leaves.`;
-        break;
-      case BEAT_DOWN_OUTCOME.ownerIncapacitated:
-        text = `${subject} can no longer continue the attack. You are safe to leave.`;
-        break;
-      case BEAT_DOWN_OUTCOME.mutualIncapacitation:
-        text = "The fight leaves both of you unable to continue.";
-        break;
-      default:
-        text = "The fight is over.";
-    }
+    const text = outcome?.id === BEAT_DOWN_OUTCOME.targetEscaped
+      ? pickProseVariant(
+        context,
+        "terminal:beat-down:target-escaped",
+        beatDownEscapeProseVariants(context, ownerId),
+      )
+      : beatDownTerminalStaticProse(context, outcome);
     return [{ type: "paragraph", text }];
   },
 });

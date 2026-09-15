@@ -7,6 +7,7 @@ import {
   proposeOutcome,
   roll,
 } from "./helpers.js";
+import { actionIntentProse } from "../proseData.js";
 
 export const SCREAM_FOR_HELP_REROLL_SECONDS = 45;
 
@@ -74,8 +75,8 @@ export const SCREAM_FOR_HELP = Object.freeze({
     return "Scream for help";
   },
 
-  intentLabel() {
-    return "screams for help";
+  intentLabel(context, intent) {
+    return actionIntentProse(context, { ...intent, actionId: this.id });
   },
 
   resolve(context, instance, runtime) {

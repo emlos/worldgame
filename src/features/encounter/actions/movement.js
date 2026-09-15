@@ -37,9 +37,10 @@ import {
   getEncounterFacing,
   getEncounterRange,
 } from "../state.js";
-import { encounterPronoun, encounterVerb } from "../language.js";
+import { encounterPronoun } from "../language.js";
 import { requireEncounterObjective } from "../objectives/index.js";
 import { controlledParticipantId, goalOwnerId } from "../roles.js";
+import { actionIntentProse } from "../proseData.js";
 
 export const SHOVE_AWAY = Object.freeze({
   id: "shove-away",
@@ -64,7 +65,7 @@ export const SHOVE_AWAY = Object.freeze({
   },
 
   intentLabel(context, intent) {
-    return `${encounterVerb(context, intent.actorId, "leans", "lean")} in to shove you off balance`;
+    return actionIntentProse(context, { ...intent, actionId: this.id });
   },
 
   resolve(context, instance, runtime) {
@@ -119,7 +120,7 @@ export const CREATE_DISTANCE = Object.freeze({
   },
 
   intentLabel(context, intent) {
-    return `${encounterVerb(context, intent.actorId, "shifts", "shift")} back, looking for room to get away`;
+    return actionIntentProse(context, { ...intent, actionId: this.id });
   },
 
   resolve(context, instance, runtime) {
@@ -176,7 +177,7 @@ export const STAND_UP = Object.freeze({
   },
 
   intentLabel(context, intent) {
-    return `${encounterVerb(context, intent.actorId, "plants", "plant")} ${encounterPronoun(context, intent.actorId, "dependent")} limbs and ${encounterVerb(context, intent.actorId, "starts", "start")} to rise`;
+    return actionIntentProse(context, { ...intent, actionId: this.id });
   },
 
   resolve(context, instance, runtime) {
@@ -225,7 +226,7 @@ export const ROLL_TOWARD = Object.freeze({
   },
 
   intentLabel(context, intent) {
-    return `${encounterVerb(context, intent.actorId, "twists", "twist")} to face you and recover a safer angle`;
+    return actionIntentProse(context, { ...intent, actionId: this.id });
   },
 
   resolve(context, instance, runtime) {
@@ -280,7 +281,7 @@ export const CLOSE_DISTANCE = Object.freeze({
   },
 
   intentLabel(context, intent) {
-    return `${encounterVerb(context, intent.actorId, "lunges", "lunge")} after you before you can get clear`;
+    return actionIntentProse(context, { ...intent, actionId: this.id });
   },
 
   resolve(context, instance, runtime) {
@@ -322,7 +323,7 @@ export const RUN = Object.freeze({
   },
 
   intentLabel(context, intent) {
-    return `${encounterVerb(context, intent.actorId, "turns", "turn")} to run`;
+    return actionIntentProse(context, { ...intent, actionId: this.id });
   },
 
   resolve(context, instance, runtime) {
@@ -355,7 +356,7 @@ export const FLEE = Object.freeze({
   },
 
   intentLabel(context, intent) {
-    return `${encounterVerb(context, intent.actorId, "looks", "look")} for an escape route and ${encounterVerb(context, intent.actorId, "prepares", "prepare")} to bolt`;
+    return actionIntentProse(context, { ...intent, actionId: this.id });
   },
 
   resolve(context, instance, runtime) {

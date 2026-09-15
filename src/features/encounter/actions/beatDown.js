@@ -9,7 +9,6 @@ import {
   hasActionGeometry,
 } from "../affordances.js";
 import { goalOwnerId, goalTargetId } from "../roles.js";
-import { encounterVerb } from "../language.js";
 import {
   actionInstance,
   addExertion,
@@ -18,6 +17,7 @@ import {
   failAction,
   removeNonfunctionalHolds,
 } from "./helpers.js";
+import { actionIntentProse } from "../proseData.js";
 
 const LIMB_TARGETS = Object.freeze([
   BodyPartId.LOWER_ARM_L,
@@ -58,7 +58,7 @@ export const ROUGH_UP = Object.freeze({
   },
 
   intentLabel(context, intent) {
-    return `${encounterVerb(context, intent.actorId, "moves", "move")} in with a restrained body blow`;
+    return actionIntentProse(context, { ...intent, actionId: this.id });
   },
 
   resolve(context, instance, runtime) {
@@ -112,8 +112,7 @@ export const ATTACK_LIMB = Object.freeze({
   },
 
   intentLabel(context, intent) {
-    const targetPartId = intent.parameters.targetPartId;
-    return `${encounterVerb(context, intent.actorId, "lines", "line")} up a heavy blow at your ${limbName(context, goalTargetId(context.state), targetPartId)}`;
+    return actionIntentProse(context, { ...intent, actionId: this.id });
   },
 
   resolve(context, instance, runtime) {

@@ -2,6 +2,7 @@ import { getEncounterAction, getEncounterActions } from "./actions/index.js";
 import { getControlledHelplessActionId, hostileHoldsOn } from "./combatants.js";
 import { effortBlockerText, getActionEffortStatus } from "./effort.js";
 import { controlledParticipantId, goalOwnerId } from "./roles.js";
+import { actionIntentProse } from "./proseData.js";
 import {
   getPlayerCombatRank,
   isCombatActionUnlocked,
@@ -229,9 +230,7 @@ export function getActionPurpose(context, instance) {
 }
 
 export function intentLabel(context, intent) {
-  const definition = getEncounterAction(intent.actionId);
-  if (!definition) return intent.actionId;
-  return definition.intentLabel(context, intent);
+  return actionIntentProse(context, intent);
 }
 
 export function sortPlayerActions(instances) {

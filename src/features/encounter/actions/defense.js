@@ -2,7 +2,7 @@ import { canBeginPhysicalAction } from "../affordances.js";
 import { getAcute, getBodyPain, getParticipant, getUsableHands } from "../combatants.js";
 import { actionInstance, addExertion } from "./helpers.js";
 import { recoverExertion } from "../effort.js";
-import { encounterPronoun, encounterVerb } from "../language.js";
+import { actionIntentProse } from "../proseData.js";
 
 export const CATCH_BREATH = Object.freeze({
   id: "catch-breath",
@@ -28,7 +28,7 @@ export const CATCH_BREATH = Object.freeze({
   },
 
   intentLabel(context, intent) {
-    return `${encounterVerb(context, intent.actorId, "eases", "ease")} back to recover ${encounterPronoun(context, intent.actorId, "dependent")} breath`;
+    return actionIntentProse(context, { ...intent, actionId: this.id });
   },
 
   resolve(context, instance, runtime) {
@@ -67,7 +67,7 @@ export const COVER_AND_BRACE = Object.freeze({
   },
 
   intentLabel(context, intent) {
-    return `${encounterVerb(context, intent.actorId, "covers", "cover")} up and ${encounterVerb(context, intent.actorId, "braces", "brace")} for your response`;
+    return actionIntentProse(context, { ...intent, actionId: this.id });
   },
 
   resolve(context, instance, runtime) {

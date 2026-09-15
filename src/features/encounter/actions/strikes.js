@@ -26,7 +26,8 @@ import {
   chanceRoll,
 } from "./helpers.js";
 import { ENCOUNTER_POSE } from "../state.js";
-import { encounterPronoun, encounterVerb } from "../language.js";
+import { encounterPronoun } from "../language.js";
+import { actionIntentProse } from "../proseData.js";
 
 function ordinaryStrikeTargets(context, actorId, actionId) {
   const sourcePartId = getUsableHands(context, actorId)[0];
@@ -76,7 +77,7 @@ export const STRIKE_FACE = Object.freeze({
   },
 
   intentLabel(context, intent) {
-    return `${encounterVerb(context, intent.actorId, "draws", "draw")} back a hand to strike at your face`;
+    return actionIntentProse(context, { ...intent, actionId: this.id });
   },
 
   resolve(context, instance, runtime) {
@@ -117,7 +118,7 @@ export const DRIVE_BODY = Object.freeze({
   },
 
   intentLabel(context, intent) {
-    return `${encounterVerb(context, intent.actorId, "sets", "set")} ${encounterPronoun(context, intent.actorId, "dependent")} weight to drive a strike into your body`;
+    return actionIntentProse(context, { ...intent, actionId: this.id });
   },
 
   resolve(context, instance, runtime) {
@@ -176,7 +177,7 @@ export const STRIKE_HOLDING_ARM = Object.freeze({
   },
 
   intentLabel(context, intent) {
-    return `${encounterVerb(context, intent.actorId, "tries", "try")} to batter the arm controlling ${encounterPronoun(context, intent.actorId, "dependent")} wrist`;
+    return actionIntentProse(context, { ...intent, actionId: this.id });
   },
 
   resolve(context, instance, runtime) {
@@ -228,7 +229,7 @@ export const HEADBUTT = Object.freeze({
   },
 
   intentLabel(context, intent) {
-    return `${encounterVerb(context, intent.actorId, "draws", "draw")} ${encounterPronoun(context, intent.actorId, "dependent")} head back for a close strike`;
+    return actionIntentProse(context, { ...intent, actionId: this.id });
   },
 
   resolve(context, instance, runtime) {
@@ -290,7 +291,7 @@ export const KNEE_STRIKE = Object.freeze({
   },
 
   intentLabel(context, intent) {
-    return `${encounterVerb(context, intent.actorId, "shifts", "shift")} onto one leg to drive a knee into you`;
+    return actionIntentProse(context, { ...intent, actionId: this.id });
   },
 
   resolve(context, instance, runtime) {

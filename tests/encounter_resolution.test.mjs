@@ -404,7 +404,7 @@ test("landed strikes persist damage on the temporary actor body", () => {
     .find(({ id }) => id === "face").integrity;
   assert.ok(faceAfter < faceBefore);
   const content = JSON.stringify(buildScene(game).content);
-  assert.match(content, /blow lands/i);
+  assert.match(content, /fist|strike/i);
   assert.match(content, /bruised face/i);
 });
 
@@ -420,9 +420,9 @@ test("a terminal exchange narrates the player's landed strike before the opponen
   const paragraphs = buildScene(game).content
     .filter(({ type }) => type === "paragraph")
     .map(({ text }) => text);
-  assert.match(paragraphs[0], /You drive a blow toward her body/);
-  assert.match(paragraphs[0], /The blow lands on her body/);
-  assert.match(paragraphs[1], /decides the risk is no longer worth it and flees/);
+  assert.match(paragraphs[0], /body blow|strike/i);
+  assert.doesNotMatch(paragraphs[0], /You drive a blow toward her body\. The blow lands/i);
+  assert.match(paragraphs[1], /risk is no longer worth|breaks off the mugging|abandons the attack/i);
 });
 
 test("the mugging can build control despite repeated low-risk defense", () => {

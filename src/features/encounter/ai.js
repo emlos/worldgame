@@ -13,6 +13,7 @@ import { getAiPersonality } from "./personality.js";
 import { goalOwnerId, goalTargetId } from "./roles.js";
 import { requireEncounterObjective } from "./objectives/index.js";
 import { angerBandFor } from "./anger.js";
+import { commitmentBandProse } from "./proseData.js";
 
 export const RETREAT_COMMITMENT_THRESHOLD = 22;
 export const EXHAUSTED_RETREAT_SECONDS = 45;
@@ -45,12 +46,8 @@ const ACTION_UTILITY = Object.freeze({
 
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
-function commitmentBandFor(value) {
-  if (value <= RETREAT_COMMITMENT_THRESHOLD) return "ready to run";
-  if (value < 40) return "hesitating";
-  if (value < 65) return "frustrated but committed";
-  return "confident";
-}
+const commitmentBandFor = (value) => commitmentBandProse(value, RETREAT_COMMITMENT_THRESHOLD);
+
 
 export function getObjectiveProgress(context) {
   return requireEncounterObjective(context.state).progress(context, { hasUsableControl });

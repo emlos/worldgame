@@ -38,8 +38,9 @@ import {
   ENCOUNTER_RANGE,
   ENCOUNTER_SUPPORT,
 } from "../state.js";
-import { encounterPronoun, encounterVerb } from "../language.js";
+import { encounterPronoun } from "../language.js";
 import { requireEncounterObjective } from "../objectives/index.js";
+import { actionIntentProse } from "../proseData.js";
 
 function sideName(partId) {
   return partId.endsWith("_l") ? "left" : "right";
@@ -93,8 +94,8 @@ export const GRAB_ARM = Object.freeze({
     return `Grab ${encounterPronoun(context, instance.targetId, "dependent")} ${sideName(instance.parameters.targetPartId)} arm`;
   },
 
-  intentLabel(context, instance) {
-    return `${encounterVerb(context, instance.actorId, "reaches", "reach")} for your ${sideName(instance.parameters.targetPartId)} wrist`;
+  intentLabel(context, intent) {
+    return actionIntentProse(context, { ...intent, actionId: this.id });
   },
 
   resolve(context, instance, runtime) {
@@ -178,10 +179,8 @@ export const WRENCH_FREE = Object.freeze({
       : "Try to wrench your wrist free";
   },
 
-  intentLabel(context, instance) {
-    return instance.parameters.holdIds.length > 1
-      ? `${encounterVerb(context, instance.actorId, "wrenches", "wrench")} against both arm holds at once`
-      : `${encounterVerb(context, instance.actorId, "twists", "twist")} hard against the wrist hold`;
+  intentLabel(context, intent) {
+    return actionIntentProse(context, { ...intent, actionId: this.id });
   },
 
   resolve(context, instance, runtime) {
@@ -282,13 +281,8 @@ export const TIGHTEN_HOLD = Object.freeze({
     return hold?.kind === "limb-pin" ? "Reinforce your pin" : "Reinforce your grip";
   },
 
-  intentLabel(context, instance) {
-    const hold = holdsControlledBy(context, instance.actorId).find(
-      ({ id }) => id === instance.parameters.holdId,
-    );
-    return hold?.kind === "limb-pin"
-      ? `${encounterVerb(context, instance.actorId, "settles", "settle")} more weight onto the arm pin`
-      : `${encounterVerb(context, instance.actorId, "adjusts", "adjust")} ${encounterPronoun(context, instance.actorId, "dependent")} grip to tighten control of your wrist`;
+  intentLabel(context, intent) {
+    return actionIntentProse(context, { ...intent, actionId: this.id });
   },
 
   resolve(context, instance, runtime) {
@@ -340,7 +334,7 @@ export const FORCE_TO_WALL = Object.freeze({
   },
 
   intentLabel(context, intent) {
-    return `${encounterVerb(context, intent.actorId, "shifts", "shift")} ${encounterPronoun(context, intent.actorId, "dependent")} weight to force you against the wall`;
+    return actionIntentProse(context, { ...intent, actionId: this.id });
   },
 
   resolve(context, instance, runtime) {
@@ -396,7 +390,7 @@ export const FORCE_TO_GROUND = Object.freeze({
   },
 
   intentLabel(context, intent) {
-    return `${encounterVerb(context, intent.actorId, "drops", "drop")} ${encounterPronoun(context, intent.actorId, "dependent")} weight to force you to the ground`;
+    return actionIntentProse(context, { ...intent, actionId: this.id });
   },
 
   resolve(context, instance, runtime) {
@@ -449,7 +443,7 @@ export const TURN_TARGET_AWAY = Object.freeze({
   },
 
   intentLabel(context, intent) {
-    return `${encounterVerb(context, intent.actorId, "tries", "try")} to turn you away and take your line of sight`;
+    return actionIntentProse(context, { ...intent, actionId: this.id });
   },
 
   resolve(context, instance, runtime) {
@@ -525,7 +519,7 @@ export const PIN_LIMB = Object.freeze({
   },
 
   intentLabel(context, intent) {
-    return `${encounterVerb(context, intent.actorId, "shifts", "shift")} ${encounterPronoun(context, intent.actorId, "dependent")} weight to pin your restrained arm`;
+    return actionIntentProse(context, { ...intent, actionId: this.id });
   },
 
   resolve(context, instance, runtime) {

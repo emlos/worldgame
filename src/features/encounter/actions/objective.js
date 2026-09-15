@@ -29,7 +29,7 @@ import {
 } from "./helpers.js";
 import { requireEncounterObjective } from "../objectives/index.js";
 import { controlledParticipantId, goalOwnerId, goalTargetId } from "../roles.js";
-import { encounterVerb } from "../language.js";
+import { actionIntentProse } from "../proseData.js";
 
 export const CONTROLLED_DISENGAGE_MIN_EXERTION = 35;
 export const COMPLETE_CONTROL_MIN_WRIST_LEVERAGE = 30;
@@ -99,8 +99,8 @@ export const SURRENDER_MONEY = Object.freeze({
       : "Give up and show your empty pockets";
   },
 
-  intentLabel() {
-    return "offers to hand over the money";
+  intentLabel(context, intent) {
+    return actionIntentProse(context, { ...intent, actionId: this.id });
   },
 
   resolve(context, _instance, runtime) {
@@ -136,8 +136,8 @@ export const CONTROLLED_DISENGAGE = Object.freeze({
     return "Release them and suddenly spring away";
   },
 
-  intentLabel() {
-    return "prepares to release the hold and spring away";
+  intentLabel(context, intent) {
+    return actionIntentProse(context, { ...intent, actionId: this.id });
   },
 
   resolve(context, instance, runtime) {
@@ -186,8 +186,8 @@ export const DEMAND_MONEY_BACK = Object.freeze({
     return "Demand your money back (Speech)";
   },
 
-  intentLabel() {
-    return "demands the stolen money back";
+  intentLabel(context, intent) {
+    return actionIntentProse(context, { ...intent, actionId: this.id });
   },
 
   resolve(context, instance, runtime) {
@@ -233,7 +233,7 @@ export const SEARCH_MONEY = Object.freeze({
   },
 
   intentLabel(context, intent) {
-    return `${encounterVerb(context, intent.actorId, "keeps", "keep")} you controlled and ${encounterVerb(context, intent.actorId, "reaches", "reach")} toward your money`;
+    return actionIntentProse(context, { ...intent, actionId: this.id });
   },
 
   resolve(context, instance, runtime) {

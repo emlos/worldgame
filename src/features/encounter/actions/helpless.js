@@ -3,8 +3,9 @@ import {
   getControlledHelplessReason,
 } from "../combatants.js";
 import { actionInstance } from "./helpers.js";
+import { actionIntentProse } from "../proseData.js";
 
-function helplessAction({ id, reason, label, intentLabel, playerOrder }) {
+function helplessAction({ id, reason, label, playerOrder }) {
   return Object.freeze({
     id,
     tags: Object.freeze(["helpless"]),
@@ -24,8 +25,8 @@ function helplessAction({ id, reason, label, intentLabel, playerOrder }) {
       return label;
     },
 
-    intentLabel() {
-      return intentLabel;
+    intentLabel(context, intent) {
+      return actionIntentProse(context, { ...intent, actionId: this.id });
     },
 
     resolve(_context, instance, runtime) {
@@ -42,7 +43,6 @@ export const TOO_TIRED_TO_MOVE = helplessAction({
   id: ENCOUNTER_HELPLESS_ACTION.energy,
   reason: "energy-exhausted",
   label: "You're too tired to move",
-  intentLabel: "is too tired to move",
   playerOrder: -20,
 });
 
@@ -50,6 +50,5 @@ export const WRITHE_IN_PAIN = helplessAction({
   id: ENCOUNTER_HELPLESS_ACTION.pain,
   reason: "pain-overwhelmed",
   label: "Writhe in pain",
-  intentLabel: "can only writhe in pain",
   playerOrder: -19,
 });

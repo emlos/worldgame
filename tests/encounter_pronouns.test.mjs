@@ -60,9 +60,9 @@ test("every attacker intent uses generated pronouns with correct verb agreement"
 
 test("player-facing labels, exchange prose, pressure, and outcomes use attacker pronouns", () => {
   for (const [pronouns, expected] of [
-    [PronounSets.HE_HIM, { subject: "He", object: "him", dependent: "his", verb: "decides", demand: "demands", breaks: "breaks", takes: "takes", leaves: "leaves", has: "has" }],
-    [PronounSets.SHE_HER, { subject: "She", object: "her", dependent: "her", verb: "decides", demand: "demands", breaks: "breaks", takes: "takes", leaves: "leaves", has: "has" }],
-    [PronounSets.THEY_THEM, { subject: "They", object: "them", dependent: "their", verb: "decide", demand: "demand", breaks: "break", takes: "take", leaves: "leave", has: "have" }],
+    [PronounSets.HE_HIM, { subject: "He", object: "him", dependent: "his", flees: "decides|breaks|abandons", demand: "demands", breaks: "breaks", surrender: "takes|pockets|releases", has: "has" }],
+    [PronounSets.SHE_HER, { subject: "She", object: "her", dependent: "her", flees: "decides|breaks|abandons", demand: "demands", breaks: "breaks", surrender: "takes|pockets|releases", has: "has" }],
+    [PronounSets.THEY_THEM, { subject: "They", object: "them", dependent: "their", flees: "decide|break|abandon", demand: "demand", breaks: "break", surrender: "take|pocket|release", has: "have" }],
   ]) {
     const { state, context } = setup(pronouns);
     const labels = getAvailableActionInstances(context, "player")
@@ -77,7 +77,7 @@ test("player-facing labels, exchange prose, pressure, and outcomes use attacker 
     state.outcome = { id: STEAL_MONEY_OUTCOME.muggerFled, moneyLost: 0 };
     assert.match(
       STEAL_MONEY_OBJECTIVE.renderTerminal(context)[0].text,
-      new RegExp(`^${expected.subject} ${expected.verb} `),
+      new RegExp(`^${expected.subject} (?:${expected.flees}) `),
     );
 
     state.outcome = { id: STEAL_MONEY_OUTCOME.playerRescued, moneyLost: 0 };
@@ -89,7 +89,7 @@ test("player-facing labels, exchange prose, pressure, and outcomes use attacker 
     state.outcome = { id: STEAL_MONEY_OUTCOME.playerSurrendered, moneyLost: 20 };
     assert.match(
       STEAL_MONEY_OBJECTIVE.renderTerminal(context)[0].text,
-      new RegExp(`${expected.subject} ${expected.takes} it and ${expected.leaves}`),
+      new RegExp(`${expected.subject} (?:${expected.surrender}) `),
     );
 
     state.outcome = { id: STEAL_MONEY_OUTCOME.theftPlayerIncapacitated, moneyLost: 20 };

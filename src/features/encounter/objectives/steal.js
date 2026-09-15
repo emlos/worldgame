@@ -3,9 +3,18 @@ import {
   getEncounterRange,
   setEncounterRange,
 } from "../state.js";
-import { controlledParticipantId, goalOwnerId, goalTargetId } from "../roles.js";
-import { encounterPronoun, encounterVerb } from "../language.js";
+import { goalOwnerId, goalTargetId } from "../roles.js";
 import { PLAYER_RESCUED_OUTCOME_ID } from "../outcomes.js";
+import {
+  stealEventProse,
+  stealMuggerFledProseVariants,
+  stealPlayerEscapeProseVariants,
+  stealPressureProse,
+  stealSurrenderProseVariants,
+  stealTerminalStaticProse,
+  stealThreatProse,
+} from "../proseData.js";
+import { pickProseVariant } from "../proseVariants.js";
 
 export const STEAL_MONEY_OBJECTIVE_ID = "steal-money";
 export const STEAL_MONEY_OUTCOME = Object.freeze({
@@ -438,73 +447,21 @@ export const STEAL_MONEY_OBJECTIVE = Object.freeze({
   },
 
   renderThreat(context) {
-    const ownerId = goalOwnerId(context.state);
-    const objective = context.state.objective;
-    if (objective.stage === "disengage") {
-      return objective.lootAmount > 0
-        ? `${encounterPronoun(context, ownerId, "subject", { sentence: true })} ${encounterVerb(context, ownerId, "has", "have")} £${objective.lootAmount} of your money and ${encounterVerb(context, ownerId, "is", "are")} trying to escape.`
-        : `${encounterPronoun(context, ownerId, "subject", { sentence: true })} found nothing to take and ${encounterVerb(context, ownerId, "is", "are")} trying to leave.`;
-    }
-    return `${encounterPronoun(context, ownerId, "subject", { sentence: true })} ${encounterVerb(context, ownerId, "is", "are")} trying to take up to £${objective.amount}.`;
+    return stealThreatProse(context);
   },
 
   renderPressure(context, commitment) {
-    const ownerId = goalOwnerId(context.state);
-    const objective = context.state.objective;
-    if (objective.stage === "access-money") {
-      return `${encounterPronoun(context, ownerId, "dependent", { sentence: true })} control is enough to reach for your money. ${encounterPronoun(context, ownerId, "subject", { sentence: true })} ${encounterVerb(context, ownerId, "looks", "look")} ${commitment}.`;
-    }
-    if (objective.stage === "disengage") {
-      return objective.lootAmount > 0
-        ? `${encounterPronoun(context, ownerId, "subject", { sentence: true })} ${encounterVerb(context, ownerId, "has", "have")} your money but still ${encounterVerb(context, ownerId, "needs", "need")} to get away with it.`
-        : `${encounterPronoun(context, ownerId, "subject", { sentence: true })} found nothing and ${encounterVerb(context, ownerId, "is", "are")} looking for a way out.`;
-    }
-    return `${encounterPronoun(context, ownerId, "subject", { sentence: true })} still ${encounterVerb(context, ownerId, "needs", "need")} to control you before ${encounterPronoun(context, ownerId, "subject")} can take anything. ${encounterPronoun(context, ownerId, "subject", { sentence: true })} ${encounterVerb(context, ownerId, "looks", "look")} ${commitment}.`;
+    return stealPressureProse(context, commitment);
   },
 
   renderEvent(context, event) {
-    const ownerId = goalOwnerId(context.state);
-    switch (event.type) {
-      case "encounter.started":
-        return `${context.combatants[ownerId].title} blocks the alley and ${encounterPronoun(context, ownerId, "subject")} ${encounterVerb(context, ownerId, "demands", "demand")} your money.`;
-      case "participant.unable-to-act":
-        if (event.actorId !== goalTargetId(context.state)) return null;
-        if (event.reason === "energy-exhausted") {
-          return "Your remaining energy gives out, leaving you unable to respond.";
-        }
-        return event.reason === "already-incapacitated"
-          ? "You are already unable to resist when the mugger approaches."
-          : "Your injuries leave you unable to mount a physical response.";
-      case "theft.taken":
-        return `${encounterPronoun(context, ownerId, "subject", { sentence: true })} ${encounterVerb(context, ownerId, "pulls", "pull")} £${event.amount} free.`;
-      case "theft.completed":
-        return `${encounterPronoun(context, ownerId, "subject", { sentence: true })} ${encounterVerb(context, ownerId, "gets", "get")} away with £${event.amount}.`;
-      case "theft.recovered":
-        return `You recover your £${event.amount} before ${encounterPronoun(context, ownerId, "subject")} can escape.`;
-      case "theft.empty":
-        return `${encounterPronoun(context, ownerId, "subject", { sentence: true })} ${encounterVerb(context, ownerId, "finds", "find")} nothing to take and ${encounterVerb(context, ownerId, "abandons", "abandon")} the attempt.`;
-      case "surrender.completed":
-        return event.amount > 0
-          ? `You stop resisting and surrender £${event.amount}.`
-          : "You stop resisting and show that you have no money to hand over.";
-      case "demand.succeeded":
-        return `${encounterPronoun(context, ownerId, "subject", { sentence: true })} ${encounterVerb(context, ownerId, "gives", "give")} in to your demand and ${encounterVerb(context, ownerId, "looks", "look")} for a way to escape.`;
-      case "escape.disengaged":
-        return `You suddenly release ${encounterPronoun(context, ownerId, "object")} and jump away; before ${encounterPronoun(context, ownerId, "subject")} can react, you are already several steps back.`;
-      case "escape.completed":
-        return event.actorId === controlledParticipantId(context.state)
-          ? "You reach the street and get clear."
-          : `${encounterPronoun(context, ownerId, "subject", { sentence: true })} ${encounterVerb(context, ownerId, "turns", "turn")} and ${encounterVerb(context, ownerId, "runs", "run")} from the alley.`;
-      default:
-        return null;
-    }
+    return stealEventProse(context, event);
   },
 
   renderTerminal(context) {
     const { outcome } = context.state;
     const ownerId = goalOwnerId(context.state);
     const money = outcome?.moneyLost || 0;
-    const subject = encounterPronoun(context, ownerId, "subject", { sentence: true });
     const unableEvent = [...context.state.lastEvents].reverse().find((event) =>
       event.type === "participant.unable-to-act"
       && event.actorId === goalTargetId(context.state));
@@ -512,38 +469,33 @@ export const STEAL_MONEY_OBJECTIVE = Object.freeze({
     let text;
     switch (outcome?.id) {
       case STEAL_MONEY_OUTCOME.playerEscaped:
-        text = `You make it out of the alley before ${encounterPronoun(context, ownerId, "subject")} can catch you.`;
-        break;
-      case STEAL_MONEY_OUTCOME.playerRescued:
-        text = `Your call is answered. ${subject} ${encounterVerb(context, ownerId, "breaks", "break")} off the attack as help approaches.`;
+        text = pickProseVariant(
+          context,
+          "terminal:steal:player-escaped",
+          stealPlayerEscapeProseVariants(context, ownerId),
+        );
         break;
       case STEAL_MONEY_OUTCOME.playerSurrendered:
-        text = money > 0
-          ? `You surrender £${money}. ${subject} ${encounterVerb(context, ownerId, "takes", "take")} it and ${encounterVerb(context, ownerId, "leaves", "leave")} without continuing the fight.`
-          : `You stop resisting and show your empty pockets. Finding nothing to take, ${encounterPronoun(context, ownerId, "subject")} ${encounterVerb(context, ownerId, "lets", "let")} you go and ${encounterVerb(context, ownerId, "leaves", "leave")} the alley.`;
+        text = pickProseVariant(
+          context,
+          money > 0
+            ? "terminal:steal:player-surrendered:money"
+            : "terminal:steal:player-surrendered:empty",
+          stealSurrenderProseVariants(context, ownerId, money),
+        );
         break;
       case STEAL_MONEY_OUTCOME.muggerFled:
         text = [
           unableText,
-          `${subject} ${encounterVerb(context, ownerId, "decides", "decide")} the risk is no longer worth it and ${encounterVerb(context, ownerId, "flees", "flee")}.`,
+          pickProseVariant(
+            context,
+            "terminal:steal:mugger-fled",
+            stealMuggerFledProseVariants(context, ownerId),
+          ),
         ].filter(Boolean).join(" ");
         break;
-      case STEAL_MONEY_OUTCOME.muggerIncapacitated:
-        text = `${subject} can no longer continue the struggle. You are safe to leave.`;
-        break;
-      case STEAL_MONEY_OUTCOME.bothIncapacitated:
-        text = "The struggle leaves both of you unable to continue.";
-        break;
-      case STEAL_MONEY_OUTCOME.theftPlayerConscious:
-        text = `${subject} ${encounterVerb(context, ownerId, "gets", "get")} away with £${money} while you are still conscious.`;
-        break;
-      case STEAL_MONEY_OUTCOME.theftPlayerIncapacitated:
-        text = money > 0
-          ? `By the time you can respond, ${encounterPronoun(context, ownerId, "subject")} ${encounterVerb(context, ownerId, "has", "have")} taken £${money} and gone.`
-          : `By the time you can respond, ${encounterPronoun(context, ownerId, "subject")} ${encounterVerb(context, ownerId, "has", "have")} searched you, found nothing, and gone.`;
-        break;
       default:
-        text = "The encounter is over.";
+        text = stealTerminalStaticProse(context, outcome);
     }
     return [{ type: "paragraph", text }];
   },
