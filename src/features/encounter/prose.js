@@ -154,6 +154,7 @@ function actionAttemptText(context, event) {
     "catch-breath": ["ease back to catch your breath", `eases back to catch ${encounterPronoun(context, event.actorId, "dependent")} breath`],
     "strike-face": [`strike toward ${targetPossessive} face`, `strikes toward ${targetPossessive} face`],
     "drive-body": [`drive a blow toward ${targetPossessive} body`, `drives a blow toward ${targetPossessive} body`],
+    "rough-up": [`aim a restrained blow at ${targetPossessive} body`, `aims a restrained blow at ${targetPossessive} body`],
     "shove-away": [`try to shove ${targetObject} away`, `tries to shove ${targetObject} away`],
     "grab-arm": [`reach for ${targetPossessive} wrist`, `reaches for ${targetPossessive} wrist`],
     "strike-holding-arm": ["strike at the arm maintaining the hold", "strikes at the arm maintaining the hold"],

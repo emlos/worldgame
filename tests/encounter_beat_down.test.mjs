@@ -6,8 +6,11 @@ import { getEncounterAction } from "../src/features/encounter/actions/index.js";
 import { getAvailableActionInstances } from "../src/features/encounter/availability.js";
 import {
   getAiCommitment,
+  getAiDecisionDiagnostics,
   selectAiIntent,
+  syncObjectiveStage,
 } from "../src/features/encounter/ai.js";
+import { updateNpcAngerFromEvents } from "../src/features/encounter/anger.js";
 import { createCombatContext } from "../src/features/encounter/combatants.js";
 import {
   BEAT_DOWN_OBJECTIVE,
@@ -37,7 +40,7 @@ function createBeatDown(game, opponentId = "attacker") {
   });
 }
 
-test("beat-down exposes deliberate limb attacks but no theft or attacker escape actions", () => {
+test("a restrained beat-down exposes light attacks and keeps severe attacks out of pursuit", () => {
   const game = preparedGame({ seed: 44 });
   const state = createBeatDown(game);
   const context = createCombatContext({
@@ -52,15 +55,18 @@ test("beat-down exposes deliberate limb attacks but no theft or attacker escape 
 
   assert.doesNotThrow(() => validateEncounterState(state));
   assert.equal(state.objective.id, BEAT_DOWN_OBJECTIVE_ID);
+  assert.equal(state.objective.stage, "restrained");
+  assert.ok(attackerActionIds.includes("rough-up"));
   assert.ok(attackerActionIds.includes("attack-limb"));
-  assert.equal(attackerActionIds.includes("flee"), false);
+  assert.ok(attackerActionIds.includes("flee"), "retreat remains physically available");
   assert.equal(playerActionIds.includes("surrender-money"), false);
   assert.equal(playerActionIds.includes("demand-money-back"), false);
   assert.equal(playerActionIds.includes("search-money"), false);
   assert.ok(getEncounterAction(state.npcIntent.actionId).tags.includes("attack"));
+  assert.equal(getEncounterAction(state.npcIntent.actionId).severity, "light");
 });
 
-test("beat-down attacker remains fully committed despite injury and hard pacing limits", () => {
+test("hard pacing can overcome anger and force a beat-down attacker to retreat", () => {
   const game = preparedGame({ seed: 45 });
   const state = createBeatDown(game);
   game.currentStory.actors.mugger.body.parts
@@ -73,10 +79,46 @@ test("beat-down attacker remains fully committed despite injury and hard pacing 
     instanceKey: game.currentStory.instanceKey,
   });
 
-  assert.equal(getAiCommitment(context), 100);
+  state.participants.attacker.anger = 100;
+  assert.equal(getAiCommitment(context), 0);
   const intent = selectAiIntent(context);
-  assert.notEqual(intent.actionId, "flee");
-  assert.ok(getEncounterAction(intent.actionId).tags.includes("attack"));
+  assert.equal(intent.actionId, "flee");
+});
+
+test("damage raises NPC anger and crossing the threshold escalates force and pain target", () => {
+  const game = preparedGame({ seed: 47 });
+  const state = createBeatDown(game);
+  state.participants.attacker.controller.personalityId = "forceful";
+  const context = createCombatContext({
+    game,
+    state,
+    instanceKey: game.currentStory.instanceKey,
+  });
+  const events = [{
+    type: "impact.landed",
+    actorId: "player",
+    targetId: "attacker",
+    partId: "abdomen",
+    damage: 21,
+    damageType: "blunt",
+  }];
+
+  updateNpcAngerFromEvents(context, events);
+  syncObjectiveStage(context, events);
+
+  assert.equal(state.participants.attacker.anger, 46);
+  assert.equal(state.objective.stage, "escalated");
+  assert.equal(state.objective.painThreshold, state.objective.escalatedPainThreshold);
+  assert.ok(events.some(({ type }) => type === "anger.changed"));
+  assert.ok(events.some(({ type }) => type === "beat-down.escalated"));
+  const decision = getAiDecisionDiagnostics(context);
+  assert.equal(decision.anger.band, "angry");
+  assert.ok(decision.candidates.some(({ instance }) =>
+    getEncounterAction(instance.actionId).severity === "severe"));
+  assert.ok(decision.candidates
+    .filter(({ instance }) => getEncounterAction(instance.actionId).tags.includes("attack"))
+    .every(({ breakdown }) => breakdown.angerAggression > 0));
+  assert.doesNotThrow(() => validateEncounterState(state));
 });
 
 test("reaching maximum pain forces one helpless exchange before the beat-down completes", () => {

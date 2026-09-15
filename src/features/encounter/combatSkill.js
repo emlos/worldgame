@@ -17,6 +17,7 @@ export const COMBAT_ACTION_MINIMUM_RANK = Object.freeze({
   "cover-and-brace": 0,
   "catch-breath": 0,
   "drive-body": 0,
+  "rough-up": 0,
   "wrench-free": 0,
   "stand-up": 0,
   "roll-toward": 0,

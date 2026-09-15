@@ -12,6 +12,7 @@ import { getActionEffortStatus } from "./effort.js";
 import { getAiPersonality } from "./personality.js";
 import { goalOwnerId, goalTargetId } from "./roles.js";
 import { requireEncounterObjective } from "./objectives/index.js";
+import { angerBandFor } from "./anger.js";
 
 export const RETREAT_COMMITMENT_THRESHOLD = 22;
 export const EXHAUSTED_RETREAT_SECONDS = 45;
@@ -80,6 +81,7 @@ export function getAiCommitmentDiagnostics(context) {
     elapsed: -stalledSeconds * personality.commitmentTimeSensitivity,
     pain: -getBodyPain(context, ownerId) * personality.commitmentPainSensitivity,
     exertion: -owner.exertion * personality.commitmentExertionSensitivity,
+    anger: owner.anger / 100 * personality.anger.commitmentBiasAtMax,
     failedControl: -objectiveCommitment.failedAttempts * 2,
     impairment: -impairment,
     pacingLimit: pacingLimitReached ? -100 : 0,
@@ -210,7 +212,7 @@ export function scoreAiActions(context) {
         .find((matches) => matches.length)
         || (usableRetreats.length ? usableRetreats : candidates);
     } else {
-      pool = objectiveAi.pursuitPool(candidates);
+      pool = objectiveAi.pursuitPool(candidates, context, { getEncounterAction });
     }
   }
 
@@ -237,9 +239,15 @@ export function scoreAiActions(context) {
       `encounter-utility-v1:${context.instanceKey}:${context.state.exchange}:${personality.id}:${stableInstanceKey(instance)}`,
     ) - 0.5) * 5;
     const retreatPriority = retreating ? (profile.escape || 0) * 35 : 0;
+    const action = getEncounterAction(instance.actionId);
+    const severityWeight = { light: 0.45, moderate: 0.75, severe: 1 }[action?.severity] || 0;
+    const angerAggression = action?.tags.includes("attack")
+      ? participant.anger / 100 * personality.anger.attackBiasAtMax * severityWeight
+      : 0;
     const total = profile.base + Object.values(motives).reduce((sum, value) => sum + value, 0)
-      + duration + exertionRisk + overextension + repetition + variation + retreatPriority;
-    const rounded = Object.fromEntries(Object.entries({ base: profile.base, ...motives, duration, exertionRisk, overextension, repetition, variation, retreatPriority })
+      + duration + exertionRisk + overextension + repetition + variation + retreatPriority
+      + angerAggression;
+    const rounded = Object.fromEntries(Object.entries({ base: profile.base, ...motives, duration, exertionRisk, overextension, repetition, variation, retreatPriority, angerAggression })
       .map(([key, value]) => [key, Math.round(value * 100) / 100]));
     return { instance, score: Math.round(total * 100) / 100, breakdown: rounded };
   }).sort((left, right) => right.score - left.score || stableInstanceKey(left.instance).localeCompare(stableInstanceKey(right.instance)));
@@ -251,11 +259,13 @@ export function getAiDecisionDiagnostics(context) {
     context.state.participants[goalOwnerId(context.state)].controller.personalityId,
   );
   const candidates = scoreAiActions(context);
-  return { personality, commitment, candidates, selected: candidates[0] || null };
+  const owner = context.state.participants[goalOwnerId(context.state)];
+  const anger = { value: owner.anger, band: angerBandFor(owner.anger) };
+  return { personality, anger, commitment, candidates, selected: candidates[0] || null };
 }
 
-export function syncObjectiveStage(context) {
-  requireEncounterObjective(context.state).syncStage(context, { hasUsableControl });
+export function syncObjectiveStage(context, events = []) {
+  requireEncounterObjective(context.state).syncStage(context, { hasUsableControl, events });
 }
 
 export function selectAiIntent(context) {

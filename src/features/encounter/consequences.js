@@ -33,6 +33,7 @@ export const PLAYER_ACTION_HYGIENE_COST = Object.freeze({
   "knee-strike": 0.09,
   "strike-face": 0.06,
   "drive-body": 0.08,
+  "rough-up": 0.05,
   "shove-away": 0.07,
   "grab-arm": 0.04,
   "strike-holding-arm": 0.07,

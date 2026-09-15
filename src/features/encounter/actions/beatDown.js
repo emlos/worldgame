@@ -30,8 +30,55 @@ function limbName(context, actorId, partId) {
   return getBodyPart(context, actorId, partId)?.displayName?.toLowerCase() || "limb";
 }
 
+export const ROUGH_UP = Object.freeze({
+  id: "rough-up",
+  severity: "light",
+  tags: Object.freeze(["attack", "impact", "objective"]),
+  durationSeconds: 3,
+  usableBy: "goal-owner",
+  playerOrder: 100,
+  availabilityHint: "Requires a usable free hand and striking range.",
+
+  enumerateTargets(context, actorId) {
+    const sourcePartId = getUsableHands(context, actorId)[0];
+    if (!sourcePartId || actorId !== goalOwnerId(context.state)) return [];
+    return [actionInstance(this.id, actorId, goalTargetId(context.state), { sourcePartId })];
+  },
+
+  isAvailable(context, instance) {
+    return instance.actorId === goalOwnerId(context.state)
+      && instance.targetId === goalTargetId(context.state)
+      && canBeginPhysicalAction(context, instance.actorId)
+      && hasActionGeometry(context, instance)
+      && getUsableHands(context, instance.actorId).includes(instance.parameters.sourcePartId);
+  },
+
+  label() {
+    return "Rough them up";
+  },
+
+  intentLabel(context, intent) {
+    return `${encounterVerb(context, intent.actorId, "moves", "move")} in with a restrained body blow`;
+  },
+
+  resolve(context, instance, runtime) {
+    addExertion(context, instance.actorId, 5);
+    if (!contest(context, instance, runtime, { baseChance: 0.62, defense: "impact" })) {
+      failAction(runtime, instance, "missed");
+      return;
+    }
+    applyImpact(context, instance, runtime, {
+      partId: BodyPartId.ABDOMEN,
+      baseDamage: 6,
+      strengthScale: 0.35,
+    });
+    removeNonfunctionalHolds(context, runtime);
+  },
+});
+
 export const ATTACK_LIMB = Object.freeze({
   id: "attack-limb",
+  severity: "severe",
   tags: Object.freeze(["attack", "impact", "objective", "limb-damage"]),
   durationSeconds: 3,
   usableBy: "goal-owner",

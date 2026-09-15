@@ -30,7 +30,7 @@ import {
   SEARCH_MONEY,
   SURRENDER_MONEY,
 } from "./objective.js";
-import { ATTACK_LIMB } from "./beatDown.js";
+import { ATTACK_LIMB, ROUGH_UP } from "./beatDown.js";
 import { SCREAM_FOR_HELP } from "./help.js";
 import { TOO_TIRED_TO_MOVE, WRITHE_IN_PAIN } from "./helpless.js";
 import { requireEncounterObjective } from "../objectives/index.js";
@@ -62,6 +62,7 @@ export const ENCOUNTER_ACTIONS = Object.freeze([
   FORCE_TO_WALL,
   TURN_TARGET_AWAY,
   SEARCH_MONEY,
+  ROUGH_UP,
   ATTACK_LIMB,
   FLEE,
   CLOSE_DISTANCE,

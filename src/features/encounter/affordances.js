@@ -70,6 +70,10 @@ export const ACTION_GEOMETRY = Object.freeze({
     ranges: REACHABLE_RANGES,
     actorFacings: FRONT_OR_SIDE,
   }),
+  "rough-up": geometryRule({
+    ranges: REACHABLE_RANGES,
+    actorFacings: FRONT_OR_SIDE,
+  }),
   "strike-holding-arm": geometryRule({
     ranges: REACHABLE_RANGES,
     actorFacings: FRONT_OR_SIDE,

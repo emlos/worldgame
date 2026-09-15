@@ -129,6 +129,7 @@ const debugCaroAction = document.querySelector("#debug-caro-action");
 const debugEncounterSection = document.querySelector("#debug-encounter-section");
 const debugEncounterPersonality = document.querySelector("#debug-encounter-personality");
 const debugEncounterCommitment = document.querySelector("#debug-encounter-commitment");
+const debugEncounterAnger = document.querySelector("#debug-encounter-anger");
 const debugEncounterIntent = document.querySelector("#debug-encounter-intent");
 const debugEncounterScores = document.querySelector("#debug-encounter-scores");
 const debugEncounterAvailability = document.querySelector("#debug-encounter-availability");
@@ -1190,6 +1191,9 @@ function renderDebugEncounter() {
   debugEncounterCommitment.textContent = decision
     ? `${decision.commitment.value}/100 — ${decision.commitment.band}`
     : "Encounter ended";
+  debugEncounterAnger.textContent = decision
+    ? `${decision.anger.value}/100 — ${decision.anger.band}`
+    : `${snapshot.state.participants[snapshot.state.objective.ownerId]?.anger ?? 0}/100`;
   debugEncounterIntent.textContent = snapshot.state.npcIntent?.actionId || "None";
   debugEncounterScores.textContent = decision?.candidates.map((candidate, index) => {
     const marker = index === 0 ? "*" : " ";

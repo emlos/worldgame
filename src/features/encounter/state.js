@@ -1,7 +1,7 @@
 import { AI_PERSONALITY_IDS } from "./personality.js";
 import { requireEncounterObjective } from "./objectives/index.js";
 
-export const ENCOUNTER_STATE_VERSION = 8;
+export const ENCOUNTER_STATE_VERSION = 9;
 export const FIGHT_SCENARIO_ID = "fight";
 
 export const ENCOUNTER_PHASE = Object.freeze({
@@ -117,7 +117,7 @@ function validateAcute(acute, path) {
 
 function validateParticipant(participant, path) {
   record(participant, path);
-  const keys = ["ref", "controller", "pose", "support", "exertion", "actionHistory", "acute"];
+  const keys = ["ref", "controller", "pose", "support", "exertion", "anger", "actionHistory", "acute"];
   exactKeys(participant, keys, path);
   validateRef(participant.ref, `${path}.ref`);
   record(participant.controller, `${path}.controller`);
@@ -142,6 +142,7 @@ function validateParticipant(participant, path) {
   string(participant.pose, `${path}.pose`, POSES);
   string(participant.support, `${path}.support`, SUPPORTS);
   integer(participant.exertion, `${path}.exertion`, { min: 0, max: 100 });
+  integer(participant.anger, `${path}.anger`, { min: 0, max: 100 });
   const history = array(participant.actionHistory, `${path}.actionHistory`);
   if (history.length > 8) fail(`${path}.actionHistory cannot contain more than eight actions`);
   history.forEach((actionId, index) => string(actionId, `${path}.actionHistory[${index}]`));
@@ -243,6 +244,7 @@ export function createFightState({
         pose: ENCOUNTER_POSE.standing,
         support: ENCOUNTER_SUPPORT.free,
         exertion: 0,
+        anger: 0,
         actionHistory: [],
         acute: [],
       },
@@ -257,6 +259,7 @@ export function createFightState({
         pose: ENCOUNTER_POSE.standing,
         support: ENCOUNTER_SUPPORT.free,
         exertion: 0,
+        anger: 0,
         actionHistory: [],
         acute: [],
       },

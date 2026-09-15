@@ -42,6 +42,7 @@ import { requireEncounterObjective } from "./objectives/index.js";
 import { PLAYER_RESCUED_OUTCOME_ID } from "./outcomes.js";
 import { applyEncounterHygiene } from "./consequences.js";
 import { awardCombatSkillForExchange } from "./combatSkill.js";
+import { updateNpcAngerFromEvents } from "./anger.js";
 import {
   controlledParticipantId,
   goalOwnerId,
@@ -684,6 +685,8 @@ export function resolveEncounterExchange({
   tickAcuteEffects(context);
   next.elapsedSeconds += Math.max(playerSeconds, npcSeconds);
   next.exchange += 1;
+  updateNpcAngerFromEvents(context, runtime.events);
+  syncObjectiveStage(context, runtime.events);
   checkPhysicalTerminalState(context, runtime, { allowPainCompletion: playerIsHelpless });
   finalizeOutcome(context, runtime);
   applyEncounterHygiene(game, next, availablePlayerAction.actionId, runtime.events);
@@ -705,7 +708,7 @@ export function resolveEncounterExchange({
       && getObjectiveProgress(context) > startingObjectiveProgress) {
       requireEncounterObjective(next).recordProgress(context);
     }
-    syncObjectiveStage(context);
+    syncObjectiveStage(context, runtime.events);
     next.npcIntent = selectAiIntent(context);
   }
   validateEncounterRuntime(context);

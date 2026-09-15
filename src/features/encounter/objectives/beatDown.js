@@ -27,7 +27,8 @@ const BEAT_DOWN_CAUSES = new Set([
 ]);
 
 function completedCause(context, fallback = null, { allowPainCompletion = true } = {}) {
-  if (allowPainCompletion
+  const restrainedStop = context.state.objective.stage === "restrained";
+  if ((allowPainCompletion || restrainedStop)
     && getBodyPain(context, goalTargetId(context.state)) >= context.state.objective.painThreshold) {
     return "pain-threshold";
   }
@@ -59,15 +60,20 @@ function recordCompletion(context, events, cause) {
 export const BEAT_DOWN_OBJECTIVE = Object.freeze({
   id: BEAT_DOWN_OBJECTIVE_ID,
   label: "Beat down",
-  laboratoryConfig: Object.freeze({ id: BEAT_DOWN_OBJECTIVE_ID }),
+  laboratoryConfig: Object.freeze({
+    id: BEAT_DOWN_OBJECTIVE_ID,
+    painTarget: 50,
+    escalatedPainTarget: 85,
+    angerThreshold: 45,
+  }),
   playerLossOutcomeIds: Object.freeze([BEAT_DOWN_OUTCOME.targetBeatenDown]),
   playerLeavesPlaceOutcomeIds: Object.freeze([
     BEAT_DOWN_OUTCOME.targetEscaped,
     BEAT_DOWN_OUTCOME.ownerIncapacitated,
   ]),
-  unopposedActionId: "attack-limb",
-  actionIds: Object.freeze(["attack-limb"]),
-  excludedActionIds: Object.freeze(["flee"]),
+  unopposedActionId: "rough-up",
+  actionIds: Object.freeze(["rough-up", "attack-limb"]),
+  excludedActionIds: Object.freeze([]),
   outcomePriority: Object.freeze([
     BEAT_DOWN_OUTCOME.targetRescued,
     BEAT_DOWN_OUTCOME.mutualIncapacitation,
@@ -79,17 +85,37 @@ export const BEAT_DOWN_OBJECTIVE = Object.freeze({
 
   validateConfig(config, fail) {
     for (const key of Object.keys(config)) {
-      if (key !== "id") fail(`config.goal.${key} is not supported by beat-down`);
+      if (!["id", "painTarget", "escalatedPainTarget", "angerThreshold"].includes(key)) {
+        fail(`config.goal.${key} is not supported by beat-down`);
+      }
+    }
+    for (const key of ["painTarget", "escalatedPainTarget", "angerThreshold"]) {
+      if (config[key] === undefined) continue;
+      if (!Number.isFinite(config[key]) || config[key] < 1 || config[key] > 100) {
+        fail(`config.goal.${key} must be a number from 1 through 100`);
+      }
+    }
+    if (config.painTarget === 100) {
+      fail("config.goal.painTarget must leave room for escalation");
+    }
+    if (config.escalatedPainTarget !== undefined
+      && config.escalatedPainTarget <= (config.painTarget ?? 50)) {
+      fail("config.goal.escalatedPainTarget must exceed config.goal.painTarget");
     }
   },
 
-  create({ game }) {
+  create({ game, config }) {
     const resolve = Number(game.player.getSkillValue("resolve")) || 0;
-    const painThreshold = calculatePainTolerance(resolve);
+    const calmPainThreshold = config.painTarget ?? 50;
+    const escalatedPainThreshold = config.escalatedPainTarget
+      ?? Math.min(100, Math.max(calmPainThreshold + 1, calculatePainTolerance(resolve)));
     return {
       id: BEAT_DOWN_OBJECTIVE_ID,
-      stage: "attack",
-      painThreshold,
+      stage: "restrained",
+      painThreshold: calmPainThreshold,
+      calmPainThreshold,
+      escalatedPainThreshold,
+      angerThreshold: config.angerThreshold ?? 45,
       lastProgressSecond: 0,
     };
   },
@@ -103,14 +129,33 @@ export const BEAT_DOWN_OBJECTIVE = Object.freeze({
     const objective = state.objective;
     exactKeys(
       objective,
-      ["id", "ownerId", "targetId", "stage", "painThreshold", "lastProgressSecond"],
+      [
+        "id",
+        "ownerId",
+        "targetId",
+        "stage",
+        "painThreshold",
+        "calmPainThreshold",
+        "escalatedPainThreshold",
+        "angerThreshold",
+        "lastProgressSecond",
+      ],
       "state.objective",
     );
-    string(objective.stage, "state.objective.stage", new Set(["attack", "complete"]));
-    if (!Number.isFinite(objective.painThreshold)
-      || objective.painThreshold < 1
-      || objective.painThreshold > 100) {
-      fail("state.objective.painThreshold must be a number from 1 through 100");
+    string(objective.stage, "state.objective.stage", new Set(["restrained", "escalated", "complete"]));
+    for (const key of ["painThreshold", "calmPainThreshold", "escalatedPainThreshold", "angerThreshold"]) {
+      if (!Number.isFinite(objective[key]) || objective[key] < 1 || objective[key] > 100) {
+        fail(`state.objective.${key} must be a number from 1 through 100`);
+      }
+    }
+    if (objective.escalatedPainThreshold <= objective.calmPainThreshold) {
+      fail("state.objective.escalatedPainThreshold must exceed calmPainThreshold");
+    }
+    if (objective.stage === "restrained" && objective.painThreshold !== objective.calmPainThreshold) {
+      fail("a restrained beat-down must use its calm pain threshold");
+    }
+    if (objective.stage === "escalated" && objective.painThreshold !== objective.escalatedPainThreshold) {
+      fail("an escalated beat-down must use its escalated pain threshold");
     }
     integer(objective.lastProgressSecond, "state.objective.lastProgressSecond", {
       min: 0,
@@ -144,8 +189,21 @@ export const BEAT_DOWN_OBJECTIVE = Object.freeze({
     return getBodyPain(context, targetId);
   },
 
-  syncStage(context) {
-    if (context.state.phase === "active") context.state.objective.stage = "attack";
+  syncStage(context, { events = [] } = {}) {
+    const { state } = context;
+    const objective = state.objective;
+    if (state.phase !== "active" || objective.stage !== "restrained") return;
+    const ownerId = goalOwnerId(state);
+    if (state.participants[ownerId].anger < objective.angerThreshold) return;
+    objective.stage = "escalated";
+    objective.painThreshold = objective.escalatedPainThreshold;
+    events.push({
+      type: "beat-down.escalated",
+      actorId: ownerId,
+      targetId: goalTargetId(state),
+      anger: state.participants[ownerId].anger,
+      painThreshold: objective.painThreshold,
+    });
   },
 
   recordProgress(context) {
@@ -156,6 +214,9 @@ export const BEAT_DOWN_OBJECTIVE = Object.freeze({
 
   ai: Object.freeze({
     actionUtility(instance) {
+      if (instance.actionId === "rough-up") {
+        return { base: 12, objective: 1.6, pressure: 0.65, risk: 0.1 };
+      }
       return instance.actionId === "attack-limb"
         ? { base: 11, objective: 1.5, pressure: 1.1, risk: 0.35 }
         : null;
@@ -163,16 +224,18 @@ export const BEAT_DOWN_OBJECTIVE = Object.freeze({
 
     commitment(context) {
       return {
-        reward: 0,
+        reward: context.state.objective.stage === "escalated" ? 8 : 0,
         failedAttempts: 0,
         lastProgressSecond: context.state.objective.lastProgressSecond,
-        minimum: 100,
       };
     },
 
     situationalBonuses(context, instance, { tags }) {
       const result = { objective: 0, control: 0, pressure: 0, safety: 0, escape: 0 };
-      if (instance.actionId === "attack-limb") {
+      if (instance.actionId === "rough-up") {
+        result.objective += context.state.objective.stage === "restrained" ? 75 : 10;
+        result.pressure += 18;
+      } else if (instance.actionId === "attack-limb") {
         const targetPart = getBodyPart(
           context,
           goalTargetId(context.state),
@@ -195,15 +258,21 @@ export const BEAT_DOWN_OBJECTIVE = Object.freeze({
     },
 
     allowsRetreat() {
-      return false;
+      return true;
     },
 
     forceRetreat() {
       return false;
     },
 
-    pursuitPool(candidates) {
-      return candidates.filter(({ actionId }) => !["flee", "run"].includes(actionId));
+    pursuitPool(candidates, context, { getEncounterAction }) {
+      const restrained = context.state.objective.stage === "restrained";
+      return candidates.filter(({ actionId }) => {
+        if (["flee", "run"].includes(actionId)) return false;
+        if (!restrained) return true;
+        const action = getEncounterAction(actionId);
+        return !action?.tags.includes("attack") || action.severity === "light";
+      });
     },
 
     isProgressAction(tags) {
@@ -254,17 +323,26 @@ export const BEAT_DOWN_OBJECTIVE = Object.freeze({
 
   renderThreat(context) {
     const ownerId = goalOwnerId(context.state);
-    return `${encounterPronoun(context, ownerId, "subject", { sentence: true })} ${encounterVerb(context, ownerId, "intends", "intend")} to keep hurting you until you cannot fight back.`;
+    return context.state.objective.stage === "escalated"
+      ? `${encounterPronoun(context, ownerId, "subject", { sentence: true })} ${encounterVerb(context, ownerId, "has", "have")} lost all restraint and intends to leave you unable to fight back.`
+      : `${encounterPronoun(context, ownerId, "subject", { sentence: true })} ${encounterVerb(context, ownerId, "intends", "intend")} to hurt and humiliate you, but is still holding back.`;
   },
 
   renderPressure(context) {
     const ownerId = goalOwnerId(context.state);
+    const objective = context.state.objective;
     const targetPain = Math.round(getBodyPain(context, goalTargetId(context.state)));
     const ownerPain = getBodyPain(context, ownerId);
+    const anger = context.state.participants[ownerId].anger;
+    const temper = anger >= objective.angerThreshold
+      ? ` ${encounterPronoun(context, ownerId, "subject", { sentence: true })} ${encounterVerb(context, ownerId, "has", "have")} lost all restraint.`
+      : anger >= 20
+        ? ` ${encounterPronoun(context, ownerId, "subject", { sentence: true })} ${encounterVerb(context, ownerId, "looks", "look")} increasingly irritated.`
+        : "";
     const persistence = ownerPain >= 45
       ? `Even badly hurt, ${encounterPronoun(context, ownerId, "subject")} ${encounterVerb(context, ownerId, "shows", "show")} no sign of backing off.`
       : `${encounterPronoun(context, ownerId, "subject", { sentence: true })} ${encounterVerb(context, ownerId, "shows", "show")} no sign of backing off.`;
-    return `Your pain is ${targetPain} of ${context.state.objective.painThreshold}. ${persistence}`;
+    return `Your pain is ${targetPain} of ${context.state.objective.painThreshold}. ${persistence}${temper}`;
   },
 
   renderEvent(context, event) {
@@ -285,6 +363,8 @@ export const BEAT_DOWN_OBJECTIVE = Object.freeze({
           return "The accumulated pain finally overwhelms your ability to fight back.";
         }
         return "You can no longer continue the fight.";
+      case "beat-down.escalated":
+        return "The hit wipes away what restraint the attacker had. This is no longer a light beating.";
       case "escape.completed":
         return event.actorId === controlledParticipantId(context.state)
           ? "You get clear before the attacker can finish the beating."

@@ -52,6 +52,13 @@ test("every encounter action has an explicit combat rank", () => {
   );
 });
 
+test("every damaging attack declares its escalation severity", () => {
+  const severities = new Set(["light", "moderate", "severe"]);
+  for (const action of ENCOUNTER_ACTIONS.filter(({ tags }) => tags.includes("attack"))) {
+    assert.ok(severities.has(action.severity), `${action.id} is missing a valid severity`);
+  }
+});
+
 test("combat skill uses five 100-point ranks with cross-rank demotion", () => {
   assert.deepEqual(combatSkillProgress(0), { rank: 0, points: 0, total: 0 });
   assert.deepEqual(combatSkillProgress(99.85), { rank: 0, points: 99.85, total: 99.85 });

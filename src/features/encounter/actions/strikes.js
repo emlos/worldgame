@@ -57,6 +57,7 @@ function kneeStrikeSource(context, actorId) {
 
 export const STRIKE_FACE = Object.freeze({
   id: "strike-face",
+  severity: "moderate",
   tags: Object.freeze(["attack", "impact", "daze"]),
   durationSeconds: 2,
   usableBy: "any",
@@ -99,6 +100,7 @@ export const STRIKE_FACE = Object.freeze({
 
 export const DRIVE_BODY = Object.freeze({
   id: "drive-body",
+  severity: "moderate",
   tags: Object.freeze(["attack", "impact", "pressure"]),
   durationSeconds: 2,
   usableBy: "any",
@@ -134,6 +136,7 @@ export const DRIVE_BODY = Object.freeze({
 
 export const STRIKE_HOLDING_ARM = Object.freeze({
   id: "strike-holding-arm",
+  severity: "moderate",
   tags: Object.freeze(["attack", "impact", "disrupt-hold"]),
   durationSeconds: 2,
   usableBy: "any",
@@ -203,6 +206,7 @@ export const STRIKE_HOLDING_ARM = Object.freeze({
 
 export const HEADBUTT = Object.freeze({
   id: "headbutt",
+  severity: "severe",
   tags: Object.freeze(["attack", "impact", "daze", "self-risk"]),
   durationSeconds: 1,
   usableBy: "any",
@@ -256,6 +260,7 @@ export const HEADBUTT = Object.freeze({
 
 export const KNEE_STRIKE = Object.freeze({
   id: "knee-strike",
+  severity: "severe",
   tags: Object.freeze(["attack", "impact", "pressure", "balance-risk"]),
   durationSeconds: 2,
   usableBy: "any",
