@@ -294,28 +294,37 @@ export const BEAT_DOWN_OBJECTIVE = Object.freeze({
     }
   },
 
-  renderOutcome(context) {
+  renderTerminal(context) {
     const { outcome } = context.state;
     const ownerId = goalOwnerId(context.state);
     const subject = encounterPronoun(context, ownerId, "subject", { sentence: true });
+    let text;
     switch (outcome?.id) {
       case BEAT_DOWN_OUTCOME.targetEscaped:
-        return `You escape before ${encounterPronoun(context, ownerId, "subject")} can finish beating you down.`;
+        text = `You escape before ${encounterPronoun(context, ownerId, "subject")} can finish beating you down.`;
+        break;
       case BEAT_DOWN_OUTCOME.targetRescued:
-        return `Your call is answered. ${subject} breaks off the attack as help approaches.`;
+        text = `Your call is answered. ${subject} ${encounterVerb(context, ownerId, "breaks", "break")} off the attack as help approaches.`;
+        break;
       case BEAT_DOWN_OUTCOME.targetBeatenDown:
         if (outcome.cause === "pain-threshold") {
-          return `Your pain reaches its limit. ${subject} has beaten you down.`;
+          text = `Your pain reaches its limit. ${subject} ${encounterVerb(context, ownerId, "has", "have")} beaten you down.`;
+          break;
         }
-        return `You can no longer defend yourself. ${subject} has beaten you down.`;
+        text = `You can no longer defend yourself. ${subject} ${encounterVerb(context, ownerId, "has", "have")} beaten you down.`;
+        break;
       case BEAT_DOWN_OUTCOME.ownerAbandoned:
-        return `${subject} abandons the attack and leaves.`;
+        text = `${subject} abandons the attack and leaves.`;
+        break;
       case BEAT_DOWN_OUTCOME.ownerIncapacitated:
-        return `${subject} can no longer continue the attack. You are safe to leave.`;
+        text = `${subject} can no longer continue the attack. You are safe to leave.`;
+        break;
       case BEAT_DOWN_OUTCOME.mutualIncapacitation:
-        return "The fight leaves both of you unable to continue.";
+        text = "The fight leaves both of you unable to continue.";
+        break;
       default:
-        return "The fight is over.";
+        text = "The fight is over.";
     }
+    return [{ type: "paragraph", text }];
   },
 });

@@ -119,7 +119,9 @@ Rendering validates but does not mutate state or reroll anything. An active scre
 - prose derived from the latest structured events;
 - legal player choices grouped as Unable to act, Escape, Break control, Defend, Attack, or Control.
 
-A terminal screen shows the outcome, final situation, final exchange, and `Continue`.
+A terminal screen shows the objective's dedicated conclusion, the final
+situation, and `Continue`. The complete final-exchange event list remains in
+state for debugging and simulation, but is not replayed after the conclusion.
 
 ### Act
 
@@ -986,7 +988,7 @@ The current objective contract is:
   renderThreat(context),
   renderPressure(context, commitmentBand),
   renderEvent(context, event),
-  renderOutcome(context),
+  renderTerminal(context), // returns scene-content paragraphs
 }
 ```
 

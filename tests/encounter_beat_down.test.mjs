@@ -10,6 +10,7 @@ import {
 } from "../src/features/encounter/ai.js";
 import { createCombatContext } from "../src/features/encounter/combatants.js";
 import {
+  BEAT_DOWN_OBJECTIVE,
   BEAT_DOWN_OBJECTIVE_ID,
   BEAT_DOWN_OUTCOME,
 } from "../src/features/encounter/objectives/beatDown.js";
@@ -129,4 +130,25 @@ test("zero-integrity bruised limbs use generic incapacitation without a break st
   assert.ok(game.player.body.allParts().every((part) =>
     [...part.conditions].every((condition) => condition === InjuryCondition.BRUISED)));
   assert.doesNotThrow(() => validateEncounterState(state));
+});
+
+test("every beat-down outcome supplies dedicated terminal content", () => {
+  const game = preparedGame({ seed: 46 });
+  const state = createBeatDown(game);
+  const context = createCombatContext({
+    game,
+    state,
+    instanceKey: game.currentStory.instanceKey,
+  });
+
+  for (const id of Object.values(BEAT_DOWN_OUTCOME)) {
+    state.outcome = id === BEAT_DOWN_OUTCOME.targetBeatenDown
+      ? { id, cause: "pain-threshold", pain: 80, painThreshold: 78 }
+      : { id };
+    const content = BEAT_DOWN_OBJECTIVE.renderTerminal(context);
+    assert.equal(content.length, 1, id);
+    assert.equal(content[0].type, "paragraph", id);
+    assert.ok(content[0].text.length > 0, id);
+    assert.doesNotMatch(content[0].text, /^The fight is over\.$/, id);
+  }
 });

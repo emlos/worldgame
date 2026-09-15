@@ -9,7 +9,6 @@ import {
 } from "./availability.js";
 import { createCombatContext } from "./combatants.js";
 import {
-  outcomeText,
   renderIntent,
   renderLastExchange,
   renderObjectivePressure,
@@ -142,11 +141,11 @@ function renderActive(context, definition, systemId) {
 }
 
 function renderTerminal(context, definition, systemId) {
+  const objective = requireEncounterObjective(context.state);
   return {
     content: [
-      { type: "paragraph", text: outcomeText(context) },
+      ...objective.renderTerminal(context),
       renderSituationTable(context),
-      { type: "paragraph", text: renderLastExchange(context) },
     ],
     sections: [{
       id: "encounter-outcome",

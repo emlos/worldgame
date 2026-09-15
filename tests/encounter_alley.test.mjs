@@ -8,6 +8,11 @@ import {
   WG_AUTO_TRIGGER,
 } from "../src/story/wg/runtime/sceneExposure.js";
 import { exitWGStory } from "../src/story/wg/runtime/storyRuntime.js";
+import { createCombatContext } from "../src/features/encounter/combatants.js";
+import {
+  STEAL_MONEY_OBJECTIVE,
+  STEAL_MONEY_OUTCOME,
+} from "../src/features/encounter/objectives/steal.js";
 import {
   chooseAction,
   chooseFirstAvailableAction,
@@ -264,6 +269,54 @@ test("surrendering during combat ends the mugging and caps the loss", () => {
     moneyLost: 20,
   });
   assert.equal(afterTheft.player.money, 30, "already-stolen money must not be taken twice");
+});
+
+test("empty-wallet surrender renders one dedicated terminal summary", () => {
+  const game = gameAtStart({ seed: 1, money: 0 });
+  startEncounter(game);
+
+  chooseAction(game, "surrender-money");
+
+  const state = game.currentStory.system.state;
+  const eventTypes = state.lastEvents.map(({ type }) => type);
+  for (const type of [
+    "action.attempted",
+    "theft.empty",
+    "range.changed",
+    "surrender.completed",
+    "escape.completed",
+    "action.spoiled",
+    "encounter.ended",
+  ]) {
+    assert.ok(eventTypes.includes(type), `expected retained event '${type}'`);
+  }
+  const scene = buildScene(game);
+  assert.deepEqual(scene.content.map(({ type }) => type), ["paragraph", "table"]);
+  const summary = scene.content[0].text;
+  assert.match(summary, /empty pockets/i);
+  assert.match(summary, /finding nothing to take/i);
+  assert.match(summary, /lets you go and leaves the alley/i);
+  assert.equal((summary.match(/nothing/gi) || []).length, 1);
+  assert.doesNotMatch(summary, /clear gap|abandons the attempt|turns? and runs?|accepts your surrender/i);
+});
+
+test("every theft outcome supplies dedicated terminal content", () => {
+  const game = gameAtStart({ seed: 1 });
+  const state = startEncounter(game);
+  const context = createCombatContext({
+    game,
+    state,
+    instanceKey: game.currentStory.instanceKey,
+  });
+
+  for (const id of Object.values(STEAL_MONEY_OUTCOME)) {
+    state.outcome = { id, moneyLost: 20 };
+    const content = STEAL_MONEY_OBJECTIVE.renderTerminal(context);
+    assert.equal(content.length, 1, id);
+    assert.equal(content[0].type, "paragraph", id);
+    assert.ok(content[0].text.length > 0, id);
+    assert.doesNotMatch(content[0].text, /^The encounter is over\.$/, id);
+  }
 });
 
 test("controlled disengagement requires complete control and improves with exhaustion", () => {

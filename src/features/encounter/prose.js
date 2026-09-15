@@ -492,7 +492,3 @@ export function renderSituationTable(context) {
     ],
   };
 }
-
-export function outcomeText(context) {
-  return requireEncounterObjective(context.state).renderOutcome(context);
-}

@@ -6,12 +6,14 @@ import { ENCOUNTER_ACTIONS } from "../src/features/encounter/actions/index.js";
 import { actionLabel, getAvailableActionInstances } from "../src/features/encounter/availability.js";
 import { createCombatContext } from "../src/features/encounter/combatants.js";
 import {
-  outcomeText,
   renderIntent,
   renderLastExchange,
   renderObjectivePressure,
 } from "../src/features/encounter/prose.js";
-import { STEAL_MONEY_OUTCOME } from "../src/features/encounter/objectives/steal.js";
+import {
+  STEAL_MONEY_OBJECTIVE,
+  STEAL_MONEY_OUTCOME,
+} from "../src/features/encounter/objectives/steal.js";
 import { gameAtStart, startEncounter } from "./support/encounter.mjs";
 
 function setup(pronouns) {
@@ -58,9 +60,9 @@ test("every attacker intent uses generated pronouns with correct verb agreement"
 
 test("player-facing labels, exchange prose, pressure, and outcomes use attacker pronouns", () => {
   for (const [pronouns, expected] of [
-    [PronounSets.HE_HIM, { subject: "He", object: "him", dependent: "his", verb: "decides", demand: "demands" }],
-    [PronounSets.SHE_HER, { subject: "She", object: "her", dependent: "her", verb: "decides", demand: "demands" }],
-    [PronounSets.THEY_THEM, { subject: "They", object: "them", dependent: "their", verb: "decide", demand: "demand" }],
+    [PronounSets.HE_HIM, { subject: "He", object: "him", dependent: "his", verb: "decides", demand: "demands", breaks: "breaks", takes: "takes", leaves: "leaves", has: "has" }],
+    [PronounSets.SHE_HER, { subject: "She", object: "her", dependent: "her", verb: "decides", demand: "demands", breaks: "breaks", takes: "takes", leaves: "leaves", has: "has" }],
+    [PronounSets.THEY_THEM, { subject: "They", object: "them", dependent: "their", verb: "decide", demand: "demand", breaks: "break", takes: "take", leaves: "leave", has: "have" }],
   ]) {
     const { state, context } = setup(pronouns);
     const labels = getAvailableActionInstances(context, "player")
@@ -73,6 +75,27 @@ test("player-facing labels, exchange prose, pressure, and outcomes use attacker 
     assert.match(renderObjectivePressure(context), new RegExp(`^${expected.subject} still `));
 
     state.outcome = { id: STEAL_MONEY_OUTCOME.muggerFled, moneyLost: 0 };
-    assert.match(outcomeText(context), new RegExp(`^${expected.subject} ${expected.verb} `));
+    assert.match(
+      STEAL_MONEY_OBJECTIVE.renderTerminal(context)[0].text,
+      new RegExp(`^${expected.subject} ${expected.verb} `),
+    );
+
+    state.outcome = { id: STEAL_MONEY_OUTCOME.playerRescued, moneyLost: 0 };
+    assert.match(
+      STEAL_MONEY_OBJECTIVE.renderTerminal(context)[0].text,
+      new RegExp(`${expected.subject} ${expected.breaks} off the attack`),
+    );
+
+    state.outcome = { id: STEAL_MONEY_OUTCOME.playerSurrendered, moneyLost: 20 };
+    assert.match(
+      STEAL_MONEY_OBJECTIVE.renderTerminal(context)[0].text,
+      new RegExp(`${expected.subject} ${expected.takes} it and ${expected.leaves}`),
+    );
+
+    state.outcome = { id: STEAL_MONEY_OUTCOME.theftPlayerIncapacitated, moneyLost: 20 };
+    assert.match(
+      STEAL_MONEY_OBJECTIVE.renderTerminal(context)[0].text,
+      new RegExp(`${expected.subject.toLowerCase()} ${expected.has} taken`),
+    );
   }
 });

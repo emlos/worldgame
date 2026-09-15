@@ -500,34 +500,51 @@ export const STEAL_MONEY_OBJECTIVE = Object.freeze({
     }
   },
 
-  renderOutcome(context) {
+  renderTerminal(context) {
     const { outcome } = context.state;
     const ownerId = goalOwnerId(context.state);
     const money = outcome?.moneyLost || 0;
     const subject = encounterPronoun(context, ownerId, "subject", { sentence: true });
+    const unableEvent = [...context.state.lastEvents].reverse().find((event) =>
+      event.type === "participant.unable-to-act"
+      && event.actorId === goalTargetId(context.state));
+    const unableText = unableEvent ? this.renderEvent(context, unableEvent) : null;
+    let text;
     switch (outcome?.id) {
       case STEAL_MONEY_OUTCOME.playerEscaped:
-        return `You make it out of the alley before ${encounterPronoun(context, ownerId, "subject")} can catch you.`;
+        text = `You make it out of the alley before ${encounterPronoun(context, ownerId, "subject")} can catch you.`;
+        break;
       case STEAL_MONEY_OUTCOME.playerRescued:
-        return `Your call is answered. ${subject} breaks off the attack as help approaches.`;
+        text = `Your call is answered. ${subject} ${encounterVerb(context, ownerId, "breaks", "break")} off the attack as help approaches.`;
+        break;
       case STEAL_MONEY_OUTCOME.playerSurrendered:
-        return money > 0
-          ? `You surrender £${money}. ${subject} ${encounterVerb(context, ownerId, "takes", "take")} it and leaves without continuing the fight.`
-          : `You stop resisting and show your empty pockets. ${subject} ${encounterVerb(context, ownerId, "leaves", "leave")} without continuing the fight.`;
+        text = money > 0
+          ? `You surrender £${money}. ${subject} ${encounterVerb(context, ownerId, "takes", "take")} it and ${encounterVerb(context, ownerId, "leaves", "leave")} without continuing the fight.`
+          : `You stop resisting and show your empty pockets. Finding nothing to take, ${encounterPronoun(context, ownerId, "subject")} ${encounterVerb(context, ownerId, "lets", "let")} you go and ${encounterVerb(context, ownerId, "leaves", "leave")} the alley.`;
+        break;
       case STEAL_MONEY_OUTCOME.muggerFled:
-        return `${subject} ${encounterVerb(context, ownerId, "decides", "decide")} the risk is no longer worth it and ${encounterVerb(context, ownerId, "flees", "flee")}.`;
+        text = [
+          unableText,
+          `${subject} ${encounterVerb(context, ownerId, "decides", "decide")} the risk is no longer worth it and ${encounterVerb(context, ownerId, "flees", "flee")}.`,
+        ].filter(Boolean).join(" ");
+        break;
       case STEAL_MONEY_OUTCOME.muggerIncapacitated:
-        return `${subject} can no longer continue the struggle. You are safe to leave.`;
+        text = `${subject} can no longer continue the struggle. You are safe to leave.`;
+        break;
       case STEAL_MONEY_OUTCOME.bothIncapacitated:
-        return "The struggle leaves both of you unable to continue.";
+        text = "The struggle leaves both of you unable to continue.";
+        break;
       case STEAL_MONEY_OUTCOME.theftPlayerConscious:
-        return `${subject} ${encounterVerb(context, ownerId, "gets", "get")} away with £${money} while you are still conscious.`;
+        text = `${subject} ${encounterVerb(context, ownerId, "gets", "get")} away with £${money} while you are still conscious.`;
+        break;
       case STEAL_MONEY_OUTCOME.theftPlayerIncapacitated:
-        return money > 0
-          ? `By the time you can respond, ${encounterPronoun(context, ownerId, "subject")} has taken £${money} and gone.`
-          : `By the time you can respond, ${encounterPronoun(context, ownerId, "subject")} has searched you, found nothing, and gone.`;
+        text = money > 0
+          ? `By the time you can respond, ${encounterPronoun(context, ownerId, "subject")} ${encounterVerb(context, ownerId, "has", "have")} taken £${money} and gone.`
+          : `By the time you can respond, ${encounterPronoun(context, ownerId, "subject")} ${encounterVerb(context, ownerId, "has", "have")} searched you, found nothing, and gone.`;
+        break;
       default:
-        return "The encounter is over.";
+        text = "The encounter is over.";
     }
+    return [{ type: "paragraph", text }];
   },
 });
