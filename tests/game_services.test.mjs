@@ -164,6 +164,72 @@ test("the action runner preserves effect, time, interrupt, and logging order", (
   assert.equal(game.dailyAnnouncements.items[0].id, "test");
 });
 
+test("failed actions restore the complete serialized game state", () => {
+  const phases = ["apply", "before-after", "after", "after-after"];
+
+  for (const failurePhase of phases) {
+    const game = gameWithoutNPCs({
+      playerOptions: { startPlaceId: null },
+    });
+    const before = game.toJSON();
+
+    assert.throws(
+      () => game.runAction({
+        label: `failure:${failurePhase}`,
+        minutes: 5,
+        apply(currentGame) {
+          currentGame.setFlag("action-applied");
+          currentGame.getRNG("gameplay")();
+          if (failurePhase === "apply") throw new Error("test action failed");
+        },
+        interrupt(currentGame, phase) {
+          currentGame.setDailyFlag(`interrupt:${phase}`);
+          if (failurePhase === phase) throw new Error("test action failed");
+          return false;
+        },
+        after(currentGame) {
+          currentGame.setFlag("after-applied");
+          if (failurePhase === "after") throw new Error("test action failed");
+        },
+      }),
+      /test action failed/,
+    );
+
+    assert.deepEqual(game.toJSON(), before, failurePhase);
+  }
+});
+
+test("action rollback covers time failures and preserves event subscriptions", () => {
+  const game = gameWithoutNPCs({
+    playerOptions: { startPlaceId: null },
+  });
+  const before = game.toJSON();
+  let calls = 0;
+  let fail = true;
+  const unsubscribe = game.on("time", () => {
+    calls += 1;
+    if (fail) throw new Error("test time listener failed");
+  });
+
+  assert.throws(
+    () => game.runAction({
+      minutes: 5,
+      apply(currentGame) {
+        currentGame.setFlag("action-applied");
+      },
+    }),
+    /test time listener failed/,
+  );
+  assert.deepEqual(game.toJSON(), before);
+  assert.equal(calls, 1);
+
+  fail = false;
+  game.advanceMinutes(1);
+  assert.equal(calls, 2);
+  unsubscribe();
+  game.advanceMinutes(1);
+  assert.equal(calls, 2);
+});
 test("crossing UTC midnight clears daily flags and refreshes announcements", () => {
   const game = gameWithoutNPCs({
     startDate: new Date("2026-09-04T23:30:00.000Z"),

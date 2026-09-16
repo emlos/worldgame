@@ -27,10 +27,15 @@ export function validateActionHistorySave(save, { path = "save", gameTime }) {
       requiredSaveField(entry, "t", entryPath),
       `${entryPath}.t`,
     );
-    if (timestamp > gameTime) failSave(`${entryPath}.t`, "cannot be after the game clock");
-    saveString(requiredSaveField(entry, "label", entryPath), `${entryPath}.label`, {
-      nonEmpty: true,
-    });
+    if (timestamp > gameTime)
+      failSave(`${entryPath}.t`, "cannot be after the game clock");
+    saveString(
+      requiredSaveField(entry, "label", entryPath),
+      `${entryPath}.label`,
+      {
+        nonEmpty: true,
+      },
+    );
   });
   return log;
 }
@@ -66,41 +71,77 @@ export function runGameAction(
     throw new TypeError("runAction resting actions must be energy-free");
   }
 
+  const checkpoint = captureActionCheckpoint(game);
   const startedAt = game.now.toISOString();
   let timeChange = null;
 
-  if (typeof apply === "function") apply(game);
+  try {
+    if (typeof apply === "function") apply(game);
 
-  if (resting && amount > 0) {
-    const energy = game.player.adjustStat(
-      "energy",
-      amount * PLAYER_ENERGY_RECOVERY_PER_MINUTE,
-    );
-    game.player.setStatValue(
-      "energy",
-      Math.round(energy * ENERGY_PRECISION) / ENERGY_PRECISION,
-    );
-  }
+    if (resting && amount > 0) {
+      const energy = game.player.adjustStat(
+        "energy",
+        amount * PLAYER_ENERGY_RECOVERY_PER_MINUTE,
+      );
+      game.player.setStatValue(
+        "energy",
+        Math.round(energy * ENERGY_PRECISION) / ENERGY_PRECISION,
+      );
+    }
 
-  if (amount > 0) {
-    timeChange = advanceGameTime(game, amount, {
-      drainPlayerEnergy: !energyFree,
-    });
-  }
+    if (amount > 0) {
+      timeChange = advanceGameTime(game, amount, {
+        drainPlayerEnergy: !energyFree,
+      });
+    }
 
-  const skipAfter =
-    typeof interrupt === "function"
-      ? interrupt(game, "before-after", timeChange) === true
-      : false;
-  if (!skipAfter && typeof after === "function") after(game);
-  if (typeof interrupt === "function") {
-    interrupt(game, "after-after", timeChange);
-  }
+    const skipAfter =
+      typeof interrupt === "function"
+        ? interrupt(game, "before-after", timeChange) === true
+        : false;
+    if (!skipAfter && typeof after === "function") after(game);
+    if (typeof interrupt === "function") {
+      interrupt(game, "after-after", timeChange);
+    }
 
-  game.actionRevision += 1;
-  if (typeof label === "string" && label) {
-    game.log.push({ t: startedAt, label });
+    game.actionRevision += 1;
+    if (typeof label === "string" && label) {
+      game.log.push({ t: startedAt, label });
+    }
+    refreshJournalAvailability(game);
+    return { timeChange };
+  } catch (error) {
+    restoreActionCheckpoint(game, checkpoint);
+    throw error;
   }
-  refreshJournalAvailability(game);
-  return { timeChange };
+}
+
+function captureActionCheckpoint(game) {
+  const listeners = game._listeners;
+  const listenerMembership = Object.fromEntries(
+    Object.entries(listeners).map(([name, callbacks]) => [
+      name,
+      [...callbacks],
+    ]),
+  );
+  return { save: game.toJSON(), listeners, listenerMembership };
+}
+
+function restoreActionCheckpoint(game, checkpoint) {
+  const restored = game.constructor.fromJSON(checkpoint.save, {
+    features: game.features,
+  });
+  const features = game.features;
+
+  Object.assign(game, restored);
+  game.features = features;
+  game._listeners = checkpoint.listeners;
+
+  for (const [name, callbacks] of Object.entries(
+    checkpoint.listenerMembership,
+  )) {
+    const listeners = game._listeners[name];
+    listeners.clear();
+    for (const callback of callbacks) listeners.add(callback);
+  }
 }
