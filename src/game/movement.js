@@ -42,6 +42,8 @@ export function validateSavedPlayerPosition(save, { path = "save", mapIndex }) {
     if (currentPlaceKey !== current.place.key) {
       failSave(`${path}.currentPlaceKey`, "must match the current place key");
     }
+  } else if (currentPlaceKey !== null) {
+    failSave(`${path}.currentPlaceKey`, "must be null when there is no current place");
   }
   return { home, current, currentPlaceKey };
 }
@@ -72,7 +74,7 @@ export function setPlayerPlace(
 ) {
   if (placeId == null) {
     game.currentPlaceId = null;
-    game.currentPlaceKey = placeKey == null ? null : String(placeKey);
+    game.currentPlaceKey = null;
     if (!preserveStory) clearActiveStory(game);
     return;
   }
