@@ -2,10 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import { Game } from "../src/game/game.js";
-import {
-  actWGSystem,
-  registerWGStorySystem,
-} from "../src/story/wg/runtime/storySystemRegistry.js";
+import { actWGSystem } from "../src/story/wg/runtime/storySystemRegistry.js";
 import {
   applyWGEffects,
   getWGEffectHandlerOps,
@@ -17,6 +14,7 @@ import {
   enterWGScene,
   resolveActiveWGStory,
 } from "../src/story/wg/runtime/storyRuntime.js";
+import { createFeatureCatalog } from "../src/features/catalog.js";
 import { DEFAULT_FEATURE_CATALOG } from "../src/features/index.js";
 import {
   validateWGEffectShape,
@@ -414,18 +412,23 @@ test("take-money-up-to caps a loss at the available whole balance", () => {
 
 test("story systems reject malformed effects before returning an outcome", () => {
   const systemId = "test.invalid-effect";
-  registerWGStorySystem(systemId, {
-    validateState() {},
-    act() {
-      return {
-        state: {},
-        effects: [{ op: "money", amount: 1, typo: true }],
-      };
+  const features = createFeatureCatalog([{
+    id: "test",
+    wgSystems: {
+      [systemId]: {
+        validateState() {},
+        act() {
+          return {
+            state: {},
+            effects: [{ op: "money", amount: 1, typo: true }],
+          };
+        },
+      },
     },
-  });
+  }]);
   assert.throws(
     () => actWGSystem(
-      {},
+      { features },
       { system: { id: systemId, config: {} } },
       { instanceKey: "test", system: { state: {} } },
       {},

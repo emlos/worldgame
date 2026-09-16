@@ -8,22 +8,12 @@ export class WGStorySystemError extends Error {
   }
 }
 
-const SYSTEMS = new Map();
-
 function fail(message) {
   throw new WGStorySystemError(message);
 }
 
 function isRecord(value) {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
-}
-
-export function registerWGStorySystem(systemId, system) {
-  const id = String(systemId);
-  if (!/^[a-z][a-z0-9_.-]*$/.test(id)) fail(`Invalid WG story system id '${id}'`);
-  if (!isRecord(system)) fail(`WG story system '${id}' must be an object`);
-  if (SYSTEMS.has(id)) fail(`Duplicate WG story system '${id}'`);
-  SYSTEMS.set(id, Object.freeze({ ...system }));
 }
 
 function validateJSON(value, path, ancestors = new WeakSet()) {
@@ -58,9 +48,9 @@ export function cloneWGSystemJSON(value, path = "WG system data") {
   return JSON.parse(JSON.stringify(value));
 }
 
-export function getWGStorySystem(systemId, features = null) {
+function getWGStorySystem(systemId, features = null) {
   const id = String(systemId);
-  const system = SYSTEMS.get(id) ?? features?.getWGSystem(id);
+  const system = features?.getWGSystem(id) ?? null;
   if (!system) fail(`Unknown WG story system '${id}'`);
   return system;
 }
