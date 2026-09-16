@@ -6,6 +6,7 @@ import {
     DEFAULT_OPENING_HOURS,
 } from "../data/place.js";
 import { parseTimeToMinutes } from "../../shared/util/date.js";
+import { cloneData } from "../../shared/util/util.js";
 
 const parseTimeOrNull = (str) => parseTimeToMinutes(str, { nullOnEmpty: true });
 
@@ -159,7 +160,7 @@ export class Place {
             name: this.name,
             locationId: this.locationId,
             unlocked: this.unlocked,
-            props: this.props,
+            props: cloneData(this.props),
         };
     }
 

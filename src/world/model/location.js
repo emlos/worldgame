@@ -1,3 +1,5 @@
+import { cloneData } from "../../shared/util/util.js";
+
 // --------------------------
 // Locations & Districts
 // --------------------------
@@ -33,7 +35,7 @@ export class Location {
       y: this.y,
       districtKey: this.districtKey,
       tags: this.tags.slice(),
-      meta: this.meta,
+      meta: cloneData(this.meta),
     };
   }
 

@@ -71,6 +71,34 @@ test("Game.toJSON output validates and round-trips without JSON laundering", () 
   assert.deepEqual(restored.toJSON(), save);
 });
 
+test("Game.toJSON returns a detached world snapshot", () => {
+  const game = new Game({ seed: 0x5a17, startDate: FIXED_START });
+  const location = [...game.world.map.locations.values()].find(({ places }) => places.length > 0);
+  const place = location.places[0];
+
+  location.meta.snapshotProbe = { nested: ["live"] };
+  place.props.snapshotProbe = { nested: ["live"] };
+
+  const save = game.toJSON();
+  const savedLocation = save.world.map.locations.find(({ id }) => id === location.id);
+  const savedPlace = savedLocation.places.find(({ id }) => id === place.id);
+
+  assert.notStrictEqual(savedLocation.meta, location.meta);
+  assert.notStrictEqual(savedLocation.meta.snapshotProbe, location.meta.snapshotProbe);
+  assert.notStrictEqual(savedPlace.props, place.props);
+  assert.notStrictEqual(savedPlace.props.snapshotProbe, place.props.snapshotProbe);
+
+  savedLocation.meta.snapshotProbe.nested[0] = "saved";
+  savedPlace.props.snapshotProbe.nested[0] = "saved";
+  assert.equal(location.meta.snapshotProbe.nested[0], "live");
+  assert.equal(place.props.snapshotProbe.nested[0], "live");
+
+  location.meta.snapshotProbe.nested[0] = "mutated-live";
+  place.props.snapshotProbe.nested[0] = "mutated-live";
+  assert.equal(savedLocation.meta.snapshotProbe.nested[0], "saved");
+  assert.equal(savedPlace.props.snapshotProbe.nested[0], "saved");
+});
+
 test("save validation is pure and valid saves still round-trip exactly", () => {
   const save = validSave();
   const before = JSON.stringify(save);
