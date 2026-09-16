@@ -205,14 +205,25 @@ export function processDueTimers(game) {
       fail(`Timer '${id}' has an invalid occurrence count`);
     }
 
+    const previousState = {
+      dueAt: state.dueAt,
+      occurrences: state.occurrences,
+    };
     if (definition.repeat) {
       state.dueAt = advanceRepeatingDeadline(definition, dueAt).toISOString();
       state.occurrences = occurrence;
     } else {
       delete timers[id];
     }
-    if (definition.effects) applyWGEffects(game, definition.effects);
-    else definition.onDue(game, { id, dueAt: new Date(dueAt), occurrence });
+    try {
+      if (definition.effects) applyWGEffects(game, definition.effects);
+      else definition.onDue(game, { id, dueAt: new Date(dueAt), occurrence });
+    } catch (error) {
+      state.dueAt = previousState.dueAt;
+      state.occurrences = previousState.occurrences;
+      timers[id] = state;
+      throw error;
+    }
   }
   return dueIds.length;
 }

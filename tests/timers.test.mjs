@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import { Game } from "../src/game/game.js";
+import { createFeatureCatalog } from "../src/features/catalog.js";
 import { performChoice } from "../src/game/scene/choiceEngine.js";
 import { buildScene } from "../src/game/scene/sceneEngine.js";
 import { applyWGEffect } from "../src/story/wg/runtime/effectRuntime.js";
@@ -144,7 +145,7 @@ test("resync skips timer effects and advances the recurring deadline", () => {
   assert.equal(game.timers["rent.weekly"].occurrences, 1);
 });
 
-test("timer effect failures propagate without restoring prior state", () => {
+test("timer effect failures keep the firing timer due for retry", () => {
   const game = new Game({ seed: 704, startDate: new Date("2026-09-04T12:00:00.000Z") });
   game.story.quest = 5;
   game.startTimer("rent.weekly");
@@ -152,10 +153,47 @@ test("timer effect failures propagate without restoring prior state", () => {
   assert.throws(() => game.advanceMinutes(7 * DAY_MINUTES), /non-object story path/);
   assert.equal(game.now.toISOString(), "2026-09-11T12:00:00.000Z");
   assert.deepEqual(game.timers["rent.weekly"], {
-    dueAt: "2026-09-18T12:00:00.000Z",
-    occurrences: 1,
+    dueAt: "2026-09-11T12:00:00.000Z",
+    occurrences: 0,
   });
   assert.equal(game.story.quest, 5);
+});
+
+test("failed one-shot timer callbacks are not consumed", () => {
+  let attempts = 0;
+  const features = createFeatureCatalog([{
+    id: "timer_test",
+    timerDefinitions: {
+      "test.once": {
+        schedule: { kind: "once", afterHours: 1 },
+        repeat: false,
+        onDue() {
+          attempts += 1;
+          throw new Error("test timer failed");
+        },
+      },
+    },
+  }]);
+  const game = new Game({
+    seed: 714,
+    startDate: new Date("2026-09-04T12:00:00.000Z"),
+    features,
+  });
+  game.startTimer("test.once");
+
+  assert.throws(() => game.advanceMinutes(60), /test timer failed/);
+  assert.equal(attempts, 1);
+  assert.deepEqual(game.timers["test.once"], {
+    dueAt: "2026-09-04T13:00:00.000Z",
+    occurrences: 0,
+  });
+
+  assert.throws(() => game.advanceMinutes(1), /test timer failed/);
+  assert.equal(attempts, 2);
+  assert.deepEqual(game.timers["test.once"], {
+    dueAt: "2026-09-04T13:00:00.000Z",
+    occurrences: 0,
+  });
 });
 
 test("WG timer effects compile and preserve their lifecycle semantics", () => {
