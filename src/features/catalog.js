@@ -1,3 +1,5 @@
+import { validateTimerDefinition } from "../game/timerDefinitionContract.js";
+
 const FEATURE_ID_PATTERN = /^[a-z][a-z0-9_-]*$/;
 const CONTRIBUTION_ID_PATTERN = /^[a-z][a-z0-9_.-]*$/;
 
@@ -155,13 +157,13 @@ export function createFeatureCatalog(featureDefinitions) {
       feature.timerDefinitions,
       `feature '${feature.id}' timers`,
     )) {
-      addUnique(
-        timerDefinitions,
-        id,
-        record(definition, `timer '${id}'`),
-        "timer",
-        feature.id,
-      );
+      const checked = record(definition, `timer '${id}'`);
+      try {
+        validateTimerDefinition(id, checked);
+      } catch (error) {
+        fail(`invalid timer '${id}' from '${feature.id}': ${error.message}`);
+      }
+      addUnique(timerDefinitions, id, checked, "timer", feature.id);
     }
     for (const decorator of feature.sceneDecorators) {
       record(decorator, `feature '${feature.id}' scene decorator`);

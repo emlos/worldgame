@@ -105,3 +105,32 @@ test("scene decorators run in enabled-feature order", () => {
 
   assert.deepEqual(catalog.decorateScene({}, { trace: [] }).trace, ["one", "two"]);
 });
+
+test("feature composition rejects malformed timer definitions at registration", () => {
+  assert.throws(
+    () => createFeatureCatalog([{
+      id: "broken",
+      timerDefinitions: {
+        "broken.timer": {
+          schedule: { kind: "interval", hours: 1 },
+          repeat: false,
+        },
+      },
+    }]),
+    /invalid timer 'broken\.timer'.*requires exactly one of effects or an onDue callback/,
+  );
+
+  assert.throws(
+    () => createFeatureCatalog([{
+      id: "broken",
+      timerDefinitions: {
+        "broken.timer": {
+          schedule: { kind: "interval", hours: 0 },
+          repeat: true,
+          onDue() {},
+        },
+      },
+    }]),
+    /invalid timer 'broken\.timer'.*requires positive hours/,
+  );
+});

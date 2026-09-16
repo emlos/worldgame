@@ -1,6 +1,13 @@
-import { validateWGEffectShape } from "../story/wg/shared/effects/registry.js";
 import { applyWGEffects } from "../story/wg/runtime/effectRuntime.js";
 import { DEFAULT_FEATURE_CATALOG } from "../features/index.js";
+import {
+  GameTimerError,
+  failTimer as fail,
+  parseTimerClock as parseClock,
+  timerIntervalDuration as intervalDuration,
+  timerOnceDuration as onceDuration,
+  validateTimerDefinition,
+} from "./timerDefinitionContract.js";
 import {
   failSave,
   requiredSaveField,
@@ -9,59 +16,10 @@ import {
   saveRecord,
 } from "../shared/util/saveValidation.js";
 
-const MS_PER_HOUR = 60 * 60 * 1000;
-const MS_PER_DAY = 24 * MS_PER_HOUR;
-const CLOCK_PATTERN = /^(\d{2}):(\d{2})$/;
-
-export class GameTimerError extends Error {
-  constructor(message) {
-    super(message);
-    this.name = "GameTimerError";
-  }
-}
-
-function fail(message) {
-  throw new GameTimerError(message);
-}
-
 function validDate(value, label) {
   const date = value instanceof Date ? new Date(value.getTime()) : new Date(value);
   if (!Number.isFinite(date.getTime())) fail(`${label} must be a valid date`);
   return date;
-}
-
-function parseClock(value) {
-  const match = String(value ?? "").match(CLOCK_PATTERN);
-  if (!match) fail("Timer calendar schedules require an HH:MM UTC time");
-  const hour = Number(match[1]);
-  const minute = Number(match[2]);
-  if (hour > 23 || minute > 59) {
-    fail("Timer calendar schedules require an HH:MM UTC time");
-  }
-  return { hour, minute };
-}
-
-function intervalMilliseconds(schedule, field, unit) {
-  const amount = Number(schedule[field]);
-  if (!Number.isFinite(amount) || amount <= 0) {
-    fail(`Timer ${schedule.kind} schedule requires positive ${field}`);
-  }
-  return amount * unit;
-}
-
-function intervalDuration(schedule) {
-  const hasHours = Object.prototype.hasOwnProperty.call(schedule, "hours");
-  const hasDays = Object.prototype.hasOwnProperty.call(schedule, "days");
-  if (hasHours === hasDays) {
-    fail("Timer interval schedule requires exactly one of hours or days");
-  }
-  return hasHours
-    ? intervalMilliseconds(schedule, "hours", MS_PER_HOUR)
-    : intervalMilliseconds(schedule, "days", MS_PER_DAY);
-}
-
-function onceDuration(schedule) {
-  return intervalMilliseconds(schedule, "afterHours", MS_PER_HOUR);
 }
 
 function daysInUtcMonth(year, month) {
@@ -74,63 +32,7 @@ function monthlyCandidate(year, month, day, hour, minute) {
   );
 }
 
-export function validateTimerDefinition(id, definition) {
-  if (typeof id !== "string" || !id) fail("Timer definitions require an id");
-  if (!definition || typeof definition !== "object" || Array.isArray(definition)) {
-    fail(`Timer '${id}' definition must be an object`);
-  }
-  const schedule = definition.schedule;
-  if (!schedule || typeof schedule !== "object" || Array.isArray(schedule)) {
-    fail(`Timer '${id}' requires a schedule`);
-  }
-  if (typeof definition.repeat !== "boolean") {
-    fail(`Timer '${id}' requires an explicit repeat boolean`);
-  }
-  const definesEffects = Object.prototype.hasOwnProperty.call(definition, "effects");
-  const definesCallback = Object.prototype.hasOwnProperty.call(definition, "onDue");
-  if (definesEffects && !Array.isArray(definition.effects)) {
-    fail(`Timer '${id}' effects must be an array`);
-  }
-  if (definesCallback && typeof definition.onDue !== "function") {
-    fail(`Timer '${id}' onDue must be a function`);
-  }
-  const hasEffects = definesEffects && Array.isArray(definition.effects);
-  const hasCallback = definesCallback && typeof definition.onDue === "function";
-  if (hasEffects === hasCallback) {
-    fail(`Timer '${id}' requires exactly one of effects or an onDue callback`);
-  }
-  if (hasEffects) {
-    if (!definition.effects.length) fail(`Timer '${id}' effects cannot be empty`);
-    for (const effect of definition.effects) {
-      validateWGEffectShape(effect, {
-        fail: (message) => fail(`Timer '${id}' has invalid effects: ${message}`),
-      });
-    }
-  }
-
-  if (schedule.kind === "interval") intervalDuration(schedule);
-  else if (schedule.kind === "once") {
-    onceDuration(schedule);
-    if (definition.repeat) fail(`One-shot timer '${id}' cannot repeat`);
-  } else if (schedule.kind === "weekly") {
-    if (!Number.isInteger(schedule.weekday) || schedule.weekday < 0 || schedule.weekday > 6) {
-      fail(`Timer '${id}' weekly weekday must be an integer from 0 to 6`);
-    }
-    parseClock(schedule.at);
-  } else if (schedule.kind === "monthly") {
-    if (!Number.isInteger(schedule.day) || schedule.day < 1 || schedule.day > 31) {
-      fail(`Timer '${id}' monthly day must be an integer from 1 to 31`);
-    }
-    parseClock(schedule.at);
-  } else {
-    fail(`Timer '${id}' has unknown schedule kind '${String(schedule.kind)}'`);
-  }
-  return definition;
-}
-
-for (const [id, definition] of Object.entries(DEFAULT_FEATURE_CATALOG.timerDefinitions)) {
-  validateTimerDefinition(id, definition);
-}
+export { GameTimerError, validateTimerDefinition };
 
 export function getTimerDefinition(id, features = DEFAULT_FEATURE_CATALOG) {
   const key = String(id);
