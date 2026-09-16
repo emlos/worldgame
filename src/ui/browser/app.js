@@ -1,15 +1,12 @@
 import { Game } from "../../game/game.js";
-import {
-  NEW_GAME_SEED,
-  NEW_GAME_START_ISO,
-} from "../../game/newGameConfig.js";
+import { NEW_GAME_SEED, NEW_GAME_START_ISO } from "../../game/newGameConfig.js";
 import { createPhoneChats } from "./phoneChats.js";
 import {
   addDebugMoney,
   advanceDebugHour,
   teleportNPCToPlayer,
 } from "../../game/debugCommands.js";
-import { buildScene } from "../../game/scene/sceneEngine.js";
+import { presentScene as presentGameScene } from "./scenePresentation.js";
 import { performChoice } from "../../game/scene/choiceEngine.js";
 import { buildJournalReadView } from "../../game/journal/view.js";
 import { canReadJournal } from "../../game/journal/runtime.js";
@@ -37,7 +34,11 @@ import {
   createSceneVisualElement,
   destroySceneVisualElement,
 } from "./sceneVisual.js";
-import { MENU_HOTKEYS, choiceHotkeyLabel, resolveKeyboardAction } from "./keyboard.js";
+import {
+  MENU_HOTKEYS,
+  choiceHotkeyLabel,
+  resolveKeyboardAction,
+} from "./keyboard.js";
 import {
   OUTCOME,
   outcomeForChange,
@@ -79,7 +80,9 @@ const phoneBackButton = document.querySelector("#phone-back");
 const phoneHomeScreen = document.querySelector("#phone-home-screen");
 const phoneRemindersButton = document.querySelector("#phone-reminders-btn");
 const phoneRemindersScreen = document.querySelector("#phone-reminders-screen");
-const phoneRemindersContent = document.querySelector("#phone-reminders-content");
+const phoneRemindersContent = document.querySelector(
+  "#phone-reminders-content",
+);
 const phoneRelationshipsButton = document.querySelector(
   "#phone-relationships-btn",
 );
@@ -103,7 +106,9 @@ const phoneSettingsScreen = document.querySelector("#phone-settings-screen");
 const phoneHotkeysContent = document.querySelector("#phone-hotkeys-content");
 const phoneChatsButton = document.querySelector("#phone-chats-btn");
 const phoneChatsScreen = document.querySelector("#phone-chats-screen");
-const phoneChatThreadScreen = document.querySelector("#phone-chat-thread-screen");
+const phoneChatThreadScreen = document.querySelector(
+  "#phone-chat-thread-screen",
+);
 const debugEnabled = typeof debug !== "undefined" && Boolean(debug);
 const debugPanel = document.querySelector("#debug-panel");
 const debugAddMoneyButton = document.querySelector("#debug-add-money");
@@ -126,15 +131,25 @@ const debugTaylorAction = document.querySelector("#debug-taylor-action");
 const debugCaroPosition = document.querySelector("#debug-caro-position");
 const debugCaroGoal = document.querySelector("#debug-caro-goal");
 const debugCaroAction = document.querySelector("#debug-caro-action");
-const debugEncounterSection = document.querySelector("#debug-encounter-section");
-const debugEncounterPersonality = document.querySelector("#debug-encounter-personality");
-const debugEncounterCommitment = document.querySelector("#debug-encounter-commitment");
+const debugEncounterSection = document.querySelector(
+  "#debug-encounter-section",
+);
+const debugEncounterPersonality = document.querySelector(
+  "#debug-encounter-personality",
+);
+const debugEncounterCommitment = document.querySelector(
+  "#debug-encounter-commitment",
+);
 const debugEncounterAnger = document.querySelector("#debug-encounter-anger");
 const debugEncounterIntent = document.querySelector("#debug-encounter-intent");
 const debugEncounterScores = document.querySelector("#debug-encounter-scores");
-const debugEncounterAvailability = document.querySelector("#debug-encounter-availability");
+const debugEncounterAvailability = document.querySelector(
+  "#debug-encounter-availability",
+);
 const debugEncounterRolls = document.querySelector("#debug-encounter-rolls");
-const debugEncounterInvariants = document.querySelector("#debug-encounter-invariants");
+const debugEncounterInvariants = document.querySelector(
+  "#debug-encounter-invariants",
+);
 const debugEncounterState = document.querySelector("#debug-encounter-state");
 
 document.body.classList.toggle("debug-enabled", debugEnabled);
@@ -223,9 +238,14 @@ function renderPlayerPanel() {
     const row = document.createElement("div");
     row.className = "player-stat";
     row.dataset.stat = name;
-    row.dataset.outcome = outcomeForRange(value, definition.min, definition.max, {
-      lowerIsBetter: definition.higherIsBetter === false,
-    });
+    row.dataset.outcome = outcomeForRange(
+      value,
+      definition.min,
+      definition.max,
+      {
+        lowerIsBetter: definition.higherIsBetter === false,
+      },
+    );
 
     const label = document.createElement("span");
     label.className = "player-stat-label";
@@ -257,7 +277,9 @@ function renderPlayerPanel() {
     const row = document.createElement("div");
     row.className = "player-stat";
     row.dataset.stat = "pain";
-    row.dataset.outcome = outcomeForRange(pain, 0, 100, { lowerIsBetter: true });
+    row.dataset.outcome = outcomeForRange(pain, 0, 100, {
+      lowerIsBetter: true,
+    });
 
     const label = document.createElement("span");
     label.className = "player-stat-label";
@@ -365,7 +387,10 @@ function makeChoiceButton(sceneId, choice, number) {
     );
   }
   for (const effect of choice.effectsPreview) {
-    const detail = makeChoiceDetail("choice-effect", formatDescriptor(effect, "effect"));
+    const detail = makeChoiceDetail(
+      "choice-effect",
+      formatDescriptor(effect, "effect"),
+    );
     detail.dataset.outcome = outcomeForChange(effect);
     details.append(detail);
   }
@@ -373,7 +398,9 @@ function makeChoiceButton(sceneId, choice, number) {
     details.append(
       makeChoiceDetail(
         "choice-skill-check",
-        choice.skillCheck.targetLabel + ": " + choice.skillCheck.difficultyLabel,
+        choice.skillCheck.targetLabel +
+          ": " +
+          choice.skillCheck.difficultyLabel,
       ),
     );
   }
@@ -482,17 +509,25 @@ function makeEmbeddedJournalChoice(scene, choice, number, className) {
   button.querySelector(".choice-details")?.remove();
   const label = button.querySelector(".choice-label");
   if (label) label.textContent = choice.label;
-  if (!choice.enabled && choice.disabledReason) button.title = choice.disabledReason;
+  if (!choice.enabled && choice.disabledReason)
+    button.title = choice.disabledReason;
   choiceButtons.push(button);
   return button;
 }
 
 function renderEmbeddedJournal(scene) {
   const view = scene.presentation;
-  const writing = scene.sections.find((section) => section.id === "journal-writing");
-  const actions = scene.sections.find((section) => section.id === "journal-actions");
-  if (!writing || !actions) throw new Error("Journal scene is missing its choices");
-  const exitChoice = actions.choices.find((choice) => choice.id === "journal-exit");
+  const writing = scene.sections.find(
+    (section) => section.id === "journal-writing",
+  );
+  const actions = scene.sections.find(
+    (section) => section.id === "journal-actions",
+  );
+  if (!writing || !actions)
+    throw new Error("Journal scene is missing its choices");
+  const exitChoice = actions.choices.find(
+    (choice) => choice.id === "journal-exit",
+  );
 
   const book = document.createElement("div");
   book.className = "journal-book journal-scene-book";
@@ -508,24 +543,30 @@ function renderEmbeddedJournal(scene) {
   writingChoices.className = "journal-write-choices";
 
   let choiceNumber = 1;
-  writingChoices.append(...writing.choices.map((choice) =>
-    makeEmbeddedJournalChoice(
-      scene,
-      choice,
-      choiceNumber++,
-      "journal-write-choice",
-    )));
+  writingChoices.append(
+    ...writing.choices.map((choice) =>
+      makeEmbeddedJournalChoice(
+        scene,
+        choice,
+        choiceNumber++,
+        "journal-write-choice",
+      ),
+    ),
+  );
   const actionChoices = document.createElement("div");
   actionChoices.className = "journal-scene-actions";
-  actionChoices.append(...actions.choices
-    .filter((choice) => choice.id !== "journal-exit")
-    .map((choice) =>
-    makeEmbeddedJournalChoice(
-      scene,
-      choice,
-      choiceNumber++,
-      "journal-stop-writing",
-    )));
+  actionChoices.append(
+    ...actions.choices
+      .filter((choice) => choice.id !== "journal-exit")
+      .map((choice) =>
+        makeEmbeddedJournalChoice(
+          scene,
+          choice,
+          choiceNumber++,
+          "journal-stop-writing",
+        ),
+      ),
+  );
   choicePage.append(intro, writingChoices, actionChoices);
 
   const prosePage = document.createElement("section");
@@ -538,7 +579,9 @@ function renderEmbeddedJournal(scene) {
   const entries = [...view.entries];
   if (view.activeEntry) entries.push(view.activeEntry);
   if (entries.length) {
-    prosePage.append(...entries.map((entry) => makeJournalEntryElement(document, entry)));
+    prosePage.append(
+      ...entries.map((entry) => makeJournalEntryElement(document, entry)),
+    );
   } else {
     const blank = document.createElement("p");
     blank.className = "journal-empty-page";
@@ -549,12 +592,14 @@ function renderEmbeddedJournal(scene) {
   book.append(choicePage, prosePage);
   sceneElement.append(book);
   if (exitChoice) {
-    sceneElement.append(makeEmbeddedJournalChoice(
-      scene,
-      exitChoice,
-      choiceNumber,
-      "journal-write-choice journal-scene-exit",
-    ));
+    sceneElement.append(
+      makeEmbeddedJournalChoice(
+        scene,
+        exitChoice,
+        choiceNumber,
+        "journal-write-choice journal-scene-exit",
+      ),
+    );
   }
 }
 
@@ -709,8 +754,7 @@ function makePhoneMeterEntry(entry, kind) {
   item.dataset.valueId = entry.id;
   item.dataset.kind = kind;
   item.dataset.outcome = outcomeForRange(entry.value, entry.min, entry.max, {
-    lowerIsBetter:
-      kind === "stat" && STATS[entry.id]?.higherIsBetter === false,
+    lowerIsBetter: kind === "stat" && STATS[entry.id]?.higherIsBetter === false,
   });
 
   const header = document.createElement("div");
@@ -720,8 +764,9 @@ function makePhoneMeterEntry(entry, kind) {
   label.textContent = entry.label;
 
   const value = document.createElement("output");
-  value.textContent = entry.valueLabel
-    ?? (Number.isInteger(entry.rank)
+  value.textContent =
+    entry.valueLabel ??
+    (Number.isInteger(entry.rank)
       ? `Rank ${entry.rank} · ${formatStatValue(entry.value)} / ${formatStatValue(entry.max)}`
       : kind === "skill"
         ? `${formatStatValue(entry.value)} / ${formatStatValue(entry.max)}`
@@ -798,7 +843,9 @@ function makePhoneBodyPart(part) {
     formatPhoneLabel(part.region),
     part.pain > 0 ? `Pain ${formatPainValue(part.pain)}` : null,
     condition,
-  ].filter(Boolean).join(" | ");
+  ]
+    .filter(Boolean)
+    .join(" | ");
 
   item.append(header, meter, detail);
   return item;
@@ -851,19 +898,24 @@ function renderPhoneStats() {
 
   const bodySection = makePhoneStatsSection("Body status");
   const bodyStatusEntries = [
-      {
-        label: "Condition",
-        value: view.body.conditionLabel,
-      },
-      {
-        label: "Physical performance",
-        value: `${Math.round(view.body.performanceMultiplier * 100)}%`,
-      },
-      { label: "Incapacitated", value: view.body.incapacitated ? "Yes" : "No" },
+    {
+      label: "Condition",
+      value: view.body.conditionLabel,
+    },
+    {
+      label: "Physical performance",
+      value: `${Math.round(view.body.performanceMultiplier * 100)}%`,
+    },
+    { label: "Incapacitated", value: view.body.incapacitated ? "Yes" : "No" },
   ];
   if (view.body.pain > 0) {
-    bodyStatusEntries.splice(1, 0,
-      { label: "Pain description", value: formatPhoneLabel(view.body.painLabel) },
+    bodyStatusEntries.splice(
+      1,
+      0,
+      {
+        label: "Pain description",
+        value: formatPhoneLabel(view.body.painLabel),
+      },
       { label: "Pain", value: `${formatPainValue(view.body.pain)} / 100` },
       { label: "Pain stage", value: `${view.body.painStage} / 3` },
     );
@@ -1007,7 +1059,10 @@ const phoneScreens = [
 
 function showOnlyPhoneScreen(screen) {
   if (screen !== phoneChatThreadScreen) chatsUI?.leaveThread();
-  phoneBackButton.setAttribute("aria-label", screen === phoneChatThreadScreen ? "Back to chats" : "Back to phone menu");
+  phoneBackButton.setAttribute(
+    "aria-label",
+    screen === phoneChatThreadScreen ? "Back to chats" : "Back to phone menu",
+  );
   for (const candidate of phoneScreens) candidate.hidden = candidate !== screen;
 }
 
@@ -1126,7 +1181,9 @@ function renderPhoneHotkeys() {
     row.append(description, value);
     sections.get(hotkey.group).list.append(row);
   }
-  phoneHotkeysContent.replaceChildren(...[...sections.values()].map(({ section }) => section));
+  phoneHotkeysContent.replaceChildren(
+    ...[...sections.values()].map(({ section }) => section),
+  );
 }
 
 function showPhoneSettingsScreen() {
@@ -1168,11 +1225,15 @@ function renderDebugNPC(npcId, elements, teleportButton = null) {
 
 function renderDebugPanel() {
   if (!debugEnabled) return;
-  renderDebugNPC("taylor", {
-    position: debugTaylorPosition,
-    goal: debugTaylorGoal,
-    action: debugTaylorAction,
-  }, debugTeleportTaylorButton);
+  renderDebugNPC(
+    "taylor",
+    {
+      position: debugTaylorPosition,
+      goal: debugTaylorGoal,
+      action: debugTaylorAction,
+    },
+    debugTeleportTaylorButton,
+  );
   renderDebugNPC("caro", {
     position: debugCaroPosition,
     goal: debugCaroGoal,
@@ -1186,41 +1247,64 @@ function renderDebugEncounter() {
   debugEncounterSection.hidden = !snapshot;
   if (!snapshot) return;
   const decision = snapshot.decision;
-  debugEncounterPersonality.textContent = decision?.personality.label
-    || snapshot.state.participants.mugger.personalityId;
+  debugEncounterPersonality.textContent =
+    decision?.personality.label ||
+    snapshot.state.participants.mugger.personalityId;
   debugEncounterCommitment.textContent = decision
     ? `${decision.commitment.value}/100 — ${decision.commitment.band}`
     : "Encounter ended";
   debugEncounterAnger.textContent = decision
     ? `${decision.anger.value}/100 — ${decision.anger.band}`
     : `${snapshot.state.participants[snapshot.state.objective.ownerId]?.anger ?? 0}/100`;
-  debugEncounterIntent.textContent = snapshot.state.npcIntent?.actionId || "None";
-  debugEncounterScores.textContent = decision?.candidates.map((candidate, index) => {
-    const marker = index === 0 ? "*" : " ";
-    const parts = Object.entries(candidate.breakdown).map(([key, value]) => `${key} ${value}`).join(", ");
-    return `${marker} ${candidate.instance.actionId} = ${candidate.score}\n    ${parts}`;
-  }).join("\n") || "No active NPC decision.";
-  debugEncounterAvailability.textContent = ["player", "mugger"].map((actorId) => {
-    const rows = snapshot.availability[actorId].map((row) =>
-      `${row.available ? "+" : "-"} ${row.actionId}${row.reasons.length ? ` — ${row.reasons.join("; ")}` : ""}`);
-    return `${actorId.toUpperCase()}\n${rows.join("\n")}`;
-  }).join("\n\n");
+  debugEncounterIntent.textContent =
+    snapshot.state.npcIntent?.actionId || "None";
+  debugEncounterScores.textContent =
+    decision?.candidates
+      .map((candidate, index) => {
+        const marker = index === 0 ? "*" : " ";
+        const parts = Object.entries(candidate.breakdown)
+          .map(([key, value]) => `${key} ${value}`)
+          .join(", ");
+        return `${marker} ${candidate.instance.actionId} = ${candidate.score}\n    ${parts}`;
+      })
+      .join("\n") || "No active NPC decision.";
+  debugEncounterAvailability.textContent = ["player", "mugger"]
+    .map((actorId) => {
+      const rows = snapshot.availability[actorId].map(
+        (row) =>
+          `${row.available ? "+" : "-"} ${row.actionId}${row.reasons.length ? ` — ${row.reasons.join("; ")}` : ""}`,
+      );
+      return `${actorId.toUpperCase()}\n${rows.join("\n")}`;
+    })
+    .join("\n\n");
   debugEncounterRolls.textContent = snapshot.rolls.length
-    ? snapshot.rolls.map((roll) => `${roll.actionId}/${roll.purpose}: ${roll.roll} < ${roll.chance} => ${roll.success}`).join("\n")
+    ? snapshot.rolls
+        .map(
+          (roll) =>
+            `${roll.actionId}/${roll.purpose}: ${roll.roll} < ${roll.chance} => ${roll.success}`,
+        )
+        .join("\n")
     : "No rolls in the latest exchange.";
   debugEncounterInvariants.textContent = snapshot.invariants.checks
-    .map((item) => `${item.valid ? "OK" : "FAIL"} ${item.label}${item.valid ? "" : ` — ${item.message}`}`)
+    .map(
+      (item) =>
+        `${item.valid ? "OK" : "FAIL"} ${item.label}${item.valid ? "" : ` — ${item.message}`}`,
+    )
     .join("\n");
   debugEncounterState.textContent = JSON.stringify(snapshot.state, null, 2);
 }
 
 function render(preludeParagraphs = []) {
   sceneTransition.cancel();
-  renderScene(preludeParagraphs);
+  presentCurrentScene(preludeParagraphs);
 }
 
-function renderScene(preludeParagraphs = []) {
-  currentScene = buildScene(game);
+function presentCurrentScene(preludeParagraphs = []) {
+  return presentGameScene(game, renderScene, preludeParagraphs);
+}
+
+function renderScene(scene, preludeParagraphs = []) {
+  currentScene = scene;
   choiceButtons = [];
   choiceButtonsById = new Map();
   statusElement.textContent = formatStatus(currentScene.status);
@@ -1268,11 +1352,19 @@ function renderScene(preludeParagraphs = []) {
   } else {
     let choiceNumber = 1;
     for (const section of currentScene.sections) {
-      const sectionElement = createChoiceSection(document, section, (choice) => {
-        const button = makeChoiceButton(currentScene.id, choice, choiceNumber++);
-        choiceButtons.push(button);
-        return button;
-      });
+      const sectionElement = createChoiceSection(
+        document,
+        section,
+        (choice) => {
+          const button = makeChoiceButton(
+            currentScene.id,
+            choice,
+            choiceNumber++,
+          );
+          choiceButtons.push(button);
+          return button;
+        },
+      );
       sceneElement.append(sectionElement);
     }
   }
@@ -1280,7 +1372,6 @@ function renderScene(preludeParagraphs = []) {
   if (currentScene.map) renderLocalMap(currentScene.map);
   renderDebugPanel();
   chatsUI?.refresh();
-  if (currentScene.alerts.length) game.dismissDailyAnnouncements();
 }
 
 async function choose(sceneId, choiceId) {
@@ -1292,7 +1383,7 @@ async function choose(sceneId, choiceId) {
     });
     noticeElement.textContent = result.paragraphs.length ? "" : result.notice;
     noticeElement.className = "notice";
-    await sceneTransition.play(() => renderScene(result.paragraphs));
+    await sceneTransition.play(() => presentCurrentScene(result.paragraphs));
   } catch (error) {
     noticeElement.textContent = error.message;
     noticeElement.className = "notice error";
@@ -1302,7 +1393,8 @@ async function choose(sceneId, choiceId) {
 
 const menuActions = {
   chats: () => openPhone(() => chatsUI.openList()),
-  phone: () => playerPhoneDialog.open ? playerPhoneDialog.close() : openPhone(),
+  phone: () =>
+    playerPhoneDialog.open ? playerPhoneDialog.close() : openPhone(),
   diary: () => playerDiaryButton.click(),
   map: () => openMapButton.click(),
   relationships: () => openPhone(showPhoneRelationshipsScreen),
@@ -1342,13 +1434,16 @@ window.addEventListener("keydown", (event) => {
     transitioning: sceneTransition.running,
     choices: choiceButtons,
   });
-  if (dialog && event.key === "Escape" && !event.defaultPrevented) event.preventDefault();
+  if (dialog && event.key === "Escape" && !event.defaultPrevented)
+    event.preventDefault();
   if (!action) return;
   event.preventDefault();
   if (action.type === "choice") choiceButtons[action.index].click();
-  else if (action.type === "menu" && menuActionAvailable(action.id)) menuActions[action.id]();
-  else if (action.type === "phone-home") { if (!chatsUI.back()) showPhoneHomeScreen(); }
-  else if (action.type === "close-dialog") dialog.close();
+  else if (action.type === "menu" && menuActionAvailable(action.id))
+    menuActions[action.id]();
+  else if (action.type === "phone-home") {
+    if (!chatsUI.back()) showPhoneHomeScreen();
+  } else if (action.type === "close-dialog") dialog.close();
 });
 
 restartButton.addEventListener("click", () => {
@@ -1409,7 +1504,9 @@ phoneGpsStopButton.addEventListener("click", () => {
 phoneStatsButton.addEventListener("click", showPhoneStatsScreen);
 phoneSettingsButton.addEventListener("click", showPhoneSettingsScreen);
 phoneChatsButton.addEventListener("click", () => chatsUI.openList());
-phoneBackButton.addEventListener("click", () => { if (!chatsUI.back()) showPhoneHomeScreen(); });
+phoneBackButton.addEventListener("click", () => {
+  if (!chatsUI.back()) showPhoneHomeScreen();
+});
 closePhoneButton.addEventListener("click", () => playerPhoneDialog.close());
 playerPhoneDialog.addEventListener("click", (event) => {
   if (event.target === playerPhoneDialog) playerPhoneDialog.close();
@@ -1457,7 +1554,9 @@ debugTeleportCinemaButton.addEventListener("click", () => {
 
 debugTeleportAlleyButton.addEventListener("click", () => {
   try {
-    const action = game.features.getDebugAction("encounter.teleport-player-to-alley");
+    const action = game.features.getDebugAction(
+      "encounter.teleport-player-to-alley",
+    );
     if (!action) throw new Error("The alley debug action is unavailable");
     action(game);
     noticeElement.textContent = "";
