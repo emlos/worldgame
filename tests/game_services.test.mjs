@@ -176,6 +176,31 @@ test("crossing UTC midnight clears daily flags and refreshes announcements", () 
   assert.equal(game.dailyAnnouncements.day, "2026-09-05");
 });
 
+test("rewinding across UTC midnight clears daily flags from the future day", () => {
+  const game = gameWithoutNPCs({
+    startDate: new Date("2026-09-04T23:30:00.000Z"),
+  });
+  game.advanceMinutes(60);
+  game.setDailyFlag("seen-on-september-5");
+
+  game.jumpToDate("2026-09-04T23:30:00.000Z", { mode: "resync" });
+
+  assert.equal(game.hasDailyFlag("seen-on-september-5"), false);
+  assert.equal(game.dailyAnnouncements.day, "2026-09-04");
+});
+
+test("rewinding within the same UTC day preserves daily flags", () => {
+  const game = gameWithoutNPCs({
+    startDate: new Date("2026-09-05T10:00:00.000Z"),
+  });
+  game.advanceMinutes(120);
+  game.setDailyFlag("seen-today");
+
+  game.jumpToDate("2026-09-05T10:00:00.000Z", { mode: "resync" });
+
+  assert.equal(game.hasDailyFlag("seen-today"), true);
+});
+
 test("the first school-day reminder replaces August 31 guidance after midnight", () => {
   const game = gameWithoutNPCs({
     seed: 117,

@@ -136,7 +136,7 @@ function changeTimeStep(game, target, { mode, source, drainPlayerEnergy }) {
   applyElapsedPlayerChanges(game, minutes, {
     drainEnergy: drainPlayerEnergy,
   });
-  clearDailyFlagsAfterMidnight(game, from, game.now);
+  clearDailyFlagsAfterDateChange(game, from, game.now);
   const ejectedFrom = enforcePlaceClosing(game, from, game.now);
   syncDailyAnnouncementsAfterDateChange(game, from, game.now);
 
@@ -172,8 +172,7 @@ function applyElapsedPlayerChanges(game, minutes, { drainEnergy = true } = {}) {
   );
 }
 
-function clearDailyFlagsAfterMidnight(game, from, to) {
-  if (!(to > from)) return;
+function clearDailyFlagsAfterDateChange(game, from, to) {
   const sameUtcDay =
     from.getUTCFullYear() === to.getUTCFullYear() &&
     from.getUTCMonth() === to.getUTCMonth() &&
