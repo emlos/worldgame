@@ -17,7 +17,8 @@ import {
 } from "../shared/util/saveValidation.js";
 
 function validDate(value, label) {
-  const date = value instanceof Date ? new Date(value.getTime()) : new Date(value);
+  const date =
+    value instanceof Date ? new Date(value.getTime()) : new Date(value);
   if (!Number.isFinite(date.getTime())) fail(`${label} must be a valid date`);
   return date;
 }
@@ -28,7 +29,13 @@ function daysInUtcMonth(year, month) {
 
 function monthlyCandidate(year, month, day, hour, minute) {
   return new Date(
-    Date.UTC(year, month, Math.min(day, daysInUtcMonth(year, month)), hour, minute),
+    Date.UTC(
+      year,
+      month,
+      Math.min(day, daysInUtcMonth(year, month)),
+      hour,
+      minute,
+    ),
   );
 }
 
@@ -43,20 +50,20 @@ export function getTimerDefinition(id, features = DEFAULT_FEATURE_CATALOG) {
 
 export function validateTimerStateSave(
   value,
-  { path = "save.timers", gameTime, features = DEFAULT_FEATURE_CATALOG },
+  { path = "save.timers", features = DEFAULT_FEATURE_CATALOG },
 ) {
   const timers = saveRecord(value, path);
   for (const [id, stateData] of Object.entries(timers)) {
     const timerPath = `${path}.${id}`;
-    if (!getTimerDefinition(id, features)) failSave(timerPath, `references unknown timer '${id}'`);
+    if (!getTimerDefinition(id, features))
+      failSave(timerPath, `references unknown timer '${id}'`);
     const state = saveRecord(stateData, timerPath);
-    const dueAt = saveDateMilliseconds(
+    // A failed timer effect deliberately leaves the timer due for retry.
+    // Due or overdue deadlines are therefore valid persisted runtime state.
+    saveDateMilliseconds(
       requiredSaveField(state, "dueAt", timerPath),
       `${timerPath}.dueAt`,
     );
-    if (dueAt <= gameTime) {
-      failSave(`${timerPath}.dueAt`, "must be after the current game clock");
-    }
     saveInteger(
       requiredSaveField(state, "occurrences", timerPath),
       `${timerPath}.occurrences`,
@@ -140,7 +147,11 @@ export function nextTimerDeadlineForSchedule(schedule, previousValue) {
 }
 
 function timerState(game) {
-  if (!game?.timers || typeof game.timers !== "object" || Array.isArray(game.timers)) {
+  if (
+    !game?.timers ||
+    typeof game.timers !== "object" ||
+    Array.isArray(game.timers)
+  ) {
     fail("Game timer state must be an object");
   }
   return game.timers;
@@ -184,7 +195,8 @@ export function nextActiveTimerDeadline(game) {
 
 function advanceRepeatingDeadline(definition, previous) {
   const next = nextTimerDeadlineForSchedule(definition.schedule, previous);
-  if (!next || next <= previous) fail("Repeating timer did not advance its deadline");
+  if (!next || next <= previous)
+    fail("Repeating timer did not advance its deadline");
   return next;
 }
 

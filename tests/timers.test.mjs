@@ -194,6 +194,14 @@ test("failed one-shot timer callbacks are not consumed", () => {
     dueAt: "2026-09-04T13:00:00.000Z",
     occurrences: 0,
   });
+
+  const restored = Game.fromJSON(game.toJSON(), { features });
+  assert.deepEqual(restored.timers["test.once"], {
+    dueAt: "2026-09-04T13:00:00.000Z",
+    occurrences: 0,
+  });
+  assert.throws(() => restored.advanceMinutes(1), /test timer failed/);
+  assert.equal(attempts, 3);
 });
 
 test("WG timer effects compile and preserve their lifecycle semantics", () => {
