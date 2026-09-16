@@ -2,7 +2,7 @@ import {
   ENCOUNTER_RANGE,
   getEncounterRange,
   setEncounterRange,
-} from "../state.js";
+} from "../spatialState.js";
 import { goalOwnerId, goalTargetId } from "../roles.js";
 import { PLAYER_RESCUED_OUTCOME_ID } from "../outcomes.js";
 import {

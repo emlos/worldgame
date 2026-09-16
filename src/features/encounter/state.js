@@ -1,5 +1,26 @@
 import { AI_PERSONALITY_IDS } from "./personality.js";
 import { requireEncounterObjective } from "./objectives/index.js";
+import {
+  ENCOUNTER_FACING,
+  ENCOUNTER_POSE,
+  ENCOUNTER_RANGE,
+  ENCOUNTER_SUPPORT,
+  getEncounterFacing,
+  getEncounterRange,
+  setEncounterFacing,
+  setEncounterRange,
+} from "./spatialState.js";
+
+export {
+  ENCOUNTER_FACING,
+  ENCOUNTER_POSE,
+  ENCOUNTER_RANGE,
+  ENCOUNTER_SUPPORT,
+  getEncounterFacing,
+  getEncounterRange,
+  setEncounterFacing,
+  setEncounterRange,
+} from "./spatialState.js";
 
 export const ENCOUNTER_STATE_VERSION = 9;
 export const FIGHT_SCENARIO_ID = "fight";
@@ -7,30 +28,6 @@ export const FIGHT_SCENARIO_ID = "fight";
 export const ENCOUNTER_PHASE = Object.freeze({
   active: "active",
   terminal: "terminal",
-});
-
-export const ENCOUNTER_RANGE = Object.freeze({
-  far: "far",
-  reach: "reach",
-  clinch: "clinch",
-});
-
-export const ENCOUNTER_POSE = Object.freeze({
-  standing: "standing",
-  kneeling: "kneeling",
-  supine: "supine",
-  prone: "prone",
-});
-
-export const ENCOUNTER_SUPPORT = Object.freeze({
-  free: "free",
-  wall: "wall",
-});
-
-export const ENCOUNTER_FACING = Object.freeze({
-  toward: "toward",
-  away: "away",
-  side: "side",
 });
 
 const PHASES = new Set(Object.values(ENCOUNTER_PHASE));
@@ -279,27 +276,6 @@ export function createFightState({
     lastEvents: [{ type: "encounter.started", actorId: ownerId, targetId }],
     outcome: null,
   };
-}
-
-export function getEncounterRange(state) {
-  return state.relationships.range[0].value;
-}
-
-export function setEncounterRange(state, value) {
-  if (!RANGES.has(value)) fail(`cannot set invalid range '${String(value)}'`);
-  state.relationships.range[0].value = value;
-}
-
-export function getEncounterFacing(state, actorId) {
-  return state.relationships.facing.find(({ actor }) => actor === actorId)?.value || null;
-}
-
-export function setEncounterFacing(state, actorId, value) {
-  if (!Object.hasOwn(state.participants, actorId)) fail(`unknown facing actor '${String(actorId)}'`);
-  if (!FACINGS.has(value)) fail(`cannot set invalid facing '${String(value)}'`);
-  const relation = state.relationships.facing.find(({ actor }) => actor === actorId);
-  if (!relation) fail(`missing facing relation for '${actorId}'`);
-  relation.value = value;
 }
 
 export function validateEncounterState(state) {

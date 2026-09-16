@@ -24,7 +24,7 @@ import {
   ENCOUNTER_RANGE,
   getEncounterFacing,
   getEncounterRange,
-} from "./state.js";
+} from "./spatialState.js";
 
 const isControlled = (context, actorId) =>
   actorId === controlledParticipantId(context.state);

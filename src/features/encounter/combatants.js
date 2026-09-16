@@ -6,7 +6,7 @@ import {
   ENCOUNTER_SUPPORT,
   getEncounterFacing,
   getEncounterRange,
-} from "./state.js";
+} from "./spatialState.js";
 import {
   controlledParticipantId,
   opponentParticipantId,
