@@ -28,7 +28,7 @@ export class Location {
     return {
       id: this.id,
       name: this.name,
-      places: this.places,
+      places: this.places.map((place) => place.toJSON()),
       x: this.x,
       y: this.y,
       districtKey: this.districtKey,

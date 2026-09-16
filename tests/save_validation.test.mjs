@@ -61,6 +61,16 @@ function firstOwnedPlace(save) {
     .find((place) => Object.hasOwn(place.props, "ownerNpcId"));
 }
 
+test("Game.toJSON output validates and round-trips without JSON laundering", () => {
+  const game = new Game({ seed: 0x5a17, startDate: FIXED_START });
+  const save = game.toJSON();
+
+  assert.equal(validateGameSave(save), save);
+
+  const restored = Game.fromJSON(save);
+  assert.deepEqual(restored.toJSON(), save);
+});
+
 test("save validation is pure and valid saves still round-trip exactly", () => {
   const save = validSave();
   const before = JSON.stringify(save);
