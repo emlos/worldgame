@@ -416,7 +416,9 @@ test("story systems reject malformed effects before returning an outcome", () =>
     id: "test",
     wgSystems: {
       [systemId]: {
+        create() { return {}; },
         validateState() {},
+        render() { return {}; },
         act() {
           return {
             state: {},

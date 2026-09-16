@@ -8,6 +8,7 @@ import {
 import { DEFAULT_FEATURE_CATALOG } from "../src/features/index.js";
 import { FEATURE_PLACE_DEFINITIONS } from "../src/features/placeContributions.js";
 import { Game } from "../src/game/game.js";
+import { collectReminders } from "../src/game/reminders.js";
 
 test("the default catalog composes each special system through feature registrations", () => {
   const features = DEFAULT_FEATURE_CATALOG;
@@ -132,5 +133,97 @@ test("feature composition rejects malformed timer definitions at registration", 
       },
     }]),
     /invalid timer 'broken\.timer'.*requires positive hours/,
+  );
+});
+
+
+test("feature composition validates WG system and story behavior contracts at registration", () => {
+  assert.throws(
+    () => createFeatureCatalog([{
+      id: "broken",
+      wgSystems: {
+        "broken.system": { render() {}, act() {} },
+      },
+    }]),
+    /WG system 'broken\.system' create must be a function/,
+  );
+
+  assert.throws(
+    () => createFeatureCatalog([{
+      id: "broken",
+      wgSystems: {
+        "broken.system": {
+          create() {},
+          render() {},
+          act() {},
+          validateState: true,
+        },
+      },
+    }]),
+    /WG system 'broken\.system' validateState must be a function when provided/,
+  );
+
+  assert.throws(
+    () => createFeatureCatalog([{
+      id: "broken",
+      storyBehaviors: { "broken.behavior": {} },
+    }]),
+    /story behavior 'broken\.behavior' enter must be a function/,
+  );
+
+  assert.throws(
+    () => createFeatureCatalog([{
+      id: "broken",
+      storyBehaviors: {
+        "broken.behavior": { enter() {}, validateDefinition: "invalid" },
+      },
+    }]),
+    /story behavior 'broken\.behavior' validateDefinition must be a function when provided/,
+  );
+});
+
+test("feature composition validates automatic reminder contracts at registration", () => {
+  const reminder = {
+    id: "system:test-reminder",
+    group: "today",
+    priority: 10,
+    tone: "info",
+    text: () => "Test reminder",
+  };
+  const catalog = createFeatureCatalog([{ id: "valid", automaticReminders: [reminder] }]);
+  assert.equal(catalog.automaticReminders[0].id, reminder.id);
+
+  for (const [change, expected] of [
+    [{ id: 7 }, /requires a non-empty string id/],
+    [{ tone: "purple" }, /tone must be 'info' or 'warning'/],
+    [{ group: "later" }, /group must be 'today' or 'todo'/],
+    [{ priority: Number.NaN }, /priority must be a finite number/],
+    [{ text: "not-a-function" }, /text must be a function/],
+  ]) {
+    assert.throws(
+      () => createFeatureCatalog([{
+        id: "broken",
+        automaticReminders: [{ ...reminder, ...change }],
+      }]),
+      expected,
+    );
+  }
+});
+
+test("automatic reminder text callbacks cannot produce unsaveable reminder data", () => {
+  const features = createFeatureCatalog([{
+    id: "broken",
+    automaticReminders: [{
+      id: "system:broken-reminder",
+      group: "today",
+      priority: 10,
+      tone: "info",
+      text: () => ({ invalid: true }),
+    }],
+  }]);
+
+  assert.throws(
+    () => collectReminders({ reminders: new Set(), features, now: new Date(0) }),
+    /text\(\) must return null or a non-empty string/,
   );
 });

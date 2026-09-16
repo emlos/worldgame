@@ -2,6 +2,8 @@ import { validateTimerDefinition } from "../game/timerDefinitionContract.js";
 
 const FEATURE_ID_PATTERN = /^[a-z][a-z0-9_-]*$/;
 const CONTRIBUTION_ID_PATTERN = /^[a-z][a-z0-9_.-]*$/;
+const AUTOMATIC_REMINDER_TONES = new Set(["info", "warning"]);
+const AUTOMATIC_REMINDER_GROUPS = new Set(["today", "todo"]);
 
 function fail(message) {
   throw new TypeError(`Feature catalog: ${message}`);
@@ -16,6 +18,47 @@ function record(value, label) {
 
 function contributionEntries(value, label) {
   return Object.entries(record(value ?? {}, label));
+}
+
+function requireFunction(value, label) {
+  if (typeof value !== "function") fail(`${label} must be a function`);
+}
+
+function optionalFunction(value, label) {
+  if (value !== undefined && typeof value !== "function") {
+    fail(`${label} must be a function when provided`);
+  }
+}
+
+function validateWGSystemContract(id, system) {
+  requireFunction(system.create, `WG system '${id}' create`);
+  requireFunction(system.render, `WG system '${id}' render`);
+  requireFunction(system.act, `WG system '${id}' act`);
+  optionalFunction(system.validateState, `WG system '${id}' validateState`);
+}
+
+function validateStoryBehaviorContract(id, behavior) {
+  requireFunction(behavior.enter, `story behavior '${id}' enter`);
+  optionalFunction(behavior.validateDefinition, `story behavior '${id}' validateDefinition`);
+  optionalFunction(behavior.validateState, `story behavior '${id}' validateState`);
+}
+
+function validateAutomaticReminderContract(reminder, featureId) {
+  const id = reminder.id;
+  if (typeof id !== "string" || !id) {
+    fail(`automatic reminder from '${featureId}' requires a non-empty string id`);
+  }
+  if (!AUTOMATIC_REMINDER_TONES.has(reminder.tone)) {
+    fail(`automatic reminder '${id}' tone must be 'info' or 'warning'`);
+  }
+  if (!AUTOMATIC_REMINDER_GROUPS.has(reminder.group)) {
+    fail(`automatic reminder '${id}' group must be 'today' or 'todo'`);
+  }
+  if (typeof reminder.priority !== "number" || !Number.isFinite(reminder.priority)) {
+    fail(`automatic reminder '${id}' priority must be a finite number`);
+  }
+  requireFunction(reminder.text, `automatic reminder '${id}' text`);
+  return id;
 }
 
 export function defineFeature(definition) {
@@ -102,7 +145,9 @@ export function createFeatureCatalog(featureDefinitions) {
       feature.wgSystems,
       `feature '${feature.id}' WG systems`,
     )) {
-      addUnique(wgSystems, id, record(system, `WG system '${id}'`), "WG system", feature.id);
+      const checked = record(system, `WG system '${id}'`);
+      validateWGSystemContract(id, checked);
+      addUnique(wgSystems, id, checked, "WG system", feature.id);
     }
     for (const [type, provider] of contributionEntries(
       feature.skillCheckTargets,
@@ -145,13 +190,9 @@ export function createFeatureCatalog(featureDefinitions) {
       feature.storyBehaviors,
       `feature '${feature.id}' story behaviors`,
     )) {
-      addUnique(
-        storyBehaviors,
-        id,
-        record(behavior, `story behavior '${id}'`),
-        "story behavior",
-        feature.id,
-      );
+      const checked = record(behavior, `story behavior '${id}'`);
+      validateStoryBehaviorContract(id, checked);
+      addUnique(storyBehaviors, id, checked, "story behavior", feature.id);
     }
     for (const [id, definition] of contributionEntries(
       feature.timerDefinitions,
@@ -177,12 +218,11 @@ export function createFeatureCatalog(featureDefinitions) {
       sceneDecorators.push(Object.freeze({ ...decorator, id }));
     }
     for (const reminder of feature.automaticReminders) {
-      record(reminder, `feature '${feature.id}' automatic reminder`);
-      const id = String(reminder.id ?? "");
-      if (!id || reminderIds.has(id)) fail(`duplicate or empty automatic reminder '${id}'`);
-      if (typeof reminder.text !== "function") fail(`automatic reminder '${id}' needs text()`);
+      const checked = record(reminder, `feature '${feature.id}' automatic reminder`);
+      const id = validateAutomaticReminderContract(checked, feature.id);
+      if (reminderIds.has(id)) fail(`duplicate automatic reminder '${id}'`);
       reminderIds.add(id);
-      automaticReminders.push(Object.freeze({ ...reminder }));
+      automaticReminders.push(Object.freeze({ ...checked }));
     }
     for (const handler of feature.timeChangeHandlers) {
       if (typeof handler !== "function") {

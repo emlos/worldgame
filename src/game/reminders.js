@@ -83,6 +83,11 @@ export function collectReminders(game, date = game.now) {
   for (const definition of game.features.automaticReminders) {
     const text = definition.text(game, date);
     if (text === null) continue;
+    if (typeof text !== "string" || !text.trim()) {
+      throw new TypeError(
+        `Automatic reminder '${definition.id}' text() must return null or a non-empty string`,
+      );
+    }
     items.push({ id: definition.id, text, tone: definition.tone, priority: definition.priority, group: definition.group });
   }
   return items.sort((a, b) => a.priority - b.priority || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
