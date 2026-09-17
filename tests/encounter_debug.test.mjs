@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { getEncounterDebugSnapshot } from "../src/features/encounter/debug.js";
+import { buildEncounterDebugSection, getEncounterDebugSnapshot } from "../src/features/encounter/debug.js";
 import { chooseAction, gameAtStart, startEncounter } from "./support/encounter.mjs";
 
 test("encounter debug snapshot exposes state, reasons, scores, and invariants without mutation", () => {
@@ -23,6 +23,10 @@ test("encounter debug snapshot exposes state, reasons, scores, and invariants wi
   ]);
   assert.ok(Number.isFinite(snapshot.combatants.mugger.derived.physicalReadiness));
   assert.ok(Array.isArray(snapshot.combatants.player.body.parts));
+  const section = buildEncounterDebugSection(game);
+  assert.equal(section.title, "Physical encounter");
+  assert.equal(section.fields.find(({ label }) => label === "Intent").value, snapshot.state.npcIntent.actionId);
+  assert.ok(section.details.some(({ summary }) => summary === "State invariants"));
   assert.deepEqual(game.currentStory.system.state, before);
 });
 

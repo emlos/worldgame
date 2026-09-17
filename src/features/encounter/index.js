@@ -4,7 +4,7 @@ import {
   PHYSICAL_ENCOUNTER_STORY_SYSTEM,
 } from "./system.js";
 import { recoverPlayerBodyOutsideEncounter } from "./pain.js";
-import { teleportPlayerToAlley } from "./debug.js";
+import { buildEncounterDebugSection, teleportPlayerToAlley } from "./debug.js";
 import {
   createEncounterFeatureState,
   updatePostCombatFatigue,
@@ -22,6 +22,10 @@ export const ENCOUNTER_FEATURE = defineFeature({
   },
   timeChangeHandlers: [recoverPlayerBodyOutsideEncounter, updatePostCombatFatigue],
   debugActions: {
-    "encounter.teleport-player-to-alley": teleportPlayerToAlley,
+    "encounter.teleport-player-to-alley": {
+      label: "Teleport to alley",
+      run: teleportPlayerToAlley,
+    },
   },
+  debugSections: [buildEncounterDebugSection],
 });

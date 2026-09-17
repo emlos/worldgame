@@ -158,3 +158,106 @@ export function getEncounterDebugSnapshot(game) {
     invariants: collectEncounterInvariantDiagnostics(context),
   };
 }
+
+function formatEncounterDecisionScores(decision) {
+  return decision?.candidates
+    .map((candidate, index) => {
+      const marker = index === 0 ? "*" : " ";
+      const parts = Object.entries(candidate.breakdown)
+        .map(([key, value]) => `${key} ${value}`)
+        .join(", ");
+      return `${marker} ${candidate.instance.actionId} = ${candidate.score}\n    ${parts}`;
+    })
+    .join("\n") || "No active NPC decision.";
+}
+
+function formatEncounterAvailability(availability) {
+  return Object.entries(availability)
+    .map(([actorId, actorRows]) => {
+      const rows = actorRows.map(
+        (row) =>
+          `${row.available ? "+" : "-"} ${row.actionId}${row.reasons.length ? ` — ${row.reasons.join("; ")}` : ""}`,
+      );
+      return `${actorId.toUpperCase()}\n${rows.join("\n")}`;
+    })
+    .join("\n\n");
+}
+
+function formatEncounterRolls(rolls) {
+  return rolls.length
+    ? rolls
+        .map(
+          (roll) =>
+            `${roll.actionId}/${roll.purpose}: ${roll.roll} < ${roll.chance} => ${roll.success}`,
+        )
+        .join("\n")
+    : "No rolls in the latest exchange.";
+}
+
+function formatEncounterInvariants(invariants) {
+  return invariants.checks
+    .map(
+      (item) =>
+        `${item.valid ? "OK" : "FAIL"} ${item.label}${item.valid ? "" : ` — ${item.message}`}`,
+    )
+    .join("\n");
+}
+
+export function buildEncounterDebugSection(game) {
+  const snapshot = getEncounterDebugSnapshot(game);
+  if (!snapshot) return null;
+
+  const decision = snapshot.decision;
+  const ownerId = goalOwnerId(snapshot.state);
+  const owner = snapshot.state.participants[ownerId];
+  return {
+    id: "encounter.physical",
+    title: "Physical encounter",
+    fields: [
+      {
+        label: "Personality",
+        value: decision?.personality.label || owner.personalityId,
+      },
+      {
+        label: "Commitment",
+        value: decision
+          ? `${decision.commitment.value}/100 — ${decision.commitment.band}`
+          : "Encounter ended",
+      },
+      {
+        label: "Anger",
+        value: decision
+          ? `${decision.anger.value}/100 — ${decision.anger.band}`
+          : `${owner.anger ?? 0}/100`,
+      },
+      {
+        label: "Intent",
+        value: snapshot.state.npcIntent?.actionId || "None",
+      },
+    ],
+    details: [
+      {
+        summary: "NPC utility scores",
+        text: formatEncounterDecisionScores(decision),
+        open: true,
+      },
+      {
+        summary: "Action availability",
+        text: formatEncounterAvailability(snapshot.availability),
+      },
+      {
+        summary: "Last rolls",
+        text: formatEncounterRolls(snapshot.rolls),
+      },
+      {
+        summary: "State invariants",
+        text: formatEncounterInvariants(snapshot.invariants),
+        open: true,
+      },
+      {
+        summary: "Canonical state",
+        text: JSON.stringify(snapshot.state, null, 2),
+      },
+    ],
+  };
+}

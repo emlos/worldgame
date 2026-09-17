@@ -46,7 +46,10 @@ import {
   outcomeForRelationship,
   setOutcomeText,
 } from "./outcomes.js";
-import { getEncounterDebugSnapshot } from "../../features/encounter/debug.js";
+import {
+  renderFeatureDebugActions,
+  renderFeatureDebugSections,
+} from "./featureDebugUI.js";
 
 const statusElement = document.querySelector("#status");
 const noticeElement = document.querySelector("#notice");
@@ -113,15 +116,8 @@ const debugEnabled = typeof debug !== "undefined" && Boolean(debug);
 const debugPanel = document.querySelector("#debug-panel");
 const debugAddMoneyButton = document.querySelector("#debug-add-money");
 const debugAdvanceHourButton = document.querySelector("#debug-advance-hour");
-const debugTeleportSchoolButton = document.querySelector(
-  "#debug-teleport-school",
-);
-const debugTeleportCinemaButton = document.querySelector(
-  "#debug-teleport-cinema",
-);
-const debugTeleportAlleyButton = document.querySelector(
-  "#debug-teleport-alley",
-);
+const debugFeatureActions = document.querySelector("#debug-feature-actions");
+const debugFeatureSections = document.querySelector("#debug-feature-sections");
 const debugTeleportTaylorButton = document.querySelector(
   "#debug-teleport-taylor",
 );
@@ -131,26 +127,6 @@ const debugTaylorAction = document.querySelector("#debug-taylor-action");
 const debugCaroPosition = document.querySelector("#debug-caro-position");
 const debugCaroGoal = document.querySelector("#debug-caro-goal");
 const debugCaroAction = document.querySelector("#debug-caro-action");
-const debugEncounterSection = document.querySelector(
-  "#debug-encounter-section",
-);
-const debugEncounterPersonality = document.querySelector(
-  "#debug-encounter-personality",
-);
-const debugEncounterCommitment = document.querySelector(
-  "#debug-encounter-commitment",
-);
-const debugEncounterAnger = document.querySelector("#debug-encounter-anger");
-const debugEncounterIntent = document.querySelector("#debug-encounter-intent");
-const debugEncounterScores = document.querySelector("#debug-encounter-scores");
-const debugEncounterAvailability = document.querySelector(
-  "#debug-encounter-availability",
-);
-const debugEncounterRolls = document.querySelector("#debug-encounter-rolls");
-const debugEncounterInvariants = document.querySelector(
-  "#debug-encounter-invariants",
-);
-const debugEncounterState = document.querySelector("#debug-encounter-state");
 
 document.body.classList.toggle("debug-enabled", debugEnabled);
 debugPanel.hidden = !debugEnabled;
@@ -1223,8 +1199,28 @@ function renderDebugNPC(npcId, elements, teleportButton = null) {
   elements.action.textContent = npc.brain?.currentAction?.type || "None";
 }
 
+function runFeatureDebugAction(id) {
+  try {
+    const action = game.features.getDebugAction(id);
+    if (!action) throw new Error(`Debug action '${id}' is unavailable`);
+    action(game);
+    noticeElement.textContent = "";
+    noticeElement.className = "notice";
+  } catch (error) {
+    noticeElement.textContent = error.message;
+    noticeElement.className = "notice error";
+  }
+  render();
+}
+
 function renderDebugPanel() {
   if (!debugEnabled) return;
+  renderFeatureDebugActions(
+    document,
+    debugFeatureActions,
+    game.features,
+    runFeatureDebugAction,
+  );
   renderDebugNPC(
     "taylor",
     {
@@ -1239,59 +1235,11 @@ function renderDebugPanel() {
     goal: debugCaroGoal,
     action: debugCaroAction,
   });
-  renderDebugEncounter();
-}
-
-function renderDebugEncounter() {
-  const snapshot = getEncounterDebugSnapshot(game);
-  debugEncounterSection.hidden = !snapshot;
-  if (!snapshot) return;
-  const decision = snapshot.decision;
-  debugEncounterPersonality.textContent =
-    decision?.personality.label ||
-    snapshot.state.participants.mugger.personalityId;
-  debugEncounterCommitment.textContent = decision
-    ? `${decision.commitment.value}/100 — ${decision.commitment.band}`
-    : "Encounter ended";
-  debugEncounterAnger.textContent = decision
-    ? `${decision.anger.value}/100 — ${decision.anger.band}`
-    : `${snapshot.state.participants[snapshot.state.objective.ownerId]?.anger ?? 0}/100`;
-  debugEncounterIntent.textContent =
-    snapshot.state.npcIntent?.actionId || "None";
-  debugEncounterScores.textContent =
-    decision?.candidates
-      .map((candidate, index) => {
-        const marker = index === 0 ? "*" : " ";
-        const parts = Object.entries(candidate.breakdown)
-          .map(([key, value]) => `${key} ${value}`)
-          .join(", ");
-        return `${marker} ${candidate.instance.actionId} = ${candidate.score}\n    ${parts}`;
-      })
-      .join("\n") || "No active NPC decision.";
-  debugEncounterAvailability.textContent = ["player", "mugger"]
-    .map((actorId) => {
-      const rows = snapshot.availability[actorId].map(
-        (row) =>
-          `${row.available ? "+" : "-"} ${row.actionId}${row.reasons.length ? ` — ${row.reasons.join("; ")}` : ""}`,
-      );
-      return `${actorId.toUpperCase()}\n${rows.join("\n")}`;
-    })
-    .join("\n\n");
-  debugEncounterRolls.textContent = snapshot.rolls.length
-    ? snapshot.rolls
-        .map(
-          (roll) =>
-            `${roll.actionId}/${roll.purpose}: ${roll.roll} < ${roll.chance} => ${roll.success}`,
-        )
-        .join("\n")
-    : "No rolls in the latest exchange.";
-  debugEncounterInvariants.textContent = snapshot.invariants.checks
-    .map(
-      (item) =>
-        `${item.valid ? "OK" : "FAIL"} ${item.label}${item.valid ? "" : ` — ${item.message}`}`,
-    )
-    .join("\n");
-  debugEncounterState.textContent = JSON.stringify(snapshot.state, null, 2);
+  renderFeatureDebugSections(
+    document,
+    debugFeatureSections,
+    game.features.buildDebugSections(game),
+  );
 }
 
 function render(preludeParagraphs = []) {
@@ -1515,50 +1463,6 @@ playerPhoneDialog.addEventListener("click", (event) => {
 debugTeleportTaylorButton.addEventListener("click", () => {
   try {
     teleportNPCToPlayer(game, "taylor", { stayMinutes: 30 });
-    noticeElement.textContent = "";
-    noticeElement.className = "notice";
-  } catch (error) {
-    noticeElement.textContent = error.message;
-    noticeElement.className = "notice error";
-  }
-  render();
-});
-
-debugTeleportSchoolButton.addEventListener("click", () => {
-  try {
-    const action = game.features.getDebugAction("school.teleport-player");
-    if (!action) throw new Error("The school debug action is unavailable");
-    action(game);
-    noticeElement.textContent = "";
-    noticeElement.className = "notice";
-  } catch (error) {
-    noticeElement.textContent = error.message;
-    noticeElement.className = "notice error";
-  }
-  render();
-});
-
-debugTeleportCinemaButton.addEventListener("click", () => {
-  try {
-    const action = game.features.getDebugAction("cinema.teleport-player");
-    if (!action) throw new Error("The cinema debug action is unavailable");
-    action(game);
-    noticeElement.textContent = "";
-    noticeElement.className = "notice";
-  } catch (error) {
-    noticeElement.textContent = error.message;
-    noticeElement.className = "notice error";
-  }
-  render();
-});
-
-debugTeleportAlleyButton.addEventListener("click", () => {
-  try {
-    const action = game.features.getDebugAction(
-      "encounter.teleport-player-to-alley",
-    );
-    if (!action) throw new Error("The alley debug action is unavailable");
-    action(game);
     noticeElement.textContent = "";
     noticeElement.className = "notice";
   } catch (error) {

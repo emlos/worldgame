@@ -277,3 +277,58 @@ test("automatic reminder text callbacks cannot produce unsaveable reminder data"
     /text\(\) must return null or a non-empty string/,
   );
 });
+
+
+test("feature debug contributions are catalog-owned and validated", () => {
+  const run = () => "ran";
+  const buildSection = (game) => ({
+    id: "debug.sample",
+    title: "Sample diagnostics",
+    fields: [{ label: "Seed", value: game.seed }],
+  });
+  const catalog = createFeatureCatalog([{
+    id: "debuggable",
+    debugActions: {
+      "debuggable.run": { label: "  Run sample  ", run },
+    },
+    debugSections: [buildSection],
+  }]);
+
+  assert.equal(catalog.getDebugAction("debuggable.run"), run);
+  assert.deepEqual(catalog.listDebugActions(), [
+    { id: "debuggable.run", label: "Run sample" },
+  ]);
+  assert.deepEqual(catalog.buildDebugSections({ seed: 17 }), [
+    {
+      id: "debug.sample",
+      title: "Sample diagnostics",
+      fields: [{ label: "Seed", value: 17 }],
+    },
+  ]);
+
+  assert.throws(
+    () => createFeatureCatalog([{
+      id: "broken",
+      debugActions: { "broken.run": () => {} },
+    }]),
+    /debug action 'broken\.run' must be an object/,
+  );
+  assert.throws(
+    () => createFeatureCatalog([{
+      id: "broken",
+      debugActions: { "broken.run": { label: "", run } },
+    }]),
+    /requires a non-empty label/,
+  );
+  assert.throws(
+    () => createFeatureCatalog([{
+      id: "broken",
+      debugActions: { "broken.run": { label: "Run", run: true } },
+    }]),
+    /debug action 'broken\.run' run must be a function/,
+  );
+  assert.throws(
+    () => createFeatureCatalog([{ id: "broken", debugSections: [{}] }]),
+    /debug sections must be functions/,
+  );
+});

@@ -158,15 +158,7 @@
           <button id="debug-advance-hour" class="debug-button" type="button">
             Advance time by 1 hour
           </button>
-          <button id="debug-teleport-school" class="debug-button" type="button">
-            Teleport to school
-          </button>
-          <button id="debug-teleport-cinema" class="debug-button" type="button">
-            Teleport to cinema
-          </button>
-          <button id="debug-teleport-alley" class="debug-button" type="button">
-            Teleport to alley
-          </button>
+          <div id="debug-feature-actions" class="debug-action-list"></div>
         </section>
         <section class="debug-section">
           <h3>Taylor</h3>
@@ -197,35 +189,7 @@
             <dd id="debug-caro-action"></dd>
           </dl>
         </section>
-        <section id="debug-encounter-section" class="debug-section" hidden>
-          <h3>Physical encounter</h3>
-          <dl class="debug-state">
-            <dt>Personality</dt><dd id="debug-encounter-personality"></dd>
-            <dt>Commitment</dt><dd id="debug-encounter-commitment"></dd>
-            <dt>Anger</dt><dd id="debug-encounter-anger"></dd>
-            <dt>Intent</dt><dd id="debug-encounter-intent"></dd>
-          </dl>
-          <details class="debug-details" open>
-            <summary>NPC utility scores</summary>
-            <pre id="debug-encounter-scores" class="debug-code"></pre>
-          </details>
-          <details class="debug-details">
-            <summary>Action availability</summary>
-            <pre id="debug-encounter-availability" class="debug-code"></pre>
-          </details>
-          <details class="debug-details">
-            <summary>Last rolls</summary>
-            <pre id="debug-encounter-rolls" class="debug-code"></pre>
-          </details>
-          <details class="debug-details" open>
-            <summary>State invariants</summary>
-            <pre id="debug-encounter-invariants" class="debug-code"></pre>
-          </details>
-          <details class="debug-details">
-            <summary>Canonical state</summary>
-            <pre id="debug-encounter-state" class="debug-code"></pre>
-          </details>
-        </section>
+        <div id="debug-feature-sections"></div>
       </aside>
     </div>
 

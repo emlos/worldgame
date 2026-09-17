@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { access, readFile } from "node:fs/promises";
+import { access, readFile, readdir } from "node:fs/promises";
 
 const GENERIC_FILES = [
   "../src/game/scene/sceneEngine.js",
@@ -63,4 +63,42 @@ test("the core place registry does not statically compose feature places", async
   );
   assert.doesNotMatch(source, /features[\/]/);
   assert.doesNotMatch(source, /bus_stop|high_school/);
+});
+
+
+async function collectJavaScriptFiles(directoryUrl) {
+  const files = [];
+  for (const entry of await readdir(directoryUrl, { withFileTypes: true })) {
+    const childUrl = new URL(entry.name + (entry.isDirectory() ? "/" : ""), directoryUrl);
+    if (entry.isDirectory()) {
+      files.push(...await collectJavaScriptFiles(childUrl));
+    } else if (entry.name.endsWith(".js")) {
+      files.push(childUrl);
+    }
+  }
+  return files;
+}
+
+test("browser UI imports no concrete feature implementations", async () => {
+  const browserFiles = await collectJavaScriptFiles(
+    new URL("../src/ui/browser/", import.meta.url),
+  );
+  for (const fileUrl of browserFiles) {
+    const source = await readFile(fileUrl, "utf8");
+    assert.doesNotMatch(
+      source,
+      /(?:from\s+|import\s*\()\s*["'][^"']*features[\/]/,
+      `${fileUrl.pathname} imports a concrete feature`,
+    );
+  }
+});
+
+test("browser debug markup exposes generic feature contribution slots", async () => {
+  const source = await readFile(new URL("../play.html", import.meta.url), "utf8");
+  assert.match(source, /id="debug-feature-actions"/);
+  assert.match(source, /id="debug-feature-sections"/);
+  assert.doesNotMatch(
+    source,
+    /debug-(?:teleport-(?:school|cinema|alley)|encounter)/,
+  );
 });

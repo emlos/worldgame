@@ -60,7 +60,7 @@ Use `src/features/<name>/` when behavior is specific to one gameplay system and
 crosses ordinary technical layers. A feature may own places, dynamic scene
 content, choice actions, WG systems or behaviors, context, effects, checks,
 timers, reminders, serializable state, NPC definition and schedule additions,
-navigation metadata, time-change hooks, debug actions, and feature-specific views. Its `.wg`
+navigation metadata, time-change hooks, debug actions, debug sections, and feature-specific views. Its `.wg`
 source belongs in `story/<name>/`.
 
 `src/features/catalog.js` is the integration boundary. The application enables
@@ -76,7 +76,7 @@ Choose the smallest fitting extension:
 - `@behavior` augments an authored WG scene while leaving prose and passages in WG.
 - `@system` delegates an entire scene or minigame to programmatic rendering.
 - Context, effect, skill-check, timer, reminder, NPC definition,
-  NPC schedule-condition, place, navigation, debug-action, and view providers
+  NPC schedule-condition, place, navigation, debug-action, debug-section, and view providers
   contribute their corresponding pieces without teaching the core runtime
   about the feature.
 - A feature state definition supplies both `create()` and `validateSave()`.

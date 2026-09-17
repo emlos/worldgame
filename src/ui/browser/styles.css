@@ -1718,6 +1718,10 @@ p {
   opacity: 0.5;
 }
 
+.debug-action-list {
+  margin-top: 8px;
+}
+
 .debug-button + .debug-button {
   margin-top: 8px;
 }

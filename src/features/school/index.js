@@ -47,7 +47,10 @@ export const SCHOOL_FEATURE = defineFeature({
   },
   npcDefinitionDecorators: [addSchoolNPCDefinitions],
   debugActions: {
-    "school.teleport-player": teleportPlayerToSchool,
+    "school.teleport-player": {
+      label: "Teleport to school",
+      run: teleportPlayerToSchool,
+    },
   },
   navigationDecorators: [(_game, destination) => ({
     ...destination,

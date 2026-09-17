@@ -20,6 +20,9 @@ export const CINEMA_FEATURE = defineFeature({
   automaticReminders: CINEMA_AUTOMATIC_REMINDERS,
   timeChangeHandlers: [updateCinemaScreeningReminders],
   debugActions: {
-    "cinema.teleport-player": teleportPlayerToCinema,
+    "cinema.teleport-player": {
+      label: "Teleport to cinema",
+      run: teleportPlayerToCinema,
+    },
   },
 });

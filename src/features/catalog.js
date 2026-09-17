@@ -92,6 +92,7 @@ export function defineFeature(definition) {
     npcScheduleConditions: Object.freeze({ ...(definition.npcScheduleConditions ?? {}) }),
     npcDefinitionDecorators: Object.freeze([...(definition.npcDefinitionDecorators ?? [])]),
     debugActions: Object.freeze({ ...(definition.debugActions ?? {}) }),
+    debugSections: Object.freeze([...(definition.debugSections ?? [])]),
   });
 }
 
@@ -126,6 +127,7 @@ export function createFeatureCatalog(featureDefinitions) {
   const stateDefinitions = [];
   const npcDefinitionDecorators = [];
   const debugActions = new Map();
+  const debugSectionProviders = [];
 
   for (const rawFeature of featureDefinitions) {
     const feature = defineFeature(rawFeature);
@@ -278,8 +280,24 @@ export function createFeatureCatalog(featureDefinitions) {
       feature.debugActions,
       `feature '${feature.id}' debug actions`,
     )) {
-      if (typeof action !== "function") fail(`debug action '${id}' must be a function`);
-      addUnique(debugActions, id, action, "debug action", feature.id);
+      const checked = record(action, `debug action '${id}'`);
+      if (typeof checked.label !== "string" || !checked.label.trim()) {
+        fail(`debug action '${id}' requires a non-empty label`);
+      }
+      requireFunction(checked.run, `debug action '${id}' run`);
+      addUnique(
+        debugActions,
+        id,
+        Object.freeze({ label: checked.label.trim(), run: checked.run }),
+        "debug action",
+        feature.id,
+      );
+    }
+    for (const provider of feature.debugSections) {
+      if (typeof provider !== "function") {
+        fail(`feature '${feature.id}' debug sections must be functions`);
+      }
+      debugSectionProviders.push(provider);
     }
   }
 
@@ -306,7 +324,16 @@ export function createFeatureCatalog(featureDefinitions) {
       if (!provider || !provider.definitions[String(id)]) return null;
       return provider.value(game, String(id));
     },
-    getDebugAction: (id) => debugActions.get(String(id)) ?? null,
+    getDebugAction: (id) => debugActions.get(String(id))?.run ?? null,
+    listDebugActions() {
+      return Object.freeze([...debugActions].map(([id, action]) =>
+        Object.freeze({ id, label: action.label })));
+    },
+    buildDebugSections(game) {
+      return debugSectionProviders
+        .map((provider) => provider(game))
+        .filter((section) => section != null);
+    },
     getWGSystem: (id) => wgSystems.get(String(id)) ?? null,
     getStoryBehavior: (id) => storyBehaviors.get(String(id)) ?? null,
     createWGContext(game) {
