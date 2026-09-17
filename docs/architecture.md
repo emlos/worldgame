@@ -22,7 +22,8 @@ src/
   characters/
     core/                      Character value objects shared by player and NPCs
     player/                    Player aggregate and save validation
-    npc/                       NPC model, AI, definitions, behavior, and validation
+    npc/                       NPC model, brain execution, schedule/destination planning,
+                               definitions, behavior, and validation
   world/
     data/                      Shared world definitions and core registries
     model/                     Calendar, places, weather, and map implementation
