@@ -52,15 +52,19 @@ function validateScheduleSave(scheduleData, path) {
   }
 }
 
-export function validateWorldMapSave(data, path = "save.world.map") {
+export function validateWorldMapSave(
+  data,
+  path = "save.world.map",
+  { placeRegistry = PLACE_REGISTRY, requireRegisteredPlaceKeys = false } = {},
+) {
   const map = saveRecord(data, path);
   const locations = new Map();
   const places = new Map();
   const registeredPlaceDefinitions = new Map(
-    PLACE_REGISTRY.map((definition) => [String(definition.key), definition]),
+    placeRegistry.map((definition) => [String(definition.key), definition]),
   );
   const registeredPlaceCounts = new Map(
-    PLACE_REGISTRY.map((definition) => [String(definition.key), 0]),
+    placeRegistry.map((definition) => [String(definition.key), 0]),
   );
 
   saveArray(requiredSaveField(map, "locations", path), `${path}.locations`).forEach(
@@ -115,6 +119,16 @@ export function validateWorldMapSave(data, path = "save.world.map") {
             `${placePath}.key`,
             { nonEmpty: true },
           );
+          if (
+            requireRegisteredPlaceKeys &&
+            !registeredPlaceDefinitions.has(placeKey) &&
+            !placeKey.startsWith("home_")
+          ) {
+            failSave(
+              `${placePath}.key`,
+              `references place key '${placeKey}' that is not registered by the active feature catalog`,
+            );
+          }
           if (registeredPlaceCounts.has(placeKey)) {
             registeredPlaceCounts.set(placeKey, registeredPlaceCounts.get(placeKey) + 1);
           }
@@ -157,7 +171,7 @@ export function validateWorldMapSave(data, path = "save.world.map") {
   );
 
   if (locations.size === 0) failSave(`${path}.locations`, "must contain at least one location");
-  for (const definition of PLACE_REGISTRY) {
+  for (const definition of placeRegistry) {
     const placeKey = String(definition.key);
     const count = registeredPlaceCounts.get(placeKey) || 0;
     const expected = getPlaceInstanceTarget(definition, locations.size);
@@ -213,7 +227,7 @@ export function validateWorldMapSave(data, path = "save.world.map") {
     failSave(`${path}.edges`, "must connect every location in one graph");
   }
 
-  for (const definition of PLACE_REGISTRY) {
+  for (const definition of placeRegistry) {
     if (definition.distribution?.kind !== PLACE_DISTRIBUTION_KIND.graphCoverage) continue;
     const maximumDistance = Number(definition.distribution.maxGraphDistance);
     if (!Number.isFinite(maximumDistance)) continue;
@@ -390,7 +404,13 @@ export function savedPlaceAt(mapIndex, locationId, placeId, path) {
 
 export function validateWorldSave(
   data,
-  { path = "save.world", expectedSeed, expectedTime },
+  {
+    path = "save.world",
+    expectedSeed,
+    expectedTime,
+    placeRegistry = PLACE_REGISTRY,
+    requireRegisteredPlaceKeys = false,
+  },
 ) {
   const world = saveRecord(data, path);
   validateRandomStreamsSave(requiredSaveField(world, "random", path), {
@@ -433,6 +453,10 @@ export function validateWorldSave(
     `${path}.moon.date`,
     "the world clock",
   );
-  const mapIndex = validateWorldMapSave(requiredSaveField(world, "map", path), `${path}.map`);
+  const mapIndex = validateWorldMapSave(
+    requiredSaveField(world, "map", path),
+    `${path}.map`,
+    { placeRegistry, requireRegisteredPlaceKeys },
+  );
   return { world, worldTime, mapIndex };
 }

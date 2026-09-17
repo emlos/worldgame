@@ -281,11 +281,11 @@ function instanceId(key, idx, locationId) {
     return `${key}#${idx}@${String(locationId)}`;
 }
 
-function generatePlaces({ locations, getTag, getNeighbors, rnd }) {
+function generatePlaces({ locations, getTag, getNeighbors, rnd, placeRegistry }) {
     const locationUsage = new Map(locations.map((locationId) => [String(locationId), 0]));
     const seenKeys = new Set();
 
-    const placements = PLACE_REGISTRY.map((def, registryIndex) => {
+    const placements = placeRegistry.map((def, registryIndex) => {
         const key = String(def?.key ?? "");
         if (!key) throw new Error("Every PLACE_REGISTRY definition requires a key");
         if (typeof def.unlocked !== "boolean") {
@@ -544,7 +544,7 @@ function generatePlaces({ locations, getTag, getNeighbors, rnd }) {
         createPlace(def, locationId, 0);
     }
 
-    const expectedCount = PLACE_REGISTRY.reduce(
+    const expectedCount = placeRegistry.reduce(
         (total, definition) =>
             total + getPlaceInstanceTarget(definition, locations.length),
         0,
@@ -578,10 +578,10 @@ function pickStreetDefForRun(startLocation, usedKeys, rnd) {
     return candidates[candidates.length - 1].def;
 }
 
-function computeAutoLocationCount() {
+function computeAutoLocationCount(placeRegistry) {
     let count = Math.max(LOCATION_REGISTRY.length, 1);
     while (true) {
-        const placeCount = PLACE_REGISTRY.reduce(
+        const placeCount = placeRegistry.reduce(
             (total, definition) => total + getPlaceInstanceTarget(definition, count),
             0,
         );
@@ -606,18 +606,18 @@ export class WorldMap {
      * @param {number} mapWidth - span of map in local coordinates
      * @param {number} mapHeight - height of map in local coordinates
      */
-    constructor({ rnd = null, mapWidth = 100, mapHeight = 50 } = {}) {
+    constructor({ rnd = null, mapWidth = 100, mapHeight = 50, placeRegistry = PLACE_REGISTRY } = {}) {
         mapWidth = finitePositive(mapWidth, "World map width");
         mapHeight = finitePositive(mapHeight, "World map height");
 
         this.rnd = rnd ?? makeRNG();
         this.locations = new Map(); // id -> Location
         this.edges = []; // array<Street>
-        const count = computeAutoLocationCount();
+        const count = computeAutoLocationCount(placeRegistry);
 
         this._generateLocations(count, mapWidth, mapHeight);
         this._connectGraph();
-        this._populatePlaces();
+        this._populatePlaces(placeRegistry);
         this._fitGeometryToTravelTimes(mapWidth, mapHeight);
     }
 
@@ -1049,7 +1049,7 @@ export class WorldMap {
     // Place population
     // --------------------------
 
-    _populatePlaces() {
+    _populatePlaces(placeRegistry) {
         const ids = [...this.locations.keys()];
 
         const placed = generatePlaces({
@@ -1057,6 +1057,7 @@ export class WorldMap {
             getTag: (locId) => this.locations.get(locId)?.tags || [],
             getNeighbors: (locId) => this.locations.get(String(locId))?.neighbors.keys() || [],
             rnd: this.rnd,
+            placeRegistry,
         });
 
         for (const p of placed) {

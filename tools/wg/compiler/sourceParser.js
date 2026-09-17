@@ -1371,7 +1371,7 @@ function parseSceneChunk(file, chunk, features) {
         failWG("@hub requires a place key", location);
       }
       if (
-        !PLACE_REGISTRY.some((place) => place.key === placeKey) &&
+        !(features?.placeRegistry ?? PLACE_REGISTRY).some((place) => place.key === placeKey) &&
         !NPC_REGISTRY.some((npc) => `home_${npc.id}` === placeKey)
       ) {
         failWG(`@hub references unknown place '${placeKey}'`, location);

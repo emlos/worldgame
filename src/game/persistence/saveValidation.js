@@ -56,6 +56,8 @@ export function validateGameSave(data, { features = DEFAULT_FEATURE_CATALOG } = 
   const { mapIndex } = validateWorldSave(requiredSaveField(save, "world", "save"), {
     expectedSeed: deriveSeed(seed, "world"),
     expectedTime: gameTime,
+    placeRegistry: features.placeRegistry,
+    requireRegisteredPlaceKeys: true,
   });
   const { npcIds, npcProfiles } = validateNPCRosterSave(
     requiredSaveField(save, "npcs", "save"),

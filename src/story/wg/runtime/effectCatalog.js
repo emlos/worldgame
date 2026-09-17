@@ -15,7 +15,7 @@ export function getWGRuntimeEffectCatalog(features) {
       skills: SKILLS,
       stats: MUTABLE_STATS,
       subjects: source.wgReferenceCatalogs?.subjects ?? {},
-      placeRegistry: PLACE_REGISTRY,
+      placeRegistry: source.placeRegistry ?? PLACE_REGISTRY,
       npcRegistry: NPC_REGISTRY,
       timers: source.timerDefinitions,
       reminders: WG_BUNDLE.reminders,

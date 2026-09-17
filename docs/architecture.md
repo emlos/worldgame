@@ -15,7 +15,6 @@ src/
   features/                    Cross-cutting gameplay feature slices
     catalog.js                 Registration contract and composition
     index.js                   The game's enabled feature list
-    placeContributions.js      Cycle-free composition of feature-owned places
     bus/                       Bus places, timetable, scene decoration, actions
     school/                    School timetable, classes, quizzes, context,
                                effects, reminders, views, and places
@@ -25,7 +24,7 @@ src/
     player/                    Player aggregate and save validation
     npc/                       NPC model, AI, definitions, behavior, and validation
   world/
-    data/                      Shared world definitions and registry composition
+    data/                      Shared world definitions and core registries
     model/                     Calendar, places, weather, and map implementation
     world.js                   World aggregate
     saveValidation.js          World, calendar, weather, place, and map save rules
@@ -103,8 +102,9 @@ by many systems stays with its shared domain owner.
 - Generic game and WG infrastructure consumes `game.features`; it does not import
   concrete bus, school, rent, or future feature modules.
 - `features/index.js` is the composition root for runtime contributions.
-  `features/placeContributions.js` is the deliberately narrow, cycle-free
-  composition root used while constructing the world place registry.
+  The feature catalog composes core world places with enabled feature-owned
+  place definitions into one `placeRegistry`; world generation, save
+  validation, and WG reference validation consume that same registry.
 - Game services are stateless functions that accept the aggregate they operate
   on. They must not import the `Game` class or retain a game instance globally.
 - Fresh-game bootstrap and save hydration are separate code paths. Loading a save
@@ -112,7 +112,7 @@ by many systems stays with its shared domain owner.
 - Save validation follows state ownership. Subsystems define their rules;
   `game/persistence/saveValidation.js` only coordinates the root envelope and
   cross-subsystem checks before hydration.
-- Game save format 41 requires state for every enabled stateful feature and
+- Game save format 43 requires state for every enabled stateful feature and
   rejects state belonging to an unknown feature. Development saves from older
   formats are intentionally unsupported.
 - `story/wg/shared` is independent of compiler and runtime. Both consume the same

@@ -1,4 +1,5 @@
 import { validateTimerDefinition } from "../game/timerDefinitionContract.js";
+import { PLACE_REGISTRY } from "../world/data/place.js";
 
 const FEATURE_ID_PATTERN = /^[a-z][a-z0-9_-]*$/;
 const CONTRIBUTION_ID_PATTERN = /^[a-z][a-z0-9_.-]*$/;
@@ -116,7 +117,7 @@ export function createFeatureCatalog(featureDefinitions) {
   const reminderIds = new Set();
   const decoratorIds = new Set();
   const placeDefinitions = [];
-  const placeKeys = new Set();
+  const placeKeys = new Set(PLACE_REGISTRY.map((definition) => String(definition.key)));
   const skillCheckTargets = new Map();
   const wgEffectHandlers = new Map();
   const wgReferenceCatalogs = new Map();
@@ -291,6 +292,7 @@ export function createFeatureCatalog(featureDefinitions) {
     },
     timerDefinitions: Object.freeze(Object.fromEntries(timerDefinitions)),
     placeDefinitions: Object.freeze(placeDefinitions),
+    placeRegistry: Object.freeze([...PLACE_REGISTRY, ...placeDefinitions]),
     skillCheckTargetTypes: Object.freeze([...skillCheckTargets.keys()]),
     wgEffectHandlerOps: Object.freeze([...wgEffectHandlers.keys()]),
     wgReferenceCatalogs: Object.freeze(Object.fromEntries(wgReferenceCatalogs)),

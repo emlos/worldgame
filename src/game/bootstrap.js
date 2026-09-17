@@ -33,6 +33,7 @@ export function initializeNewGame(
   game.world = new World({
     seed: deriveSeed(game.seed, "world"),
     startDate,
+    placeRegistry: game.features.placeRegistry,
   });
   game.startedAt = game.now.toISOString();
   game.reminders = new Set();

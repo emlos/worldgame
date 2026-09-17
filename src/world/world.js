@@ -16,6 +16,7 @@ export class World {
     startDate = new Date(),
     w = 100,
     h = 50,
+    placeRegistry,
   } = {}) {
     this.random = new RandomStreams(seed);
     // General world-runtime stream. Stateful procedural systems use separate
@@ -45,6 +46,7 @@ export class World {
       rnd: this.random.stream("map"),
       mapWidth: w,
       mapHeight: h,
+      placeRegistry,
     });
   }
 

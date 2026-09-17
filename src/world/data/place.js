@@ -1,5 +1,4 @@
 import { LOCATION_TAGS } from "./location.js";
-import { FEATURE_PLACE_DEFINITIONS } from "../../features/placeContributions.js";
 import {
   emptySchedule,
   hoursAllDay,
@@ -1590,7 +1589,6 @@ export const PLACE_REGISTRY = [
       `${pick(["Sunset", "Valley", "River", "Golden"], rnd)} Estate Winery`,
     unlocked: false,
   },
-  ...FEATURE_PLACE_DEFINITIONS,
 ];
 
 // ---- reusable opening-hour patterns --------------------------------

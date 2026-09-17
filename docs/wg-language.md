@@ -485,7 +485,7 @@ returns to the locked state.
 WG can reveal these places with the effect
 `@effect unlock place <place-key>`, for example
 `@effect unlock place civil_office`.
-The key must come from `PLACE_REGISTRY` or be `home_<npc-id>` for an NPC in
+The key must come from the active feature catalog's place registry or be `home_<npc-id>` for an NPC in
 `NPC_REGISTRY`. Other generated instance IDs and outdoor location/district IDs
 are not valid place keys. WG does not currently expose `place.unlocked`
 or a per-key unlock-state query. See **Unlocking places** below for effect rules.

@@ -6,7 +6,7 @@ import {
   defineFeature,
 } from "../src/features/catalog.js";
 import { DEFAULT_FEATURE_CATALOG } from "../src/features/index.js";
-import { FEATURE_PLACE_DEFINITIONS } from "../src/features/placeContributions.js";
+import { PLACE_REGISTRY } from "../src/world/data/place.js";
 import { Game } from "../src/game/game.js";
 import { collectReminders } from "../src/game/reminders.js";
 
@@ -42,7 +42,10 @@ test("the default catalog composes each special system through feature registrat
     features.placeDefinitions.map((definition) => definition.key),
     ["bus_stop", "high_school"],
   );
-  assert.deepEqual(features.placeDefinitions, FEATURE_PLACE_DEFINITIONS);
+  assert.deepEqual(
+    features.placeRegistry.slice(PLACE_REGISTRY.length),
+    features.placeDefinitions,
+  );
 
   const game = new Game({
     seed: 4401,
@@ -64,6 +67,53 @@ test("the default catalog composes each special system through feature registrat
   assert.deepEqual(
     features.buildPlayerStatsSections(game).map((section) => section.id),
     ["school-grades"],
+  );
+});
+
+test("game world generation and save loading use the active feature place registry", () => {
+  const noFeatures = createFeatureCatalog([]);
+  const emptyGame = new Game({
+    features: noFeatures,
+    seed: 4402,
+    startDate: new Date("2026-09-03T08:00:00.000Z"),
+    playerOptions: { startPlaceId: null },
+    npcTemplates: [],
+  });
+  assert.equal(emptyGame.world.findFirstPlaceByKey("bus_stop"), null);
+  assert.equal(emptyGame.world.findFirstPlaceByKey("high_school"), null);
+  assert.doesNotThrow(() => Game.fromJSON(emptyGame.toJSON(), { features: noFeatures }));
+
+  const defaultGame = new Game({
+    seed: 4404,
+    startDate: new Date("2026-09-03T08:00:00.000Z"),
+    playerOptions: { startPlaceId: null },
+    npcTemplates: [],
+  });
+  assert.throws(
+    () => Game.fromJSON(defaultGame.toJSON(), { features: noFeatures }),
+    /place key '(?:bus_stop|high_school)'.*not registered by the active feature catalog/,
+  );
+
+  const customFeatures = createFeatureCatalog([{
+    id: "custom",
+    placeDefinitions: [{
+      key: "custom_lab",
+      label: "Custom Lab",
+      props: { category: ["service"] },
+      unlocked: true,
+    }],
+  }]);
+  const customGame = new Game({
+    features: customFeatures,
+    seed: 4403,
+    startDate: new Date("2026-09-03T08:00:00.000Z"),
+    playerOptions: { startPlaceId: null },
+    npcTemplates: [],
+  });
+  assert.ok(customGame.world.findFirstPlaceByKey("custom_lab"));
+  assert.equal(customGame.world.findFirstPlaceByKey("bus_stop"), null);
+  assert.doesNotThrow(() =>
+    Game.fromJSON(customGame.toJSON(), { features: customFeatures }),
   );
 });
 

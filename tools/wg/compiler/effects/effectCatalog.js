@@ -13,7 +13,7 @@ export function createCompilerEffectCatalog({
     skills: SKILLS,
     stats: MUTABLE_STATS,
     subjects: features.wgReferenceCatalogs.subjects ?? {},
-    placeRegistry: PLACE_REGISTRY,
+    placeRegistry: features.placeRegistry ?? PLACE_REGISTRY,
     npcRegistry: NPC_REGISTRY,
     timers: features.timerDefinitions,
     reminders: reminderMap,

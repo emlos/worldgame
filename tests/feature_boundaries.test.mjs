@@ -43,6 +43,7 @@ test("old cross-cutting feature paths were removed rather than kept as aliases",
   const removedPaths = [
     "../src/game/busTransit.js",
     "../src/game/timerDefinitions.js",
+    "../src/features/placeContributions.js",
     "../src/story/systems/schoolQuiz/system.js",
     "../src/characters/player/education.js",
     "../src/characters/player/schedule.js",
@@ -55,11 +56,11 @@ test("old cross-cutting feature paths were removed rather than kept as aliases",
   }
 });
 
-test("the shared place registry composes feature places without naming them", async () => {
+test("the core place registry does not statically compose feature places", async () => {
   const source = await readFile(
     new URL("../src/world/data/place.js", import.meta.url),
     "utf8",
   );
-  assert.match(source, /FEATURE_PLACE_DEFINITIONS/);
+  assert.doesNotMatch(source, /features[\/]/);
   assert.doesNotMatch(source, /bus_stop|high_school/);
 });
