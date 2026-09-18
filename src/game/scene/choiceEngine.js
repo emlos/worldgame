@@ -21,7 +21,7 @@ import {
   getPlayerSkillCheckValue,
   getSkillCheckTargetDefinition,
 } from "./skillChecks.js";
-import { keyedRandom01, randInt } from "../../shared/util/random.js";
+import { keyedRandom01 } from "../../shared/util/random.js";
 import { actWGSystem } from "../../story/wg/runtime/storySystemRegistry.js";
 import {
   CHOICE_ERROR_CODE,
@@ -87,7 +87,13 @@ function findChoice(scene, choiceId) {
   return undefined;
 }
 
-function rolledDurationMinutes(game, durationMinutes, durationRangeMinutes, label) {
+function rolledDurationMinutes(
+  game,
+  durationMinutes,
+  durationRangeMinutes,
+  label,
+  randomKey = label,
+) {
   if (durationRangeMinutes !== null) {
     const min = Number(durationRangeMinutes?.min);
     const max = Number(durationRangeMinutes?.max);
@@ -102,7 +108,11 @@ function rolledDurationMinutes(game, durationMinutes, durationRangeMinutes, labe
         `${label} has an invalid duration range`,
       );
     }
-    return randInt(min, max, game.rnd);
+    const roll = keyedRandom01(
+      game.seed,
+      ["choice-duration-v1", game.actionRevision, randomKey].join(":"),
+    );
+    return min + Math.floor(roll * (max - min + 1));
   }
 
   const minutes = Number(durationMinutes ?? 0);
@@ -112,12 +122,13 @@ function rolledDurationMinutes(game, durationMinutes, durationRangeMinutes, labe
   return minutes;
 }
 
-function choiceMinutes(game, choice) {
+function choiceMinutes(game, choice, sceneId) {
   return rolledDurationMinutes(
     game,
     choice.durationMinutes,
     choice.durationRangeMinutes,
     `Choice '${choice.id}'`,
+    `${sceneId}:${choice.id}:direct`,
   );
 }
 
@@ -379,12 +390,13 @@ function performWGSystem(game, choice, minutes) {
   return actionResult({ notice, paragraphs });
 }
 
-function outcomeMinutes(game, choice, outcome, result) {
+function outcomeMinutes(game, choice, outcome, result, sceneId) {
   return rolledDurationMinutes(
     game,
     outcome?.durationMinutes,
     outcome?.durationRangeMinutes ?? null,
     `Choice '${choice.id}' ${result} outcome`,
+    `${sceneId}:${choice.id}:outcome:${result}`,
   );
 }
 
@@ -440,7 +452,7 @@ function performSkillCheck(game, choice, _minutes, scene) {
       "Choice '" + choice.id + "' has no " + result + " outcome",
     );
   }
-  const minutes = outcomeMinutes(game, choice, outcome, result);
+  const minutes = outcomeMinutes(game, choice, outcome, result, scene.id);
 
   if (outcome.target === "@leave-place") {
     return performLeave(
@@ -537,5 +549,5 @@ export function performChoice(game, request) {
     );
   }
 
-  return handler(game, choice, choiceMinutes(game, choice), scene);
+  return handler(game, choice, choiceMinutes(game, choice, scene.id), scene);
 }

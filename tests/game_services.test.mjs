@@ -150,10 +150,10 @@ test("the action runner preserves effect, time, interrupt, and logging order", (
 
   assert.deepEqual(order, [
     "apply",
-    "time",
     "interrupt:before-after",
     "after",
     "interrupt:after-after",
+    "time",
   ]);
   assert.equal(game.now.getTime() - before, 5 * 60_000);
   assert.equal(game.actionRevision, revision + 1);
@@ -199,16 +199,104 @@ test("failed actions restore the complete serialized game state", () => {
   }
 });
 
-test("action rollback covers time failures and preserves event subscriptions", () => {
+test("failed actions do not publish buffered events and preserve object identity", () => {
+  const game = new Game({
+    seed: 8128,
+    startDate: FIXED_START,
+    playerOptions: { startPlaceId: null },
+  });
+  const before = game.toJSON();
+  const references = {
+    player: game.player,
+    body: game.player.body,
+    world: game.world,
+    time: game.world.time,
+    random: game.random,
+    rnd: game.rnd,
+    npcs: game.npcs,
+    npc: game.npcsArray[0],
+    npcBrain: game.npcsArray[0]?.brain,
+  };
+  let calls = 0;
+  const unsubscribe = game.on("time", () => {
+    calls += 1;
+  });
+
+  assert.throws(
+    () => game.runAction({
+      minutes: 5,
+      apply(currentGame) {
+        currentGame.accidentalTransient = 123;
+        currentGame.player.money = 999;
+        currentGame.rnd();
+      },
+      after() {
+        throw new Error("test action failed");
+      },
+    }),
+    /test action failed/,
+  );
+
+  assert.deepEqual(game.toJSON(), before);
+  assert.equal(calls, 0);
+  assert.equal(Object.hasOwn(game, "accidentalTransient"), false);
+  assert.equal(game.player, references.player);
+  assert.equal(game.player.body, references.body);
+  assert.equal(game.world, references.world);
+  assert.equal(game.world.time, references.time);
+  assert.equal(game.random, references.random);
+  assert.equal(game.rnd, references.rnd);
+  assert.equal(game.npcs, references.npcs);
+  assert.equal(game.npcsArray[0], references.npc);
+  assert.equal(game.npcsArray[0]?.brain, references.npcBrain);
+
+  game.advanceMinutes(1);
+  assert.equal(calls, 1);
+  unsubscribe();
+});
+
+test("failed actions restore listener membership changes", () => {
+  const game = gameWithoutNPCs({
+    playerOptions: { startPlaceId: null },
+  });
+  let originalCalls = 0;
+  let transientCalls = 0;
+  const unsubscribeOriginal = game.on("time", () => {
+    originalCalls += 1;
+  });
+
+  assert.throws(
+    () => game.runAction({
+      apply(currentGame) {
+        unsubscribeOriginal();
+        currentGame.on("time", () => {
+          transientCalls += 1;
+        });
+        throw new Error("test action failed");
+      },
+    }),
+    /test action failed/,
+  );
+
+  game.advanceMinutes(1);
+  assert.equal(originalCalls, 1);
+  assert.equal(transientCalls, 0);
+  unsubscribeOriginal();
+});
+
+test("event listener failures happen after action commit and never roll state back", () => {
   const game = gameWithoutNPCs({
     playerOptions: { startPlaceId: null },
   });
   const before = game.toJSON();
   let calls = 0;
-  let fail = true;
+  let laterListenerCalls = 0;
   const unsubscribe = game.on("time", () => {
     calls += 1;
-    if (fail) throw new Error("test time listener failed");
+    throw new Error("test time listener failed");
+  });
+  const unsubscribeLater = game.on("time", () => {
+    laterListenerCalls += 1;
   });
 
   assert.throws(
@@ -220,15 +308,14 @@ test("action rollback covers time failures and preserves event subscriptions", (
     }),
     /test time listener failed/,
   );
-  assert.deepEqual(game.toJSON(), before);
-  assert.equal(calls, 1);
 
-  fail = false;
-  game.advanceMinutes(1);
-  assert.equal(calls, 2);
+  assert.equal(calls, 1);
+  assert.equal(laterListenerCalls, 1);
+  assert.equal(game.hasFlag("action-applied"), true);
+  assert.equal(game.actionRevision, before.actionRevision + 1);
+  assert.equal(game.now.getTime(), new Date(before.time).getTime() + 5 * 60_000);
   unsubscribe();
-  game.advanceMinutes(1);
-  assert.equal(calls, 2);
+  unsubscribeLater();
 });
 test("crossing UTC midnight clears daily flags and refreshes announcements", () => {
   const game = gameWithoutNPCs({

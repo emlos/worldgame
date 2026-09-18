@@ -148,6 +148,7 @@ test("ranged choice time rolls only when selected and persists through saves", (
   placePlayerAtHome(game);
 
   const randomBeforeRendering = game.random.toJSON();
+  const gameplayRngBeforeSelection = game.rnd.getState();
   for (let render = 0; render < 3; render += 1) {
     const unpack = choiceWithLabel(buildScene(game), "Unpack");
     assert.equal(unpack.durationMinutes, 0);
@@ -169,7 +170,8 @@ test("ranged choice time rolls only when selected and persists through saves", (
     (restoredBeforeSelection.now.getTime() - restoredStartedAt) / 60_000;
   assert.ok(elapsedMinutes >= 15 && elapsedMinutes <= 30);
   assert.equal(restoredElapsedMinutes, elapsedMinutes);
-  assert.notDeepEqual(game.random.toJSON(), randomBeforeRendering);
+  assert.equal(game.rnd.getState(), gameplayRngBeforeSelection);
+  assert.equal(restoredBeforeSelection.rnd.getState(), gameplayRngBeforeSelection);
   assert.deepEqual(
     restoredBeforeSelection.random.toJSON(),
     game.random.toJSON(),
