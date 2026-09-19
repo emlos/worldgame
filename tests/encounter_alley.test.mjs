@@ -1,13 +1,18 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
+import { Game } from "../src/game/game.js";
 import { buildScene } from "../src/game/scene/sceneEngine.js";
 import { performChoice } from "../src/game/scene/choiceEngine.js";
 import {
   resolveWGAutomaticScene,
   WG_AUTO_TRIGGER,
 } from "../src/story/wg/runtime/sceneExposure.js";
-import { exitWGStory } from "../src/story/wg/runtime/storyRuntime.js";
+import {
+  enterWGScene,
+  exitWGStory,
+  resolveActiveWGStory,
+} from "../src/story/wg/runtime/storyRuntime.js";
 import { createCombatContext } from "../src/features/encounter/combatants.js";
 import {
   STEAL_MONEY_OBJECTIVE,
@@ -111,7 +116,7 @@ test("entering an alley triggers the mugging once", () => {
   assert.notEqual(repeated?.id, "encounter.alley-mugging-approach");
 });
 
-test("the pre-fight choices surrender bounded money or escape to the street", () => {
+test("every pre-fight outcome leads to Jackie's introduction in the alley", () => {
   const surrender = gameAtStart({ seed: 1, money: 7 });
   placePlayerAtAlley(surrender);
   const surrenderLocationId = surrender.currentLocationId;
@@ -123,9 +128,14 @@ test("the pre-fight choices surrender bounded money or escape to the street", ()
   });
 
   assert.equal(surrender.player.money, 0);
-  assert.equal(surrender.currentStory, null);
+  assert.equal(surrender.currentStory.id, "encounter.alley-jackie-introduction");
   assert.equal(surrender.currentPlace.key, "alleyway");
   assert.equal(String(surrender.location.id), String(surrenderLocationId));
+  assert.equal(surrender.player.getRelationshipProfile(
+    "jackie",
+    surrender.npcs.get("jackie").relationshipProfile,
+  ).met, true);
+  assert.ok(surrender.getNPCsAtCurrentPosition().includes(surrender.npcs.get("jackie")));
   assert.match(result.paragraphs.join(" "), /hand over/i);
 
   const escape = gameAtStart({ seed: 1, money: 50 });
@@ -140,10 +150,103 @@ test("the pre-fight choices surrender bounded money or escape to the street", ()
   });
 
   assert.equal(escape.player.money, 50);
-  assert.equal(escape.currentStory, null);
-  assert.equal(escape.currentPlace, null);
+  assert.equal(escape.currentStory.id, "encounter.alley-jackie-introduction");
+  assert.equal(escape.currentPlace.key, "alleyway");
   assert.equal(String(escape.location.id), String(escapeLocationId));
   assert.match(result.paragraphs.join(" "), /outrun the mugger/i);
+});
+
+test("Jackie offers both current combat drills as a persistent NPC opponent", () => {
+  const game = gameAtStart({ seed: 1, money: 50 });
+  placePlayerAtAlley(game);
+  resolveWGAutomaticScene(game, WG_AUTO_TRIGGER.enterPlace);
+  let scene = buildScene(game);
+  performChoice(game, {
+    sceneId: scene.id,
+    choiceId: sceneChoiceByLabel(scene, "Hand over up to £20").id,
+  });
+
+  scene = buildScene(game);
+  const introductionText = scene.content
+    .flatMap(({ parts = [] }) => parts)
+    .map(({ text = "" }) => text)
+    .join("");
+  assert.match(introductionText, /Name's Jackie/i);
+  assert.match(introductionText, /where you can find them/i);
+  performChoice(game, {
+    sceneId: scene.id,
+    choiceId: sceneChoiceByLabel(scene, "Hear them out").id,
+  });
+
+  scene = buildScene(game);
+  assert.deepEqual(
+    scene.sections.flatMap(({ choices }) => choices.map(({ label }) => label)),
+    [
+      "Protect your money or escape — Jackie will try to take up to £20",
+      "Escape or stop Jackie — Jackie will try to beat you down",
+      "Not right now",
+    ],
+  );
+
+  performChoice(game, {
+    sceneId: scene.id,
+    choiceId: sceneChoiceByLabel(
+      scene,
+      "Protect your money or escape — Jackie will try to take up to £20",
+    ).id,
+  });
+
+  const state = game.currentStory.system.state;
+  assert.equal(state.objective.id, "steal-money");
+  assert.deepEqual(state.participants.jackie.ref, { type: "npc", npcId: "jackie" });
+  assert.equal(game.currentStory.actors, undefined);
+  const context = createCombatContext({
+    game,
+    state,
+    instanceKey: game.currentStory.instanceKey,
+  });
+  assert.strictEqual(context.combatants.jackie.actor, game.npcs.get("jackie"));
+  assert.strictEqual(context.combatants.jackie.body, game.npcs.get("jackie").body);
+  assert.equal(context.combatants.jackie.title, "Jackie");
+  assert.equal(context.combatants.jackie.stat("fitness"), 6);
+
+  const restored = Game.fromJSON(game.toJSON());
+  assert.equal(restored.currentStory.system.state.participants.jackie.ref.type, "npc");
+  assert.doesNotThrow(() => buildScene(restored));
+
+  const beatDown = gameAtStart({ seed: 2 });
+  placePlayerAtAlley(beatDown);
+  beatDown.teleportNPC("jackie", "player");
+  enterWGScene(beatDown, "encounter.alley-jackie-coaching");
+  resolveActiveWGStory(beatDown);
+  scene = buildScene(beatDown);
+  performChoice(beatDown, {
+    sceneId: scene.id,
+    choiceId: sceneChoiceByLabel(
+      scene,
+      "Escape or stop Jackie — Jackie will try to beat you down",
+    ).id,
+  });
+  assert.equal(beatDown.currentStory.system.state.objective.id, "beat-down");
+  assert.deepEqual(
+    beatDown.currentStory.system.state.participants.jackie.ref,
+    { type: "npc", npcId: "jackie" },
+  );
+});
+
+test("Jackie's introduction catches up on a later alley visit", () => {
+  const game = gameAtStart();
+  game.setFlag("encounter.alley_mugging_seen");
+  placePlayerAtAlley(game);
+
+  const entered = resolveWGAutomaticScene(game, WG_AUTO_TRIGGER.enterPlace);
+
+  assert.equal(entered?.id, "encounter.alley-jackie-introduction");
+  assert.ok(game.getNPCsAtCurrentPosition().includes(game.npcs.get("jackie")));
+  assert.equal(game.player.getRelationshipProfile(
+    "jackie",
+    game.npcs.get("jackie").relationshipProfile,
+  ).met, true);
 });
 
 test("an unanswered scream spends the exchange and leaves the fight active", () => {
@@ -197,6 +300,11 @@ test("a heard scream ends combat and routes to a scene with a generated rescuer"
   scene = buildScene(game);
   assert.match(JSON.stringify(scene.content), /mugger releases you and runs/i);
   assert.match(JSON.stringify(scene.content), /stays with you and makes sure you are safe/i);
+  performChoice(game, {
+    sceneId: scene.id,
+    choiceId: sceneChoiceByLabel(scene, "Thank them").id,
+  });
+  assert.equal(game.currentStory.id, "encounter.alley-jackie-introduction");
 });
 
 function preparePlayerControl(game, { stolen = false, muggerExertion = 35 } = {}) {
@@ -450,7 +558,7 @@ test("failure to disrupt control completes bounded theft exactly once", () => {
   buildScene(game);
   assert.equal(game.player.money, 30);
   chooseAction(game, "finish");
-  assert.equal(game.currentStory, null);
+  assert.equal(game.currentStory.id, "encounter.alley-jackie-introduction");
 });
 
 test("taking money begins an interruptible getaway before theft completes", () => {
@@ -603,8 +711,8 @@ test("escape, attacker incapacitation, and theft from a pain-overwhelmed target 
           ? "wrench-free"
           : "shove-away").id, "player-escaped");
   chooseAction(escape, "finish");
-  assert.equal(escape.currentStory, null);
-  assert.equal(escape.currentPlace, null);
+  assert.equal(escape.currentStory.id, "encounter.alley-jackie-introduction");
+  assert.equal(escape.currentPlace.key, "alleyway");
   assert.equal(String(escape.currentLocationId), String(escapeLocationId));
 
   const cleanWin = gameAtStart({ seed: 2 });
@@ -616,8 +724,8 @@ test("escape, attacker incapacitation, and theft from a pain-overwhelmed target 
     findActionChoice(game, "strike-holding-arm") ? "strike-holding-arm" : "strike-face").id,
   "mugger-incapacitated");
   chooseAction(cleanWin, "finish");
-  assert.equal(cleanWin.currentStory, null);
-  assert.equal(cleanWin.currentPlace, null);
+  assert.equal(cleanWin.currentStory.id, "encounter.alley-jackie-introduction");
+  assert.equal(cleanWin.currentPlace.key, "alleyway");
   assert.equal(String(cleanWin.currentLocationId), String(cleanWinLocationId));
 
   const injuredLoss = gameAtStart({ seed: 1 });
@@ -638,6 +746,6 @@ test("escape, attacker incapacitation, and theft from a pain-overwhelmed target 
               : "cover-and-brace").id,
   "theft-completed-player-conscious");
   chooseAction(injuredLoss, "finish");
-  assert.equal(injuredLoss.currentStory, null);
+  assert.equal(injuredLoss.currentStory.id, "encounter.alley-jackie-introduction");
   assert.equal(injuredLoss.currentPlace.id, injuredLossAlley.id);
 });

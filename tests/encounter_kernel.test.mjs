@@ -20,7 +20,7 @@ test("the fight kernel resolves actions with an arbitrary opponent participant i
   });
   const state = createFightState({
     opponentId: "attacker",
-    opponentAlias: "mugger",
+    opponentRef: { type: "scene-actor", alias: "mugger" },
     objective,
     personalityId: "opportunist",
   });

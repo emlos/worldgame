@@ -10,6 +10,7 @@ import {
   renderLastExchange,
   renderObjectivePressure,
 } from "../src/features/encounter/prose.js";
+import { beatDownThreatProse } from "../src/features/encounter/proseData.js";
 import {
   STEAL_MONEY_OBJECTIVE,
   STEAL_MONEY_OUTCOME,
@@ -98,4 +99,20 @@ test("player-facing labels, exchange prose, pressure, and outcomes use attacker 
       new RegExp(`${expected.subject.toLowerCase()} ${expected.has} taken`),
     );
   }
+});
+
+test("beat-down threats conjugate every verb for plural pronouns", () => {
+  const { state, context } = setup(PronounSets.THEY_THEM);
+
+  state.objective.stage = "restrained";
+  assert.equal(
+    beatDownThreatProse(context),
+    "They intend to hurt and humiliate you, but are still holding back.",
+  );
+
+  state.objective.stage = "escalated";
+  assert.equal(
+    beatDownThreatProse(context),
+    "They have lost all restraint and intend to leave you unable to fight back.",
+  );
 });

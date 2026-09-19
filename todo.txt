@@ -79,6 +79,12 @@ game systems:
 
     - theres catacombs under the city, multiple locations, with a randomly generated maze [maze changed every two weeks? supernatural reasons]
 
+    combat:
+    - prose "Your pain is 0 of 50." -> change to pain meter a la energy/hugiene/stress, invisible when pain is 0 / remove this prose if pain meter is implemented [verify]
+    - combat shuld raise stress - tune values
+    - "Next: They move in with a restrained body blow. 3 seconds" -> telegraph the npc's intent with specific prose "they wind their hand back, looks like its aimed at your torso" for every intent
+    - the 'Current situation' should be only shown as prose - maybe use different colors?
+    - jackie should give temporary 5$ to the player - either to be stolen back or kept if they succeed at defending themselves/runnign away.
     
 content:
 - add events/interactions/utility on all unlocked places
@@ -99,7 +105,7 @@ design [important]:
 
 - npc characterisation + purpose needs to be decided
 - how should the clothing system work?
-- combat vs sex design
+- combat and sex should use same system - just different values, but the logic core can stay the same
 
 code:
 - simplify constructors for single instanced clases like player, game etc. 

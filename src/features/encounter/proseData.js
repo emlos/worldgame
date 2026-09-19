@@ -959,8 +959,8 @@ export function commitmentBandProse(value, retreatThreshold) {
 export function beatDownThreatProse(context) {
   const ownerId = goalOwnerId(context.state);
   return context.state.objective.stage === "escalated"
-    ? `${encounterPronoun(context, ownerId, "subject", { sentence: true })} ${encounterVerb(context, ownerId, "has", "have")} lost all restraint and intends to leave you unable to fight back.`
-    : `${encounterPronoun(context, ownerId, "subject", { sentence: true })} ${encounterVerb(context, ownerId, "intends", "intend")} to hurt and humiliate you, but is still holding back.`;
+    ? `${encounterPronoun(context, ownerId, "subject", { sentence: true })} ${encounterVerb(context, ownerId, "has", "have")} lost all restraint and ${encounterVerb(context, ownerId, "intends", "intend")} to leave you unable to fight back.`
+    : `${encounterPronoun(context, ownerId, "subject", { sentence: true })} ${encounterVerb(context, ownerId, "intends", "intend")} to hurt and humiliate you, but ${encounterVerb(context, ownerId, "is", "are")} still holding back.`;
 }
 
 export function beatDownPressureProse(context) {

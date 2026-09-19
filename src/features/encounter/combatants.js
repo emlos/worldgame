@@ -56,6 +56,12 @@ function sceneActor(game, alias) {
   return actor;
 }
 
+function persistentNpc(game, npcId) {
+  const npc = game.npcs.get(String(npcId));
+  if (!npc) fail(`NPC '${String(npcId)}' is unavailable`);
+  return npc;
+}
+
 function playerStat(game, name) {
   return finite(game.player.getSkillValue(name), 0);
 }
@@ -78,6 +84,18 @@ export function createCombatContext({ game, state, instanceKey }) {
         title: "you",
         body: game.player.body,
         stat: (name) => playerStat(game, name),
+        persist() {},
+      };
+      continue;
+    }
+    if (participant.ref.type === "npc") {
+      const npc = persistentNpc(game, participant.ref.npcId);
+      combatants[participantId] = {
+        id: participantId,
+        title: npc.meta?.shortName || npc.name,
+        actor: npc,
+        body: npc.body,
+        stat: (name) => actorStat(npc, name),
         persist() {},
       };
       continue;

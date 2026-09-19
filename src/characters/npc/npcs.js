@@ -47,6 +47,9 @@ export const NPC_REGISTRY = [
         stats: {
             looks: 3,
             strength: 1,
+            endurance: 2,
+            resolve: 3,
+            fitness: 2,
             intelligence: 4,
             charisma: 3,
         },
@@ -119,6 +122,57 @@ export const NPC_REGISTRY = [
         },
     },
 
+    // alley combat coach
+    {
+        id: "jackie",
+        name: "Jackie",
+        meta: {
+            shortName: "Jackie",
+            nicknames: ["Jackie"],
+            description:
+                "Jackie is an experienced street fighter who coaches the player in the alley.",
+            tags: ["human", "combat-coach"],
+        },
+
+        age: 25,
+        gender: Gender.NB,
+        pronouns: PronounSets.THEY_THEM,
+        relationshipProfile: {
+            meters: {
+                rapport: {
+                    label: "Rapport",
+                    description: "How comfortable Jackie feels coaching the player.",
+                    initial: 0,
+                    higherIsBetter: true,
+                    initiallyVisible: true,
+                },
+            },
+        },
+
+        stats: {
+            looks: 3,
+            strength: 6,
+            endurance: 7,
+            resolve: 7,
+            fitness: 6,
+            intelligence: 3,
+            charisma: 3,
+        },
+        homePreference: {
+            nameFn: () => "Jackie's home",
+            withPlaceCategory: [PLACE_TAGS.housing],
+            withLocationCategory: [
+                LOCATION_TAGS.urban,
+                LOCATION_TAGS.urban_center,
+                LOCATION_TAGS.residential,
+            ],
+        },
+        bodyTemplate: HUMAN_BODY_TEMPLATE,
+        // Jackie stays wherever story content places them instead of following
+        // an autonomous schedule or goal plan.
+        behavior: null,
+    },
+
     //thief type
     {
         id: "shade",
@@ -137,6 +191,9 @@ export const NPC_REGISTRY = [
         stats: {
             looks: 2,
             strength: 3,
+            endurance: 4,
+            resolve: 5,
+            fitness: 6,
             intelligence: 3,
             charisma: 2,
         },
@@ -306,6 +363,9 @@ export const NPC_REGISTRY = [
         stats: {
             looks: 2,
             strength: 4,
+            endurance: 6,
+            resolve: 6,
+            fitness: 5,
             intelligence: 0,
             charisma: 3,
         },
@@ -563,6 +623,9 @@ export const NPC_REGISTRY = [
         stats: {
             looks: 7,
             strength: 2,
+            endurance: 4,
+            resolve: 6,
+            fitness: 3,
             intelligence: 4,
             charisma: 4,
         },
@@ -722,6 +785,9 @@ export const NPC_REGISTRY = [
         stats: {
             looks: 3,
             strength: 2,
+            endurance: 3,
+            resolve: 3,
+            fitness: 4,
             intelligence: 3,
             charisma: 4,
         },
@@ -828,6 +894,9 @@ export const NPC_REGISTRY = [
         stats: {
             looks: 8,
             strength: 5,
+            endurance: 4,
+            resolve: 7,
+            fitness: 3,
             intelligence: 4,
             charisma: 2,
         },
@@ -1060,6 +1129,9 @@ export const NPC_REGISTRY = [
         stats: {
             looks: 5,
             strength: 2,
+            endurance: 4,
+            resolve: 7,
+            fitness: 3,
             intelligence: 8,
             charisma: 6,
         },

@@ -89,21 +89,33 @@ function round(value) {
 
 function combatantDebugSnapshot(context, actorId) {
   const combatant = getCombatant(context, actorId);
+  const ref = context.state.participants[actorId].ref;
   const controlledHolds = holdsControlledBy(context, actorId);
   const hostileHolds = hostileHoldsOn(context, actorId);
-  const identity = context.state.participants[actorId].ref.type === "player"
+  const identity = ref.type === "player"
     ? { id: actorId, title: "you", kind: "player" }
-    : {
-      id: combatant.actor.id,
-      title: combatant.actor.title,
-      kind: "temporary-actor",
-      profileId: combatant.actor.profileId,
-      category: combatant.actor.category,
-      age: combatant.actor.age,
-      gender: combatant.actor.gender,
-      pronouns: structuredClone(combatant.actor.pronouns),
-      tags: [...(combatant.actor.meta?.tags || [])],
-    };
+    : ref.type === "npc"
+      ? {
+        id: combatant.actor.id,
+        title: combatant.title,
+        kind: "npc",
+        name: combatant.actor.name,
+        age: combatant.actor.age,
+        gender: combatant.actor.gender,
+        pronouns: structuredClone(combatant.actor.pronouns),
+        tags: [...(combatant.actor.meta?.tags || [])],
+      }
+      : {
+        id: combatant.actor.id,
+        title: combatant.actor.title,
+        kind: "temporary-actor",
+        profileId: combatant.actor.profileId,
+        category: combatant.actor.category,
+        age: combatant.actor.age,
+        gender: combatant.actor.gender,
+        pronouns: structuredClone(combatant.actor.pronouns),
+        tags: [...(combatant.actor.meta?.tags || [])],
+      };
 
   return {
     identity,

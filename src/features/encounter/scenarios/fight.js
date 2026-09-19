@@ -19,6 +19,23 @@ function requireRecord(value, label) {
   return value;
 }
 
+function opponentSource(game, opponent) {
+  if (opponent.actor) {
+    const actor = game.currentStory?.actors?.[opponent.actor];
+    if (!actor) fail(`scene actor '${opponent.actor}' is unavailable`);
+    return {
+      character: actor,
+      ref: { type: "scene-actor", alias: opponent.actor },
+    };
+  }
+  const npc = game.npcs.get(String(opponent.npc));
+  if (!npc) fail(`NPC '${String(opponent.npc)}' is unavailable`);
+  return {
+    character: npc,
+    ref: { type: "npc", npcId: String(opponent.npc) },
+  };
+}
+
 function resolveUnopposedEntry(context, reason) {
   const { state } = context;
   const targetId = controlledParticipantId(state);
@@ -59,8 +76,10 @@ export const FIGHT_SCENARIO = Object.freeze({
     if (typeof opponent.id !== "string" || !opponent.id || opponent.id === "player") {
       fail("config.opponent.id must be a non-player participant id");
     }
-    if (typeof opponent.actor !== "string" || !opponent.actor) {
-      fail("config.opponent.actor must be a scene actor alias");
+    const hasActor = typeof opponent.actor === "string" && Boolean(opponent.actor);
+    const hasNpc = typeof opponent.npc === "string" && Boolean(opponent.npc);
+    if (hasActor === hasNpc) {
+      fail("config.opponent requires exactly one of actor or npc");
     }
     const goal = requireRecord(config.goal, "config.goal");
     requireEncounterObjective({ objective: goal }).validateConfig(goal, fail);
@@ -90,8 +109,7 @@ export const FIGHT_SCENARIO = Object.freeze({
 
   create({ game, instanceKey, config }) {
     this.validateConfig(config);
-    const actor = game.currentStory?.actors?.[config.opponent.actor];
-    if (!actor) fail(`scene actor '${config.opponent.actor}' is unavailable`);
+    const opponent = opponentSource(game, config.opponent);
     const objective = requireEncounterObjective({ objective: config.goal }).create({
       game,
       config: config.goal,
@@ -101,14 +119,15 @@ export const FIGHT_SCENARIO = Object.freeze({
     const personality = selectAiPersonality(game.seed, instanceKey);
     const state = createFightState({
       opponentId: config.opponent.id,
-      opponentAlias: config.opponent.actor,
+      opponentRef: opponent.ref,
       objective,
       personalityId: personality.id,
     });
     const ownerId = goalOwnerId(state);
     state.participants[ownerId].controller.commitmentBase = Math.min(
       75,
-      50 + personality.commitmentBias + Math.round(Number(actor.stats?.resolve || 0) * 3),
+      50 + personality.commitmentBias
+        + Math.round(Number(opponent.character.stats?.resolve || 0) * 3),
     );
     const context = createCombatContext({ game, state, instanceKey });
     const controlledId = controlledParticipantId(state);
@@ -124,7 +143,7 @@ export const FIGHT_SCENARIO = Object.freeze({
     return state;
   },
 
-  finish({ config, definition, state }) {
+  finish({ game, config, definition, state }) {
     const route = config.outcomes?.[state.outcome.id] ?? config.outcomes?.default ?? null;
     const objective = requireEncounterObjective(state);
     const leavesByDefault = objective.playerLeavesPlaceOutcomeIds.includes(state.outcome.id);
@@ -132,6 +151,12 @@ export const FIGHT_SCENARIO = Object.freeze({
       ? route.leavePlace ?? leavesByDefault
       : leavesByDefault;
     const locationOutcome = leavePlace ? { leavePlace: true } : {};
+    // A queued world interrupt such as exhaustion must run before an authored
+    // aftermath scene. The ordinary interrupt checkpoint activates it as soon
+    // as this encounter releases the current story frame.
+    if (game?.interruptState?.pending) {
+      return { target: "@exit", ...locationOutcome };
+    }
     if (typeof route === "string") return { target: route, ...locationOutcome };
     if (route) return {
       target: route.target,

@@ -7,7 +7,7 @@ This is the maintainer and story-author reference for the physical encounter sys
 The registered WG system is `encounter.physical`. Its only scenario is `fight`, a deterministic fight between exactly two participants:
 
 - one human-controlled player;
-- one temporary scene actor controlled by the shared hostile AI;
+- one temporary scene actor or persistent registered NPC controlled by the shared hostile AI;
 - one attacker-owned objective, currently `steal-money` or `beat-down`;
 - one stored, player-visible NPC intent and one player response per exchange;
 - second-based action timing, simultaneous actions, interruption, range, pose, facing, wall support, wrist grips, limb pins, blunt damage, pain, exertion, and short acute effects;
@@ -51,13 +51,20 @@ The important ownership boundaries are:
 
 ## Declaring a fight in WG
 
-Physical encounters are runtime story systems; there is no `@combat` directive. The current authored example is:
+Physical encounters are runtime story systems; there is no `@combat` directive. A temporary opponent is declared with an `@actor` alias:
 
 ```wg
-:: encounter.alley-mugging -> @exit
+:: encounter.alley-mugging -> encounter.alley-jackie-introduction
   @actor mugger civilian
 
-  @system encounter.physical {"scenario":"fight","opponent":{"id":"mugger","actor":"mugger"},"goal":{"id":"steal-money","maxAmount":20},"outcomes":{"player-rescued":"encounter.alley-mugging-rescue"}}
+  @system encounter.physical {"scenario":"fight","opponent":{"id":"mugger","actor":"mugger"},"goal":{"id":"steal-money","maxAmount":20}}
+```
+
+A registered NPC uses its persistent stats, identity, pronouns, and body state:
+
+```wg
+:: encounter.alley-jackie-beat-down-practice -> encounter.alley-jackie-coaching
+  @system encounter.physical {"scenario":"fight","opponent":{"id":"jackie","npc":"jackie"},"goal":{"id":"beat-down"}}
 ```
 
 ### Fight configuration
@@ -66,7 +73,8 @@ Physical encounters are runtime story systems; there is no `@combat` directive. 
 |---|---:|---|
 | `scenario` | yes | Must currently be `"fight"`. |
 | `opponent.id` | yes | Encounter participant ID. It must be non-empty and cannot be `player`. |
-| `opponent.actor` | yes | Alias of an `@actor` available in `game.currentStory.actors`. |
+| `opponent.actor` | alternative | Alias of an `@actor` available in `game.currentStory.actors`. Exactly one of `actor` or `npc` is required. |
+| `opponent.npc` | alternative | ID of a persistent NPC in `game.npcs`. Its registry stats and saved body state are used directly. |
 | `goal` | yes | Objective configuration. Its `id` selects the objective module. |
 | `outcomes` | no | Outcome-ID-to-route map, with optional `default`. |
 
@@ -133,11 +141,11 @@ The general action runner advances the game clock by the full exchange duration 
 
 ## Canonical state
 
-The exact serialized version is `8`. A representative theft fight is:
+The exact serialized version is `10`. A representative theft fight is:
 
 ```js
 {
-  version: 8,
+  version: 10,
   scenarioId: "fight",
   phase: "active",                  // "active" | "terminal"
   elapsedSeconds: 0,
@@ -150,6 +158,7 @@ The exact serialized version is `8`. A representative theft fight is:
       pose: "standing",
       support: "free",
       exertion: 0,
+      anger: 0,
       actionHistory: [],
       acute: [],
     },
@@ -164,6 +173,7 @@ The exact serialized version is `8`. A representative theft fight is:
       pose: "standing",
       support: "free",
       exertion: 0,
+      anger: 0,
       actionHistory: [],
       acute: [],
     },
@@ -206,6 +216,12 @@ The exact serialized version is `8`. A representative theft fight is:
   outcome: null,
 }
 ```
+
+A persistent opponent uses `ref: { type: "npc", npcId: "jackie" }` instead of a
+`scene-actor` reference. Temporary actor bodies are copied into the active scene
+frame and written back there after each exchange. Persistent NPC combatants use
+their roster body's live object directly, so injuries remain on the NPC and are
+included in ordinary game saves.
 
 ### Allowed physical values
 

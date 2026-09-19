@@ -1,7 +1,7 @@
 :: encounter.alley-mugging-approach -> @exit
   @auto enter-place
   @place-key alleyway
-  @when not flags.encounter.alley_mugging_seen
+  @when not flags.encounter.alley_mugging_seen and player.money >= 20
 
   @onenter
     @effect set flags.encounter.alley_mugging_seen
@@ -16,37 +16,112 @@
         You refuse to hand over your money. The mugger steps closer, and the confrontation becomes physical.
       @endresponse
     @endchoice
+
+    @choice "Hand over the money" -> encounter.alley-jackie-introduction
+      @change money -20
+      @response
+        You hand over what the mugger demands. Once they have the money, they hurry away.
+      @endresponse
+    @endchoice
+
+    @choice "Run for the street"
+      @check skill fitness easy
+      @success -> encounter.alley-jackie-introduction
+        @response
+          You outrun the mugger and reach the mouth of the alley before they give up the chase.
+        @endresponse
+      @endsuccess
+      @failure -> encounter.alley-mugging
+        @response
+          The mugger catches you before you can reach the street. You turn to face them as the confrontation becomes physical.
+        @endresponse
+      @endfailure
+    @endchoice
+
   @endchoicegroup
 
-  @choice "Hand over up to £20" -> @exit
-    @effect take-money up-to 20
-    @response
-      You hand over what the mugger demands. Once they have the money, they let you return to the street.
-    @endresponse
-  @endchoice
-
-  @choice "Run for the street"
-    @check skill fitness easy
-    @success -> @leave-place
-      @response
-        You manage to outrun the mugger and make it safely back to the street.
-      @endresponse
-    @endsuccess
-    @failure -> encounter.alley-mugging
-      @response
-        The mugger catches you before you can reach the street. You turn to face them as the confrontation becomes physical.
-      @endresponse
-    @endfailure
-  @endchoice
-
-:: encounter.alley-mugging -> @exit
+:: encounter.alley-mugging -> encounter.alley-jackie-introduction
   @actor mugger civilian
 
-  @system encounter.physical {"scenario":"fight","opponent":{"id":"mugger","actor":"mugger"},"goal":{"id":"steal-money","maxAmount":20},"outcomes":{"player-rescued":"encounter.alley-mugging-rescue"}}
+  @system encounter.physical {"scenario":"fight","opponent":{"id":"mugger","actor":"mugger"},"goal":{"id":"steal-money","maxAmount":20},"outcomes":{"player-rescued":{"target":"encounter.alley-mugging-rescue","leavePlace":false},"default":{"target":"encounter.alley-jackie-introduction","leavePlace":false}}}
 
-:: encounter.alley-mugging-rescue -> @exit
+:: encounter.alley-mugging-rescue -> encounter.alley-jackie-introduction
   @actor rescuer civilian
 
   Your scream carries beyond the alley. A nearby {{actor.rescuer.noun}} rushes toward you, shouting that help is coming.
 
   The interruption is enough. The mugger releases you and runs before {{actor.rescuer.subject}} can reach the fight. Once the attacker is gone, the {{actor.rescuer.noun}} stays with you and makes sure you are safe.
+
+  @next "Thank them"
+
+:: encounter.alley-jackie-introduction -> encounter.alley-jackie-coaching
+  @auto enter-place
+  @place-key alleyway
+  @priority 400
+  @when not npc.jackie.met
+
+  @onenter
+    @effect teleport npc jackie player
+    @effect relationship jackie.rapport 1
+    @effect set flags.encounter.jackie_met
+  @endonenter
+
+  @if flags.encounter.alley_mugging_seen
+    Once the danger has passed, someone who had been watching from farther down the alley approaches you.
+
+    "Name's {{npc.jackie.shortName}}," {{npc.jackie.shortName}} says. "You kept your head better than most people would. Your technique could use some work, though."
+  @else
+    A figure steps out of the shadows and into the alley. {{npc.jackie.subject | cap}} is dressed in a loose hoodie and jeans.
+    "Nice to see ya," {{npc.jackie.subject}} says. "I don't think we've met, but name's {{npc.jackie.shortName}}. You look like you could use a hand with your self-defense skills."
+  @endif
+
+  Jackie explains that this alley is usually where you can find {{npc.jackie.object}}, then offers to coach you through a few kinds of fight.
+
+  @next "Hear {{npc.jackie.object}} out"
+
+:: encounter.alley-jackie-coaching -> @exit
+  @heading "Training with Jackie"
+  @choices "Choose a drill"
+
+  Jackie rolls {{npc.jackie.dependent}} shoulders and gives you enough room to prepare. "Pick the situation. I'll play the aggressor, and you find a way through it."
+
+  @choice "Try to rob me" -> encounter.alley-jackie-theft-practice
+  @endchoice
+
+  @choice "Try to hurt me" -> encounter.alley-jackie-beat-down-practice
+  @endchoice
+
+  @choice "Not right now" -> @exit
+  @endchoice
+
+:: encounter.alley-jackie-theft-practice -> encounter.alley-jackie-coaching
+  @system encounter.physical {"scenario":"fight","opponent":{"id":"jackie","npc":"jackie"},"goal":{"id":"steal-money","maxAmount":20},"outcomes":{"default":{"target":"encounter.alley-jackie-coaching","leavePlace":false}}}
+
+:: encounter.alley-jackie-beat-down-practice -> encounter.alley-jackie-coaching
+  @system encounter.physical {"scenario":"fight","opponent":{"id":"jackie","npc":"jackie"},"goal":{"id":"beat-down"},"outcomes":{"default":{"target":"encounter.alley-jackie-coaching","leavePlace":false}}}
+
+:: place.alleyway
+  @hub alleyway
+  @choices "In the alley"
+
+  The narrow alley is hemmed in by brick walls, bins, fire escapes, and the distant noise of the street.
+
+  @if npc.jackie.met and npc.jackie.present
+    Jackie is nearby, in the shadows of the alley.
+
+    @random
+      {{npc.jackie.subject | cap}} seems to be repeatedly throwing a rubber ball against the wall and catching it.
+    @or
+      {{npc.jackie.subject | cap}} is practicing a series of punches in the air, moving with a rhythm that is almost like a dance.
+    @or
+      {{npc.jackie.subject | cap}} is leaning against the wall, arms crossed, and watching you with a faintly amused expression.
+    @or
+      {{npc.jackie.subject | cap}} is crouched down, examining the ground as if looking for something. {{npc.jackie.subject | cap}} looks up when you approach.
+    @or
+      {{npc.jackie.subject | cap}} is sitting on a crate, stretching {{npc.jackie.dependent}} legs and rolling {{npc.jackie.dependent}} shoulders.
+    @endrandom
+  @endif
+
+  @choice "Train with Jackie" -> encounter.alley-jackie-coaching
+    @when npc.jackie.met and npc.jackie.present
+  @endchoice

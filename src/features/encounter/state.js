@@ -22,7 +22,7 @@ export {
   setEncounterRange,
 } from "./spatialState.js";
 
-export const ENCOUNTER_STATE_VERSION = 9;
+export const ENCOUNTER_STATE_VERSION = 10;
 export const FIGHT_SCENARIO_ID = "fight";
 
 export const ENCOUNTER_PHASE = Object.freeze({
@@ -99,9 +99,17 @@ function validateRef(ref, path) {
     exactKeys(ref, ["type"], path);
     return;
   }
-  exactKeys(ref, ["type", "alias"], path);
-  if (ref.type !== "scene-actor") fail(`${path}.type must be 'scene-actor'`);
-  string(ref.alias, `${path}.alias`);
+  if (ref.type === "scene-actor") {
+    exactKeys(ref, ["type", "alias"], path);
+    string(ref.alias, `${path}.alias`);
+    return;
+  }
+  if (ref.type === "npc") {
+    exactKeys(ref, ["type", "npcId"], path);
+    string(ref.npcId, `${path}.npcId`);
+    return;
+  }
+  fail(`${path}.type must be 'player', 'scene-actor', or 'npc'`);
 }
 
 function validateAcute(acute, path) {
@@ -222,7 +230,7 @@ function validateEvents(events, path) {
 export function createFightState({
   controlledId = "player",
   opponentId = "opponent",
-  opponentAlias,
+  opponentRef,
   objective,
   personalityId = "opportunist",
 }) {
@@ -246,7 +254,7 @@ export function createFightState({
         acute: [],
       },
       [opponentId]: {
-        ref: { type: "scene-actor", alias: opponentAlias },
+        ref: structuredClone(opponentRef),
         controller: {
           type: "ai",
           policyId: "hostile",

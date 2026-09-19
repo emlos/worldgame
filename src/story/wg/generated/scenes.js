@@ -8957,9 +8957,9 @@ export const WG_BUNDLE = {
         "column": 1
       }
     },
-    "encounter.alley-mugging": {
-      "id": "encounter.alley-mugging",
-      "finalTarget": "@exit",
+    "encounter.alley-jackie-beat-down-practice": {
+      "id": "encounter.alley-jackie-beat-down-practice",
+      "finalTarget": "encounter.alley-jackie-coaching",
       "kind": "event",
       "heading": null,
       "choiceHeading": "Choices",
@@ -8969,20 +8969,22 @@ export const WG_BUNDLE = {
         "config": {
           "scenario": "fight",
           "opponent": {
-            "id": "mugger",
-            "actor": "mugger"
+            "id": "jackie",
+            "npc": "jackie"
           },
           "goal": {
-            "id": "steal-money",
-            "maxAmount": 20
+            "id": "beat-down"
           },
           "outcomes": {
-            "player-rescued": "encounter.alley-mugging-rescue"
+            "default": {
+              "target": "encounter.alley-jackie-coaching",
+              "leavePlace": false
+            }
           }
         },
         "source": {
           "file": "story/encounters/alley.wg",
-          "line": 45,
+          "line": 101,
           "column": 1
         }
       },
@@ -9004,7 +9006,563 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/encounters/alley.wg",
-        "line": 42,
+        "line": 100,
+        "column": 1
+      }
+    },
+    "encounter.alley-jackie-coaching": {
+      "id": "encounter.alley-jackie-coaching",
+      "finalTarget": "@exit",
+      "kind": "event",
+      "heading": "Training with Jackie",
+      "choiceHeading": "Choose a drill",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Jackie rolls "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "npc",
+                    "jackie",
+                    "dependent"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": " shoulders and gives you enough room to prepare. \"Pick the situation. I'll play the aggressor, and you find a way through it.\""
+                }
+              ],
+              "source": {
+                "file": "story/encounters/alley.wg",
+                "line": 86,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-1",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Try to rob me"
+                }
+              ],
+              "target": "encounter.alley-jackie-theft-practice",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/encounters/alley.wg",
+                "line": 88,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-2",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Try to hurt me"
+                }
+              ],
+              "target": "encounter.alley-jackie-beat-down-practice",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/encounters/alley.wg",
+                "line": 91,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-3",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Not right now"
+                }
+              ],
+              "target": "@exit",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": null,
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/encounters/alley.wg",
+                "line": 94,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/encounters/alley.wg",
+            "line": 86,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [],
+      "conditions": [],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/encounters/alley.wg",
+        "line": 82,
+        "column": 1
+      }
+    },
+    "encounter.alley-jackie-introduction": {
+      "id": "encounter.alley-jackie-introduction",
+      "finalTarget": "encounter.alley-jackie-coaching",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Choices",
+      "behavior": null,
+      "system": null,
+      "onEnter": [
+        {
+          "op": "teleport-npc",
+          "npcId": "jackie",
+          "destination": "player",
+          "source": {
+            "file": "story/encounters/alley.wg",
+            "line": 64,
+            "column": 1
+          }
+        },
+        {
+          "op": "relationship",
+          "npcId": "jackie",
+          "meterId": "rapport",
+          "amount": 1,
+          "source": {
+            "file": "story/encounters/alley.wg",
+            "line": 65,
+            "column": 1
+          }
+        },
+        {
+          "op": "set",
+          "path": [
+            "flags",
+            "encounter",
+            "jackie_met"
+          ],
+          "source": {
+            "file": "story/encounters/alley.wg",
+            "line": 66,
+            "column": 1
+          }
+        }
+      ],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "if",
+              "branches": [
+                {
+                  "test": {
+                    "type": "path",
+                    "value": [
+                      "flags",
+                      "encounter",
+                      "alley_mugging_seen"
+                    ]
+                  },
+                  "nodes": [
+                    {
+                      "type": "paragraph",
+                      "parts": [
+                        {
+                          "type": "text",
+                          "value": "Once the danger has passed, someone who had been watching from farther down the alley approaches you."
+                        }
+                      ],
+                      "source": {
+                        "file": "story/encounters/alley.wg",
+                        "line": 70,
+                        "column": 1
+                      }
+                    },
+                    {
+                      "type": "paragraph",
+                      "parts": [
+                        {
+                          "type": "text",
+                          "value": "\"Name's "
+                        },
+                        {
+                          "type": "interpolation",
+                          "path": [
+                            "npc",
+                            "jackie",
+                            "shortName"
+                          ],
+                          "filters": []
+                        },
+                        {
+                          "type": "text",
+                          "value": ",\" "
+                        },
+                        {
+                          "type": "interpolation",
+                          "path": [
+                            "npc",
+                            "jackie",
+                            "shortName"
+                          ],
+                          "filters": []
+                        },
+                        {
+                          "type": "text",
+                          "value": " says. \"You kept your head better than most people would. Your technique could use some work, though.\""
+                        }
+                      ],
+                      "source": {
+                        "file": "story/encounters/alley.wg",
+                        "line": 72,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "source": {
+                    "file": "story/encounters/alley.wg",
+                    "line": 69,
+                    "column": 1
+                  }
+                }
+              ],
+              "elseNodes": [
+                {
+                  "type": "paragraph",
+                  "parts": [
+                    {
+                      "type": "text",
+                      "value": "A figure steps out of the shadows and into the alley. "
+                    },
+                    {
+                      "type": "interpolation",
+                      "path": [
+                        "npc",
+                        "jackie",
+                        "subject"
+                      ],
+                      "filters": [
+                        "cap"
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "value": " is dressed in a loose hoodie and jeans."
+                    },
+                    {
+                      "type": "text",
+                      "value": " "
+                    },
+                    {
+                      "type": "text",
+                      "value": "\"Nice to see ya,\" "
+                    },
+                    {
+                      "type": "interpolation",
+                      "path": [
+                        "npc",
+                        "jackie",
+                        "subject"
+                      ],
+                      "filters": []
+                    },
+                    {
+                      "type": "text",
+                      "value": " says. \"I don't think we've met, but name's "
+                    },
+                    {
+                      "type": "interpolation",
+                      "path": [
+                        "npc",
+                        "jackie",
+                        "shortName"
+                      ],
+                      "filters": []
+                    },
+                    {
+                      "type": "text",
+                      "value": ". You look like you could use a hand with your self-defense skills.\""
+                    }
+                  ],
+                  "source": {
+                    "file": "story/encounters/alley.wg",
+                    "line": 74,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/encounters/alley.wg",
+                "line": 69,
+                "column": 1
+              },
+              "runtimeId": 0
+            },
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Jackie explains that this alley is usually where you can find "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "npc",
+                    "jackie",
+                    "object"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": ", then offers to coach you through a few kinds of fight."
+                }
+              ],
+              "source": {
+                "file": "story/encounters/alley.wg",
+                "line": 78,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Hear "
+              },
+              {
+                "type": "interpolation",
+                "path": [
+                  "npc",
+                  "jackie",
+                  "object"
+                ],
+                "filters": []
+              },
+              {
+                "type": "text",
+                "value": " out"
+              }
+            ],
+            "target": "encounter.alley-jackie-coaching",
+            "source": {
+              "file": "story/encounters/alley.wg",
+              "line": 80,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/encounters/alley.wg",
+            "line": 69,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "alleyway"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [
+        "enter-place"
+      ],
+      "pools": [],
+      "conditions": [
+        {
+          "type": "unary",
+          "operator": "not",
+          "value": {
+            "type": "path",
+            "value": [
+              "npc",
+              "jackie",
+              "met"
+            ]
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 400,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/encounters/alley.wg",
+        "line": 57,
+        "column": 1
+      }
+    },
+    "encounter.alley-jackie-theft-practice": {
+      "id": "encounter.alley-jackie-theft-practice",
+      "finalTarget": "encounter.alley-jackie-coaching",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Choices",
+      "behavior": null,
+      "system": {
+        "id": "encounter.physical",
+        "config": {
+          "scenario": "fight",
+          "opponent": {
+            "id": "jackie",
+            "npc": "jackie"
+          },
+          "goal": {
+            "id": "steal-money",
+            "maxAmount": 20
+          },
+          "outcomes": {
+            "default": {
+              "target": "encounter.alley-jackie-coaching",
+              "leavePlace": false
+            }
+          }
+        },
+        "source": {
+          "file": "story/encounters/alley.wg",
+          "line": 98,
+          "column": 1
+        }
+      },
+      "onEnter": [],
+      "passages": [],
+      "placeKeys": [],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [],
+      "conditions": [],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/encounters/alley.wg",
+        "line": 97,
+        "column": 1
+      }
+    },
+    "encounter.alley-mugging": {
+      "id": "encounter.alley-mugging",
+      "finalTarget": "encounter.alley-jackie-introduction",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Choices",
+      "behavior": null,
+      "system": {
+        "id": "encounter.physical",
+        "config": {
+          "scenario": "fight",
+          "opponent": {
+            "id": "mugger",
+            "actor": "mugger"
+          },
+          "goal": {
+            "id": "steal-money",
+            "maxAmount": 20
+          },
+          "outcomes": {
+            "player-rescued": {
+              "target": "encounter.alley-mugging-rescue",
+              "leavePlace": false
+            },
+            "default": {
+              "target": "encounter.alley-jackie-introduction",
+              "leavePlace": false
+            }
+          }
+        },
+        "source": {
+          "file": "story/encounters/alley.wg",
+          "line": 46,
+          "column": 1
+        }
+      },
+      "onEnter": [],
+      "passages": [],
+      "placeKeys": [],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [],
+      "conditions": [],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/encounters/alley.wg",
+        "line": 43,
         "column": 1
       },
       "actors": [
@@ -9013,7 +9571,7 @@ export const WG_BUNDLE = {
           "profileId": "civilian",
           "source": {
             "file": "story/encounters/alley.wg",
-            "line": 43,
+            "line": 44,
             "column": 1
           }
         }
@@ -9116,180 +9674,186 @@ export const WG_BUNDLE = {
                     "line": 14,
                     "column": 1
                   }
+                },
+                {
+                  "type": "choice",
+                  "id": "choice-2",
+                  "label": [
+                    {
+                      "type": "text",
+                      "value": "Hand over the money"
+                    }
+                  ],
+                  "target": "encounter.alley-jackie-introduction",
+                  "icon": null,
+                  "durationMinutes": 0,
+                  "durationRangeMinutes": null,
+                  "timeUntilPath": null,
+                  "energyFree": false,
+                  "resting": false,
+                  "when": null,
+                  "requirements": [],
+                  "warning": null,
+                  "responses": [
+                    {
+                      "paragraphs": [
+                        {
+                          "type": "paragraph",
+                          "parts": [
+                            {
+                              "type": "text",
+                              "value": "You hand over what the mugger demands. Once they have the money, they hurry away."
+                            }
+                          ],
+                          "source": {
+                            "file": "story/encounters/alley.wg",
+                            "line": 23,
+                            "column": 1
+                          }
+                        }
+                      ],
+                      "source": {
+                        "file": "story/encounters/alley.wg",
+                        "line": 22,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "hints": [],
+                  "effects": [
+                    {
+                      "op": "money",
+                      "amount": -20,
+                      "source": {
+                        "file": "story/encounters/alley.wg",
+                        "line": 21,
+                        "column": 1
+                      },
+                      "feedback": {
+                        "type": "money",
+                        "amount": -20,
+                        "label": "-Money",
+                        "direction": "decrease"
+                      }
+                    }
+                  ],
+                  "source": {
+                    "file": "story/encounters/alley.wg",
+                    "line": 20,
+                    "column": 1
+                  }
+                },
+                {
+                  "type": "choice",
+                  "id": "choice-3",
+                  "label": [
+                    {
+                      "type": "text",
+                      "value": "Run for the street"
+                    }
+                  ],
+                  "check": {
+                    "targetType": "skill",
+                    "targetId": "fitness",
+                    "difficultyId": "easy",
+                    "source": {
+                      "file": "story/encounters/alley.wg",
+                      "line": 28,
+                      "column": 1
+                    }
+                  },
+                  "outcomes": {
+                    "success": {
+                      "target": "encounter.alley-jackie-introduction",
+                      "durationMinutes": 0,
+                      "durationRangeMinutes": null,
+                      "energyFree": false,
+                      "resting": false,
+                      "responses": [
+                        {
+                          "paragraphs": [
+                            {
+                              "type": "paragraph",
+                              "parts": [
+                                {
+                                  "type": "text",
+                                  "value": "You outrun the mugger and reach the mouth of the alley before they give up the chase."
+                                }
+                              ],
+                              "source": {
+                                "file": "story/encounters/alley.wg",
+                                "line": 31,
+                                "column": 1
+                              }
+                            }
+                          ],
+                          "source": {
+                            "file": "story/encounters/alley.wg",
+                            "line": 30,
+                            "column": 1
+                          }
+                        }
+                      ],
+                      "effects": [],
+                      "source": {
+                        "file": "story/encounters/alley.wg",
+                        "line": 29,
+                        "column": 1
+                      }
+                    },
+                    "failure": {
+                      "target": "encounter.alley-mugging",
+                      "durationMinutes": 0,
+                      "durationRangeMinutes": null,
+                      "energyFree": false,
+                      "resting": false,
+                      "responses": [
+                        {
+                          "paragraphs": [
+                            {
+                              "type": "paragraph",
+                              "parts": [
+                                {
+                                  "type": "text",
+                                  "value": "The mugger catches you before you can reach the street. You turn to face them as the confrontation becomes physical."
+                                }
+                              ],
+                              "source": {
+                                "file": "story/encounters/alley.wg",
+                                "line": 36,
+                                "column": 1
+                              }
+                            }
+                          ],
+                          "source": {
+                            "file": "story/encounters/alley.wg",
+                            "line": 35,
+                            "column": 1
+                          }
+                        }
+                      ],
+                      "effects": [],
+                      "source": {
+                        "file": "story/encounters/alley.wg",
+                        "line": 34,
+                        "column": 1
+                      }
+                    }
+                  },
+                  "icon": null,
+                  "when": null,
+                  "requirements": [],
+                  "warning": null,
+                  "source": {
+                    "file": "story/encounters/alley.wg",
+                    "line": 27,
+                    "column": 1
+                  }
                 }
               ],
               "source": {
                 "file": "story/encounters/alley.wg",
                 "line": 12,
-                "column": 1
-              }
-            },
-            {
-              "type": "choice",
-              "id": "choice-2",
-              "label": [
-                {
-                  "type": "text",
-                  "value": "Hand over up to £20"
-                }
-              ],
-              "target": "@exit",
-              "icon": null,
-              "durationMinutes": 0,
-              "durationRangeMinutes": null,
-              "timeUntilPath": null,
-              "energyFree": false,
-              "resting": false,
-              "when": null,
-              "requirements": [],
-              "warning": null,
-              "responses": [
-                {
-                  "paragraphs": [
-                    {
-                      "type": "paragraph",
-                      "parts": [
-                        {
-                          "type": "text",
-                          "value": "You hand over what the mugger demands. Once they have the money, they let you return to the street."
-                        }
-                      ],
-                      "source": {
-                        "file": "story/encounters/alley.wg",
-                        "line": 24,
-                        "column": 1
-                      }
-                    }
-                  ],
-                  "source": {
-                    "file": "story/encounters/alley.wg",
-                    "line": 23,
-                    "column": 1
-                  }
-                }
-              ],
-              "hints": [],
-              "effects": [
-                {
-                  "op": "take-money-up-to",
-                  "amount": 20,
-                  "source": {
-                    "file": "story/encounters/alley.wg",
-                    "line": 22,
-                    "column": 1
-                  }
-                }
-              ],
-              "source": {
-                "file": "story/encounters/alley.wg",
-                "line": 21,
-                "column": 1
-              }
-            },
-            {
-              "type": "choice",
-              "id": "choice-3",
-              "label": [
-                {
-                  "type": "text",
-                  "value": "Run for the street"
-                }
-              ],
-              "check": {
-                "targetType": "skill",
-                "targetId": "fitness",
-                "difficultyId": "easy",
-                "source": {
-                  "file": "story/encounters/alley.wg",
-                  "line": 29,
-                  "column": 1
-                }
-              },
-              "outcomes": {
-                "success": {
-                  "target": "@leave-place",
-                  "durationMinutes": 0,
-                  "durationRangeMinutes": null,
-                  "energyFree": false,
-                  "resting": false,
-                  "responses": [
-                    {
-                      "paragraphs": [
-                        {
-                          "type": "paragraph",
-                          "parts": [
-                            {
-                              "type": "text",
-                              "value": "You manage to outrun the mugger and make it safely back to the street."
-                            }
-                          ],
-                          "source": {
-                            "file": "story/encounters/alley.wg",
-                            "line": 32,
-                            "column": 1
-                          }
-                        }
-                      ],
-                      "source": {
-                        "file": "story/encounters/alley.wg",
-                        "line": 31,
-                        "column": 1
-                      }
-                    }
-                  ],
-                  "effects": [],
-                  "source": {
-                    "file": "story/encounters/alley.wg",
-                    "line": 30,
-                    "column": 1
-                  }
-                },
-                "failure": {
-                  "target": "encounter.alley-mugging",
-                  "durationMinutes": 0,
-                  "durationRangeMinutes": null,
-                  "energyFree": false,
-                  "resting": false,
-                  "responses": [
-                    {
-                      "paragraphs": [
-                        {
-                          "type": "paragraph",
-                          "parts": [
-                            {
-                              "type": "text",
-                              "value": "The mugger catches you before you can reach the street. You turn to face them as the confrontation becomes physical."
-                            }
-                          ],
-                          "source": {
-                            "file": "story/encounters/alley.wg",
-                            "line": 37,
-                            "column": 1
-                          }
-                        }
-                      ],
-                      "source": {
-                        "file": "story/encounters/alley.wg",
-                        "line": 36,
-                        "column": 1
-                      }
-                    }
-                  ],
-                  "effects": [],
-                  "source": {
-                    "file": "story/encounters/alley.wg",
-                    "line": 35,
-                    "column": 1
-                  }
-                }
-              },
-              "icon": null,
-              "when": null,
-              "requirements": [],
-              "warning": null,
-              "source": {
-                "file": "story/encounters/alley.wg",
-                "line": 28,
                 "column": 1
               }
             }
@@ -9315,15 +9879,34 @@ export const WG_BUNDLE = {
       "pools": [],
       "conditions": [
         {
-          "type": "unary",
-          "operator": "not",
-          "value": {
-            "type": "path",
-            "value": [
-              "flags",
-              "encounter",
-              "alley_mugging_seen"
-            ]
+          "type": "binary",
+          "operator": "and",
+          "left": {
+            "type": "unary",
+            "operator": "not",
+            "value": {
+              "type": "path",
+              "value": [
+                "flags",
+                "encounter",
+                "alley_mugging_seen"
+              ]
+            }
+          },
+          "right": {
+            "type": "binary",
+            "operator": ">=",
+            "left": {
+              "type": "path",
+              "value": [
+                "player",
+                "money"
+              ]
+            },
+            "right": {
+              "type": "literal",
+              "value": 20
+            }
           }
         }
       ],
@@ -9341,7 +9924,7 @@ export const WG_BUNDLE = {
     },
     "encounter.alley-mugging-rescue": {
       "id": "encounter.alley-mugging-rescue",
-      "finalTarget": "@exit",
+      "finalTarget": "encounter.alley-jackie-introduction",
       "kind": "event",
       "heading": null,
       "choiceHeading": "Choices",
@@ -9375,7 +9958,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/encounters/alley.wg",
-                "line": 50,
+                "line": 51,
                 "column": 1
               }
             },
@@ -9415,15 +9998,28 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/encounters/alley.wg",
-                "line": 52,
+                "line": 53,
                 "column": 1
               }
             }
           ],
-          "next": null,
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Thank them"
+              }
+            ],
+            "target": "encounter.alley-jackie-introduction",
+            "source": {
+              "file": "story/encounters/alley.wg",
+              "line": 55,
+              "column": 1
+            }
+          },
           "source": {
             "file": "story/encounters/alley.wg",
-            "line": 50,
+            "line": 51,
             "column": 1
           }
         }
@@ -9444,7 +10040,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/encounters/alley.wg",
-        "line": 47,
+        "line": 48,
         "column": 1
       },
       "actors": [
@@ -9453,7 +10049,7 @@ export const WG_BUNDLE = {
           "profileId": "civilian",
           "source": {
             "file": "story/encounters/alley.wg",
-            "line": 48,
+            "line": 49,
             "column": 1
           }
         }
@@ -12609,6 +13205,354 @@ export const WG_BUNDLE = {
       "source": {
         "file": "story/places/player-home.wg",
         "line": 217,
+        "column": 1
+      }
+    },
+    "place.alleyway": {
+      "id": "place.alleyway",
+      "finalTarget": null,
+      "kind": "place",
+      "heading": null,
+      "choiceHeading": "In the alley",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "The narrow alley is hemmed in by brick walls, bins, fire escapes, and the distant noise of the street."
+                }
+              ],
+              "source": {
+                "file": "story/encounters/alley.wg",
+                "line": 107,
+                "column": 1
+              }
+            },
+            {
+              "type": "if",
+              "branches": [
+                {
+                  "test": {
+                    "type": "binary",
+                    "operator": "and",
+                    "left": {
+                      "type": "path",
+                      "value": [
+                        "npc",
+                        "jackie",
+                        "met"
+                      ]
+                    },
+                    "right": {
+                      "type": "path",
+                      "value": [
+                        "npc",
+                        "jackie",
+                        "present"
+                      ]
+                    }
+                  },
+                  "nodes": [
+                    {
+                      "type": "paragraph",
+                      "parts": [
+                        {
+                          "type": "text",
+                          "value": "Jackie is nearby, in the shadows of the alley."
+                        }
+                      ],
+                      "source": {
+                        "file": "story/encounters/alley.wg",
+                        "line": 110,
+                        "column": 1
+                      }
+                    },
+                    {
+                      "type": "random",
+                      "variants": [
+                        [
+                          {
+                            "type": "paragraph",
+                            "parts": [
+                              {
+                                "type": "interpolation",
+                                "path": [
+                                  "npc",
+                                  "jackie",
+                                  "subject"
+                                ],
+                                "filters": [
+                                  "cap"
+                                ]
+                              },
+                              {
+                                "type": "text",
+                                "value": " seems to be repeatedly throwing a rubber ball against the wall and catching it."
+                              }
+                            ],
+                            "source": {
+                              "file": "story/encounters/alley.wg",
+                              "line": 113,
+                              "column": 1
+                            }
+                          }
+                        ],
+                        [
+                          {
+                            "type": "paragraph",
+                            "parts": [
+                              {
+                                "type": "interpolation",
+                                "path": [
+                                  "npc",
+                                  "jackie",
+                                  "subject"
+                                ],
+                                "filters": [
+                                  "cap"
+                                ]
+                              },
+                              {
+                                "type": "text",
+                                "value": " is practicing a series of punches in the air, moving with a rhythm that is almost like a dance."
+                              }
+                            ],
+                            "source": {
+                              "file": "story/encounters/alley.wg",
+                              "line": 115,
+                              "column": 1
+                            }
+                          }
+                        ],
+                        [
+                          {
+                            "type": "paragraph",
+                            "parts": [
+                              {
+                                "type": "interpolation",
+                                "path": [
+                                  "npc",
+                                  "jackie",
+                                  "subject"
+                                ],
+                                "filters": [
+                                  "cap"
+                                ]
+                              },
+                              {
+                                "type": "text",
+                                "value": " is leaning against the wall, arms crossed, and watching you with a faintly amused expression."
+                              }
+                            ],
+                            "source": {
+                              "file": "story/encounters/alley.wg",
+                              "line": 117,
+                              "column": 1
+                            }
+                          }
+                        ],
+                        [
+                          {
+                            "type": "paragraph",
+                            "parts": [
+                              {
+                                "type": "interpolation",
+                                "path": [
+                                  "npc",
+                                  "jackie",
+                                  "subject"
+                                ],
+                                "filters": [
+                                  "cap"
+                                ]
+                              },
+                              {
+                                "type": "text",
+                                "value": " is crouched down, examining the ground as if looking for something. "
+                              },
+                              {
+                                "type": "interpolation",
+                                "path": [
+                                  "npc",
+                                  "jackie",
+                                  "subject"
+                                ],
+                                "filters": [
+                                  "cap"
+                                ]
+                              },
+                              {
+                                "type": "text",
+                                "value": " looks up when you approach."
+                              }
+                            ],
+                            "source": {
+                              "file": "story/encounters/alley.wg",
+                              "line": 119,
+                              "column": 1
+                            }
+                          }
+                        ],
+                        [
+                          {
+                            "type": "paragraph",
+                            "parts": [
+                              {
+                                "type": "interpolation",
+                                "path": [
+                                  "npc",
+                                  "jackie",
+                                  "subject"
+                                ],
+                                "filters": [
+                                  "cap"
+                                ]
+                              },
+                              {
+                                "type": "text",
+                                "value": " is sitting on a crate, stretching "
+                              },
+                              {
+                                "type": "interpolation",
+                                "path": [
+                                  "npc",
+                                  "jackie",
+                                  "dependent"
+                                ],
+                                "filters": []
+                              },
+                              {
+                                "type": "text",
+                                "value": " legs and rolling "
+                              },
+                              {
+                                "type": "interpolation",
+                                "path": [
+                                  "npc",
+                                  "jackie",
+                                  "dependent"
+                                ],
+                                "filters": []
+                              },
+                              {
+                                "type": "text",
+                                "value": " shoulders."
+                              }
+                            ],
+                            "source": {
+                              "file": "story/encounters/alley.wg",
+                              "line": 121,
+                              "column": 1
+                            }
+                          }
+                        ]
+                      ],
+                      "source": {
+                        "file": "story/encounters/alley.wg",
+                        "line": 112,
+                        "column": 1
+                      },
+                      "runtimeId": 1
+                    }
+                  ],
+                  "source": {
+                    "file": "story/encounters/alley.wg",
+                    "line": 109,
+                    "column": 1
+                  }
+                }
+              ],
+              "elseNodes": null,
+              "source": {
+                "file": "story/encounters/alley.wg",
+                "line": 109,
+                "column": 1
+              },
+              "runtimeId": 0
+            },
+            {
+              "type": "choice",
+              "id": "choice-1",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Train with Jackie"
+                }
+              ],
+              "target": "encounter.alley-jackie-coaching",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": {
+                "type": "binary",
+                "operator": "and",
+                "left": {
+                  "type": "path",
+                  "value": [
+                    "npc",
+                    "jackie",
+                    "met"
+                  ]
+                },
+                "right": {
+                  "type": "path",
+                  "value": [
+                    "npc",
+                    "jackie",
+                    "present"
+                  ]
+                }
+              },
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/encounters/alley.wg",
+                "line": 125,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/encounters/alley.wg",
+            "line": 107,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "alleyway"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": {
+        "type": "place"
+      },
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [],
+      "conditions": [],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/encounters/alley.wg",
+        "line": 103,
         "column": 1
       }
     },
