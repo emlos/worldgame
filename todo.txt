@@ -81,7 +81,6 @@ game systems:
 
     combat:
     - combat shuld raise stress - tune values
-    - jackie should give temporary 5$ to the player - either to be stolen back or kept if they succeed at defending themselves/runnign away.
     
 content:
 - add events/interactions/utility on all unlocked places
@@ -115,3 +114,8 @@ other:
 - adjust sleep balance - -sleeping for 6 hours almost fills up energy bar
 
 fix:
+
+
+not planned:
+- combat: weapons, police, player emotions, multi person combat, environment beyond the wall/groud positioning, specific injuries
+- 

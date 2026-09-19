@@ -8,7 +8,7 @@ import {
   FIGHT_SCENARIO_ID,
   createFightState,
 } from "../state.js";
-import { selectAiPersonality } from "../personality.js";
+import { getAiPersonality, selectAiPersonality } from "../personality.js";
 
 function fail(message) {
   throw new Error(`Physical encounter fight scenario: ${message}`);
@@ -34,6 +34,25 @@ function opponentSource(game, opponent) {
     character: npc,
     ref: { type: "npc", npcId: String(opponent.npc) },
   };
+}
+
+function opponentPersonality(opponent, seed, instanceKey) {
+  if (opponent.ref.type !== "npc") return selectAiPersonality(seed, instanceKey);
+  const personalityId = opponent.character.meta?.combatPersonalityId;
+  if (typeof personalityId !== "string" || !personalityId) {
+    fail(`named NPC '${opponent.ref.npcId}' has no combat personality`);
+  }
+  return getAiPersonality(personalityId);
+}
+
+function restorePersistentNpcBodies(game, state) {
+  if (!state?.participants) return;
+  for (const participant of Object.values(state.participants)) {
+    if (participant.ref?.type !== "npc") continue;
+    const npc = game.npcs.get(participant.ref.npcId);
+    if (!npc) fail(`NPC '${participant.ref.npcId}' is unavailable while finishing combat`);
+    npc.body.fullyHeal();
+  }
 }
 
 function resolveUnopposedEntry(context, reason) {
@@ -116,7 +135,7 @@ export const FIGHT_SCENARIO = Object.freeze({
       ownerId: config.opponent.id,
       targetId: "player",
     });
-    const personality = selectAiPersonality(game.seed, instanceKey);
+    const personality = opponentPersonality(opponent, game.seed, instanceKey);
     const state = createFightState({
       opponentId: config.opponent.id,
       opponentRef: opponent.ref,
@@ -144,6 +163,7 @@ export const FIGHT_SCENARIO = Object.freeze({
   },
 
   finish({ game, config, definition, state }) {
+    restorePersistentNpcBodies(game, state);
     const route = config.outcomes?.[state.outcome.id] ?? config.outcomes?.default ?? null;
     const objective = requireEncounterObjective(state);
     const leavesByDefault = objective.playerLeavesPlaceOutcomeIds.includes(state.outcome.id);

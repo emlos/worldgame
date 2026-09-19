@@ -83,21 +83,36 @@
   @heading "Training with Jackie"
   @choices "Choose a drill"
 
-  Jackie rolls {{npc.jackie.dependent}} shoulders and gives you enough room to prepare. "Pick the situation. I'll play the aggressor, and you find a way through it."
+  @if player.conditionScore < 45 or player.pain >= 50
+    Jackie looks you over, then shakes {{npc.jackie.dependent}} head. "Not today. You're already too hurt for this to be useful. Get some rest, then come back."
+  @else
+    Jackie rolls {{npc.jackie.dependent}} shoulders and gives you enough room to prepare. "Pick the situation. I'll play the aggressor, and you find a way through it."
+  @endif
 
   @choice "Try to rob me" -> encounter.alley-jackie-theft-practice
+    @when player.conditionScore >= 45 and player.pain < 50
+    @change money 5
     @effect set daily.npc.jackie.training
+    @response
+      Jackie hands you £5. "Protect that or get away and it's yours. I'll try to take it back."
+    @endresponse
   @endchoice
 
   @choice "Try to hurt me" -> encounter.alley-jackie-beat-down-practice
+    @when player.conditionScore >= 45 and player.pain < 50
     @effect set daily.npc.jackie.training
   @endchoice
 
   @choice "Not right now" -> @exit
+    @when player.conditionScore >= 45 and player.pain < 50
+  @endchoice
+
+  @choice "Take Jackie's advice" -> @exit
+    @when player.conditionScore < 45 or player.pain >= 50
   @endchoice
 
 :: encounter.alley-jackie-theft-practice -> place.alleyway
-  @system encounter.physical {"scenario":"fight","opponent":{"id":"jackie","npc":"jackie"},"goal":{"id":"steal-money","maxAmount":20},"outcomes":{"default":{"target":"place.alleyway","leavePlace":false}}}
+  @system encounter.physical {"scenario":"fight","opponent":{"id":"jackie","npc":"jackie"},"goal":{"id":"steal-money","maxAmount":5},"outcomes":{"default":{"target":"place.alleyway","leavePlace":false}}}
 
 :: encounter.alley-jackie-beat-down-practice -> place.alleyway
   @system encounter.physical {"scenario":"fight","opponent":{"id":"jackie","npc":"jackie"},"goal":{"id":"beat-down"},"outcomes":{"default":{"target":"place.alleyway","leavePlace":false}}}
@@ -131,6 +146,6 @@
    @choice "Train with Jackie" -> place.alleyway
     @when npc.jackie.met and npc.jackie.present and daily.npc.jackie.training
     @response
-      "Ow," Jackie says. "I think we've done enough training for today. Let's pick this up again tomorrow."
+      "Easy there tiger," Jackie says. "I think we've done enough training for today. Let's pick this up again tomorrow."
     @endresponse
   @endchoice

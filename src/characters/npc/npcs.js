@@ -14,6 +14,7 @@ export const NPC_REGISTRY = [
         meta: {
            // example: true, test flag, remove before release
             shortName: "Taylor",
+            combatPersonalityId: "skittish",
             iconPath: "assets/npc/icons/taylor/icon.png",
             nicknames: ["Tay"],
             description:
@@ -128,6 +129,7 @@ export const NPC_REGISTRY = [
         name: "Jackie",
         meta: {
             shortName: "Jackie",
+            combatPersonalityId: "forceful",
             nicknames: ["Jackie"],
             description:
                 "Jackie is an experienced street fighter who coaches the player in the alley.",
@@ -179,6 +181,7 @@ export const NPC_REGISTRY = [
         name: 'Drew "Shade" Kovač',
         meta: {
             shortName: "Shade",
+            combatPersonalityId: "opportunist",
             iconPath: "assets/npc/icons/shade/icon.png",
             nicknames: ["Shade", "Hey You"],
             description:
@@ -351,6 +354,7 @@ export const NPC_REGISTRY = [
         name: "Officer Jules Vega",
         meta: {
             shortName: "Vega",
+            combatPersonalityId: "forceful",
             iconPath: "assets/npc/icons/vega/icon.png",
             nicknames: ["Officer Vega", "Jule"],
             tags: ["human", "cop"],
@@ -598,6 +602,7 @@ export const NPC_REGISTRY = [
         name: "Caro Novak",
         meta: {
             shortName: "Caro",
+            combatPersonalityId: "skittish",
             iconPath: "assets/npc/icons/caro/icon.png",
             nicknames: ["Nurse Caro"],
             description:
@@ -772,6 +777,7 @@ export const NPC_REGISTRY = [
         name: "Michael Thompson",
         meta: {
             shortName: "Michael",
+            combatPersonalityId: "skittish",
             iconPath: "assets/npc/icons/mike/icon.png",
             nicknames: ["Mic", "MT"],
             description: "Tourist Mike is here for the sights. And the people. Both count.",
@@ -880,6 +886,7 @@ export const NPC_REGISTRY = [
         name: "Vinny Hale",
         meta: {
             shortName: "Vinny",
+            combatPersonalityId: "opportunist",
             iconPath: "assets/npc/icons/vinny/icon.png",
             nicknames: ["Hale", "Vinny"],
             description:
@@ -1095,6 +1102,7 @@ export const NPC_REGISTRY = [
         name: "Kim Johnson",
         meta: {
             shortName: "Kim",
+            combatPersonalityId: "forceful",
             iconPath: "assets/npc/icons/kim/icon.png",
             nicknames: ["Johnson", "Kim"],
                     description:

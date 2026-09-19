@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import { NPC_REGISTRY } from "../src/characters/npc/npcs.js";
+import { AI_PERSONALITY_IDS } from "../src/features/encounter/personality.js";
 
 const COMBAT_STATS = Object.freeze(["strength", "endurance", "resolve", "fitness"]);
 
@@ -20,12 +21,37 @@ test("every persistent NPC has hardcoded combat stats", () => {
   }
 });
 
+test("every persistent NPC has a hardcoded combat personality", () => {
+  const expected = {
+    taylor: "skittish",
+    jackie: "forceful",
+    shade: "opportunist",
+    officer_vega: "forceful",
+    caro: "skittish",
+    mike: "skittish",
+    vinny: "opportunist",
+    kim: "forceful",
+  };
+
+  assert.deepEqual(
+    Object.fromEntries(NPC_REGISTRY.map(({ id, meta }) => [id, meta.combatPersonalityId])),
+    expected,
+  );
+  for (const definition of NPC_REGISTRY) {
+    assert.ok(
+      AI_PERSONALITY_IDS.includes(definition.meta.combatPersonalityId),
+      `${definition.id} must use a registered combat personality`,
+    );
+  }
+});
+
 test("Jackie is a schedule-free persistent combat coach", () => {
   const jackie = NPC_REGISTRY.find(({ id }) => id === "jackie");
 
   assert.ok(jackie);
   assert.equal(jackie.name, "Jackie");
   assert.equal(jackie.meta.shortName, "Jackie");
+  assert.equal(jackie.meta.combatPersonalityId, "forceful");
   assert.deepEqual(jackie.pronouns, {
     subject: "they",
     object: "them",

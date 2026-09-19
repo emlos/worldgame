@@ -163,7 +163,7 @@ test("Jackie offers both current combat drills as a persistent NPC opponent", ()
   let scene = buildScene(game);
   performChoice(game, {
     sceneId: scene.id,
-    choiceId: sceneChoiceByLabel(scene, "Hand over up to £20").id,
+    choiceId: sceneChoiceByLabel(scene, "Hand over the money").id,
   });
 
   scene = buildScene(game);
@@ -182,23 +182,25 @@ test("Jackie offers both current combat drills as a persistent NPC opponent", ()
   assert.deepEqual(
     scene.sections.flatMap(({ choices }) => choices.map(({ label }) => label)),
     [
-      "Protect your money or escape — Jackie will try to take up to £20",
-      "Escape or stop Jackie — Jackie will try to beat you down",
+      "Try to rob me",
+      "Try to hurt me",
       "Not right now",
     ],
   );
 
-  performChoice(game, {
+  const moneyBeforeTraining = game.player.money;
+  const trainingResult = performChoice(game, {
     sceneId: scene.id,
-    choiceId: sceneChoiceByLabel(
-      scene,
-      "Protect your money or escape — Jackie will try to take up to £20",
-    ).id,
+    choiceId: sceneChoiceByLabel(scene, "Try to rob me").id,
   });
 
   const state = game.currentStory.system.state;
   assert.equal(state.objective.id, "steal-money");
+  assert.equal(state.objective.amount, 5);
+  assert.equal(game.player.money, moneyBeforeTraining + 5);
+  assert.match(trainingResult.paragraphs.join(" "), /hands you £5/i);
   assert.deepEqual(state.participants.jackie.ref, { type: "npc", npcId: "jackie" });
+  assert.equal(state.participants.jackie.controller.personalityId, "forceful");
   assert.equal(game.currentStory.actors, undefined);
   const context = createCombatContext({
     game,
@@ -222,16 +224,64 @@ test("Jackie offers both current combat drills as a persistent NPC opponent", ()
   scene = buildScene(beatDown);
   performChoice(beatDown, {
     sceneId: scene.id,
-    choiceId: sceneChoiceByLabel(
-      scene,
-      "Escape or stop Jackie — Jackie will try to beat you down",
-    ).id,
+    choiceId: sceneChoiceByLabel(scene, "Try to hurt me").id,
   });
   assert.equal(beatDown.currentStory.system.state.objective.id, "beat-down");
   assert.deepEqual(
     beatDown.currentStory.system.state.participants.jackie.ref,
     { type: "npc", npcId: "jackie" },
   );
+  assert.equal(
+    beatDown.currentStory.system.state.participants.jackie.controller.personalityId,
+    "forceful",
+  );
+});
+
+test("Jackie declines training when the player is badly injured or in too much pain", () => {
+  for (const injure of [
+    (game) => {
+      game.player.body.getPart("chest").integrity = 35;
+    },
+    (game) => {
+      game.player.body.getPart("chest").acutePain = 50;
+    },
+  ]) {
+    const game = gameAtStart();
+    placePlayerAtAlley(game);
+    game.teleportNPC("jackie", "player");
+    injure(game);
+    enterWGScene(game, "encounter.alley-jackie-coaching");
+    resolveActiveWGStory(game);
+
+    const scene = buildScene(game);
+    assert.match(JSON.stringify(scene.content), /too hurt.*get some rest/i);
+    assert.deepEqual(
+      scene.sections.flatMap(({ choices }) => choices.map(({ label }) => label)),
+      ["Take Jackie's advice"],
+    );
+  }
+});
+
+test("persistent NPC injuries are cleared after combat finishes", () => {
+  const game = gameAtStart({ seed: 1, money: 50 });
+  placePlayerAtAlley(game);
+  game.teleportNPC("jackie", "player");
+  enterWGScene(game, "encounter.alley-jackie-theft-practice");
+  resolveActiveWGStory(game);
+
+  const jackie = game.npcs.get("jackie");
+  jackie.body.applyDamage({ partId: "chest", integrityDamage: 30, painDamage: 55 });
+  assert.ok(jackie.body.getConditionScore() < 100);
+  assert.ok(jackie.body.getTotalPain() > 0);
+
+  chooseAction(game, "surrender-money");
+  assert.equal(game.currentStory.system.state.phase, "terminal");
+  assert.ok(jackie.body.getTotalPain() > 0, "terminal summary should retain fight injuries");
+  chooseAction(game, "finish");
+
+  assert.equal(jackie.body.getConditionScore(), 100);
+  assert.equal(jackie.body.getTotalPain(), 0);
+  assert.ok([...jackie.body.allParts()].every((part) => part.conditions.size === 0));
 });
 
 test("Jackie's introduction catches up on a later alley visit", () => {

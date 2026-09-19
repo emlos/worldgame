@@ -8984,7 +8984,7 @@ export const WG_BUNDLE = {
         },
         "source": {
           "file": "story/encounters/alley.wg",
-          "line": 103,
+          "line": 118,
           "column": 1
         }
       },
@@ -9006,7 +9006,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/encounters/alley.wg",
-        "line": 102,
+        "line": 117,
         "column": 1
       }
     },
@@ -9024,31 +9024,114 @@ export const WG_BUNDLE = {
           "id": "p1",
           "body": [
             {
-              "type": "paragraph",
-              "parts": [
+              "type": "if",
+              "branches": [
                 {
-                  "type": "text",
-                  "value": "Jackie rolls "
-                },
-                {
-                  "type": "interpolation",
-                  "path": [
-                    "npc",
-                    "jackie",
-                    "dependent"
+                  "test": {
+                    "type": "binary",
+                    "operator": "or",
+                    "left": {
+                      "type": "binary",
+                      "operator": "<",
+                      "left": {
+                        "type": "path",
+                        "value": [
+                          "player",
+                          "conditionScore"
+                        ]
+                      },
+                      "right": {
+                        "type": "literal",
+                        "value": 45
+                      }
+                    },
+                    "right": {
+                      "type": "binary",
+                      "operator": ">=",
+                      "left": {
+                        "type": "path",
+                        "value": [
+                          "player",
+                          "pain"
+                        ]
+                      },
+                      "right": {
+                        "type": "literal",
+                        "value": 50
+                      }
+                    }
+                  },
+                  "nodes": [
+                    {
+                      "type": "paragraph",
+                      "parts": [
+                        {
+                          "type": "text",
+                          "value": "Jackie looks you over, then shakes "
+                        },
+                        {
+                          "type": "interpolation",
+                          "path": [
+                            "npc",
+                            "jackie",
+                            "dependent"
+                          ],
+                          "filters": []
+                        },
+                        {
+                          "type": "text",
+                          "value": " head. \"Not today. You're already too hurt for this to be useful. Get some rest, then come back.\""
+                        }
+                      ],
+                      "source": {
+                        "file": "story/encounters/alley.wg",
+                        "line": 87,
+                        "column": 1
+                      }
+                    }
                   ],
-                  "filters": []
-                },
+                  "source": {
+                    "file": "story/encounters/alley.wg",
+                    "line": 86,
+                    "column": 1
+                  }
+                }
+              ],
+              "elseNodes": [
                 {
-                  "type": "text",
-                  "value": " shoulders and gives you enough room to prepare. \"Pick the situation. I'll play the aggressor, and you find a way through it.\""
+                  "type": "paragraph",
+                  "parts": [
+                    {
+                      "type": "text",
+                      "value": "Jackie rolls "
+                    },
+                    {
+                      "type": "interpolation",
+                      "path": [
+                        "npc",
+                        "jackie",
+                        "dependent"
+                      ],
+                      "filters": []
+                    },
+                    {
+                      "type": "text",
+                      "value": " shoulders and gives you enough room to prepare. \"Pick the situation. I'll play the aggressor, and you find a way through it.\""
+                    }
+                  ],
+                  "source": {
+                    "file": "story/encounters/alley.wg",
+                    "line": 89,
+                    "column": 1
+                  }
                 }
               ],
               "source": {
                 "file": "story/encounters/alley.wg",
                 "line": 86,
                 "column": 1
-              }
+              },
+              "runtimeId": 0
             },
             {
               "type": "choice",
@@ -9066,11 +9149,84 @@ export const WG_BUNDLE = {
               "timeUntilPath": null,
               "energyFree": false,
               "resting": false,
-              "when": null,
+              "when": {
+                "type": "binary",
+                "operator": "and",
+                "left": {
+                  "type": "binary",
+                  "operator": ">=",
+                  "left": {
+                    "type": "path",
+                    "value": [
+                      "player",
+                      "conditionScore"
+                    ]
+                  },
+                  "right": {
+                    "type": "literal",
+                    "value": 45
+                  }
+                },
+                "right": {
+                  "type": "binary",
+                  "operator": "<",
+                  "left": {
+                    "type": "path",
+                    "value": [
+                      "player",
+                      "pain"
+                    ]
+                  },
+                  "right": {
+                    "type": "literal",
+                    "value": 50
+                  }
+                }
+              },
               "requirements": [],
               "warning": null,
+              "responses": [
+                {
+                  "paragraphs": [
+                    {
+                      "type": "paragraph",
+                      "parts": [
+                        {
+                          "type": "text",
+                          "value": "Jackie hands you £5. \"Protect that or get away and it's yours. I'll try to take it back.\""
+                        }
+                      ],
+                      "source": {
+                        "file": "story/encounters/alley.wg",
+                        "line": 97,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "source": {
+                    "file": "story/encounters/alley.wg",
+                    "line": 96,
+                    "column": 1
+                  }
+                }
+              ],
               "hints": [],
               "effects": [
+                {
+                  "op": "money",
+                  "amount": 5,
+                  "source": {
+                    "file": "story/encounters/alley.wg",
+                    "line": 94,
+                    "column": 1
+                  },
+                  "feedback": {
+                    "type": "money",
+                    "amount": 5,
+                    "label": "+Money",
+                    "direction": "increase"
+                  }
+                },
                 {
                   "op": "set",
                   "path": [
@@ -9081,14 +9237,14 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/encounters/alley.wg",
-                    "line": 89,
+                    "line": 95,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/encounters/alley.wg",
-                "line": 88,
+                "line": 92,
                 "column": 1
               }
             },
@@ -9108,7 +9264,40 @@ export const WG_BUNDLE = {
               "timeUntilPath": null,
               "energyFree": false,
               "resting": false,
-              "when": null,
+              "when": {
+                "type": "binary",
+                "operator": "and",
+                "left": {
+                  "type": "binary",
+                  "operator": ">=",
+                  "left": {
+                    "type": "path",
+                    "value": [
+                      "player",
+                      "conditionScore"
+                    ]
+                  },
+                  "right": {
+                    "type": "literal",
+                    "value": 45
+                  }
+                },
+                "right": {
+                  "type": "binary",
+                  "operator": "<",
+                  "left": {
+                    "type": "path",
+                    "value": [
+                      "player",
+                      "pain"
+                    ]
+                  },
+                  "right": {
+                    "type": "literal",
+                    "value": 50
+                  }
+                }
+              },
               "requirements": [],
               "warning": null,
               "hints": [],
@@ -9123,14 +9312,14 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/encounters/alley.wg",
-                    "line": 93,
+                    "line": 103,
                     "column": 1
                   }
                 }
               ],
               "source": {
                 "file": "story/encounters/alley.wg",
-                "line": 92,
+                "line": 101,
                 "column": 1
               }
             },
@@ -9150,14 +9339,107 @@ export const WG_BUNDLE = {
               "timeUntilPath": null,
               "energyFree": false,
               "resting": false,
-              "when": null,
+              "when": {
+                "type": "binary",
+                "operator": "and",
+                "left": {
+                  "type": "binary",
+                  "operator": ">=",
+                  "left": {
+                    "type": "path",
+                    "value": [
+                      "player",
+                      "conditionScore"
+                    ]
+                  },
+                  "right": {
+                    "type": "literal",
+                    "value": 45
+                  }
+                },
+                "right": {
+                  "type": "binary",
+                  "operator": "<",
+                  "left": {
+                    "type": "path",
+                    "value": [
+                      "player",
+                      "pain"
+                    ]
+                  },
+                  "right": {
+                    "type": "literal",
+                    "value": 50
+                  }
+                }
+              },
               "requirements": [],
               "warning": null,
               "hints": [],
               "effects": [],
               "source": {
                 "file": "story/encounters/alley.wg",
-                "line": 96,
+                "line": 106,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-4",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Take Jackie's advice"
+                }
+              ],
+              "target": "@exit",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": {
+                "type": "binary",
+                "operator": "or",
+                "left": {
+                  "type": "binary",
+                  "operator": "<",
+                  "left": {
+                    "type": "path",
+                    "value": [
+                      "player",
+                      "conditionScore"
+                    ]
+                  },
+                  "right": {
+                    "type": "literal",
+                    "value": 45
+                  }
+                },
+                "right": {
+                  "type": "binary",
+                  "operator": ">=",
+                  "left": {
+                    "type": "path",
+                    "value": [
+                      "player",
+                      "pain"
+                    ]
+                  },
+                  "right": {
+                    "type": "literal",
+                    "value": 50
+                  }
+                }
+              },
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/encounters/alley.wg",
+                "line": 110,
                 "column": 1
               }
             }
@@ -9499,7 +9781,7 @@ export const WG_BUNDLE = {
           },
           "goal": {
             "id": "steal-money",
-            "maxAmount": 20
+            "maxAmount": 5
           },
           "outcomes": {
             "default": {
@@ -9510,7 +9792,7 @@ export const WG_BUNDLE = {
         },
         "source": {
           "file": "story/encounters/alley.wg",
-          "line": 100,
+          "line": 115,
           "column": 1
         }
       },
@@ -9532,7 +9814,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/encounters/alley.wg",
-        "line": 99,
+        "line": 114,
         "column": 1
       }
     },
@@ -13259,7 +13541,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/encounters/alley.wg",
-                "line": 109,
+                "line": 124,
                 "column": 1
               }
             },
@@ -13298,7 +13580,7 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/encounters/alley.wg",
-                        "line": 112,
+                        "line": 127,
                         "column": 1
                       }
                     },
@@ -13327,7 +13609,7 @@ export const WG_BUNDLE = {
                             ],
                             "source": {
                               "file": "story/encounters/alley.wg",
-                              "line": 115,
+                              "line": 130,
                               "column": 1
                             }
                           }
@@ -13354,7 +13636,7 @@ export const WG_BUNDLE = {
                             ],
                             "source": {
                               "file": "story/encounters/alley.wg",
-                              "line": 117,
+                              "line": 132,
                               "column": 1
                             }
                           }
@@ -13381,7 +13663,7 @@ export const WG_BUNDLE = {
                             ],
                             "source": {
                               "file": "story/encounters/alley.wg",
-                              "line": 119,
+                              "line": 134,
                               "column": 1
                             }
                           }
@@ -13423,7 +13705,7 @@ export const WG_BUNDLE = {
                             ],
                             "source": {
                               "file": "story/encounters/alley.wg",
-                              "line": 121,
+                              "line": 136,
                               "column": 1
                             }
                           }
@@ -13476,7 +13758,7 @@ export const WG_BUNDLE = {
                             ],
                             "source": {
                               "file": "story/encounters/alley.wg",
-                              "line": 123,
+                              "line": 138,
                               "column": 1
                             }
                           }
@@ -13484,7 +13766,7 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/encounters/alley.wg",
-                        "line": 114,
+                        "line": 129,
                         "column": 1
                       },
                       "runtimeId": 1
@@ -13492,7 +13774,7 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/encounters/alley.wg",
-                    "line": 111,
+                    "line": 126,
                     "column": 1
                   }
                 }
@@ -13500,7 +13782,7 @@ export const WG_BUNDLE = {
               "elseNodes": null,
               "source": {
                 "file": "story/encounters/alley.wg",
-                "line": 111,
+                "line": 126,
                 "column": 1
               },
               "runtimeId": 0
@@ -13564,7 +13846,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/encounters/alley.wg",
-                "line": 127,
+                "line": 142,
                 "column": 1
               }
             },
@@ -13627,19 +13909,19 @@ export const WG_BUNDLE = {
                       "parts": [
                         {
                           "type": "text",
-                          "value": "\"Ow,\" Jackie says. \"I think we've done enough training for today. Let's pick this up again tomorrow.\""
+                          "value": "\"Easy there tiger,\" Jackie says. \"I think we've done enough training for today. Let's pick this up again tomorrow.\""
                         }
                       ],
                       "source": {
                         "file": "story/encounters/alley.wg",
-                        "line": 134,
+                        "line": 149,
                         "column": 1
                       }
                     }
                   ],
                   "source": {
                     "file": "story/encounters/alley.wg",
-                    "line": 133,
+                    "line": 148,
                     "column": 1
                   }
                 }
@@ -13648,7 +13930,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/encounters/alley.wg",
-                "line": 131,
+                "line": 146,
                 "column": 1
               }
             }
@@ -13656,7 +13938,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/encounters/alley.wg",
-            "line": 109,
+            "line": 124,
             "column": 1
           }
         }
@@ -13681,7 +13963,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/encounters/alley.wg",
-        "line": 105,
+        "line": 120,
         "column": 1
       }
     },
