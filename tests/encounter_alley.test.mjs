@@ -399,7 +399,7 @@ test("empty-wallet surrender renders one dedicated terminal summary", () => {
     assert.ok(eventTypes.includes(type), `expected retained event '${type}'`);
   }
   const scene = buildScene(game);
-  assert.deepEqual(scene.content.map(({ type }) => type), ["paragraph", "table"]);
+  assert.deepEqual(scene.content.map(({ type }) => type), ["paragraph", "paragraph"]);
   const summary = scene.content[0].text;
   assert.match(summary, /empty pockets/i);
   assert.match(summary, /finding nothing to take|nothing to steal|no money/i);

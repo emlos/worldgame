@@ -12,6 +12,7 @@ import {
 } from "../src/features/encounter/ai.js";
 import { updateNpcAngerFromEvents } from "../src/features/encounter/anger.js";
 import { createCombatContext } from "../src/features/encounter/combatants.js";
+import { renderObjectivePressure } from "../src/features/encounter/prose.js";
 import {
   BEAT_DOWN_OBJECTIVE,
   BEAT_DOWN_OBJECTIVE_ID,
@@ -64,6 +65,29 @@ test("a restrained beat-down exposes light attacks and keeps severe attacks out 
   assert.equal(playerActionIds.includes("search-money"), false);
   assert.ok(getEncounterAction(state.npcIntent.actionId).tags.includes("attack"));
   assert.equal(getEncounterAction(state.npcIntent.actionId).severity, "light");
+  assert.deepEqual(BEAT_DOWN_OBJECTIVE.playerStatMarkers(context), [{
+    stat: "pain",
+    value: state.objective.painThreshold,
+    min: 0,
+    max: 100,
+    label: "Beaten-down threshold",
+  }]);
+  assert.doesNotMatch(renderObjectivePressure(context), /pain is \d+ of \d+/i);
+});
+
+test("beat-down pressure describes proximity to defeat without exposing counter text", () => {
+  const game = preparedGame({ seed: 49 });
+  const state = createBeatDown(game);
+  const context = createCombatContext({
+    game,
+    state,
+    instanceKey: game.currentStory.instanceKey,
+  });
+
+  game.player.body.getPart("abdomen").acutePain = state.objective.painThreshold * 0.8;
+  const pressure = renderObjectivePressure(context);
+  assert.match(pressure, /close to overwhelming/i);
+  assert.doesNotMatch(pressure, /\d+/);
 });
 
 test("hard pacing can overcome anger and force a beat-down attacker to retreat", () => {

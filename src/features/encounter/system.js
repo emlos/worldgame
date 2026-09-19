@@ -12,7 +12,7 @@ import {
   renderIntent,
   renderLastExchange,
   renderObjectivePressure,
-  renderSituationTable,
+  renderSituationProse,
   renderTerminalExchange,
 } from "./prose.js";
 import {
@@ -87,6 +87,14 @@ function playerChoice(context, definition, systemId, instance, id) {
   });
 }
 
+function encounterPresentation(context) {
+  const objective = requireEncounterObjective(context.state);
+  return {
+    type: "physical-encounter",
+    playerStatMarkers: objective.playerStatMarkers?.(context) || [],
+  };
+}
+
 function renderActive(context, definition, systemId) {
   const state = context.state;
   const playerId = controlledParticipantId(state);
@@ -113,20 +121,15 @@ function renderActive(context, definition, systemId) {
       `encounter-action:${instance.actionId}${suffix}`,
     ));
   }
-  const instructions = state.exchange === 0
-    ? [{
-      type: "paragraph",
-      text: "Choose one response for this exchange. Actions are grouped by immediate purpose.",
-    }]
-    : [];
+  const instructions =  [];
   return {
     content: [
       {
         type: "paragraph",
-        text: `Threat: ${threat} Elapsed: ${clock(state.elapsedSeconds)}.`,
+        text: `Threat: ${threat}`,
       },
-      { type: "paragraph", text: `Next: ${renderIntent(context)}` },
-      renderSituationTable(context),
+      { type: "paragraph", text: renderIntent(context) },
+      { type: "paragraph", text: renderSituationProse(context) },
       { type: "paragraph", text: renderObjectivePressure(context) },
       { type: "paragraph", text: renderLastExchange(context) },
       ...instructions,
@@ -138,6 +141,7 @@ function renderActive(context, definition, systemId) {
         choices: choicesByPurpose.get(id),
       }))
       .filter(({ choices }) => choices.length > 0),
+    presentation: encounterPresentation(context),
   };
 }
 
@@ -150,7 +154,7 @@ function renderTerminal(context, definition, systemId) {
     content: [
       ...(finalExchange ? [{ type: "paragraph", text: finalExchange }] : []),
       ...objective.renderTerminal(context),
-      renderSituationTable(context),
+      { type: "paragraph", text: renderSituationProse(context) },
     ],
     sections: [{
       id: "encounter-outcome",
@@ -161,6 +165,7 @@ function renderTerminal(context, definition, systemId) {
         command: { type: "finish" },
       })],
     }],
+    presentation: encounterPresentation(context),
   };
 }
 

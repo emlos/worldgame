@@ -31,7 +31,9 @@ function sampleIntent(actionId) {
     actionId,
     parameters: {
       targetId: "player",
+      sourcePartId: "hand_l",
       targetPartId: "lower_arm_l",
+      pinSourcePartId: "knee_l",
       holdId: "sample-hold",
       holdIds: ["sample-hold"],
     },
@@ -49,6 +51,8 @@ test("every attacker intent uses generated pronouns with correct verb agreement"
       state.npcIntent = sampleIntent(action.id);
       const rendered = renderIntent(context);
       assert.match(rendered, new RegExp(`^${subject} `), action.id);
+      assert.doesNotMatch(rendered, /\d+ seconds\./, action.id);
+      assert.doesNotMatch(rendered, new RegExp(`\\b${action.id}\\b`), action.id);
       if (subject !== "They") assert.doesNotMatch(rendered, /\b(?:they|their|them|themself)\b/i, action.id);
       else assert.doesNotMatch(
         rendered,

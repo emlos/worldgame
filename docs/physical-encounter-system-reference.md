@@ -122,10 +122,12 @@ If the player is already hard-incapacitated on entry, the objective's unopposed-
 Rendering validates but does not mutate state or reroll anything. An active screen shows:
 
 - the objective threat and elapsed time;
-- the stored NPC intent and its duration;
-- position, conditions, current objective pressure, and qualitative commitment;
+- the stored NPC intent as an action- and target-specific wind-up, with qualitative urgency rather than a raw duration;
+- position and conditions as compact prose, plus current objective pressure and qualitative commitment;
 - prose derived from the latest structured events;
 - legal player choices grouped as Unable to act, Escape, Break control, Defend, Attack, or Control.
+
+Beat-down pressure is qualitative in the scene prose. Once player pain is nonzero, the ordinary sidebar pain meter appears and marks the objective's current defeat threshold; escalation moves that marker to the new threshold. The former position/condition table remains available in the physical-encounter debug inspector.
 
 A terminal screen shows the objective's dedicated conclusion, the final
 situation, and `Continue`. The complete final-exchange event list remains in

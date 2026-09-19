@@ -9913,7 +9913,7 @@ export const WG_BUNDLE = {
       "label": null,
       "icon": null,
       "hubText": null,
-      "priority": 0,
+      "priority": 500,
       "chance": 1,
       "weight": 1,
       "source": {

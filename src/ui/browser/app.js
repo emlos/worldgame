@@ -108,6 +108,37 @@ function formatPlayerTemperature(value) {
     .join(" ");
 }
 
+function appendPlayerStatMarkers(meter, stat, min, max, currentValue) {
+  const markers = currentScene?.presentation?.playerStatMarkers;
+  if (!Array.isArray(markers) || max <= min) return;
+
+  const labels = [];
+  for (const definition of markers) {
+    if (definition?.stat !== stat || !Number.isFinite(definition.value)) continue;
+    const markerMin = Number.isFinite(definition.min) ? definition.min : min;
+    const markerMax = Number.isFinite(definition.max) ? definition.max : max;
+    if (markerMax <= markerMin) continue;
+    const fraction = (definition.value - markerMin) / (markerMax - markerMin);
+    const percentage = Math.max(0, Math.min(1, fraction)) * 100;
+    const label = typeof definition.label === "string" && definition.label.trim()
+      ? definition.label.trim()
+      : `${stat} marker`;
+
+    const marker = document.createElement("span");
+    marker.className = "player-stat-meter-marker";
+    marker.style.left = `${percentage}%`;
+    marker.dataset.statMarker = stat;
+    marker.title = `${label}: ${definition.value}`;
+    marker.setAttribute("aria-hidden", "true");
+    meter.append(marker);
+    labels.push(`${label} ${definition.value}`);
+  }
+
+  if (labels.length) {
+    meter.setAttribute("aria-valuetext", `${currentValue}; ${labels.join("; ")}`);
+  }
+}
+
 function renderPlayerPanel() {
   playerDiaryButton.hidden = !canReadJournal(game);
   playerMoneyElement.textContent = moneyFormatter.format(game.player.money);
@@ -174,6 +205,7 @@ function renderPlayerPanel() {
     fill.className = "player-stat-meter-fill";
     fill.style.width = `${percentage}%`;
     meter.append(fill);
+    appendPlayerStatMarkers(meter, name, definition.min, definition.max, value);
     row.append(label, valueElement, meter);
     playerStatsElement.append(row);
   }
@@ -208,6 +240,7 @@ function renderPlayerPanel() {
     fill.className = "player-stat-meter-fill";
     fill.style.width = `${Math.max(0, Math.min(100, pain))}%`;
     meter.append(fill);
+    appendPlayerStatMarkers(meter, "pain", 0, 100, formatPainValue(pain));
     row.append(label, valueElement, meter);
     playerStatsElement.append(row);
   }

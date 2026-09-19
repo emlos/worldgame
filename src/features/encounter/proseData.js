@@ -546,67 +546,74 @@ function limbProseName(context, actorId, partId) {
 
 export function actionIntentProse(context, intent) {
   const actorId = intent.actorId;
+  const parameters = intent.parameters || {};
+  const actorPossessive = encounterPronoun(context, actorId, "dependent");
+  const sourcePart = limbProseName(context, actorId, parameters.sourcePartId);
   switch (intent.actionId) {
-    case "too-tired-to-move": return "is too tired to move";
-    case "writhe-in-pain": return "can only writhe in pain";
+    case "too-tired-to-move": return "can barely move; exhaustion has left no strength for an attack";
+    case "writhe-in-pain": return `${encounterVerb(context, actorId, "curls", "curl")} around the pain, unable to mount an attack`;
     case "catch-breath":
-      return `${encounterVerb(context, actorId, "eases", "ease")} back to recover ${encounterPronoun(context, actorId, "dependent")} breath`;
+      return `${encounterVerb(context, actorId, "eases", "ease")} back behind a raised guard, trying to recover ${actorPossessive} breath`;
     case "cover-and-brace":
-      return `${encounterVerb(context, actorId, "covers", "cover")} up and ${encounterVerb(context, actorId, "braces", "brace")} for your response`;
-    case "scream-for-help": return "screams for help";
+      return `${encounterVerb(context, actorId, "tucks", "tuck")} ${actorPossessive} chin, ${encounterVerb(context, actorId, "covers", "cover")} ${actorPossessive} head, and ${encounterVerb(context, actorId, "braces", "brace")} for your response`;
+    case "scream-for-help": return `${encounterVerb(context, actorId, "draws", "draw")} breath to shout for anyone nearby`;
     case "rough-up":
-      return `${encounterVerb(context, actorId, "moves", "move")} in with a restrained body blow`;
+      return `${encounterVerb(context, actorId, "draws", "draw")} ${actorPossessive} ${sourcePart} back, aiming a measured blow at your torso`;
     case "attack-limb":
-      return `${encounterVerb(context, actorId, "lines", "line")} up a heavy blow at your ${limbProseName(context, goalTargetId(context.state), intent.parameters.targetPartId)}`;
+      return `${encounterVerb(context, actorId, "sets", "set")} ${actorPossessive} ${sourcePart} and ${encounterVerb(context, actorId, "lines", "line")} up a heavy blow at your ${limbProseName(context, goalTargetId(context.state), parameters.targetPartId)}`;
     case "grab-arm":
-      return `${encounterVerb(context, actorId, "reaches", "reach")} for your ${sideProseName(intent.parameters.targetPartId)} wrist`;
+      return `${encounterVerb(context, actorId, "opens", "open")} ${actorPossessive} ${sourcePart} and ${encounterVerb(context, actorId, "reaches", "reach")} for your ${sideProseName(parameters.targetPartId)} wrist`;
     case "wrench-free":
-      return intent.parameters.holdIds.length > 1
-        ? `${encounterVerb(context, actorId, "wrenches", "wrench")} against both arm holds at once`
-        : `${encounterVerb(context, actorId, "twists", "twist")} hard against the wrist hold`;
+      return parameters.holdIds?.length > 1
+        ? `${encounterVerb(context, actorId, "plants", "plant")} ${actorPossessive} feet and ${encounterVerb(context, actorId, "wrenches", "wrench")} against both arm holds at once`
+        : `${encounterVerb(context, actorId, "turns", "turn")} into the wrist hold, preparing to twist hard against it`;
     case "tighten-hold": {
-      const hold = holdsControlledBy(context, actorId).find(({ id }) => id === intent.parameters.holdId);
+      const hold = holdsControlledBy(context, actorId).find(({ id }) => id === parameters.holdId);
       return hold?.kind === "limb-pin"
-        ? `${encounterVerb(context, actorId, "settles", "settle")} more weight onto the arm pin`
-        : `${encounterVerb(context, actorId, "adjusts", "adjust")} ${encounterPronoun(context, actorId, "dependent")} grip to tighten control of your wrist`;
+        ? `${encounterVerb(context, actorId, "shifts", "shift")} ${actorPossessive} balance and ${encounterVerb(context, actorId, "settles", "settle")} more weight onto your pinned arm`
+        : `${encounterVerb(context, actorId, "slides", "slide")} ${actorPossessive} grip higher on your wrist, preparing to clamp down`;
     }
     case "force-to-wall":
-      return `${encounterVerb(context, actorId, "shifts", "shift")} ${encounterPronoun(context, actorId, "dependent")} weight to force you against the wall`;
+      return `${encounterVerb(context, actorId, "turns", "turn")} ${actorPossessive} hips into the hold and ${encounterVerb(context, actorId, "drives", "drive")} toward the wall`;
     case "force-to-ground":
-      return `${encounterVerb(context, actorId, "drops", "drop")} ${encounterPronoun(context, actorId, "dependent")} weight to force you to the ground`;
+      return `${encounterVerb(context, actorId, "pulls", "pull")} your restrained arm off line and ${encounterVerb(context, actorId, "drops", "drop")} ${actorPossessive} weight for a takedown`;
     case "turn-target-away":
-      return `${encounterVerb(context, actorId, "tries", "try")} to turn you away and take your line of sight`;
+      return `${encounterVerb(context, actorId, "draws", "draw")} your captured arm across your body, trying to turn your back to ${encounterPronoun(context, actorId, "object")}`;
     case "pin-limb":
-      return `${encounterVerb(context, actorId, "shifts", "shift")} ${encounterPronoun(context, actorId, "dependent")} weight to pin your restrained arm`;
+      return `${encounterVerb(context, actorId, "angles", "angle")} over your restrained arm, preparing to pin it with ${actorPossessive} ${limbProseName(context, actorId, parameters.pinSourcePartId)}`;
     case "shove-away":
-      return `${encounterVerb(context, actorId, "leans", "lean")} in to shove you off balance`;
+      return `${encounterVerb(context, actorId, "sets", "set")} both hands against you and ${encounterVerb(context, actorId, "leans", "lean")} in for a hard shove`;
     case "create-distance":
-      return `${encounterVerb(context, actorId, "shifts", "shift")} back, looking for room to get away`;
+      return `${encounterVerb(context, actorId, "turns", "turn")} side-on and ${encounterVerb(context, actorId, "edges", "edge")} back, looking for room to break contact`;
     case "stand-up":
-      return `${encounterVerb(context, actorId, "plants", "plant")} ${encounterPronoun(context, actorId, "dependent")} limbs and ${encounterVerb(context, actorId, "starts", "start")} to rise`;
+      return `${encounterVerb(context, actorId, "plants", "plant")} ${actorPossessive} hands and a foot, gathering ${actorPossessive} weight to stand`;
     case "roll-toward":
-      return `${encounterVerb(context, actorId, "twists", "twist")} to face you and recover a safer angle`;
+      return `${encounterVerb(context, actorId, "tucks", "tuck")} an elbow and ${encounterVerb(context, actorId, "twists", "twist")} toward you to recover a safer facing`;
     case "close-distance":
-      return `${encounterVerb(context, actorId, "lunges", "lunge")} after you before you can get clear`;
-    case "run": return `${encounterVerb(context, actorId, "turns", "turn")} to run`;
+      return `${encounterVerb(context, actorId, "leans", "lean")} forward and ${encounterVerb(context, actorId, "launches", "launch")} into the gap before you can get clear`;
+    case "run": return `${encounterVerb(context, actorId, "checks", "check")} the open route, then ${encounterVerb(context, actorId, "turns", "turn")} to sprint for safety`;
     case "flee":
-      return `${encounterVerb(context, actorId, "looks", "look")} for an escape route and ${encounterVerb(context, actorId, "prepares", "prepare")} to bolt`;
+      return `${encounterVerb(context, actorId, "glances", "glance")} toward an escape route and ${encounterVerb(context, actorId, "loads", "load")} ${actorPossessive} weight to bolt`;
     case "strike-face":
-      return `${encounterVerb(context, actorId, "draws", "draw")} back a hand to strike at your face`;
+      return `${encounterVerb(context, actorId, "draws", "draw")} ${actorPossessive} ${sourcePart} beside ${actorPossessive} cheek, lining the blow up with your face`;
     case "drive-body":
-      return `${encounterVerb(context, actorId, "sets", "set")} ${encounterPronoun(context, actorId, "dependent")} weight to drive a strike into your body`;
-    case "strike-holding-arm":
-      return `${encounterVerb(context, actorId, "tries", "try")} to batter the arm controlling ${encounterPronoun(context, actorId, "dependent")} wrist`;
+      return `${encounterVerb(context, actorId, "turns", "turn")} ${actorPossessive} ${sourcePart} inward and ${encounterVerb(context, actorId, "sets", "set")} ${actorPossessive} weight behind a blow to your abdomen`;
+    case "strike-holding-arm": {
+      const hold = hostileHoldsOn(context, actorId).find(({ id }) => id === parameters.holdId);
+      const target = hold ? `${sideProseName(hold.sourcePartId)} limb` : "limb";
+      return `${encounterVerb(context, actorId, "lines", "line")} up ${actorPossessive} ${sourcePart} with the ${target} controlling ${actorPossessive} wrist`;
+    }
     case "headbutt":
-      return `${encounterVerb(context, actorId, "draws", "draw")} ${encounterPronoun(context, actorId, "dependent")} head back for a close strike`;
+      return `${encounterVerb(context, actorId, "draws", "draw")} ${actorPossessive} forehead back, sighting a short strike at your face`;
     case "knee-strike":
-      return `${encounterVerb(context, actorId, "shifts", "shift")} onto one leg to drive a knee into you`;
-    case "surrender-money": return "offers to hand over the money";
-    case "controlled-disengage": return "prepares to release the hold and spring away";
-    case "demand-money-back": return "demands the stolen money back";
+      return `${encounterVerb(context, actorId, "plants", "plant")} one foot and ${encounterVerb(context, actorId, "lifts", "lift")} ${actorPossessive} ${sourcePart}, aiming through your abdomen`;
+    case "surrender-money": return `${encounterVerb(context, actorId, "keeps", "keep")} ${actorPossessive} hands visible and ${encounterVerb(context, actorId, "offers", "offer")} to hand over the money`;
+    case "controlled-disengage": return `${encounterVerb(context, actorId, "loosens", "loosen")} ${actorPossessive} holds just enough to spring backward without warning`;
+    case "demand-money-back": return `${encounterVerb(context, actorId, "keeps", "keep")} both wrists controlled and ${encounterVerb(context, actorId, "demands", "demand")} the stolen money back`;
     case "search-money":
-      return `${encounterVerb(context, actorId, "keeps", "keep")} you controlled and ${encounterVerb(context, actorId, "reaches", "reach")} toward your money`;
-    default: return intent.actionId;
+      return `${encounterVerb(context, actorId, "leans", "lean")} into the restraint to keep you pinned while ${encounterPronoun(context, actorId, "dependent")} free hand reaches toward your pockets`;
+    default:
+      return `${encounterVerb(context, actorId, "shifts", "shift")} ${actorPossessive} stance, preparing an unfamiliar move`;
   }
 }
 
@@ -966,7 +973,7 @@ export function beatDownThreatProse(context) {
 export function beatDownPressureProse(context) {
   const ownerId = goalOwnerId(context.state);
   const objective = context.state.objective;
-  const targetPain = Math.round(getBodyPain(context, goalTargetId(context.state)));
+  const targetPain = getBodyPain(context, goalTargetId(context.state));
   const ownerPain = getBodyPain(context, ownerId);
   const anger = context.state.participants[ownerId].anger;
   const temper = anger >= objective.angerThreshold
@@ -977,7 +984,17 @@ export function beatDownPressureProse(context) {
   const persistence = ownerPain >= 45
     ? `Even badly hurt, ${encounterPronoun(context, ownerId, "subject")} ${encounterVerb(context, ownerId, "shows", "show")} no sign of backing off.`
     : `${encounterPronoun(context, ownerId, "subject", { sentence: true })} ${encounterVerb(context, ownerId, "shows", "show")} no sign of backing off.`;
-  return `Your pain is ${targetPain} of ${objective.painThreshold}. ${persistence}${temper}`;
+  const pressureRatio = targetPain / objective.painThreshold;
+  const pressure = targetPain <= 0
+    ? ""
+    : pressureRatio < 0.35
+      ? "The pain is noticeable, but your body is still responding cleanly. "
+      : pressureRatio < 0.7
+        ? "The accumulated pain is beginning to interfere with your defence. "
+        : pressureRatio < 1
+          ? "The pain is close to overwhelming your ability to fight back. "
+          : "The pain has reached the limit of what you can fight through. ";
+  return `${pressure}${persistence}${temper}`;
 }
 
 export function beatDownEventProse(context, event) {
@@ -1115,5 +1132,10 @@ export function closingDistanceProseName(range) {
 
 export function intentDisplayProse(context, intent, durationSeconds) {
   const subject = encounterPronoun(context, intent.actorId, "subject", { sentence: true });
-  return `${subject} ${actionIntentProse(context, intent)}. ${durationSeconds} seconds.`;
+  const urgency = durationSeconds <= 1
+    ? "The move is already unfolding."
+    : durationSeconds <= 3
+      ? "You have only a moment to react."
+      : "The preparation gives you a brief opening to respond.";
+  return `${subject} ${actionIntentProse(context, intent)}. ${urgency}`;
 }

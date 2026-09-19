@@ -371,3 +371,31 @@ export function renderSituationTable(context) {
     ],
   };
 }
+
+function situationDetails(text) {
+  return text
+    .split("; ")
+    .map((detail) => `${detail[0].toLowerCase()}${detail.slice(1)}`);
+}
+
+function flowingSituationDetails(details) {
+  if (details.length < 2) return details[0];
+  if (details.length === 2) return `${details[0]} and ${details[1]}`;
+  return `${details.slice(0, -1).join(", ")}, and ${details.at(-1)}`;
+}
+
+function actorSituationProse(context, actorId) {
+  const position = situationDetails(situationPositionProse(context, actorId));
+  const condition = situationDetails(situationConditionProse(context, actorId));
+  const positionText = position.length === 2
+    ? `${position[0]} ${position[1]}`
+    : position.join(", ");
+  return `${positionText}, ${flowingSituationDetails(condition)}`;
+}
+
+export function renderSituationProse(context) {
+  const playerId = controlledParticipantId(context.state);
+  const opponentId = opponentParticipantId(context.state, playerId);
+  const opponent = getCombatant(context, opponentId).title;
+  return `You are ${actorSituationProse(context, playerId)}. ${opponent} is ${actorSituationProse(context, opponentId)}.`;
+}

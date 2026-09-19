@@ -33,6 +33,7 @@ import {
   WG_AUTO_TRIGGER,
 } from "../../story/wg/runtime/sceneExposure.js";
 import { controlledParticipantId, goalOwnerId, participantIds } from "./roles.js";
+import { renderSituationTable } from "./prose.js";
 
 export const ALLEYWAY_PLACE_KEY = "alleyway";
 
@@ -167,8 +168,17 @@ export function getEncounterDebugSnapshot(game) {
       (participantId) => [participantId, getActionAvailabilityDiagnostics(context, participantId)],
     )),
     rolls: context.state.lastEvents.filter(({ type }) => type === "chance.rolled"),
+    situation: renderSituationTable(context),
     invariants: collectEncounterInvariantDiagnostics(context),
   };
+}
+
+function formatEncounterSituation(situation) {
+  return [
+    situation.columns.join(" | "),
+    situation.columns.map(() => "---").join(" | "),
+    ...situation.rows.map((row) => row.join(" | ")),
+  ].join("\n");
 }
 
 function formatEncounterDecisionScores(decision) {
@@ -248,6 +258,10 @@ export function buildEncounterDebugSection(game) {
       },
     ],
     details: [
+      {
+        summary: "Situation table",
+        text: formatEncounterSituation(snapshot.situation),
+      },
       {
         summary: "NPC utility scores",
         text: formatEncounterDecisionScores(decision),

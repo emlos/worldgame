@@ -54,8 +54,10 @@ test("the opening state exposes the minimum contextual choices", () => {
     "Control",
   ]);
   const content = JSON.stringify(scene.content);
-  assert.match(content, /Next:/);
-  assert.match(content, /Current situation/);
+  assert.match(content, /You have only a moment to react|already unfolding|brief opening to respond/);
+  assert.match(content, /You are standing at arm's reach, unhurt and steady\./);
+  assert.doesNotMatch(content, /Next:|Current situation|\d+ seconds\./);
+  assert.ok(scene.content.every(({ type }) => type === "paragraph"));
   assert.match(content, /Actions are grouped by immediate purpose/);
   assert.doesNotMatch(content, /complete exchange time/);
   for (const choice of encounterChoices(scene)) {

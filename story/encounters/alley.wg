@@ -2,7 +2,7 @@
   @auto enter-place
   @place-key alleyway
   @when not flags.encounter.alley_mugging_seen and player.money >= 20
-
+  @priority 500
   @onenter
     @effect set flags.encounter.alley_mugging_seen
   @endonenter

@@ -336,6 +336,16 @@ export const BEAT_DOWN_OBJECTIVE = Object.freeze({
     return beatDownPressureProse(context);
   },
 
+  playerStatMarkers(context) {
+    return [{
+      stat: "pain",
+      value: context.state.objective.painThreshold,
+      min: 0,
+      max: 100,
+      label: "Beaten-down threshold",
+    }];
+  },
+
   renderEvent(context, event) {
     return beatDownEventProse(context, event);
   },

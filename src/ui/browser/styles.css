@@ -181,6 +181,7 @@ body {
 
 .player-stat-meter {
   grid-column: 1 / -1;
+  position: relative;
   overflow: hidden;
   height: 7px;
   background: #292f38;
@@ -191,6 +192,17 @@ body {
   height: 100%;
   background: var(--outcome-color, var(--outcome-ok));
   transition: width 160ms ease;
+}
+
+.player-stat-meter-marker {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  transform: translateX(-1px);
+  background: #f5d76e;
+  box-shadow: 0 0 0 1px rgb(19 22 27 / 72%);
 }
 
 .player-stats-section {
