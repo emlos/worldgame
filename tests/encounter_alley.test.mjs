@@ -249,6 +249,26 @@ test("Jackie's introduction catches up on a later alley visit", () => {
   ).met, true);
 });
 
+test("Jackie's direct introduction uses her name around unconjugated authored verbs", () => {
+  const game = gameAtStart();
+  placePlayerAtAlley(game);
+  enterWGScene(game, "encounter.alley-jackie-introduction");
+  resolveActiveWGStory(game);
+
+  const text = buildScene(game).content
+    .flatMap(({ parts = [], text: paragraph = "" }) => [
+      paragraph,
+      ...parts.map(({ text: part = "" }) => part),
+    ])
+    .join(" ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  assert.match(text, /Jackie is dressed in a loose hoodie and jeans\./);
+  assert.match(text, /"Nice to see ya," Jackie says\./);
+  assert.doesNotMatch(text, /\bThey is\b|\bthey says\b/);
+});
+
 test("an unanswered scream spends the exchange and leaves the fight active", () => {
   const game = gameAtStart({ seed: 1 });
   startEncounter(game);

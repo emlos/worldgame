@@ -8959,7 +8959,7 @@ export const WG_BUNDLE = {
     },
     "encounter.alley-jackie-beat-down-practice": {
       "id": "encounter.alley-jackie-beat-down-practice",
-      "finalTarget": "encounter.alley-jackie-coaching",
+      "finalTarget": "place.alleyway",
       "kind": "event",
       "heading": null,
       "choiceHeading": "Choices",
@@ -8977,14 +8977,14 @@ export const WG_BUNDLE = {
           },
           "outcomes": {
             "default": {
-              "target": "encounter.alley-jackie-coaching",
+              "target": "place.alleyway",
               "leavePlace": false
             }
           }
         },
         "source": {
           "file": "story/encounters/alley.wg",
-          "line": 101,
+          "line": 103,
           "column": 1
         }
       },
@@ -9006,7 +9006,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/encounters/alley.wg",
-        "line": 100,
+        "line": 102,
         "column": 1
       }
     },
@@ -9070,7 +9070,22 @@ export const WG_BUNDLE = {
               "requirements": [],
               "warning": null,
               "hints": [],
-              "effects": [],
+              "effects": [
+                {
+                  "op": "set",
+                  "path": [
+                    "daily",
+                    "npc",
+                    "jackie",
+                    "training"
+                  ],
+                  "source": {
+                    "file": "story/encounters/alley.wg",
+                    "line": 89,
+                    "column": 1
+                  }
+                }
+              ],
               "source": {
                 "file": "story/encounters/alley.wg",
                 "line": 88,
@@ -9097,10 +9112,25 @@ export const WG_BUNDLE = {
               "requirements": [],
               "warning": null,
               "hints": [],
-              "effects": [],
+              "effects": [
+                {
+                  "op": "set",
+                  "path": [
+                    "daily",
+                    "npc",
+                    "jackie",
+                    "training"
+                  ],
+                  "source": {
+                    "file": "story/encounters/alley.wg",
+                    "line": 93,
+                    "column": 1
+                  }
+                }
+              ],
               "source": {
                 "file": "story/encounters/alley.wg",
-                "line": 91,
+                "line": 92,
                 "column": 1
               }
             },
@@ -9127,7 +9157,7 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/encounters/alley.wg",
-                "line": 94,
+                "line": 96,
                 "column": 1
               }
             }
@@ -9296,11 +9326,9 @@ export const WG_BUNDLE = {
                       "path": [
                         "npc",
                         "jackie",
-                        "subject"
+                        "shortName"
                       ],
-                      "filters": [
-                        "cap"
-                      ]
+                      "filters": []
                     },
                     {
                       "type": "text",
@@ -9319,7 +9347,7 @@ export const WG_BUNDLE = {
                       "path": [
                         "npc",
                         "jackie",
-                        "subject"
+                        "shortName"
                       ],
                       "filters": []
                     },
@@ -9456,7 +9484,7 @@ export const WG_BUNDLE = {
     },
     "encounter.alley-jackie-theft-practice": {
       "id": "encounter.alley-jackie-theft-practice",
-      "finalTarget": "encounter.alley-jackie-coaching",
+      "finalTarget": "place.alleyway",
       "kind": "event",
       "heading": null,
       "choiceHeading": "Choices",
@@ -9475,14 +9503,14 @@ export const WG_BUNDLE = {
           },
           "outcomes": {
             "default": {
-              "target": "encounter.alley-jackie-coaching",
+              "target": "place.alleyway",
               "leavePlace": false
             }
           }
         },
         "source": {
           "file": "story/encounters/alley.wg",
-          "line": 98,
+          "line": 100,
           "column": 1
         }
       },
@@ -9504,7 +9532,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/encounters/alley.wg",
-        "line": 97,
+        "line": 99,
         "column": 1
       }
     },
@@ -13231,7 +13259,7 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/encounters/alley.wg",
-                "line": 107,
+                "line": 109,
                 "column": 1
               }
             },
@@ -13270,7 +13298,7 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/encounters/alley.wg",
-                        "line": 110,
+                        "line": 112,
                         "column": 1
                       }
                     },
@@ -13299,7 +13327,7 @@ export const WG_BUNDLE = {
                             ],
                             "source": {
                               "file": "story/encounters/alley.wg",
-                              "line": 113,
+                              "line": 115,
                               "column": 1
                             }
                           }
@@ -13326,7 +13354,7 @@ export const WG_BUNDLE = {
                             ],
                             "source": {
                               "file": "story/encounters/alley.wg",
-                              "line": 115,
+                              "line": 117,
                               "column": 1
                             }
                           }
@@ -13353,7 +13381,7 @@ export const WG_BUNDLE = {
                             ],
                             "source": {
                               "file": "story/encounters/alley.wg",
-                              "line": 117,
+                              "line": 119,
                               "column": 1
                             }
                           }
@@ -13395,7 +13423,7 @@ export const WG_BUNDLE = {
                             ],
                             "source": {
                               "file": "story/encounters/alley.wg",
-                              "line": 119,
+                              "line": 121,
                               "column": 1
                             }
                           }
@@ -13448,7 +13476,7 @@ export const WG_BUNDLE = {
                             ],
                             "source": {
                               "file": "story/encounters/alley.wg",
-                              "line": 121,
+                              "line": 123,
                               "column": 1
                             }
                           }
@@ -13456,7 +13484,7 @@ export const WG_BUNDLE = {
                       ],
                       "source": {
                         "file": "story/encounters/alley.wg",
-                        "line": 112,
+                        "line": 114,
                         "column": 1
                       },
                       "runtimeId": 1
@@ -13464,7 +13492,7 @@ export const WG_BUNDLE = {
                   ],
                   "source": {
                     "file": "story/encounters/alley.wg",
-                    "line": 109,
+                    "line": 111,
                     "column": 1
                   }
                 }
@@ -13472,7 +13500,7 @@ export const WG_BUNDLE = {
               "elseNodes": null,
               "source": {
                 "file": "story/encounters/alley.wg",
-                "line": 109,
+                "line": 111,
                 "column": 1
               },
               "runtimeId": 0
@@ -13497,20 +13525,37 @@ export const WG_BUNDLE = {
                 "type": "binary",
                 "operator": "and",
                 "left": {
-                  "type": "path",
-                  "value": [
-                    "npc",
-                    "jackie",
-                    "met"
-                  ]
+                  "type": "binary",
+                  "operator": "and",
+                  "left": {
+                    "type": "path",
+                    "value": [
+                      "npc",
+                      "jackie",
+                      "met"
+                    ]
+                  },
+                  "right": {
+                    "type": "path",
+                    "value": [
+                      "npc",
+                      "jackie",
+                      "present"
+                    ]
+                  }
                 },
                 "right": {
-                  "type": "path",
-                  "value": [
-                    "npc",
-                    "jackie",
-                    "present"
-                  ]
+                  "type": "unary",
+                  "operator": "not",
+                  "value": {
+                    "type": "path",
+                    "value": [
+                      "daily",
+                      "npc",
+                      "jackie",
+                      "training"
+                    ]
+                  }
                 }
               },
               "requirements": [],
@@ -13519,7 +13564,91 @@ export const WG_BUNDLE = {
               "effects": [],
               "source": {
                 "file": "story/encounters/alley.wg",
-                "line": 125,
+                "line": 127,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-2",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Train with Jackie"
+                }
+              ],
+              "target": "place.alleyway",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": {
+                "type": "binary",
+                "operator": "and",
+                "left": {
+                  "type": "binary",
+                  "operator": "and",
+                  "left": {
+                    "type": "path",
+                    "value": [
+                      "npc",
+                      "jackie",
+                      "met"
+                    ]
+                  },
+                  "right": {
+                    "type": "path",
+                    "value": [
+                      "npc",
+                      "jackie",
+                      "present"
+                    ]
+                  }
+                },
+                "right": {
+                  "type": "path",
+                  "value": [
+                    "daily",
+                    "npc",
+                    "jackie",
+                    "training"
+                  ]
+                }
+              },
+              "requirements": [],
+              "warning": null,
+              "responses": [
+                {
+                  "paragraphs": [
+                    {
+                      "type": "paragraph",
+                      "parts": [
+                        {
+                          "type": "text",
+                          "value": "\"Ow,\" Jackie says. \"I think we've done enough training for today. Let's pick this up again tomorrow.\""
+                        }
+                      ],
+                      "source": {
+                        "file": "story/encounters/alley.wg",
+                        "line": 134,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "source": {
+                    "file": "story/encounters/alley.wg",
+                    "line": 133,
+                    "column": 1
+                  }
+                }
+              ],
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/encounters/alley.wg",
+                "line": 131,
                 "column": 1
               }
             }
@@ -13527,7 +13656,7 @@ export const WG_BUNDLE = {
           "next": null,
           "source": {
             "file": "story/encounters/alley.wg",
-            "line": 107,
+            "line": 109,
             "column": 1
           }
         }
@@ -13552,7 +13681,7 @@ export const WG_BUNDLE = {
       "weight": 1,
       "source": {
         "file": "story/encounters/alley.wg",
-        "line": 103,
+        "line": 105,
         "column": 1
       }
     },

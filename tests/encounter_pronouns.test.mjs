@@ -10,7 +10,11 @@ import {
   renderLastExchange,
   renderObjectivePressure,
 } from "../src/features/encounter/prose.js";
-import { beatDownThreatProse } from "../src/features/encounter/proseData.js";
+import {
+  beatDownThreatProse,
+  movementProseVariants,
+  positionProseVariants,
+} from "../src/features/encounter/proseData.js";
 import {
   STEAL_MONEY_OBJECTIVE,
   STEAL_MONEY_OUTCOME,
@@ -118,5 +122,39 @@ test("beat-down threats conjugate every verb for plural pronouns", () => {
   assert.equal(
     beatDownThreatProse(context),
     "They have lost all restraint and intend to leave you unable to fight back.",
+  );
+});
+
+test("embedded attacker pronouns stay lowercase while sentence-start pronouns are capitalized", () => {
+  const { context } = setup(PronounSets.THEY_THEM);
+  const variants = positionProseVariants(context, {
+    actorId: "mugger",
+    targetId: "player",
+    actionId: "force-to-ground",
+  }, "success");
+
+  assert.equal(variants[0], "They drag you off balance and drive you onto your back.");
+  assert.equal(variants[1], "Your footing gives way as they haul you to the ground.");
+  assert.equal(variants[2], "They turn the wrist control into a takedown and follow you down.");
+  assert.ok(variants.every((text) => !/\bas They\b/.test(text)));
+
+  const checkedRetreat = movementProseVariants(context, {
+    actorId: "mugger",
+    targetId: "player",
+    actionId: "create-distance",
+  }, "failed.could-not-disengage");
+  assert.equal(
+    checkedRetreat[2],
+    "The moment they pull away, your restraint drags them back.",
+  );
+
+  const escapedHold = movementProseVariants(context, {
+    actorId: "mugger",
+    targetId: "player",
+    actionId: "create-distance",
+  }, "success", { destination: "to arm's reach", brokeHold: true });
+  assert.equal(
+    escapedHold[2],
+    "Breaking free, they force enough room to move to arm's reach.",
   );
 });

@@ -71,8 +71,8 @@
 
     "Name's {{npc.jackie.shortName}}," {{npc.jackie.shortName}} says. "You kept your head better than most people would. Your technique could use some work, though."
   @else
-    A figure steps out of the shadows and into the alley. {{npc.jackie.subject | cap}} is dressed in a loose hoodie and jeans.
-    "Nice to see ya," {{npc.jackie.subject}} says. "I don't think we've met, but name's {{npc.jackie.shortName}}. You look like you could use a hand with your self-defense skills."
+    A figure steps out of the shadows and into the alley. {{npc.jackie.shortName}} is dressed in a loose hoodie and jeans.
+    "Nice to see ya," {{npc.jackie.shortName}} says. "I don't think we've met, but name's {{npc.jackie.shortName}}. You look like you could use a hand with your self-defense skills."
   @endif
 
   Jackie explains that this alley is usually where you can find {{npc.jackie.object}}, then offers to coach you through a few kinds of fight.
@@ -86,19 +86,21 @@
   Jackie rolls {{npc.jackie.dependent}} shoulders and gives you enough room to prepare. "Pick the situation. I'll play the aggressor, and you find a way through it."
 
   @choice "Try to rob me" -> encounter.alley-jackie-theft-practice
+    @effect set daily.npc.jackie.training
   @endchoice
 
   @choice "Try to hurt me" -> encounter.alley-jackie-beat-down-practice
+    @effect set daily.npc.jackie.training
   @endchoice
 
   @choice "Not right now" -> @exit
   @endchoice
 
-:: encounter.alley-jackie-theft-practice -> encounter.alley-jackie-coaching
-  @system encounter.physical {"scenario":"fight","opponent":{"id":"jackie","npc":"jackie"},"goal":{"id":"steal-money","maxAmount":20},"outcomes":{"default":{"target":"encounter.alley-jackie-coaching","leavePlace":false}}}
+:: encounter.alley-jackie-theft-practice -> place.alleyway
+  @system encounter.physical {"scenario":"fight","opponent":{"id":"jackie","npc":"jackie"},"goal":{"id":"steal-money","maxAmount":20},"outcomes":{"default":{"target":"place.alleyway","leavePlace":false}}}
 
-:: encounter.alley-jackie-beat-down-practice -> encounter.alley-jackie-coaching
-  @system encounter.physical {"scenario":"fight","opponent":{"id":"jackie","npc":"jackie"},"goal":{"id":"beat-down"},"outcomes":{"default":{"target":"encounter.alley-jackie-coaching","leavePlace":false}}}
+:: encounter.alley-jackie-beat-down-practice -> place.alleyway
+  @system encounter.physical {"scenario":"fight","opponent":{"id":"jackie","npc":"jackie"},"goal":{"id":"beat-down"},"outcomes":{"default":{"target":"place.alleyway","leavePlace":false}}}
 
 :: place.alleyway
   @hub alleyway
@@ -123,5 +125,12 @@
   @endif
 
   @choice "Train with Jackie" -> encounter.alley-jackie-coaching
-    @when npc.jackie.met and npc.jackie.present
+    @when npc.jackie.met and npc.jackie.present and not daily.npc.jackie.training
+  @endchoice
+
+   @choice "Train with Jackie" -> place.alleyway
+    @when npc.jackie.met and npc.jackie.present and daily.npc.jackie.training
+    @response
+      "Ow," Jackie says. "I think we've done enough training for today. Let's pick this up again tomorrow."
+    @endresponse
   @endchoice

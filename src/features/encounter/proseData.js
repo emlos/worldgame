@@ -187,6 +187,7 @@ export function movementProseVariants(
   { destination = null, brokeHold = false } = {},
 ) {
   const actor = actorName(context, attempted.actorId, { sentence: true });
+  const embeddedActor = actorName(context, attempted.actorId);
   const actorPossessive = encounterPronoun(context, attempted.actorId, "dependent");
   const target = actorName(context, attempted.targetId, { sentence: true });
   const playerActs = isControlled(context, attempted.actorId);
@@ -202,7 +203,7 @@ export function movementProseVariants(
       : [
         `${actor} ${encounterVerb(context, attempted.actorId, "tries", "try")} to retreat, but your hold checks the movement.`,
         `${actor} ${encounterVerb(context, attempted.actorId, "strains", "strain")} for room; your grip keeps ${encounterPronoun(context, attempted.actorId, "object")} close.`,
-        `The moment ${actor} ${encounterVerb(context, attempted.actorId, "pulls", "pull")} away, your restraint drags ${encounterPronoun(context, attempted.actorId, "object")} back.`,
+        `The moment ${embeddedActor} ${encounterVerb(context, attempted.actorId, "pulls", "pull")} away, your restraint drags ${encounterPronoun(context, attempted.actorId, "object")} back.`,
       ];
   }
 
@@ -238,7 +239,7 @@ export function movementProseVariants(
       : [
         `${actor} ${brokeHold ? `${encounterVerb(context, attempted.actorId, "slips", "slip")} the hold and ` : ""}${encounterVerb(context, attempted.actorId, "retreats", "retreat")} ${destination}.`,
         `${actor} ${brokeHold ? `${encounterVerb(context, attempted.actorId, "tears", "tear")} loose, then ` : ""}${encounterVerb(context, attempted.actorId, "opens", "open")} the distance ${destination}.`,
-        `${brokeHold ? `Breaking free, ${actor.toLowerCase()}` : actor} ${encounterVerb(context, attempted.actorId, "forces", "force")} enough room to move ${destination}.`,
+        `${brokeHold ? `Breaking free, ${embeddedActor}` : actor} ${encounterVerb(context, attempted.actorId, "forces", "force")} enough room to move ${destination}.`,
       ];
   }
 
@@ -283,6 +284,7 @@ export function movementProseVariants(
 
 export function positionProseVariants(context, attempted, result, { side } = {}) {
   const actor = actorName(context, attempted.actorId, { sentence: true });
+  const embeddedActor = actorName(context, attempted.actorId);
   const actorPossessive = encounterPronoun(context, attempted.actorId, "dependent");
   const target = actorName(context, attempted.targetId, { sentence: true });
   const targetPossessive = encounterPronoun(context, attempted.targetId, "dependent");
@@ -327,7 +329,7 @@ export function positionProseVariants(context, attempted, result, { side } = {})
       ]
       : [
         `${actor} ${encounterVerb(context, attempted.actorId, "drags", "drag")} you off balance and ${encounterVerb(context, attempted.actorId, "drives", "drive")} you onto your back.`,
-        `Your footing gives way as ${actor} ${encounterVerb(context, attempted.actorId, "hauls", "haul")} you to the ground.`,
+        `Your footing gives way as ${embeddedActor} ${encounterVerb(context, attempted.actorId, "hauls", "haul")} you to the ground.`,
         `${actor} ${encounterVerb(context, attempted.actorId, "turns", "turn")} the wrist control into a takedown and ${encounterVerb(context, attempted.actorId, "follows", "follow")} you down.`,
       ];
   }
