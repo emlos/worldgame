@@ -79,10 +79,6 @@ game systems:
 
     - theres catacombs under the city, multiple locations, with a randomly generated maze [maze changed every two weeks? supernatural reasons]
 
-    combat:
-    - when player gains pain during combat show the +Pain indicator next tot he relevant prose
-    - 
-
 content:
 - add events/interactions/utility on all unlocked places
 - expand jobs beyond the cafe (+schedules, more minigames?) + money making opportunities + expenses

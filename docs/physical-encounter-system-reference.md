@@ -153,7 +153,7 @@ Rendering validates but does not mutate state or reroll anything. An active scre
 - a qualitative opponent threat level (`Low`, `Comparable`, `High`, or `Extreme`) for temporary actors, derived from the resolved stat matchup;
 - the stored NPC intent as an action- and target-specific wind-up, with qualitative urgency rather than a raw duration;
 - position and conditions as compact prose, plus current objective pressure and qualitative commitment;
-- prose derived from the latest structured events;
+- prose derived from the latest structured events, with a nonnumeric inline `+Pain` change immediately after the hit prose when the player gained Pain;
 - legal player choices grouped as Unable to act, Attack, Control, Break control, Defend, or Escape.
 
 Beat-down pressure is qualitative in the scene prose. Once player pain is nonzero, the ordinary sidebar pain meter appears and marks the objective's current defeat threshold; escalation moves that marker to the new threshold. The former position/condition table remains available in the physical-encounter debug inspector.
@@ -1246,7 +1246,7 @@ The resolver records facts first and renders prose from them afterward. Common e
 | Exchange | `encounter.started`, `action.attempted`, `action.failed`, `action.spoiled`, `encounter.ended` |
 | Hidden rolls | `chance.rolled` with purpose, chance, roll, success, and optional diagnostic fields |
 | Defense/recovery | `defense.braced`, `exertion.recovered`, `acute.applied`, `acute.eased` |
-| Damage | `impact.landed` with actor, target, part, damage, and damage type |
+| Damage | `impact.landed` with actor, target, part, damage, and damage type; `pain.changed` with actor and whole-body before/after/delta values |
 | Holds | `hold.created`, `hold.weakened`, `hold.strengthened`, `hold.pinned`, `hold.downgraded`, `hold.broken`, `hold.priority-resolved` |
 | Position | `range.changed`, `pose.changed`, `support.changed`, `facing.changed`, `state.change-conflicted` |
 | Help/escape | `help.heard`, `escape.disengaged`, `escape.completed`, `participant.unable-to-act` |
@@ -1255,6 +1255,12 @@ The resolver records facts first and renders prose from them afterward. Common e
 | Consequences | `hygiene.lost`, `consequences.settled` |
 
 Only the latest 24 are retained in encounter state. Diagnostic roll events are intentionally omitted from normal prose. When an action can fail for several reasons, keep the machine-readable reason specific; it is used by tests and can support better prose later.
+
+`pain.changed` is calculated only after sequential effects or both simultaneous
+branches have been merged into the canonical combatant bodies. Its numeric
+delta remains available to diagnostics, but player-facing exchange prose uses
+the structured inline-change path and labels a positive player change only as
+`+Pain`.
 
 ## Debugging, combat lab, and tests
 

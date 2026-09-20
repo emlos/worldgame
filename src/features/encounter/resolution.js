@@ -15,6 +15,7 @@ import {
 } from "./ai.js";
 import {
   createCombatContext,
+  getBodyPain,
   getParticipant,
   getStat,
   holdsControlledBy,
@@ -577,6 +578,24 @@ function mergeBodyDamage(context, branches) {
   }
 }
 
+const roundedPain = (value) => Math.round(value * 100) / 100;
+
+function recordPainChanges(context, runtime, startingPain) {
+  for (const actorId of participantIds(context.state)) {
+    const before = startingPain[actorId];
+    const after = getBodyPain(context, actorId);
+    const amount = roundedPain(after - before);
+    if (amount <= 0) continue;
+    runtime.events.push({
+      type: "pain.changed",
+      actorId,
+      before: roundedPain(before),
+      after: roundedPain(after),
+      amount,
+    });
+  }
+}
+
 function mergeProposedOutcomes(context, branches) {
   const outcomes = branches
     .map((branch) => branch.runtime.outcome)
@@ -700,6 +719,9 @@ export function resolveEncounterExchange({
   validateEncounterRuntime(context);
   const previousObjective = structuredClone(next.objective);
   const startingObjectiveProgress = getObjectiveProgress(context);
+  const startingPain = Object.fromEntries(
+    participantIds(next).map((actorId) => [actorId, getBodyPain(context, actorId)]),
+  );
   const controlledId = controlledParticipantId(next);
   const ownerId = goalOwnerId(next);
 
@@ -777,6 +799,9 @@ export function resolveEncounterExchange({
     }
   }
 
+  // Record whole-body Pain only after both branches have been merged back into
+  // the canonical bodies. Structural impact damage is not itself a Pain delta.
+  recordPainChanges(context, runtime, startingPain);
   tickAcuteEffects(context);
   next.elapsedSeconds += Math.max(playerSeconds, npcSeconds);
   next.exchange += 1;

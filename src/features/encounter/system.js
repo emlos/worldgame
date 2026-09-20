@@ -10,10 +10,10 @@ import {
 import { createCombatContext } from "./combatants.js";
 import {
   renderIntent,
-  renderLastExchange,
+  renderLastExchangeParts,
   renderObjectivePressure,
   renderSituationProse,
-  renderTerminalExchange,
+  renderTerminalExchangeParts,
 } from "./prose.js";
 import {
   encounterExchangeDurationSeconds,
@@ -138,7 +138,7 @@ function renderActive(context, definition, systemId) {
       { type: "paragraph", text: renderIntent(context) },
       { type: "paragraph", text: renderSituationProse(context) },
       { type: "paragraph", text: renderObjectivePressure(context) },
-      { type: "paragraph", text: renderLastExchange(context) },
+      { type: "paragraph", parts: renderLastExchangeParts(context) },
       ...instructions,
     ],
     sections: ENCOUNTER_ACTION_PURPOSES
@@ -154,13 +154,15 @@ function renderActive(context, definition, systemId) {
 
 function renderTerminal(context, definition, systemId) {
   const objective = requireEncounterObjective(context.state);
-  const finalExchange = context.state.exchange > 0
-    ? renderTerminalExchange(context)
-    : "";
+  const finalExchangeParts = context.state.exchange > 0
+    ? renderTerminalExchangeParts(context)
+    : [];
   const skillReward = combatSkillRewardSummary(context.state);
   return {
     content: [
-      ...(finalExchange ? [{ type: "paragraph", text: finalExchange }] : []),
+      ...(finalExchangeParts.length
+        ? [{ type: "paragraph", parts: finalExchangeParts }]
+        : []),
       ...objective.renderTerminal(context),
       ...(skillReward ? [{ type: "paragraph", text: skillReward }] : []),
       { type: "paragraph", text: renderSituationProse(context) },

@@ -317,6 +317,14 @@ test("simultaneous pain limits leave the player helpless but incapacitate the at
       .length,
     2,
   );
+  const painChanges = game.currentStory.system.state.lastEvents
+    .filter(({ type }) => type === "pain.changed");
+  assert.deepEqual(
+    painChanges.map(({ actorId }) => actorId).sort(),
+    ["mugger", "player"],
+  );
+  assert.ok(painChanges.every(({ before, after, amount }) =>
+    amount > 0 && after > before));
   assert.match(JSON.stringify(buildScene(game).content), /cannot continue|safe to leave/i);
 });
 
@@ -419,7 +427,10 @@ test("a terminal exchange narrates the player's landed strike before the opponen
   assert.equal(state.outcome.id, "mugger-fled");
   const paragraphs = buildScene(game).content
     .filter(({ type }) => type === "paragraph")
-    .map(({ text }) => text);
+    .map(({ text, parts }) => text ?? parts
+      .filter(({ type }) => type === "text")
+      .map((part) => part.text)
+      .join(""));
   assert.match(paragraphs[0], /body blow|strike/i);
   assert.doesNotMatch(paragraphs[0], /You drive a blow toward her body\. The blow lands/i);
   assert.match(paragraphs[1], /risk is no longer worth|breaks off the mugging|abandons the attack/i);

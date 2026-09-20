@@ -280,9 +280,14 @@ function renderActionBeat(context, events) {
 }
 
 function renderNarrativeEvents(context, events) {
+  return renderNarrativeGroups(context, events).flatMap(({ sentences }) => sentences);
+}
+
+function renderNarrativeGroups(context, events) {
   const groups = [];
   let current = null;
   for (const event of events) {
+    if (event.type === "pain.changed") continue;
     if (event.type === "action.attempted") {
       current = [event];
       groups.push(current);
@@ -292,9 +297,12 @@ function renderNarrativeEvents(context, events) {
       groups.push([event]);
     }
   }
-  return groups.flatMap((group) => group[0].type === "action.attempted"
-    ? renderActionBeat(context, group)
-    : group.map((event) => eventText(context, event)).filter(Boolean));
+  return groups.map((group) => ({
+    events: group,
+    sentences: group[0].type === "action.attempted"
+      ? renderActionBeat(context, group)
+      : group.map((event) => eventText(context, event)).filter(Boolean),
+  }));
 }
 
 function eventText(context, event) {
@@ -305,6 +313,56 @@ function eventText(context, event) {
 export function renderLastExchange(context) {
   const sentences = renderNarrativeEvents(context, context.state.lastEvents);
   return sentences.length ? sentences.join(" ") : EMPTY_EXCHANGE_PROSE;
+}
+
+function painChangeFeedback(event) {
+  return {
+    type: "stat",
+    statId: "pain",
+    amount: event.amount,
+    higherIsBetter: false,
+    direction: "increase",
+    label: "+Pain",
+  };
+}
+
+function renderExchangeParts(context, events, { emptyText = "" } = {}) {
+  const playerId = controlledParticipantId(context.state);
+  const painChange = [...events].reverse().find((event) =>
+    event.type === "pain.changed" && event.actorId === playerId && event.amount > 0);
+  const groups = renderNarrativeGroups(context, events)
+    .filter(({ sentences }) => sentences.length > 0);
+  if (!groups.length) return emptyText ? [{ type: "text", text: emptyText }] : [];
+
+  let changeGroupIndex = -1;
+  if (painChange) {
+    for (let index = groups.length - 1; index >= 0; index -= 1) {
+      if (groups[index].events.some((event) =>
+        event.type === "impact.landed" && event.targetId === playerId)) {
+        changeGroupIndex = index;
+        break;
+      }
+    }
+    if (changeGroupIndex < 0) changeGroupIndex = groups.length - 1;
+  }
+
+  const parts = [];
+  for (const [index, group] of groups.entries()) {
+    parts.push({
+      type: "text",
+      text: `${parts.length ? " " : ""}${group.sentences.join(" ")}`,
+    });
+    if (index === changeGroupIndex) {
+      parts.push({ type: "change", change: painChangeFeedback(painChange) });
+    }
+  }
+  return parts;
+}
+
+export function renderLastExchangeParts(context) {
+  return renderExchangeParts(context, context.state.lastEvents, {
+    emptyText: EMPTY_EXCHANGE_PROSE,
+  });
 }
 
 const TERMINAL_RESOLUTION_EVENT_TYPES = new Set([
@@ -323,12 +381,18 @@ const TERMINAL_RESOLUTION_EVENT_TYPES = new Set([
  * encounter without repeating the outcome events covered by renderTerminal().
  */
 export function renderTerminalExchange(context) {
+  const events = terminalExchangeEvents(context);
+  const sentences = renderNarrativeEvents(context, events);
+  return sentences.join(" ");
+}
+
+function terminalExchangeEvents(context) {
   const events = context.state.lastEvents;
   const hasTerminalTransition = events.some((event) =>
     ["escape.completed", "help.heard", "surrender.completed"].includes(event.type));
   const isTerminalAction = (actionId) =>
     getEncounterAction(actionId)?.tags.includes("terminal");
-  const filteredEvents = events.filter((event) => {
+  return events.filter((event) => {
       if (TERMINAL_RESOLUTION_EVENT_TYPES.has(event.type)) return false;
       if (event.type === "range.changed"
         && event.to === ENCOUNTER_RANGE.far
@@ -340,8 +404,10 @@ export function renderTerminalExchange(context) {
       }
       return true;
     });
-  const sentences = renderNarrativeEvents(context, filteredEvents);
-  return sentences.join(" ");
+}
+
+export function renderTerminalExchangeParts(context) {
+  return renderExchangeParts(context, terminalExchangeEvents(context));
 }
 
 export function renderObjectivePressure(context) {

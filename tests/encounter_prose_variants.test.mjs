@@ -2,7 +2,10 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import { createCombatContext } from "../src/features/encounter/combatants.js";
-import { renderLastExchange } from "../src/features/encounter/prose.js";
+import {
+  renderLastExchange,
+  renderLastExchangeParts,
+} from "../src/features/encounter/prose.js";
 import { STEAL_MONEY_OBJECTIVE, STEAL_MONEY_OUTCOME } from "../src/features/encounter/objectives/steal.js";
 import { gameAtStart, startEncounter } from "./support/encounter.mjs";
 
@@ -37,6 +40,52 @@ test("a variant beat combines an attempt and result without hiding secondary eff
   assert.match(prose, /face/i);
   assert.match(prose, /dazed/i);
   assert.doesNotMatch(prose, /strike toward.*The blow lands/is);
+});
+
+test("player Pain gain is an inline nonnumeric change after the hit prose", () => {
+  const { state, context } = setup(8);
+  state.exchange = 1;
+  state.lastEvents = [
+    {
+      type: "action.attempted",
+      actorId: "mugger",
+      targetId: "player",
+      actionId: "drive-body",
+    },
+    {
+      type: "impact.landed",
+      actorId: "mugger",
+      targetId: "player",
+      partId: "abdomen",
+      damage: 10,
+      damageType: "blunt",
+    },
+    {
+      type: "pain.changed",
+      actorId: "player",
+      before: 0,
+      after: 11.2,
+      amount: 11.2,
+    },
+  ];
+
+  const parts = renderLastExchangeParts(context);
+  const visibleText = parts.map((part) =>
+    part.type === "text" ? part.text : part.change.label).join(" | ");
+  assert.match(visibleText, /body|abdomen|stomach/i);
+  assert.match(visibleText, /\+Pain/);
+  assert.doesNotMatch(visibleText, /11\.2/);
+  assert.deepEqual(parts.at(-1), {
+    type: "change",
+    change: {
+      type: "stat",
+      statId: "pain",
+      amount: 11.2,
+      higherIsBetter: false,
+      direction: "increase",
+      label: "+Pain",
+    },
+  });
 });
 
 test("the initial hold, defense, movement, and takedown packs render complete beats", () => {
