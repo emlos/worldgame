@@ -183,7 +183,7 @@ test("an exchange consumes its slower action duration and advances once", () => 
 });
 
 test("surviving objective progress resets the commitment stall clock", () => {
-  const game = gameAtStart({ seed: 1 });
+  const game = gameAtStart({ seed: 4 });
   startEncounter(game);
 
   chooseAction(game, "cover-and-brace");

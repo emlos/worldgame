@@ -211,6 +211,7 @@ test("an encounter awards outcome progress once, never subtracts skill, and repo
   const game = gameAtStart({ combatSkill: 49 });
   startEncounter(game);
   const instanceKey = game.currentStory.instanceKey;
+  game.currentStory.system.state.combatLearning.difficultyBonus = 2;
 
   chooseAction(game, "surrender-money");
 

@@ -17,6 +17,25 @@ import {
   combatDifficultyBonus,
   createCombatLearningState,
 } from "../combatSkill.js";
+import { deriveSeed, makeRNG, randInt } from "../../../shared/util/random.js";
+
+const TEMPORARY_OPPONENT_STAT_NAMES = Object.freeze([
+  "strength",
+  "endurance",
+  "resolve",
+  "fitness",
+]);
+const TEMPORARY_OPPONENT_DIFFICULTIES = Object.freeze({
+  easy: Object.freeze({ min: -2, max: -1 }),
+  medium: Object.freeze({ min: -1, max: 1 }),
+  hard: Object.freeze({ min: 1, max: 2 }),
+  maxed: null,
+});
+const TEMPORARY_OPPONENT_DIFFICULTY_IDS = new Set(
+  Object.keys(TEMPORARY_OPPONENT_DIFFICULTIES),
+);
+const DEFAULT_TEMPORARY_OPPONENT_DIFFICULTY = "relative";
+const DEFAULT_TEMPORARY_OPPONENT_OFFSETS = Object.freeze([-2, -1, 1, 2]);
 
 function fail(message) {
   throw new Error(`Physical encounter fight scenario: ${message}`);
@@ -43,6 +62,72 @@ function opponentSource(game, opponent) {
     character: npc,
     ref: { type: "npc", npcId: String(opponent.npc) },
   };
+}
+
+const clampCombatStat = (value) => Math.max(0, Math.min(10, value));
+
+function playerCombatStat(game, statName) {
+  const value = Number(game.player.getSkillValue(statName));
+  return Number.isFinite(value) ? value : 0;
+}
+
+function temporaryOpponentOffsets(difficulty, rnd) {
+  if (difficulty === DEFAULT_TEMPORARY_OPPONENT_DIFFICULTY) {
+    return TEMPORARY_OPPONENT_STAT_NAMES.map(() =>
+      DEFAULT_TEMPORARY_OPPONENT_OFFSETS[randInt(
+        0,
+        DEFAULT_TEMPORARY_OPPONENT_OFFSETS.length - 1,
+        rnd,
+      )]);
+  }
+  const range = TEMPORARY_OPPONENT_DIFFICULTIES[difficulty];
+  if (range === null) return TEMPORARY_OPPONENT_STAT_NAMES.map(() => null);
+  return TEMPORARY_OPPONENT_STAT_NAMES.map(() => randInt(range.min, range.max, rnd));
+}
+
+/**
+ * Resolve a generated opponent's combat stats once for this story instance.
+ * The marker makes repeated create attempts idempotent and lets the combat lab
+ * apply deliberate stat overrides after ordinary difficulty resolution.
+ */
+export function resolveTemporaryOpponentDifficulty(game, instanceKey, config) {
+  const opponent = opponentSource(game, config.opponent);
+  if (opponent.ref.type !== "scene-actor") return opponent;
+
+  const actor = opponent.character;
+  const previous = actor.meta?.combatDifficulty;
+  if (previous?.instanceKey === instanceKey) return opponent;
+
+  const difficulty = config.opponent.difficulty
+    ?? DEFAULT_TEMPORARY_OPPONENT_DIFFICULTY;
+  const rnd = makeRNG(deriveSeed(
+    game.seed,
+    `encounter-opponent-difficulty-v1:${instanceKey}:${opponent.ref.alias}:${difficulty}`,
+  ));
+  const offsets = temporaryOpponentOffsets(difficulty, rnd);
+  for (const [index, statName] of TEMPORARY_OPPONENT_STAT_NAMES.entries()) {
+    actor.stats[statName] = offsets[index] === null
+      ? 10
+      : clampCombatStat(playerCombatStat(game, statName) + offsets[index]);
+  }
+  actor.meta ??= {};
+  actor.meta.combatDifficulty = { difficulty, instanceKey };
+  return opponent;
+}
+
+function temporaryOpponentThreatLevel(context) {
+  const ownerId = goalOwnerId(context.state);
+  const owner = context.combatants[ownerId];
+  if (owner?.actor?.alias === undefined) return null;
+  const player = context.combatants[controlledParticipantId(context.state)];
+  const averageDifference = TEMPORARY_OPPONENT_STAT_NAMES.reduce(
+    (sum, statName) => sum + owner.stat(statName) - player.stat(statName),
+    0,
+  ) / TEMPORARY_OPPONENT_STAT_NAMES.length;
+  if (averageDifference <= -1) return "Low";
+  if (averageDifference < 1) return "Comparable";
+  if (averageDifference < 3) return "High";
+  return "Extreme";
 }
 
 function opponentPersonality(opponent, seed, instanceKey) {
@@ -118,6 +203,16 @@ export const FIGHT_SCENARIO = Object.freeze({
     if (hasActor === hasNpc) {
       fail("config.opponent requires exactly one of actor or npc");
     }
+    if (opponent.difficulty !== undefined) {
+      if (!hasActor) {
+        fail("config.opponent.difficulty is supported only for temporary actors");
+      }
+      if (!TEMPORARY_OPPONENT_DIFFICULTY_IDS.has(opponent.difficulty)) {
+        fail(
+          "config.opponent.difficulty must be easy, medium, hard, or maxed",
+        );
+      }
+    }
     const goal = requireRecord(config.goal, "config.goal");
     requireEncounterObjective({ objective: goal }).validateConfig(goal, fail);
     if (
@@ -161,7 +256,7 @@ export const FIGHT_SCENARIO = Object.freeze({
 
   create({ game, instanceKey, config }) {
     this.validateConfig(config);
-    const opponent = opponentSource(game, config.opponent);
+    const opponent = resolveTemporaryOpponentDifficulty(game, instanceKey, config);
     const objective = requireEncounterObjective({
       objective: config.goal,
     }).create({
@@ -203,6 +298,10 @@ export const FIGHT_SCENARIO = Object.freeze({
     }
     state.npcIntent = selectAiIntent(context);
     return state;
+  },
+
+  opponentThreatLevel(context) {
+    return temporaryOpponentThreatLevel(context);
   },
 
   finish({ game, config, definition, state }) {

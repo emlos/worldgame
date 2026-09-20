@@ -100,6 +100,8 @@ function renderActive(context, definition, systemId) {
   const state = context.state;
   const playerId = controlledParticipantId(state);
   const threat = requireEncounterObjective(state).renderThreat(context);
+  const opponentThreatLevel = getEncounterScenario(state.scenarioId)
+    .opponentThreatLevel?.(context) || null;
   const sortedActions = sortPlayerActions(getAvailableActionInstances(context, playerId));
   const actions = sortedActions;
   const actionCounts = actions.reduce((counts, { actionId }) => {
@@ -129,6 +131,10 @@ function renderActive(context, definition, systemId) {
         type: "paragraph",
         text: `Threat: ${threat}`,
       },
+      ...(opponentThreatLevel ? [{
+        type: "paragraph",
+        text: `Opponent threat level: ${opponentThreatLevel}.`,
+      }] : []),
       { type: "paragraph", text: renderIntent(context) },
       { type: "paragraph", text: renderSituationProse(context) },
       { type: "paragraph", text: renderObjectivePressure(context) },

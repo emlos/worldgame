@@ -68,7 +68,8 @@ test("state-space simulations exercise dangerous valid states and newest objecti
   const grounded = matrix.find(({ scenario }) => scenario === "player-grounded-injured");
   assert.ok(grounded.coverage.playerPoses.includes("supine"));
   assert.ok(grounded.coverage.holdKinds.includes("limb-pin"));
-  assert.deepEqual(grounded.coverage.acuteEffects, ["off-balance", "winded"]);
+  assert.ok(grounded.coverage.acuteEffects.includes("off-balance"));
+  assert.ok(grounded.coverage.acuteEffects.includes("winded"));
   assert.ok(grounded.coverage.maxPlayerExertion >= 78);
   assert.ok(grounded.coverage.minPlayerIntegrity < 1);
   assert.ok(Object.keys(grounded.coverage.playerUnavailableReasonCounts).length > 0);

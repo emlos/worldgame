@@ -4,6 +4,7 @@ import { COMBAT_SKILL_MAX_POINTS } from "../src/characters/player/stats.js";
 import { getEncounterDebugSnapshot } from "../src/features/encounter/debug.js";
 import { combatSkillProgress } from "../src/features/encounter/combatSkill.js";
 import { getEncounterObjectives } from "../src/features/encounter/objectives/index.js";
+import { resolveTemporaryOpponentDifficulty } from "../src/features/encounter/scenarios/fight.js";
 import { ENCOUNTER_PHYSICAL_SYSTEM_ID } from "../src/features/encounter/system.js";
 import { Game } from "../src/game/game.js";
 import { performChoice } from "../src/game/scene/choiceEngine.js";
@@ -282,6 +283,11 @@ function createConfiguredGame(scenario, goal, preset) {
     },
   };
   enterWGScene(nextGame, scenario.sceneId, { runOnEnter: false });
+  resolveTemporaryOpponentDifficulty(
+    nextGame,
+    nextGame.currentStory.instanceKey,
+    WG_BUNDLE.scenes[scenario.sceneId].system.config,
+  );
   const attacker = actorAlias
     ? nextGame.currentStory.actors[actorAlias]
     : nextGame.npcs.get(String(opponent.npc));

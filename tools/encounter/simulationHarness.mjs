@@ -14,8 +14,15 @@ import { resolveEncounterExchange } from "../../src/features/encounter/resolutio
 import { collectEncounterInvariantDiagnostics } from "../../src/features/encounter/debug.js";
 import { getAiPersonality } from "../../src/features/encounter/personality.js";
 import { selectAiIntent, syncObjectiveStage } from "../../src/features/encounter/ai.js";
-import { FIGHT_SCENARIO } from "../../src/features/encounter/scenarios/fight.js";
-import { enterWGScene, resolveActiveWGStory } from "../../src/story/wg/runtime/storyRuntime.js";
+import {
+  FIGHT_SCENARIO,
+  resolveTemporaryOpponentDifficulty,
+} from "../../src/features/encounter/scenarios/fight.js";
+import {
+  enterWGScene,
+  getWGScene,
+  resolveActiveWGStory,
+} from "../../src/story/wg/runtime/storyRuntime.js";
 
 const SCENE_ID = "encounter.alley-mugging";
 const FIXED_START = new Date("2026-09-11T20:00:00.000Z");
@@ -383,6 +390,11 @@ export function runEncounterSimulation({
   game.player.setSkillValue("combat", combatSkill);
   setStats(null, playerStats, (name, value) => game.player.setSkillValue(name, value));
   enterWGScene(game, SCENE_ID);
+  resolveTemporaryOpponentDifficulty(
+    game,
+    game.currentStory.instanceKey,
+    getWGScene(SCENE_ID).system.config,
+  );
   setStats(game.currentStory.actors.mugger.stats, npcStats);
   resolveActiveWGStory(game);
   const scenarioDefinition = SCENARIO_BY_ID.get(scenario);

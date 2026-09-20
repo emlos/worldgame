@@ -105,6 +105,8 @@ test("hard pacing can overcome anger and force a beat-down attacker to retreat",
 
   state.participants.attacker.anger = 100;
   assert.equal(getAiCommitment(context), 0);
+  assert.match(renderObjectivePressure(context), /ready to break off and run/i);
+  assert.doesNotMatch(renderObjectivePressure(context), /no sign of backing off/i);
   const intent = selectAiIntent(context);
   assert.equal(intent.actionId, "flee");
 });

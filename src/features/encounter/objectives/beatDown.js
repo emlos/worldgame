@@ -332,8 +332,8 @@ export const BEAT_DOWN_OBJECTIVE = Object.freeze({
     return beatDownThreatProse(context);
   },
 
-  renderPressure(context) {
-    return beatDownPressureProse(context);
+  renderPressure(context, commitment) {
+    return beatDownPressureProse(context, commitment);
   },
 
   playerStatMarkers(context) {

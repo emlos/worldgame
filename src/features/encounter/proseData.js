@@ -972,7 +972,7 @@ export function beatDownThreatProse(context) {
     : `${encounterPronoun(context, ownerId, "subject", { sentence: true })} ${encounterVerb(context, ownerId, "intends", "intend")} to hurt and humiliate you, but ${encounterVerb(context, ownerId, "is", "are")} still holding back.`;
 }
 
-export function beatDownPressureProse(context) {
+export function beatDownPressureProse(context, commitment) {
   const ownerId = goalOwnerId(context.state);
   const objective = context.state.objective;
   const targetPain = getBodyPain(context, goalTargetId(context.state));
@@ -983,9 +983,13 @@ export function beatDownPressureProse(context) {
     : anger >= 20
       ? ` ${encounterPronoun(context, ownerId, "subject", { sentence: true })} ${encounterVerb(context, ownerId, "looks", "look")} increasingly irritated.`
       : "";
-  const persistence = ownerPain >= 45
-    ? `Even badly hurt, ${encounterPronoun(context, ownerId, "subject")} ${encounterVerb(context, ownerId, "shows", "show")} no sign of backing off.`
-    : `${encounterPronoun(context, ownerId, "subject", { sentence: true })} ${encounterVerb(context, ownerId, "shows", "show")} no sign of backing off.`;
+  const persistence = commitment === "ready to run"
+    ? `${encounterPronoun(context, ownerId, "subject", { sentence: true })} ${encounterVerb(context, ownerId, "looks", "look")} ready to break off and run.`
+    : commitment === "hesitating"
+      ? `${encounterPronoun(context, ownerId, "subject", { sentence: true })} ${encounterVerb(context, ownerId, "is", "are")} hesitating and may back off.`
+      : ownerPain >= 45
+        ? `Even badly hurt, ${encounterPronoun(context, ownerId, "subject")} ${encounterVerb(context, ownerId, "keeps", "keep")} pressing the attack.`
+        : `${encounterPronoun(context, ownerId, "subject", { sentence: true })} ${encounterVerb(context, ownerId, "keeps", "keep")} pressing the attack.`;
   const pressureRatio = targetPain / objective.painThreshold;
   const pressure = targetPain <= 0
     ? ""

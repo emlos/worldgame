@@ -59,7 +59,7 @@ Physical encounters are runtime story systems; there is no `@combat` directive. 
 :: encounter.alley-mugging -> encounter.alley-jackie-introduction
   @actor mugger civilian
 
-  @system encounter.physical {"scenario":"fight","opponent":{"id":"mugger","actor":"mugger"},"goal":{"id":"steal-money","maxAmount":20}}
+  @system encounter.physical {"scenario":"fight","opponent":{"id":"mugger","actor":"mugger","difficulty":"medium"},"goal":{"id":"steal-money","maxAmount":20}}
 ```
 
 A registered NPC uses its roster stats, identity, pronouns, and live body during the encounter:
@@ -77,9 +77,27 @@ A registered NPC uses its roster stats, identity, pronouns, and live body during
 | `opponent.id` | yes | Encounter participant ID. It must be non-empty and cannot be `player`. |
 | `opponent.actor` | alternative | Alias of an `@actor` available in `game.currentStory.actors`. Exactly one of `actor` or `npc` is required. |
 | `opponent.npc` | alternative | ID of a persistent NPC in `game.npcs`. Its registry stats and live body are used during the encounter; combat damage is cleared when the encounter finishes. |
+| `opponent.difficulty` | no | Temporary actors only: `easy`, `medium`, `hard`, or `maxed`. See the ranges below. |
 | `goal` | yes | Objective configuration. Its `id` selects the objective module. |
 | `stressMultiplier` | no | Multiplies combat Stress gains and their 35-point encounter cap. Defaults to 1; accepts 0 through 2. |
 | `outcomes` | no | Outcome-ID-to-route map, with optional `default`. |
+
+Temporary-opponent combat stats are resolved once when the encounter is
+created, clamped to 0 through 10, and then stored on the scene actor so saves
+and repeated rendering retain the same opponent. Each stat is resolved
+independently against the matching player stat:
+
+| Difficulty | Per-stat result before clamping |
+|---|---|
+| `easy` | player stat minus 1 or 2 |
+| `medium` | player stat plus an integer from -1 through 1 |
+| `hard` | player stat plus 1 or 2 |
+| `maxed` | 10 |
+| omitted | player stat plus -2, -1, 1, or 2 |
+
+The wider omitted range provides a small variation around the player without
+allowing the actor profile's old independent 0-through-10 roll to decide
+encounter difficulty. Persistent NPC stats are never rescaled.
 
 An outcome route may be a target string or an object:
 
@@ -120,7 +138,10 @@ and is always at least one point higher. The combat lab uses 50, 85, and 45.
 
 ### Create
 
-Creation validates configuration, creates the fight and objective state, deterministically selects an AI personality, calculates initial commitment, and stores the first NPC intent.
+Creation validates configuration, resolves and persists temporary-opponent
+combat stats, creates the fight and objective state, deterministically selects
+an AI personality, calculates initial commitment, and stores the first NPC
+intent.
 
 If the player is already hard-incapacitated on entry, the objective's unopposed-entry resolution runs immediately. Low Energy does not use that shortcut: an active screen is created with only `You're too tired to move`. Pain-only overwhelm likewise creates an active screen with only `Writhe in pain`. This preserves the telegraphed NPC action.
 
@@ -129,6 +150,7 @@ If the player is already hard-incapacitated on entry, the objective's unopposed-
 Rendering validates but does not mutate state or reroll anything. An active screen shows:
 
 - the objective threat;
+- a qualitative opponent threat level (`Low`, `Comparable`, `High`, or `Extreme`) for temporary actors, derived from the resolved stat matchup;
 - the stored NPC intent as an action- and target-specific wind-up, with qualitative urgency rather than a raw duration;
 - position and conditions as compact prose, plus current objective pressure and qualitative commitment;
 - prose derived from the latest structured events;
@@ -744,7 +766,14 @@ Hard player incapacitation performs bounded unopposed theft and the attacker lea
 
 ### `beat-down`
 
-The only active stage is `attack`; terminal state is `complete`. Progress is the player's whole-body pain. The attacker never voluntarily retreats: commitment has a minimum of 100, retreat is disallowed, and `flee` is excluded from this objective's action catalogue.
+The active stages are `restrained` and `escalated`; terminal state is
+`complete`. Progress is the player's whole-body pain. In the restrained stage,
+the AI pursues only light attacks. Crossing the configured anger threshold
+changes the stage to `escalated`, raises the pain target, and permits more
+severe attacks. Beat-down attackers use the shared commitment system and may
+retreat when commitment falls to 22 or below or a hard pacing limit is reached.
+`flee` remains physically available for that forced retreat path, but is
+excluded from the ordinary pursuit pool.
 
 The objective action `attack-limb` can target either forearm or knee with capacity above zero. General attacks also receive strong objective bonuses. Completion occurs when the player's pain reaches the stored tolerance threshold after the helpless exchange, or when hard incapacitation/no legal response makes the player unable to continue.
 

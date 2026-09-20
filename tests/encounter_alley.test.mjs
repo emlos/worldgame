@@ -807,7 +807,14 @@ test("escape, attacker incapacitation, and theft from a pain-overwhelmed target 
 
   const injuredLoss = gameAtStart({ seed: 1 });
   const injuredLossAlley = placePlayerAtAlley(injuredLoss);
-  startEncounter(injuredLoss);
+  const injuredLossState = startEncounter(injuredLoss);
+  Object.assign(injuredLoss.currentStory.actors.mugger.stats, {
+    strength: 10,
+    endurance: 10,
+    resolve: 10,
+    fitness: 10,
+  });
+  injuredLossState.participants.mugger.controller.commitmentBase = 75;
   injuredLoss.player.body.getPart("abdomen").acutePain = 77;
   assert.equal(playUntilTerminal(injuredLoss, (game) =>
     findActionChoice(game, "shove-away")

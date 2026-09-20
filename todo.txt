@@ -80,7 +80,6 @@ game systems:
     - theres catacombs under the city, multiple locations, with a randomly generated maze [maze changed every two weeks? supernatural reasons]
 
     combat:
-    - opponents should have declarable difficulties (randomly generated actors only) with easy, medium, hard, and maxed stats - if none provided it should be generated in the range of +-1-2 of the players stats for balance
     - when player gains pain during combat show the +Pain indicator next tot he relevant prose
     - 
 
@@ -120,4 +119,4 @@ fix:
 
 not planned:
 - combat: weapons, police, player emotions, multi person combat, environment beyond the wall/groud positioning, specific injuries
-- 
+-
