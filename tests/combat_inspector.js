@@ -1,8 +1,6 @@
 import { PronounSets, Gender } from "../src/characters/core/pronouns.js";
-import {
-  ACTOR_PROFILES,
-  generateSceneActors,
-} from "../src/characters/npc/temporaryActors.js";
+import { ACTOR_PROFILES } from "../src/characters/npc/temporaryActors.js";
+import { COMBAT_SKILL_MAX_POINTS } from "../src/characters/player/stats.js";
 import { getEncounterDebugSnapshot } from "../src/features/encounter/debug.js";
 import { combatSkillProgress } from "../src/features/encounter/combatSkill.js";
 import { getEncounterObjectives } from "../src/features/encounter/objectives/index.js";
@@ -51,13 +49,19 @@ const identities = Object.freeze([
 
 const scenarios = Object.values(WG_BUNDLE.scenes)
   .filter(({ system }) => system?.id === ENCOUNTER_PHYSICAL_SYSTEM_ID)
-  .map((definition) => ({
-    sceneId: definition.id,
-    scenarioId: definition.system.config.scenario,
-    aggressorAlias: definition.system.config.opponent.actor,
-    definition,
-  }))
-  .sort((left, right) => left.scenarioId.localeCompare(right.scenarioId));
+  .map((definition) => {
+    const opponent = definition.system.config.opponent;
+    const opponentKind = opponent.actor ? "temporary actor" : "persistent NPC";
+    const opponentRef = opponent.actor || opponent.npc;
+    return {
+      sceneId: definition.id,
+      scenarioId: definition.system.config.scenario,
+      opponentKind,
+      opponentRef,
+      definition,
+    };
+  })
+  .sort((left, right) => left.sceneId.localeCompare(right.sceneId));
 
 const attackerPresets = Object.values(ACTOR_PROFILES).flatMap((profile) =>
   identities.map((identity) => ({
@@ -81,6 +85,9 @@ const elements = {
   scenarioSelect: document.querySelector("#scenario-select"),
   goalSelect: document.querySelector("#goal-select"),
   attackerSelect: document.querySelector("#attacker-select"),
+  attackerLabel: document.querySelector("#attacker-label"),
+  attackerSourceHelp: document.querySelector("#attacker-source-help"),
+  stressMultiplierInput: document.querySelector("#stress-multiplier-input"),
   seedInput: document.querySelector("#seed-input"),
   playerSliders: document.querySelector("#player-sliders"),
   attackerSliders: document.querySelector("#attacker-sliders"),
@@ -171,7 +178,7 @@ function populateSetup() {
   for (const scenario of scenarios) {
     const option = document.createElement("option");
     option.value = scenario.sceneId;
-    option.textContent = `${scenario.scenarioId} (${scenario.sceneId})`;
+    option.textContent = `${scenario.sceneId} · ${scenario.opponentKind}: ${scenario.opponentRef}`;
     elements.scenarioSelect.append(option);
   }
   for (const objective of attackerGoals) {
@@ -192,7 +199,7 @@ function populateSetup() {
   }
   PLAYER_STATS.forEach((name) => createSlider(elements.playerSliders, "player", name));
   createSlider(elements.playerSliders, "player", "combat", {
-    max: 500,
+    max: COMBAT_SKILL_MAX_POINTS,
     step: 1,
     value: 0,
     formatValue: (current) => {
@@ -210,6 +217,27 @@ function populateSetup() {
   if (!attackerGoals.length) {
     setNotice(elements.setupNotice, "No physical-encounter attacker goals were found.", { error: true });
   }
+  syncScenarioControls();
+}
+
+function syncScenarioControls() {
+  const scenario = selectedScenario();
+  if (!scenario) return;
+  const authoredGoalId = scenario.definition.system.config.goal.id;
+  if (attackerGoals.some(({ id }) => id === authoredGoalId)) {
+    elements.goalSelect.value = authoredGoalId;
+  }
+  const temporary = Boolean(scenario.definition.system.config.opponent.actor);
+  elements.attackerSelect.disabled = !temporary;
+  elements.attackerLabel.textContent = temporary
+    ? "Temporary attacker preset"
+    : "Temporary attacker preset (not used)";
+  elements.attackerSourceHelp.textContent = temporary
+    ? "The selected preset replaces the template's generated actor profile and identity."
+    : `This template uses the registered NPC '${scenario.opponentRef}'. The stat sliders still override that NPC for this laboratory run.`;
+  elements.stressMultiplierInput.value = String(
+    scenario.definition.system.config.stressMultiplier ?? 1,
+  );
 }
 
 function configuredValue(owner, statName) {
@@ -219,6 +247,10 @@ function configuredValue(owner, statName) {
 function createConfiguredGame(scenario, goal, preset) {
   const seed = Number(elements.seedInput.value);
   if (!Number.isFinite(seed)) throw new TypeError("Seed must be a finite number.");
+  const stressMultiplier = Number(elements.stressMultiplierInput.value);
+  if (!Number.isFinite(stressMultiplier) || stressMultiplier < 0 || stressMultiplier > 2) {
+    throw new RangeError("Stress multiplier must be from 0 through 2.");
+  }
   const nextGame = new Game({
     seed,
     startDate: START_DATE,
@@ -229,33 +261,43 @@ function createConfiguredGame(scenario, goal, preset) {
   }
   nextGame.player.setSkillValue("combat", configuredValue("player", "combat"));
 
+  for (const item of scenarios) WG_BUNDLE.scenes[item.sceneId] = item.definition;
+  const opponent = scenario.definition.system.config.opponent;
+  const actorAlias = opponent.actor || null;
+  const actors = actorAlias
+    ? scenario.definition.actors.map((actor) => actor.alias === actorAlias
+      ? { ...actor, profileId: preset.profile.id }
+      : actor)
+    : scenario.definition.actors;
   WG_BUNDLE.scenes[scenario.sceneId] = {
     ...scenario.definition,
+    actors,
     system: {
       ...scenario.definition.system,
       config: {
         ...scenario.definition.system.config,
         goal: structuredClone(goal.laboratoryConfig),
+        stressMultiplier,
       },
     },
   };
   enterWGScene(nextGame, scenario.sceneId, { runOnEnter: false });
-  const generated = generateSceneActors(
-    nextGame.seed,
-    [{ alias: scenario.aggressorAlias, profileId: preset.profile.id }],
-    nextGame.currentStory.instanceKey,
-  )[scenario.aggressorAlias];
-  const profileName = titleCase(preset.profile.id);
-  generated.category = preset.identity.category;
-  generated.noun = preset.identity.noun;
-  generated.gender = preset.identity.gender;
-  generated.pronouns = { ...preset.identity.pronouns };
-  generated.title = `${profileName} ${preset.identity.category}`;
-  generated.name = generated.title;
-  for (const statName of ATTACKER_STATS) {
-    generated.stats[statName] = configuredValue("attacker", statName);
+  const attacker = actorAlias
+    ? nextGame.currentStory.actors[actorAlias]
+    : nextGame.npcs.get(String(opponent.npc));
+  if (!attacker) throw new Error(`Encounter opponent '${scenario.opponentRef}' is unavailable.`);
+  if (actorAlias) {
+    const profileName = titleCase(preset.profile.id);
+    attacker.category = preset.identity.category;
+    attacker.noun = preset.identity.noun;
+    attacker.gender = preset.identity.gender;
+    attacker.pronouns = { ...preset.identity.pronouns };
+    attacker.title = `${profileName} ${preset.identity.category}`;
+    attacker.name = attacker.title;
   }
-  nextGame.currentStory.actors[scenario.aggressorAlias] = generated;
+  for (const statName of ATTACKER_STATS) {
+    attacker.stats[statName] = configuredValue("attacker", statName);
+  }
   resolveActiveWGStory(nextGame);
   return nextGame;
 }
@@ -340,8 +382,8 @@ function renderDiagnostics(snapshot) {
   }
 
   elements.combatantOverview.append(
-    renderCombatantCard("player", snapshot.combatants.player),
-    renderCombatantCard("mugger", snapshot.combatants.mugger),
+    ...Object.entries(snapshot.combatants).map(([actorId, combatant]) =>
+      renderCombatantCard(actorId, combatant)),
   );
   writeJson(elements.stateJson, snapshot.state);
   writeJson(elements.combatantsJson, snapshot.combatants);
@@ -369,7 +411,7 @@ function renderEncounter() {
   const snapshot = getEncounterDebugSnapshot(game);
   const scenario = selectedScenario();
   elements.encounterStatus.textContent = `${snapshot.state.phase} · exchange ${snapshot.state.exchange}`;
-  elements.encounterTitle.textContent = scenario?.scenarioId || currentScene.id;
+  elements.encounterTitle.textContent = scenario?.sceneId || currentScene.id;
   renderSceneContent(elements.combatScene, currentScene.content, {
     makeTableAction: makeChoiceButton,
   });
@@ -394,11 +436,14 @@ function startCombat() {
     const scenario = selectedScenario();
     const goal = selectedGoal();
     const preset = selectedAttacker();
-    if (!scenario || !goal || !preset) throw new Error("Choose a scenario, attacker goal, and attacker.");
+    if (!scenario || !goal || !preset) throw new Error("Choose an encounter template, attacker goal, and attacker.");
     game = createConfiguredGame(scenario, goal, preset);
+    const attackerDescription = scenario.definition.system.config.opponent.actor
+      ? preset.label
+      : `persistent NPC ${scenario.opponentRef}`;
     setNotice(
       elements.setupNotice,
-      `Started ${scenario.scenarioId}: ${goal.label.toLowerCase()} with ${preset.label}.`,
+      `Started ${scenario.sceneId}: ${goal.label.toLowerCase()} with ${attackerDescription}.`,
     );
     setNotice(elements.combatNotice, "");
     refresh();
@@ -415,6 +460,7 @@ function resetSetup() {
     }
   }
   elements.seedInput.value = "117";
+  syncScenarioControls();
   setNotice(elements.setupNotice, game
     ? "Defaults restored. Restart combat to apply them."
     : "Defaults restored.");
@@ -423,10 +469,7 @@ function resetSetup() {
 elements.startCombat.addEventListener("click", startCombat);
 elements.resetSetup.addEventListener("click", resetSetup);
 elements.scenarioSelect.addEventListener("change", () => {
-  const authoredGoalId = selectedScenario()?.definition.system.config.goal.id;
-  if (attackerGoals.some(({ id }) => id === authoredGoalId)) {
-    elements.goalSelect.value = authoredGoalId;
-  }
+  syncScenarioControls();
   if (game) setNotice(elements.setupNotice, "Scenario changed. Restart combat to apply it.");
 });
 elements.goalSelect.addEventListener("change", () => {
@@ -437,6 +480,9 @@ elements.attackerSelect.addEventListener("change", () => {
 });
 elements.seedInput.addEventListener("input", () => {
   if (game) setNotice(elements.setupNotice, "Seed changed. Restart combat to apply it.");
+});
+elements.stressMultiplierInput.addEventListener("input", () => {
+  if (game) setNotice(elements.setupNotice, "Stress multiplier changed. Restart combat to apply it.");
 });
 
 populateSetup();

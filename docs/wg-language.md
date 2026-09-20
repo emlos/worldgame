@@ -742,6 +742,49 @@ The school quiz feature currently resolves `math.core` and `english.core`
 through `src/features/school/quiz/banks/index.js`; add new subject banks there
 without changing the generic WG runtime.
 
+#### Physical encounters
+
+Combat is authored as the registered `encounter.physical` system with the
+`fight` scenario. A generated opponent needs an `@actor` declaration whose
+alias matches `opponent.actor`:
+
+```wg
+:: encounter.example-mugging -> encounter.example-aftermath
+  @actor attacker civilian
+
+  @system encounter.physical {"scenario":"fight","opponent":{"id":"attacker","actor":"attacker"},"goal":{"id":"steal-money","maxAmount":20},"outcomes":{"player-escaped":"encounter.example-escaped","default":"encounter.example-aftermath"}}
+```
+
+To use a registered persistent NPC, omit `@actor` and name `opponent.npc`:
+
+```wg
+:: encounter.example-training -> encounter.example-coaching
+  @system encounter.physical {"scenario":"fight","stressMultiplier":0.3,"opponent":{"id":"jackie","npc":"jackie"},"goal":{"id":"beat-down","painTarget":50,"escalatedPainTarget":85,"angerThreshold":45}}
+```
+
+Use exactly one of `opponent.actor` and `opponent.npc`. `opponent.id` is the
+encounter-local participant ID and cannot be `player`; it may match the alias or
+NPC ID for clarity. Current goals are `steal-money` and `beat-down`. Outcome
+routes may be a target string or an object with `target` plus optional
+`effects`, `paragraphs`, and `leavePlace`. A `default` route handles outcomes
+that do not need unique aftermath scenes; otherwise the WG scene's final target
+is used.
+
+The system owns the whole active and terminal combat screen, so do not add
+authored prose, passages, or choices to the same WG scene. Put introductions
+before it and aftermath prose in its target scenes. After adding, removing, or
+renaming a fight scene, run:
+
+```powershell
+node tools/wg/compile.mjs
+node tools/wg/compile.mjs --check
+node --test tests/encounter_*.test.mjs
+```
+
+The complete configuration, outcome IDs, balance model, extension tutorials,
+and combat-lab instructions are in
+[`physical-encounter-system-reference.md`](physical-encounter-system-reference.md).
+
 ### Named passages and local targets
 
 Use `@passage <id>` when a choice or Next button must address a passage. Passage

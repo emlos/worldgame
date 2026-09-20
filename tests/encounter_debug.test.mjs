@@ -46,3 +46,14 @@ test("latest exchange debug data includes deterministic roll and chance values",
   assert.ok(snapshot.rolls.every(({ roll, chance, success }) =>
     Number.isFinite(roll) && Number.isFinite(chance) && success === (roll < chance)));
 });
+
+test("terminal encounter debug keeps the AI personality visible", () => {
+  const game = gameAtStart({ seed: 1 });
+  startEncounter(game);
+  chooseAction(game, "surrender-money");
+
+  const section = buildEncounterDebugSection(game);
+  const personality = section.fields.find(({ label }) => label === "Personality");
+  assert.equal(typeof personality.value, "string");
+  assert.ok(personality.value.length > 0);
+});

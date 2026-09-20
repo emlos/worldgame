@@ -238,7 +238,7 @@ export function buildEncounterDebugSection(game) {
     fields: [
       {
         label: "Personality",
-        value: decision?.personality.label || owner.personalityId,
+        value: decision?.personality.label || owner.controller.personalityId,
       },
       {
         label: "Commitment",

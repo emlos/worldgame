@@ -63,13 +63,13 @@ test("every damaging attack declares its escalation severity", () => {
 });
 
 test("combat skill uses escalating five-rank thresholds", () => {
-  assert.deepEqual(combatSkillProgress(0), { rank: 0, points: 0, pointsForRank: 25, total: 0 });
-  assert.deepEqual(combatSkillProgress(24), { rank: 0, points: 24, pointsForRank: 25, total: 24 });
-  assert.deepEqual(combatSkillProgress(25), { rank: 1, points: 0, pointsForRank: 50, total: 25 });
-  assert.deepEqual(combatSkillProgress(75), { rank: 2, points: 0, pointsForRank: 75, total: 75 });
-  assert.deepEqual(combatSkillProgress(150), { rank: 3, points: 0, pointsForRank: 125, total: 150 });
-  assert.deepEqual(combatSkillProgress(275), { rank: 4, points: 0, pointsForRank: 125, total: 275 });
-  assert.deepEqual(combatSkillProgress(400), { rank: 4, points: 125, pointsForRank: 125, total: 400 });
+  assert.deepEqual(combatSkillProgress(0), { rank: 0, points: 0, pointsForRank: 50, total: 0 });
+  assert.deepEqual(combatSkillProgress(49), { rank: 0, points: 49, pointsForRank: 50, total: 49 });
+  assert.deepEqual(combatSkillProgress(50), { rank: 1, points: 0, pointsForRank: 50, total: 50 });
+  assert.deepEqual(combatSkillProgress(100), { rank: 2, points: 0, pointsForRank: 100, total: 100 });
+  assert.deepEqual(combatSkillProgress(200), { rank: 3, points: 0, pointsForRank: 150, total: 200 });
+  assert.deepEqual(combatSkillProgress(350), { rank: 4, points: 0, pointsForRank: 350, total: 350 });
+  assert.deepEqual(combatSkillProgress(700), { rank: 4, points: 350, pointsForRank: 350, total: 700 });
 });
 
 test("rank zero presents a compact broad action set with core fallbacks", () => {
@@ -124,20 +124,20 @@ test("rank zero keeps a held-player response compact and non-technical", () => {
 });
 
 test("combat ranks progressively replace broad choices with technical actions", () => {
-  const novice = gameAtStart({ combatSkill: 25 });
+  const novice = gameAtStart({ combatSkill: 50 });
   startEncounter(novice);
   assert.ok(actionChoices(novice).some(({ label }) => label.startsWith("Strike body (direct attack) [")));
   assert.ok(actionIds(novice).includes("shove-away"));
   assert.ok(!actionIds(novice).includes("strike-face"));
 
-  const trained = gameAtStart({ combatSkill: 75 });
+  const trained = gameAtStart({ combatSkill: 100 });
   startEncounter(trained);
   assert.ok(actionIds(trained).includes("strike-face"));
   assert.ok(actionIds(trained).includes("shove-away"));
   assert.equal(actionIds(trained).filter((id) => id === "grab-arm").length, 2);
   assert.ok(!actionIds(trained).includes("headbutt"));
 
-  const advanced = gameAtStart({ combatSkill: 150 });
+  const advanced = gameAtStart({ combatSkill: 200 });
   const advancedState = startEncounter(advanced);
   advancedState.relationships.range[0].value = "clinch";
   advancedState.npcIntent = {
@@ -148,7 +148,7 @@ test("combat ranks progressively replace broad choices with technical actions", 
   assert.ok(actionIds(advanced).includes("headbutt"));
   assert.ok(actionIds(advanced).includes("knee-strike"));
 
-  const expert = gameAtStart({ combatSkill: 275 });
+  const expert = gameAtStart({ combatSkill: 350 });
   startEncounter(expert);
   const expertPhysicalLabels = actionChoices(expert)
     .filter(({ action }) => ["drive-body", "cover-and-brace"].includes(action.command.actionId))
@@ -208,16 +208,16 @@ test("only the first successful technique in each category awards practice", () 
 });
 
 test("an encounter awards outcome progress once, never subtracts skill, and reports rank progress", () => {
-  const game = gameAtStart({ combatSkill: 24 });
+  const game = gameAtStart({ combatSkill: 49 });
   startEncounter(game);
   const instanceKey = game.currentStory.instanceKey;
 
   chooseAction(game, "surrender-money");
 
   const terminal = game.currentStory.system.state;
-  assert.equal(game.player.getSkillValue("combat"), 29);
+  assert.equal(game.player.getSkillValue("combat"), 54);
   assert.equal(settleEncounterConsequences(game, terminal, instanceKey), false);
-  assert.equal(game.player.getSkillValue("combat"), 29);
+  assert.equal(game.player.getSkillValue("combat"), 54);
   assert.deepEqual(terminal.combatLearning.successfulCategories, []);
   assert.ok(terminal.combatLearning.pointsAwarded <= COMBAT_SKILL_ENCOUNTER_CAP);
   assert.match(
@@ -233,7 +233,7 @@ test("an encounter awards outcome progress once, never subtracts skill, and repo
     min: 0,
     max: 50,
     rank: 1,
-    total: 29,
+    total: 54,
   });
 });
 
@@ -267,14 +267,14 @@ test("varied practice and encounter rewards cannot exceed ten points", () => {
 });
 
 test("expert Combat reduces player exertion without changing NPC costs", () => {
-  const novice = gameAtStart({ combatSkill: 274 });
+  const novice = gameAtStart({ combatSkill: 349 });
   const noviceState = startEncounter(novice);
   const noviceContext = createCombatContext({
     game: novice,
     state: noviceState,
     instanceKey: novice.currentStory.instanceKey,
   });
-  const expert = gameAtStart({ combatSkill: 275 });
+  const expert = gameAtStart({ combatSkill: 350 });
   const expertState = startEncounter(expert);
   const expertContext = createCombatContext({
     game: expert,

@@ -16,6 +16,8 @@ src/
     catalog.js                 Registration contract and composition
     index.js                   The game's enabled feature list
     bus/                       Bus places, timetable, scene decoration, actions
+    encounter/                 Physical combat state, actions, AI, objectives,
+                               consequences, debug tooling, and WG system
     school/                    School timetable, classes, quizzes, context,
                                effects, reminders, views, and places
     rent/                      Rent timer definition
@@ -139,6 +141,12 @@ than importing a feature through its full runtime entry point.
    active development. Update imports and tests with a move.
 5. Treat generated WG output as a build artifact. Change `.wg` sources or the
    compiler and run `node tools/wg/compile.mjs`.
+
+Feature-specific maintainer references live beside this overview. Physical
+combat architecture, authoring, balancing, and add/remove tutorials are in
+[`physical-encounter-system-reference.md`](physical-encounter-system-reference.md);
+the WG syntax used to enter fights is also summarized in
+[`wg-language.md`](wg-language.md#physical-encounters).
 
 ## Verification
 

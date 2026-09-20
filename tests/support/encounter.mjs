@@ -11,7 +11,7 @@ import {
 export const ENCOUNTER_SCENE_ID = "encounter.alley-mugging";
 export const FIXED_START = new Date("2026-09-11T20:00:00.000Z");
 
-export function gameAtStart({ seed = 117, money = 50, combatSkill = 150 } = {}) {
+export function gameAtStart({ seed = 117, money = 50, combatSkill = 200 } = {}) {
   const game = new Game({
     seed,
     startDate: FIXED_START,

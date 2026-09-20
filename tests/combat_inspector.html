@@ -27,7 +27,7 @@
           <p class="combat-lab-step">1</p>
           <h2>Encounter</h2>
           <label class="combat-lab-field">
-            <span>Scenario</span>
+            <span>Authored encounter template</span>
             <select id="scenario-select"></select>
           </label>
           <label class="combat-lab-field">
@@ -35,8 +35,13 @@
             <select id="goal-select"></select>
           </label>
           <label class="combat-lab-field">
-            <span>Attacker</span>
+            <span id="attacker-label">Temporary attacker preset</span>
             <select id="attacker-select"></select>
+          </label>
+          <p id="attacker-source-help" class="combat-lab-help"></p>
+          <label class="combat-lab-field">
+            <span>Stress multiplier</span>
+            <input id="stress-multiplier-input" type="number" min="0" max="2" step="0.1" value="1" />
           </label>
           <label class="combat-lab-field">
             <span>Deterministic seed</span>
@@ -60,7 +65,7 @@
           <button id="start-combat" type="button" class="combat-lab-primary">
             Start / restart combat
           </button>
-          <button id="reset-setup" type="button">Reset sliders</button>
+          <button id="reset-setup" type="button">Reset setup</button>
         </div>
         <p id="setup-notice" class="combat-lab-notice" role="status" aria-live="polite"></p>
       </aside>

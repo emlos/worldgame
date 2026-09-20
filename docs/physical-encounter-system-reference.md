@@ -14,7 +14,7 @@ The registered WG system is `encounter.physical`. Its only scenario is `fight`, 
 - player Combat ranks that progressively reveal technical actions;
 - terminal outcomes routed back into ordinary WG scenes;
 - encounter-local stress from pain, worsening condition, lost control, and objective consequences;
-- persistent body state, deterministic rolls, strict save validation, a browser combat lab, and simulation tests.
+- live body integration, deterministic rolls, strict save validation, a browser combat lab, and simulation tests.
 
 Body-part conditions are deliberately limited to no condition or `bruised`. The combat system has no broken-limb or wound state.
 
@@ -48,7 +48,7 @@ The important ownership boundaries are:
 | Objective stages, objective AI bonuses, money/defeat outcomes | `objectives/` |
 | Shared AI commitment and utility scoring | `ai.js` and `personality.js` |
 | Screen content and event prose | `system.js` and `prose.js` |
-| Aftermath, Combat loss, and hygiene | `consequences.js` |
+| Aftermath, Combat learning, fatigue, and hygiene | `consequences.js` |
 | Combat stress gain and outcome relief | `stress.js` |
 
 ## Declaring a fight in WG
@@ -62,7 +62,7 @@ Physical encounters are runtime story systems; there is no `@combat` directive. 
   @system encounter.physical {"scenario":"fight","opponent":{"id":"mugger","actor":"mugger"},"goal":{"id":"steal-money","maxAmount":20}}
 ```
 
-A registered NPC uses its persistent stats, identity, pronouns, and body state:
+A registered NPC uses its roster stats, identity, pronouns, and live body during the encounter:
 
 ```wg
 :: encounter.alley-jackie-beat-down-practice -> encounter.alley-jackie-coaching
@@ -76,7 +76,7 @@ A registered NPC uses its persistent stats, identity, pronouns, and body state:
 | `scenario` | yes | Must currently be `"fight"`. |
 | `opponent.id` | yes | Encounter participant ID. It must be non-empty and cannot be `player`. |
 | `opponent.actor` | alternative | Alias of an `@actor` available in `game.currentStory.actors`. Exactly one of `actor` or `npc` is required. |
-| `opponent.npc` | alternative | ID of a persistent NPC in `game.npcs`. Its registry stats and saved body state are used directly. |
+| `opponent.npc` | alternative | ID of a persistent NPC in `game.npcs`. Its registry stats and live body are used during the encounter; combat damage is cleared when the encounter finishes. |
 | `goal` | yes | Objective configuration. Its `id` selects the objective module. |
 | `stressMultiplier` | no | Multiplies combat Stress gains and their 35-point encounter cap. Defaults to 1; accepts 0 through 2. |
 | `outcomes` | no | Outcome-ID-to-route map, with optional `default`. |
@@ -110,7 +110,11 @@ When a leaving outcome targets an aftermath scene, the place transition happens 
 { "id": "beat-down" }
 ```
 
-`beat-down` accepts no additional fields. Its pain threshold is calculated from the player's Resolve when the fight begins.
+`beat-down` also accepts optional `painTarget`, `escalatedPainTarget`, and
+`angerThreshold` numbers from 1 through 100. `painTarget` defaults to 50 and
+must be below 100. `angerThreshold` defaults to 45. The escalated target must
+exceed the calm target; when omitted, it is derived from the player's Resolve
+and is always at least one point higher. The combat lab uses 50, 85, and 45.
 
 ## Story-system lifecycle
 
@@ -124,11 +128,11 @@ If the player is already hard-incapacitated on entry, the objective's unopposed-
 
 Rendering validates but does not mutate state or reroll anything. An active screen shows:
 
-- the objective threat and elapsed time;
+- the objective threat;
 - the stored NPC intent as an action- and target-specific wind-up, with qualitative urgency rather than a raw duration;
 - position and conditions as compact prose, plus current objective pressure and qualitative commitment;
 - prose derived from the latest structured events;
-- legal player choices grouped as Unable to act, Escape, Break control, Defend, Attack, or Control.
+- legal player choices grouped as Unable to act, Attack, Control, Break control, Defend, or Escape.
 
 Beat-down pressure is qualitative in the scene prose. Once player pain is nonzero, the ordinary sidebar pain meter appears and marks the objective's current defeat threshold; escalation moves that marker to the new threshold. The former position/condition table remains available in the physical-encounter debug inspector.
 
@@ -146,11 +150,11 @@ The general action runner advances the game clock by the full exchange duration 
 
 ## Canonical state
 
-The exact serialized version is `10`. A representative theft fight is:
+The exact serialized version is `12`. A representative theft fight is:
 
 ```js
 {
-  version: 10,
+  version: 12,
   scenarioId: "fight",
   phase: "active",                  // "active" | "terminal"
   elapsedSeconds: 0,
@@ -217,6 +221,25 @@ The exact serialized version is `10`. A representative theft fight is:
 
   screamForHelpRoll: null,
   terminalConsequencesSettled: false,
+  stress: {
+    contextMultiplier: 1,
+    resolveMultiplier: 1.15,
+    startingStress: 0,
+    maximumGain: 35,
+    gained: 3,
+    refunded: 0,
+    lastPain: 0,
+    conditionStage: 0,
+    markers: [],
+    settled: false,
+  },
+  combatLearning: {
+    startingTotal: 0,
+    pointsAwarded: 0,
+    successfulCategories: [],
+    difficultyBonus: 0,
+    breakdown: { practice: 0, participation: 0, outcome: 0, difficulty: 0 },
+  },
   lastEvents: [{ type: "encounter.started", actorId: "mugger", targetId: "player" }],
   outcome: null,
 }
@@ -225,8 +248,9 @@ The exact serialized version is `10`. A representative theft fight is:
 A persistent opponent uses `ref: { type: "npc", npcId: "jackie" }` instead of a
 `scene-actor` reference. Temporary actor bodies are copied into the active scene
 frame and written back there after each exchange. Persistent NPC combatants use
-their roster body's live object directly, so injuries remain on the NPC and are
-included in ordinary game saves.
+their roster body's live object during the fight, so an in-progress save retains
+their current damage. `finish` fully heals persistent NPC opponents; combat
+damage therefore does not remain after the encounter.
 
 ### Allowed physical values
 
@@ -315,15 +339,15 @@ Changing this ordering changes who receives the benefit when terminal events hap
 
 ## Player Combat skill
 
-Combat is one total from `0` through `400`, displayed across five increasingly long ranks:
+Combat is one total from `0` through `700`, displayed across five increasingly long ranks:
 
 | Total | Display |
 |---:|---|
-| `0..24` | Rank 0; 25 points wide |
-| `25..74` | Rank 1; 50 points wide |
-| `75..149` | Rank 2; 75 points wide |
-| `150..274` | Rank 3; 125 points wide |
-| `275..400` | Rank 4; 400 displays 125/125 |
+| `0..49` | Rank 0; 50 points wide |
+| `50..99` | Rank 1; 50 points wide |
+| `100..199` | Rank 2; 100 points wide |
+| `200..349` | Rank 3; 150 points wide |
+| `350..700` | Rank 4; 700 displays 350/350 |
 
 Each encounter awards at most `10` Combat points. The first successful use of each technique category—attack, control, escape, and defense—awards `1` point. Repeating the same category in one fight does not award more practice. Failed, spoiled, and self-only impacts award nothing.
 
@@ -758,7 +782,10 @@ The NPC selects only mechanically enumerated actions. Combat rank does not filte
 | Forceful | 25% | +8 | 0.85 | 0.70 | 0.30 |
 | Skittish | 20% | -10 | 1.10 | 1.05 | 0.45 |
 
-The seeded selection intervals are opportunist 0-.20, desperate .20-.40, forceful .40-.65, skittish .65-.85, and opportunist .85-1. Changing interval boundaries changes encounter frequency, not behavior within a personality.
+The seeded selection intervals are `opportunist` 0-.20, `desperate` .20-.40,
+`forceful` .40-.65, `skittish` .65-.85, and `opportunist` .85-1. Changing
+interval boundaries changes encounter frequency, not behavior within a
+personality.
 
 ```text
 initial base = min(75, 50 + personality bias + round(actor Resolve × 3))
@@ -787,7 +814,7 @@ commitment = clamp(round(
 
 The first 8 seconds after progress are free of stall decay. Raising 8 makes attackers more patient. Raising any sensitivity makes that pressure reduce commitment faster. Raising the 22 impairment scale makes limb/movement damage more intimidating. Theft reward is `min(20, amount) × 0.5`, so it ranges from 0 to +10; an empty target instead gives -45.
 
-The pacing limit applies at exertion `>=95` after 45 seconds, or unconditionally after 66 seconds. It forces retreat-capable objectives to 0 commitment. Lowering either time shortens fights. Lowering 95 causes tired attackers to abandon sooner. `beat-down`'s objective minimum restores commitment to 100, so these pacing limits do not make it retreat.
+The pacing limit applies at exertion `>=95` after 45 seconds, or unconditionally after 66 seconds. It forces retreat-capable objectives to 0 commitment. Lowering either time shortens fights; lowering 95 causes tired attackers to abandon sooner. Both current objectives allow retreat, including `beat-down`, so hard pacing can force the attacker to abandon the objective even when anger or reward would otherwise keep commitment high.
 
 | Commitment | Player-facing band |
 |---:|---|
@@ -960,7 +987,57 @@ The player's own chosen action costs:
 
 Additional event costs are .08 when hit, .03 when grabbed, .12 when pinned, .12 when forced to a wall, .30 when moved to kneeling, and .75 when moved to prone or supine. Costs add and are clamped only by the player's Hygiene stat. Raising action costs makes player strategy itself dirtier; raising event costs makes losing position/contact the main source of hygiene loss.
 
-## Adding or modifying an objective
+## Maintainer tutorials
+
+These checklists cover the registries that must agree. The project does not
+keep compatibility aliases for removed combat content: update callers, tests,
+and authored WG in the same change.
+
+### Add an NPC AI personality
+
+1. Add one frozen definition to `AI_PERSONALITIES` in `personality.js`. The
+   object key and its `id` must match. Start by copying the closest existing
+   temperament and then tune commitment sensitivity, anger response, and the
+   seven motive weights deliberately.
+2. Update the probability intervals in `selectAiPersonality`. Temporary actors
+   use this seeded distribution; adding a registry entry alone never selects it.
+3. Assign `meta.combatPersonalityId` in `src/characters/npc/npcs.js` to any
+   persistent NPC that should use it. Persistent opponents do not use the
+   random selector.
+4. Exercise the personality in the combat lab and inspect the AI decision
+   breakdown, commitment, retreat behavior, and repeated-action novelty score.
+5. Add seeded-selection/scoring coverage in `encounter_ai.test.mjs`. The
+   existing `npc_combat_stats.test.mjs` checks that every persistent NPC points
+   at an ID exported through `AI_PERSONALITY_IDS`; state validation checks the
+   same list for active encounters.
+
+### Remove or rename an NPC AI personality
+
+1. Find every use of the ID in `selectAiPersonality`, the NPC registry, tests,
+   fixtures, simulations, and documentation.
+2. Move every persistent NPC to a remaining personality and rewrite the seeded
+   probability intervals so every roll from 0 up to 1 still selects something.
+3. Remove the `AI_PERSONALITIES` entry. `AI_PERSONALITY_IDS` is derived from the
+   object, so there is no second registry to edit.
+4. Update any active-state fixtures. Do not leave an alias for the old ID.
+5. Run the AI, NPC registry, state/save, and full encounter suites.
+
+### Make a persistent NPC available for combat
+
+Every entry in `src/characters/npc/npcs.js` is currently required to define
+finite `strength`, `endurance`, `resolve`, and `fitness` values from 0 through
+10 plus a registered `meta.combatPersonalityId`. The shared NPC model supplies
+the human body object. Once those fields exist, a WG fight can refer to the NPC
+with `"opponent":{"id":"<participant-id>","npc":"<npc-id>"}`; no combat-only
+NPC registry is needed. Add an authored encounter test that starts the fight
+and checks the participant reference and personality.
+
+To remove combat access, first remove or retarget every WG fight using that NPC.
+The global NPC validation still requires the four combat stats and personality,
+because all persistent human NPCs currently satisfy the combatant contract; do
+not delete only those fields and leave an invalid registry entry.
+
+### Add or modify an objective
 
 An objective is the best extension point for a new attacker goal. Keep generic mechanics in shared actions and put goal state, completion, AI priorities, and outcome semantics in the objective.
 
@@ -971,7 +1048,8 @@ An objective is the best extension point for a new attacker goal. Keep generic m
 5. Add objective-only actions to `actionIds`. Use `excludedActionIds` to remove otherwise-core actions for this goal.
 6. Implement strict config/state validation and update the objective stage from current facts.
 7. Define progress, AI profiles/bonuses, retreat policy, outcomes, and simultaneous outcome priority.
-8. Define which outcomes count as player losses for the one-point Combat penalty.
+8. Define which outcomes count as player losses. A settled loss grants the
+   smaller one-point outcome learning reward; it never subtracts Combat.
 9. Add threat, pressure, event, and outcome prose.
 10. Add unit, deterministic replay, terminal settlement, and combat-lab-default tests.
 
@@ -1029,7 +1107,13 @@ The current objective contract is:
 
 `unopposedActionId` is descriptive/event data for a target already unable to resist on encounter entry; it is not used to replace an NPC's stored intent during normal exchanges. `commitGameState` is where objective state becomes durable game state. Make it delta-based or otherwise idempotent.
 
-## Adding or modifying an action
+To remove an objective, first remove or retarget every WG scene that names its
+ID. Then remove its objective-only actions if nothing else uses them, remove it
+from the map in `objectives/index.js`, and delete its outcome routes, prose,
+simulation preset, and tests. The combat lab discovers objectives from this map
+and will stop listing it automatically. Do not retain the old ID as an alias.
+
+### Add or modify a move
 
 An action definition contains:
 
@@ -1059,14 +1143,38 @@ To add one completely:
 6. Assign a player action hygiene cost in `PLAYER_ACTION_HYGIENE_COST`; a missing entry throws when chosen by the player.
 7. Ensure its tags place it in a player-facing purpose and correctly identify `impact`, `control`, `hold`, `escape`, `defense`, and objective progress behavior.
 8. Add a generic `ACTION_UTILITY` profile or have the objective provide one. Without either, base and motives are zero.
-9. Add generic event prose in `prose.js` or objective event prose where semantics are goal-specific.
-10. Test enumeration, physical prerequisites, timing against faster/equal/slower actions, event output, deterministic rolls, simultaneous merge, skill progression, and terminal behavior.
+9. If the move is contested and should expose Rank 2/4 odds, add its preview
+   calculation to `previewContestChance` in `availability.js`. This is display
+   only and must mirror—not replace—the resolver's real contest formula.
+10. Add intent wording to `actionIntentProse` in `proseData.js` and generic event
+    prose in `prose.js`, or objective prose where semantics are goal-specific.
+11. Add the move to every appropriate `PLAYER_POLICIES` list in
+    `tools/encounter/simulationHarness.mjs`. Registry coverage intentionally
+    fails when a player move is absent from all policies.
+12. Test enumeration, physical prerequisites, timing against
+    faster/equal/slower actions, event output, deterministic rolls,
+    simultaneous merge, skill progression, and terminal behavior.
 
 `playerOrder` affects display order only. `durationSeconds` affects resolution priority, exchange time, guard/evasion activation, and AI speed cost. `usableBy` uses roles, not literal actor names. Do not mutate game money or other durable world state inside an isolated simultaneous branch; store objective state/events and commit it after the canonical merge.
 
 When modifying an action, check all five tuning surfaces together: availability threshold, duration, success chance, effect magnitude, and effort/readiness. Improving several at once can compound sharply.
 
-## Modifying NPC behavior
+### Remove or rename a move
+
+1. Remove the definition from `ENCOUNTER_ACTIONS` and from its source module.
+2. Remove the ID from every objective's `actionIds`, `excludedActionIds`,
+   `unopposedActionId`, utility/bonus logic, and progression tests.
+3. Remove it from `ACTION_GEOMETRY`, `COMBAT_ACTION_MINIMUM_RANK`,
+   `ACTION_EFFORT_PROFILES`, `PLAYER_ACTION_HYGIENE_COST`, `ACTION_UTILITY`,
+   preview-odds dispatch, prose dispatch, and every simulation policy.
+4. Remove or rewrite event types that existed only for that move, plus their
+   renderers, simultaneous-merge handling, and tests.
+5. Search the whole repository for the old ID. Rename all callers directly;
+   do not add a compatibility alias.
+6. Run the action, resolution, progression, prose, simulation, and state/save
+   suites, then exercise the surrounding geometry in the combat lab.
+
+### Tune shared NPC behavior
 
 There are three supported levels of change:
 
@@ -1074,19 +1182,31 @@ There are three supported levels of change:
 2. Change `objective.ai` to alter stage priorities, progress, retreat permission, or an objective-only action.
 3. Change or add a personality in `personality.js` to alter motive weights and commitment sensitivities across goals.
 
-When adding a personality, add its immutable definition, ensure its ID appears through `AI_PERSONALITY_IDS`, update `selectAiPersonality` probability intervals, and test seeded selection plus save validation.
-
 The saved `controller.policyId` is currently always `hostile`; the live selector is the shared scorer described above. Changing that string alone does not select a different algorithm. A genuinely new policy would need an explicit policy registry/dispatch in AI selection and corresponding validation.
 
 Useful tuning diagnostics are `getAiCommitmentDiagnostics` and `getAiDecisionDiagnostics`. The latter reports every candidate's total and component breakdown, making it possible to see whether objective, pressure, safety, repetition, effort, or random variation caused a choice.
 
-## Adding a scenario or changing presentation
+### Add or remove a fight scenario
 
 A scenario owns configuration, initial participants/geometry, entry incapacitation handling, and outcome routing. Add it to `scenarios/index.js`. If its state shape is not the existing two-person fight shape, the central state validator and most role helpers must change as well.
 
+For another authored fight using the existing scenario, add a WG scene with
+`@system encounter.physical`, choose exactly one temporary actor alias or
+persistent NPC ID, configure a registered objective, and route its outcomes.
+Run `node tools/wg/compile.mjs`; the lab discovers the generated scene without a
+manual list. To remove it, delete the WG scene and all incoming targets, compile
+again, and remove scene-specific outcome/prose tests.
+
+To remove a JavaScript scenario implementation, first remove every WG config
+that names it, then remove it from `scenarios/index.js` and delete its
+state/role branches and tests. Do not leave the scenario ID registered as an
+alias.
+
+### Change combat presentation
+
 Player-facing prose is event-driven. Action resolution should emit structured facts; `prose.js` handles shared facts and objectives handle goal-specific facts. This keeps rendering pure and save/load stable. New positional values or event types also need situation/outcome rendering and tests.
 
-Choice sections are assigned by action tags in `availability.js`. Rank 0/1 broad labels and Rank 4 timing hints are also defined there.
+Choice sections and skill-dependent labels are assigned in `availability.js`: Rank 1 adds purpose/timing hints, Rank 2 adds qualitative odds, Rank 3 adds tactical interaction notes, and Rank 4 replaces qualitative odds with estimated percentages.
 
 ## Structured events and prose
 
@@ -1102,7 +1222,7 @@ The resolver records facts first and renders prose from them afterward. Common e
 | Position | `range.changed`, `pose.changed`, `support.changed`, `facing.changed`, `state.change-conflicted` |
 | Help/escape | `help.heard`, `escape.disengaged`, `escape.completed`, `participant.unable-to-act` |
 | Theft | `theft.taken`, `theft.empty`, `theft.recovered`, `theft.completed`, `surrender.completed`, `demand.succeeded` |
-| Beat-down | `beat-down.completed` |
+| Beat-down | `beat-down.escalated`, `beat-down.completed` |
 | Consequences | `hygiene.lost`, `consequences.settled` |
 
 Only the latest 24 are retained in encounter state. Diagnostic roll events are intentionally omitted from normal prose. When an action can fail for several reasons, keep the machine-readable reason specific; it is used by tests and can support better prose later.
@@ -1112,9 +1232,11 @@ Only the latest 24 are retained in encounter state. Diagnostic roll events are i
 Open `tests/combat_inspector.html` through the development web server for the browser combat lab. It can:
 
 - choose any registered objective with a `laboratoryConfig`;
-- choose an authored encounter scene and temporary-actor profile/identity;
+- choose any authored encounter scene, including templates backed by a persistent NPC;
+- replace a temporary opponent's profile/identity while preserving persistent NPC identity and personality;
 - set deterministic seed;
-- tune player Strength, Endurance, Resolve, Fitness, and Combat from 0 to 500;
+- tune the encounter's stress multiplier;
+- tune player Strength, Endurance, Resolve, Fitness, and Combat from 0 to the live `COMBAT_SKILL_MAX_POINTS` value;
 - tune attacker Strength, Endurance, Resolve, and Fitness;
 - play the real rendered choice flow;
 - inspect canonical state, bodies, capacities, readiness, action blockers, hidden rolls, AI score breakdowns, and invariant checks.
