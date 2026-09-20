@@ -8,10 +8,8 @@ import {
 } from "../../shared/util/saveValidation.js";
 import { controlledParticipantId } from "./roles.js";
 import { requireEncounterObjective } from "./objectives/index.js";
-import {
-  COMBAT_SKILL_ID,
-  COMBAT_SKILL_LOSS_PENALTY,
-} from "./combatSkill.js";
+import { COMBAT_SKILL_ID, COMBAT_SKILL_LOSS_PENALTY } from "./combatSkill.js";
+import { settleCombatStress } from "./stress.js";
 
 export const POST_COMBAT_FATIGUE_DURATION_MINUTES = 30;
 export const POST_COMBAT_MAX_ENERGY_DRAIN_MULTIPLIER = 3;
@@ -66,12 +64,18 @@ function encounterFeatureState(game) {
 }
 
 function eventHygieneCost(event, controlledId) {
-  if (event.type === "impact.landed" && event.targetId === controlledId) return 0.08;
-  if (event.type === "hold.created" && event.targetId === controlledId) return 0.03;
-  if (event.type === "hold.pinned" && event.targetId === controlledId) return 0.12;
-  if (event.type === "support.changed"
-    && event.actorId === controlledId
-    && event.to === "wall") return 0.12;
+  if (event.type === "impact.landed" && event.targetId === controlledId)
+    return 0.08;
+  if (event.type === "hold.created" && event.targetId === controlledId)
+    return 0.03;
+  if (event.type === "hold.pinned" && event.targetId === controlledId)
+    return 0.12;
+  if (
+    event.type === "support.changed" &&
+    event.actorId === controlledId &&
+    event.to === "wall"
+  )
+    return 0.12;
   if (event.type === "pose.changed" && event.actorId === controlledId) {
     if (event.to === "kneeling") return 0.3;
     if (event.to === "supine" || event.to === "prone") return 0.75;
@@ -82,12 +86,13 @@ function eventHygieneCost(event, controlledId) {
 function fatigueDrain(fatigue, minutes) {
   if (!fatigue || minutes <= 0) return { extraEnergy: 0, next: fatigue };
   const activeMinutes = Math.min(minutes, fatigue.remainingMinutes);
-  const remainingFraction = (fatigue.remainingMinutes - activeMinutes)
-    / fatigue.remainingMinutes;
+  const remainingFraction =
+    (fatigue.remainingMinutes - activeMinutes) / fatigue.remainingMinutes;
   const startingBonus = fatigue.multiplier - 1;
   const endingBonus = startingBonus * remainingFraction;
   const averageBonus = (startingBonus + endingBonus) / 2;
-  const extraEnergy = activeMinutes * PLAYER_ENERGY_DRAIN_PER_MINUTE * averageBonus;
+  const extraEnergy =
+    activeMinutes * PLAYER_ENERGY_DRAIN_PER_MINUTE * averageBonus;
   if (minutes >= fatigue.remainingMinutes) {
     return { extraEnergy, next: null };
   }
@@ -111,14 +116,17 @@ export function validateEncounterFeatureStateSave(
 ) {
   const state = saveRecord(data, path);
   for (const key of Object.keys(state)) {
-    if (key !== "postCombatFatigue") failSave(`${path}.${key}`, "is not supported");
+    if (key !== "postCombatFatigue")
+      failSave(`${path}.${key}`, "is not supported");
   }
   const fatigue = requiredSaveField(state, "postCombatFatigue", path);
   if (fatigue === null) return state;
 
   const record = saveRecord(fatigue, `${path}.postCombatFatigue`);
   for (const key of Object.keys(record)) {
-    if (!["sourceInstanceKey", "multiplier", "remainingMinutes"].includes(key)) {
+    if (
+      !["sourceInstanceKey", "multiplier", "remainingMinutes"].includes(key)
+    ) {
       failSave(`${path}.postCombatFatigue.${key}`, "is not supported");
     }
   }
@@ -132,7 +140,8 @@ export function validateEncounterFeatureStateSave(
     `${path}.postCombatFatigue.multiplier`,
     { min: 1, max: POST_COMBAT_MAX_ENERGY_DRAIN_MULTIPLIER },
   );
-  if (multiplier <= 1) failSave(`${path}.postCombatFatigue.multiplier`, "must be above 1");
+  if (multiplier <= 1)
+    failSave(`${path}.postCombatFatigue.multiplier`, "must be above 1");
   const remainingMinutes = saveFiniteNumber(
     requiredSaveField(record, "remainingMinutes", `${path}.postCombatFatigue`),
     `${path}.postCombatFatigue.remainingMinutes`,
@@ -170,23 +179,31 @@ export function settleEncounterConsequences(game, state, instanceKey) {
   const exertion = state.participants[controlledId].exertion;
   const featureState = encounterFeatureState(game);
   if (exertion > 0) {
-    const existingBonus = Math.max(0, (featureState.postCombatFatigue?.multiplier || 1) - 1);
-    const exertionBonus = (POST_COMBAT_MAX_ENERGY_DRAIN_MULTIPLIER - 1)
-      * exertion / 100;
+    const existingBonus = Math.max(
+      0,
+      (featureState.postCombatFatigue?.multiplier || 1) - 1,
+    );
+    const exertionBonus =
+      ((POST_COMBAT_MAX_ENERGY_DRAIN_MULTIPLIER - 1) * exertion) / 100;
     featureState.postCombatFatigue = {
       sourceInstanceKey: String(instanceKey),
-      multiplier: rounded(Math.min(
-        POST_COMBAT_MAX_ENERGY_DRAIN_MULTIPLIER,
-        1 + existingBonus + exertionBonus,
-      )),
+      multiplier: rounded(
+        Math.min(
+          POST_COMBAT_MAX_ENERGY_DRAIN_MULTIPLIER,
+          1 + existingBonus + exertionBonus,
+        ),
+      ),
       remainingMinutes: POST_COMBAT_FATIGUE_DURATION_MINUTES,
     };
   }
 
-  const lossOutcomeIds = requireEncounterObjective(state).playerLossOutcomeIds || [];
+  const lossOutcomeIds =
+    requireEncounterObjective(state).playerLossOutcomeIds || [];
   if (lossOutcomeIds.includes(state.outcome?.id)) {
     game.player.adjustSkill(COMBAT_SKILL_ID, -COMBAT_SKILL_LOSS_PENALTY);
   }
+
+  settleCombatStress(game, state);
 
   state.terminalConsequencesSettled = true;
   state.lastEvents.push({
@@ -202,7 +219,9 @@ export function applyEncounterHygiene(game, state, playerActionId, events) {
   const controlledId = controlledParticipantId(state);
   const actionCost = PLAYER_ACTION_HYGIENE_COST[playerActionId];
   if (!Number.isFinite(actionCost)) {
-    throw new Error(`Physical encounter hygiene cost is undefined for '${playerActionId}'`);
+    throw new Error(
+      `Physical encounter hygiene cost is undefined for '${playerActionId}'`,
+    );
   }
   const eventCost = events.reduce(
     (total, event) => total + eventHygieneCost(event, controlledId),

@@ -1,6 +1,9 @@
 import { selectAiIntent } from "../ai.js";
 import { getAvailableActionInstances } from "../availability.js";
-import { createCombatContext, isEncounterIncapacitatedBeyondPain } from "../combatants.js";
+import {
+  createCombatContext,
+  isEncounterIncapacitatedBeyondPain,
+} from "../combatants.js";
 import { requireEncounterObjective } from "../objectives/index.js";
 import { controlledParticipantId, goalOwnerId } from "../roles.js";
 import {
@@ -9,13 +12,15 @@ import {
   createFightState,
 } from "../state.js";
 import { getAiPersonality, selectAiPersonality } from "../personality.js";
+import { createCombatStressState } from "../stress.js";
 
 function fail(message) {
   throw new Error(`Physical encounter fight scenario: ${message}`);
 }
 
 function requireRecord(value, label) {
-  if (!value || typeof value !== "object" || Array.isArray(value)) fail(`${label} must be an object`);
+  if (!value || typeof value !== "object" || Array.isArray(value))
+    fail(`${label} must be an object`);
   return value;
 }
 
@@ -37,7 +42,8 @@ function opponentSource(game, opponent) {
 }
 
 function opponentPersonality(opponent, seed, instanceKey) {
-  if (opponent.ref.type !== "npc") return selectAiPersonality(seed, instanceKey);
+  if (opponent.ref.type !== "npc")
+    return selectAiPersonality(seed, instanceKey);
   const personalityId = opponent.character.meta?.combatPersonalityId;
   if (typeof personalityId !== "string" || !personalityId) {
     fail(`named NPC '${opponent.ref.npcId}' has no combat personality`);
@@ -50,7 +56,10 @@ function restorePersistentNpcBodies(game, state) {
   for (const participant of Object.values(state.participants)) {
     if (participant.ref?.type !== "npc") continue;
     const npc = game.npcs.get(participant.ref.npcId);
-    if (!npc) fail(`NPC '${participant.ref.npcId}' is unavailable while finishing combat`);
+    if (!npc)
+      fail(
+        `NPC '${participant.ref.npcId}' is unavailable while finishing combat`,
+      );
     npc.body.fullyHeal();
   }
 }
@@ -92,16 +101,29 @@ export const FIGHT_SCENARIO = Object.freeze({
   validateConfig(config) {
     requireRecord(config, "config");
     const opponent = requireRecord(config.opponent, "config.opponent");
-    if (typeof opponent.id !== "string" || !opponent.id || opponent.id === "player") {
+    if (
+      typeof opponent.id !== "string" ||
+      !opponent.id ||
+      opponent.id === "player"
+    ) {
       fail("config.opponent.id must be a non-player participant id");
     }
-    const hasActor = typeof opponent.actor === "string" && Boolean(opponent.actor);
+    const hasActor =
+      typeof opponent.actor === "string" && Boolean(opponent.actor);
     const hasNpc = typeof opponent.npc === "string" && Boolean(opponent.npc);
     if (hasActor === hasNpc) {
       fail("config.opponent requires exactly one of actor or npc");
     }
     const goal = requireRecord(config.goal, "config.goal");
     requireEncounterObjective({ objective: goal }).validateConfig(goal, fail);
+    if (
+      config.stressMultiplier !== undefined &&
+      (!Number.isFinite(config.stressMultiplier) ||
+        config.stressMultiplier < 0 ||
+        config.stressMultiplier > 2)
+    ) {
+      fail("config.stressMultiplier must be a number from 0 through 2");
+    }
     if (config.outcomes !== undefined) {
       requireRecord(config.outcomes, "config.outcomes");
       for (const [outcomeId, route] of Object.entries(config.outcomes)) {
@@ -109,17 +131,24 @@ export const FIGHT_SCENARIO = Object.freeze({
         if (typeof route === "string" && route) continue;
         requireRecord(route, `config.outcomes.${outcomeId}`);
         if (typeof route.target !== "string" || !route.target) {
-          fail(`config.outcomes.${outcomeId}.target must be a non-empty string`);
+          fail(
+            `config.outcomes.${outcomeId}.target must be a non-empty string`,
+          );
         }
         if (route.effects !== undefined && !Array.isArray(route.effects)) {
           fail(`config.outcomes.${outcomeId}.effects must be an array`);
         }
-        if (route.paragraphs !== undefined
-          && (!Array.isArray(route.paragraphs)
-            || route.paragraphs.some((paragraph) => typeof paragraph !== "string"))) {
+        if (
+          route.paragraphs !== undefined &&
+          (!Array.isArray(route.paragraphs) ||
+            route.paragraphs.some((paragraph) => typeof paragraph !== "string"))
+        ) {
           fail(`config.outcomes.${outcomeId}.paragraphs must contain strings`);
         }
-        if (route.leavePlace !== undefined && typeof route.leavePlace !== "boolean") {
+        if (
+          route.leavePlace !== undefined &&
+          typeof route.leavePlace !== "boolean"
+        ) {
           fail(`config.outcomes.${outcomeId}.leavePlace must be a boolean`);
         }
       }
@@ -129,7 +158,9 @@ export const FIGHT_SCENARIO = Object.freeze({
   create({ game, instanceKey, config }) {
     this.validateConfig(config);
     const opponent = opponentSource(game, config.opponent);
-    const objective = requireEncounterObjective({ objective: config.goal }).create({
+    const objective = requireEncounterObjective({
+      objective: config.goal,
+    }).create({
       game,
       config: config.goal,
       ownerId: config.opponent.id,
@@ -141,12 +172,14 @@ export const FIGHT_SCENARIO = Object.freeze({
       opponentRef: opponent.ref,
       objective,
       personalityId: personality.id,
+      stress: createCombatStressState(game, config.stressMultiplier ?? 1),
     });
     const ownerId = goalOwnerId(state);
     state.participants[ownerId].controller.commitmentBase = Math.min(
       75,
-      50 + personality.commitmentBias
-        + Math.round(Number(opponent.character.stats?.resolve || 0) * 3),
+      50 +
+        personality.commitmentBias +
+        Math.round(Number(opponent.character.stats?.resolve || 0) * 3),
     );
     const context = createCombatContext({ game, state, instanceKey });
     const controlledId = controlledParticipantId(state);
@@ -164,12 +197,16 @@ export const FIGHT_SCENARIO = Object.freeze({
 
   finish({ game, config, definition, state }) {
     restorePersistentNpcBodies(game, state);
-    const route = config.outcomes?.[state.outcome.id] ?? config.outcomes?.default ?? null;
+    const route =
+      config.outcomes?.[state.outcome.id] ?? config.outcomes?.default ?? null;
     const objective = requireEncounterObjective(state);
-    const leavesByDefault = objective.playerLeavesPlaceOutcomeIds.includes(state.outcome.id);
-    const leavePlace = typeof route === "object" && route !== null
-      ? route.leavePlace ?? leavesByDefault
-      : leavesByDefault;
+    const leavesByDefault = objective.playerLeavesPlaceOutcomeIds.includes(
+      state.outcome.id,
+    );
+    const leavePlace =
+      typeof route === "object" && route !== null
+        ? (route.leavePlace ?? leavesByDefault)
+        : leavesByDefault;
     const locationOutcome = leavePlace ? { leavePlace: true } : {};
     // A queued world interrupt such as exhaustion must run before an authored
     // aftermath scene. The ordinary interrupt checkpoint activates it as soon
@@ -178,12 +215,13 @@ export const FIGHT_SCENARIO = Object.freeze({
       return { target: "@exit", ...locationOutcome };
     }
     if (typeof route === "string") return { target: route, ...locationOutcome };
-    if (route) return {
-      target: route.target,
-      ...(route.effects ? { effects: structuredClone(route.effects) } : {}),
-      ...(route.paragraphs ? { paragraphs: [...route.paragraphs] } : {}),
-      ...locationOutcome,
-    };
+    if (route)
+      return {
+        target: route.target,
+        ...(route.effects ? { effects: structuredClone(route.effects) } : {}),
+        ...(route.paragraphs ? { paragraphs: [...route.paragraphs] } : {}),
+        ...locationOutcome,
+      };
     return { target: definition.finalTarget, ...locationOutcome };
   },
 });

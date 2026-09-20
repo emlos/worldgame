@@ -13,6 +13,7 @@ The registered WG system is `encounter.physical`. Its only scenario is `fight`, 
 - second-based action timing, simultaneous actions, interruption, range, pose, facing, wall support, wrist grips, limb pins, blunt damage, pain, exertion, and short acute effects;
 - player Combat ranks that progressively reveal technical actions;
 - terminal outcomes routed back into ordinary WG scenes;
+- encounter-local stress from pain, worsening condition, lost control, and objective consequences;
 - persistent body state, deterministic rolls, strict save validation, a browser combat lab, and simulation tests.
 
 Body-part conditions are deliberately limited to no condition or `bruised`. The combat system has no broken-limb or wound state.
@@ -48,6 +49,7 @@ The important ownership boundaries are:
 | Shared AI commitment and utility scoring | `ai.js` and `personality.js` |
 | Screen content and event prose | `system.js` and `prose.js` |
 | Aftermath, Combat loss, and hygiene | `consequences.js` |
+| Combat stress gain and outcome relief | `stress.js` |
 
 ## Declaring a fight in WG
 
@@ -64,7 +66,7 @@ A registered NPC uses its persistent stats, identity, pronouns, and body state:
 
 ```wg
 :: encounter.alley-jackie-beat-down-practice -> encounter.alley-jackie-coaching
-  @system encounter.physical {"scenario":"fight","opponent":{"id":"jackie","npc":"jackie"},"goal":{"id":"beat-down"}}
+  @system encounter.physical {"scenario":"fight","stressMultiplier":0.3,"opponent":{"id":"jackie","npc":"jackie"},"goal":{"id":"beat-down"}}
 ```
 
 ### Fight configuration
@@ -76,6 +78,7 @@ A registered NPC uses its persistent stats, identity, pronouns, and body state:
 | `opponent.actor` | alternative | Alias of an `@actor` available in `game.currentStory.actors`. Exactly one of `actor` or `npc` is required. |
 | `opponent.npc` | alternative | ID of a persistent NPC in `game.npcs`. Its registry stats and saved body state are used directly. |
 | `goal` | yes | Objective configuration. Its `id` selects the objective module. |
+| `stressMultiplier` | no | Multiplies combat Stress gains and their 35-point encounter cap. Defaults to 1; accepts 0 through 2. |
 | `outcomes` | no | Outcome-ID-to-route map, with optional `default`. |
 
 An outcome route may be a target string or an object:
@@ -889,7 +892,7 @@ Beat-down adds +70 objective plus up to +35 for existing damage to the selected 
 
 Increasing a weight increases the importance of that motive. `speed` and `novelty` multiply penalties, so increasing them favors shorter or less-repeated actions rather than increasing a positive score.
 
-## Recovery, aftermath, and hygiene
+## Recovery, aftermath, stress, and hygiene
 
 Outside an open physical encounter, acute pain decays exponentially with a
 90-minute half-life. This never restores integrity and cannot reduce local pain
@@ -920,6 +923,20 @@ starting multiplier = 1 + 2 × exertion / 100
 It is capped at 3x, combines with an existing fatigue bonus up to that cap, lasts 30 game minutes, and decays linearly to 1x. It adds only the extra ordinary Energy drain. Base Energy drain is `0.1` per non-resting minute. Raising the 3x cap or 30-minute duration makes fight fatigue more costly; changing base drain affects the entire game, not combat alone.
 
 The exhaustion interrupt remains pending after a terminal combat screen because fatigue settlement does not refill Energy and the terminal choice is not an escape around the normal time/interrupt flow.
+
+### Combat stress tuning
+
+Every fight stores its starting Stress and a fight-local ledger. Entering combat has a raw cost of 3. Further raw gains come from newly accumulated pain, crossing worse body-condition bands, and first-time losses of agency such as being held, pinned, forced against a wall, forced down, unable to act, or failing to escape. Repeated events with the same marker do not charge the shock again. Pain uses:
+
+```text
+raw gain = new pain × .18 × (1 + previous pain / 100)
+```
+
+Resolve scales every raw gain. Resolve 0 uses 1.15x, each Resolve point removes .05x, and Resolve 10 uses .65x. The scenario's `stressMultiplier` then scales the result. It defaults to 1 for hostile fights and may be configured from 0 through 2; Jackie's authored drills use .3.
+
+A hostile fight can add at most 35 Stress. The cap is multiplied by the scenario multiplier, so a Jackie drill can add at most 10.5. The ordinary player Stress cap still applies.
+
+Terminal losses add consequence stress before the cap: 8 raw for being beaten down, 6 for mutual incapacitation, 3 for losing money, and 2 for requiring rescue. Successful outcomes refund a proportion of this fight's applied stress: 70% for escaping, 60% for incapacitating the attacker or making them abandon/flee, 25% for rescue, and 10% for mutual incapacitation. This is not general recovery: a refund can never lower Stress below the value recorded when the fight began.
 
 ### Hygiene tuning
 
@@ -1140,6 +1157,7 @@ At minimum, changes should preserve:
 | AI scoring | [`src/features/encounter/ai.js`](../src/features/encounter/ai.js) |
 | AI personalities | [`src/features/encounter/personality.js`](../src/features/encounter/personality.js) |
 | Consequences and hygiene | [`src/features/encounter/consequences.js`](../src/features/encounter/consequences.js) |
+| Combat stress | [`src/features/encounter/stress.js`](../src/features/encounter/stress.js) |
 | Pain/integrity recovery | [`src/features/encounter/pain.js`](../src/features/encounter/pain.js) and [`src/characters/core/body.js`](../src/characters/core/body.js) |
 | Player-facing prose | [`src/features/encounter/prose.js`](../src/features/encounter/prose.js) |
 | Debug snapshot | [`src/features/encounter/debug.js`](../src/features/encounter/debug.js) |

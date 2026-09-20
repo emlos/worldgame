@@ -112,10 +112,10 @@
   @endchoice
 
 :: encounter.alley-jackie-theft-practice -> place.alleyway
-  @system encounter.physical {"scenario":"fight","opponent":{"id":"jackie","npc":"jackie"},"goal":{"id":"steal-money","maxAmount":5},"outcomes":{"default":{"target":"place.alleyway","leavePlace":false}}}
+  @system encounter.physical {"scenario":"fight","stressMultiplier":0.3,"opponent":{"id":"jackie","npc":"jackie"},"goal":{"id":"steal-money","maxAmount":5},"outcomes":{"default":{"target":"place.alleyway","leavePlace":false}}}
 
 :: encounter.alley-jackie-beat-down-practice -> place.alleyway
-  @system encounter.physical {"scenario":"fight","opponent":{"id":"jackie","npc":"jackie"},"goal":{"id":"beat-down"},"outcomes":{"default":{"target":"place.alleyway","leavePlace":false}}}
+  @system encounter.physical {"scenario":"fight","stressMultiplier":0.3,"opponent":{"id":"jackie","npc":"jackie"},"goal":{"id":"beat-down"},"outcomes":{"default":{"target":"place.alleyway","leavePlace":false}}}
 
 :: place.alleyway
   @hub alleyway

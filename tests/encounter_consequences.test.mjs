@@ -13,6 +13,10 @@ import {
   settleEncounterConsequences,
 } from "../src/features/encounter/consequences.js";
 import {
+  applyCombatStressForExchange,
+  createCombatStressState,
+} from "../src/features/encounter/stress.js";
+import {
   chooseAction,
   gameAtStart,
   startEncounter,
@@ -60,6 +64,112 @@ test("physical contact and being thrown down cost more hygiene than calling out"
     to: "prone",
   }]), 0.75);
   assert.equal(game.player.getStatValue("hygiene"), 99);
+});
+
+test("combat stress rises faster as pain accumulates and resolve softens every gain", () => {
+  const game = gameAtStart();
+  game.player.setSkillValue("resolve", 0);
+  const state = startEncounter(game);
+  assert.equal(game.player.getStatValue("stress"), 3.45);
+  assert.equal(state.stress.maximumGain, 35);
+
+  const chest = game.player.body.getPart("chest");
+  chest.acutePain = 10;
+  const beforeFirstHit = game.player.getStatValue("stress");
+  applyCombatStressForExchange(game, state, []);
+  const firstHitStress = game.player.getStatValue("stress") - beforeFirstHit;
+
+  chest.acutePain = 20;
+  const beforeSecondHit = game.player.getStatValue("stress");
+  applyCombatStressForExchange(game, state, []);
+  const secondHitStress = game.player.getStatValue("stress") - beforeSecondHit;
+  assert.ok(secondHitStress > firstHitStress);
+
+  const resolved = gameAtStart();
+  resolved.player.setSkillValue("resolve", 10);
+  const resolvedState = startEncounter(resolved);
+  assert.equal(resolved.player.getStatValue("stress"), 1.95);
+  assert.equal(resolvedState.stress.resolveMultiplier, 0.65);
+});
+
+test("combat control stress is charged only on the first matching loss of agency", () => {
+  const game = gameAtStart();
+  const state = startEncounter(game);
+  const held = {
+    type: "hold.created",
+    controllerId: "mugger",
+    targetId: "player",
+  };
+
+  const before = game.player.getStatValue("stress");
+  applyCombatStressForExchange(game, state, [held]);
+  const afterFirstHold = game.player.getStatValue("stress");
+  applyCombatStressForExchange(game, state, [held]);
+  assert.ok(Math.abs(afterFirstHold - before - 1.15) < 1e-9);
+  assert.equal(game.player.getStatValue("stress"), afterFirstHold);
+
+  applyCombatStressForExchange(game, state, [{
+    type: "hold.pinned",
+    controllerId: "mugger",
+    targetId: "player",
+  }]);
+  assert.ok(Math.abs(game.player.getStatValue("stress") - afterFirstHold - 3.45) < 1e-9);
+  assert.deepEqual(state.stress.markers, ["held", "pinned"]);
+});
+
+test("combat stress respects hostile and training encounter caps", () => {
+  const hostileGame = gameAtStart();
+  hostileGame.player.setSkillValue("resolve", 0);
+  const hostileState = startEncounter(hostileGame);
+  const hostileChest = hostileGame.player.body.getPart("chest");
+  hostileChest.integrity = 0;
+  hostileChest.acutePain = 100;
+  applyCombatStressForExchange(hostileGame, hostileState, []);
+  assert.equal(hostileState.stress.gained, 35);
+  assert.equal(hostileGame.player.getStatValue("stress"), 35);
+
+  const trainingGame = gameAtStart();
+  trainingGame.player.setSkillValue("resolve", 0);
+  const trainingState = startEncounter(trainingGame);
+  trainingGame.player.setStatValue("stress", 0);
+  trainingState.stress = createCombatStressState(trainingGame, 0.3);
+  const trainingChest = trainingGame.player.body.getPart("chest");
+  trainingChest.integrity = 0;
+  trainingChest.acutePain = 100;
+  applyCombatStressForExchange(trainingGame, trainingState, []);
+  assert.equal(trainingState.stress.gained, 10.5);
+  assert.equal(trainingGame.player.getStatValue("stress"), 10.5);
+});
+
+test("successful outcomes refund only stress added by their encounter", () => {
+  const game = gameAtStart();
+  game.player.setStatValue("stress", 40);
+  const state = startEncounter(game);
+  state.phase = "terminal";
+  state.npcIntent = null;
+  state.outcome = { id: "player-escaped", moneyLost: 0 };
+
+  settleEncounterConsequences(game, state, game.currentStory.instanceKey);
+
+  assert.equal(game.player.getStatValue("stress"), 41.035);
+  assert.equal(state.stress.gained, 3.45);
+  assert.equal(state.stress.refunded, 2.415);
+  assert.equal(state.stress.settled, true);
+  assert.ok(game.player.getStatValue("stress") >= state.stress.startingStress);
+});
+
+test("losing an objective adds consequence stress without an outcome refund", () => {
+  const game = gameAtStart({ seed: 1, money: 50 });
+  const state = startEncounter(game);
+  const openingStress = game.player.getStatValue("stress");
+
+  chooseAction(game, "surrender-money");
+
+  const terminal = game.currentStory.system.state;
+  assert.equal(terminal.phase, "terminal");
+  assert.equal(terminal.stress.settled, true);
+  assert.equal(terminal.stress.refunded, 0);
+  assert.ok(game.player.getStatValue("stress") > openingStress);
 });
 
 test("terminal exertion creates one proportional fatigue multiplier that decays in 30 minutes", () => {

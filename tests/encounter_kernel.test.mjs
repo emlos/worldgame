@@ -9,6 +9,7 @@ import { STEAL_MONEY_OBJECTIVE } from "../src/features/encounter/objectives/stea
 import { resolveEncounterExchange } from "../src/features/encounter/resolution.js";
 import { FIGHT_SCENARIO } from "../src/features/encounter/scenarios/fight.js";
 import { createFightState, validateEncounterState } from "../src/features/encounter/state.js";
+import { createCombatStressState } from "../src/features/encounter/stress.js";
 import { gameAtStart, startEncounter } from "./support/encounter.mjs";
 
 test("the fight kernel resolves actions with an arbitrary opponent participant id", () => {
@@ -23,6 +24,7 @@ test("the fight kernel resolves actions with an arbitrary opponent participant i
     opponentRef: { type: "scene-actor", alias: "mugger" },
     objective,
     personalityId: "opportunist",
+    stress: createCombatStressState(game),
   });
   const instanceKey = game.currentStory.instanceKey;
   let context = createCombatContext({ game, state, instanceKey });

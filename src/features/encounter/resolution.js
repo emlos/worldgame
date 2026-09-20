@@ -43,6 +43,7 @@ import { PLAYER_RESCUED_OUTCOME_ID } from "./outcomes.js";
 import { applyEncounterHygiene } from "./consequences.js";
 import { awardCombatSkillForExchange } from "./combatSkill.js";
 import { updateNpcAngerFromEvents } from "./anger.js";
+import { applyCombatStressForExchange } from "./stress.js";
 import {
   controlledParticipantId,
   goalOwnerId,
@@ -54,7 +55,12 @@ function fail(message) {
   throw new Error(`Physical encounter: ${message}`);
 }
 
-function resolveOne(context, instance, runtime, { revalidate = true, spoiledBy = null } = {}) {
+function resolveOne(
+  context,
+  instance,
+  runtime,
+  { revalidate = true, spoiledBy = null } = {},
+) {
   const definition = getEncounterAction(instance.actionId);
   if (!definition) fail(`unknown action '${String(instance.actionId)}'`);
   runtime.events.push({
@@ -75,28 +81,41 @@ function resolveOne(context, instance, runtime, { revalidate = true, spoiledBy =
       spoiledByActionId: spoiledBy?.actionId || null,
     });
     if (definition.tags.includes("control")) {
-      requireEncounterObjective(context.state).recordControlFailure?.(context, instance.actorId);
+      requireEncounterObjective(context.state).recordControlFailure?.(
+        context,
+        instance.actorId,
+      );
     }
     return;
   }
   if (instance.actorId !== controlledParticipantId(context.state)) {
     const effort = getActionEffortStatus(context, instance);
-    if (!effort.allowed && !chanceRoll(
-      context,
-      instance,
-      runtime,
-      "desperate-effort",
-      effort.desperateChance,
-      {
-        readiness: effort.readiness,
-        requiredReadiness: effort.requiredReadiness,
-        blockers: effort.blockers,
-      },
-    )) {
-      addExertion(context, instance.actorId, Math.max(2, definition.durationSeconds));
+    if (
+      !effort.allowed &&
+      !chanceRoll(
+        context,
+        instance,
+        runtime,
+        "desperate-effort",
+        effort.desperateChance,
+        {
+          readiness: effort.readiness,
+          requiredReadiness: effort.requiredReadiness,
+          blockers: effort.blockers,
+        },
+      )
+    ) {
+      addExertion(
+        context,
+        instance.actorId,
+        Math.max(2, definition.durationSeconds),
+      );
       failAction(runtime, instance, effort.primaryBlocker);
       if (definition.tags.includes("control")) {
-        requireEncounterObjective(context.state).recordControlFailure?.(context, instance.actorId);
+        requireEncounterObjective(context.state).recordControlFailure?.(
+          context,
+          instance.actorId,
+        );
       }
       return;
     }
@@ -140,7 +159,10 @@ function checkPhysicalTerminalState(
   }
 
   const ownerIncapacitated = isEncounterIncapacitated(context, ownerId);
-  const targetIncapacitated = isEncounterIncapacitatedBeyondPain(context, targetId);
+  const targetIncapacitated = isEncounterIncapacitatedBeyondPain(
+    context,
+    targetId,
+  );
   if (ownerIncapacitated && targetIncapacitated) {
     releaseControlledHolds(context, runtime, ownerId);
     releaseControlledHolds(context, runtime, targetId);
@@ -152,11 +174,10 @@ function checkPhysicalTerminalState(
     runtime.outcome = objective.outcomeForOwnerDefeat(context, runtime.events);
     return;
   }
-  const completedOutcome = objective.outcomeForCompletion?.(
-    context,
-    runtime.events,
-    { allowPainCompletion },
-  ) || null;
+  const completedOutcome =
+    objective.outcomeForCompletion?.(context, runtime.events, {
+      allowPainCompletion,
+    }) || null;
   if (completedOutcome) {
     releaseControlledHolds(context, runtime, targetId);
     runtime.outcome = completedOutcome;
@@ -174,7 +195,8 @@ function checkPhysicalTerminalState(
   // total if a new action family or positional rule later exposes a gap: loss
   // of all legal agency is an encounter result, not an invariant exception.
   const ownerCanAct = getAvailableActionInstances(context, ownerId).length > 0;
-  const targetCanAct = getAvailableActionInstances(context, targetId).length > 0;
+  const targetCanAct =
+    getAvailableActionInstances(context, targetId).length > 0;
   if (!ownerCanAct && !targetCanAct) {
     runtime.events.push({
       type: "participant.unable-to-act",
@@ -225,7 +247,11 @@ function finalizeOutcome(context, runtime) {
     if (range.value !== ENCOUNTER_RANGE.far) {
       const from = range.value;
       range.value = ENCOUNTER_RANGE.far;
-      runtime.events.push({ type: "range.changed", from, to: ENCOUNTER_RANGE.far });
+      runtime.events.push({
+        type: "range.changed",
+        from,
+        to: ENCOUNTER_RANGE.far,
+      });
     }
   }
   context.state.phase = ENCOUNTER_PHASE.terminal;
@@ -250,7 +276,8 @@ export function validateEncounterRuntime(context) {
   const playerActions = getAvailableActionInstances(context, controlledId);
   if (!playerActions.length) fail("active player state has no legal response");
   const npcActions = getAvailableActionInstances(context, ownerId);
-  if (!npcActions.length) fail("active objective owner has no action or retreat fallback");
+  if (!npcActions.length)
+    fail("active objective owner has no action or retreat fallback");
   const intent = intentToActionInstance(context.state.npcIntent);
   if (!npcActions.some((candidate) => sameActionInstance(candidate, intent))) {
     fail(`stored NPC intent '${intent.actionId}' is no longer legal`);
@@ -284,7 +311,9 @@ function createSimultaneousBranch(context) {
 }
 
 function changedValue(baseValue, branchValues, runtime, path) {
-  const changed = [...new Set(branchValues.filter((value) => value !== baseValue))];
+  const changed = [
+    ...new Set(branchValues.filter((value) => value !== baseValue)),
+  ];
   if (!changed.length) return baseValue;
   if (changed.length === 1) return changed[0];
   const participantMatch = /^participants\.([^.]+)\.(pose|support)$/.exec(path);
@@ -292,11 +321,15 @@ function changedValue(baseValue, branchValues, runtime, path) {
   runtime.events = runtime.events.filter((event) => {
     if (path === "relationships.range") return event.type !== "range.changed";
     if (participantMatch) {
-      return event.type !== `${participantMatch[2]}.changed`
-        || event.actorId !== participantMatch[1];
+      return (
+        event.type !== `${participantMatch[2]}.changed` ||
+        event.actorId !== participantMatch[1]
+      );
     }
     if (facingMatch) {
-      return event.type !== "facing.changed" || event.actorId !== facingMatch[1];
+      return (
+        event.type !== "facing.changed" || event.actorId !== facingMatch[1]
+      );
     }
     return true;
   });
@@ -316,38 +349,47 @@ function mergeParticipantEffects(context, branches, actorId) {
   const participant = context.state.participants[actorId];
   const baseExertion = participant.exertion;
   participant.exertion = clamp(
-    baseExertion + branches.reduce(
-      (sum, branch) => sum + branch.context.state.participants[actorId].exertion - baseExertion,
-      0,
-    ),
+    baseExertion +
+      branches.reduce(
+        (sum, branch) =>
+          sum +
+          branch.context.state.participants[actorId].exertion -
+          baseExertion,
+        0,
+      ),
     0,
     100,
   );
 
   const baseAcute = acuteById(participant);
   const branchAcute = branches.map((branch) =>
-    acuteById(branch.context.state.participants[actorId]));
+    acuteById(branch.context.state.participants[actorId]),
+  );
   const acuteIds = new Set([
     ...baseAcute.keys(),
     ...branchAcute.flatMap((effects) => [...effects.keys()]),
   ]);
-  participant.acute = [...acuteIds].map((id) => {
-    const base = baseAcute.get(id);
-    const baseSeverity = base?.severity || 0;
-    const severity = clamp(
-      baseSeverity + branchAcute.reduce(
-        (sum, effects) => sum + (effects.get(id)?.severity || 0) - baseSeverity,
+  participant.acute = [...acuteIds]
+    .map((id) => {
+      const base = baseAcute.get(id);
+      const baseSeverity = base?.severity || 0;
+      const severity = clamp(
+        baseSeverity +
+          branchAcute.reduce(
+            (sum, effects) =>
+              sum + (effects.get(id)?.severity || 0) - baseSeverity,
+            0,
+          ),
         0,
-      ),
-      0,
-      3,
-    );
-    const exchanges = Math.max(
-      base?.exchanges || 0,
-      ...branchAcute.map((effects) => effects.get(id)?.exchanges || 0),
-    );
-    return severity > 0 && exchanges > 0 ? { id, severity, exchanges } : null;
-  }).filter(Boolean);
+        3,
+      );
+      const exchanges = Math.max(
+        base?.exchanges || 0,
+        ...branchAcute.map((effects) => effects.get(id)?.exchanges || 0),
+      );
+      return severity > 0 && exchanges > 0 ? { id, severity, exchanges } : null;
+    })
+    .filter(Boolean);
 }
 
 function holdIdentity(hold) {
@@ -361,10 +403,12 @@ function holdIdentity(hold) {
 }
 
 function mutuallyRestrictSourceLimbs(left, right) {
-  return left.controllerId === right.targetId
-    && right.controllerId === left.targetId
-    && isSameLimb(left.sourcePartId, right.targetPartId)
-    && isSameLimb(right.sourcePartId, left.targetPartId);
+  return (
+    left.controllerId === right.targetId &&
+    right.controllerId === left.targetId &&
+    isSameLimb(left.sourcePartId, right.targetPartId) &&
+    isSameLimb(right.sourcePartId, left.targetPartId)
+  );
 }
 
 /**
@@ -405,7 +449,9 @@ export function chooseSimultaneousGrabPriority(context, leftHold, rightHold) {
     };
   }
 
-  const conflictKey = [holdIdentity(leftHold), holdIdentity(rightHold)].sort().join("|");
+  const conflictKey = [holdIdentity(leftHold), holdIdentity(rightHold)]
+    .sort()
+    .join("|");
   const roll = keyedRandom01(
     context.game.seed,
     `encounter-simultaneous-grab-v1:${context.instanceKey}:${context.state.exchange}:${conflictKey}`,
@@ -422,9 +468,17 @@ function arbitrateNewHoldConflicts(context, holds, runtime) {
   for (let leftIndex = 0; leftIndex < holds.length; leftIndex += 1) {
     const left = holds[leftIndex];
     if (rejectedIds.has(left.id)) continue;
-    for (let rightIndex = leftIndex + 1; rightIndex < holds.length; rightIndex += 1) {
+    for (
+      let rightIndex = leftIndex + 1;
+      rightIndex < holds.length;
+      rightIndex += 1
+    ) {
       const right = holds[rightIndex];
-      if (rejectedIds.has(right.id) || !mutuallyRestrictSourceLimbs(left, right)) continue;
+      if (
+        rejectedIds.has(right.id) ||
+        !mutuallyRestrictSourceLimbs(left, right)
+      )
+        continue;
 
       const decision = chooseSimultaneousGrabPriority(context, left, right);
       const winner = decision.winnerId === left.controllerId ? left : right;
@@ -432,11 +486,15 @@ function arbitrateNewHoldConflicts(context, holds, runtime) {
       rejectedIds.add(loser.id);
 
       runtime.events = runtime.events.filter(
-        (event) => event.type !== "hold.created"
-          || (event.holdId !== winner.id && event.holdId !== loser.id),
+        (event) =>
+          event.type !== "hold.created" ||
+          (event.holdId !== winner.id && event.holdId !== loser.id),
       );
       if (decision.basis === "roll") {
-        const [rollActorId, rollTargetId] = [winner.controllerId, loser.controllerId].sort();
+        const [rollActorId, rollTargetId] = [
+          winner.controllerId,
+          loser.controllerId,
+        ].sort();
         runtime.events.push({
           type: "chance.rolled",
           actorId: rollActorId,
@@ -464,8 +522,12 @@ function arbitrateNewHoldConflicts(context, holds, runtime) {
 function mergeHoldRelations(context, branches, runtime) {
   const baseHolds = context.state.relationships.holds;
   const baseById = new Map(baseHolds.map((hold) => [hold.id, hold]));
-  const branchMaps = branches.map((branch) =>
-    new Map(branch.context.state.relationships.holds.map((hold) => [hold.id, hold])));
+  const branchMaps = branches.map(
+    (branch) =>
+      new Map(
+        branch.context.state.relationships.holds.map((hold) => [hold.id, hold]),
+      ),
+  );
   const merged = [];
 
   for (const base of baseHolds) {
@@ -473,10 +535,11 @@ function mergeHoldRelations(context, branches, runtime) {
     if (versions.some((hold) => hold === null)) continue;
     const hold = structuredClone(base);
     hold.leverage = clamp(
-      base.leverage + versions.reduce(
-        (sum, version) => sum + version.leverage - base.leverage,
-        0,
-      ),
+      base.leverage +
+        versions.reduce(
+          (sum, version) => sum + version.leverage - base.leverage,
+          0,
+        ),
       1,
       100,
     );
@@ -494,7 +557,8 @@ function mergeHoldRelations(context, branches, runtime) {
   const newHolds = [];
   for (const holds of branchMaps) {
     for (const [holdId, hold] of holds) {
-      if (baseById.has(holdId) || newHolds.some(({ id }) => id === holdId)) continue;
+      if (baseById.has(holdId) || newHolds.some(({ id }) => id === holdId))
+        continue;
       newHolds.push(structuredClone(hold));
     }
   }
@@ -514,7 +578,9 @@ function mergeBodyDamage(context, branches) {
 }
 
 function mergeProposedOutcomes(context, branches) {
-  const outcomes = branches.map((branch) => branch.runtime.outcome).filter(Boolean);
+  const outcomes = branches
+    .map((branch) => branch.runtime.outcome)
+    .filter(Boolean);
   if (!outcomes.length) return null;
   return requireEncounterObjective(context.state).mergeOutcomes(outcomes);
 }
@@ -526,11 +592,17 @@ function mergeScreamForHelpRoll(context, branches) {
   if (!rolls.length) return;
 
   const latest = rolls.reduce((current, candidate) =>
-    candidate.rolledAtSecond > current.rolledAtSecond ? candidate : current);
+    candidate.rolledAtSecond > current.rolledAtSecond ? candidate : current,
+  );
   context.state.screamForHelpRoll = structuredClone(latest);
 }
 
-function resolveSimultaneously(context, playerAction, npcAction, sharedRuntime) {
+function resolveSimultaneously(
+  context,
+  playerAction,
+  npcAction,
+  sharedRuntime,
+) {
   // Equal-speed actions resolve on isolated copies of the same starting facts.
   // Their effects are merged only afterward: numeric costs and damage add,
   // hold removal wins over hold changes, and incompatible scalar movements
@@ -548,7 +620,9 @@ function resolveSimultaneously(context, playerAction, npcAction, sharedRuntime) 
     return { context: branchContext, runtime: branchRuntime, instance };
   });
 
-  sharedRuntime.events.push(...branches.flatMap((branch) => branch.runtime.events));
+  sharedRuntime.events.push(
+    ...branches.flatMap((branch) => branch.runtime.events),
+  );
   sharedRuntime.outcome = mergeProposedOutcomes(context, branches);
   sharedRuntime.terminalFacts.push(
     ...branches.flatMap((branch) => branch.runtime.terminalFacts),
@@ -561,7 +635,8 @@ function resolveSimultaneously(context, playerAction, npcAction, sharedRuntime) 
     mergeParticipantEffects(context, branches, actorId);
   }
   for (const branch of branches) {
-    const history = context.state.participants[branch.instance.actorId].actionHistory;
+    const history =
+      context.state.participants[branch.instance.actorId].actionHistory;
     history.push(branch.instance.actionId);
     if (history.length > 8) history.splice(0, history.length - 8);
   }
@@ -579,16 +654,24 @@ function resolveSimultaneously(context, playerAction, npcAction, sharedRuntime) 
     );
     participant.support = changedValue(
       participant.support,
-      branches.map((branch) => branch.context.state.participants[actorId].support),
+      branches.map(
+        (branch) => branch.context.state.participants[actorId].support,
+      ),
       sharedRuntime,
       `participants.${actorId}.support`,
     );
     if (participant.pose !== "standing") participant.support = "free";
-    const facing = context.state.relationships.facing.find(({ actor }) => actor === actorId);
+    const facing = context.state.relationships.facing.find(
+      ({ actor }) => actor === actorId,
+    );
     facing.value = changedValue(
       facing.value,
-      branches.map((branch) => branch.context.state.relationships.facing
-        .find(({ actor }) => actor === actorId).value),
+      branches.map(
+        (branch) =>
+          branch.context.state.relationships.facing.find(
+            ({ actor }) => actor === actorId,
+          ).value,
+      ),
       sharedRuntime,
       `relationships.facing.${actorId}`,
     );
@@ -601,7 +684,8 @@ function resolveSimultaneously(context, playerAction, npcAction, sharedRuntime) 
     sharedRuntime,
     "relationships.range",
   );
-  if (context.state.relationships.holds.length) range.value = ENCOUNTER_RANGE.clinch;
+  if (context.state.relationships.holds.length)
+    range.value = ENCOUNTER_RANGE.clinch;
   reconcileEncounterRelationships(context, sharedRuntime);
 }
 
@@ -619,14 +703,18 @@ export function resolveEncounterExchange({
   const controlledId = controlledParticipantId(next);
   const ownerId = goalOwnerId(next);
 
-  const availablePlayerAction = getAvailableActionInstances(context, controlledId)
-    .find((candidate) => sameActionInstance(candidate, playerAction));
-  if (!availablePlayerAction) fail(`player action '${String(playerAction?.actionId)}' is unavailable`);
+  const availablePlayerAction = getAvailableActionInstances(
+    context,
+    controlledId,
+  ).find((candidate) => sameActionInstance(candidate, playerAction));
+  if (!availablePlayerAction)
+    fail(`player action '${String(playerAction?.actionId)}' is unavailable`);
   const npcAction = intentToActionInstance(next.npcIntent);
   const playerSeconds = actionDurationSeconds(availablePlayerAction);
   const npcSeconds = actionDurationSeconds(npcAction);
-  const playerIsHelpless = getEncounterAction(availablePlayerAction.actionId)
-    .tags.includes("helpless");
+  const playerIsHelpless = getEncounterAction(
+    availablePlayerAction.actionId,
+  ).tags.includes("helpless");
   const runtime = {
     events: [],
     guarded: new Set(),
@@ -643,7 +731,12 @@ export function resolveEncounterExchange({
     resolveOne(context, availablePlayerAction, runtime, { revalidate: false });
     runtime.unopposedTargets.add(controlledId);
     resolveOne(context, npcAction, runtime, { revalidate: false });
-    releaseControlledHolds(context, runtime, controlledId, "controller-helpless");
+    releaseControlledHolds(
+      context,
+      runtime,
+      controlledId,
+      "controller-helpless",
+    );
   } else {
     // A reaction can influence an equal-speed action from the outset. Faster actions
     // resolve before a slower reaction has taken effect.
@@ -652,16 +745,19 @@ export function resolveEncounterExchange({
       [npcAction, npcSeconds, playerSeconds],
     ]) {
       if (seconds > opposingSeconds) continue;
-      if (instance.actionId === "cover-and-brace") runtime.guarded.add(instance.actorId);
-      if (instance.actionId === "create-distance") runtime.evading.add(instance.actorId);
+      if (instance.actionId === "cover-and-brace")
+        runtime.guarded.add(instance.actorId);
+      if (instance.actionId === "create-distance")
+        runtime.evading.add(instance.actorId);
     }
 
     if (playerSeconds === npcSeconds) {
       resolveSimultaneously(context, availablePlayerAction, npcAction, runtime);
     } else {
-      const ordered = playerSeconds < npcSeconds
-        ? [availablePlayerAction, npcAction]
-        : [npcAction, availablePlayerAction];
+      const ordered =
+        playerSeconds < npcSeconds
+          ? [availablePlayerAction, npcAction]
+          : [npcAction, availablePlayerAction];
       resolveOne(context, ordered[0], runtime, { revalidate: false });
       checkPhysicalTerminalState(context, runtime);
       if (!runtime.outcome) {
@@ -669,8 +765,7 @@ export function resolveEncounterExchange({
           revalidate: true,
           spoiledBy: ordered[0],
         });
-      }
-      else {
+      } else {
         runtime.events.push({
           type: "action.spoiled",
           actorId: ordered[1].actorId,
@@ -687,25 +782,35 @@ export function resolveEncounterExchange({
   next.exchange += 1;
   updateNpcAngerFromEvents(context, runtime.events);
   syncObjectiveStage(context, runtime.events);
-  checkPhysicalTerminalState(context, runtime, { allowPainCompletion: playerIsHelpless });
+  checkPhysicalTerminalState(context, runtime, {
+    allowPainCompletion: playerIsHelpless,
+  });
   finalizeOutcome(context, runtime);
-  applyEncounterHygiene(game, next, availablePlayerAction.actionId, runtime.events);
+  applyEncounterHygiene(
+    game,
+    next,
+    availablePlayerAction.actionId,
+    runtime.events,
+  );
   awardCombatSkillForExchange(
     game.player,
     getEncounterAction(availablePlayerAction.actionId),
     controlledId,
     runtime.events,
   );
+  applyCombatStressForExchange(game, next, runtime.events);
   next.lastEvents = runtime.events.slice(-24);
   persistCombatantBodies(context);
   requireEncounterObjective(next).commitGameState(context, previousObjective);
 
   if (next.phase === ENCOUNTER_PHASE.active) {
     const npcTags = getEncounterAction(npcAction.actionId)?.tags || [];
-    const npcPursuedObjective = requireEncounterObjective(next)
-      .ai.isProgressAction(npcTags);
-    if (npcPursuedObjective
-      && getObjectiveProgress(context) > startingObjectiveProgress) {
+    const npcPursuedObjective =
+      requireEncounterObjective(next).ai.isProgressAction(npcTags);
+    if (
+      npcPursuedObjective &&
+      getObjectiveProgress(context) > startingObjectiveProgress
+    ) {
       requireEncounterObjective(next).recordProgress(context);
     }
     syncObjectiveStage(context, runtime.events);

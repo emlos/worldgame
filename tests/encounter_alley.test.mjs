@@ -197,6 +197,8 @@ test("Jackie offers both current combat drills as a persistent NPC opponent", ()
   const state = game.currentStory.system.state;
   assert.equal(state.objective.id, "steal-money");
   assert.equal(state.objective.amount, 5);
+  assert.equal(state.stress.contextMultiplier, 0.3);
+  assert.equal(state.stress.maximumGain, 10.5);
   assert.equal(game.player.money, moneyBeforeTraining + 5);
   assert.match(trainingResult.paragraphs.join(" "), /hands you £5/i);
   assert.deepEqual(state.participants.jackie.ref, { type: "npc", npcId: "jackie" });

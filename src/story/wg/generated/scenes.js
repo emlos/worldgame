@@ -8968,6 +8968,7 @@ export const WG_BUNDLE = {
         "id": "encounter.physical",
         "config": {
           "scenario": "fight",
+          "stressMultiplier": 0.3,
           "opponent": {
             "id": "jackie",
             "npc": "jackie"
@@ -9775,6 +9776,7 @@ export const WG_BUNDLE = {
         "id": "encounter.physical",
         "config": {
           "scenario": "fight",
+          "stressMultiplier": 0.3,
           "opponent": {
             "id": "jackie",
             "npc": "jackie"
