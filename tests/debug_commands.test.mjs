@@ -47,6 +47,7 @@ test("the encounter feature teleports the player into an alley and starts its ap
     startDate: new Date("2026-09-04T18:00:00.000Z"),
     playerOptions: { startPlaceId: null },
   });
+  game.player.adjustMoney(50);
   const teleport = game.features.getDebugAction("encounter.teleport-player-to-alley");
 
   assert.equal(typeof teleport, "function");

@@ -1,4 +1,5 @@
 import { AI_PERSONALITY_IDS } from "./personality.js";
+import { COMBAT_SKILL_MAX_POINTS } from "../../characters/player/stats.js";
 import { requireEncounterObjective } from "./objectives/index.js";
 import {
   ENCOUNTER_FACING,
@@ -22,7 +23,7 @@ export {
   setEncounterRange,
 } from "./spatialState.js";
 
-export const ENCOUNTER_STATE_VERSION = 11;
+export const ENCOUNTER_STATE_VERSION = 12;
 export const FIGHT_SCENARIO_ID = "fight";
 
 export const ENCOUNTER_PHASE = Object.freeze({
@@ -343,6 +344,51 @@ function validateStress(stress, path) {
   boolean(stress.settled, `${path}.settled`);
 }
 
+function validateCombatLearning(learning, path) {
+  record(learning, path);
+  exactKeys(
+    learning,
+    [
+      "startingTotal",
+      "pointsAwarded",
+      "successfulCategories",
+      "difficultyBonus",
+      "breakdown",
+    ],
+    path,
+  );
+  finiteNumber(learning.startingTotal, `${path}.startingTotal`, {
+    min: 0,
+    maxExclusive: COMBAT_SKILL_MAX_POINTS + 0.01,
+  });
+  finiteNumber(learning.pointsAwarded, `${path}.pointsAwarded`, {
+    min: 0,
+    maxExclusive: 10.01,
+  });
+  integer(learning.difficultyBonus, `${path}.difficultyBonus`, { min: 0, max: 2 });
+  const categories = array(learning.successfulCategories, `${path}.successfulCategories`);
+  const allowedCategories = new Set(["attack", "control", "escape", "defense"]);
+  categories.forEach((category, index) =>
+    string(category, `${path}.successfulCategories[${index}]`, allowedCategories));
+  if (new Set(categories).size !== categories.length)
+    fail(`${path}.successfulCategories contains duplicates`);
+  const breakdown = record(learning.breakdown, `${path}.breakdown`);
+  exactKeys(
+    breakdown,
+    ["practice", "participation", "outcome", "difficulty"],
+    `${path}.breakdown`,
+  );
+  for (const [key, value] of Object.entries(breakdown)) {
+    finiteNumber(value, `${path}.breakdown.${key}`, {
+      min: 0,
+      maxExclusive: 10.01,
+    });
+  }
+  const total = Object.values(breakdown).reduce((sum, value) => sum + value, 0);
+  if (total !== learning.pointsAwarded)
+    fail(`${path}.breakdown must total pointsAwarded`);
+}
+
 export function createFightState({
   controlledId = "player",
   opponentId = "opponent",
@@ -350,6 +396,18 @@ export function createFightState({
   objective,
   personalityId = "opportunist",
   stress,
+  combatLearning = {
+    startingTotal: 0,
+    pointsAwarded: 0,
+    successfulCategories: [],
+    difficultyBonus: 0,
+    breakdown: {
+      practice: 0,
+      participation: 0,
+      outcome: 0,
+      difficulty: 0,
+    },
+  },
 }) {
   const ownerId = opponentId;
   const targetId = controlledId;
@@ -399,6 +457,7 @@ export function createFightState({
     screamForHelpRoll: null,
     terminalConsequencesSettled: false,
     stress: structuredClone(stress),
+    combatLearning: structuredClone(combatLearning),
     lastEvents: [{ type: "encounter.started", actorId: ownerId, targetId }],
     outcome: null,
   };
@@ -421,6 +480,7 @@ export function validateEncounterState(state) {
       "screamForHelpRoll",
       "terminalConsequencesSettled",
       "stress",
+      "combatLearning",
       "lastEvents",
       "outcome",
     ],
@@ -438,6 +498,7 @@ export function validateEncounterState(state) {
     "state.terminalConsequencesSettled",
   );
   validateStress(state.stress, "state.stress");
+  validateCombatLearning(state.combatLearning, "state.combatLearning");
   if (
     state.phase === ENCOUNTER_PHASE.active &&
     state.terminalConsequencesSettled

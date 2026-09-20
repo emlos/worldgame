@@ -39,7 +39,7 @@ test("combat exchange time drains ordinary energy while screaming itself is clea
 
   assert.equal(scream.energyFree, false);
   assert.equal(scream.showDuration, false);
-  assert.equal(scream.label, "Scream for help");
+  assert.match(scream.label, /^Scream for help \[/);
   const beforeEnergy = game.player.getStatValue("energy");
   const beforeHygiene = game.player.getStatValue("hygiene");
   performChoice(game, { sceneId: scene.id, choiceId: scream.id });

@@ -90,7 +90,7 @@ test("entering an alley triggers the mugging once", () => {
   const approach = buildScene(game);
   assert.deepEqual(approach.sections.flatMap(({ choices }) => choices).map(({ label }) => label), [
     "No way!",
-    "Hand over up to £20",
+    "Hand over the money",
     "Run for the street",
   ]);
   const run = sceneChoiceByLabel(approach, "Run for the street");
@@ -117,14 +117,14 @@ test("entering an alley triggers the mugging once", () => {
 });
 
 test("every pre-fight outcome leads to Jackie's introduction in the alley", () => {
-  const surrender = gameAtStart({ seed: 1, money: 7 });
+  const surrender = gameAtStart({ seed: 1, money: 20 });
   placePlayerAtAlley(surrender);
   const surrenderLocationId = surrender.currentLocationId;
   resolveWGAutomaticScene(surrender, WG_AUTO_TRIGGER.enterPlace);
   let scene = buildScene(surrender);
   let result = performChoice(surrender, {
     sceneId: scene.id,
-    choiceId: sceneChoiceByLabel(scene, "Hand over up to £20").id,
+    choiceId: sceneChoiceByLabel(scene, "Hand over the money").id,
   });
 
   assert.equal(surrender.player.money, 0);
@@ -471,7 +471,12 @@ test("empty-wallet surrender renders one dedicated terminal summary", () => {
     assert.ok(eventTypes.includes(type), `expected retained event '${type}'`);
   }
   const scene = buildScene(game);
-  assert.deepEqual(scene.content.map(({ type }) => type), ["paragraph", "paragraph"]);
+  assert.deepEqual(scene.content.map(({ type }) => type), [
+    "paragraph",
+    "paragraph",
+    "paragraph",
+  ]);
+  assert.match(scene.content[1].text, /^Combat experience: \+/);
   const summary = scene.content[0].text;
   assert.match(summary, /empty pockets/i);
   assert.match(summary, /finding nothing to take|nothing to steal|no money/i);

@@ -8,7 +8,7 @@ import {
 } from "../../shared/util/saveValidation.js";
 import { controlledParticipantId } from "./roles.js";
 import { requireEncounterObjective } from "./objectives/index.js";
-import { COMBAT_SKILL_ID, COMBAT_SKILL_LOSS_PENALTY } from "./combatSkill.js";
+import { settleCombatSkillProgress } from "./combatSkill.js";
 import { settleCombatStress } from "./stress.js";
 
 export const POST_COMBAT_FATIGUE_DURATION_MINUTES = 30;
@@ -197,11 +197,8 @@ export function settleEncounterConsequences(game, state, instanceKey) {
     };
   }
 
-  const lossOutcomeIds =
-    requireEncounterObjective(state).playerLossOutcomeIds || [];
-  if (lossOutcomeIds.includes(state.outcome?.id)) {
-    game.player.adjustSkill(COMBAT_SKILL_ID, -COMBAT_SKILL_LOSS_PENALTY);
-  }
+  const lossOutcomeIds = requireEncounterObjective(state).playerLossOutcomeIds || [];
+  settleCombatSkillProgress(game.player, state, lossOutcomeIds);
 
   settleCombatStress(game, state);
 

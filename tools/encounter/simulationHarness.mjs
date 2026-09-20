@@ -370,7 +370,7 @@ function longestStreak(actionIds) {
 export function runEncounterSimulation({
   seed = 1,
   money = 50,
-  combatSkill = 300,
+  combatSkill = 150,
   playerStats = {},
   npcStats = {},
   policy = "escape",

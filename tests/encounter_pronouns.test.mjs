@@ -76,8 +76,8 @@ test("player-facing labels, exchange prose, pressure, and outcomes use attacker 
     const { state, context } = setup(pronouns);
     const labels = getAvailableActionInstances(context, "player")
       .map((instance) => actionLabel(context, instance));
-    assert.ok(labels.includes(`Strike at ${expected.dependent} face`));
-    assert.ok(labels.includes(`Shove ${expected.object} away`));
+    assert.ok(labels.some((label) => label.startsWith(`Strike at ${expected.dependent} face [`)));
+    assert.ok(labels.some((label) => label.startsWith(`Shove ${expected.object} away [`)));
 
     const opening = renderLastExchange(context);
     assert.match(opening, new RegExp(`\\b${expected.subject.toLowerCase()} ${expected.demand} your money\\b`, "i"));

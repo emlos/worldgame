@@ -13,6 +13,10 @@ import {
 } from "../state.js";
 import { getAiPersonality, selectAiPersonality } from "../personality.js";
 import { createCombatStressState } from "../stress.js";
+import {
+  combatDifficultyBonus,
+  createCombatLearningState,
+} from "../combatSkill.js";
 
 function fail(message) {
   throw new Error(`Physical encounter fight scenario: ${message}`);
@@ -173,6 +177,7 @@ export const FIGHT_SCENARIO = Object.freeze({
       objective,
       personalityId: personality.id,
       stress: createCombatStressState(game, config.stressMultiplier ?? 1),
+      combatLearning: createCombatLearningState(game.player),
     });
     const ownerId = goalOwnerId(state);
     state.participants[ownerId].controller.commitmentBase = Math.min(
@@ -183,6 +188,11 @@ export const FIGHT_SCENARIO = Object.freeze({
     );
     const context = createCombatContext({ game, state, instanceKey });
     const controlledId = controlledParticipantId(state);
+    state.combatLearning.difficultyBonus = combatDifficultyBonus(
+      context,
+      controlledId,
+      ownerId,
+    );
     if (isEncounterIncapacitatedBeyondPain(context, controlledId)) {
       resolveUnopposedEntry(context, "already-incapacitated");
       return state;

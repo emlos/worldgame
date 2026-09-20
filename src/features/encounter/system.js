@@ -28,6 +28,7 @@ import {
 import { controlledParticipantId } from "./roles.js";
 import { requireEncounterObjective } from "./objectives/index.js";
 import { settleEncounterConsequences } from "./consequences.js";
+import { combatSkillRewardSummary } from "./combatSkill.js";
 
 export const ENCOUNTER_PHYSICAL_SYSTEM_ID = "encounter.physical";
 
@@ -150,10 +151,12 @@ function renderTerminal(context, definition, systemId) {
   const finalExchange = context.state.exchange > 0
     ? renderTerminalExchange(context)
     : "";
+  const skillReward = combatSkillRewardSummary(context.state);
   return {
     content: [
       ...(finalExchange ? [{ type: "paragraph", text: finalExchange }] : []),
       ...objective.renderTerminal(context),
+      ...(skillReward ? [{ type: "paragraph", text: skillReward }] : []),
       { type: "paragraph", text: renderSituationProse(context) },
     ],
     sections: [{

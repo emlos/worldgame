@@ -4,6 +4,11 @@ import {
   getParticipant,
   getStat,
 } from "./combatants.js";
+import { controlledParticipantId } from "./roles.js";
+import {
+  COMBAT_SKILL_EXPERT_EXERTION_MULTIPLIER,
+  getPlayerCombatRank,
+} from "./combatSkill.js";
 
 const clamp = (value, minimum, maximum) => Math.max(minimum, Math.min(maximum, value));
 
@@ -109,7 +114,14 @@ export function calculateExertionCost(context, actorId, baseAmount) {
     + dazed * 0.1
     + pain / 250;
   const conditioning = getStat(context, actorId, "endurance") * 0.45;
-  return Math.max(1, Math.round(baseAmount * strainMultiplier - conditioning));
+  const combatMultiplier = actorId === controlledParticipantId(context.state)
+    && getPlayerCombatRank(context.game.player) >= 4
+    ? COMBAT_SKILL_EXPERT_EXERTION_MULTIPLIER
+    : 1;
+  return Math.max(
+    1,
+    Math.round((baseAmount * strainMultiplier - conditioning) * combatMultiplier),
+  );
 }
 
 export function recoverExertion(context, actorId) {

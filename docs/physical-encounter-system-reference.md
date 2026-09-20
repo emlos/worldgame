@@ -315,33 +315,33 @@ Changing this ordering changes who receives the benefit when terminal events hap
 
 ## Player Combat skill
 
-Combat is one total from `0` through `500`, displayed as five ranks of 100 points:
+Combat is one total from `0` through `400`, displayed across five increasingly long ranks:
 
 | Total | Display |
 |---:|---|
-| `0..99.999...` | Rank 0 |
-| `100..199.999...` | Rank 1 |
-| `200..299.999...` | Rank 2 |
-| `300..399.999...` | Rank 3 |
-| `400..500` | Rank 4; 500 displays 100/100 |
+| `0..24` | Rank 0; 25 points wide |
+| `25..74` | Rank 1; 50 points wide |
+| `75..149` | Rank 2; 75 points wide |
+| `150..274` | Rank 3; 125 points wide |
+| `275..400` | Rank 4; 400 displays 125/125 |
 
-A successful player action tagged `impact`, `control`, or `hold` awards `0.15` points with no encounter feedback. Failed, spoiled, self-only impacts, and a lost simultaneous grab award nothing. A player-loss outcome subtracts `1` point once during consequence settlement. Subtraction crosses rank boundaries normally; Rank 4 at 0/100 becomes Rank 3 at 99/100.
+Each encounter awards at most `10` Combat points. The first successful use of each technique category—attack, control, escape, and defense—awards `1` point. Repeating the same category in one fight does not award more practice. Failed, spoiled, and self-only impacts award nothing.
 
-Changing `0.15` changes progression speed: at the current value, roughly 667 qualifying successes equal 100 points. Changing the `1`-point loss penalty changes how punitive defeat is without changing fight resolution.
+After at least one exchange, settlement awards `2` participation points plus `3` for a successful outcome or `1` for a loss. An opponent whose average Strength, Endurance, Fitness, and Resolve exceeds the player's by at least 1 grants another `1`; a difference of at least 3 grants `2`. Defeat never removes learned Combat points. The terminal scene reports the total award and any rank gained.
 
 ### Rank unlocks
 
 | Rank | Newly available behavior |
 |---:|---|
 | 0 | Core broad responses: body strike, brace, recovery, break away, stand/roll, create distance, run, objective/help/helpless actions. |
-| 1 | No new actions; broad fallback labels gain explanatory role hints. |
-| 2 | `strike-face`, `strike-holding-arm`, `shove-away`, `grab-arm`, `tighten-hold`, `force-to-wall`. |
-| 3 | `headbutt`, `knee-strike`, `controlled-disengage`, `force-to-ground`, `turn-target-away`, `pin-limb`. |
-| 4 | No new actions; labels add `acts first`, `same timing`, or `acts after their move`. |
+| 1 | Broad labels gain role hints and timing information; unlocks `strike-holding-arm` and `shove-away`. |
+| 2 | Labels show qualitative contest odds; unlocks `strike-face`, `grab-arm`, `tighten-hold`, and `force-to-wall`. |
+| 3 | Labels add contextual interaction/risk notes; unlocks `headbutt`, `knee-strike`, `controlled-disengage`, `force-to-ground`, `turn-target-away`, and `pin-limb`. |
+| 4 | Qualitative odds become estimated percentages, and player exertion costs are reduced by 15%. |
 
 `attack-limb`, `search-money`, `flee`, and `close-distance` have rank entries for registry completeness but are goal-owner-only. Rank gating applies only to the controlled player; the NPC uses the full mechanically legal catalogue.
 
-Changing an action's entry in `COMBAT_ACTION_MINIMUM_RANK` changes only when the player can see/use it. It does not change its chance, AI use, prose, or physical prerequisites.
+Changing an action's entry in `COMBAT_ACTION_MINIMUM_RANK` changes only when the player can see/use it. It does not change its chance, AI use, prose, or physical prerequisites. Odds shown in labels are previews of the normal contest formula, including visible body condition, balance, exertion, and a telegraphed brace or evasion; actions with bespoke or automatic resolution do not show an estimate.
 
 ## Core physical tuning
 

@@ -64,7 +64,7 @@ export function chanceRoll(context, instance, runtime, purpose, chance, extra = 
   return success;
 }
 
-export function contest(
+export function calculateContestChance(
   context,
   instance,
   runtime,
@@ -107,7 +107,11 @@ export function contest(
     const supportPenalty = participant.support === ENCOUNTER_SUPPORT.wall ? 0.04 : 0;
     chance -= Math.max(0.03, baseEvasion - mobilityPenalty - exertionPenalty - supportPenalty);
   }
-  chance = clamp(chance, 0.18, 0.9);
+  return clamp(chance, 0.18, 0.9);
+}
+
+export function contest(context, instance, runtime, options = {}) {
+  const chance = calculateContestChance(context, instance, runtime, options);
   return chanceRoll(context, instance, runtime, "contest", chance);
 }
 

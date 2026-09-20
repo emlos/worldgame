@@ -794,6 +794,7 @@ export function resolveEncounterExchange({
   );
   awardCombatSkillForExchange(
     game.player,
+    next.combatLearning,
     getEncounterAction(availablePlayerAction.actionId),
     controlledId,
     runtime.events,

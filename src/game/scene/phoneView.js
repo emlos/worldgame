@@ -95,7 +95,7 @@ export function buildPhonePlayerStatsView(game) {
     })),
     skills: Object.entries(SKILLS).map(([id, definition]) => {
       const total = player.getSkillValue(id);
-      if (!definition.rankCount || !definition.pointsPerRank) {
+      if (!definition.rankCount || (!definition.pointsPerRank && !definition.rankThresholds)) {
         return {
           id,
           label: definition.label,
@@ -104,16 +104,25 @@ export function buildPhonePlayerStatsView(game) {
           max: definition.max,
         };
       }
-      const rank = Math.min(
-        definition.rankCount - 1,
-        Math.floor(total / definition.pointsPerRank),
+      const thresholds = definition.rankThresholds || Array.from(
+        { length: definition.rankCount },
+        (_unused, index) => index * definition.pointsPerRank,
       );
+      let rank = 0;
+      for (let index = 1; index < thresholds.length; index += 1) {
+        if (total < thresholds[index]) break;
+        rank = index;
+      }
+      const rankStart = thresholds[rank];
+      const rankEnd = rank === definition.rankCount - 1
+        ? definition.max
+        : thresholds[rank + 1];
       return {
         id,
         label: definition.label,
-        value: total - rank * definition.pointsPerRank,
+        value: total - rankStart,
         min: 0,
-        max: definition.pointsPerRank,
+        max: rankEnd - rankStart,
         rank,
         total,
       };

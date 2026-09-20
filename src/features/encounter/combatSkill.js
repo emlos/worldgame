@@ -1,12 +1,22 @@
 import {
   COMBAT_SKILL_MAX_POINTS,
-  COMBAT_SKILL_POINTS_PER_RANK,
   COMBAT_SKILL_RANK_COUNT,
+  COMBAT_SKILL_RANK_THRESHOLDS,
 } from "../../characters/player/stats.js";
 
 export const COMBAT_SKILL_ID = "combat";
-export const COMBAT_SKILL_SUCCESS_GAIN = 1.5;
-export const COMBAT_SKILL_LOSS_PENALTY = 1;
+export const COMBAT_SKILL_ENCOUNTER_CAP = 10;
+export const COMBAT_SKILL_PARTICIPATION_GAIN = 2;
+export const COMBAT_SKILL_SUCCESS_OUTCOME_GAIN = 3;
+export const COMBAT_SKILL_LOSS_OUTCOME_GAIN = 1;
+export const COMBAT_SKILL_EXPERT_EXERTION_MULTIPLIER = 0.85;
+
+const LEARNING_CATEGORIES = Object.freeze([
+  "attack",
+  "control",
+  "escape",
+  "defense",
+]);
 
 export const COMBAT_ACTION_MINIMUM_RANK = Object.freeze({
   "too-tired-to-move": 0,
@@ -27,8 +37,8 @@ export const COMBAT_ACTION_MINIMUM_RANK = Object.freeze({
   flee: 0,
   "close-distance": 0,
   "strike-face": 2,
-  "strike-holding-arm": 2,
-  "shove-away": 2,
+  "strike-holding-arm": 1,
+  "shove-away": 1,
   "grab-arm": 2,
   "tighten-hold": 2,
   "force-to-wall": 2,
@@ -46,11 +56,19 @@ export function combatSkillProgress(value) {
   const total = Number.isFinite(numeric)
     ? Math.min(COMBAT_SKILL_MAX_POINTS, Math.max(0, numeric))
     : 0;
-  const maximumRank = COMBAT_SKILL_RANK_COUNT - 1;
-  const rank = Math.min(maximumRank, Math.floor(total / COMBAT_SKILL_POINTS_PER_RANK));
+  let rank = 0;
+  for (let index = 1; index < COMBAT_SKILL_RANK_THRESHOLDS.length; index += 1) {
+    if (total < COMBAT_SKILL_RANK_THRESHOLDS[index]) break;
+    rank = index;
+  }
+  const rankStart = COMBAT_SKILL_RANK_THRESHOLDS[rank];
+  const rankEnd = rank === COMBAT_SKILL_RANK_COUNT - 1
+    ? COMBAT_SKILL_MAX_POINTS
+    : COMBAT_SKILL_RANK_THRESHOLDS[rank + 1];
   return {
     rank,
-    points: total - rank * COMBAT_SKILL_POINTS_PER_RANK,
+    points: total - rankStart,
+    pointsForRank: rankEnd - rankStart,
     total,
   };
 }
@@ -73,7 +91,8 @@ export function isCombatActionUnlocked(player, actionId) {
 
 export function successfulCombatLearningAction(action, controlledId, events) {
   const tags = new Set(action?.tags || []);
-  if (!tags.has("impact") && !tags.has("control") && !tags.has("hold")) return false;
+  if (action?.id === "surrender-money") return false;
+  if (!LEARNING_CATEGORIES.some((category) => tags.has(category))) return false;
   if (events.some((event) =>
     ["action.failed", "action.spoiled"].includes(event.type)
       && event.actorId === controlledId
@@ -86,15 +105,94 @@ export function successfulCombatLearningAction(action, controlledId, events) {
         && event.actorId === controlledId
         && event.targetId !== controlledId);
   }
+  if (tags.has("escape")) {
+    return events.some((event) =>
+      ["range.changed", "escape.completed", "help.heard", "hold.broken"].includes(event.type));
+  }
   return events.some((event) =>
     event.type === "action.attempted"
       && event.actorId === controlledId
       && event.actionId === action.id);
 }
 
-export function awardCombatSkillForExchange(player, action, controlledId, events) {
-  if (!successfulCombatLearningAction(action, controlledId, events)) return 0;
+function learningCategory(action) {
+  const tags = new Set(action?.tags || []);
+  if (tags.has("impact")) return "attack";
+  if (tags.has("control") || tags.has("hold")) return "control";
+  if (tags.has("escape")) return "escape";
+  if (tags.has("defense")) return "defense";
+  return null;
+}
+
+function awardCombatPoints(player, learning, requested, source) {
+  const remaining = Math.max(0, COMBAT_SKILL_ENCOUNTER_CAP - learning.pointsAwarded);
+  const amount = Math.min(remaining, requested);
+  if (amount <= 0) return 0;
   const before = player.getSkillValue(COMBAT_SKILL_ID);
-  const after = player.adjustSkill(COMBAT_SKILL_ID, COMBAT_SKILL_SUCCESS_GAIN);
-  return after - before;
+  const after = player.adjustSkill(COMBAT_SKILL_ID, amount);
+  const applied = after - before;
+  learning.pointsAwarded += applied;
+  learning.breakdown[source] += applied;
+  return applied;
+}
+
+export function createCombatLearningState(player) {
+  return {
+    startingTotal: player.getSkillValue(COMBAT_SKILL_ID),
+    pointsAwarded: 0,
+    successfulCategories: [],
+    difficultyBonus: 0,
+    breakdown: {
+      practice: 0,
+      participation: 0,
+      outcome: 0,
+      difficulty: 0,
+    },
+  };
+}
+
+export function combatDifficultyBonus(context, controlledId, opponentId) {
+  const stats = ["strength", "endurance", "fitness", "resolve"];
+  const average = (actorId) => stats.reduce(
+    (total, stat) => total + Number(context.combatants[actorId].stat(stat) || 0),
+    0,
+  ) / stats.length;
+  const difference = average(opponentId) - average(controlledId);
+  if (difference >= 3) return 2;
+  if (difference >= 1) return 1;
+  return 0;
+}
+
+export function awardCombatSkillForExchange(player, learning, action, controlledId, events) {
+  if (!successfulCombatLearningAction(action, controlledId, events)) return 0;
+  const category = learningCategory(action);
+  if (!category || learning.successfulCategories.includes(category)) return 0;
+  learning.successfulCategories.push(category);
+  return awardCombatPoints(player, learning, 1, "practice");
+}
+
+export function settleCombatSkillProgress(player, state, playerLossOutcomeIds) {
+  const learning = state.combatLearning;
+  if (state.exchange <= 0) return 0;
+  const before = learning.pointsAwarded;
+  awardCombatPoints(player, learning, COMBAT_SKILL_PARTICIPATION_GAIN, "participation");
+  const isLoss = playerLossOutcomeIds.includes(state.outcome?.id)
+    || String(state.outcome?.id).includes("both-incapacitated");
+  awardCombatPoints(
+    player,
+    learning,
+    isLoss ? COMBAT_SKILL_LOSS_OUTCOME_GAIN : COMBAT_SKILL_SUCCESS_OUTCOME_GAIN,
+    "outcome",
+  );
+  awardCombatPoints(player, learning, learning.difficultyBonus, "difficulty");
+  return learning.pointsAwarded - before;
+}
+
+export function combatSkillRewardSummary(state) {
+  const learning = state.combatLearning;
+  if (!learning || learning.pointsAwarded <= 0) return "";
+  const before = combatSkillProgress(learning.startingTotal);
+  const after = combatSkillProgress(learning.startingTotal + learning.pointsAwarded);
+  const rankText = after.rank > before.rank ? ` You reached Combat rank ${after.rank}.` : "";
+  return `Combat experience: +${learning.pointsAwarded}.${rankText}`;
 }

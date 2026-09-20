@@ -9,10 +9,13 @@ import {
 } from "../src/features/encounter/actions/index.js";
 import {
   COMBAT_ACTION_MINIMUM_RANK,
-  COMBAT_SKILL_SUCCESS_GAIN,
+  COMBAT_SKILL_ENCOUNTER_CAP,
   awardCombatSkillForExchange,
   combatSkillProgress,
+  settleCombatSkillProgress,
 } from "../src/features/encounter/combatSkill.js";
+import { createCombatContext } from "../src/features/encounter/combatants.js";
+import { calculateExertionCost } from "../src/features/encounter/effort.js";
 import { settleEncounterConsequences } from "../src/features/encounter/consequences.js";
 import { getEncounterObjectives } from "../src/features/encounter/objectives/index.js";
 import {
@@ -59,21 +62,14 @@ test("every damaging attack declares its escalation severity", () => {
   }
 });
 
-test("combat skill uses five 100-point ranks with cross-rank demotion", () => {
-  assert.deepEqual(combatSkillProgress(0), { rank: 0, points: 0, total: 0 });
-  assert.deepEqual(combatSkillProgress(99.85), { rank: 0, points: 99.85, total: 99.85 });
-  assert.deepEqual(combatSkillProgress(100), { rank: 1, points: 0, total: 100 });
-  assert.deepEqual(combatSkillProgress(399), { rank: 3, points: 99, total: 399 });
-  assert.deepEqual(combatSkillProgress(400), { rank: 4, points: 0, total: 400 });
-  assert.deepEqual(combatSkillProgress(500), { rank: 4, points: 100, total: 500 });
-
-  const game = gameAtStart({ combatSkill: 400 });
-  game.player.adjustSkill("combat", -1);
-  assert.deepEqual(combatSkillProgress(game.player.getSkillValue("combat")), {
-    rank: 3,
-    points: 99,
-    total: 399,
-  });
+test("combat skill uses escalating five-rank thresholds", () => {
+  assert.deepEqual(combatSkillProgress(0), { rank: 0, points: 0, pointsForRank: 25, total: 0 });
+  assert.deepEqual(combatSkillProgress(24), { rank: 0, points: 24, pointsForRank: 25, total: 24 });
+  assert.deepEqual(combatSkillProgress(25), { rank: 1, points: 0, pointsForRank: 50, total: 25 });
+  assert.deepEqual(combatSkillProgress(75), { rank: 2, points: 0, pointsForRank: 75, total: 75 });
+  assert.deepEqual(combatSkillProgress(150), { rank: 3, points: 0, pointsForRank: 125, total: 150 });
+  assert.deepEqual(combatSkillProgress(275), { rank: 4, points: 0, pointsForRank: 125, total: 275 });
+  assert.deepEqual(combatSkillProgress(400), { rank: 4, points: 125, pointsForRank: 125, total: 400 });
 });
 
 test("rank zero presents a compact broad action set with core fallbacks", () => {
@@ -81,18 +77,18 @@ test("rank zero presents a compact broad action set with core fallbacks", () => 
   startEncounter(game);
 
   assert.deepEqual(actionIds(game), [
+    "drive-body",
+    "cover-and-brace",
     "surrender-money",
     "scream-for-help",
     "create-distance",
-    "cover-and-brace",
-    "drive-body",
   ]);
   assert.deepEqual(actionChoices(game).map(({ label }) => label), [
+    "Strike body",
+    "Defend yourself",
     "Give up and hand over £20",
     "Scream for help",
     "Try to get away",
-    "Defend yourself",
-    "Strike body",
   ]);
 });
 
@@ -128,19 +124,20 @@ test("rank zero keeps a held-player response compact and non-technical", () => {
 });
 
 test("combat ranks progressively replace broad choices with technical actions", () => {
-  const novice = gameAtStart({ combatSkill: 100 });
+  const novice = gameAtStart({ combatSkill: 25 });
   startEncounter(novice);
-  assert.ok(actionChoices(novice).some(({ label }) => label === "Strike body (direct attack)"));
+  assert.ok(actionChoices(novice).some(({ label }) => label.startsWith("Strike body (direct attack) [")));
+  assert.ok(actionIds(novice).includes("shove-away"));
   assert.ok(!actionIds(novice).includes("strike-face"));
 
-  const trained = gameAtStart({ combatSkill: 200 });
+  const trained = gameAtStart({ combatSkill: 75 });
   startEncounter(trained);
   assert.ok(actionIds(trained).includes("strike-face"));
   assert.ok(actionIds(trained).includes("shove-away"));
   assert.equal(actionIds(trained).filter((id) => id === "grab-arm").length, 2);
   assert.ok(!actionIds(trained).includes("headbutt"));
 
-  const advanced = gameAtStart({ combatSkill: 300 });
+  const advanced = gameAtStart({ combatSkill: 150 });
   const advancedState = startEncounter(advanced);
   advancedState.relationships.range[0].value = "clinch";
   advancedState.npcIntent = {
@@ -151,15 +148,17 @@ test("combat ranks progressively replace broad choices with technical actions", 
   assert.ok(actionIds(advanced).includes("headbutt"));
   assert.ok(actionIds(advanced).includes("knee-strike"));
 
-  const expert = gameAtStart({ combatSkill: 400 });
+  const expert = gameAtStart({ combatSkill: 275 });
   startEncounter(expert);
   const expertPhysicalLabels = actionChoices(expert)
     .filter(({ action }) => ["drive-body", "cover-and-brace"].includes(action.command.actionId))
     .map(({ label }) => label);
-  assert.ok(expertPhysicalLabels.every((label) => /\((?:acts first|same timing|acts after their move)\)$/.test(label)));
+  assert.ok(expertPhysicalLabels.every((label) =>
+    /\[(?:acts first|same timing|acts after their move)(?:; .+)?\]$/.test(label)));
+  assert.ok(expertPhysicalLabels.some((label) => /\d+% estimated chance/.test(label)));
 });
 
-test("successful damaging and controlling actions award silent fractional progress", () => {
+test("only the first successful technique in each category awards practice", () => {
   const game = gameAtStart({ combatSkill: 0 });
   const state = startEncounter(game);
   game.player.setSkillValue("strength", 10);
@@ -171,22 +170,33 @@ test("successful damaging and controlling actions award silent fractional progre
 
   chooseAction(game, "drive-body");
 
-  assert.equal(game.player.getSkillValue("combat"), COMBAT_SKILL_SUCCESS_GAIN);
-  assert.ok(!game.currentStory.system.state.lastEvents.some(({ type }) => type.includes("skill")));
+  assert.equal(game.player.getSkillValue("combat"), 1);
+  const learning = game.currentStory.system.state.combatLearning;
+  assert.deepEqual(learning.successfulCategories, ["attack"]);
 
   const beforeControl = game.player.getSkillValue("combat");
   const gained = awardCombatSkillForExchange(
     game.player,
+    learning,
     getEncounterAction("grab-arm"),
     "player",
     [{ type: "action.attempted", actorId: "player", actionId: "grab-arm" }],
   );
-  assert.equal(gained, COMBAT_SKILL_SUCCESS_GAIN);
-  assert.equal(game.player.getSkillValue("combat"), beforeControl + COMBAT_SKILL_SUCCESS_GAIN);
+  assert.equal(gained, 1);
+  assert.equal(game.player.getSkillValue("combat"), beforeControl + 1);
+
+  assert.equal(awardCombatSkillForExchange(
+    game.player,
+    learning,
+    getEncounterAction("grab-arm"),
+    "player",
+    [{ type: "action.attempted", actorId: "player", actionId: "grab-arm" }],
+  ), 0);
 
   const beforeFailure = game.player.getSkillValue("combat");
   assert.equal(awardCombatSkillForExchange(
     game.player,
+    learning,
     getEncounterAction("grab-arm"),
     "player",
     [
@@ -197,26 +207,87 @@ test("successful damaging and controlling actions award silent fractional progre
   assert.equal(game.player.getSkillValue("combat"), beforeFailure);
 });
 
-test("a combat loss applies one point once and the phone shows rank progress", () => {
-  const game = gameAtStart({ combatSkill: 400 });
+test("an encounter awards outcome progress once, never subtracts skill, and reports rank progress", () => {
+  const game = gameAtStart({ combatSkill: 24 });
   startEncounter(game);
   const instanceKey = game.currentStory.instanceKey;
 
   chooseAction(game, "surrender-money");
 
   const terminal = game.currentStory.system.state;
-  assert.equal(game.player.getSkillValue("combat"), 399);
+  assert.equal(game.player.getSkillValue("combat"), 29);
   assert.equal(settleEncounterConsequences(game, terminal, instanceKey), false);
-  assert.equal(game.player.getSkillValue("combat"), 399);
+  assert.equal(game.player.getSkillValue("combat"), 29);
+  assert.deepEqual(terminal.combatLearning.successfulCategories, []);
+  assert.ok(terminal.combatLearning.pointsAwarded <= COMBAT_SKILL_ENCOUNTER_CAP);
+  assert.match(
+    buildScene(game).content.map(({ text }) => text).join(" "),
+    /Combat experience: \+5\. You reached Combat rank 1\./,
+  );
 
   const combat = buildPhonePlayerStatsView(game).skills.find(({ id }) => id === "combat");
   assert.deepEqual(combat, {
     id: "combat",
     label: "Combat",
-    value: 99,
+    value: 4,
     min: 0,
-    max: 100,
-    rank: 3,
-    total: 399,
+    max: 50,
+    rank: 1,
+    total: 29,
   });
+});
+
+test("varied practice and encounter rewards cannot exceed ten points", () => {
+  const game = gameAtStart({ combatSkill: 0 });
+  const state = startEncounter(game);
+  const learning = state.combatLearning;
+  const successEvents = (actionId, extra = []) => [
+    { type: "action.attempted", actorId: "player", actionId },
+    ...extra,
+  ];
+  awardCombatSkillForExchange(game.player, learning, getEncounterAction("drive-body"), "player", successEvents(
+    "drive-body",
+    [{ type: "impact.landed", actorId: "player", targetId: "mugger" }],
+  ));
+  awardCombatSkillForExchange(game.player, learning, getEncounterAction("grab-arm"), "player", successEvents("grab-arm"));
+  awardCombatSkillForExchange(game.player, learning, getEncounterAction("create-distance"), "player", successEvents(
+    "create-distance",
+    [{ type: "range.changed", from: "reach", to: "apart" }],
+  ));
+  awardCombatSkillForExchange(game.player, learning, getEncounterAction("cover-and-brace"), "player", successEvents("cover-and-brace"));
+
+  state.exchange = 4;
+  state.outcome = { id: "player-escaped" };
+  learning.difficultyBonus = 2;
+  settleCombatSkillProgress(game.player, state, []);
+
+  assert.equal(learning.pointsAwarded, COMBAT_SKILL_ENCOUNTER_CAP);
+  assert.equal(game.player.getSkillValue("combat"), COMBAT_SKILL_ENCOUNTER_CAP);
+  assert.equal(Object.values(learning.breakdown).reduce((sum, value) => sum + value, 0), 10);
+});
+
+test("expert Combat reduces player exertion without changing NPC costs", () => {
+  const novice = gameAtStart({ combatSkill: 274 });
+  const noviceState = startEncounter(novice);
+  const noviceContext = createCombatContext({
+    game: novice,
+    state: noviceState,
+    instanceKey: novice.currentStory.instanceKey,
+  });
+  const expert = gameAtStart({ combatSkill: 275 });
+  const expertState = startEncounter(expert);
+  const expertContext = createCombatContext({
+    game: expert,
+    state: expertState,
+    instanceKey: expert.currentStory.instanceKey,
+  });
+
+  assert.ok(
+    calculateExertionCost(expertContext, "player", 10)
+      < calculateExertionCost(noviceContext, "player", 10),
+  );
+  assert.equal(
+    calculateExertionCost(expertContext, "mugger", 10),
+    calculateExertionCost(noviceContext, "mugger", 10),
+  );
 });

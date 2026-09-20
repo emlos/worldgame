@@ -1,5 +1,11 @@
 import { getEncounterAction, getEncounterActions } from "./actions/index.js";
-import { getControlledHelplessActionId, hostileHoldsOn } from "./combatants.js";
+import {
+  getControlledHelplessActionId,
+  getEffectiveHoldLeverage,
+  holdsControlledBy,
+  hostileHoldsOn,
+} from "./combatants.js";
+import { calculateContestChance } from "./actions/helpers.js";
 import { effortBlockerText, getActionEffortStatus } from "./effort.js";
 import { controlledParticipantId, goalOwnerId } from "./roles.js";
 import { actionIntentProse } from "./proseData.js";
@@ -213,11 +219,117 @@ export function actionDurationSeconds(instance) {
   return definition.durationSeconds;
 }
 
+function contestPreviewOptions(context, instance) {
+  const fixed = {
+    "strike-face": { baseChance: 0.57, defense: "impact" },
+    "drive-body": { baseChance: 0.64, defense: "impact" },
+    "strike-holding-arm": { baseChance: 0.67, defense: "impact" },
+    headbutt: { baseChance: 0.58, defense: "impact" },
+    "knee-strike": { baseChance: 0.61, defense: "impact" },
+    "shove-away": { baseChance: 0.61, actorStat: "strength", targetStat: "strength" },
+    "grab-arm": { baseChance: 0.6, actorStat: "fitness", targetStat: "fitness" },
+  };
+  if (fixed[instance.actionId]) return fixed[instance.actionId];
+
+  const controlledHold = holdsControlledBy(context, instance.actorId).find(
+    ({ id }) => id === instance.parameters?.holdId,
+  );
+  const leverage = controlledHold ? getEffectiveHoldLeverage(context, controlledHold) : 0;
+  if (instance.actionId === "force-to-wall") {
+    return { baseChance: 0.5, actorStat: "strength", targetStat: "strength", modifier: leverage * 0.003 };
+  }
+  if (instance.actionId === "force-to-ground") {
+    return { baseChance: 0.48, actorStat: "strength", targetStat: "strength", modifier: leverage * 0.003 };
+  }
+  if (instance.actionId === "turn-target-away") {
+    return { baseChance: 0.56, actorStat: "fitness", targetStat: "fitness", modifier: leverage * 0.002 };
+  }
+  if (instance.actionId === "pin-limb") {
+    return { baseChance: 0.62, actorStat: "strength", targetStat: "strength", modifier: leverage * 0.002 };
+  }
+
+  const hostile = hostileHoldsOn(context, instance.actorId);
+  const totalLeverage = hostile.reduce(
+    (sum, hold) => sum + getEffectiveHoldLeverage(context, hold),
+    0,
+  );
+  if (instance.actionId === "create-distance" && hostile.length) {
+    return {
+      baseChance: 0.58,
+      actorStat: "fitness",
+      targetStat: "strength",
+      modifier: -totalLeverage * 0.006,
+      defense: "neutral",
+    };
+  }
+  if (instance.actionId === "stand-up" && hostile.length) {
+    return {
+      baseChance: 0.61,
+      actorStat: "fitness",
+      targetStat: "strength",
+      modifier: -totalLeverage * 0.0015,
+    };
+  }
+  if (instance.actionId === "roll-toward" && hostile.length) {
+    const strongest = Math.max(
+      ...hostile.map((hold) => getEffectiveHoldLeverage(context, hold)),
+    );
+    return {
+      baseChance: 0.64,
+      actorStat: "fitness",
+      targetStat: "strength",
+      modifier: -strongest * 0.002,
+    };
+  }
+  return null;
+}
+
+function previewContestChance(context, instance) {
+  const options = contestPreviewOptions(context, instance);
+  if (!options) return null;
+  const npcAction = getEncounterAction(context.state.npcIntent?.actionId);
+  const playerSeconds = actionDurationSeconds(instance);
+  const npcActsInTime = npcAction?.durationSeconds <= playerSeconds;
+  const runtime = {
+    guarded: new Set(
+      npcActsInTime && npcAction?.id === "cover-and-brace" ? [instance.targetId] : [],
+    ),
+    evading: new Set(
+      npcActsInTime && npcAction?.id === "create-distance" ? [instance.targetId] : [],
+    ),
+  };
+  return calculateContestChance(context, instance, runtime, options);
+}
+
+function timingInsight(context, definition) {
+  const opponentSeconds = getEncounterAction(
+    context.state.npcIntent?.actionId,
+  )?.durationSeconds;
+  if (!Number.isFinite(opponentSeconds)) return null;
+  if (definition.durationSeconds < opponentSeconds) return "acts first";
+  if (definition.durationSeconds === opponentSeconds) return "same timing";
+  return "acts after their move";
+}
+
+function tacticalInsight(context, instance, definition) {
+  const npcTags = new Set(getEncounterAction(context.state.npcIntent?.actionId)?.tags || []);
+  if (instance.actionId === "cover-and-brace") {
+    return npcTags.has("impact") ? "reduces incoming impact" : "does not stop control attempts";
+  }
+  if (instance.actionId === "create-distance") return "evades attacks while moving";
+  if (instance.actionId === "strike-holding-arm") return "can weaken or break the grip";
+  if (definition.tags.includes("self-risk")) return "can daze you on a miss";
+  if (definition.tags.includes("balance-risk")) return "risks your balance";
+  if (definition.tags.includes("takedown")) return "converts a strong hold into ground control";
+  if (definition.tags.includes("pin")) return "upgrades a grip into a pin";
+  return null;
+}
+
 export function actionLabel(context, instance) {
   const definition = getEncounterAction(instance.actionId);
   if (!definition) return instance.actionId;
-  const label = definition.label(context, instance);
-  if (instance.actorId !== controlledParticipantId(context.state)) return label;
+  const specificLabel = definition.label(context, instance);
+  if (instance.actorId !== controlledParticipantId(context.state)) return specificLabel;
   const rank = getPlayerCombatRank(context.game.player);
   const broadLabels = {
     "drive-body": rank === 0 ? "Strike body" : "Strike body (direct attack)",
@@ -228,27 +340,27 @@ export function actionLabel(context, instance) {
     "create-distance":
       rank === 0 ? "Try to get away" : "Create distance (escape setup)",
   };
-  if (rank < 2 && broadLabels[instance.actionId])
-    return broadLabels[instance.actionId];
-  if (
-    rank < 4 ||
-    definition.tags.some((tag) =>
-      ["objective", "support", "helpless"].includes(tag),
-    )
-  )
-    return label;
+  const label = rank < 2 && broadLabels[instance.actionId]
+    ? broadLabels[instance.actionId]
+    : specificLabel;
+  if (rank < 1 || definition.tags.includes("helpless")) return label;
 
-  const opponentSeconds = getEncounterAction(
-    context.state.npcIntent?.actionId,
-  )?.durationSeconds;
-  if (!Number.isFinite(opponentSeconds)) return label;
-  const timing =
-    definition.durationSeconds < opponentSeconds
-      ? "acts first"
-      : definition.durationSeconds === opponentSeconds
-        ? "same timing"
-        : "acts after their move";
-  return `${label} (${timing})`;
+  const insights = [timingInsight(context, definition)];
+  if (rank >= 2) {
+    const chance = previewContestChance(context, instance);
+    if (chance !== null) {
+      insights.push(rank >= 4
+        ? `${Math.round(chance * 100)}% estimated chance`
+        : chance >= 0.7
+          ? "favorable odds"
+          : chance >= 0.5
+            ? "even odds"
+            : "risky odds");
+    }
+  }
+  if (rank >= 3) insights.push(tacticalInsight(context, instance, definition));
+  const visible = insights.filter(Boolean);
+  return visible.length ? `${label} [${visible.join("; ")}]` : label;
 }
 
 export function getActionPurpose(context, instance) {

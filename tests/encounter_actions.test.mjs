@@ -36,29 +36,28 @@ test("the opening state exposes the minimum contextual choices", () => {
   assert.deepEqual(
     encounterChoices(scene).map(({ id }) => id),
     [
-      "encounter-action:surrender-money",
-      "encounter-action:scream-for-help",
-      "encounter-action:create-distance",
-      "encounter-action:cover-and-brace",
       "encounter-action:strike-face",
       "encounter-action:drive-body",
       "encounter-action:shove-away",
       "encounter-action:grab-arm:1",
       "encounter-action:grab-arm:2",
+      "encounter-action:cover-and-brace",
+      "encounter-action:surrender-money",
+      "encounter-action:scream-for-help",
+      "encounter-action:create-distance",
     ],
   );
   assert.deepEqual(scene.sections.map(({ heading }) => heading), [
-    "Escape",
-    "Defend",
     "Attack",
     "Control",
+    "Defend",
+    "Escape",
   ]);
   const content = JSON.stringify(scene.content);
   assert.match(content, /You have only a moment to react|already unfolding|brief opening to respond/);
   assert.match(content, /You are standing at arm's reach, unhurt and steady\./);
   assert.doesNotMatch(content, /Next:|Current situation|\d+ seconds\./);
   assert.ok(scene.content.every(({ type }) => type === "paragraph"));
-  assert.match(content, /Actions are grouped by immediate purpose/);
   assert.doesNotMatch(content, /complete exchange time/);
   for (const choice of encounterChoices(scene)) {
     assert.equal(choice.showDuration, false);
@@ -346,7 +345,7 @@ test("two held arms generate one combined wrench and separate holding-limb attac
 
   assert.equal(wrench.length, 1);
   assert.deepEqual(wrench[0].parameters.holdIds, ["hold-left", "hold-right"]);
-  assert.equal(actionLabel(context, wrench[0]), "Try to wrestle both arms free");
+  assert.match(actionLabel(context, wrench[0]), /^Try to wrestle both arms free \[/);
   assert.equal(holdingLimbStrikes.length, 2);
   assert.ok(holdingLimbStrikes.every(({ parameters }) => parameters.sourcePartId.startsWith("knee_")));
   assert.ok(actionIds(actions).includes("headbutt"));
@@ -487,7 +486,7 @@ test("facing away blocks pursuit but not fleeing", () => {
 
   const run = getAvailableActionInstances(context, "player")
     .find(({ actionId }) => actionId === "run");
-  assert.equal(actionLabel(context, run), "Run for safety");
+  assert.match(actionLabel(context, run), /^Run for safety \[/);
   assert.doesNotMatch(
     getEncounterAction("flee").intentLabel(context, { actorId: "mugger" }),
     /alley|street/i,

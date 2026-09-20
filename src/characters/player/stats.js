@@ -58,9 +58,8 @@ export function initialPlayerStats() {
 }
 
 export const COMBAT_SKILL_RANK_COUNT = 5;
-export const COMBAT_SKILL_POINTS_PER_RANK = 100;
-export const COMBAT_SKILL_MAX_POINTS = COMBAT_SKILL_RANK_COUNT
-  * COMBAT_SKILL_POINTS_PER_RANK;
+export const COMBAT_SKILL_RANK_THRESHOLDS = Object.freeze([0, 50, 100, 200, 350]);
+export const COMBAT_SKILL_MAX_POINTS = 700;
 
 // Abilities used by authored skill checks and progression systems.
 export const SKILLS = Object.freeze({
@@ -76,7 +75,7 @@ export const SKILLS = Object.freeze({
     max: COMBAT_SKILL_MAX_POINTS,
     initial: 0,
     rankCount: COMBAT_SKILL_RANK_COUNT,
-    pointsPerRank: COMBAT_SKILL_POINTS_PER_RANK,
+    rankThresholds: COMBAT_SKILL_RANK_THRESHOLDS,
   }),
 });
 

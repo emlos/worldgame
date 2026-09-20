@@ -196,8 +196,8 @@ function populateSetup() {
     step: 1,
     value: 0,
     formatValue: (current) => {
-      const { rank, points } = combatSkillProgress(current);
-      return `Rank ${rank} · ${Number(points.toFixed(2))} / 100`;
+      const { rank, points, pointsForRank } = combatSkillProgress(current);
+      return `Rank ${rank} · ${Number(points.toFixed(2))} / ${pointsForRank}`;
     },
   });
   ATTACKER_STATS.forEach((name) => createSlider(elements.attackerSliders, "attacker", name));
