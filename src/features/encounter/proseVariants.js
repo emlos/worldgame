@@ -19,14 +19,32 @@ export function pickProseVariant(
   context,
   key,
   variants,
-  { avoidPreviousExchange = false } = {},
+  { avoidPreviousExchange = false, avoidRecentExchanges = 0 } = {},
 ) {
   if (!Array.isArray(variants) || variants.length === 0) return "";
 
   let index = variantIndex(context, key, variants.length);
-  if (avoidPreviousExchange && variants.length > 1 && context.state.exchange > 0) {
-    const previous = variantIndex(context, key, variants.length, context.state.exchange - 1);
-    if (index === previous) index = (index + 1) % variants.length;
+  const recentCount = Math.max(
+    avoidPreviousExchange ? 1 : 0,
+    Math.max(0, Math.floor(Number(avoidRecentExchanges) || 0)),
+  );
+  if (recentCount > 0 && variants.length > 1 && context.state.exchange > 0) {
+    const unavailable = new Set();
+    const oldest = Math.max(0, context.state.exchange - recentCount);
+    for (
+      let exchange = context.state.exchange - 1;
+      exchange >= oldest;
+      exchange -= 1
+    ) {
+      unavailable.add(variantIndex(context, key, variants.length, exchange));
+    }
+    for (let offset = 0; offset < variants.length; offset += 1) {
+      const candidate = (index + offset) % variants.length;
+      if (!unavailable.has(candidate)) {
+        index = candidate;
+        break;
+      }
+    }
   }
 
   const variant = variants[index];

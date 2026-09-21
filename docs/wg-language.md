@@ -752,7 +752,7 @@ alias matches `opponent.actor`:
 :: encounter.example-mugging -> encounter.example-aftermath
   @actor attacker civilian
 
-  @system encounter.physical {"scenario":"fight","opponent":{"id":"attacker","actor":"attacker"},"goal":{"id":"steal-money","maxAmount":20},"outcomes":{"player-escaped":"encounter.example-escaped","default":"encounter.example-aftermath"}}
+  @system encounter.physical {"scenario":"fight","opponent":{"id":"attacker","actor":"attacker","title":"the attacker"},"goal":{"id":"steal-money","maxAmount":20},"outcomes":{"player-escaped":"encounter.example-escaped","default":"encounter.example-aftermath"}}
 ```
 
 To use a registered persistent NPC, omit `@actor` and name `opponent.npc`:
@@ -764,7 +764,10 @@ To use a registered persistent NPC, omit `@actor` and name `opponent.npc`:
 
 Use exactly one of `opponent.actor` and `opponent.npc`. `opponent.id` is the
 encounter-local participant ID and cannot be `player`; it may match the alias or
-NPC ID for clarity. Current goals are `steal-money` and `beat-down`. Outcome
+NPC ID for clarity. A temporary actor may also have a non-empty `opponent.title`
+for prose references such as `the attacker`; persistent NPCs always use their
+short name or name, so `title` is rejected with `opponent.npc`. Current goals
+are `steal-money` and `beat-down`. Outcome
 routes may be a target string or an object with `target` plus optional
 `effects`, `paragraphs`, and `leavePlace`. A `default` route handles outcomes
 that do not need unique aftermath scenes; otherwise the WG scene's final target

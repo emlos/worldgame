@@ -43,7 +43,7 @@
 :: encounter.alley-mugging -> encounter.alley-jackie-introduction
   @actor mugger civilian
 
-  @system encounter.physical {"scenario":"fight","opponent":{"id":"mugger","actor":"mugger"},"goal":{"id":"steal-money","maxAmount":20},"outcomes":{"player-rescued":{"target":"encounter.alley-mugging-rescue","leavePlace":false},"default":{"target":"encounter.alley-jackie-introduction","leavePlace":false}}}
+  @system encounter.physical {"scenario":"fight","opponent":{"id":"mugger","actor":"mugger","title":"the mugger"},"goal":{"id":"steal-money","maxAmount":20},"outcomes":{"player-rescued":{"target":"encounter.alley-mugging-rescue","leavePlace":false},"default":{"target":"encounter.alley-jackie-introduction","leavePlace":false}}}
 
 :: encounter.alley-mugging-rescue -> encounter.alley-jackie-introduction
   @actor rescuer civilian

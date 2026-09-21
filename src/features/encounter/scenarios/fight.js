@@ -54,6 +54,7 @@ function opponentSource(game, opponent) {
     return {
       character: actor,
       ref: { type: "scene-actor", alias: opponent.actor },
+      title: opponent.title?.trim() || actor.title,
     };
   }
   const npc = game.npcs.get(String(opponent.npc));
@@ -61,6 +62,7 @@ function opponentSource(game, opponent) {
   return {
     character: npc,
     ref: { type: "npc", npcId: String(opponent.npc) },
+    title: npc.meta?.shortName || npc.name,
   };
 }
 
@@ -203,6 +205,14 @@ export const FIGHT_SCENARIO = Object.freeze({
     if (hasActor === hasNpc) {
       fail("config.opponent requires exactly one of actor or npc");
     }
+    if (opponent.title !== undefined) {
+      if (!hasActor) {
+        fail("config.opponent.title is supported only for temporary actors");
+      }
+      if (typeof opponent.title !== "string" || !opponent.title.trim()) {
+        fail("config.opponent.title must be a non-empty string");
+      }
+    }
     if (opponent.difficulty !== undefined) {
       if (!hasActor) {
         fail("config.opponent.difficulty is supported only for temporary actors");
@@ -269,6 +279,7 @@ export const FIGHT_SCENARIO = Object.freeze({
     const state = createFightState({
       opponentId: config.opponent.id,
       opponentRef: opponent.ref,
+      opponentTitle: opponent.title,
       objective,
       personalityId: personality.id,
       stress: createCombatStressState(game, config.stressMultiplier ?? 1),

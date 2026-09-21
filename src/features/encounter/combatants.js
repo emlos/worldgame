@@ -81,7 +81,7 @@ export function createCombatContext({ game, state, instanceKey }) {
     if (participant.ref.type === "player") {
       combatants[participantId] = {
         id: participantId,
-        title: "you",
+        title: participant.title,
         body: game.player.body,
         stat: (name) => playerStat(game, name),
         persist() {},
@@ -92,7 +92,7 @@ export function createCombatContext({ game, state, instanceKey }) {
       const npc = persistentNpc(game, participant.ref.npcId);
       combatants[participantId] = {
         id: participantId,
-        title: npc.meta?.shortName || npc.name,
+        title: participant.title,
         actor: npc,
         body: npc.body,
         stat: (name) => actorStat(npc, name),
@@ -104,7 +104,7 @@ export function createCombatContext({ game, state, instanceKey }) {
     const actorBody = Body.fromJSON(actor.body);
     combatants[participantId] = {
       id: participantId,
-      title: actor.title,
+      title: participant.title,
       actor,
       body: actorBody,
       stat: (name) => actorStat(actor, name),

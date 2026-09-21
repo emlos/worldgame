@@ -163,6 +163,53 @@ test("repeated actions avoid repeating the immediately previous display form", (
   state.exchange = 5;
   const repeated = renderLastExchange(context);
   assert.notEqual(repeated, previous);
+  assert.match(repeated, /again|another|same opening/i);
+});
+
+test("strike prose reflects glancing and heavy impact magnitude", () => {
+  for (const [seed, damage, expected] of [
+    [31, 4, /clips|graze|glancing/i],
+    [32, 18, /crashes|hard|full force/i],
+  ]) {
+    const { state, context } = setup(seed);
+    state.exchange = 2;
+    state.participants.player.actionHistory = ["drive-body"];
+    state.lastEvents = [
+      { type: "action.attempted", actorId: "player", targetId: "mugger", actionId: "drive-body" },
+      { type: "impact.landed", actorId: "player", targetId: "mugger", partId: "abdomen", damage, damageType: "blunt" },
+    ];
+    const prose = renderLastExchange(context);
+    assert.match(prose, expected);
+    assert.doesNotMatch(prose, /body blow.*body\b/i);
+  }
+});
+
+test("strengthening a hold renders one specific action beat", () => {
+  const { state, context } = setup(40);
+  state.exchange = 2;
+  state.participants.player.actionHistory = ["tighten-hold"];
+  state.relationships.holds.push({
+    id: "player-left-grip",
+    controllerId: "player",
+    sourcePartId: "hand_l",
+    targetId: "mugger",
+    targetPartId: "lower_arm_r",
+    kind: "wrist-grip",
+    leverage: 55,
+  });
+  state.lastEvents = [
+    {
+      type: "action.attempted",
+      actorId: "player",
+      targetId: "mugger",
+      actionId: "tighten-hold",
+      parameters: { holdId: "player-left-grip" },
+    },
+    { type: "hold.strengthened", holdId: "player-left-grip", amount: 8 },
+  ];
+  const prose = renderLastExchange(context);
+  assert.match(prose, /grip|hold|wrist/i);
+  assert.doesNotMatch(prose, /reinforce.*tightens/is);
 });
 
 test("terminal escape and surrender outcomes use deterministic variant packs", () => {

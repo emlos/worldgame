@@ -9,6 +9,7 @@ import {
   renderIntent,
   renderLastExchange,
   renderObjectivePressure,
+  renderSituationProse,
 } from "../src/features/encounter/prose.js";
 import {
   beatDownThreatProse,
@@ -44,26 +45,34 @@ function sampleIntent(actionId) {
   };
 }
 
-test("every attacker intent uses generated pronouns with correct verb agreement", () => {
+test("attacker intents mix titles and pronouns with correct verb agreement", () => {
   for (const [pronouns, subject] of [
     [PronounSets.HE_HIM, "He"],
     [PronounSets.SHE_HER, "She"],
     [PronounSets.THEY_THEM, "They"],
   ]) {
     const { state, context } = setup(pronouns);
+    let titled = 0;
     for (const action of ENCOUNTER_ACTIONS) {
       state.npcIntent = sampleIntent(action.id);
       const rendered = renderIntent(context);
-      assert.match(rendered, new RegExp(`^${subject} `), action.id);
+      assert.match(rendered, new RegExp(`\\b(?:The mugger|${subject})\\b`), action.id);
+      if (/\bThe mugger\b/.test(rendered)) titled += 1;
       assert.doesNotMatch(rendered, /\d+ seconds\./, action.id);
       assert.doesNotMatch(rendered, new RegExp(`\\b${action.id}\\b`), action.id);
       if (subject !== "They") assert.doesNotMatch(rendered, /\b(?:they|their|them|themself)\b/i, action.id);
       else assert.doesNotMatch(
         rendered,
-        /^They (?:covers|draws|sets|tries|leans|shifts|plants|twists|lunges|turns|glances|reaches|wrenches|settles|adjusts|drops|keeps)\b/,
+        /\bThey (?:covers|draws|sets|tries|leans|shifts|plants|twists|lunges|turns|glances|reaches|wrenches|settles|adjusts|drops|keeps)\b/,
+        action.id,
+      );
+      assert.doesNotMatch(
+        rendered,
+        /\bThe mugger (?:cover|draw|set|try|lean|shift|plant|twist|lunge|turn|glance|reach|wrench|settle|adjust|drop|keep)\b/,
         action.id,
       );
     }
+    assert.ok(titled > ENCOUNTER_ACTIONS.length / 2, `${subject}: title should be favored`);
   }
 });
 
@@ -80,7 +89,9 @@ test("player-facing labels, exchange prose, pressure, and outcomes use attacker 
     assert.ok(labels.some((label) => label.startsWith(`Shove ${expected.object} away [`)));
 
     const opening = renderLastExchange(context);
-    assert.match(opening, new RegExp(`\\b${expected.subject.toLowerCase()} ${expected.demand} your money\\b`, "i"));
+    assert.match(opening, /\bthe mugger\b/i);
+    assert.match(opening, /\bmoney\b/i);
+    assert.match(renderSituationProse(context), /\. The mugger is /);
     assert.match(renderObjectivePressure(context), new RegExp(`^${expected.subject} still `));
 
     state.outcome = { id: STEAL_MONEY_OUTCOME.muggerFled, moneyLost: 0 };

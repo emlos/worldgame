@@ -23,7 +23,7 @@ export {
   setEncounterRange,
 } from "./spatialState.js";
 
-export const ENCOUNTER_STATE_VERSION = 12;
+export const ENCOUNTER_STATE_VERSION = 13;
 export const FIGHT_SCENARIO_ID = "fight";
 
 export const ENCOUNTER_PHASE = Object.freeze({
@@ -137,6 +137,7 @@ function validateParticipant(participant, path) {
   record(participant, path);
   const keys = [
     "ref",
+    "title",
     "controller",
     "pose",
     "support",
@@ -147,6 +148,7 @@ function validateParticipant(participant, path) {
   ];
   exactKeys(participant, keys, path);
   validateRef(participant.ref, `${path}.ref`);
+  string(participant.title, `${path}.title`);
   record(participant.controller, `${path}.controller`);
   if (participant.controller.type === "human") {
     exactKeys(participant.controller, ["type"], `${path}.controller`);
@@ -393,6 +395,7 @@ export function createFightState({
   controlledId = "player",
   opponentId = "opponent",
   opponentRef,
+  opponentTitle = "opponent",
   objective,
   personalityId = "opportunist",
   stress,
@@ -420,6 +423,7 @@ export function createFightState({
     participants: {
       [controlledId]: {
         ref: { type: "player" },
+        title: "you",
         controller: { type: "human" },
         pose: ENCOUNTER_POSE.standing,
         support: ENCOUNTER_SUPPORT.free,
@@ -430,6 +434,7 @@ export function createFightState({
       },
       [opponentId]: {
         ref: structuredClone(opponentRef),
+        title: opponentTitle,
         controller: {
           type: "ai",
           policyId: "hostile",

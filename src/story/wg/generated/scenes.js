@@ -9833,7 +9833,8 @@ export const WG_BUNDLE = {
           "scenario": "fight",
           "opponent": {
             "id": "mugger",
-            "actor": "mugger"
+            "actor": "mugger",
+            "title": "the mugger"
           },
           "goal": {
             "id": "steal-money",

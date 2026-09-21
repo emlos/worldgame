@@ -1,6 +1,6 @@
 import { actionDurationSeconds } from "./availability.js";
 import { getCommitmentBand } from "./ai.js";
-import { getCombatant } from "./combatants.js";
+import { getCombatant, holdsControlledBy } from "./combatants.js";
 import {
   ENCOUNTER_POSE,
   ENCOUNTER_RANGE,
@@ -29,11 +29,16 @@ import {
   spoiledActionProse,
   strikeProseDescription,
   strikeProseVariants,
+  tightenHoldProseVariants,
   withFailureOddsProse,
   wrenchFreeProseVariants,
   wristProseName,
 } from "./proseData.js";
 import { pickProseVariant } from "./proseVariants.js";
+
+function capitalize(text) {
+  return text ? `${text[0].toUpperCase()}${text.slice(1)}` : text;
+}
 
 function actionWasRepeated(context, event) {
   const history = context.state.participants[event.actorId]?.actionHistory || [];
@@ -43,11 +48,12 @@ function actionWasRepeated(context, event) {
 }
 
 function actionVariant(context, event, result, variants) {
+  const repeated = actionWasRepeated(context, event);
   return pickProseVariant(
     context,
     [event.actorId, event.targetId, event.actionId, result].join(":"),
     variants,
-    { avoidPreviousExchange: actionWasRepeated(context, event) },
+    { avoidRecentExchanges: repeated ? 3 : 0 },
   );
 }
 
@@ -123,9 +129,13 @@ function strikeBeatText(context, attempted, events) {
   if (!failure && !impact) return null;
 
   const strike = strikeProseDescription(attempted.actionId);
+  const repeated = actionWasRepeated(context, attempted);
 
   if (failure?.reason === "missed") {
-    const variants = strikeProseVariants(context, attempted, "failed.missed", { strike });
+    const variants = strikeProseVariants(context, attempted, "failed.missed", {
+      strike,
+      repeated,
+    });
     return {
       text: withFailureOddsProse(failure, actionVariant(context, attempted, "failed.missed", variants)),
       consumed: new Set([attempted, failure]),
@@ -134,7 +144,12 @@ function strikeBeatText(context, attempted, events) {
   if (failure) return null;
 
   const part = impactPartProseName(impact.partId);
-  const variants = strikeProseVariants(context, attempted, "success", { strike, part });
+  const variants = strikeProseVariants(context, attempted, "success", {
+    strike,
+    part,
+    damage: impact.damage,
+    repeated,
+  });
   return {
     text: actionVariant(context, attempted, "success", variants),
     consumed: new Set([attempted, impact]),
@@ -257,6 +272,8 @@ function renderActionBeat(context, events) {
     rendered = grabBeatText(context, attempted, events);
   } else if (attempted.actionId === "wrench-free") {
     rendered = wrenchBeatText(context, attempted, events);
+  } else if (attempted.actionId === "tighten-hold") {
+    rendered = tightenHoldBeatText(context, attempted, events);
   } else if (STRIKE_ACTIONS.has(attempted.actionId)) {
     rendered = strikeBeatText(context, attempted, events);
   } else if (attempted.actionId === "cover-and-brace") {
@@ -323,6 +340,18 @@ function painChangeFeedback(event) {
     higherIsBetter: false,
     direction: "increase",
     label: "+Pain",
+  };
+}
+
+function tightenHoldBeatText(context, attempted, events) {
+  const strengthened = events.find((event) => event.type === "hold.strengthened");
+  if (!strengthened) return null;
+  const hold = holdsControlledBy(context, attempted.actorId)
+    .find(({ id }) => id === strengthened.holdId);
+  const variants = tightenHoldProseVariants(context, attempted, { kind: hold?.kind });
+  return {
+    text: actionVariant(context, attempted, "success", variants),
+    consumed: new Set([attempted, strengthened]),
   };
 }
 
@@ -430,7 +459,7 @@ export function renderSituationTable(context) {
   return {
     type: "table",
     caption: "Current situation",
-    columns: ["State", "You", getCombatant(context, opponentId).title],
+    columns: ["State", "You", capitalize(getCombatant(context, opponentId).title)],
     rows: [
       ["Position", situationPositionProse(context, playerId), situationPositionProse(context, opponentId)],
       ["Condition", situationConditionProse(context, playerId), situationConditionProse(context, opponentId)],
@@ -462,6 +491,6 @@ function actorSituationProse(context, actorId) {
 export function renderSituationProse(context) {
   const playerId = controlledParticipantId(context.state);
   const opponentId = opponentParticipantId(context.state, playerId);
-  const opponent = getCombatant(context, opponentId).title;
+  const opponent = capitalize(getCombatant(context, opponentId).title);
   return `You are ${actorSituationProse(context, playerId)}. ${opponent} is ${actorSituationProse(context, opponentId)}.`;
 }

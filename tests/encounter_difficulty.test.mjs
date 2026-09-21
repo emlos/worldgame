@@ -113,6 +113,44 @@ test("temporary-opponent difficulty is a strict actor-only enum", () => {
   );
 });
 
+test("temporary opponents accept prose titles while persistent NPCs keep their names", () => {
+  const base = {
+    scenario: "fight",
+    goal: { id: "steal-money", maxAmount: 20 },
+  };
+  assert.doesNotThrow(() => FIGHT_SCENARIO.validateConfig({
+    ...base,
+    opponent: { id: "mugger", actor: "mugger", title: "the masked mugger" },
+  }));
+  assert.throws(
+    () => FIGHT_SCENARIO.validateConfig({
+      ...base,
+      opponent: { id: "mugger", actor: "mugger", title: "   " },
+    }),
+    /must be a non-empty string/,
+  );
+  assert.throws(
+    () => FIGHT_SCENARIO.validateConfig({
+      ...base,
+      opponent: { id: "jackie", npc: "jackie", title: "the trainer" },
+    }),
+    /supported only for temporary actors/,
+  );
+
+  const { game, state } = configuredEncounter(undefined);
+  const config = {
+    ...base,
+    opponent: { id: "mugger", actor: "mugger", title: "  the masked mugger  " },
+  };
+  const titledState = FIGHT_SCENARIO.create({
+    game,
+    instanceKey: game.currentStory.instanceKey,
+    config,
+  });
+  assert.equal(titledState.participants.mugger.title, "the masked mugger");
+  assert.equal(state.participants.player.title, "you");
+});
+
 test("active temporary-actor encounters expose a qualitative opponent threat level", () => {
   const game = gameAtStart({ seed: 333 });
   for (const statName of STAT_NAMES) game.player.setSkillValue(statName, 5);

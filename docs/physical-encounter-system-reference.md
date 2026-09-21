@@ -59,7 +59,7 @@ Physical encounters are runtime story systems; there is no `@combat` directive. 
 :: encounter.alley-mugging -> encounter.alley-jackie-introduction
   @actor mugger civilian
 
-  @system encounter.physical {"scenario":"fight","opponent":{"id":"mugger","actor":"mugger","difficulty":"medium"},"goal":{"id":"steal-money","maxAmount":20}}
+  @system encounter.physical {"scenario":"fight","opponent":{"id":"mugger","actor":"mugger","title":"the mugger","difficulty":"medium"},"goal":{"id":"steal-money","maxAmount":20}}
 ```
 
 A registered NPC uses its roster stats, identity, pronouns, and live body during the encounter:
@@ -77,6 +77,7 @@ A registered NPC uses its roster stats, identity, pronouns, and live body during
 | `opponent.id` | yes | Encounter participant ID. It must be non-empty and cannot be `player`. |
 | `opponent.actor` | alternative | Alias of an `@actor` available in `game.currentStory.actors`. Exactly one of `actor` or `npc` is required. |
 | `opponent.npc` | alternative | ID of a persistent NPC in `game.npcs`. Its registry stats and live body are used during the encounter; combat damage is cleared when the encounter finishes. |
+| `opponent.title` | no | Temporary actors only: the noun phrase used when combat prose identifies the opponent, such as `"the mugger"`. Persistent NPCs use their short name or name. |
 | `opponent.difficulty` | no | Temporary actors only: `easy`, `medium`, `hard`, or `maxed`. See the ranges below. |
 | `goal` | yes | Objective configuration. Its `id` selects the objective module. |
 | `stressMultiplier` | no | Multiplies combat Stress gains and their 35-point encounter cap. Defaults to 1; accepts 0 through 2. |
@@ -172,11 +173,11 @@ The general action runner advances the game clock by the full exchange duration 
 
 ## Canonical state
 
-The exact serialized version is `12`. A representative theft fight is:
+The exact serialized version is `13`. A representative theft fight is:
 
 ```js
 {
-  version: 12,
+  version: 13,
   scenarioId: "fight",
   phase: "active",                  // "active" | "terminal"
   elapsedSeconds: 0,
@@ -185,6 +186,7 @@ The exact serialized version is `12`. A representative theft fight is:
   participants: {
     player: {
       ref: { type: "player" },
+      title: "you",
       controller: { type: "human" },
       pose: "standing",
       support: "free",
@@ -195,6 +197,7 @@ The exact serialized version is `12`. A representative theft fight is:
     },
     mugger: {
       ref: { type: "scene-actor", alias: "mugger" },
+      title: "the mugger",
       controller: {
         type: "ai",
         policyId: "hostile",
