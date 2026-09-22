@@ -9,10 +9,10 @@
     @effect unset flags.hospital.awaiting_sasha_introduction
   @endonenter
 
-  A doctor looks up from your chart and comes over to check on you.
-  "I'm Dr. Sasha Volkov," they say. "You're welcome here anytime. Let's see what needs treating."
+  A doctor looks up from your chart and comes over to check on you. {{npc.sasha.subject | cap}} lab coat is pressed and clean. Looking up you meet {{npc.sasha.object}} eyes through {{npc.sasha.dependent}} square glasses.
+  "I'm Dr. Sasha Volkov," the doctor says, looking you up and down. "You're welcome here anytime. Let's see what needs treating."
 
-  @next "Thank them" -> @exit
+  @next "Thank {{npc.sasha.object}}" -> @exit
 
 :: hospital.sasha.follow-up -> @exit
   @place-key hospital
@@ -25,15 +25,15 @@
     @effect relationship sasha.interest 1
   @endonenter
 
-  Dr. Volkov recognises you as they cross the waiting area. "I saw you were treated here. How have you been feeling since?"
+  Dr. Volkov recognises you while crossing the waiting area. "I saw you were treated here. How have you been feeling since?"
 
   @if hospital.needsTreatment
-    You mention the injury that brought you back. Sasha's expression turns attentive. "Then let's take a fresh look. Don't try to push through something that isn't improving."
+    You mention the injury that brought you back. {{npc.sasha.dependent | cap}} expression turns attentive. "Then let's take a fresh look. Don't try to push through something that isn't improving."
   @else
-    You tell them you're moving more comfortably now. "Good," Sasha says. "It's nice to see someone come back with better news."
+    You tell {{npc.sasha.object}} you're moving more comfortably now. "Good," Sasha says. "It's nice to see someone come back with better news."
   @endif
 
-  @next "Thank Sasha" -> @exit
+  @next "Thank {{npc.sasha.object}}" -> @exit
 
 :: hospital.sasha.injury-advice -> @exit
   @place-key hospital
@@ -44,17 +44,17 @@
   Sasha checks your chart, then asks you to describe what hurts and what has stopped working normally.
 
   @if hospital.hasUnrecoverableInjury
-    "This injury is too severe to mend on its own," they tell you. "Please let us treat it here instead of waiting for it to improve."
+    "This injury is too severe to mend on its own," Sasha tells you. "Please let us treat it here instead of waiting for it to improve."
   @else
-    "It should improve gradually with time," they say. "If you want it dealt with now, we can treat it here."
+    "It should improve gradually with time," Sasha says. "If you want it dealt with now, we can treat it here."
   @endif
 
-  @next "Thank them" -> @exit
+  @next "Thank {{npc.sasha.object}}" -> @exit
 
 :: hospital.sasha.about-work -> @exit
   @place-key hospital
   @offer npc sasha
-  @label "Ask Sasha about their work"
+  @label "Ask Sasha about work"
   @when hospital.sashaOnDuty and npc.sasha.met and not flags.hospital.sasha_work_chat_done
 
   @onenter
@@ -62,13 +62,13 @@
     @effect relationship sasha.interest 1
   @endonenter
 
-  During a quiet moment at the desk, you ask Sasha what keeps them working these long shifts.
+  During a quiet moment at the desk, you ask Sasha what keeps {{npc.sasha.object}} working these long shifts.
 
-  "The work can be exhausting," they admit. "But sometimes someone walks out of here who couldn't walk in. I try to remember those days."
+  "The work can be exhausting," Sasha admits. "But sometimes someone walks out of here who couldn't walk in. I try to remember those days."
 
-  A call from the corridor draws their attention. Before they go, Sasha gives you a small smile. "Ask me again when it isn't so busy."
+  A call from the corridor draws {{npc.sasha.dependent}} attention. Before leaving, Sasha gives you a small smile. "Ask me again when it isn't so busy."
 
-  @next "Let them get back to work" -> @exit
+  @next "Let {{npc.sasha.object}} get back to work" -> @exit
 
 :: place.hospital
   @hub hospital

@@ -40,11 +40,11 @@ export function performHospitalTreatment(game, _choice, minutes) {
   return actionResult({
     paragraphs: [
       ...(firstMeeting
-        ? ['"I\'m Dr. Sasha Volkov," they say. "You\'re welcome here anytime."']
+        ? ['"I\'m Dr. Sasha Volkov," the doctor says. "You\'re welcome here anytime."']
         : []),
       doctorHere
-        ? "Dr. Volkov examines your injuries and treats each affected region. By the time they finish, the pain has eased and you can move normally again."
-        : "The hospital staff examine your injuries and treat each affected region. By the time they finish, the pain has eased and you can move normally again.",
+        ? "Dr. Volkov examines your injuries and treats each affected region. By the time the treatment is finished, the pain has eased and you can move normally again."
+        : "The hospital staff examine your injuries and treat each affected region. By the time treatment is finished, the pain has eased and you can move normally again.",
     ],
   });
 }

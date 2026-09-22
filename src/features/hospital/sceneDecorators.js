@@ -1,5 +1,10 @@
 import { createChoice } from "../../game/scene/choiceContract.js";
-import { HOSPITAL_PLACE_KEY, injuredTreatmentRegions, sashaIsOnDuty } from "./care.js";
+import {
+  HOSPITAL_PLACE_KEY,
+  injuredTreatmentRegions,
+  playerHasMetSasha,
+  sashaIsOnDuty,
+} from "./care.js";
 
 export const HOSPITAL_TREATMENT_ACTION = "hospital.treat";
 
@@ -10,6 +15,8 @@ export const HOSPITAL_SCENE_DECORATORS = Object.freeze([{
   decorate: ({ game, scene }) => {
     const regions = injuredTreatmentRegions(game.player.body);
     const doctorHere = sashaIsOnDuty(game);
+    const knowsSasha = playerHasMetSasha(game);
+    const sasha = game.npcs.get("sasha");
     const choice = createChoice({
       id: "hospital:treat",
       label: `Get treatment (${regions.length} ${regions.length === 1 ? "region" : "regions"})`,
@@ -30,9 +37,11 @@ export const HOSPITAL_SCENE_DECORATORS = Object.freeze([{
         ...scene.content,
         {
           type: "paragraph",
-          text: doctorHere
-            ? "Dr. Volkov is on duty. You can ask them to examine any injuries."
-            : "Dr. Volkov is off duty. The hospital's other staff can still treat you.",
+          text: !knowsSasha
+            ? "Hospital staff are available to treat injuries at any hour."
+            : doctorHere
+              ? `Dr. Volkov is on duty. You can ask ${sasha.pronouns.object} to examine any injuries.`
+              : "Dr. Volkov is off duty. The hospital's other staff can still treat you.",
         },
         {
           type: "paragraph",

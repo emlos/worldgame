@@ -86,7 +86,7 @@ export function sashaIsOnDuty(game) {
   const sasha = game.npcs.get("sasha");
   return Boolean(sasha &&
     game.getNPCsAtCurrentPosition().includes(sasha) &&
-    sasha.brain?.getScheduleStatus?.(game.now).obligationId === SASHA_SHIFT_ID);
+    sasha.brain?.getScheduleStatus?.(game.now).obligationId === SASHA_SHIFT_ID) && playerHasMetSasha(game);
 }
 
 export function playerHasMetSasha(game) {

@@ -11638,7 +11638,20 @@ export const WG_BUNDLE = {
               "parts": [
                 {
                   "type": "text",
-                  "value": "During a quiet moment at the desk, you ask Sasha what keeps them working these long shifts."
+                  "value": "During a quiet moment at the desk, you ask Sasha what keeps "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "npc",
+                    "sasha",
+                    "object"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": " working these long shifts."
                 }
               ],
               "source": {
@@ -11652,7 +11665,7 @@ export const WG_BUNDLE = {
               "parts": [
                 {
                   "type": "text",
-                  "value": "\"The work can be exhausting,\" they admit. \"But sometimes someone walks out of here who couldn't walk in. I try to remember those days.\""
+                  "value": "\"The work can be exhausting,\" Sasha admits. \"But sometimes someone walks out of here who couldn't walk in. I try to remember those days.\""
                 }
               ],
               "source": {
@@ -11666,7 +11679,20 @@ export const WG_BUNDLE = {
               "parts": [
                 {
                   "type": "text",
-                  "value": "A call from the corridor draws their attention. Before they go, Sasha gives you a small smile. \"Ask me again when it isn't so busy.\""
+                  "value": "A call from the corridor draws "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "npc",
+                    "sasha",
+                    "dependent"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": " attention. Before leaving, Sasha gives you a small smile. \"Ask me again when it isn't so busy.\""
                 }
               ],
               "source": {
@@ -11680,7 +11706,20 @@ export const WG_BUNDLE = {
             "label": [
               {
                 "type": "text",
-                "value": "Let them get back to work"
+                "value": "Let "
+              },
+              {
+                "type": "interpolation",
+                "path": [
+                  "npc",
+                  "sasha",
+                  "object"
+                ],
+                "filters": []
+              },
+              {
+                "type": "text",
+                "value": " get back to work"
               }
             ],
             "target": "@exit",
@@ -11746,7 +11785,7 @@ export const WG_BUNDLE = {
           }
         }
       ],
-      "label": "Ask Sasha about their work",
+      "label": "Ask Sasha about work",
       "icon": null,
       "hubText": null,
       "priority": 0,
@@ -11801,7 +11840,48 @@ export const WG_BUNDLE = {
               "parts": [
                 {
                   "type": "text",
-                  "value": "A doctor looks up from your chart and comes over to check on you."
+                  "value": "A doctor looks up from your chart and comes over to check on you. "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "npc",
+                    "sasha",
+                    "subject"
+                  ],
+                  "filters": [
+                    "cap"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "value": " lab coat is pressed and clean. Looking up you meet "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "npc",
+                    "sasha",
+                    "object"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": " eyes through "
+                },
+                {
+                  "type": "interpolation",
+                  "path": [
+                    "npc",
+                    "sasha",
+                    "dependent"
+                  ],
+                  "filters": []
+                },
+                {
+                  "type": "text",
+                  "value": " square glasses."
                 },
                 {
                   "type": "text",
@@ -11809,7 +11889,7 @@ export const WG_BUNDLE = {
                 },
                 {
                   "type": "text",
-                  "value": "\"I'm Dr. Sasha Volkov,\" they say. \"You're welcome here anytime. Let's see what needs treating.\""
+                  "value": "\"I'm Dr. Sasha Volkov,\" the doctor says, looking you up and down. \"You're welcome here anytime. Let's see what needs treating.\""
                 }
               ],
               "source": {
@@ -11823,7 +11903,16 @@ export const WG_BUNDLE = {
             "label": [
               {
                 "type": "text",
-                "value": "Thank them"
+                "value": "Thank "
+              },
+              {
+                "type": "interpolation",
+                "path": [
+                  "npc",
+                  "sasha",
+                  "object"
+                ],
+                "filters": []
               }
             ],
             "target": "@exit",
@@ -11954,7 +12043,7 @@ export const WG_BUNDLE = {
               "parts": [
                 {
                   "type": "text",
-                  "value": "Dr. Volkov recognises you as they cross the waiting area. \"I saw you were treated here. How have you been feeling since?\""
+                  "value": "Dr. Volkov recognises you while crossing the waiting area. \"I saw you were treated here. How have you been feeling since?\""
                 }
               ],
               "source": {
@@ -11980,7 +12069,22 @@ export const WG_BUNDLE = {
                       "parts": [
                         {
                           "type": "text",
-                          "value": "You mention the injury that brought you back. Sasha's expression turns attentive. \"Then let's take a fresh look. Don't try to push through something that isn't improving.\""
+                          "value": "You mention the injury that brought you back. "
+                        },
+                        {
+                          "type": "interpolation",
+                          "path": [
+                            "npc",
+                            "sasha",
+                            "dependent"
+                          ],
+                          "filters": [
+                            "cap"
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "value": " expression turns attentive. \"Then let's take a fresh look. Don't try to push through something that isn't improving.\""
                         }
                       ],
                       "source": {
@@ -12003,7 +12107,20 @@ export const WG_BUNDLE = {
                   "parts": [
                     {
                       "type": "text",
-                      "value": "You tell them you're moving more comfortably now. \"Good,\" Sasha says. \"It's nice to see someone come back with better news.\""
+                      "value": "You tell "
+                    },
+                    {
+                      "type": "interpolation",
+                      "path": [
+                        "npc",
+                        "sasha",
+                        "object"
+                      ],
+                      "filters": []
+                    },
+                    {
+                      "type": "text",
+                      "value": " you're moving more comfortably now. \"Good,\" Sasha says. \"It's nice to see someone come back with better news.\""
                     }
                   ],
                   "source": {
@@ -12025,7 +12142,16 @@ export const WG_BUNDLE = {
             "label": [
               {
                 "type": "text",
-                "value": "Thank Sasha"
+                "value": "Thank "
+              },
+              {
+                "type": "interpolation",
+                "path": [
+                  "npc",
+                  "sasha",
+                  "object"
+                ],
+                "filters": []
               }
             ],
             "target": "@exit",
@@ -12158,7 +12284,7 @@ export const WG_BUNDLE = {
                       "parts": [
                         {
                           "type": "text",
-                          "value": "\"This injury is too severe to mend on its own,\" they tell you. \"Please let us treat it here instead of waiting for it to improve.\""
+                          "value": "\"This injury is too severe to mend on its own,\" Sasha tells you. \"Please let us treat it here instead of waiting for it to improve.\""
                         }
                       ],
                       "source": {
@@ -12181,7 +12307,7 @@ export const WG_BUNDLE = {
                   "parts": [
                     {
                       "type": "text",
-                      "value": "\"It should improve gradually with time,\" they say. \"If you want it dealt with now, we can treat it here.\""
+                      "value": "\"It should improve gradually with time,\" Sasha says. \"If you want it dealt with now, we can treat it here.\""
                     }
                   ],
                   "source": {
@@ -12203,7 +12329,16 @@ export const WG_BUNDLE = {
             "label": [
               {
                 "type": "text",
-                "value": "Thank them"
+                "value": "Thank "
+              },
+              {
+                "type": "interpolation",
+                "path": [
+                  "npc",
+                  "sasha",
+                  "object"
+                ],
+                "filters": []
               }
             ],
             "target": "@exit",

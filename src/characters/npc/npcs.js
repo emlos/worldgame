@@ -186,8 +186,8 @@ export const NPC_REGISTRY = [
             tags: ["human", "doctor"],
         },
         age: 36,
-        gender: Gender.NB,
-        pronouns: PronounSets.THEY_THEM,
+        gender: Gender.M,
+        pronouns: PronounSets.HE_HIM,
         relationshipProfile: {
             meters: {
                 interest: {

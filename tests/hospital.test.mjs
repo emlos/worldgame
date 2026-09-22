@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
+import { PronounSets } from "../src/characters/core/pronouns.js";
 import { Game } from "../src/game/game.js";
 import { performChoice } from "../src/game/scene/choiceEngine.js";
 import { buildScene } from "../src/game/scene/sceneEngine.js";
@@ -47,9 +48,18 @@ function relationship(game) {
   return game.player.getRelationshipProfile(sasha.id, sasha.relationshipProfile);
 }
 
+function sashaObject(game) {
+  return game.npcs.get("sasha").pronouns.object;
+}
+
 function sceneHasChoice(game, label) {
   return buildScene(game).sections.flatMap(({ choices }) => choices)
     .some((choice) => choice.label === label);
+}
+
+function sceneText(game) {
+  return buildScene(game).content.map((block) =>
+    block.text ?? block.parts?.map((part) => part.text).join("") ?? "").join(" ");
 }
 
 test("Sasha works weekday day shifts and is off duty in the evening and on days off", () => {
@@ -64,6 +74,29 @@ test("Sasha works weekday day shifts and is off duty in the evening and on days 
   }
 });
 
+test("the hospital hub does not name Sasha before their introduction", () => {
+  for (const iso of [
+    "2026-09-03T10:00:00.000Z",
+    "2026-09-03T19:00:00.000Z",
+  ]) {
+    const game = gameAt(iso);
+    placeAtSashaHospital(game);
+    assert.equal(relationship(game).met, false);
+    assert.match(sceneText(game), /Hospital staff are available/);
+    assert.doesNotMatch(JSON.stringify(buildScene(game)), /Sasha|Volkov/);
+  }
+
+  const game = gameAt("2026-09-03T10:00:00.000Z");
+  placeAtSashaHospital(game);
+  game.player.body.applyDamage({ partId: "hand_l", integrityDamage: 10 });
+  resolveWGAutomaticScene(game, WG_AUTO_TRIGGER.enterPlace);
+  choose(game, `Thank ${sashaObject(game)}`);
+  assert.match(sceneText(game), /Dr\. Volkov is on duty/);
+
+  game.jumpToDate("2026-09-03T19:00:00.000Z");
+  assert.match(sceneText(game), /Dr\. Volkov is off duty/);
+});
+
 test("injured hospital visitors meet Sasha once when they are on duty", () => {
   const game = gameAt("2026-09-03T10:00:00.000Z");
   placeAtSashaHospital(game);
@@ -75,7 +108,7 @@ test("injured hospital visitors meet Sasha once when they are on duty", () => {
   const scene = buildScene(game);
   assert.match(JSON.stringify(scene.content), /Dr\. Sasha Volkov/);
   assert.match(JSON.stringify(scene.content), /welcome here anytime/);
-  choose(game, "Thank them");
+  choose(game, `Thank ${sashaObject(game)}`);
   assert.equal(resolveWGAutomaticScene(game, WG_AUTO_TRIGGER.enterPlace), null);
   assert.equal(relationship(game).meters.get("interest").value, 1);
 });
@@ -165,11 +198,11 @@ test("Sasha gives different injury advice for ordinary and unrecoverable damage"
       integrityDamage: hand.maxIntegrity * damageFraction,
     });
     resolveWGAutomaticScene(game, WG_AUTO_TRIGGER.enterPlace);
-    choose(game, "Thank them");
+    choose(game, `Thank ${sashaObject(game)}`);
     assert.equal(sceneHasChoice(game, "Ask Dr. Volkov about your injuries"), true);
     choose(game, "Ask Dr. Volkov about your injuries");
     assert.match(JSON.stringify(buildScene(game).content), expected);
-    choose(game, "Thank them");
+    choose(game, `Thank ${sashaObject(game)}`);
     assert.equal(relationship(game).meters.get("interest").value, 1);
   }
 });
@@ -179,15 +212,15 @@ test("Sasha's work conversation is available once and interest cannot be farmed"
   placeAtSashaHospital(game);
   game.player.body.applyDamage({ partId: "hand_l", integrityDamage: 10 });
   resolveWGAutomaticScene(game, WG_AUTO_TRIGGER.enterPlace);
-  choose(game, "Thank them");
-  assert.equal(sceneHasChoice(game, "Ask Sasha about their work"), true);
-  choose(game, "Ask Sasha about their work");
+  choose(game, `Thank ${sashaObject(game)}`);
+  assert.equal(sceneHasChoice(game, "Ask Sasha about work"), true);
+  choose(game, "Ask Sasha about work");
   assert.match(JSON.stringify(buildScene(game).content), /someone walks out of here/);
   assert.equal(relationship(game).meters.get("interest").value, 2);
-  choose(game, "Let them get back to work");
-  assert.equal(sceneHasChoice(game, "Ask Sasha about their work"), false);
+  choose(game, `Let ${sashaObject(game)} get back to work`);
+  assert.equal(sceneHasChoice(game, "Ask Sasha about work"), false);
   const restored = Game.fromJSON(JSON.parse(JSON.stringify(game.toJSON())));
-  assert.equal(sceneHasChoice(restored, "Ask Sasha about their work"), false);
+  assert.equal(sceneHasChoice(restored, "Ask Sasha about work"), false);
   assert.equal(relationship(restored).meters.get("interest").value, 2);
 });
 
@@ -197,7 +230,7 @@ test("Sasha follows up once when the player returns after treatment", () => {
   const hospitalId = String(game.currentPlaceId);
   game.player.body.applyDamage({ partId: "hand_l", integrityDamage: 10 });
   resolveWGAutomaticScene(game, WG_AUTO_TRIGGER.enterPlace);
-  choose(game, "Thank them");
+  choose(game, `Thank ${sashaObject(game)}`);
   choose(game, "Get treatment (1 region)");
   assert.equal(game.hasFlag("hospital.treatment_received"), true);
   assert.equal(game.hasFlag("hospital.sasha_followup_done"), false);
@@ -211,9 +244,41 @@ test("Sasha follows up once when the player returns after treatment", () => {
   assert.equal(game.currentStory?.id, "hospital.sasha.follow-up");
   assert.equal(relationship(game).meters.get("interest").value, 2);
   assert.equal(game.hasFlag("hospital.sasha_followup_done"), true);
-  choose(game, "Thank Sasha");
+  choose(game, `Thank ${sashaObject(game)}`);
   game.setCurrentPlace();
   game.setCurrentPlace({ placeId: hospitalId });
   assert.equal(resolveWGAutomaticScene(game, WG_AUTO_TRIGGER.enterPlace), null);
   assert.equal(relationship(game).meters.get("interest").value, 2);
+});
+
+test("Sasha's hospital prose and choices honor changed pronouns", () => {
+  const game = gameAt("2026-09-03T10:00:00.000Z");
+  placeAtSashaHospital(game);
+  game.npcs.get("sasha").pronouns = PronounSets.HE_HIM;
+  game.player.body.applyDamage({ partId: "hand_l", integrityDamage: 10 });
+  resolveWGAutomaticScene(game, WG_AUTO_TRIGGER.enterPlace);
+  assert.equal(sceneHasChoice(game, "Thank him"), true);
+  choose(game, "Thank him");
+
+  assert.match(JSON.stringify(buildScene(game).content), /ask him to examine/);
+  choose(game, "Ask Dr. Volkov about your injuries");
+  assert.equal(sceneHasChoice(game, "Thank him"), true);
+  choose(game, "Thank him");
+
+  choose(game, "Ask Sasha about work");
+  assert.match(sceneText(game), /keeps him working/);
+  assert.match(sceneText(game), /draws his attention/);
+  assert.equal(sceneHasChoice(game, "Let him get back to work"), true);
+  choose(game, "Let him get back to work");
+
+  const treatment = choose(game, "Get treatment (1 region)");
+  assert.doesNotMatch(treatment.paragraphs.join(" "), /\b(they|them|their)\b/i);
+  game.player.body.applyDamage({ partId: "hand_l", integrityDamage: 10 });
+  const hospitalId = String(game.currentPlaceId);
+  game.setCurrentPlace();
+  game.setCurrentPlace({ placeId: hospitalId });
+  assert.equal(resolveWGAutomaticScene(game, WG_AUTO_TRIGGER.enterPlace)?.id,
+    "hospital.sasha.follow-up");
+  assert.match(sceneText(game), /His expression turns attentive/);
+  assert.equal(sceneHasChoice(game, "Thank him"), true);
 });
