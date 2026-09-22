@@ -11595,6 +11595,687 @@ export const WG_BUNDLE = {
         "column": 1
       }
     },
+    "hospital.sasha.about-work": {
+      "id": "hospital.sasha.about-work",
+      "finalTarget": "@exit",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Choices",
+      "behavior": null,
+      "system": null,
+      "onEnter": [
+        {
+          "op": "set",
+          "path": [
+            "flags",
+            "hospital",
+            "sasha_work_chat_done"
+          ],
+          "source": {
+            "file": "story/places/hospital.wg",
+            "line": 61,
+            "column": 1
+          }
+        },
+        {
+          "op": "relationship",
+          "npcId": "sasha",
+          "meterId": "interest",
+          "amount": 1,
+          "source": {
+            "file": "story/places/hospital.wg",
+            "line": 62,
+            "column": 1
+          }
+        }
+      ],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "During a quiet moment at the desk, you ask Sasha what keeps them working these long shifts."
+                }
+              ],
+              "source": {
+                "file": "story/places/hospital.wg",
+                "line": 65,
+                "column": 1
+              }
+            },
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "\"The work can be exhausting,\" they admit. \"But sometimes someone walks out of here who couldn't walk in. I try to remember those days.\""
+                }
+              ],
+              "source": {
+                "file": "story/places/hospital.wg",
+                "line": 67,
+                "column": 1
+              }
+            },
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "A call from the corridor draws their attention. Before they go, Sasha gives you a small smile. \"Ask me again when it isn't so busy.\""
+                }
+              ],
+              "source": {
+                "file": "story/places/hospital.wg",
+                "line": 69,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Let them get back to work"
+              }
+            ],
+            "target": "@exit",
+            "source": {
+              "file": "story/places/hospital.wg",
+              "line": 71,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/places/hospital.wg",
+            "line": 65,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "hospital"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": {
+        "type": "npc",
+        "npcId": "sasha"
+      },
+      "automaticTriggers": [],
+      "pools": [],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "and",
+          "left": {
+            "type": "binary",
+            "operator": "and",
+            "left": {
+              "type": "path",
+              "value": [
+                "hospital",
+                "sashaOnDuty"
+              ]
+            },
+            "right": {
+              "type": "path",
+              "value": [
+                "npc",
+                "sasha",
+                "met"
+              ]
+            }
+          },
+          "right": {
+            "type": "unary",
+            "operator": "not",
+            "value": {
+              "type": "path",
+              "value": [
+                "flags",
+                "hospital",
+                "sasha_work_chat_done"
+              ]
+            }
+          }
+        }
+      ],
+      "label": "Ask Sasha about their work",
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/places/hospital.wg",
+        "line": 54,
+        "column": 1
+      }
+    },
+    "hospital.sasha.first-meeting": {
+      "id": "hospital.sasha.first-meeting",
+      "finalTarget": "@exit",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Choices",
+      "behavior": null,
+      "system": null,
+      "onEnter": [
+        {
+          "op": "relationship",
+          "npcId": "sasha",
+          "meterId": "interest",
+          "amount": 1,
+          "source": {
+            "file": "story/places/hospital.wg",
+            "line": 8,
+            "column": 1
+          }
+        },
+        {
+          "op": "unset",
+          "path": [
+            "flags",
+            "hospital",
+            "awaiting_sasha_introduction"
+          ],
+          "source": {
+            "file": "story/places/hospital.wg",
+            "line": 9,
+            "column": 1
+          }
+        }
+      ],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "A doctor looks up from your chart and comes over to check on you."
+                },
+                {
+                  "type": "text",
+                  "value": " "
+                },
+                {
+                  "type": "text",
+                  "value": "\"I'm Dr. Sasha Volkov,\" they say. \"You're welcome here anytime. Let's see what needs treating.\""
+                }
+              ],
+              "source": {
+                "file": "story/places/hospital.wg",
+                "line": 12,
+                "column": 1
+              }
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Thank them"
+              }
+            ],
+            "target": "@exit",
+            "source": {
+              "file": "story/places/hospital.wg",
+              "line": 15,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/places/hospital.wg",
+            "line": 12,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "hospital"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [
+        "enter-place"
+      ],
+      "pools": [],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "and",
+          "left": {
+            "type": "binary",
+            "operator": "and",
+            "left": {
+              "type": "binary",
+              "operator": "or",
+              "left": {
+                "type": "path",
+                "value": [
+                  "hospital",
+                  "needsTreatment"
+                ]
+              },
+              "right": {
+                "type": "path",
+                "value": [
+                  "flags",
+                  "hospital",
+                  "awaiting_sasha_introduction"
+                ]
+              }
+            },
+            "right": {
+              "type": "path",
+              "value": [
+                "hospital",
+                "sashaOnDuty"
+              ]
+            }
+          },
+          "right": {
+            "type": "unary",
+            "operator": "not",
+            "value": {
+              "type": "path",
+              "value": [
+                "npc",
+                "sasha",
+                "met"
+              ]
+            }
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 500,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/places/hospital.wg",
+        "line": 1,
+        "column": 1
+      }
+    },
+    "hospital.sasha.follow-up": {
+      "id": "hospital.sasha.follow-up",
+      "finalTarget": "@exit",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Choices",
+      "behavior": null,
+      "system": null,
+      "onEnter": [
+        {
+          "op": "set",
+          "path": [
+            "flags",
+            "hospital",
+            "sasha_followup_done"
+          ],
+          "source": {
+            "file": "story/places/hospital.wg",
+            "line": 24,
+            "column": 1
+          }
+        },
+        {
+          "op": "relationship",
+          "npcId": "sasha",
+          "meterId": "interest",
+          "amount": 1,
+          "source": {
+            "file": "story/places/hospital.wg",
+            "line": 25,
+            "column": 1
+          }
+        }
+      ],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Dr. Volkov recognises you as they cross the waiting area. \"I saw you were treated here. How have you been feeling since?\""
+                }
+              ],
+              "source": {
+                "file": "story/places/hospital.wg",
+                "line": 28,
+                "column": 1
+              }
+            },
+            {
+              "type": "if",
+              "branches": [
+                {
+                  "test": {
+                    "type": "path",
+                    "value": [
+                      "hospital",
+                      "needsTreatment"
+                    ]
+                  },
+                  "nodes": [
+                    {
+                      "type": "paragraph",
+                      "parts": [
+                        {
+                          "type": "text",
+                          "value": "You mention the injury that brought you back. Sasha's expression turns attentive. \"Then let's take a fresh look. Don't try to push through something that isn't improving.\""
+                        }
+                      ],
+                      "source": {
+                        "file": "story/places/hospital.wg",
+                        "line": 31,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "source": {
+                    "file": "story/places/hospital.wg",
+                    "line": 30,
+                    "column": 1
+                  }
+                }
+              ],
+              "elseNodes": [
+                {
+                  "type": "paragraph",
+                  "parts": [
+                    {
+                      "type": "text",
+                      "value": "You tell them you're moving more comfortably now. \"Good,\" Sasha says. \"It's nice to see someone come back with better news.\""
+                    }
+                  ],
+                  "source": {
+                    "file": "story/places/hospital.wg",
+                    "line": 33,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/places/hospital.wg",
+                "line": 30,
+                "column": 1
+              },
+              "runtimeId": 0
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Thank Sasha"
+              }
+            ],
+            "target": "@exit",
+            "source": {
+              "file": "story/places/hospital.wg",
+              "line": 36,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/places/hospital.wg",
+            "line": 28,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "hospital"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": null,
+      "automaticTriggers": [
+        "enter-place"
+      ],
+      "pools": [],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "and",
+          "left": {
+            "type": "binary",
+            "operator": "and",
+            "left": {
+              "type": "binary",
+              "operator": "and",
+              "left": {
+                "type": "path",
+                "value": [
+                  "hospital",
+                  "sashaOnDuty"
+                ]
+              },
+              "right": {
+                "type": "path",
+                "value": [
+                  "npc",
+                  "sasha",
+                  "met"
+                ]
+              }
+            },
+            "right": {
+              "type": "path",
+              "value": [
+                "flags",
+                "hospital",
+                "treatment_received"
+              ]
+            }
+          },
+          "right": {
+            "type": "unary",
+            "operator": "not",
+            "value": {
+              "type": "path",
+              "value": [
+                "flags",
+                "hospital",
+                "sasha_followup_done"
+              ]
+            }
+          }
+        }
+      ],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 400,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/places/hospital.wg",
+        "line": 17,
+        "column": 1
+      }
+    },
+    "hospital.sasha.injury-advice": {
+      "id": "hospital.sasha.injury-advice",
+      "finalTarget": "@exit",
+      "kind": "event",
+      "heading": null,
+      "choiceHeading": "Choices",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "Sasha checks your chart, then asks you to describe what hurts and what has stopped working normally."
+                }
+              ],
+              "source": {
+                "file": "story/places/hospital.wg",
+                "line": 44,
+                "column": 1
+              }
+            },
+            {
+              "type": "if",
+              "branches": [
+                {
+                  "test": {
+                    "type": "path",
+                    "value": [
+                      "hospital",
+                      "hasUnrecoverableInjury"
+                    ]
+                  },
+                  "nodes": [
+                    {
+                      "type": "paragraph",
+                      "parts": [
+                        {
+                          "type": "text",
+                          "value": "\"This injury is too severe to mend on its own,\" they tell you. \"Please let us treat it here instead of waiting for it to improve.\""
+                        }
+                      ],
+                      "source": {
+                        "file": "story/places/hospital.wg",
+                        "line": 47,
+                        "column": 1
+                      }
+                    }
+                  ],
+                  "source": {
+                    "file": "story/places/hospital.wg",
+                    "line": 46,
+                    "column": 1
+                  }
+                }
+              ],
+              "elseNodes": [
+                {
+                  "type": "paragraph",
+                  "parts": [
+                    {
+                      "type": "text",
+                      "value": "\"It should improve gradually with time,\" they say. \"If you want it dealt with now, we can treat it here.\""
+                    }
+                  ],
+                  "source": {
+                    "file": "story/places/hospital.wg",
+                    "line": 49,
+                    "column": 1
+                  }
+                }
+              ],
+              "source": {
+                "file": "story/places/hospital.wg",
+                "line": 46,
+                "column": 1
+              },
+              "runtimeId": 0
+            }
+          ],
+          "next": {
+            "label": [
+              {
+                "type": "text",
+                "value": "Thank them"
+              }
+            ],
+            "target": "@exit",
+            "source": {
+              "file": "story/places/hospital.wg",
+              "line": 52,
+              "column": 1
+            }
+          },
+          "source": {
+            "file": "story/places/hospital.wg",
+            "line": 44,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "hospital"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": null,
+      "offer": {
+        "type": "npc",
+        "npcId": "sasha"
+      },
+      "automaticTriggers": [],
+      "pools": [],
+      "conditions": [
+        {
+          "type": "binary",
+          "operator": "and",
+          "left": {
+            "type": "binary",
+            "operator": "and",
+            "left": {
+              "type": "path",
+              "value": [
+                "hospital",
+                "sashaOnDuty"
+              ]
+            },
+            "right": {
+              "type": "path",
+              "value": [
+                "npc",
+                "sasha",
+                "met"
+              ]
+            }
+          },
+          "right": {
+            "type": "path",
+            "value": [
+              "hospital",
+              "needsTreatment"
+            ]
+          }
+        }
+      ],
+      "label": "Ask Dr. Volkov about your injuries",
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/places/hospital.wg",
+        "line": 38,
+        "column": 1
+      }
+    },
     "interrupt.exhaustion.home": {
       "id": "interrupt.exhaustion.home",
       "finalTarget": "@exit",
@@ -11847,6 +12528,27 @@ export const WG_BUNDLE = {
               }
             },
             {
+              "type": "effect",
+              "effect": {
+                "op": "set",
+                "path": [
+                  "flags",
+                  "hospital",
+                  "awaiting_sasha_introduction"
+                ],
+                "source": {
+                  "file": "story/interrupts.wg",
+                  "line": 62,
+                  "column": 1
+                }
+              },
+              "source": {
+                "file": "story/interrupts.wg",
+                "line": 62,
+                "column": 1
+              }
+            },
+            {
               "type": "paragraph",
               "parts": [
                 {
@@ -11856,25 +12558,110 @@ export const WG_BUNDLE = {
               ],
               "source": {
                 "file": "story/interrupts.wg",
-                "line": 63,
+                "line": 64,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-1",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Next"
+                }
+              ],
+              "target": "hospital.sasha.first-meeting",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": {
+                "type": "binary",
+                "operator": "and",
+                "left": {
+                  "type": "path",
+                  "value": [
+                    "hospital",
+                    "sashaOnDuty"
+                  ]
+                },
+                "right": {
+                  "type": "unary",
+                  "operator": "not",
+                  "value": {
+                    "type": "path",
+                    "value": [
+                      "npc",
+                      "sasha",
+                      "met"
+                    ]
+                  }
+                }
+              },
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/interrupts.wg",
+                "line": 66,
+                "column": 1
+              }
+            },
+            {
+              "type": "choice",
+              "id": "choice-2",
+              "label": [
+                {
+                  "type": "text",
+                  "value": "Next"
+                }
+              ],
+              "target": "@exit",
+              "icon": null,
+              "durationMinutes": 0,
+              "durationRangeMinutes": null,
+              "timeUntilPath": null,
+              "energyFree": false,
+              "resting": false,
+              "when": {
+                "type": "binary",
+                "operator": "or",
+                "left": {
+                  "type": "unary",
+                  "operator": "not",
+                  "value": {
+                    "type": "path",
+                    "value": [
+                      "hospital",
+                      "sashaOnDuty"
+                    ]
+                  }
+                },
+                "right": {
+                  "type": "path",
+                  "value": [
+                    "npc",
+                    "sasha",
+                    "met"
+                  ]
+                }
+              },
+              "requirements": [],
+              "warning": null,
+              "hints": [],
+              "effects": [],
+              "source": {
+                "file": "story/interrupts.wg",
+                "line": 70,
                 "column": 1
               }
             }
           ],
-          "next": {
-            "label": [
-              {
-                "type": "text",
-                "value": "Next"
-              }
-            ],
-            "target": "@exit",
-            "source": {
-              "file": "story/interrupts.wg",
-              "line": 65,
-              "column": 1
-            }
-          },
+          "next": null,
           "source": {
             "file": "story/interrupts.wg",
             "line": 59,
@@ -18687,6 +19474,66 @@ export const WG_BUNDLE = {
       "source": {
         "file": "story/places/school.wg",
         "line": 830,
+        "column": 1
+      }
+    },
+    "place.hospital": {
+      "id": "place.hospital",
+      "finalTarget": null,
+      "kind": "place",
+      "heading": null,
+      "choiceHeading": "Things to do",
+      "behavior": null,
+      "system": null,
+      "onEnter": [],
+      "passages": [
+        {
+          "id": "p1",
+          "body": [
+            {
+              "type": "paragraph",
+              "parts": [
+                {
+                  "type": "text",
+                  "value": "A row of seats faces the reception desk. Staff move between the waiting area and the treatment rooms, keeping the hospital open around the clock."
+                }
+              ],
+              "source": {
+                "file": "story/places/hospital.wg",
+                "line": 77,
+                "column": 1
+              }
+            }
+          ],
+          "next": null,
+          "source": {
+            "file": "story/places/hospital.wg",
+            "line": 77,
+            "column": 1
+          }
+        }
+      ],
+      "placeKeys": [
+        "hospital"
+      ],
+      "placeTags": [],
+      "locationTags": [],
+      "hub": {
+        "type": "place"
+      },
+      "offer": null,
+      "automaticTriggers": [],
+      "pools": [],
+      "conditions": [],
+      "label": null,
+      "icon": null,
+      "hubText": null,
+      "priority": 0,
+      "chance": 1,
+      "weight": 1,
+      "source": {
+        "file": "story/places/hospital.wg",
+        "line": 73,
         "column": 1
       }
     },

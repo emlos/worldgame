@@ -17,6 +17,7 @@ test("the default catalog composes each special system through feature registrat
     "bus",
     "cinema",
     "encounter",
+    "hospital",
     "journal",
     "school",
     "rent",
@@ -24,6 +25,7 @@ test("the default catalog composes each special system through feature registrat
   assert.equal(typeof features.getActionHandler("bus.travel"), "function");
   assert.equal(typeof features.getActionHandler("cinema.remind"), "function");
   assert.equal(typeof features.getActionHandler("cinema.watch"), "function");
+  assert.equal(typeof features.getActionHandler("hospital.treat"), "function");
   assert.ok(features.getWGSystem("encounter.physical"));
   assert.ok(features.getWGSystem("journal.diary"));
   assert.ok(features.getWGSystem("school.quiz"));

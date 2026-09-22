@@ -175,6 +175,111 @@ export const NPC_REGISTRY = [
         behavior: null,
     },
 
+    // Hospital physician. Other staff provide care when Sasha is off duty.
+    {
+        id: "sasha",
+        name: "Dr. Sasha Volkov",
+        meta: {
+            shortName: "Dr. Volkov",
+            combatPersonalityId: "opportunist",
+            description: "A hospital doctor with a calm, practical manner.",
+            tags: ["human", "doctor"],
+        },
+        age: 36,
+        gender: Gender.NB,
+        pronouns: PronounSets.THEY_THEM,
+        relationshipProfile: {
+            meters: {
+                interest: {
+                    label: "Interest",
+                    description: "Sasha's interest in getting to know the player.",
+                    initial: 0,
+                    higherIsBetter: true,
+                    initiallyVisible: true,
+                },
+            },
+        },
+        stats: {
+            looks: 3,
+            strength: 3,
+            endurance: 4,
+            resolve: 6,
+            fitness: 3,
+            intelligence: 7,
+            charisma: 4,
+        },
+        homePreference: {
+            nameFn: () => "Sasha's flat",
+            withKey: ["apartment_complex"],
+            withPlaceCategory: [PLACE_TAGS.housing],
+            withLocationCategory: [LOCATION_TAGS.urban, LOCATION_TAGS.residential],
+        },
+        bodyTemplate: HUMAN_BODY_TEMPLATE,
+        behavior: {
+            goals: [
+                {
+                    id: "sasha_hospital_shift",
+                    type: GOAL_TYPE.obligation,
+                    priority: 110,
+                    when: {
+                        dayKinds: [DayKind.WORKDAY],
+                        from: "08:00",
+                        to: "17:00",
+                    },
+                    target: {
+                        type: TARGET_TYPE.placeKeys,
+                        candidates: ["hospital"],
+                        nearest: true,
+                    },
+                },
+                {
+                    id: "sasha_home",
+                    type: GOAL_TYPE.home,
+                    priority: 40,
+                    when: { from: "19:00", to: "07:00" },
+                },
+                {
+                    id: "sasha_day_off",
+                    type: GOAL_TYPE.visit,
+                    priority: 30,
+                    weight: 60,
+                    when: {
+                        dayKinds: [DayKind.DAY_OFF],
+                        from: "09:00",
+                        to: "19:00",
+                    },
+                    stayMinutes: { min: 45, max: 120 },
+                    target: {
+                        type: TARGET_TYPE.placeKeys,
+                        candidates: ["library", "park", "cafe"],
+                    },
+                    requireOpen: true,
+                },
+                {
+                    id: "sasha_day_off_home",
+                    type: GOAL_TYPE.home,
+                    priority: 30,
+                    weight: 40,
+                    when: {
+                        dayKinds: [DayKind.DAY_OFF],
+                        from: "09:00",
+                        to: "19:00",
+                    },
+                },
+                {
+                    id: "sasha_after_work_home",
+                    type: GOAL_TYPE.home,
+                    priority: 30,
+                    when: {
+                        dayKinds: [DayKind.WORKDAY],
+                        from: "17:00",
+                        to: "19:00",
+                    },
+                },
+            ],
+        },
+    },
+
     //thief type
     {
         id: "shade",

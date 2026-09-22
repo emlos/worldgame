@@ -59,7 +59,14 @@
   @passage wake
 
   @effect relocate nearest-place hospital
+  @effect set flags.hospital.awaiting_sasha_introduction
 
   You wake up in the hospital, on one of the spare beds.
 
-  @next -> @exit
+  @choice "Next" -> hospital.sasha.first-meeting
+    @when hospital.sashaOnDuty and not npc.sasha.met
+  @endchoice
+
+  @choice "Next" -> @exit
+    @when not hospital.sashaOnDuty or npc.sasha.met
+  @endchoice

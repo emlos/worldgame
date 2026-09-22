@@ -25,6 +25,7 @@ test("every persistent NPC has a hardcoded combat personality", () => {
   const expected = {
     taylor: "skittish",
     jackie: "forceful",
+    sasha: "skittish",
     shade: "opportunist",
     officer_vega: "forceful",
     caro: "skittish",
