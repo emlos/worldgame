@@ -44,7 +44,7 @@
   The tables overlook a ring of glowing menu boards. The air smells of coffee, hot oil and too many different lunches at once.
 
   @choice "Buy a meal" -> @exit
-    @time 30m
+    @time 30m quiet
     @when player.money >= 8
     @change money -8 "£8 meal"
     @change stat stress -5

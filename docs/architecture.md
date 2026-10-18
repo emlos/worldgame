@@ -115,7 +115,7 @@ by many systems stays with its shared domain owner.
 - Save validation follows state ownership. Subsystems define their rules;
   `game/persistence/saveValidation.js` only coordinates the root envelope and
   cross-subsystem checks before hydration.
-- Game save format 43 requires state for every enabled stateful feature and
+- Game save format 44 requires state for every enabled stateful feature and
   rejects state belonging to an unknown feature. Development saves from older
   formats are intentionally unsupported.
 - `story/wg/shared` is independent of compiler and runtime. Both consume the same

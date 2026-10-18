@@ -9,6 +9,8 @@ ui:
 game systems:
     player stats (needs to be decided before further content is added):
     - postpone the full stats rework until there is enough content to exercise and balance it
+    - first pass implemented: baseline meters, contextual fear/anger/arousal, derived comfort, and rest/quiet/exert time interactions; tune later with content
+    - still to implement with relevant scenes: air emergencies, specific trauma triggers and processing, contextual crisis interrupts, and adrenaline/anger tradeoffs
     - do not restore the mind stat; it overlaps with stress, fear, trauma, energy, and resolve
     - keep body condition and three baseline meters permanently visible:
         - condition: a qualitative physical state derived from weighted body-part integrity; do not present it as pooled health

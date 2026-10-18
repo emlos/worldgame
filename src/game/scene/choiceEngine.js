@@ -159,6 +159,7 @@ function performTravel(game, choice, minutes) {
     minutes,
     energyFree: choice.energyFree,
     resting: choice.resting,
+    activity: choice.activity,
     apply(currentGame) {
       currentGame.moveTo(targetLocationId);
     },
@@ -186,6 +187,7 @@ function performEnter(game, choice, minutes) {
     minutes,
     energyFree: choice.energyFree,
     resting: choice.resting,
+    activity: choice.activity,
     apply(currentGame) {
       currentGame.setCurrentPlace({ placeId: place.id });
     },
@@ -212,6 +214,7 @@ function performLeave(game, choice, minutes, scene) {
     minutes,
     energyFree: choice.energyFree,
     resting: choice.resting,
+    activity: choice.activity,
     apply(currentGame) {
       if (choice.action.effects) {
         applyWGEffects(currentGame, choice.action.effects);
@@ -248,6 +251,7 @@ function performLoiter(game, choice, minutes) {
     minutes,
     energyFree: choice.energyFree,
     resting: choice.resting,
+    activity: choice.activity,
   });
   return actionResult();
 }
@@ -281,6 +285,7 @@ function performWG(game, choice, minutes, scene) {
     minutes,
     energyFree: choice.energyFree,
     resting: choice.resting,
+    activity: choice.activity,
     apply(currentGame) {
       applyWGEffects(currentGame, choice.action.effects || []);
     },
@@ -351,6 +356,7 @@ function performWGSystem(game, choice, minutes) {
     minutes,
     energyFree: choice.energyFree,
     resting: choice.resting,
+    activity: choice.activity,
     apply(currentGame) {
       const currentFrame = currentGame.currentStory;
       const outcome = actWGSystem(
@@ -461,6 +467,7 @@ function performSkillCheck(game, choice, _minutes, scene) {
         ...choice,
         energyFree: outcome.energyFree,
         resting: outcome.resting,
+        activity: outcome.activity,
         action: {
           type: SCENE_ACTION_TYPE.leave,
           effects: outcome.effects,
@@ -480,6 +487,7 @@ function performSkillCheck(game, choice, _minutes, scene) {
     minutes,
     energyFree: outcome.energyFree,
     resting: outcome.resting,
+    activity: outcome.activity,
     apply(currentGame) {
       applyWGEffects(currentGame, outcome.effects || []);
     },

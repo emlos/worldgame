@@ -111,6 +111,12 @@ function validateSkillCheckAction(action, path) {
     if (outcome.resting && !outcome.energyFree) {
       fail(`${outcomePath}.resting requires energyFree`);
     }
+    if (outcome.activity !== undefined && !["quiet", "exert"].includes(outcome.activity)) {
+      fail(`${outcomePath}.activity must be quiet or exert`);
+    }
+    if (outcome.activity === "exert" && outcome.energyFree) {
+      fail(`${outcomePath}.exert activity must spend energy`);
+    }
     if (!Array.isArray(outcome.effects)) fail(`${outcomePath}.effects must be an array`);
   }
 }
@@ -150,6 +156,12 @@ export function validateChoice(choice, path = "choice") {
   }
   if (choice.resting && !choice.energyFree) {
     fail(`${path}.resting requires energyFree`);
+  }
+  if (choice.activity !== undefined && !["quiet", "exert"].includes(choice.activity)) {
+    fail(`${path}.activity must be quiet or exert`);
+  }
+  if (choice.activity === "exert" && choice.energyFree) {
+    fail(`${path}.exert activity must spend energy`);
   }
 
   if (typeof choice.enabled !== "boolean") {

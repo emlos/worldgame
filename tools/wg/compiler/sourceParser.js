@@ -241,7 +241,7 @@ export function parseDuration(value, location = {}) {
 
 function parseTime(value, location) {
   const text = String(value).trim();
-  const modeMatch = text.match(/^(.*?)\s+(free|rest)$/);
+  const modeMatch = text.match(/^(.*?)\s+(free|rest|quiet|exert)$/);
   const durationText = modeMatch ? modeMatch[1].trim() : text;
   const rangeParts = durationText.split("..");
   if (rangeParts.length > 2 || rangeParts.some((part) => !part.trim())) {
@@ -259,15 +259,19 @@ function parseTime(value, location) {
     return {
       durationMinutes: 0,
       durationRangeMinutes: { min, max },
-      energyFree: Boolean(modeMatch),
+      energyFree: ["free", "rest"].includes(modeMatch?.[2]),
       resting: modeMatch?.[2] === "rest",
+      ...(modeMatch?.[2] === "quiet" || modeMatch?.[2] === "exert"
+        ? { activity: modeMatch[2] } : {}),
     };
   }
   return {
     durationMinutes: parseDuration(durationText, location),
     durationRangeMinutes: null,
-    energyFree: Boolean(modeMatch),
+    energyFree: ["free", "rest"].includes(modeMatch?.[2]),
     resting: modeMatch?.[2] === "rest",
+    ...(modeMatch?.[2] === "quiet" || modeMatch?.[2] === "exert"
+      ? { activity: modeMatch[2] } : {}),
   };
 }
 
@@ -913,6 +917,7 @@ class SceneBodyParser {
         outcome.durationRangeMinutes = parsedTime.durationRangeMinutes;
         outcome.energyFree = parsedTime.energyFree;
         outcome.resting = parsedTime.resting;
+        if (parsedTime.activity) outcome.activity = parsedTime.activity;
       } else if (name === "effect") {
         outcome.effects.push(parseWGEffectDirective(directive, this.file, line.line));
       } else if (name === "response") {
@@ -982,6 +987,7 @@ class SceneBodyParser {
     delete choice.timeUntilPath;
     delete choice.energyFree;
     delete choice.resting;
+    delete choice.activity;
     delete choice.hints;
     delete choice.effects;
     delete choice.responses;
@@ -1096,6 +1102,7 @@ class SceneBodyParser {
         choice.durationRangeMinutes = parsedTime.durationRangeMinutes;
         choice.energyFree = parsedTime.energyFree;
         choice.resting = parsedTime.resting;
+        if (parsedTime.activity) choice.activity = parsedTime.activity;
       } else if (name === "time-until") {
         const pathText = directiveArgument(text, "time-until", location);
         if (!PATH_REGEX.test(pathText)) {

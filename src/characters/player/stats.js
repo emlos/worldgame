@@ -21,6 +21,18 @@ export const STATS = {
     initial: 100,
     higherIsBetter: true,
   },
+  fear: {
+    label: "Fear", max: 100, min: 0, initial: 0,
+    higherIsBetter: false, contextual: true,
+  },
+  anger: {
+    label: "Anger", max: 100, min: 0, initial: 0,
+    contextual: true, neutral: true,
+  },
+  arousal: {
+    label: "Arousal", max: 100, min: 0, initial: 0,
+    contextual: true, neutral: true,
+  },
 };
 
 export const MUTABLE_STATS = Object.freeze(

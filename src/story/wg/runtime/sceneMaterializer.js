@@ -225,6 +225,7 @@ function materializeChoice(node, context, options = {}) {
       : materializeDurationRange(node),
     energyFree: node.check ? false : node.energyFree,
     resting: node.check ? false : node.resting,
+    ...(node.check || !node.activity ? {} : { activity: node.activity }),
     enabled: disabledReason === null,
     disabledReason,
     warning: node.warning,

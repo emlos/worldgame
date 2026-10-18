@@ -1,4 +1,4 @@
-import { PLAYER_ENERGY_RECOVERY_PER_MINUTE } from "../characters/player/stats.js";
+import { playerRestQuality } from "../characters/player/stateDynamics.js";
 import {
   failSave,
   requiredSaveField,
@@ -17,7 +17,6 @@ import {
 import { advanceGameTime } from "./timeline.js";
 import { refreshJournalAvailability } from "./journal/runtime.js";
 
-const ENERGY_PRECISION = 1_000_000;
 const CHECKPOINT_ROOT_KEYS = new Set(["features", "_listeners"]);
 
 export function validateActionHistorySave(save, { path = "save", gameTime }) {
@@ -54,6 +53,7 @@ export function runGameAction(
     minutes = 0,
     energyFree = false,
     resting = false,
+    activity = resting ? "rest" : (energyFree ? "free" : "ordinary"),
     apply,
     after,
     interrupt,
@@ -77,6 +77,15 @@ export function runGameAction(
   if (resting && !energyFree) {
     throw new TypeError("runAction resting actions must be energy-free");
   }
+  if (resting && activity !== "rest") {
+    throw new TypeError("Resting actions require the rest activity");
+  }
+  if (!["ordinary", "free", "rest", "quiet", "exert"].includes(activity) ||
+      (activity === "rest") !== resting ||
+      (activity === "free" && !energyFree) ||
+      (activity === "exert" && energyFree)) {
+    throw new TypeError(`Invalid action activity '${String(activity)}'`);
+  }
 
   const checkpoint = captureActionCheckpoint(game);
   const startedAt = game.now.toISOString();
@@ -86,20 +95,11 @@ export function runGameAction(
   try {
     if (typeof apply === "function") apply(game);
 
-    if (resting && amount > 0) {
-      const energy = game.player.adjustStat(
-        "energy",
-        amount * PLAYER_ENERGY_RECOVERY_PER_MINUTE,
-      );
-      game.player.setStatValue(
-        "energy",
-        Math.round(energy * ENERGY_PRECISION) / ENERGY_PRECISION,
-      );
-    }
-
     if (amount > 0) {
       timeChange = advanceGameTime(game, amount, {
         drainPlayerEnergy: !energyFree,
+        activity,
+        restQuality: resting ? playerRestQuality(game) : null,
       });
     }
 

@@ -62,6 +62,22 @@ test("mall hub exposes activities and sells the planned home computer once", () 
   assert.ok(!electronicsLabels.includes("Buy a home computer"));
 });
 
+test("a quiet meal eases stress through the shared elapsed-time rule", () => {
+  const game = new Game({
+    seed: 7303,
+    startDate: new Date("2026-09-03T14:00:00.000Z"),
+    playerOptions: { startPlaceId: null, money: 20 },
+  });
+  placePlayerAtMall(game);
+  game.player.setStatValue("stress", 30);
+  choose(game, "Visit the food court");
+  const meal = buildScene(game).sections.flatMap(({ choices }) => choices)
+    .find(({ label }) => label === "Buy a meal");
+  assert.equal(meal?.activity, "quiet");
+  choose(game, "Buy a meal");
+  assert.ok(game.player.getStatValue("stress") < 25);
+});
+
 test("Taylor can introduce herself at the mall exactly once", () => {
   const game = new Game({
     seed: 7302,

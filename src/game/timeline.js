@@ -1,6 +1,4 @@
-import {
-  PLAYER_ENERGY_DRAIN_PER_MINUTE,
-} from "../characters/player/stats.js";
+import { applyElapsedPlayerState } from "../characters/player/stateDynamics.js";
 import { deliverDueChats, nextChatDeadline } from "./chat/runtime.js";
 import {
   announcementDayKey,
@@ -16,12 +14,11 @@ import {
 } from "./timers.js";
 
 const MS_PER_MINUTE = 60 * 1000;
-const ENERGY_PRECISION = 1_000_000;
 
 export function advanceGameTime(
   game,
   minutes,
-  { drainPlayerEnergy = true } = {},
+  { drainPlayerEnergy = true, activity = "ordinary", restQuality = null } = {},
 ) {
   const amount = Number(minutes);
   if (!Number.isFinite(amount) || amount <= 0) {
@@ -34,12 +31,17 @@ export function advanceGameTime(
       "Game.advanceMinutes drainPlayerEnergy must be a boolean",
     );
   }
+  if (!["ordinary", "free", "rest", "quiet", "exert"].includes(activity)) {
+    throw new TypeError(`Unknown player activity '${String(activity)}'`);
+  }
 
   const target = new Date(game.now.getTime() + amount * MS_PER_MINUTE);
   return changeTimeTo(game, target, {
     mode: "simulate",
     source: "advance",
     drainPlayerEnergy,
+    activity,
+    restQuality,
   });
 }
 
@@ -57,6 +59,8 @@ export function jumpGameTime(game, value, { mode = "resync" } = {}) {
     mode,
     source: "jump",
     drainPlayerEnergy: true,
+    activity: "ordinary",
+    restQuality: null,
   });
 }
 
@@ -106,7 +110,7 @@ function changeTimeTo(game, target, options) {
   };
 }
 
-function changeTimeStep(game, target, { mode, source, drainPlayerEnergy }) {
+function changeTimeStep(game, target, { mode, source, drainPlayerEnergy, activity, restQuality }) {
   const from = new Date(game.now.getTime());
   const to = new Date(target.getTime());
   const minutes = (to.getTime() - from.getTime()) / MS_PER_MINUTE;
@@ -117,7 +121,7 @@ function changeTimeStep(game, target, { mode, source, drainPlayerEnergy }) {
     );
   }
   if (minutes === 0) {
-    return { from, to, minutes, mode, source, drainPlayerEnergy };
+    return { from, to, minutes, mode, source, drainPlayerEnergy, activity };
   }
 
   if (mode === "simulate") {
@@ -133,8 +137,10 @@ function changeTimeStep(game, target, { mode, source, drainPlayerEnergy }) {
     if (to > from) resyncTimers(game, to);
   }
 
-  applyElapsedPlayerChanges(game, minutes, {
+  applyElapsedPlayerState(game, minutes, {
     drainEnergy: drainPlayerEnergy,
+    activity,
+    restQuality,
   });
   clearDailyFlagsAfterDateChange(game, from, game.now);
   const ejectedFrom = enforcePlaceClosing(game, from, game.now);
@@ -147,6 +153,7 @@ function changeTimeStep(game, target, { mode, source, drainPlayerEnergy }) {
     mode,
     source,
     drainPlayerEnergy,
+    activity,
     ejectedFrom,
   };
   game.features.handleTimeChange(game, change);
@@ -156,20 +163,6 @@ function changeTimeStep(game, target, { mode, source, drainPlayerEnergy }) {
     emitGameEvent(game, "timeJump", [game, change]);
   }
   return change;
-}
-
-function applyElapsedPlayerChanges(game, minutes, { drainEnergy = true } = {}) {
-  game.player.syncAgeAt(game.now);
-  if (minutes <= 0 || !drainEnergy) return;
-
-  const energy = game.player.adjustStat(
-    "energy",
-    -minutes * PLAYER_ENERGY_DRAIN_PER_MINUTE,
-  );
-  game.player.setStatValue(
-    "energy",
-    Math.round(energy * ENERGY_PRECISION) / ENERGY_PRECISION,
-  );
 }
 
 function clearDailyFlagsAfterDateChange(game, from, to) {

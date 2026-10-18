@@ -199,7 +199,7 @@ export function createPhoneUI({
     item.className = "phone-meter-entry";
     item.dataset.valueId = entry.id;
     item.dataset.kind = kind;
-    item.dataset.outcome = outcomeForRange(entry.value, entry.min, entry.max, {
+    item.dataset.outcome = STATS[entry.id]?.neutral ? "info" : outcomeForRange(entry.value, entry.min, entry.max, {
       lowerIsBetter: kind === "stat" && STATS[entry.id]?.higherIsBetter === false,
     });
 

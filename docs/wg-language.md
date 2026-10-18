@@ -940,11 +940,22 @@ The currently exposed paths are:
   local passage changes, temporary event suspension, and saving/loading, then
   are discarded when the scene exits or another scene replaces it. Chat locals
   likewise survive passages, waits, and saves, then are discarded on `@finish`.
-- `player.energy`, `player.stress`, and `player.hygiene`: mutable player stats.
+- `player.energy`, `player.stress`, and `player.hygiene`: persistent baseline
+  stats. `player.fear`, `player.anger`, and `player.arousal` are mutable
+  contextual stats; they fade over elapsed time. All six accept `@effect stat`
+  and `@change stat`. Positive fear and anger changes are amplified by stress.
+  `player.stressBand` (`settled`, `strained`, `overwhelmed`, `near_breaking`,
+  `breaking`) and `player.hygieneBand` (`clean`, `presentable`, `dirty`,
+  `filthy`) provide stable names for authored conditions. The internal effects
+  change continuously rather than jumping at each band boundary.
 - `player.condition`, `player.conditionScore`, `player.pain`, and
   `player.incapacitated`: read-only physical state derived from the player's
   body. `condition` is a qualitative ID; `conditionScore` is its internal
   `0..100` severity summary and is not pooled hit points.
+- `player.comfort`: read-only current comfort derived from temperature, weather,
+  wet clothing, hygiene, pain, and shelter. It affects rest and quiet recovery.
+  For a scene-specific air supply, use `local.air` and authored `set`/`add`
+  effects; it is discarded when that scene ends.
 - `player.subject`, `player.object`, `player.dependent`,
   `player.independent`, and `player.reflexive`: player pronouns.
 - `player.gender`, `player.age`, `player.money`, and `player.temperature`. Temperature is one
@@ -1315,10 +1326,16 @@ Choice directives are:
   effects such as `@effect stat energy -10` still apply.
   NPC simulation, the calendar and weather, age synchronization, midnight
   daily flag clearing, listeners, and action logging are unchanged.
-- `@time <duration> rest`: has the same simulation behavior as `free` and also
-  restores energy at 10 points per in-game hour. It accepts either a fixed
-  duration or a random range and is the shared time policy used by normal sleep
-  and forced-rest scenes.
+- `@time <duration> rest`: has the same simulation behavior as `free` and
+  restores energy and stress over the elapsed time. Stress, pain, and current
+  comfort affect recovery. It accepts either a fixed duration or a random
+  range and is the shared time policy used by normal sleep and forced-rest scenes.
+- `@time <duration> quiet`: spends ordinary elapsed-time energy and gradually
+  eases stress. Use it for genuinely restful awake activities, not travel or
+  every conversation.
+- `@time <duration> exert`: spends more energy, especially when injured, and
+  adds stress if the player keeps exerting themself while depleted.
+  Ordinary `@time` continues to represent untagged activity.
 - `@time-until <runtime.path>`: calculates the duration from `time.iso` to
   a future ISO timestamp at materialization time. It is useful for waiting for
   the next class or closing time. It is valid only on direct choices, cannot
@@ -1707,7 +1724,7 @@ destination day's batch, and a backward date change clears the batch.
 
 Only active authored IDs are saved; automatic school reminders are derived
 from the schedule. The built-in and authored namespaces cannot collide.
-Game save format 41 includes feature-owned state, scene-local state, reminder
+Game save format 44 includes feature-owned state, scene-local state, reminder
 state, and the game-start date; older saves are intentionally unsupported. The
 compiled WG bundle has its own format version, currently 33.
 

@@ -1,5 +1,10 @@
 import { isPlaceUnlocked } from "../../../world/model/place.js";
 import { STATS } from "../../../characters/player/stats.js";
+import {
+  playerComfort,
+  playerHygieneBand,
+  playerStressBand,
+} from "../../../characters/player/stateDynamics.js";
 
 const WG_FLAG_VALUE = Symbol.for("worldgame.wg.flag-value");
 
@@ -41,12 +46,16 @@ function skillValues(player) {
   return Object.fromEntries(player.skills || []);
 }
 
-function playerContext(player) {
+function playerContext(game) {
+  const player = game.player;
   return {
     ...evaluatedStats(player, Object.keys(STATS)),
     condition: player.getBodyCondition(),
     conditionScore: player.getBodyConditionScore(),
     pain: player.getBodyPain(),
+    comfort: playerComfort(game),
+    stressBand: playerStressBand(player.getStatValue("stress")),
+    hygieneBand: playerHygieneBand(player.getStatValue("hygiene")),
     incapacitated: player.isIncapacitated(),
     ...pronounValues(player),
     gender: player.gender,
@@ -153,7 +162,7 @@ export function createWGRuntimeContext(
   const activeContinuation = game.storyContinuations.at(-1) || null;
   const context = {
     story: game.story,
-    player: playerContext(game.player),
+    player: playerContext(game),
     home: homeContext(game, game.homeLocationId),
     npc: npcs,
     actor: actors,

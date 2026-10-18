@@ -86,7 +86,8 @@ export function buildPhonePlayerStatsView(game) {
       perceivedGender: player.perceivedGender.label,
       pronouns: { ...player.pronouns },
     },
-    stats: Object.entries(STATS).map(([id, definition]) => ({
+    stats: Object.entries(STATS).filter(([id, definition]) =>
+      !definition.contextual || player.getStatValue(id) > 0).map(([id, definition]) => ({
       id,
       label: definition.label,
       value: player.getStatValue(id),

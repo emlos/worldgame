@@ -13665,7 +13665,8 @@ export const WG_BUNDLE = {
                 "file": "story/places/mall.wg",
                 "line": 46,
                 "column": 1
-              }
+              },
+              "activity": "quiet"
             },
             {
               "type": "choice",

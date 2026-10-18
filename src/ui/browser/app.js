@@ -19,6 +19,7 @@ import {
 } from "./journalUI.js";
 import { buildFullMapView } from "../../game/scene/mapView.js";
 import { STATS } from "../../characters/player/stats.js";
+import { playerComfort } from "../../characters/player/stateDynamics.js";
 import { renderMap as renderGraphMap } from "./renderMap.js";
 import { createSceneTransition } from "./sceneTransition.js";
 import { createChoiceSection, renderSceneContent } from "./sceneContent.js";
@@ -168,6 +169,7 @@ function renderPlayerPanel() {
 
   for (const [name, definition] of Object.entries(STATS)) {
     const value = game.player.getStatValue(name);
+    if (definition.contextual && value <= 0) continue;
     const fraction =
       (value - definition.min) / (definition.max - definition.min);
     const percentage = Math.max(0, Math.min(1, fraction)) * 100;
@@ -175,7 +177,7 @@ function renderPlayerPanel() {
     const row = document.createElement("div");
     row.className = "player-stat";
     row.dataset.stat = name;
-    row.dataset.outcome = outcomeForRange(
+    row.dataset.outcome = definition.neutral ? "info" : outcomeForRange(
       value,
       definition.min,
       definition.max,
@@ -207,6 +209,22 @@ function renderPlayerPanel() {
     meter.append(fill);
     appendPlayerStatMarkers(meter, name, definition.min, definition.max, value);
     row.append(label, valueElement, meter);
+    playerStatsElement.append(row);
+  }
+
+  const comfort = playerComfort(game);
+  if (comfort < 60) {
+    const row = document.createElement("div");
+    row.className = "player-stat";
+    row.dataset.stat = "comfort";
+    row.dataset.outcome = outcomeForRange(comfort, 0, 100);
+    const label = document.createElement("span");
+    label.className = "player-stat-label";
+    label.textContent = "Comfort";
+    const value = document.createElement("output");
+    value.className = "player-stat-value";
+    value.textContent = comfort < 25 ? "Miserable" : comfort < 45 ? "Uncomfortable" : "Uneasy";
+    row.append(label, value);
     playerStatsElement.append(row);
   }
 

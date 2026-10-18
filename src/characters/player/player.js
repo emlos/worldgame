@@ -208,7 +208,10 @@ export class Player {
         const definition = STATS[id];
         if (!definition) throw new Error(`Unknown player stat '${id}'`);
         if (definition.derived) throw new Error(`Player stat '${id}' is read-only`);
-        const amount = finiteNumber(delta, `Player stat '${id}' adjustment`);
+        let amount = finiteNumber(delta, `Player stat '${id}' adjustment`);
+        if (amount > 0 && (id === "fear" || id === "anger")) {
+            amount *= 1 + this.getStatValue("stress") / 250;
+        }
         return this.setStatValue(id, this.getStatValue(id) + amount);
     }
 
