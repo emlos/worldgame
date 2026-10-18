@@ -194,8 +194,24 @@
 
   The teacher presents a challenging problem on the board and asks the class to solve it.
 
+  @if player.stress >= 60
+    You have to reread the first line. Each time you return to the numbers, another part of the problem slips from your mind.
+  @endif
+
   @choice "Raise your hand"
+    @when player.stress < 60
     @check grade math tricky
+
+    @success -> .solved
+    @endsuccess
+
+    @failure -> .struggled
+    @endfailure
+  @endchoice
+
+  @choice "Raise your hand"
+    @when player.stress >= 60
+    @check grade math difficult
 
     @success -> .solved
     @endsuccess
@@ -228,6 +244,12 @@
   @choices "How do you contribute?"
 
   The teacher divides the class into small groups to work on a set of problems together.
+
+  @if player.hygieneBand == "filthy"
+    The others leave a gap around your chair. One of them quietly asks you not to touch the shared worksheet, and it takes an effort to join the conversation. @change stat stress 3
+  @elseif player.hygieneBand == "dirty"
+    A classmate wrinkles their nose and edges their chair away. You can still see the worksheet, but the distance makes the discussion awkward. @change stat stress 1
+  @endif
 
   @choice "Share your ideas"
     @check skill resolve tricky

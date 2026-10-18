@@ -5,6 +5,10 @@
 
   The quiet clatter of cups fills {{place.name}}.
 
+  @if flags.quest.cafe.employee and player.hygieneBand == "filthy"
+    The manager makes it clear that you need to clean up before your next shift. They will not put you on customer service like this.
+  @endif
+
   @choicegroup ""
 
     @choice "Ask about a job" -> cafe.job.application
@@ -15,6 +19,7 @@
       @time 1h
       @event-pool cafe.job.shift
       @when flags.quest.cafe.employee and time.minutesSinceMidnight >= 420 and time.minutesSinceMidnight <= 1260
+      @require player.hygieneBand != "filthy" "The manager asks you to clean up before serving customers."
       @change money 7 "£7 wages"
     @endchoice
   @endchoicegroup

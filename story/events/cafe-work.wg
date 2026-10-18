@@ -95,7 +95,13 @@
   @pool cafe.job.shift
   @place-key cafe
 
-  The hour passes without incident. You take orders, wipe tables, and keep the counter stocked until the manager tells you that you are done.
+  The shift is mostly routine. You take orders, wipe tables, and keep the counter stocked.
+
+  @if player.hygieneBand == "dirty"
+    Partway through, the manager asks you to wash up and put on a clean apron. Their glance lingers long enough to make the remaining work uncomfortable. @change stat stress 1
+  @endif
+
+  The manager tells you when the hour is up.
 
   @next -> @return
   
@@ -106,8 +112,24 @@
 
   A customer starts complaining loudly about their order. Their voice carries across the cafe, and the other customers are beginning to stare.
 
+  @if player.stress >= 60
+    You try to follow the complaint, but keep losing your place whenever someone else speaks.
+  @endif
+
   @choice "Try to calm them down"
+    @when player.stress < 60
     @check skill speech tricky
+
+    @success -> .calmed
+    @endsuccess
+
+    @failure -> .escalated
+    @endfailure
+  @endchoice
+
+  @choice "Try to calm them down"
+    @when player.stress >= 60
+    @check skill speech difficult
 
     @success -> .calmed
     @endsuccess

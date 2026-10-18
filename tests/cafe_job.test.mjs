@@ -5,6 +5,10 @@ import { Game } from "../src/game/game.js";
 import { performChoice } from "../src/game/scene/choiceEngine.js";
 import { buildScene } from "../src/game/scene/sceneEngine.js";
 import { WG_BUNDLE } from "../src/story/wg/generated/scenes.js";
+import {
+  enterWGScene,
+  resolveActiveWGStory,
+} from "../src/story/wg/runtime/storyRuntime.js";
 
 const CAFE_SHIFT_SCENE_IDS = [
   "cafe.job.shift.cleanup",
@@ -146,5 +150,45 @@ test("cafe shifts can start from 07:00 through exactly 21:00", () => {
     const game = createCafeGame(at);
     game.setFlag("quest.cafe.employee", true);
     assert.equal(Boolean(choice(game, "Work for one hour")), expected, at);
+  }
+});
+
+test("high stress makes calming a rowdy customer harder but leaves manager help available", () => {
+  for (const [stress, difficulty] of [[59, "tricky"], [60, "difficult"]]) {
+    const game = createCafeGame();
+    game.player.setStatValue("stress", stress);
+    enterWGScene(game, "cafe.job.shift.rowdy-customer");
+    resolveActiveWGStory(game);
+
+    const available = choices(game);
+    assert.equal(available.filter((entry) => entry.label === "Try to calm them down").length, 1);
+    assert.equal(
+      available.find((entry) => entry.label === "Try to calm them down").skillCheck.difficultyId,
+      difficulty,
+    );
+    assert.ok(available.some((entry) => entry.label === "Get the manager"));
+  }
+});
+
+test("filthy hygiene prevents customer-facing cafe work until the player cleans up", () => {
+  const game = createCafeGame();
+  game.setFlag("quest.cafe.employee", true);
+  game.player.setStatValue("hygiene", 14);
+
+  const blocked = choice(game, "Work for one hour");
+  assert.equal(blocked.enabled, false);
+  assert.match(blocked.disabledReason, /clean up/);
+
+  game.player.setStatValue("hygiene", 15);
+  assert.equal(choice(game, "Work for one hour").enabled, true);
+});
+
+test("a dirty cafe worker is asked to wash up during an otherwise routine shift", () => {
+  for (const [hygiene, stressCost] of [[40, 0], [39, 1]]) {
+    const game = createCafeGame();
+    game.player.setStatValue("hygiene", hygiene);
+    enterWGScene(game, "cafe.job.shift.routine");
+    resolveActiveWGStory(game);
+    assert.equal(game.player.getStatValue("stress"), stressCost);
   }
 });
