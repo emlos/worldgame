@@ -2,9 +2,12 @@ ui:
 - add animations for lowering/increasing the sidebars diaplying player stats
 - generic classes for tables for a unified look+feel [currewntly: cinema + high school timetable]
 - add text effects once substances are implemented - moving 'drunk' css/vsg animated text (disablable in the settings once we implement it later)
+- ui animation:
+    - phone openign closing, overlay background fading it, phone turns on with a simple animation
+    - 
 
 game systems:
-    player stats:
+    player stats (needs to be decided before further content is added):
     - postpone the full stats rework until there is enough content to exercise and balance it
     - do not restore the mind stat; it overlaps with stress, fear, trauma, energy, and resolve
     - keep body condition and three baseline meters permanently visible:
@@ -52,6 +55,10 @@ game systems:
     - preserve player agency: fear, anger, and stress may change available approaches or threaten consequences, but should only force involuntary behavior at clearly telegraphed extremes
     - if a single value is needed for a pressured action, derive composure from resolve, support, comfort, stress, fear, and pain instead of storing another stat
 
+    - "ideas":
+        - purpose: unlocking town content -> example: player gets drunk and has a random outdoor event where they get the idea to apply for a bartender jobs etc
+        - possibly unlocked by: interacting with npcs, having certain stats/flags, random chance, going into a specific location, picking a certain choice
+        - will have its own phone menu
 
     inventory system:
     - owning items as needed
@@ -61,18 +68,25 @@ game systems:
     - some sort of school popularity system (status? it feels too similar to what degrees of lewdity implements...)
     - missed classes/bad behavior penalty + detention
 
-
     npcs:
     - pathfinding: allow bus/car travel for select npcs + travel preferences
     - luce - needs player-follow behavior definition  -afterward can be implemented
 
     player mechanics:
     - smoking/drinking mechanic + addiction? stat penalty?
+    - alcohol: hidden stat like pain - only shows when player intoxicated
+        - effects: progression between normal: 0-10, tipsy 10-30, drunk 30-60, 60-80 wasted, 80-100 blackout
+        - normal: no change for the player escept the bar is showing 1-10% 
+        - tipsy: prose/choice changes/variants in social scenes
+        - drunk: swirly text, some choices not shown eg. in social situations, allows events at school/prose variants
+        - wasted: more extreme version of that
+        - blackout: interrupting scene, player wakes up a few hours later at hospital/outdoors/at home etc
 
-    - very light sickness system -> mostly stat drains
+        - less sleep recovery based on % of alcohol stat like rl, decay rate like irl too
+
+    - light sickness system -> mostly stat drains + medicine from the pharmacy.
 
     - computer -> livestreaming system, with procedurally generated chat window [non save persistent/scene local]
-        buy computer from the shopping mall [implemented]
 
     world:
     - texting: spam messages/groupchats, letting the player leave, sending messages at random intervals/randomly generated users
@@ -88,7 +102,7 @@ content:
 - progression: theres strange receptacles the player can activate throughout various locations, some easy to access some hard (like in the catacomb maze, appearing after an all night movie marathon, hidden in a statue at the graveyard etc)
     reward the player with lore/unlocking extra locations/amenities/abilities -> reason to explorer
 - cinema: add caro interactions
-- npc idea: corrupt doctor, tags: dark romance, medical, age gap -> ties into drug addiction mechanic
+- npc idea: corrupt doctor [sasha], tags: dark romance, medical, age gap -> ties into drug addiction mechanic
     trigger for meeting: school mandated vaccination (~1month into the school semester, every semester) OR player gets sick [sickness mechanic tie in], OR player passes out outside and is taken to the hospital [interrupt]
     they're arrogant, medical about it, intelligent
     give player a vaccination... and if the player doesnt pass a passive check, slips them a drug with it -> unlocks option for 'follow up'
@@ -114,7 +128,7 @@ fix:
 
 not planned:
 - combat: weapons, police, player emotions, multi person combat, environment beyond the wall/groud positioning, specific injuries
--
+- progression: authored week by week progression - 'quests' and plotlines and npc interactions get unlocked whenever the player progresses, not time dependent
 
 inttional:
 - combat: current combat skill progression and information reveal, npcs healing after combat, calling for help having a 'cooldown' of 45s + ignores environment
