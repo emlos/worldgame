@@ -11756,11 +11756,33 @@ export const WG_BUNDLE = {
             "type": "binary",
             "operator": "and",
             "left": {
-              "type": "path",
-              "value": [
-                "hospital",
-                "sashaOnDuty"
-              ]
+              "type": "binary",
+              "operator": "and",
+              "left": {
+                "type": "path",
+                "value": [
+                  "npc",
+                  "sasha",
+                  "present"
+                ]
+              },
+              "right": {
+                "type": "binary",
+                "operator": "==",
+                "left": {
+                  "type": "path",
+                  "value": [
+                    "npc",
+                    "sasha",
+                    "schedule",
+                    "obligationId"
+                  ]
+                },
+                "right": {
+                  "type": "literal",
+                  "value": "sasha_hospital_shift"
+                }
+              }
             },
             "right": {
               "type": "path",
@@ -11847,7 +11869,7 @@ export const WG_BUNDLE = {
                   "path": [
                     "npc",
                     "sasha",
-                    "subject"
+                    "dependent"
                   ],
                   "filters": [
                     "cap"
@@ -11862,7 +11884,7 @@ export const WG_BUNDLE = {
                   "path": [
                     "npc",
                     "sasha",
-                    "object"
+                    "dependent"
                   ],
                   "filters": []
                 },
@@ -11949,29 +11971,51 @@ export const WG_BUNDLE = {
             "operator": "and",
             "left": {
               "type": "binary",
-              "operator": "or",
+              "operator": "and",
               "left": {
-                "type": "path",
-                "value": [
-                  "hospital",
-                  "needsTreatment"
-                ]
+                "type": "binary",
+                "operator": "or",
+                "left": {
+                  "type": "path",
+                  "value": [
+                    "hospital",
+                    "needsTreatment"
+                  ]
+                },
+                "right": {
+                  "type": "path",
+                  "value": [
+                    "flags",
+                    "hospital",
+                    "awaiting_sasha_introduction"
+                  ]
+                }
               },
               "right": {
                 "type": "path",
                 "value": [
-                  "flags",
-                  "hospital",
-                  "awaiting_sasha_introduction"
+                  "npc",
+                  "sasha",
+                  "present"
                 ]
               }
             },
             "right": {
-              "type": "path",
-              "value": [
-                "hospital",
-                "sashaOnDuty"
-              ]
+              "type": "binary",
+              "operator": "==",
+              "left": {
+                "type": "path",
+                "value": [
+                  "npc",
+                  "sasha",
+                  "schedule",
+                  "obligationId"
+                ]
+              },
+              "right": {
+                "type": "literal",
+                "value": "sasha_hospital_shift"
+              }
             }
           },
           "right": {
@@ -12190,11 +12234,33 @@ export const WG_BUNDLE = {
               "type": "binary",
               "operator": "and",
               "left": {
-                "type": "path",
-                "value": [
-                  "hospital",
-                  "sashaOnDuty"
-                ]
+                "type": "binary",
+                "operator": "and",
+                "left": {
+                  "type": "path",
+                  "value": [
+                    "npc",
+                    "sasha",
+                    "present"
+                  ]
+                },
+                "right": {
+                  "type": "binary",
+                  "operator": "==",
+                  "left": {
+                    "type": "path",
+                    "value": [
+                      "npc",
+                      "sasha",
+                      "schedule",
+                      "obligationId"
+                    ]
+                  },
+                  "right": {
+                    "type": "literal",
+                    "value": "sasha_hospital_shift"
+                  }
+                }
               },
               "right": {
                 "type": "path",
@@ -12375,11 +12441,33 @@ export const WG_BUNDLE = {
             "type": "binary",
             "operator": "and",
             "left": {
-              "type": "path",
-              "value": [
-                "hospital",
-                "sashaOnDuty"
-              ]
+              "type": "binary",
+              "operator": "and",
+              "left": {
+                "type": "path",
+                "value": [
+                  "npc",
+                  "sasha",
+                  "present"
+                ]
+              },
+              "right": {
+                "type": "binary",
+                "operator": "==",
+                "left": {
+                  "type": "path",
+                  "value": [
+                    "npc",
+                    "sasha",
+                    "schedule",
+                    "obligationId"
+                  ]
+                },
+                "right": {
+                  "type": "literal",
+                  "value": "sasha_hospital_shift"
+                }
+              }
             },
             "right": {
               "type": "path",
@@ -12717,11 +12805,33 @@ export const WG_BUNDLE = {
                 "type": "binary",
                 "operator": "and",
                 "left": {
-                  "type": "path",
-                  "value": [
-                    "hospital",
-                    "sashaOnDuty"
-                  ]
+                  "type": "binary",
+                  "operator": "and",
+                  "left": {
+                    "type": "path",
+                    "value": [
+                      "npc",
+                      "sasha",
+                      "present"
+                    ]
+                  },
+                  "right": {
+                    "type": "binary",
+                    "operator": "==",
+                    "left": {
+                      "type": "path",
+                      "value": [
+                        "npc",
+                        "sasha",
+                        "schedule",
+                        "obligationId"
+                      ]
+                    },
+                    "right": {
+                      "type": "literal",
+                      "value": "sasha_hospital_shift"
+                    }
+                  }
                 },
                 "right": {
                   "type": "unary",
@@ -12766,14 +12876,36 @@ export const WG_BUNDLE = {
                 "type": "binary",
                 "operator": "or",
                 "left": {
-                  "type": "unary",
-                  "operator": "not",
-                  "value": {
-                    "type": "path",
-                    "value": [
-                      "hospital",
-                      "sashaOnDuty"
-                    ]
+                  "type": "binary",
+                  "operator": "or",
+                  "left": {
+                    "type": "unary",
+                    "operator": "not",
+                    "value": {
+                      "type": "path",
+                      "value": [
+                        "npc",
+                        "sasha",
+                        "present"
+                      ]
+                    }
+                  },
+                  "right": {
+                    "type": "binary",
+                    "operator": "!=",
+                    "left": {
+                      "type": "path",
+                      "value": [
+                        "npc",
+                        "sasha",
+                        "schedule",
+                        "obligationId"
+                      ]
+                    },
+                    "right": {
+                      "type": "literal",
+                      "value": "sasha_hospital_shift"
+                    }
                   }
                 },
                 "right": {

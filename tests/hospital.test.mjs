@@ -108,6 +108,7 @@ test("injured hospital visitors meet Sasha once when they are on duty", () => {
   const scene = buildScene(game);
   assert.match(JSON.stringify(scene.content), /Dr\. Sasha Volkov/);
   assert.match(JSON.stringify(scene.content), /welcome here anytime/);
+  assert.match(sceneText(game), /His lab coat is pressed and clean\..*meet his eyes through his square glasses\./);
   choose(game, `Thank ${sashaObject(game)}`);
   assert.equal(resolveWGAutomaticScene(game, WG_AUTO_TRIGGER.enterPlace), null);
   assert.equal(relationship(game).meters.get("interest").value, 1);
@@ -254,22 +255,23 @@ test("Sasha follows up once when the player returns after treatment", () => {
 test("Sasha's hospital prose and choices honor changed pronouns", () => {
   const game = gameAt("2026-09-03T10:00:00.000Z");
   placeAtSashaHospital(game);
-  game.npcs.get("sasha").pronouns = PronounSets.HE_HIM;
+  game.npcs.get("sasha").pronouns = PronounSets.THEY_THEM;
   game.player.body.applyDamage({ partId: "hand_l", integrityDamage: 10 });
   resolveWGAutomaticScene(game, WG_AUTO_TRIGGER.enterPlace);
-  assert.equal(sceneHasChoice(game, "Thank him"), true);
-  choose(game, "Thank him");
+  assert.match(sceneText(game), /Their lab coat is pressed and clean\..*meet their eyes through their square glasses\./);
+  assert.equal(sceneHasChoice(game, "Thank them"), true);
+  choose(game, "Thank them");
 
-  assert.match(JSON.stringify(buildScene(game).content), /ask him to examine/);
+  assert.match(JSON.stringify(buildScene(game).content), /ask them to examine/);
   choose(game, "Ask Dr. Volkov about your injuries");
-  assert.equal(sceneHasChoice(game, "Thank him"), true);
-  choose(game, "Thank him");
+  assert.equal(sceneHasChoice(game, "Thank them"), true);
+  choose(game, "Thank them");
 
   choose(game, "Ask Sasha about work");
-  assert.match(sceneText(game), /keeps him working/);
-  assert.match(sceneText(game), /draws his attention/);
-  assert.equal(sceneHasChoice(game, "Let him get back to work"), true);
-  choose(game, "Let him get back to work");
+  assert.match(sceneText(game), /keeps them working/);
+  assert.match(sceneText(game), /draws their attention/);
+  assert.equal(sceneHasChoice(game, "Let them get back to work"), true);
+  choose(game, "Let them get back to work");
 
   const treatment = choose(game, "Get treatment (1 region)");
   assert.doesNotMatch(treatment.paragraphs.join(" "), /\b(they|them|their)\b/i);
@@ -279,6 +281,6 @@ test("Sasha's hospital prose and choices honor changed pronouns", () => {
   game.setCurrentPlace({ placeId: hospitalId });
   assert.equal(resolveWGAutomaticScene(game, WG_AUTO_TRIGGER.enterPlace)?.id,
     "hospital.sasha.follow-up");
-  assert.match(sceneText(game), /His expression turns attentive/);
-  assert.equal(sceneHasChoice(game, "Thank him"), true);
+  assert.match(sceneText(game), /Their expression turns attentive/);
+  assert.equal(sceneHasChoice(game, "Thank them"), true);
 });

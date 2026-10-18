@@ -64,9 +64,9 @@
   You wake up in the hospital, on one of the spare beds.
 
   @choice "Next" -> hospital.sasha.first-meeting
-    @when hospital.sashaOnDuty and not npc.sasha.met
+    @when npc.sasha.present and npc.sasha.schedule.obligationId == "sasha_hospital_shift" and not npc.sasha.met
   @endchoice
 
   @choice "Next" -> @exit
-    @when not hospital.sashaOnDuty or npc.sasha.met
+    @when not npc.sasha.present or npc.sasha.schedule.obligationId != "sasha_hospital_shift" or npc.sasha.met
   @endchoice

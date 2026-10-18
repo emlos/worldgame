@@ -111,9 +111,6 @@ other:
 - adjust sleep balance - -sleeping for 6 hours almost fills up energy bar
 
 fix:
-- remove visually displayed threat level of combat opponent - the difficulty is just an in engine shorthand for defining opponent stats
-- i dont like the hospital.sashaOnDuty flag - it feels unnecesarily hardcoded [how do we handle the interrupt better?]
-
 
 not planned:
 - combat: weapons, police, player emotions, multi person combat, environment beyond the wall/groud positioning, specific injuries

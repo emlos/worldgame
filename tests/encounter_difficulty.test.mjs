@@ -151,15 +151,13 @@ test("temporary opponents accept prose titles while persistent NPCs keep their n
   assert.equal(state.participants.player.title, "you");
 });
 
-test("active temporary-actor encounters expose a qualitative opponent threat level", () => {
+test("temporary-actor difficulty stays internal to active encounters", () => {
   const game = gameAtStart({ seed: 333 });
   for (const statName of STAT_NAMES) game.player.setSkillValue(statName, 5);
   startEncounter(game);
 
   const scene = buildScene(game);
-  assert.ok(scene.content.some(
-    ({ text }) => /^Opponent threat level: (Low|Comparable|High|Extreme)\.$/.test(text),
-  ));
+  assert.doesNotMatch(JSON.stringify(scene.content), /Opponent threat level/i);
 
   const context = createCombatContext({
     game,

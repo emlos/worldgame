@@ -2,14 +2,14 @@
   @place-key hospital
   @auto enter-place
   @priority 500
-  @when (hospital.needsTreatment or flags.hospital.awaiting_sasha_introduction) and hospital.sashaOnDuty and not npc.sasha.met
+  @when (hospital.needsTreatment or flags.hospital.awaiting_sasha_introduction) and npc.sasha.present and npc.sasha.schedule.obligationId == "sasha_hospital_shift" and not npc.sasha.met
 
   @onenter
     @effect relationship sasha.interest 1
     @effect unset flags.hospital.awaiting_sasha_introduction
   @endonenter
 
-  A doctor looks up from your chart and comes over to check on you. {{npc.sasha.subject | cap}} lab coat is pressed and clean. Looking up you meet {{npc.sasha.object}} eyes through {{npc.sasha.dependent}} square glasses.
+  A doctor looks up from your chart and comes over to check on you. {{npc.sasha.dependent | cap}} lab coat is pressed and clean. Looking up you meet {{npc.sasha.dependent}} eyes through {{npc.sasha.dependent}} square glasses.
   "I'm Dr. Sasha Volkov," the doctor says, looking you up and down. "You're welcome here anytime. Let's see what needs treating."
 
   @next "Thank {{npc.sasha.object}}" -> @exit
@@ -18,7 +18,7 @@
   @place-key hospital
   @auto enter-place
   @priority 400
-  @when hospital.sashaOnDuty and npc.sasha.met and flags.hospital.treatment_received and not flags.hospital.sasha_followup_done
+  @when npc.sasha.present and npc.sasha.schedule.obligationId == "sasha_hospital_shift" and npc.sasha.met and flags.hospital.treatment_received and not flags.hospital.sasha_followup_done
 
   @onenter
     @effect set flags.hospital.sasha_followup_done
@@ -39,7 +39,7 @@
   @place-key hospital
   @offer npc sasha
   @label "Ask Dr. Volkov about your injuries"
-  @when hospital.sashaOnDuty and npc.sasha.met and hospital.needsTreatment
+  @when npc.sasha.present and npc.sasha.schedule.obligationId == "sasha_hospital_shift" and npc.sasha.met and hospital.needsTreatment
 
   Sasha checks your chart, then asks you to describe what hurts and what has stopped working normally.
 
@@ -55,7 +55,7 @@
   @place-key hospital
   @offer npc sasha
   @label "Ask Sasha about work"
-  @when hospital.sashaOnDuty and npc.sasha.met and not flags.hospital.sasha_work_chat_done
+  @when npc.sasha.present and npc.sasha.schedule.obligationId == "sasha_hospital_shift" and npc.sasha.met and not flags.hospital.sasha_work_chat_done
 
   @onenter
     @effect set flags.hospital.sasha_work_chat_done
