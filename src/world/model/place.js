@@ -7,6 +7,7 @@ import {
 } from "../data/place.js";
 import { parseTimeToMinutes } from "../../shared/util/date.js";
 import { cloneData } from "../../shared/util/util.js";
+import { normalizePlaceShelter } from "../data/shelter.js";
 
 const parseTimeOrNull = (str) => parseTimeToMinutes(str, { nullOnEmpty: true });
 
@@ -138,6 +139,7 @@ export class Place {
         const openingHours = props.openingHours || inferredHours;
         this.props = {
             ...props,
+            shelter: normalizePlaceShelter(props.shelter),
             ...(openingHours ? { openingHours: cloneSchedule(openingHours) } : {}),
         };
     }
@@ -182,6 +184,7 @@ export class Place {
             data?.props && typeof data.props === "object"
                 ? JSON.parse(JSON.stringify(data.props))
                 : {};
+        place.props.shelter = normalizePlaceShelter(place.props.shelter);
         return place;
     }
 

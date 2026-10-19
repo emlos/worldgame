@@ -65,6 +65,7 @@ export const PLACE_TAGS = {
   luxury: "luxury",
 };
 
+// Omitted shelter defaults to outdoors; use indoor or covered for shelter.
 // `unlocked` controls player visibility only. Locked places are still generated
 // and remain available to NPC simulation. Runtime unlocking is irreversible and
 // persists in save data.
@@ -72,7 +73,7 @@ export const PLACE_REGISTRY = [
   {
     key: "player_home",
     label: "Player Home",
-    props: { icon: "🏠", category: [PLACE_TAGS.housing] },
+    props: { shelter: "indoor", icon: "🏠", category: [PLACE_TAGS.housing] },
     nameFn: ({}) => `Your Home`,
     unlocked: true, //unlocked
   },
@@ -105,7 +106,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.suburban,
       LOCATION_TAGS.suburban_hub,
     ],
-    props: { icon: "🏛️", category: [PLACE_TAGS.civic, PLACE_TAGS.service] },
+    props: { shelter: "indoor", icon: "🏛️", category: [PLACE_TAGS.civic, PLACE_TAGS.service] },
     nameFn: ({ tags }) =>
       has(tags, LOCATION_TAGS.urban_core)
         ? "Downtown Civil Office"
@@ -123,6 +124,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.poor,
     ],
     props: {
+      shelter: "indoor",
       icon: "🚔",
       category: [PLACE_TAGS.safety, PLACE_TAGS.civic],
       ages: { min: 16 },
@@ -140,7 +142,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.suburban_hub,
       LOCATION_TAGS.wealthy,
     ],
-    props: { icon: "⚖️", category: [PLACE_TAGS.civic] },
+    props: { shelter: "indoor", icon: "⚖️", category: [PLACE_TAGS.civic] },
     nameFn: ({ rnd }) =>
       `${pick(["District", "Municipal", "County"], rnd)} Court`,
     unlocked: false,
@@ -155,7 +157,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.urban,
       LOCATION_TAGS.urban_core,
     ],
-    props: { icon: "🚉", category: [PLACE_TAGS.transport] },
+    props: { shelter: "covered", icon: "🚉", category: [PLACE_TAGS.transport] },
     nameFn: ({ tags }) =>
       has(tags, LOCATION_TAGS.urban) ? "Central Station" : "Train Station",
     unlocked: false,
@@ -215,7 +217,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.coastal,
       LOCATION_TAGS.poor,
     ],
-    props: { icon: "⛽", category: [PLACE_TAGS.service] },
+    props: { shelter: "covered", icon: "⛽", category: [PLACE_TAGS.service] },
     nameFn: ({ rnd }) =>
       `${pick(["FuelStop", "Highway", "Harbor"], rnd)} Station`,
     unlocked: false,
@@ -233,7 +235,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.residential,
       LOCATION_TAGS.wealthy,
     ],
-    props: { icon: "🏦", category: [PLACE_TAGS.service] },
+    props: { shelter: "indoor", icon: "🏦", category: [PLACE_TAGS.service] },
     nameFn: ({ rnd }) =>
       `${pick(["First National", "Union", "Harborview"], rnd)} Bank`,
     unlocked: false,
@@ -251,7 +253,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.rural,
       LOCATION_TAGS.coastal,
     ],
-    props: { icon: "📮", category: [PLACE_TAGS.service] },
+    props: { shelter: "indoor", icon: "📮", category: [PLACE_TAGS.service] },
     nameFn: ({ tags }) =>
       has(tags, LOCATION_TAGS.urban_core)
         ? "Central Post Office"
@@ -315,6 +317,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.commercial,
     ],
     props: {
+      shelter: "indoor",
       icon: "🎭",
       category: [PLACE_TAGS.culture, PLACE_TAGS.supernatural],
     },
@@ -335,7 +338,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.commercial,
       LOCATION_TAGS.suburban_hub,
     ],
-    props: { icon: "🎬", category: [PLACE_TAGS.culture] },
+    props: { shelter: "indoor", icon: "🎬", category: [PLACE_TAGS.culture] },
     nameFn: ({ rnd }) =>
       `${pick(["Arcadia", "Odeon", "Vista", "Galaxy"], rnd)} Cinema`,
 
@@ -353,6 +356,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.education,
     ],
     props: {
+      shelter: "indoor",
       icon: "🏛️",
       category: [PLACE_TAGS.culture, PLACE_TAGS.education, PLACE_TAGS.history],
     },
@@ -376,7 +380,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.commercial,
       LOCATION_TAGS.wealthy,
     ],
-    props: { icon: "🖼️", category: [PLACE_TAGS.culture, PLACE_TAGS.leisure] },
+    props: { shelter: "indoor", icon: "🖼️", category: [PLACE_TAGS.culture, PLACE_TAGS.leisure] },
     nameFn: ({ rnd, tags }) =>
       has(tags, LOCATION_TAGS.wealthy)
         ? "Avant-Garde Art Gallery"
@@ -400,6 +404,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.wealthy,
     ],
     props: {
+      shelter: "indoor",
       icon: "📚",
       category: [PLACE_TAGS.culture, PLACE_TAGS.education, PLACE_TAGS.leisure],
     },
@@ -419,7 +424,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.tourism,
       LOCATION_TAGS.coastal,
     ],
-    props: { icon: "🎧", category: [PLACE_TAGS.leisure, PLACE_TAGS.nightlife] },
+    props: { shelter: "indoor", icon: "🎧", category: [PLACE_TAGS.leisure, PLACE_TAGS.nightlife] },
     nameFn: ({ rnd }) =>
       `${pick(["Neon", "Pulse", "Echo", "Velvet"], rnd)} Club`,
 
@@ -436,7 +441,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.suburban,
       LOCATION_TAGS.rural,
     ],
-    props: { icon: "🎨", category: [PLACE_TAGS.leisure] },
+    props: { shelter: "indoor", icon: "🎨", category: [PLACE_TAGS.leisure] },
     nameFn: ({ rnd }) =>
       `${pick(["Maple", "Riverside", "Elm", "Sunset"], rnd)} Art Center`,
 
@@ -455,7 +460,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.rural,
       LOCATION_TAGS.poor,
     ],
-    props: { icon: "🏠", category: [PLACE_TAGS.civic, PLACE_TAGS.leisure] },
+    props: { shelter: "indoor", icon: "🏠", category: [PLACE_TAGS.civic, PLACE_TAGS.leisure] },
     nameFn: ({ rnd }) =>
       `${pick(["Riverside", "Northside", "Docktown", "Union"], rnd)} Community Center`,
     unlocked: false,
@@ -515,6 +520,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.wealthy,
     ],
     props: {
+      shelter: "indoor",
       icon: "🏬",
       category: [PLACE_TAGS.commerce, PLACE_TAGS.food, PLACE_TAGS.leisure],
     },
@@ -537,7 +543,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.coastal,
       LOCATION_TAGS.poor,
     ],
-    props: { icon: "🏪", category: [PLACE_TAGS.commerce] },
+    props: { shelter: "indoor", icon: "🏪", category: [PLACE_TAGS.commerce] },
     nameFn: ({ rnd }) => `${pick(["QuickMart", "Stop&Shop", "MiniMart"], rnd)}`,
     unlocked: false,
   },
@@ -556,7 +562,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.wealthy,
       LOCATION_TAGS.tourism,
     ],
-    props: { icon: "🍽️", category: [PLACE_TAGS.food, PLACE_TAGS.nightlife] },
+    props: { shelter: "indoor", icon: "🍽️", category: [PLACE_TAGS.food, PLACE_TAGS.nightlife] },
     nameFn: ({ rnd }) =>
       `${pick(["Olive Court", "Dockside Grill", "Sunset Table", "Elm Bistro"], rnd)}`,
     unlocked: false,
@@ -574,7 +580,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.rural,
       LOCATION_TAGS.coastal,
     ],
-    props: { icon: "🍕", category: [PLACE_TAGS.food] },
+    props: { shelter: "indoor", icon: "🍕", category: [PLACE_TAGS.food] },
     nameFn: ({ rnd }) =>
       `${pick(["Tony's", "Mama Mia", "Brick Oven", "Harbor Slice"], rnd)} Pizzeria`,
     unlocked: false,
@@ -594,7 +600,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.tourism,
       LOCATION_TAGS.coastal,
     ],
-    props: { icon: "☕", category: [PLACE_TAGS.food, PLACE_TAGS.leisure] },
+    props: { shelter: "indoor", icon: "☕", category: [PLACE_TAGS.food, PLACE_TAGS.leisure] },
     nameFn: ({ rnd, tags }) =>
       `${pick(
         has(tags, LOCATION_TAGS.education)
@@ -620,6 +626,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.poor,
     ],
     props: {
+      shelter: "indoor",
       icon: "🍺",
       category: [PLACE_TAGS.food, PLACE_TAGS.nightlife, PLACE_TAGS.leisure],
     },
@@ -642,7 +649,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.rural,
       LOCATION_TAGS.historic,
     ],
-    props: { icon: "🥐", category: [PLACE_TAGS.food] },
+    props: { shelter: "indoor", icon: "🥐", category: [PLACE_TAGS.food] },
     nameFn: ({ rnd, tags }) =>
       has(tags, LOCATION_TAGS.historic)
         ? `${pick(["Old Town", "Heritage"], rnd)} Bakery`
@@ -661,7 +668,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.rural,
       LOCATION_TAGS.poor,
     ],
-    props: { icon: "🥩", category: [PLACE_TAGS.food] },
+    props: { shelter: "indoor", icon: "🥩", category: [PLACE_TAGS.food] },
     nameFn: ({ rnd, tags }) =>
       has(tags, LOCATION_TAGS.poor)
         ? `${pick(["Budget Meats", "Family Butcher"], rnd)}`
@@ -685,7 +692,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.suburban_hub,
       LOCATION_TAGS.wealthy,
     ],
-    props: { icon: "🏥", category: [PLACE_TAGS.service] },
+    props: { shelter: "indoor", icon: "🏥", category: [PLACE_TAGS.service] },
     nameFn: ({ rnd }) =>
       `${pick(["Riverside", "Northside", "Elm"], rnd)} Clinic`,
     unlocked: false,
@@ -703,7 +710,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.wealthy,
       LOCATION_TAGS.education,
     ],
-    props: { icon: "🏥", category: [PLACE_TAGS.service] },
+    props: { shelter: "indoor", icon: "🏥", category: [PLACE_TAGS.service] },
     nameFn: ({ rnd }) =>
       `${pick(["St. Genevieve", "General", "Memorial"], rnd)} Hospital`,
     unlocked: true,
@@ -722,7 +729,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.rural,
       LOCATION_TAGS.wealthy,
     ],
-    props: { icon: "💊", category: [PLACE_TAGS.service] },
+    props: { shelter: "indoor", icon: "💊", category: [PLACE_TAGS.service] },
     nameFn: ({ rnd }) =>
       `${pick(["City", "Riverside", "Elm", "Union"], rnd)} Pharmacy`,
     unlocked: true,
@@ -740,7 +747,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.parkland,
       LOCATION_TAGS.wealthy,
     ],
-    props: { icon: "🩺", category: [PLACE_TAGS.service] },
+    props: { shelter: "indoor", icon: "🩺", category: [PLACE_TAGS.service] },
     nameFn: ({ rnd }) =>
       `${pick(["Riverside", "Elm Street", "Maple"], rnd)} Medical`,
     unlocked: false,
@@ -756,7 +763,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.residential,
       LOCATION_TAGS.commercial,
     ],
-    props: { icon: "🏋️", category: [PLACE_TAGS.service, PLACE_TAGS.leisure] },
+    props: { shelter: "indoor", icon: "🏋️", category: [PLACE_TAGS.service, PLACE_TAGS.leisure] },
     nameFn: ({ rnd }) =>
       `${pick(["Ironworks", "Pulse", "Forge", "AnyGym"], rnd)} Gym`,
     unlocked: true,
@@ -788,7 +795,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.residential,
       LOCATION_TAGS.commercial,
     ],
-    props: { icon: "💇", category: [PLACE_TAGS.service] },
+    props: { shelter: "indoor", icon: "💇", category: [PLACE_TAGS.service] },
     nameFn: ({ rnd }) =>
       `${pick(["Velvet", "Luxe", "Glow", "ClipJoint"], rnd)} Salon`,
     unlocked: false,
@@ -806,6 +813,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.poor,
     ],
     props: {
+      shelter: "indoor",
       icon: "⛪",
       category: [
         PLACE_TAGS.service,
@@ -852,7 +860,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.residential,
       LOCATION_TAGS.rural,
     ],
-    props: { icon: "🏫", category: [PLACE_TAGS.education] },
+    props: { shelter: "indoor", icon: "🏫", category: [PLACE_TAGS.education] },
     nameFn: ({ rnd }) =>
       `${pick(["Elm Primary School", "Maple Primary"], rnd)}`,
     unlocked: false,
@@ -867,7 +875,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.residential,
       LOCATION_TAGS.rural,
     ],
-    props: { icon: "🏫", category: [PLACE_TAGS.education] },
+    props: { shelter: "indoor", icon: "🏫", category: [PLACE_TAGS.education] },
     nameFn: ({ rnd }) =>
       `Middle School no. ${pick([1, 2, 3, 4, 5, 6, 7, 8, 9], rnd)}`,
     unlocked: false,
@@ -884,7 +892,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.suburban_hub,
       LOCATION_TAGS.dense,
     ],
-    props: { icon: "🎓", category: [PLACE_TAGS.education] },
+    props: { shelter: "indoor", icon: "🎓", category: [PLACE_TAGS.education] },
     nameFn: () => "University of Docktown",
     unlocked: false,
   },
@@ -898,7 +906,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.commercial,
       LOCATION_TAGS.dense,
     ],
-    props: { icon: "🏢", category: [PLACE_TAGS.commerce, PLACE_TAGS.service] },
+    props: { shelter: "indoor", icon: "🏢", category: [PLACE_TAGS.commerce, PLACE_TAGS.service] },
     nameFn: ({ rnd }) =>
       `${pick(["Union", "Harbor", "Market", "Liberty", "Central"], rnd)} Office Tower`,
     unlocked: false,
@@ -918,7 +926,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.urban,
       LOCATION_TAGS.rural,
     ],
-    props: { icon: "🔧", category: [PLACE_TAGS.industry, PLACE_TAGS.service] },
+    props: { shelter: "covered", icon: "🔧", category: [PLACE_TAGS.industry, PLACE_TAGS.service] },
     nameFn: ({ rnd }) =>
       `${pick(["Ace Auto", "Riverside Motors", "Dockside Auto", "Union Garage"], rnd)}`,
     unlocked: false,
@@ -938,6 +946,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.poor,
     ],
     props: {
+      shelter: "indoor",
       icon: "🚓",
       category: [PLACE_TAGS.safety, PLACE_TAGS.civic, PLACE_TAGS.service],
     },
@@ -958,6 +967,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.rural,
     ],
     props: {
+      shelter: "indoor",
       icon: "🚒",
       category: [PLACE_TAGS.safety, PLACE_TAGS.civic, PLACE_TAGS.service],
     },
@@ -984,7 +994,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.commercial,
       LOCATION_TAGS.poor,
     ],
-    props: { icon: "📦", category: [PLACE_TAGS.industry] },
+    props: { shelter: "indoor", icon: "📦", category: [PLACE_TAGS.industry] },
     nameFn: ({ rnd, tags }) =>
       has(tags, LOCATION_TAGS.coastal)
         ? `${pick(["Harbor", "Dockside", "Pier"], rnd)} Warehouse`
@@ -1020,7 +1030,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.residential,
       LOCATION_TAGS.dense,
     ],
-    props: { icon: "🏢", category: [PLACE_TAGS.housing], multi: true },
+    props: { shelter: "indoor", icon: "🏢", category: [PLACE_TAGS.housing], multi: true },
     nameFn: ({ rnd }) =>
       `${pick(["Riverside", "Maple", "Union", "Elm"], rnd)} Apartments`,
     unlocked: true,
@@ -1036,7 +1046,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.residential,
       LOCATION_TAGS.dense,
     ],
-    props: { icon: "🏘", category: [PLACE_TAGS.housing], multi: true },
+    props: { shelter: "indoor", icon: "🏘", category: [PLACE_TAGS.housing], multi: true },
     nameFn: ({ rnd }) =>
       `${pick(["Lone", "Maple", "Luxurious", "Suburban"], rnd)} House Row`,
     unlocked: true,
@@ -1052,6 +1062,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.coastal,
     ],
     props: {
+      shelter: "indoor",
       icon: "🏚️",
       category: [PLACE_TAGS.housing, PLACE_TAGS.crime, PLACE_TAGS.supernatural],
       multi: true,
@@ -1070,7 +1081,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.coastal,
       LOCATION_TAGS.rural,
     ],
-    props: { icon: "🏨", category: [PLACE_TAGS.housing, PLACE_TAGS.leisure] },
+    props: { shelter: "indoor", icon: "🏨", category: [PLACE_TAGS.housing, PLACE_TAGS.leisure] },
     nameFn: ({ rnd, tags }) =>
       has(tags, LOCATION_TAGS.tourism)
         ? `${pick(["Seaside", "Harborview", "Sunset"], rnd)} Motel`
@@ -1086,7 +1097,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.urban_center,
       LOCATION_TAGS.poor,
     ],
-    props: { icon: "🏫", category: [PLACE_TAGS.housing, PLACE_TAGS.education] },
+    props: { shelter: "indoor", icon: "🏫", category: [PLACE_TAGS.housing, PLACE_TAGS.education] },
     nameFn: ({ rnd }) =>
       `${pick(["Campus", "University", "Student"], rnd)} Dormitory`,
     unlocked: false,
@@ -1153,7 +1164,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.rural,
       LOCATION_TAGS.poor,
     ],
-    props: { icon: "🕵️", category: [PLACE_TAGS.crime, PLACE_TAGS.industry] },
+    props: { shelter: "indoor", icon: "🕵️", category: [PLACE_TAGS.crime, PLACE_TAGS.industry] },
     nameFn: ({ rnd }) =>
       `${pick(["Hidden", "Secret", "Underground"], rnd)} Den`,
     unlocked: false,
@@ -1228,6 +1239,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.poor,
     ],
     props: {
+      shelter: "indoor",
       icon: "💋",
       category: [PLACE_TAGS.crime, PLACE_TAGS.nsfw],
       ages: { min: 18 },
@@ -1268,6 +1280,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.tourism,
     ],
     props: {
+      shelter: "indoor",
       icon: "👙",
       category: [PLACE_TAGS.crime, PLACE_TAGS.nsfw],
       ages: { min: 18 },
@@ -1296,6 +1309,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.suburban_hub,
     ],
     props: {
+      shelter: "indoor",
       icon: "🔞",
       category: [PLACE_TAGS.commerce, PLACE_TAGS.nsfw],
       ages: { min: 18 },
@@ -1314,6 +1328,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.tourism,
     ],
     props: {
+      shelter: "indoor",
       icon: "🏩",
       category: [PLACE_TAGS.housing, PLACE_TAGS.service, PLACE_TAGS.nsfw],
       ages: { min: 18 },
@@ -1331,6 +1346,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.urban_edge,
     ],
     props: {
+      shelter: "indoor",
       icon: "⛓️",
       category: [PLACE_TAGS.nightlife, PLACE_TAGS.nsfw, PLACE_TAGS.community],
       ages: { min: 18 },
@@ -1349,6 +1365,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.industrial,
     ],
     props: {
+      shelter: "indoor",
       icon: "💆",
       // Often operates in a grey area
       category: [PLACE_TAGS.service, PLACE_TAGS.nsfw, PLACE_TAGS.crime],
@@ -1367,6 +1384,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.commercial,
     ],
     props: {
+      shelter: "indoor",
       icon: "💎",
       category: [PLACE_TAGS.service, PLACE_TAGS.nsfw, PLACE_TAGS.luxury],
       ages: { min: 18 },
@@ -1384,6 +1402,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.historic,
     ],
     props: {
+      shelter: "indoor",
       icon: "🧖",
       category: [PLACE_TAGS.leisure, PLACE_TAGS.nsfw, PLACE_TAGS.community],
       ages: { min: 18 },
@@ -1420,6 +1439,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.poor,
     ],
     props: {
+      shelter: "indoor",
       icon: "🚽",
       category: [PLACE_TAGS.nsfw, PLACE_TAGS.crime, PLACE_TAGS.civic],
     },
@@ -1440,7 +1460,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.commercial,
       LOCATION_TAGS.tourism,
     ],
-    props: { icon: "💎", category: [PLACE_TAGS.commerce, PLACE_TAGS.luxury] },
+    props: { shelter: "indoor", icon: "💎", category: [PLACE_TAGS.commerce, PLACE_TAGS.luxury] },
     nameFn: ({ rnd }) =>
       `${pick(["Diamond", "Gold", "Crystal", "Royal"], rnd)} Jewelers`,
     unlocked: false,
@@ -1489,6 +1509,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.coastal,
     ],
     props: {
+      shelter: "indoor",
       icon: "🍾",
       category: [PLACE_TAGS.food, PLACE_TAGS.luxury, PLACE_TAGS.nightlife],
     },
@@ -1506,6 +1527,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.wealthy,
     ],
     props: {
+      shelter: "indoor",
       icon: "🎰",
       category: [
         PLACE_TAGS.leisure,
@@ -1528,6 +1550,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.coastal,
     ],
     props: {
+      shelter: "indoor",
       icon: "🛎️",
       category: [PLACE_TAGS.housing, PLACE_TAGS.service, PLACE_TAGS.luxury],
     },
@@ -1544,6 +1567,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.tourism,
     ],
     props: {
+      shelter: "indoor",
       icon: "👜",
       category: [PLACE_TAGS.commerce, PLACE_TAGS.luxury],
     },
@@ -1561,6 +1585,7 @@ export const PLACE_REGISTRY = [
       LOCATION_TAGS.tourism,
     ],
     props: {
+      shelter: "indoor",
       icon: "🧖‍♀️",
       category: [PLACE_TAGS.service, PLACE_TAGS.luxury, PLACE_TAGS.leisure],
     },

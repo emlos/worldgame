@@ -15,6 +15,7 @@ export const SCHOOL_PLACE_DEFINITIONS = Object.freeze([
     ]),
     props: Object.freeze({
       icon: "🏫",
+      shelter: "indoor",
       category: Object.freeze(["education"]),
       ejectAtClose: true,
       openingHours: hoursWeekdays({ from: "07:00", to: "17:00" }),

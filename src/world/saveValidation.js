@@ -23,6 +23,7 @@ import {
   PLACE_REGISTRY,
 } from "./data/place.js";
 import { WeatherType } from "./data/weather.js";
+import { normalizePlaceShelter } from "./data/shelter.js";
 import { Weather } from "./model/weather.js";
 
 const WEATHER_SAVE_VERSION = 2;
@@ -143,6 +144,14 @@ export function validateWorldMapSave(
             failSave(`${placePath}.unlocked`, "cannot relock a place that starts unlocked");
           }
           const props = saveRecord(requiredSaveField(place, "props", placePath), `${placePath}.props`);
+          try {
+            normalizePlaceShelter(saveString(
+              requiredSaveField(props, "shelter", `${placePath}.props`),
+              `${placePath}.props.shelter`,
+            ));
+          } catch {
+            failSave(`${placePath}.props.shelter`, "must be outdoor, covered, or indoor");
+          }
           validateScheduleSave(
             requiredSaveField(props, "openingHours", `${placePath}.props`),
             `${placePath}.props.openingHours`,

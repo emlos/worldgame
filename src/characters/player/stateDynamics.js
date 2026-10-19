@@ -3,8 +3,20 @@ import {
   PLAYER_ENERGY_DRAIN_PER_MINUTE,
   PLAYER_ENERGY_RECOVERY_PER_MINUTE,
 } from "./stats.js";
+import { PlaceShelter, getPlaceShelter } from "../../world/data/shelter.js";
+import { WeatherType } from "../../world/data/weather.js";
 
 const round = (value) => Math.round(value * 1_000_000) / 1_000_000;
+const OUTDOOR_WEATHER_PENALTY = Object.freeze({
+  [WeatherType.RAIN]: 12,
+  [WeatherType.STORM]: 18,
+  [WeatherType.SNOW]: 14,
+  [WeatherType.WINDY]: 5,
+});
+const COVERED_WEATHER_PENALTY = Object.freeze({
+  [WeatherType.STORM]: 6,
+  [WeatherType.WINDY]: 4,
+});
 
 export function playerStressBand(value) {
   if (value >= 100) return "breaking";
@@ -32,12 +44,17 @@ export function playerComfort(game) {
   const wetness = clothes.length
     ? clothes.reduce((total, item) => total + item.wetness, 0) / clothes.length
     : 0;
-  const outdoors = !game.currentPlace;
-  const weather = String(game.world?.weather?.kind ?? "").toLowerCase();
-  const weatherPenalty = outdoors && /rain|snow|storm/.test(weather) ? 12 : 0;
+  const shelter = getPlaceShelter(game.currentPlace);
+  const weather = game.world?.weather?.kind;
+  const weatherPenalty = shelter === PlaceShelter.OUTDOOR
+    ? OUTDOOR_WEATHER_PENALTY[weather] ?? 0
+    : shelter === PlaceShelter.COVERED
+      ? COVERED_WEATHER_PENALTY[weather] ?? 0
+      : 0;
   const ambient = Number(game.world?.temperatureC);
-  const ambientPenalty = outdoors && Number.isFinite(ambient)
-    ? Math.max(0, 8 - ambient) * 0.8 + Math.max(0, ambient - 30) * 0.7
+  // A roof stops precipitation, but open-sided places still follow outdoor air.
+  const ambientPenalty = shelter !== PlaceShelter.INDOOR && Number.isFinite(ambient)
+    ? Math.max(0, 12 - ambient) * 1.2 + Math.max(0, ambient - 30) * 1.2
     : 0;
   const hygienePenalty = Math.max(0, 45 - player.getStatValue("hygiene")) * 0.2;
   const painPenalty = player.getBodyPain() * 0.22;
