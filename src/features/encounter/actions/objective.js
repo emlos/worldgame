@@ -30,6 +30,7 @@ import {
 import { requireEncounterObjective } from "../objectives/index.js";
 import { controlledParticipantId, goalOwnerId, goalTargetId } from "../roles.js";
 import { actionIntentProse } from "../proseData.js";
+import { emotionAdjustedChance } from "../emotionModifiers.js";
 
 export const CONTROLLED_DISENGAGE_MIN_EXERTION = 35;
 export const COMPLETE_CONTROL_MIN_WRIST_LEVERAGE = 30;
@@ -142,11 +143,12 @@ export const CONTROLLED_DISENGAGE = Object.freeze({
 
   resolve(context, instance, runtime) {
     const exertion = getParticipant(context, goalOwnerId(context.state)).exertion;
-    const chance = clamp(
+    const baseChance = clamp(
       0.5 + (exertion - CONTROLLED_DISENGAGE_MIN_EXERTION) * 0.006,
       0.5,
       0.88,
     );
+    const chance = emotionAdjustedChance(context, instance, baseChance, 0.18, 0.9);
     if (!chanceRoll(context, instance, runtime, "controlled-disengage", chance, {
       targetExertion: exertion,
     })) {
@@ -193,7 +195,9 @@ export const DEMAND_MONEY_BACK = Object.freeze({
   resolve(context, instance, runtime) {
     const playerId = controlledParticipantId(context.state);
     const speech = getStat(context, playerId, "speech");
-    const chance = calculateSkillCheckChance(speech, "tricky");
+    const chance = emotionAdjustedChance(
+      context, instance, calculateSkillCheckChance(speech, "tricky"),
+    );
     if (!chanceRoll(context, instance, runtime, "speech-demand", chance, {
       skillId: "speech",
       skillValue: speech,

@@ -5,6 +5,7 @@ import { getAvailableActionInstances } from "../src/features/encounter/availabil
 import { selectAiIntent } from "../src/features/encounter/ai.js";
 import { CORE_ENCOUNTER_ACTIONS } from "../src/features/encounter/actions/index.js";
 import { createCombatContext } from "../src/features/encounter/combatants.js";
+import { createCombatEmotionState } from "../src/features/encounter/emotions.js";
 import { STEAL_MONEY_OBJECTIVE } from "../src/features/encounter/objectives/steal.js";
 import { resolveEncounterExchange } from "../src/features/encounter/resolution.js";
 import { FIGHT_SCENARIO } from "../src/features/encounter/scenarios/fight.js";
@@ -25,6 +26,7 @@ test("the fight kernel resolves actions with an arbitrary opponent participant i
     objective,
     personalityId: "opportunist",
     stress: createCombatStressState(game),
+    emotions: createCombatEmotionState(game),
   });
   const instanceKey = game.currentStory.instanceKey;
   let context = createCombatContext({ game, state, instanceKey });

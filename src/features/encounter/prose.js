@@ -423,6 +423,7 @@ function terminalExchangeEvents(context) {
     getEncounterAction(actionId)?.tags.includes("terminal");
   return events.filter((event) => {
       if (TERMINAL_RESOLUTION_EVENT_TYPES.has(event.type)) return false;
+      if (event.type === "emotion.changed" && event.cause === "danger-ended") return false;
       if (event.type === "range.changed"
         && event.to === ENCOUNTER_RANGE.far
         && hasTerminalTransition) return false;

@@ -14,6 +14,10 @@ import {
 import { getAiPersonality, selectAiPersonality } from "../personality.js";
 import { createCombatStressState } from "../stress.js";
 import {
+  applyCombatEmotionsForExchange,
+  createCombatEmotionState,
+} from "../emotions.js";
+import {
   combatDifficultyBonus,
   createCombatLearningState,
 } from "../combatSkill.js";
@@ -182,6 +186,7 @@ function resolveUnopposedEntry(context, reason) {
     outcomeId: outcome.id,
     details: structuredClone(outcome),
   });
+  applyCombatEmotionsForExchange(context.game, state, events);
   state.lastEvents = events.slice(-24);
   objective.commitGameState(context, previousObjective);
 }
@@ -276,6 +281,7 @@ export const FIGHT_SCENARIO = Object.freeze({
       targetId: "player",
     });
     const personality = opponentPersonality(opponent, game.seed, instanceKey);
+    const entryEmotionEvents = [];
     const state = createFightState({
       opponentId: config.opponent.id,
       opponentRef: opponent.ref,
@@ -283,8 +289,14 @@ export const FIGHT_SCENARIO = Object.freeze({
       objective,
       personalityId: personality.id,
       stress: createCombatStressState(game, config.stressMultiplier ?? 1),
+      emotions: createCombatEmotionState(
+        game,
+        config.stressMultiplier ?? 1,
+        entryEmotionEvents,
+      ),
       combatLearning: createCombatLearningState(game.player),
     });
+    state.lastEvents.push(...entryEmotionEvents);
     const ownerId = goalOwnerId(state);
     state.participants[ownerId].controller.commitmentBase = Math.min(
       75,

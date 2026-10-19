@@ -21,6 +21,7 @@ import {
 } from "../state.js";
 import { getMovementCapacity } from "../affordances.js";
 import { calculateExertionCost } from "../effort.js";
+import { emotionAdjustedChance } from "../emotionModifiers.js";
 
 export function actionInstance(actionId, actorId, targetId, parameters = {}) {
   return { actionId, actorId, targetId, parameters };
@@ -107,7 +108,7 @@ export function calculateContestChance(
     const supportPenalty = participant.support === ENCOUNTER_SUPPORT.wall ? 0.04 : 0;
     chance -= Math.max(0.03, baseEvasion - mobilityPenalty - exertionPenalty - supportPenalty);
   }
-  return clamp(chance, 0.18, 0.9);
+  return emotionAdjustedChance(context, instance, chance, 0.18, 0.9);
 }
 
 export function contest(context, instance, runtime, options = {}) {

@@ -45,6 +45,7 @@ import { applyEncounterHygiene } from "./consequences.js";
 import { awardCombatSkillForExchange } from "./combatSkill.js";
 import { updateNpcAngerFromEvents } from "./anger.js";
 import { applyCombatStressForExchange } from "./stress.js";
+import { applyCombatEmotionsForExchange } from "./emotions.js";
 import {
   controlledParticipantId,
   goalOwnerId,
@@ -825,6 +826,7 @@ export function resolveEncounterExchange({
     runtime.events,
   );
   applyCombatStressForExchange(game, next, runtime.events);
+  applyCombatEmotionsForExchange(game, next, runtime.events);
   next.lastEvents = runtime.events.slice(-24);
   persistCombatantBodies(context);
   requireEncounterObjective(next).commitGameState(context, previousObjective);

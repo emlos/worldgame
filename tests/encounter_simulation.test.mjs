@@ -57,7 +57,8 @@ test("stat-difference matrix records outcomes, pacing, repetition, and invariant
 });
 
 test("state-space simulations exercise dangerous valid states and newest objectives", () => {
-  const matrix = runEncounterStateSpaceMatrix({ seedCount: 2 });
+  // A one-second control exchange can continue until the AI's 66-second retreat limit.
+  const matrix = runEncounterStateSpaceMatrix({ seedCount: 2, maxExchanges: 90 });
   assert.deepEqual(
     matrix.map(({ scenario }) => scenario),
     ENCOUNTER_SIMULATION_SCENARIOS.map(({ id }) => id),

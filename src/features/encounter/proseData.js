@@ -1161,6 +1161,24 @@ export function spoiledActionProse(context, event) {
 
 export function genericEventProse(context, event) {
   switch (event.type) {
+    case "emotion.changed":
+      if (event.stat === "fear") {
+        if (event.from < 80 && event.to >= 80) {
+          return "Fear makes it difficult to hold on to a careful plan.";
+        }
+        if (event.from < 40 && event.to >= 40) {
+          return "Your attention keeps snapping toward a way out.";
+        }
+      }
+      if (event.stat === "anger") {
+        if (event.from < 80 && event.to >= 80) {
+          return "Anger narrows your attention to the struggle in front of you.";
+        }
+        if (event.from < 40 && event.to >= 40) {
+          return "You feel the urge to hit back growing stronger.";
+        }
+      }
+      return "";
     case "action.attempted":
       return actionAttemptProse(context, event);
     case "action.failed":

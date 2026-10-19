@@ -8,7 +8,7 @@ ui:
 
 game systems:
     player stats (needs to be decided before further content is added):
-    - still to implement with relevant scenes: air emergencies, specific trauma triggers and processing, contextual crisis interrupts, and adrenaline/anger tradeoffs
+    - still to implement with relevant scenes: air emergencies, specific trauma triggers and processing, contextual crisis interrupts, adrenaline's delayed cost, and Anger effects outside physical encounters
     - do not restore the mind stat; it overlaps with stress, fear, trauma, energy, and resolve
     - keep body condition and three baseline meters permanently visible:
         - condition: a qualitative physical state derived from weighted body-part integrity; do not present it as pooled health
@@ -127,7 +127,7 @@ other:
 fix:
 
 not planned:
-- combat: weapons, police, player emotions, multi person combat, environment beyond the wall/groud positioning, specific injuries
+- combat: weapons, police, broader emotional responses, multi person combat, environment beyond the wall/ground positioning, specific injuries
 - progression: authored week by week progression - 'quests' and plotlines and npc interactions get unlocked whenever the player progresses, not time dependent
 
 inttional:

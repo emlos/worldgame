@@ -32,6 +32,7 @@ import {
   removeHold,
   chanceRoll,
 } from "./helpers.js";
+import { emotionAdjustedChance } from "../emotionModifiers.js";
 import {
   ENCOUNTER_FACING,
   ENCOUNTER_POSE,
@@ -202,7 +203,9 @@ export const WRENCH_FREE = Object.freeze({
       );
       const pinPenalty = hold.kind === "limb-pin" ? 0.12 : 0;
       const multiplePenalty = Math.max(0, holds.length - 1) * 0.08;
-      const chance = clamp(
+      const chance = emotionAdjustedChance(
+        context,
+        instance,
         0.58
         + (getStat(context, instance.actorId, "fitness")
           - getStat(context, hold.controllerId, "strength")) * 0.035

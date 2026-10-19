@@ -23,7 +23,7 @@ export {
   setEncounterRange,
 } from "./spatialState.js";
 
-export const ENCOUNTER_STATE_VERSION = 13;
+export const ENCOUNTER_STATE_VERSION = 14;
 export const FIGHT_SCENARIO_ID = "fight";
 
 export const ENCOUNTER_PHASE = Object.freeze({
@@ -346,6 +346,58 @@ function validateStress(stress, path) {
   boolean(stress.settled, `${path}.settled`);
 }
 
+function validateEmotions(emotions, path) {
+  record(emotions, path);
+  exactKeys(
+    emotions,
+    [
+      "contextMultiplier",
+      "startingFear",
+      "startingAnger",
+      "maximumFearGain",
+      "maximumAngerGain",
+      "fearGained",
+      "angerGained",
+      "fearRefunded",
+      "markers",
+      "settled",
+    ],
+    path,
+  );
+  finiteNumber(emotions.contextMultiplier, `${path}.contextMultiplier`, {
+    min: 0,
+    maxExclusive: 2.01,
+  });
+  for (const key of ["startingFear", "startingAnger"]) {
+    finiteNumber(emotions[key], `${path}.${key}`, { min: 0, maxExclusive: 100.01 });
+  }
+  for (const [key, maximum] of [
+    ["maximumFearGain", 76],
+    ["maximumAngerGain", 60],
+    ["fearGained", 76],
+    ["angerGained", 60],
+    ["fearRefunded", 76],
+  ]) {
+    finiteNumber(emotions[key], `${path}.${key}`, {
+      min: 0,
+      maxExclusive: maximum + 0.01,
+    });
+  }
+  if (emotions.fearGained > emotions.maximumFearGain)
+    fail(`${path}.fearGained cannot exceed maximumFearGain`);
+  if (emotions.angerGained > emotions.maximumAngerGain)
+    fail(`${path}.angerGained cannot exceed maximumAngerGain`);
+  if (emotions.fearRefunded > emotions.fearGained)
+    fail(`${path}.fearRefunded cannot exceed fearGained`);
+  const markers = array(emotions.markers, `${path}.markers`);
+  markers.forEach((marker, index) =>
+    string(marker, `${path}.markers[${index}]`),
+  );
+  if (new Set(markers).size !== markers.length)
+    fail(`${path}.markers contains duplicates`);
+  boolean(emotions.settled, `${path}.settled`);
+}
+
 function validateCombatLearning(learning, path) {
   record(learning, path);
   exactKeys(
@@ -399,6 +451,7 @@ export function createFightState({
   objective,
   personalityId = "opportunist",
   stress,
+  emotions,
   combatLearning = {
     startingTotal: 0,
     pointsAwarded: 0,
@@ -462,6 +515,7 @@ export function createFightState({
     screamForHelpRoll: null,
     terminalConsequencesSettled: false,
     stress: structuredClone(stress),
+    emotions: structuredClone(emotions),
     combatLearning: structuredClone(combatLearning),
     lastEvents: [{ type: "encounter.started", actorId: ownerId, targetId }],
     outcome: null,
@@ -485,6 +539,7 @@ export function validateEncounterState(state) {
       "screamForHelpRoll",
       "terminalConsequencesSettled",
       "stress",
+      "emotions",
       "combatLearning",
       "lastEvents",
       "outcome",
@@ -503,6 +558,7 @@ export function validateEncounterState(state) {
     "state.terminalConsequencesSettled",
   );
   validateStress(state.stress, "state.stress");
+  validateEmotions(state.emotions, "state.emotions");
   validateCombatLearning(state.combatLearning, "state.combatLearning");
   if (
     state.phase === ENCOUNTER_PHASE.active &&
@@ -515,6 +571,9 @@ export function validateEncounterState(state) {
   }
   if (state.terminalConsequencesSettled !== state.stress.settled) {
     fail("terminal consequences and combat stress must settle together");
+  }
+  if (state.terminalConsequencesSettled !== state.emotions.settled) {
+    fail("terminal consequences and combat emotions must settle together");
   }
   if (state.screamForHelpRoll !== null) {
     const helpRoll = record(state.screamForHelpRoll, "state.screamForHelpRoll");

@@ -14,6 +14,7 @@ The registered WG system is `encounter.physical`. Its only scenario is `fight`, 
 - player Combat ranks that progressively reveal technical actions;
 - terminal outcomes routed back into ordinary WG scenes;
 - encounter-local stress from pain, worsening condition, lost control, and objective consequences;
+- player Fear and Anger gained from confrontation and fight events, with selective effects on response odds;
 - live body integration, deterministic rolls, strict save validation, a browser combat lab, and simulation tests.
 
 Body-part conditions are deliberately limited to no condition or `bruised`. The combat system has no broken-limb or wound state.
@@ -50,6 +51,8 @@ The important ownership boundaries are:
 | Screen content and event prose | `system.js` and `prose.js` |
 | Aftermath, Combat learning, fatigue, and hygiene | `consequences.js` |
 | Combat stress gain and outcome relief | `stress.js` |
+| Player Fear and Anger gains and outcome relief | `emotions.js` |
+| Player emotion effects on response odds | `emotionModifiers.js` |
 
 ## Declaring a fight in WG
 
@@ -80,7 +83,7 @@ A registered NPC uses its roster stats, identity, pronouns, and live body during
 | `opponent.title` | no | Temporary actors only: the noun phrase used when combat prose identifies the opponent, such as `"the mugger"`. Persistent NPCs use their short name or name. |
 | `opponent.difficulty` | no | Temporary actors only: `easy`, `medium`, `hard`, or `maxed`. See the ranges below. |
 | `goal` | yes | Objective configuration. Its `id` selects the objective module. |
-| `stressMultiplier` | no | Multiplies combat Stress gains and their 35-point encounter cap. Defaults to 1; accepts 0 through 2. |
+| `stressMultiplier` | no | Multiplies combat Stress, Fear, and Anger gains and their encounter caps. Defaults to 1; accepts 0 through 2. |
 | `outcomes` | no | Outcome-ID-to-route map, with optional `default`. |
 
 Temporary-opponent combat stats are resolved once when the encounter is
@@ -173,11 +176,11 @@ The general action runner advances the game clock by the full exchange duration 
 
 ## Canonical state
 
-The exact serialized version is `13`. A representative theft fight is:
+The exact serialized version is `14`. A representative theft fight is:
 
 ```js
 {
-  version: 13,
+  version: 14,
   scenarioId: "fight",
   phase: "active",                  // "active" | "terminal"
   elapsedSeconds: 0,
@@ -255,6 +258,18 @@ The exact serialized version is `13`. A representative theft fight is:
     refunded: 0,
     lastPain: 0,
     conditionStage: 0,
+    markers: [],
+    settled: false,
+  },
+  emotions: {
+    contextMultiplier: 1,
+    startingFear: 0,
+    startingAnger: 0,
+    maximumFearGain: 38,
+    maximumAngerGain: 30,
+    fearGained: 4.048,
+    angerGained: 1.518,
+    fearRefunded: 0,
     markers: [],
     settled: false,
   },
@@ -390,7 +405,7 @@ After at least one exchange, settlement awards `2` participation points plus `3`
 
 `attack-limb`, `search-money`, `flee`, and `close-distance` have rank entries for registry completeness but are goal-owner-only. Rank gating applies only to the controlled player; the NPC uses the full mechanically legal catalogue.
 
-Changing an action's entry in `COMBAT_ACTION_MINIMUM_RANK` changes only when the player can see/use it. It does not change its chance, AI use, prose, or physical prerequisites. Odds shown in labels are previews of the normal contest formula, including visible body condition, balance, exertion, and a telegraphed brace or evasion; actions with bespoke or automatic resolution do not show an estimate.
+Changing an action's entry in `COMBAT_ACTION_MINIMUM_RANK` changes only when the player can see/use it. It does not change its chance, AI use, prose, or physical prerequisites. Odds shown in labels are previews of the normal contest formula, including visible body condition, balance, exertion, Fear, Anger, and a telegraphed brace or evasion; actions with bespoke or automatic resolution do not show an estimate. The player sees estimated odds, not the emotion formula.
 
 ## Core physical tuning
 
@@ -533,7 +548,7 @@ chance = base chance
        - 0.14 if actor is dazed
        + 0.12 if target is dazed
        + guard/evasion adjustment
-chance = clamp(chance, 0.18, 0.90)
+chance = clamp(chance + selected player emotion modifier (or 0 for NPCs), 0.18, 0.90)
 ```
 
 Changing a base chance shifts only that action. The stat coefficient means one stat point is 3.5 percentage points before clamping. Raising the source/body/balance coefficients makes injuries and position more decisive. Raising the actor-exertion coefficient punishes active fatigue; raising the target-exertion coefficient rewards attacking a tired opponent. Widening the 18%-90% clamp increases certainty at extremes; narrowing it preserves more upset results.
@@ -997,6 +1012,16 @@ A hostile fight can add at most 35 Stress. The cap is multiplied by the scenario
 
 Terminal losses add consequence stress before the cap: 8 raw for being beaten down, 6 for mutual incapacitation, 3 for losing money, and 2 for requiring rescue. Successful outcomes refund a proportion of this fight's applied stress: 70% for escaping, 60% for incapacitating the attacker or making them abandon/flee, 25% for rescue, and 10% for mutual incapacitation. This is not general recovery: a refund can never lower Stress below the value recorded when the fight began.
 
+### Player Fear and Anger in combat
+
+The player has persistent Fear and Anger stats. The opponent's `participants[ownerId].anger` is a separate encounter-local AI state; it still governs its commitment and attack selection. The player's emotion does not choose or remove responses for them.
+
+The encounter records the player's starting values and only its own gains. Entering a hostile fight adds raw Fear 4 and Anger 1.5. An attempted threatening attack, a hit on the player, newly being held or pinned, being forced against a wall or down, a failed escape, helplessness, attacker escalation, theft, and defeat can add more. Repeatable hits remain bounded by the ledger; first-time control losses use markers so repeatedly applying the same condition cannot farm Fear. Stress amplifies gains through the ordinary player stat rule. Hostile encounter gains are capped at 38 Fear and 30 Anger; `stressMultiplier` scales the raw gains and both caps, so Jackie's 0.3 drills have smaller effects.
+
+At the end, a share of this encounter's Fear gain subsides: 70% on escape, 60% on attacker defeat or retreat, 50% on rescue, 35% on surrender, 25% when theft completes while the player is conscious, and 10% when theft completes while incapacitated. Relief cannot erase Fear present before the fight. Anger is left to the ordinary elapsed-time recovery rule.
+
+`emotionModifiers.js` adjusts only the player's selected contest chances. Fear helps creating distance, breaking a hold, and controlled disengagement, while it hinders precise strikes, grips, pins, and a measured demand for stolen money. Anger helps shoving, body attacks, headbutts, and knee strikes, while it hinders measured disengagement, precise strikes, control, and demands. The modifier reaches full intensity at stat 80 and the combined change is limited to ten percentage points in either direction. The shared contest path and the bespoke wrench, controlled disengagement, and demand checks use the same rule; displayed expert odds follow the shared contest calculation. Running is still automatic once legal, and calling for help keeps its environmental hearing odds. NPC contests, action availability, and player choice are unaffected.
+
 ### Hygiene tuning
 
 The player's own chosen action costs:
@@ -1318,6 +1343,7 @@ At minimum, changes should preserve:
 | AI personalities | [`src/features/encounter/personality.js`](../src/features/encounter/personality.js) |
 | Consequences and hygiene | [`src/features/encounter/consequences.js`](../src/features/encounter/consequences.js) |
 | Combat stress | [`src/features/encounter/stress.js`](../src/features/encounter/stress.js) |
+| Player combat emotions | [`src/features/encounter/emotions.js`](../src/features/encounter/emotions.js) and [`src/features/encounter/emotionModifiers.js`](../src/features/encounter/emotionModifiers.js) |
 | Pain/integrity recovery | [`src/features/encounter/pain.js`](../src/features/encounter/pain.js) and [`src/characters/core/body.js`](../src/characters/core/body.js) |
 | Player-facing prose | [`src/features/encounter/prose.js`](../src/features/encounter/prose.js) |
 | Debug snapshot | [`src/features/encounter/debug.js`](../src/features/encounter/debug.js) |

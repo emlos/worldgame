@@ -10,6 +10,7 @@ import { controlledParticipantId } from "./roles.js";
 import { requireEncounterObjective } from "./objectives/index.js";
 import { settleCombatSkillProgress } from "./combatSkill.js";
 import { settleCombatStress } from "./stress.js";
+import { settleCombatEmotions } from "./emotions.js";
 
 export const POST_COMBAT_FATIGUE_DURATION_MINUTES = 30;
 export const POST_COMBAT_MAX_ENERGY_DRAIN_MULTIPLIER = 3;
@@ -201,6 +202,7 @@ export function settleEncounterConsequences(game, state, instanceKey) {
   settleCombatSkillProgress(game.player, state, lossOutcomeIds);
 
   settleCombatStress(game, state);
+  settleCombatEmotions(game, state);
 
   state.terminalConsequencesSettled = true;
   state.lastEvents.push({
