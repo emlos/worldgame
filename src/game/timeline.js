@@ -1,4 +1,5 @@
 import { applyElapsedPlayerState } from "../characters/player/stateDynamics.js";
+import { createPlayerPainCurve } from "../features/encounter/pain.js";
 import { deliverDueChats, nextChatDeadline } from "./chat/runtime.js";
 import {
   announcementDayKey,
@@ -124,6 +125,8 @@ function changeTimeStep(game, target, { mode, source, drainPlayerEnergy, activit
     return { from, to, minutes, mode, source, drainPlayerEnergy, activity };
   }
 
+  const painAtMinute = createPlayerPainCurve(game);
+
   if (mode === "simulate") {
     game.world.advance(minutes);
     for (const npc of game.npcs.values()) {
@@ -141,6 +144,7 @@ function changeTimeStep(game, target, { mode, source, drainPlayerEnergy, activit
     drainEnergy: drainPlayerEnergy,
     activity,
     restQuality,
+    painAtMinute,
   });
   clearDailyFlagsAfterDateChange(game, from, game.now);
   const ejectedFrom = enforcePlaceClosing(game, from, game.now);
